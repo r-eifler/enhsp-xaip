@@ -6,6 +6,7 @@
 package domain;
 
 import conditions.Term;
+
 import java.util.HashMap;
 
 /**

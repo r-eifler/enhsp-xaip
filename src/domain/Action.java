@@ -6,9 +6,8 @@
 package domain;
 
 import conditions.Conditions;
+
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 /**
  *

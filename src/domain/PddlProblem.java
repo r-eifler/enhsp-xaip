@@ -4,28 +4,34 @@
  */
 package domain;
 
-import conditions.Assign;
-import expressions.BinaryOp;
-import conditions.Term;
-import conditions.Predicate;
-import conditions.Comparator;
+import antlr.RecognitionException;
+
 import conditions.AndCond;
+import conditions.Assign;
+import conditions.Comparator;
+import conditions.Conditions;
 import conditions.NotCond;
 import conditions.OrCond;
-import conditions.Conditions;
+import conditions.Predicate;
+import conditions.Term;
+
+import expressions.BinaryOp;
+import expressions.Expression;
 import expressions.Function;
 import expressions.MinusUnary;
-import expressions.Number;
-import expressions.Expression;
-import antlr.RecognitionException;
 import expressions.MultiOp;
+import expressions.Number;
+
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.util.HashMap;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
+
 import parser.PddlLexer;
 import parser.PddlParser;
 

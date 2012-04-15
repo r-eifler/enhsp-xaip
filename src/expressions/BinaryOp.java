@@ -4,7 +4,6 @@
  */
 package expressions;
 
-import expressions.Expression;
 
 /**
  *

@@ -4,9 +4,8 @@
  */
 package conditions;
 
-import conditions.Conditions;
-import expressions.Function;
 import expressions.Expression;
+import expressions.Function;
 
 /**
  *

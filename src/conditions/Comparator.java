@@ -4,10 +4,8 @@
  */
 package conditions;
 
-import conditions.Conditions;
 import expressions.Expression;
 
-import java.util.Map;
 
 /**
  *

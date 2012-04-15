@@ -4,32 +4,33 @@
  */
 package domain;
 
-import conditions.Assign;
-import conditions.Term;
 import conditions.Allocator;
-import conditions.Comparator;
 import conditions.AndCond;
+import conditions.Assign;
+import conditions.Comparator;
+import conditions.Conditions;
 import conditions.NotCond;
 import conditions.OrCond;
-import conditions.Conditions;
-import expressions.Function;
-import expressions.Expression;
-import domain.Action;
 import conditions.Predicate;
+import conditions.Term;
+
+import expressions.Expression;
+import expressions.Function;
+
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
+
 import parser.PddlLexer;
 import parser.PddlParser;
 

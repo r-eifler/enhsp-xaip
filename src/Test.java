@@ -1,10 +1,13 @@
 
 
-
 import domain.PddlDomain;
 import domain.PddlProblem;
 
 public class Test {
+    /**
+     * @param args Call the program by passing domain and problem pddl files
+     * @throws Exception Nothing
+     */
     public static void main(String[] args) throws Exception {
 
 

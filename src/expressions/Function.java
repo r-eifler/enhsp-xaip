@@ -5,6 +5,7 @@
 package expressions;
 
 import conditions.Term;
+
 import java.util.ArrayList;
 
 /**

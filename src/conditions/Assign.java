@@ -4,7 +4,6 @@
  */
 package conditions;
 
-import conditions.Predicate;
 import expressions.Function;
 import expressions.Number;
 

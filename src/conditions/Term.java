@@ -5,7 +5,6 @@
 
 package conditions;
 
-import conditions.Conditions;
 import domain.Type;
 import domain.Variable;
 

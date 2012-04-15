@@ -5,7 +5,6 @@
 
 package conditions;
 
-import java.util.Set;
 
 /**
  *

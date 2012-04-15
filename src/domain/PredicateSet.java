@@ -5,8 +5,9 @@
 
 package domain;
 
-import conditions.Term;
 import conditions.Predicate;
+import conditions.Term;
+
 import java.util.HashSet;
 
 /**

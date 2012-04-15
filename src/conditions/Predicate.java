@@ -4,8 +4,8 @@
  */
 package conditions;
 
-import conditions.Conditions;
 import domain.Variable;
+
 import java.util.ArrayList;
 
 /**
