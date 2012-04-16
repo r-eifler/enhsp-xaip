@@ -4,22 +4,32 @@
 (define (domain transport)
   (:requirements :typing :fluents )
   (:types
-        location - object
+        site - object
         robot - object
   )
-  (:predicates (road ?l1 ?l2 -location) (in ?r -robot ?l1 -location) (infoSent ?l1 -location))
-  (:functions (total-fuel ?l1) (power)) 
-  (:action drive-normal
-    :parameters (?r - robot ?l1 ?l2 - location)
-    :precondition (or
-	(and (in ?r ?l1) (not(in ?r ?l1)) (< (total-fuel) 100))
-        (in ?r ?l1)
-        (road ?l1 ?l2)
-      )
+  (:predicates (joined ?l1 ?l2 -site) (in ?r -robot ?l1 -site) (known ?l1 -site))
+
+  (:functions (power ?r -robot) (time) (distance ?l1 ?l2 -site)) 
+
+  (:action drive
+    :parameters (?r - robot ?l1 ?l2 -site)
+    :precondition (and (joined ?l1 ?l2)
+		       (in ?r ?l1) 
+		   (> (power ?r) (* (distance ?l1 ?l2) 10))
+                  )
     :effect (and
-        (not(in ?r ?l1))  
         (in ?r ?l2)
-	(increase (total-fuel) 1)
-      )
+        (not(in ?r ?l1))
+	(decrease (power ?r) (* (distance ?l1 ?l2) 10))
+ 	)
+  )
+
+  (:action visit
+    :parameters (?r - robot ?l1 -site)
+    :precondition (and (in ?r ?l1) 
+                  )
+    :effect (and
+        (known ?l1)
+ 	)
   )
 )

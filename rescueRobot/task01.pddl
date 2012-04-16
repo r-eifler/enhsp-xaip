@@ -1,19 +1,27 @@
 (define (problem task01)
 	(:domain transport)
-	(:objects r1 - robot l1 l2 l3 l4 - location)
+	(:objects r1 - robot l1 l2 l3 l4 - site)
 	(:init 
-		;(road l1 l2)
-		(road l1 l4)
-		(road l4 l2)
-		(road l2 l3)
-		(road l3 l4)
+		(joined l1 l2)
+		(= (distance l1 l2) 1)
+		(joined l1 l4)
+		(= (distance l1 l4) 1)
+
+		(joined l4 l2)
+		(= (distance l4 l2) 1)
+		(joined l2 l3)
+		(= (distance l2 l3) 1)
+		(joined l3 l4)
+		(= (distance l3 l4) 1)
 		(in r1 l1)
-		(= (total-fuel) 10)
+		(= (power r1) 100)
 
 	)
-	(:goal (and (infoSent l2) (infoSent l3)  (< (total-fuel) 100))
-	)
-	(:metric minimize(+ (power r1) (totol-fuel r) (time) ))
-
-      
+	
+	(:goal (and (known l4) 
+		    (> (power r1) 0)
+               )
+        )
+	(:metric maximize (power r1))
+     
 )
