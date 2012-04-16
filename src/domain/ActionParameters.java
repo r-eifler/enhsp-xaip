@@ -5,6 +5,7 @@
 
 package domain;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -12,7 +13,7 @@ import java.util.Iterator;
  *
  * @author enrico
  */
-public class ActionParameters extends HashSet{
+public class ActionParameters extends ArrayList{
 
     public Variable containsVariable(Variable o){
         Integer ret_val=-1;

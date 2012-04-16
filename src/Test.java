@@ -24,10 +24,7 @@ public class Test {
 
         PddlDomain a = new PddlDomain();
         PddlProblem p = new PddlProblem();
-        metricFFWrapper metric;
-        metric = new metricFFWrapper();;
-
-
+        
         a.parseDomain(args[0]);
         p.parseProblem(args[1]);
         a.prettyPrint();
