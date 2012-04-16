@@ -13,20 +13,16 @@ import java.util.HashMap;
  *
  * @author enrico
  */
-public class Action extends Object{
-    private String name;
+public class ActionSchema extends GenericActionType {
     private ActionParameters parameters;
     private Conditions preconditions;
     private Conditions addList;
     private Conditions delList;
     private Conditions numeric;
-    private boolean ground;
-    private HashMap substitution;
 
-    public Action() {
-
+    public ActionSchema() {
         parameters = new ActionParameters();
-        ground=false;
+  
     }
     /**
      * @return the name

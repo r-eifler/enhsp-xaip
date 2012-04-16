@@ -1,9 +1,12 @@
 
 
+import domain.ActionSchema;
 import domain.PddlDomain;
-import domain.PddlProblem;
+import problem.PddlProblem;
 
 import planners.*;
+
+import propositionalFactory.ActionFactory;
 
 public class Test {
     /**
@@ -22,7 +25,7 @@ public class Test {
         PddlDomain a = new PddlDomain();
         PddlProblem p = new PddlProblem();
         metricFFWrapper metric;
-        metric = new metricFFWrapper();
+        metric = new metricFFWrapper();;
 
 
         a.parseDomain(args[0]);
@@ -30,13 +33,22 @@ public class Test {
         a.prettyPrint();
         p.prettyPrint();
         System.out.println("Validazione:..." +a.validate(p));
+        ActionFactory factory = new ActionFactory();
+        ActionSchema elemento = (ActionSchema)a.getActionsSchema().iterator().next();
+        
+        factory.Substitution(elemento,p.getObject());
+        
+        
+        /*
         
         if (a.validate(p)){
             metric.setDomainFile(args[0]);
             metric.setProblemFile(args[1]);
             metric.executePlanning();
+
             }
         
+        */
         //PddlDomain a = new PddlDomain(args[0]);
     }
 }

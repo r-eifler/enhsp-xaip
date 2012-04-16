@@ -14,14 +14,16 @@
 		(joined l3 l4)
 		(= (distance l3 l4) 1)
 		(in r1 l1)
-		(= (power r1) 100)
+		(= (power r1) 1000)
+		(= (spentPower r1) 0)
+		(= (time) 0)
 
 	)
 	
-	(:goal (and (known l4) 
+	(:goal (and (observed l4) 
 		    (> (power r1) 0)
                )
         )
-	(:metric maximize (power r1))
+	(:metric minimize (+ (* (spentPower r1) 1) (* (time) 1) ))
      
 )

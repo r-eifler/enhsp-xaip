@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package domain;
+package problem;
 
 import antlr.RecognitionException;
 
@@ -15,6 +15,8 @@ import conditions.OrCond;
 import conditions.Predicate;
 import conditions.Term;
 
+import domain.Type;
+
 import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.Function;
@@ -26,6 +28,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.HashMap;
+
+import java.util.HashSet;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -42,7 +46,7 @@ import parser.PddlParser;
 public class PddlProblem {
 
     private PlanningObjects object;
-    private HashMap init;
+    private HashSet init;
     private Conditions goals;
     private String name;
     private Integer indexObject;
@@ -51,7 +55,7 @@ public class PddlProblem {
     private Metric metric;
     public PddlProblem() {
 
-        init = new HashMap();
+        init = new HashSet();
 
         indexObject = 0;
         indexInit = 0;
@@ -97,8 +101,7 @@ public class PddlProblem {
 
     private void addObjects(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            getObject().put(getIndexObject(), new Term(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
-            setIndexObject((Integer) (getIndexObject() + 1));
+            this.object.add(new Term(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
 //            System.out.println("che è di tipo:" + new Type(c.getChild(i).getChild(0).getText()));
         }
@@ -183,7 +186,7 @@ public class PddlProblem {
         return null;
     }
 
-    protected  static Expression createExpression(Tree t) {
+    public  static Expression createExpression(Tree t) {
 
         if (t.getType() == PddlParser.BINARY_OP) {
             BinaryOp ret = new BinaryOp();
@@ -220,17 +223,15 @@ public class PddlProblem {
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
             if (c.getType() == PddlParser.PRED_INST) {
-                getInit().put(getIndexInit(), buildInstPredicate(c));
-                setIndexInit((Integer) (getIndexInit() + 1));
+                init.add(buildInstPredicate(c));
             }else if (c.getType() == PddlParser.INIT_EQ) {
                 Assign a = new Assign("=");
                 a.setOne((Function)createExpression(c.getChild(0)));
                 a.setTwo((Number)createExpression(c.getChild(1)));
-                getInit().put(getIndexInit(), a);
-                setIndexInit((Integer) (getIndexInit() + 1));
+                init.add(a);
             }else if (c.getType() == PddlParser.INIT_AT) {
-                getInit().put(getIndexInit(), buildInstPredicate(c));
-                setIndexInit((Integer) (getIndexInit() + 1));
+                init.add(buildInstPredicate(c));
+
             }
             
         }
@@ -273,7 +274,7 @@ public class PddlProblem {
     /**
      * @return the init
      */
-    public HashMap getInit() {
+    public HashSet getInit() {
         return init;
     }
 
@@ -309,7 +310,7 @@ public class PddlProblem {
     /**
      * @param init the init to set
      */
-    public void setInit(HashMap init) {
+    public void setInit(HashSet init) {
         this.init = init;
     }
 

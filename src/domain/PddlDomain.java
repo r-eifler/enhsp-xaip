@@ -34,6 +34,8 @@ import org.antlr.runtime.tree.Tree;
 import parser.PddlLexer;
 import parser.PddlParser;
 
+import problem.PddlProblem;
+
 /**
  *
  * @author enrico
@@ -67,7 +69,7 @@ public class PddlDomain extends Object {
 
     public boolean validate(PddlProblem p) {
 
-        for (Object o : p.getObject().values()) {
+        for (Object o : p.getObject()) {
             Term t = (Term) o;
             if (!types.contains(t.getType())) {
                 System.out.println("Oggetto non valido:" + t);
@@ -75,7 +77,7 @@ public class PddlDomain extends Object {
             }
         }
 
-        for (Object o : p.getInit().values()) {
+        for (Object o : p.getInit()) {
             if (o instanceof Assign) {
             } else {
                 Predicate t = (Predicate) o;
@@ -245,7 +247,7 @@ public class PddlDomain extends Object {
 
     private void addActions(Tree c) {
 
-        Action a = new Action();
+        ActionSchema a = new ActionSchema();
         Tree action = (Tree) c.getChild(0);
         a.setName(action.getText());
 
@@ -487,8 +489,8 @@ public class PddlDomain extends Object {
             //gestendo il valore di ritorno come un attributo di and
         } else if (child.getType() == PddlParser.ASSIGN_EFFECT) {
             Allocator a = new Allocator(child.getChild(0).getText());
-            a.setOne((Function) PddlProblem.createExpression(child.getChild(1)));
-            a.setTwo((Expression) PddlProblem.createExpression(child.getChild(2)));
+            a.setOne((Function)PddlProblem.createExpression(child.getChild(1)));
+            a.setTwo((Expression)PddlProblem.createExpression(child.getChild(2)));
             return a;
 
 

@@ -3,22 +3,25 @@
  * and open the template in the editor.
  */
 
-package domain;
+package problem;
 
 import conditions.Term;
 
+import domain.Type;
+
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  *
  * @author enrico
  */
-class PlanningObjects extends HashMap{
+public class PlanningObjects extends HashSet{
 
 
     public boolean validate(Term t){
 
-        for (Object el: this.values()){
+        for (Object el: this){
             
             Term elP = (Term)el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equals(t.getName()));
@@ -28,7 +31,7 @@ class PlanningObjects extends HashMap{
     }
 
     public Type getTermType(Term t){
-        for (Object el: this.values()){
+        for (Object el: this){
 
             Term elP = (Term)el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equals(t.getName()))
@@ -37,7 +40,7 @@ class PlanningObjects extends HashMap{
         return null;
     }
     public Term containsTerm(Term t){
-        for (Object el: this.values()){
+        for (Object el: this){
 
             Term elP = (Term)el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equals(t.getName()))
@@ -49,8 +52,8 @@ class PlanningObjects extends HashMap{
     
     public String toString(){
         String ret_val="";
-        for (int i=0;i<this.size();i++){
-            Term elemento= (Term) this.get(i);
+        for (Object el: this){
+            Term elemento= (Term) el;
             ret_val += " " + elemento.toString() + " ";
         }
 
