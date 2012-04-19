@@ -20,7 +20,7 @@ public class ActionParameters extends ArrayList{
         Iterator it = this.iterator();
         while (it.hasNext()){
             Variable v = (Variable)it.next();
-            if (v.getName() == null ? o.getName() == null : v.getName().equals(o.getName())){
+            if (v.getName() == null ? o.getName() == null : v.getName().equalsIgnoreCase(o.getName())){
                 return v;
             }
         }

@@ -24,7 +24,7 @@ public class PlanningObjects extends HashSet{
         for (Object el: this){
             
             Term elP = (Term)el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equals(t.getName()));
+            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()));
                     return true;
         }
         return false;
@@ -34,7 +34,7 @@ public class PlanningObjects extends HashSet{
         for (Object el: this){
 
             Term elP = (Term)el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equals(t.getName()))
+            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()))
                     return elP.getType();
         }
         return null;
@@ -43,7 +43,7 @@ public class PlanningObjects extends HashSet{
         for (Object el: this){
 
             Term elP = (Term)el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equals(t.getName()))
+            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()))
                     return elP;
         }
         return null;

@@ -20,7 +20,7 @@ class PredicateSet extends HashSet{
 
         for (Object el: this){
             Predicate elP = (Predicate)el;
-            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equals(p.getPredicateName()))
+            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName()))
                 if(elP.getVariables().size() == p.getVariables().size())
                     return true;
         }
@@ -31,7 +31,7 @@ class PredicateSet extends HashSet{
 
         for (Object el: this){
             Predicate elP = (Predicate)el;
-            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equals(p.getPredicateName())){
+            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())){
                 if (elP.getVariables().size() == p.getTerms().size()){
                     int i=0;
                     for (Object o:elP.getVariables()){

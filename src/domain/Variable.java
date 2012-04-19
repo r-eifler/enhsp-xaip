@@ -41,7 +41,7 @@ public class Variable extends Object {
     public boolean equals(Object o){
         if (o instanceof Variable){
             Variable o1 = (Variable)o;
-            if ((o1.getName() == null ? this.getName() == null : o1.getName().equals(this.getName())))
+            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName())))
                 if (o1.getType() == this.getType())
                     return true;
                 else

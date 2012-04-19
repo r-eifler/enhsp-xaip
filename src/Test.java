@@ -30,11 +30,7 @@ public class Test {
         a.prettyPrint();
         p.prettyPrint();
         System.out.println("Validazione:..." +a.validate(p));
-        ActionFactory factory = new ActionFactory();
-        ActionSchema elemento = (ActionSchema)a.getActionsSchema().iterator().next();
-        
-        factory.Substitution(elemento,p.getObject());
-        
+
         
         /*
         

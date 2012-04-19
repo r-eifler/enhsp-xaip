@@ -61,6 +61,7 @@ public class PddlProblem {
         indexInit = 0;
         indexGoals = 0;
         object = new PlanningObjects();
+        metric = new Metric("NO");
     }
 
     public void parseProblem(String file) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {

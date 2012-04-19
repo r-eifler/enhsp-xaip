@@ -19,7 +19,7 @@ public class Type extends Object{
     public boolean equals(Object other){
         if (other instanceof Type){
             Type a = (Type)other;
-            if (a.getName() == null ? this.getName() == null : a.getName().equals(this.getName()))
+            if (a.getName() == null ? this.getName() == null : a.getName().equalsIgnoreCase(this.getName()))
                 return true;
             else
                 return false;
