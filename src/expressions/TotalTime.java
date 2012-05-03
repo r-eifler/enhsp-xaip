@@ -8,7 +8,7 @@ package expressions;
  *
  * @author enrico
  */
-public class TotalTime extends Expression {
+public class TotalTime  {
     
     
 }

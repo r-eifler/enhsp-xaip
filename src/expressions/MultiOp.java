@@ -6,6 +6,7 @@ package expressions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,17 +17,21 @@ public class MultiOp extends Expression{
     private List expr;
 
     public MultiOp(String operator, List expr) {
+        super();
         this.operator = operator;
         this.expr = expr;
+       
         InitList();
     }
 
     public MultiOp(String operator) {
+        super();
         this.operator = operator;
         InitList();
     }
 
     public MultiOp() {
+        super();
         InitList();
     }
     
@@ -34,7 +39,7 @@ public class MultiOp extends Expression{
         expr = new ArrayList();
     }
     
-    public void addExpression(Expression e){
+    public void addExpression(Object e){
     
         expr.add(e);
     
@@ -77,6 +82,17 @@ public class MultiOp extends Expression{
      */
     public void setExpr(List expr) {
         this.expr = expr;
+    }
+
+    @Override
+    public Expression ground(Map substitution) {
+        MultiOp ret = new MultiOp();
+        for (Object o: expr){
+            Expression e = (Expression)o;
+            ret.addExpression(e.ground(substitution));
+        }
+        ret.grounded=true;
+        return ret;
     }
 
    

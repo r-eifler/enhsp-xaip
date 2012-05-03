@@ -6,16 +6,18 @@ package conditions;
 
 import expressions.Function;
 import expressions.Number;
+import java.util.Map;
 
 /**
  *
  * @author enrico
  */
-public class Assign extends Predicate{
+public class Assign extends Conditions{
     private String operator; //it must be equal to =
     private Function one;
     private Number two;
     public Assign(String operator){
+        super();
         this.operator = operator;
     }
     public String toString(){
@@ -63,6 +65,14 @@ public class Assign extends Predicate{
      */
     public void setTwo(Number two) {
         this.two = two;
+    }
+
+    @Override
+    public Conditions ground(Map substitution) {
+        Assign ret = new Assign(operator);
+        ret.one = (Function)one.ground(substitution);
+        ret.grounded = true;
+        return ret;
     }
     
 }

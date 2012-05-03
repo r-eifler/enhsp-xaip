@@ -7,7 +7,10 @@ package domain;
 
 import conditions.Conditions;
 
+import conditions.Term;
 import java.util.HashMap;
+import java.util.Map;
+import problem.InstatiatedAction;
 
 /**
  *
@@ -130,6 +133,25 @@ public class ActionSchema extends GenericActionType {
      */
     public void setNumeric(Conditions numeric) {
         this.numeric = numeric;
+    }
+    
+    public InstatiatedAction ground(Map substitution){
+        InstatiatedAction ret = new InstatiatedAction(this.name);
+        ActionParametersAsTerms input  = new ActionParametersAsTerms();
+        for (Object o: parameters){
+            Variable el  = (Variable)o;
+            Term t = (Term)substitution.get(el);
+            input.add(t);
+        }
+        ret.setParameters(input);
+        
+        ret.setNumeric(this.numeric.ground(substitution));
+        ret.setAddList(this.addList.ground(substitution));
+        ret.setDelList(this.delList.ground(substitution));
+        ret.setPreconditions(this.preconditions.ground(substitution));
+        
+        return ret;
+   
     }
 
 

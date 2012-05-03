@@ -4,10 +4,17 @@
  */
 package expressions;
 
+import java.util.Map;
+
 /**
  *
  * @author enrico
  */
 public abstract class Expression extends Object {
-    
+    public boolean grounded;
+    public Expression(){
+        grounded=false;
+    }
+    public abstract Expression ground(Map substitution);
+
 }

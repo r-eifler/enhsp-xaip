@@ -6,6 +6,7 @@
 package conditions;
 
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  *
@@ -13,9 +14,12 @@ import java.util.HashSet;
  */
 public abstract class Conditions extends Object{
     public HashSet son;
+    public boolean grounded ;
     public Conditions(){
         son = new HashSet();
+        grounded = false;
+        
     }
     //public abstract void addConditions(Conditions o);
-    
+    public abstract Conditions ground(Map substitution);
 }

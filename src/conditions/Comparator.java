@@ -5,6 +5,7 @@
 package conditions;
 
 import expressions.Expression;
+import java.util.Map;
 
 
 /**
@@ -18,6 +19,7 @@ public class Comparator extends Conditions{
 
 
     public Comparator(String bin_comp_){
+        super();
         bin_comp = bin_comp_;
     }
     public String toString(){
@@ -67,5 +69,15 @@ public class Comparator extends Conditions{
      */
     public void setTwo(Expression two) {
         this.two = two;
+    }
+
+    @Override
+    public Conditions ground(Map substitution) {
+        Comparator ret = new Comparator(bin_comp);
+        
+       ret.one = one.ground(substitution);
+       ret.two = two.ground(substitution);
+       ret.grounded=true;
+       return ret;
     }
 }

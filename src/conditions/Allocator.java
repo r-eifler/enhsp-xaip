@@ -6,6 +6,7 @@ package conditions;
 
 import expressions.Expression;
 import expressions.Function;
+import java.util.Map;
 
 /**
  *
@@ -16,6 +17,7 @@ public class Allocator extends Conditions {
     private Function one;
     private Expression two;
     public Allocator(String operator){
+        super();
         this.operator = operator;
     }
     public String toString(){
@@ -63,6 +65,15 @@ public class Allocator extends Conditions {
      */
     public void setTwo(Expression two) {
         this.two = two;
+    }
+
+    @Override
+    public Conditions ground(Map substitution) {
+        Allocator ret = new Allocator(this.operator);
+        ret.one = (Function)this.one.ground(substitution);
+        ret.two = this.two.ground(substitution);
+        ret.grounded=true;
+        return ret;
     }
     
 }

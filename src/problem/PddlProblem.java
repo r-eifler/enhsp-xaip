@@ -17,6 +17,7 @@ import conditions.Term;
 
 import domain.Type;
 
+import domain.Variable;
 import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.Function;
@@ -202,7 +203,7 @@ public class PddlProblem {
         } else if (t.getType() == PddlParser.FUNC_HEAD) {
             Function ret = new Function(t.getChild(0).getText());
             for (int i = 1; i < t.getChildCount(); i++) {
-                ret.addTerm(new Term(t.getChild(i).getText()));
+                ret.addVariable(new Variable(t.getChild(i).getText()));
             }
             return ret;
         } else if (t.getType() == PddlParser.UNARY_MINUS) {

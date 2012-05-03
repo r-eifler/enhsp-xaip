@@ -5,6 +5,8 @@
 
 package conditions;
 
+import java.util.Map;
+
 
 /**
  *
@@ -28,5 +30,17 @@ public class AndCond extends Conditions {
         }
         ret_val = ret_val.concat(")");
         return ret_val;
+    }
+
+    @Override
+    public Conditions ground(Map substitution) {
+        OrCond ret = new OrCond();
+        
+        for (Object o: son){
+            Conditions el = (Conditions)o;
+            ret.son.add(el.ground(substitution));
+        }
+        ret.grounded = true;
+        return ret;
     }
 }

@@ -4,6 +4,8 @@
  */
 package expressions;
 
+import java.util.Map;
+
 
 /**
  *
@@ -13,6 +15,9 @@ public class BinaryOp extends Expression{
     private String operator;
     private Expression one;
     private Expression two;
+    
+    
+    
     public String toString(){
         return getOperator() +" "+ getOne() + " " + getTwo();  
     }
@@ -57,5 +62,17 @@ public class BinaryOp extends Expression{
      */
     public void setTwo(Expression two) {
         this.two = two;
+    }
+
+    @Override
+    public Expression ground(Map substitution) {
+        BinaryOp ret = new BinaryOp();
+        
+        ret.one = one.ground(substitution);
+        ret.two = two.ground(substitution);
+        
+        ret.grounded = true;
+        
+        return ret;
     }
 }

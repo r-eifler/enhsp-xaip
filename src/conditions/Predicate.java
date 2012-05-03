@@ -7,6 +7,7 @@ package conditions;
 import domain.Variable;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  *
@@ -18,10 +19,12 @@ public class Predicate extends Conditions {
     private ArrayList variables;
     private ArrayList terms;
     private boolean grounded;
+
     /**
      * @return the predicateName
      */
     public Predicate() {
+        super();
         variables = new ArrayList();
     }
 
@@ -39,24 +42,25 @@ public class Predicate extends Conditions {
     }
 
     //return a grounded copy of the Predicate
-    public Predicate ground(ArrayList terms_){
-    
+    public Predicate ground(ArrayList terms_) {
+
         Predicate ret_val = new Predicate(true);
         ret_val.setPredicateName(predicateName);
-        int i=0;
-        if (terms_.size() != getVariables().size()){
+        int i = 0;
+        if (terms_.size() != getVariables().size()) {
             return null;
         }
-        for(Object o: terms_){
-            Term t = (Term)o;
-            Variable v = (Variable)getVariables().get(i);
-            if (!t.getType().equals(v.getType())){
+        for (Object o : terms_) {
+            Term t = (Term) o;
+            Variable v = (Variable) getVariables().get(i);
+            if (!t.getType().equals(v.getType())) {
                 return null;
             }
         }
         ret_val.setTerms(terms_);
         return ret_val;
     }
+
     /**
      * @param predicateName the predicateName to set
      */
@@ -85,7 +89,7 @@ public class Predicate extends Conditions {
 
     @Override
     public String toString() {
-        String ret_val = "("+this.predicateName + " ";
+        String ret_val = "(" + this.predicateName + " ";
 
         if (isGrounded()) {
             for (Object o : getTerms()) {
@@ -140,5 +144,17 @@ public class Predicate extends Conditions {
      */
     public void setGrounded(boolean grounded) {
         this.grounded = grounded;
+    }
+
+    @Override
+    public Conditions ground(Map substitution) {
+        Predicate ret = new Predicate(true);
+        ret.setPredicateName(predicateName);
+        
+        
+        for (Object o : variables) {
+            ret.terms.add((Term) substitution.get(o));
+        }
+        return ret;
     }
 }

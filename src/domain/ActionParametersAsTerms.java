@@ -5,6 +5,7 @@
 
 package domain;
 
+import conditions.Term;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,15 +14,15 @@ import java.util.Iterator;
  *
  * @author enrico
  */
-public class ActionParameters extends ArrayList{
+public class ActionParametersAsTerms extends ArrayList{
 
-    public Variable containsVariable(Variable o){
+    public Term containsTerm(Term o){
         Integer ret_val=-1;
         Iterator it = this.iterator();
         while (it.hasNext()){
-            Variable v = (Variable)it.next();
-            if (v.getName() == null ? o.getName() == null : v.getName().equalsIgnoreCase(o.getName())){
-                return v;
+            Term t = (Term)it.next();
+            if (t.getName() == null ? o.getName() == null : t.getName().equalsIgnoreCase(o.getName())){
+                return t;
             }
         }
         return null;

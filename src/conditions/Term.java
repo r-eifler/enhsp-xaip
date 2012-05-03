@@ -7,6 +7,7 @@ package conditions;
 
 import domain.Type;
 import domain.Variable;
+import java.util.Map;
 
 /**
  *
@@ -16,6 +17,7 @@ public class Term extends Conditions {
     private String name;
     private Type type;
     public Term(String n){
+        grounded=true;
         name = n;
     }
     public Term(String n, Type atype){
@@ -73,5 +75,10 @@ public class Term extends Conditions {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public Term ground(Map substitution) {
+        return new Term(name,type);
     }
 }

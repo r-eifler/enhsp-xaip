@@ -18,7 +18,7 @@ public class Variable extends Object {
         this.type = type;
     }
 
-    Variable(String text) {
+    public Variable(String text) {
         Name = text;
 
     }

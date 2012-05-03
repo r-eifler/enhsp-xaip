@@ -515,7 +515,7 @@ public class PddlDomain extends Object {
                 Function ret = new Function(c.getChild(i).getText());
                 Tree t = c.getChild(i);
                for (int j = 0; j < t.getChildCount(); j++) {
-                    ret.addTerm(new Term(t.getChild(j).getText()));
+                    ret.addVariable(new Variable(t.getChild(j).getText()));
                 }
                 this.functions.add(ret);
             }
