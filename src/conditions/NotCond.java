@@ -30,7 +30,7 @@ public class NotCond extends Conditions{
     
     @Override
     public Conditions ground(Map substitution) {
-        OrCond ret = new OrCond();
+        NotCond ret = new NotCond();
         
         for (Object o: son){
             Conditions el = (Conditions)o;

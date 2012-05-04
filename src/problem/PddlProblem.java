@@ -385,4 +385,13 @@ public class PddlProblem {
     public void setMetric(Metric metric) {
         this.metric = metric;
     }
+
+    public Term getObjectByName(String string) {
+        for(Object o:this.object){
+            Term el = (Term)o;
+            if (el.getName().equalsIgnoreCase(string))
+                return el;
+        }
+        return null;
+    }
 }

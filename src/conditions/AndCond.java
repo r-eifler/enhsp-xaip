@@ -34,7 +34,7 @@ public class AndCond extends Conditions {
 
     @Override
     public Conditions ground(Map substitution) {
-        OrCond ret = new OrCond();
+        AndCond ret = new AndCond();
         
         for (Object o: son){
             Conditions el = (Conditions)o;

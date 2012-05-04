@@ -1,11 +1,14 @@
 
 
+import conditions.Term;
+import domain.ActionParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
 import problem.PddlProblem;
 
 import planners.*;
 
+import problem.InstatiatedAction;
 import propositionalFactory.ActionFactory;
 
 public class Test {
@@ -31,6 +34,19 @@ public class Test {
         p.prettyPrint();
         System.out.println("Validazione:..." +a.validate(p));
 
+      
+        System.out.println("Oggetti del dominio" + p.getObject());
+        Term c  = p.getObjectByName("C");
+        Term b  = p.getObjectByName("b");
+        ActionParametersAsTerms par = new ActionParametersAsTerms();
+        par.add(c); par.add(b);
+        
+        ActionSchema unstack = a.getActionByName("unstack");
+        
+        InstatiatedAction unstackI = unstack.ground(par);
+        
+        System.out.println("unstack non istanziato:" + unstack);
+        System.out.println("unstack istanziato:" + unstackI);
         
         /*
         

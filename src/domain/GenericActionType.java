@@ -3,57 +3,79 @@ package domain;
 import conditions.Conditions;
 
 public abstract class GenericActionType extends Object {
-    /**
-     * @param addList the addList to set
-     */
-    public abstract void setAddList(Conditions addList);
-
-    /**
-     * @param delList the delList to set
-     */
-    public abstract void setDelList(Conditions delList);
+  
+    protected String name;
+    protected Conditions addList;
+    protected Conditions delList;
+    protected Conditions numeric;
+    protected Conditions preconditions;
 
     /**
      * @return the addList
      */
-    public abstract Conditions getAddList();
-
-    /**
-     * @param name the name to set
-     */
-    public abstract void setName(String name);
-
-    /**
-     * @return the name
-     */
-
-    public abstract String getName();
-
-    /**
-     * @param numeric the numeric to set
-     */
-    public abstract void setNumeric(Conditions numeric);
-
-    /**
-     * @return the numeric
-     */
-    public abstract Conditions getNumeric();
-
-    public abstract String toString();
-
-    /**
-     * @return the preconditions
-     */
-    public abstract Conditions getPreconditions();
-
-    /**
-     * @param preconditions the preconditions to set
-     */
-    public abstract void setPreconditions(Conditions preconditions);
+    public Conditions getAddList() {
+        return addList;
+    }
 
     /**
      * @return the delList
      */
-    public abstract Conditions getDelList();
-    protected String name;
+    public Conditions getDelList() {
+        return delList;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the numeric
+     */
+    public Conditions getNumeric() {
+        return numeric;
+    }
+
+    /**
+     * @return the preconditions
+     */
+    public Conditions getPreconditions() {
+        return preconditions;
+    }
+
+    /**
+     * @param addList the addList to set
+     */
+    public void setAddList(Conditions addList) {
+        this.addList = addList;
+    }
+
+    /**
+     * @param delList the delList to set
+     */
+    public void setDelList(Conditions delList) {
+        this.delList = delList;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param numeric the numeric to set
+     */
+    public void setNumeric(Conditions numeric) {
+        this.numeric = numeric;
+    }
+
+    /**
+     * @param preconditions the preconditions to set
+     */
+    public void setPreconditions(Conditions preconditions) {
+        this.preconditions = preconditions;
+    }
+
+    public abstract String toString();
 }

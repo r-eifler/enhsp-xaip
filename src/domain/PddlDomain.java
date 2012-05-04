@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -520,5 +521,18 @@ public class PddlDomain extends Object {
                 this.functions.add(ret);
             }
         }
+    }
+    
+    //this assumes that there is a 1:1 relation between action and name, i.e. we cannot have different actions with the same name
+    public ActionSchema getActionByName(String name){
+        ActionSchema ret = null;
+        Iterator it = this.ActionsSchema.iterator();
+        
+        while(it.hasNext()){
+            ActionSchema el = (ActionSchema)it.next();
+            if (el.getName().equalsIgnoreCase(name))
+                return el;
+        }
+        return ret;
     }
 }
