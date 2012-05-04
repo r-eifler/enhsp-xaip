@@ -16,7 +16,7 @@ import java.util.HashSet;
  *
  * @author enrico
  */
-public class PlanningObjects extends HashSet{
+public class ProblemObjects extends HashSet{
 
 
     public boolean validate(Term t){

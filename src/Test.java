@@ -9,7 +9,7 @@ import problem.PddlProblem;
 import planners.*;
 
 import problem.InstatiatedAction;
-import propositionalFactory.ActionFactory;
+
 
 public class Test {
     /**
@@ -35,7 +35,7 @@ public class Test {
         System.out.println("Validazione:..." +a.validate(p));
 
       
-        System.out.println("Oggetti del dominio" + p.getObject());
+        System.out.println("Oggetti del dominio" + p.getProblemObjects());
         Term c  = p.getObjectByName("C");
         Term b  = p.getObjectByName("b");
         ActionParametersAsTerms par = new ActionParametersAsTerms();

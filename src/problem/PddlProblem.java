@@ -46,7 +46,7 @@ import parser.PddlParser;
  */
 public class PddlProblem {
 
-    private PlanningObjects object;
+    private ProblemObjects objects;
     private HashSet init;
     private Conditions goals;
     private String name;
@@ -54,6 +54,9 @@ public class PddlProblem {
     private Integer indexInit;
     private Integer indexGoals;
     private Metric metric;
+    /**
+     * 
+     */
     public PddlProblem() {
 
         init = new HashSet();
@@ -61,10 +64,17 @@ public class PddlProblem {
         indexObject = 0;
         indexInit = 0;
         indexGoals = 0;
-        object = new PlanningObjects();
+        objects = new ProblemObjects();
         metric = new Metric("NO");
     }
 
+    /**
+     * 
+     * @param file - the pathfile representing the pddl problem
+     * @throws IOException
+     * @throws RecognitionException
+     * @throws org.antlr.runtime.RecognitionException
+     */
     public void parseProblem(String file) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
         ANTLRInputStream in;
         in = new ANTLRInputStream(new FileInputStream(file));
@@ -103,7 +113,7 @@ public class PddlProblem {
 
     private void addObjects(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            this.object.add(new Term(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
+            this.objects.add(new Term(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
 //            System.out.println("che è di tipo:" + new Type(c.getChild(i).getChild(0).getText()));
         }
@@ -120,7 +130,7 @@ public class PddlProblem {
             for (int i = 1; i < t.getChildCount(); i++) {
                 Term v = new Term(t.getChild(i).getText());
 
-                Term t1 = getObject().containsTerm(v);
+                Term t1 = getProblemObjects().containsTerm(v);
                 if (t1 != null) {
                     a.addTerm(t1);
                 } else {
@@ -188,7 +198,8 @@ public class PddlProblem {
         return null;
     }
 
-    public  static Expression createExpression(Tree t) {
+    
+    private Expression createExpression(Tree t) {
 
         if (t.getType() == PddlParser.BINARY_OP) {
             BinaryOp ret = new BinaryOp();
@@ -239,9 +250,12 @@ public class PddlProblem {
         }
     }
 
+    /**
+     * A pretty representation for the pddl problem
+     */
     public void prettyPrint() {
 
-        System.out.println("\ninit:" + getInit() + "\nObject" + getObject() + "\nGoals:" + getGoals()+ "\n" + this.metric.toString());
+        System.out.println("\ninit:" + getInit() + "\nObject" + getProblemObjects() + "\nGoals:" + getGoals()+ "\n" + this.metric.toString());
 
         if (metric.getMetExpr() instanceof MultiOp){
             MultiOp temp = (MultiOp)metric.getMetExpr();
@@ -267,28 +281,28 @@ public class PddlProblem {
     }
 
     /**
-     * @return the object
+     * @return the objects - the objects of the pddl problem
      */
-    public PlanningObjects getObject() {
-        return object;
+    public ProblemObjects getProblemObjects() {
+        return objects;
     }
 
     /**
-     * @return the init
+     * @return the init - the initial status of the problem
      */
     public HashSet getInit() {
         return init;
     }
 
     /**
-     * @return the goals
+     * @return the goals - the goal set
      */
     public Conditions getGoals() {
         return goals;
     }
 
     /**
-     * @return the name
+     * @return the name - the name of the problem
      */
     public String getName() {
         return name;
@@ -302,73 +316,64 @@ public class PddlProblem {
 
     }
 
-    /**
-     * @param object the object to set
-     */
-    public void setObject(PlanningObjects object) {
-        this.object = object;
+    private void setObject(ProblemObjects object) {
+        this.objects = object;
     }
 
-    /**
-     * @param init the init to set
-     */
-    public void setInit(HashSet init) {
+    
+    private void setInit(HashSet init) {
         this.init = init;
     }
 
-    /**
-     * @param goals the goals to set
-     */
-    public void setGoals(Conditions goals) {
+    
+    private void setGoals(Conditions goals) {
         this.goals = goals;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return the indexObject
-     */
-    public Integer getIndexObject() {
+
+    private Integer getIndexObject() {
         return indexObject;
     }
 
     /**
      * @param indexObject the indexObject to set
      */
-    public void setIndexObject(Integer indexObject) {
+    private void setIndexObject(Integer indexObject) {
         this.indexObject = indexObject;
     }
 
     /**
      * @return the indexInit
      */
-    public Integer getIndexInit() {
+    private Integer getIndexInit() {
         return indexInit;
     }
 
     /**
      * @param indexInit the indexInit to set
      */
-    public void setIndexInit(Integer indexInit) {
+    private void setIndexInit(Integer indexInit) {
         this.indexInit = indexInit;
     }
 
     /**
      * @return the indexGoals
      */
-    public Integer getIndexGoals() {
+    private Integer getIndexGoals() {
         return indexGoals;
     }
 
     /**
      * @param indexGoals the indexGoals to set
      */
-    public void setIndexGoals(Integer indexGoals) {
+    private void setIndexGoals(Integer indexGoals) {
         this.indexGoals = indexGoals;
     }
 
@@ -382,12 +387,17 @@ public class PddlProblem {
     /**
      * @param metric the metric to set
      */
-    public void setMetric(Metric metric) {
+    private void setMetric(Metric metric) {
         this.metric = metric;
     }
 
+    /**
+     * 
+     * @param string - the name of the object we want
+     * @return the term representing the object
+     */
     public Term getObjectByName(String string) {
-        for(Object o:this.object){
+        for(Object o:this.objects){
             Term el = (Term)o;
             if (el.getName().equalsIgnoreCase(string))
                 return el;

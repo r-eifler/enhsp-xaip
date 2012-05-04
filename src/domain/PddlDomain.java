@@ -14,9 +14,13 @@ import conditions.OrCond;
 import conditions.Predicate;
 import conditions.Term;
 
+import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.Function;
+import expressions.Number;
 
+import expressions.MinusUnary;
+import expressions.MultiOp;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -60,6 +64,9 @@ public class PddlDomain extends Object {
         this.Requirements = Requirements;
     }
 
+    /**
+     * 
+     */
     public PddlDomain() {
 
         types = new HashSet();
@@ -68,9 +75,14 @@ public class PddlDomain extends Object {
         Requirements = new ArrayList();
     }
 
+    /**
+     * 
+     * @param p - The PddlProblem to validate the consistency for. BETA
+     * @return true whether the problem is consistent wrt to the domain. Otherwise false
+     */
     public boolean validate(PddlProblem p) {
 
-        for (Object o : p.getObject()) {
+        for (Object o : p.getProblemObjects()) {
             Term t = (Term) o;
             if (!types.contains(t.getType())) {
                 System.out.println("Oggetto non valido:" + t);
@@ -105,6 +117,12 @@ public class PddlDomain extends Object {
         return true;
     }
 
+    /**
+     * 
+     * @param file - the path of the pddl file representing the domain. As return the object will be fullfilled with the information in the pddl domain file
+     * @throws IOException
+     * @throws RecognitionException
+     */
     public void parseDomain(String file) throws IOException, RecognitionException {
         ANTLRInputStream in;
         in = new ANTLRInputStream(new FileInputStream(file));
@@ -149,6 +167,9 @@ public class PddlDomain extends Object {
 
     }
 
+    /**
+     * A pretty representation of the domain
+     */
     public void prettyPrint() {
         System.out.println("requisiti: " + this.Requirements);
         System.out.println("azioni:" + this.ActionsSchema);
@@ -156,7 +177,7 @@ public class PddlDomain extends Object {
     }
 
     /**
-     * @return the ActionsSchema
+     * @return the ActionsSchema- a Set which contains all the action schema of the domain
      */
     public Set getActionsSchema() {
         return ActionsSchema;
@@ -170,7 +191,7 @@ public class PddlDomain extends Object {
     }
 
     /**
-     * @return the types
+     * @return the types declared in the domain
      */
     public HashSet getTypes() {
         return types;
@@ -184,7 +205,7 @@ public class PddlDomain extends Object {
     }
 
     /**
-     * @return the functions
+     * @return the functions declared in the domain
      */
     public List getFunctions() {
         return functions;
@@ -212,7 +233,7 @@ public class PddlDomain extends Object {
     }
 
     /**
-     * @return the Requirements
+     * @return the Requirements declared in the domain
      */
     public List getRequirements() {
         return Requirements;
@@ -226,7 +247,7 @@ public class PddlDomain extends Object {
     }
 
     /**
-     * @return the predicates
+     * @return the predicates definitions
      */
     public PredicateSet getPredicates() {
         return predicates;
@@ -328,8 +349,8 @@ public class PddlDomain extends Object {
 
             Comparator c = new Comparator(infoAction.getChild(0).getText());
 
-            c.setFirst(PddlProblem.createExpression(infoAction.getChild(1)));
-            c.setTwo(PddlProblem.createExpression(infoAction.getChild(2)));
+            c.setFirst(createExpression(infoAction.getChild(1)));
+            c.setTwo(createExpression(infoAction.getChild(2)));
             return c;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -490,8 +511,8 @@ public class PddlDomain extends Object {
             //gestendo il valore di ritorno come un attributo di and
         } else if (child.getType() == PddlParser.ASSIGN_EFFECT) {
             Allocator a = new Allocator(child.getChild(0).getText());
-            a.setOne((Function)PddlProblem.createExpression(child.getChild(1)));
-            a.setTwo((Expression)PddlProblem.createExpression(child.getChild(2)));
+            a.setOne((Function)createExpression(child.getChild(1)));
+            a.setTwo((Expression)createExpression(child.getChild(2)));
             return a;
 
 
@@ -523,7 +544,13 @@ public class PddlDomain extends Object {
         }
     }
     
-    //this assumes that there is a 1:1 relation between action and name, i.e. we cannot have different actions with the same name
+    //
+    /**
+     * 
+     * @param name - the name of the action
+     * @return an ActionSchema object (if any) with the name in input
+     * this assumes that there is a 1:1 relation between action and name, i.e. we cannot have different actions with the same name
+     */
     public ActionSchema getActionByName(String name){
         ActionSchema ret = null;
         Iterator it = this.ActionsSchema.iterator();
@@ -534,5 +561,37 @@ public class PddlDomain extends Object {
                 return el;
         }
         return ret;
+    }
+    private Expression createExpression(Tree t) {
+
+        if (t.getType() == PddlParser.BINARY_OP) {
+            BinaryOp ret = new BinaryOp();
+            ret.setOperator(t.getChild(0).getText());
+            ret.setOne(createExpression(t.getChild(1)));
+            ret.setTwo(createExpression(t.getChild(2)));
+
+            return ret;
+        } else if (t.getType() == PddlParser.NUMBER) {
+            Number ret = new Number(new Float(t.getText()));
+            return ret;
+        } else if (t.getType() == PddlParser.FUNC_HEAD) {
+            Function ret = new Function(t.getChild(0).getText());
+            for (int i = 1; i < t.getChildCount(); i++) {
+                ret.addVariable(new Variable(t.getChild(i).getText()));
+            }
+            return ret;
+        } else if (t.getType() == PddlParser.UNARY_MINUS) {
+            return new MinusUnary(createExpression(t.getChild(0)));
+        } else if (t.getType() == PddlParser.MULTI_OP) {
+            MultiOp ret = new MultiOp(t.getChild(0).getText());
+            for (int i=1; i<t.getChildCount();i++){
+                //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
+                ret.addExpression(createExpression(t.getChild(i)));
+            }
+            return ret;
+        }
+
+        return null;
+
     }
 }

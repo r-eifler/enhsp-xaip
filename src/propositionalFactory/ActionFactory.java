@@ -22,15 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import problem.InstatiatedAction;
-import problem.PlanningObjects;
+import problem.ProblemObjects;
 
-public class ActionFactory {
+class ActionFactory {
 
     public ActionFactory() {
         super();
     }
 
-    public HashSet Substitution(ActionSchema a, PlanningObjects po) throws Exception {
+    public HashSet Substitution(ActionSchema a, ProblemObjects po) throws Exception {
         HashSet ret = new HashSet();
         List combo = new ArrayList();
         ActionParameters aP = a.getParameters();
@@ -114,7 +114,7 @@ public class ActionFactory {
             }
         }
     }
-    private List creaCombinazione(PlanningObjects O, ActionParameters aP, int index) {
+    private List creaCombinazione(ProblemObjects O, ActionParameters aP, int index) {
         List ret = new ArrayList();
         if (index == aP.size()-1) {
             for (Object el : O) {
