@@ -35,12 +35,9 @@ public class Type extends Object{
     }
     public boolean isAncestorOf(Type anc){
         if (this.subTypeOf == null)
-            return anc==null;
+            return false;
         if (this.subTypeOf.equals(anc))
             return true;
-        if (this.subTypeOf == null){
-            return false;
-        }
         else{
             return subTypeOf.isAncestorOf(anc);
         }

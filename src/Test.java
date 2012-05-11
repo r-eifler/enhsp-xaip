@@ -42,12 +42,15 @@ public class Test {
         par.add(c); par.add(b);
         
         ActionSchema unstack = a.getActionByName("unstack");
-        
-        InstatiatedAction unstackI = unstack.ground(par);
-        
-        System.out.println("unstack non istanziato:" + unstack);
-        System.out.println("unstack istanziato:" + unstackI);
-        
+        if (unstack ==null){
+            System.out.println("non ci sono azioni con questo nome");
+
+        }else{
+            InstatiatedAction unstackI = unstack.ground(par);
+
+            System.out.println("unstack non istanziato:" + unstack);
+            System.out.println("unstack istanziato:" + unstackI);
+        }
         /*
         
         if (a.validate(p)){

@@ -84,7 +84,17 @@ public class PddlDomain extends Object {
 
         for (Object o : p.getProblemObjects()) {
             Term t = (Term) o;
-            if (!types.contains(t.getType())) {
+            Iterator it = types.iterator();
+            boolean founded=false;
+            while(it.hasNext()){
+                Type ele  = (Type)it.next();
+                if (ele.equals(t.getType())){
+                    t.setType(ele);
+                    founded=true;
+                    break;
+                }
+            }
+            if (!founded) {
                 System.out.println("Oggetto non valido:" + t);
                 System.exit(-1);
             }
