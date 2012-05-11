@@ -23,6 +23,7 @@ public class Function extends Expression {
         super();
         this.name = name;
         variables = new ArrayList();
+        terms = new ArrayList(); 
     }
 
     public void addVariable(Variable variable) {
@@ -30,14 +31,16 @@ public class Function extends Expression {
     }
     @Override
     public String toString(){
-    
-        return " "+ name + " " + variables;
+        if (!grounded)
+            return " "+ name + " " + variables;
+        else
+            return " "+ name + " " + terms;
     }
 
     @Override
     public Expression ground(Map substitution) {
         Function ret = new Function(name);
-        
+       
         for (Object o: variables){
             ret.addTerms((Term)substitution.get(o));
         }

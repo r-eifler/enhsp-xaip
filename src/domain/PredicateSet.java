@@ -38,8 +38,12 @@ class PredicateSet extends HashSet{
                     for (Object o:elP.getVariables()) {
                         Variable v = (Variable)o;
                         Term t = (Term)p.getTerms().get(i);
-                        if (!(v.getType().equals(t.getType())) || !(t.getType().isAncestorOf(v.getType())))
+                        if (!(v.getType().equals(t.getType())) && !(v.getType().isAncestorOf(t.getType()))){
                             found= false;
+                            
+                            System.out.println("relazione non valida: "+v.getType() + t.getType());
+                            System.out.println((v.getType().isAncestorOf(t.getType())));
+                        }
                         i++;
                         if (!found)
                             break;
