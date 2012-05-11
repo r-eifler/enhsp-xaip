@@ -6,8 +6,7 @@ import domain.ActionParametersAsTerms;
 import domain.GenericActionType;
 
 public class InstatiatedAction extends GenericActionType {
-    private String name;
-    private ActionParametersAsTerms parameters;
+    protected ActionParametersAsTerms parameters;
 
 
     public InstatiatedAction(String name) {
@@ -18,7 +17,7 @@ public class InstatiatedAction extends GenericActionType {
     @Override
     public String toString(){
         String parametri = "";
-        for(Object o : parameters){
+        for(Object o : getParameters()){
             parametri = parametri.concat(o.toString()).concat(" ");
         }
         return "\n\nAction Name:" + this.name + " Parameters: " + parametri +"\nPre: " + this.preconditions +  "\nEffetti positivi: "+ this.getAddList() + "\nEffetti negativi: " + this.getDelList() +"\nNumeric Effects:  " + this.getNumeric();

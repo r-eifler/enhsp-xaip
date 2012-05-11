@@ -11,9 +11,37 @@ package domain;
  */
 public class Type extends Object{
     private String name;
+    private Type subTypeOf;
 
     public Type(String text) {
         setName(text);
+        if (!(text.equals("object"))){
+            subTypeOf = new Type("object");
+        }
+        else{
+            subTypeOf = null;
+            
+        }
+    }
+    public Type(String text, Type fatherType) {
+        setName(text);
+        subTypeOf = fatherType;
+    }
+    public boolean isObject(){
+        if (name.equals("object"))
+            return true;
+        else
+            return false;
+    }
+    public boolean isAncestorOf(Type anc){
+        if (this.subTypeOf.equals(anc))
+            return true;
+        if (this.subTypeOf == null){
+            return false;
+        }
+        else{
+            return subTypeOf.isAncestorOf(anc);
+        }
     }
     @Override
     public boolean equals(Object other){
@@ -43,5 +71,19 @@ public class Type extends Object{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the subTypeOf
+     */
+    public Type getSubTypeOf() {
+        return subTypeOf;
+    }
+
+    /**
+     * @param subTypeOf the subTypeOf to set
+     */
+    public void setSubTypeOf(Type subTypeOf) {
+        this.subTypeOf = subTypeOf;
     }
 }

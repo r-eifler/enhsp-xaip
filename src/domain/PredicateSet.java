@@ -34,17 +34,17 @@ class PredicateSet extends HashSet{
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())){
                 if (elP.getVariables().size() == p.getTerms().size()){
                     int i=0;
-                    boolean temp =true;
+                    boolean found =true;
                     for (Object o:elP.getVariables()) {
                         Variable v = (Variable)o;
                         Term t = (Term)p.getTerms().get(i);
-                        if (!(v.getType().equals(t.getType())))
-                            temp= false;
+                        if (!(v.getType().equals(t.getType())) || !(t.getType().isAncestorOf(v.getType())))
+                            found= false;
                         i++;
-                        if (!temp)
+                        if (!found)
                             break;
                     }
-                    if (temp==true)
+                    if (found==true)
                         return true;
                 }
             }

@@ -263,7 +263,43 @@ public class PddlDomain extends Object {
     //da migliorare perchè dovrebbe rappresentare una potenziale gerarchica di oggetti!!!
     private void addTypes(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            this.types.add(new Type(c.getChild(i).getText()));
+            Type tip= new Type(c.getChild(i).getText());
+            
+            Tree tipo = (Tree)c.getChild(i);
+            if (tipo.getChildCount()>0){
+                boolean subTypeOfExist = false;
+                Type father = new Type( tipo.getChild(0).getText());
+                if (father.isObject()){
+                    if (!(types.contains(father)))
+                        types.add(father);
+                    tip.setSubTypeOf(father);
+                    subTypeOfExist = true;
+                }else{
+                    Iterator it = types.iterator();
+                    while(it.hasNext()){
+                        Type ele = (Type)it.next();
+                        if (ele.equals(father)){
+                            tip.setSubTypeOf(ele);
+                            subTypeOfExist = true;
+                            break;
+                        }
+                    }
+                }
+                if (subTypeOfExist){
+                    this.types.add(tip);        
+                }else{
+                    System.out.println("Error: " + tip + " has declared father: " + father + " which is not a type neither object; inferring object" );
+                    tip.setSubTypeOf(new Type("object"));
+                    this.types.add(tip);        
+                }
+            }else
+                this.types.add(tip);        
+//                
+//            System.out.println("tipo di cazzo:" + tipo.toString());
+//            System.out.println("numero di figli" + tipo.getChildCount());
+//            
+//            this.types.add(tip);
+            
         }
     }
 
