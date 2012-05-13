@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class Number extends Expression
 {
-    Float number;
+    private Float number;
     public Number(Float n){
         grounded=true;
         number = n;
@@ -20,11 +20,25 @@ public class Number extends Expression
     }
     public String toString(){
     
-        return " "+ number + " ";
+        return " "+ getNumber() + " ";
     }
 
     @Override
     public Expression ground(Map substitution) {
-        return new Number(number);
+        return new Number(getNumber());
+    }
+
+    /**
+     * @return the number
+     */
+    public Float getNumber() {
+        return number;
+    }
+
+    /**
+     * @param number the number to set
+     */
+    public void setNumber(Float number) {
+        this.number = number;
     }
 }

@@ -15,7 +15,7 @@ import java.util.Map;
  * @author enrico
  */
 public class Function extends Expression {
-    String name;
+    private String name;
     ArrayList variables;
     private ArrayList terms;
 
@@ -32,14 +32,14 @@ public class Function extends Expression {
     @Override
     public String toString(){
         if (!grounded)
-            return " "+ name + " " + variables;
+            return " "+ getName() + " " + variables;
         else
-            return " "+ name + " " + terms;
+            return " "+ getName() + " " + terms;
     }
 
     @Override
     public Expression ground(Map substitution) {
-        Function ret = new Function(name);
+        Function ret = new Function(getName());
        
         for (Object o: variables){
             ret.addTerms((Term)substitution.get(o));
@@ -63,5 +63,19 @@ public class Function extends Expression {
     }
     public void addTerms(Term el){
         terms.add(el);
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }
