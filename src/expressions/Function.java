@@ -19,6 +19,35 @@ public class Function extends Expression {
     ArrayList variables;
     private ArrayList terms;
 
+    @Override
+    public boolean equals(Object obj) {
+        boolean equal =false;
+        Function objF = (Function)obj;
+        
+        if (grounded){
+            if (objF.terms.size() == this.terms.size()){
+                for (int i=0; i < objF.terms.size();i++){
+                    if (!(objF.terms.get(i).equals(this.terms.get(i))))
+                            return false;
+                }
+            }else
+                return false;
+        }else{
+            if (objF.variables.size() == this.variables.size()){
+                for (int i=0; i < objF.variables.size();i++){
+                    if (!(objF.variables.get(i).equals(this.variables.get(i))))
+                            return false;
+                }
+            }else
+                return false;
+        
+        }
+        if (!(this.name.equals(objF.name)))    
+            return false;
+        
+        return true;
+    }
+
     public Function(String name) {
         super();
         this.name = name;

@@ -33,8 +33,8 @@ public class Term extends Conditions {
     }
     @Override
     public boolean equals(Object o){
-        if (o instanceof Variable){
-            Variable o1 = (Variable)o;
+        if (o instanceof Term){
+            Term o1 = (Term)o;
             if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName())))
                     return true;
                 else

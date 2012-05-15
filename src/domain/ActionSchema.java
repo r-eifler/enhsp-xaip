@@ -87,7 +87,8 @@ public class ActionSchema extends GenericActionType {
         
         ret.setNumeric(this.numeric.ground(substitution));
         ret.setAddList(this.addList.ground(substitution));
-        ret.setDelList(this.delList.ground(substitution));
+        if (delList != null)
+            ret.setDelList(this.delList.ground(substitution));
         ret.setPreconditions(this.preconditions.ground(substitution));
         
         return ret;

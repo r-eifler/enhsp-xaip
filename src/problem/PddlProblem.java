@@ -28,6 +28,7 @@ import expressions.Number;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import java.util.HashSet;
@@ -128,13 +129,14 @@ public class PddlProblem {
             a.setGrounded(true);
 
             for (int i = 1; i < t.getChildCount(); i++) {
-                Term v = new Term(t.getChild(i).getText());
+                
 
-                Term t1 = getProblemObjects().containsTerm(v);
+                Term t1 = (Term)this.getObjectByName(t.getChild(i).getText());
+
                 if (t1 != null) {
                     a.addTerm(t1);
                 } else {
-                    System.out.println("La variabile " + v + " non è presente nei parametri");
+                    System.out.println("La variabile " + t1 + " non è presente nei parametri");
                     System.exit(-1);
                 }
             }
@@ -206,7 +208,7 @@ public class PddlProblem {
             ret.setOperator(t.getChild(0).getText());
             ret.setOne(createExpression(t.getChild(1)));
             ret.setTwo(createExpression(t.getChild(2)));
-
+            ret.grounded=true;
             return ret;
         } else if (t.getType() == PddlParser.NUMBER) {
             Number ret = new Number(new Float(t.getText()));
@@ -214,8 +216,9 @@ public class PddlProblem {
         } else if (t.getType() == PddlParser.FUNC_HEAD) {
             Function ret = new Function(t.getChild(0).getText());
             for (int i = 1; i < t.getChildCount(); i++) {
-                ret.addVariable(new Variable(t.getChild(i).getText()));
+                ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
             }
+            ret.grounded=true;
             return ret;
         } else if (t.getType() == PddlParser.UNARY_MINUS) {
             return new MinusUnary(createExpression(t.getChild(0)));
@@ -225,6 +228,7 @@ public class PddlProblem {
                 //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
                 ret.addExpression(createExpression(t.getChild(i)));
             }
+            ret.grounded=true;
             return ret;
         }
 
@@ -401,6 +405,43 @@ public class PddlProblem {
             Term el = (Term)o;
             if (el.getName().equalsIgnoreCase(string))
                 return el;
+        }
+        return null;
+    }
+
+    public Float getInitFunctionValue(Function f) {
+
+        for(Object o:init){
+        
+            if (o instanceof Assign){
+                Assign ele = (Assign)o;
+                Function fAssign = ele.getOne();
+                Number n = ele.getTwo();
+                
+                if (fAssign.equals(f)){
+                    return n.getNumber();
+                
+                }
+            
+            }
+        
+        }
+        return null;
+    }
+
+    public Function getFunction(String string, ArrayList terms) {
+       for(Object o:init){
+        
+            if (o instanceof Assign){
+                Assign ele = (Assign)o;
+                Function fAssign = ele.getOne();
+                
+                if (fAssign.getName().equals(string)){
+                    if (fAssign.getTerms().equals(terms))
+                        return fAssign;
+                }
+            }
+        
         }
         return null;
     }
