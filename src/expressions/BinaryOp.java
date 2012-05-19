@@ -5,6 +5,7 @@
 package expressions;
 
 import java.util.Map;
+import problem.State;
 
 
 /**
@@ -74,5 +75,28 @@ public class BinaryOp extends Expression{
         ret.grounded = true;
         
         return ret;
+    }
+
+    @Override
+    public Number eval(State s) {
+        Number ret_val =null;
+        Number first = this.one.eval(s);
+        Number second = this.two.eval(s);
+        if (this.getOperator().equals("+")){
+            ret_val = new Number(new Float(first.getNumber()) + new Float(second.getNumber()));
+        }else if (this.getOperator().equals("-")){
+            ret_val = new Number(new Float(first.getNumber()) - new Float(second.getNumber()));
+        }else if (this.getOperator().equals("*")){
+            ret_val = new Number(new Float(first.getNumber()) * new Float(second.getNumber()));
+        }else if (this.getOperator().equals("/")){
+            //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
+            ret_val = new Number(new Float(first.getNumber()) / new Float(second.getNumber()));
+        }else if (this.getOperator().equals("min")){
+            //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+            ret_val = new Number(new Float(Math.min(first.getNumber(), second.getNumber())));
+        }else{
+            System.out.println(this.operator + " not supported");
+        }
+        return ret_val;
     }
 }

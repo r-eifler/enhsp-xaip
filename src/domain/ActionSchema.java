@@ -20,6 +20,7 @@ public class ActionSchema extends GenericActionType {
     private ActionParameters parameters;
 
     public ActionSchema() {
+        super();
         parameters = new ActionParameters();
   
     }

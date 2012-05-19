@@ -4,7 +4,9 @@
  */
 package expressions;
 
+
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -16,5 +18,9 @@ public abstract class Expression extends Object {
         grounded=false;
     }
     public abstract Expression ground(Map substitution);
+
+    public abstract Number eval(State s);
+
+    //public abstract State apply(State s);
 
 }

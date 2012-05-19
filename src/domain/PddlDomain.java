@@ -4,7 +4,7 @@
  */
 package domain;
 
-import conditions.Allocator;
+import expressions.Allocator;
 import conditions.AndCond;
 import conditions.Assign;
 import conditions.Comparator;
@@ -100,7 +100,7 @@ public class PddlDomain extends Object {
             }
         }
 
-        for (Object o : p.getInit()) {
+        for (Object o : p.getInit().getPropositions()) {
             if (o instanceof Assign) {
             } else {
                 Predicate t = (Predicate) o;
@@ -340,7 +340,7 @@ public class PddlDomain extends Object {
                 case (PddlParser.EFFECT):
                     Conditions add = createAddEffect(a.getParameters(), infoAction.getChild(0));
                     Conditions del = createDelEffect(a.getParameters(), infoAction.getChild(0));
-                    Conditions numericEffect = createNumericEffect(a.getParameters(), infoAction.getChild(0));
+                    Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
                     //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
                     a.setAddList(add);
                     a.setDelList(del);
@@ -542,14 +542,15 @@ public class PddlDomain extends Object {
         return;
     }
 
-    private Conditions createNumericEffect(ActionParameters parameters, Tree child) {
+    private Object createNumericEffect(ActionParameters parameters, Tree child) {
 
         if (child.getType() == PddlParser.AND_EFFECT) {
             AndCond and = new AndCond();
             for (int i = 0; i < child.getChildCount(); i++) {
-                Conditions ret_val = createNumericEffect(parameters, child.getChild(i));
+                Expression ret_val = (Expression)createNumericEffect(parameters, child.getChild(i));
+
                 if (ret_val != null) {
-                    and.addConditions(ret_val);
+                    and.addExpression(ret_val);
                 }
             }
             return and;

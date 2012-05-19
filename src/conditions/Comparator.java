@@ -6,6 +6,8 @@ package conditions;
 
 import expressions.Expression;
 import java.util.Map;
+import problem.State;
+import expressions.Number;
 
 
 /**
@@ -79,5 +81,25 @@ public class Comparator extends Conditions{
        ret.two = two.ground(substitution);
        ret.grounded=true;
        return ret;
+    }
+
+    @Override
+    public boolean eval(State s) {
+        Number first = one.eval(s);
+        Number second = two.eval(s);
+
+        if (this.getBin_comp().equals("<")){
+            return first.getNumber() < second.getNumber();
+        }else if (this.getBin_comp().equals("<=")){
+            return first.getNumber() <= second.getNumber();
+        }else if (this.getBin_comp().equals(">")){
+            return first.getNumber() > second.getNumber();
+        }else if (this.getBin_comp().equals(">=")){
+            return first.getNumber() >= second.getNumber();
+        }else{
+            System.out.println(this.getBin_comp() + "  does not supported");
+        }
+
+        return false;
     }
 }

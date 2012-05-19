@@ -5,6 +5,7 @@
 package expressions;
 
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -40,5 +41,10 @@ public class Number extends Expression
      */
     public void setNumber(Float number) {
         this.number = number;
+    }
+
+    @Override
+    public Number eval(State s) {
+            return this;
     }
 }

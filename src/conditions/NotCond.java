@@ -6,6 +6,7 @@
 package conditions;
 
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -38,5 +39,17 @@ public class NotCond extends Conditions{
         }
         ret.grounded = true;
         return ret;
+    }
+
+
+    //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
+    //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
+    @Override
+    public boolean eval(State s) {
+        for(Object o :this.son){
+            Conditions c = (Conditions)o;
+            return !c.eval(s);
+        }
+        return false;
     }
 }

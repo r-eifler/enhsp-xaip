@@ -9,6 +9,7 @@ import conditions.Term;
 import domain.Variable;
 import java.util.ArrayList;
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -106,5 +107,11 @@ public class Function extends Expression {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public Number eval(State s) {
+     
+        return s.functionValue(this);
     }
 }

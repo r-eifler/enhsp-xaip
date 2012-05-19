@@ -5,6 +5,7 @@
 package expressions;
 
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -30,5 +31,10 @@ public class MinusUnary extends Expression {
         ret.one = one.ground(substitution);
         ret.grounded=true;
         return ret;
+    }
+
+    @Override
+    public Number eval(State s) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

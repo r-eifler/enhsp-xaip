@@ -48,7 +48,7 @@ import parser.PddlParser;
 public class PddlProblem {
 
     private ProblemObjects objects;
-    private HashSet init;
+    private State init;
     private Conditions goals;
     private String name;
     private Integer indexObject;
@@ -60,7 +60,7 @@ public class PddlProblem {
      */
     public PddlProblem() {
 
-        init = new HashSet();
+        init = new State();
 
         indexObject = 0;
         indexInit = 0;
@@ -240,14 +240,15 @@ public class PddlProblem {
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
             if (c.getType() == PddlParser.PRED_INST) {
-                init.add(buildInstPredicate(c));
+                init.addProposition(buildInstPredicate(c));
+                        
             }else if (c.getType() == PddlParser.INIT_EQ) {
                 Assign a = new Assign("=");
                 a.setOne((Function)createExpression(c.getChild(0)));
                 a.setTwo((Number)createExpression(c.getChild(1)));
-                init.add(a);
+                init.addNumericFluent(a);
             }else if (c.getType() == PddlParser.INIT_AT) {
-                init.add(buildInstPredicate(c));
+                init.addTimedLiteral(buildInstPredicate(c));
 
             }
             
@@ -294,7 +295,7 @@ public class PddlProblem {
     /**
      * @return the init - the initial status of the problem
      */
-    public HashSet getInit() {
+    public State getInit() {
         return init;
     }
 
@@ -325,7 +326,7 @@ public class PddlProblem {
     }
 
     
-    private void setInit(HashSet init) {
+    private void setInit(State init) {
         this.init = init;
     }
 
@@ -411,26 +412,11 @@ public class PddlProblem {
 
     public Float getInitFunctionValue(Function f) {
 
-        for(Object o:init){
-        
-            if (o instanceof Assign){
-                Assign ele = (Assign)o;
-                Function fAssign = ele.getOne();
-                Number n = ele.getTwo();
-                
-                if (fAssign.equals(f)){
-                    return n.getNumber();
-                
-                }
-            
-            }
-        
-        }
-        return null;
+        return init.functionValue(f).getNumber();
     }
 
     public Function getFunction(String string, ArrayList terms) {
-       for(Object o:init){
+       for(Object o:init.getNumericFluents()){
         
             if (o instanceof Assign){
                 Assign ele = (Assign)o;

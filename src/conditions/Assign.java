@@ -7,6 +7,7 @@ package conditions;
 import expressions.Function;
 import expressions.Number;
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -73,6 +74,14 @@ public class Assign extends Conditions{
         ret.one = (Function)one.ground(substitution);
         ret.grounded = true;
         return ret;
+    }
+
+    @Override
+    public boolean eval(State s) {
+        if (s.functionValue(one).getNumber().equals(two.getNumber()))
+            return true;
+        else
+            return false;
     }
     
 }

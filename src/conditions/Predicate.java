@@ -8,6 +8,7 @@ import domain.Variable;
 
 import java.util.ArrayList;
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -156,5 +157,10 @@ public class Predicate extends Conditions {
             ret.terms.add((Term) substitution.get(o));
         }
         return ret;
+    }
+
+    @Override
+    public boolean eval(State s) {
+        return s.containProposition(this);
     }
 }

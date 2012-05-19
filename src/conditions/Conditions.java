@@ -7,6 +7,7 @@ package conditions;
 
 import java.util.HashSet;
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -22,4 +23,5 @@ public abstract class Conditions extends Object{
     }
     //public abstract void addConditions(Conditions o);
     public abstract Conditions ground(Map substitution);
+    public abstract  boolean eval(State s);
 }

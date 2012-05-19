@@ -6,6 +6,7 @@
 package conditions;
 
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -38,5 +39,17 @@ public class OrCond extends Conditions {
         }
         ret.grounded = true;
         return ret;
+    }
+
+    @Override
+    public boolean eval(State s) {
+        
+        for (Object o: son){
+            Conditions c = (Conditions)o;
+            if (c.eval(s))
+                return true;
+        }
+
+        return false;
     }
 }

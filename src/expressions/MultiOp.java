@@ -7,6 +7,7 @@ package expressions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -93,6 +94,11 @@ public class MultiOp extends Expression{
         }
         ret.grounded=true;
         return ret;
+    }
+
+    @Override
+    public Number eval(State s) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
    

@@ -8,6 +8,7 @@ package conditions;
 import domain.Type;
 import domain.Variable;
 import java.util.Map;
+import problem.State;
 
 /**
  *
@@ -80,5 +81,10 @@ public class Term extends Conditions {
     @Override
     public Term ground(Map substitution) {
         return new Term(name,type);
+    }
+
+    @Override
+    public boolean eval(State s) {
+        return true;
     }
 }

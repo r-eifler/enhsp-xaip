@@ -5,7 +5,9 @@
 
 package conditions;
 
+import expressions.Expression;
 import java.util.Map;
+import problem.State;
 
 
 /**
@@ -14,6 +16,8 @@ import java.util.Map;
  */
 public class AndCond extends Conditions {
     
+    private boolean specialAndForExpression;
+
     public AndCond(){
         super();
     }
@@ -42,5 +46,35 @@ public class AndCond extends Conditions {
         }
         ret.grounded = true;
         return ret;
+    }
+
+    @Override
+    public boolean eval(State s) {
+        for (Object o : this.son){
+            if (o instanceof Conditions){
+                Conditions c = (Conditions)o;
+                if (!c.eval(s))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return the specialAndForExpression
+     */
+    public boolean isSpecialAndForExpression() {
+        return specialAndForExpression;
+    }
+
+    /**
+     * @param specialAndForExpression the specialAndForExpression to set
+     */
+    public void setSpecialAndForExpression(boolean specialAndForExpression) {
+        this.specialAndForExpression = specialAndForExpression;
+    }
+
+    public void addExpression(Expression e) {
+        this.son.add(e);
     }
 }

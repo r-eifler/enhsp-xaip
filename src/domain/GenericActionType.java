@@ -2,6 +2,8 @@ package domain;
 
 import conditions.Conditions;
 
+import expressions.Expression;
+
 public abstract class GenericActionType extends Object {
   
     protected String name;
