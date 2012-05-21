@@ -64,6 +64,8 @@ public class State extends Object {
     }
 
     public void addNumericFluent(Assign a) {
+        
+        
         numericFs.add(a);
     }
 
