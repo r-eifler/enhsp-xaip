@@ -63,7 +63,7 @@ public class State extends Object {
         propositions.add(buildInstPredicate);
     }
 
-    void addNumericFluent(Assign a) {
+    public void addNumericFluent(Assign a) {
         numericFs.add(a);
     }
 
