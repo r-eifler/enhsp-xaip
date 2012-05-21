@@ -163,4 +163,11 @@ public class Predicate extends Conditions {
     public boolean eval(State s) {
         return s.containProposition(this);
     }
+
+    @Override //to be refined!!
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+
 }

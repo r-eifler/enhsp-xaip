@@ -36,8 +36,21 @@ public class State extends Object {
     public State clone() throws CloneNotSupportedException {
         State ret_val = new State();
 
-        ret_val.numericFs = (HashSet)this.numericFs.clone();
+        for (Object o: this.numericFs){
+            Assign ele = (Assign)o;
+            Assign newA = new Assign("=");
+            newA.setOne(ele.getOne());
+            Number newN = new Number(ele.getTwo().getNumber());
+            newA.setTwo(newN);
+            ret_val.addNumericFluent(newA);
+        }
+
+//        for (Object o: this.propositions){
+//            Predicate ele = (Predicate)o;
+//            ret_val.addProposition((Predicate) ele.clone());
+//        }
         ret_val.propositions = (HashSet)this.propositions.clone();
+
         ret_val.timedLiterals = (HashSet)this.timedLiterals.clone();
 
         return ret_val;
