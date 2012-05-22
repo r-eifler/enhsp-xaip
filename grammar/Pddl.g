@@ -132,7 +132,7 @@ singleTypeNameList
 
 type
 	: ( '(' 'either' primType+ ')' )
-	  -> ^(EITHER_TYPE primType+)
+	  -> ^(EITHER_TYPE primType+) {new String("cazzonelculo");}
 	| primType
 	;
 
