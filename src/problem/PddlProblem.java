@@ -55,6 +55,7 @@ public class PddlProblem {
     private Integer indexInit;
     private Integer indexGoals;
     private Metric metric;
+
     /**
      * 
      */
@@ -124,25 +125,25 @@ public class PddlProblem {
     private Predicate buildInstPredicate(Tree t) {
 
         //if (t.getType() == PddlParser.PRED_INST) {
-            Predicate a = new Predicate(true);
-            a.setPredicateName(t.getChild(0).getText());
-            a.setGrounded(true);
+        Predicate a = new Predicate(true);
+        a.setPredicateName(t.getChild(0).getText());
+        a.setGrounded(true);
 
-            for (int i = 1; i < t.getChildCount(); i++) {
-                
+        for (int i = 1; i < t.getChildCount(); i++) {
 
-                Term t1 = (Term)this.getObjectByName(t.getChild(i).getText());
 
-                if (t1 != null) {
-                    a.addTerm(t1);
-                } else {
-                    System.out.println("La variabile " + t1 + " non è presente nei parametri");
-                    System.exit(-1);
-                }
+            Term t1 = (Term) this.getObjectByName(t.getChild(i).getText());
+
+            if (t1 != null) {
+                a.addTerm(t1);
+            } else {
+                System.out.println("La variabile " + t1 + " non è presente nei parametri");
+                System.exit(-1);
             }
-            return a;
+        }
+        return a;
         //}
-        
+
         //return null;
     }
 
@@ -169,7 +170,7 @@ public class PddlProblem {
                 Conditions ret_val = createGoals(infoAction.getChild(i));
                 if (ret_val != null) {
                     or.addConditions(ret_val);
-                } 
+                }
             }
             return or;
             //Crea un or e per ogni figlio di questo nodo invoca creaformula
@@ -200,7 +201,6 @@ public class PddlProblem {
         return null;
     }
 
-    
     private Expression createExpression(Tree t) {
 
         if (t.getType() == PddlParser.BINARY_OP) {
@@ -208,7 +208,7 @@ public class PddlProblem {
             ret.setOperator(t.getChild(0).getText());
             ret.setOne(createExpression(t.getChild(1)));
             ret.setTwo(createExpression(t.getChild(2)));
-            ret.grounded=true;
+            ret.grounded = true;
             return ret;
         } else if (t.getType() == PddlParser.NUMBER) {
             Number ret = new Number(new Float(t.getText()));
@@ -218,17 +218,17 @@ public class PddlProblem {
             for (int i = 1; i < t.getChildCount(); i++) {
                 ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
             }
-            ret.grounded=true;
+            ret.grounded = true;
             return ret;
         } else if (t.getType() == PddlParser.UNARY_MINUS) {
             return new MinusUnary(createExpression(t.getChild(0)));
         } else if (t.getType() == PddlParser.MULTI_OP) {
             MultiOp ret = new MultiOp(t.getChild(0).getText());
-            for (int i=1; i<t.getChildCount();i++){
+            for (int i = 1; i < t.getChildCount(); i++) {
                 //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
                 ret.addExpression(createExpression(t.getChild(i)));
             }
-            ret.grounded=true;
+            ret.grounded = true;
             return ret;
         }
 
@@ -241,17 +241,17 @@ public class PddlProblem {
             Tree c = child.getChild(i);
             if (c.getType() == PddlParser.PRED_INST) {
                 init.addProposition(buildInstPredicate(c));
-                        
-            }else if (c.getType() == PddlParser.INIT_EQ) {
+
+            } else if (c.getType() == PddlParser.INIT_EQ) {
                 Assign a = new Assign("=");
-                a.setOne((Function)createExpression(c.getChild(0)));
-                a.setTwo((Number)createExpression(c.getChild(1)));
+                a.setOne((Function) createExpression(c.getChild(0)));
+                a.setTwo((Number) createExpression(c.getChild(1)));
                 init.addNumericFluent(a);
-            }else if (c.getType() == PddlParser.INIT_AT) {
+            } else if (c.getType() == PddlParser.INIT_AT) {
                 init.addTimedLiteral(buildInstPredicate(c));
 
             }
-            
+
         }
     }
 
@@ -260,12 +260,12 @@ public class PddlProblem {
      */
     public void prettyPrint() {
 
-        System.out.println("\ninit:" + getInit() + "\nObject" + getProblemObjects() + "\nGoals:" + getGoals()+ "\n" + this.metric.toString());
+        System.out.println("\ninit:" + getInit() + "\nObject" + getProblemObjects() + "\nGoals:" + getGoals() + "\n" + this.metric.toString());
 
-        if (metric.getMetExpr() instanceof MultiOp){
-            MultiOp temp = (MultiOp)metric.getMetExpr();
-            System.out.println("\n metrica ha :" + temp.getExpr().size())    ;
-        
+        if (metric.getMetExpr() instanceof MultiOp) {
+            MultiOp temp = (MultiOp) metric.getMetExpr();
+            System.out.println("\n metrica ha :" + temp.getExpr().size());
+
         }
 
     }
@@ -314,7 +314,7 @@ public class PddlProblem {
     }
 
     private void addMetric(Tree t) {
-        
+
         System.out.println(t.toStringTree());
         metric = new Metric(t.getChild(0).getText());
         metric.setMetExpr(createExpression(t.getChild(1)));
@@ -325,12 +325,10 @@ public class PddlProblem {
         this.objects = object;
     }
 
-    
     private void setInit(State init) {
         this.init = init;
     }
 
-    
     private void setGoals(Conditions goals) {
         this.goals = goals;
     }
@@ -341,7 +339,6 @@ public class PddlProblem {
     private void setName(String name) {
         this.name = name;
     }
-
 
     private Integer getIndexObject() {
         return indexObject;
@@ -402,10 +399,11 @@ public class PddlProblem {
      * @return the term representing the object
      */
     public Term getObjectByName(String string) {
-        for(Object o:this.objects){
-            Term el = (Term)o;
-            if (el.getName().equalsIgnoreCase(string))
+        for (Object o : this.objects) {
+            Term el = (Term) o;
+            if (el.getName().equalsIgnoreCase(string)) {
                 return el;
+            }
         }
         return null;
     }
@@ -416,19 +414,36 @@ public class PddlProblem {
     }
 
     public Function getFunction(String string, ArrayList terms) {
-       for(Object o:init.getNumericFluents()){
-        
-            if (o instanceof Assign){
-                Assign ele = (Assign)o;
+        for (Object o : init.getNumericFluents()) {
+
+            if (o instanceof Assign) {
+                Assign ele = (Assign) o;
                 Function fAssign = ele.getOne();
-                
-                if (fAssign.getName().equals(string)){
-                    if (fAssign.getTerms().equals(terms))
+
+                if (fAssign.getName().equals(string)) {
+                    if (fAssign.getTerms().equals(terms)) {
                         return fAssign;
+                    }
                 }
             }
-        
+
         }
         return null;
+    }
+
+    public ArrayList getFunctions() {
+        ArrayList res = new ArrayList();
+
+        for (Object o : init.getNumericFluents()) {
+
+            if (o instanceof Assign) {
+                Assign ele = (Assign) o;
+                Function fAssign = ele.getOne();
+                res.add(fAssign);
+
+            }
+
+        }
+        return res;
     }
 }

@@ -96,6 +96,8 @@ public class Comparator extends Conditions{
             return first.getNumber() > second.getNumber();
         }else if (this.getBin_comp().equals(">=")){
             return first.getNumber() >= second.getNumber();
+        }else if (this.getBin_comp().equals("=")){
+            return first.getNumber() == second.getNumber();
         }else{
             System.out.println(this.getBin_comp() + "  does not supported");
         }
