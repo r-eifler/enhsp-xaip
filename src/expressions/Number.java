@@ -19,6 +19,11 @@ public class Number extends Expression
         number = n;
 
     }
+
+    public Number(int number) {
+        grounded = true;
+        this.number = new Float(number);
+    }
     public String toString(){
     
         return " "+ getNumber() + " ";

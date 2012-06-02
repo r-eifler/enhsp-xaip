@@ -23,6 +23,15 @@ public class InstatiatedAction extends GenericActionType {
         return "\n\nAction Name:" + this.name + " Parameters: " + parametri +"\nPre: " + this.preconditions +  "\nEffetti positivi: "+ this.getAddList() + "\nEffetti negativi: " + this.getDelList() +"\nNumeric Effects:  " + this.getNumeric();
 
     }
+    public String toEcoString(){
+        String parametri = "";
+        for(Object o : getParameters()){
+            parametri = parametri.concat(o.toString()).concat(" ");
+        }
+        return "\n\nAction Name:" + this.name + " Parameters: " + parametri ;
+
+    }
+
 
     /**
      * @return the parameters
