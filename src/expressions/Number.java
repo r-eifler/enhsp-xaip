@@ -21,9 +21,10 @@ public class Number extends Expression
     }
 
     public Number(int number) {
-        grounded=true;
+
+        grounded = true;
         this.number = new Float(number);
-        
+
     }
     public String toString(){
     
