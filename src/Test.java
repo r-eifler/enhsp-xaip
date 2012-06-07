@@ -33,24 +33,41 @@ public class Test {
         a.prettyPrint();
         p.prettyPrint();
         System.out.println("Validazione:..." +a.validate(p));
-
-      
-        System.out.println("Oggetti del dominio" + p.getProblemObjects());
-        Term c  = p.getObjectByName("C");
-        Term b  = p.getObjectByName("b");
-        ActionParametersAsTerms par = new ActionParametersAsTerms();
-        par.add(c); par.add(b);
         
-        ActionSchema unstack = a.getActionByName("unstack");
-        if (unstack ==null){
-            System.out.println("non ci sono azioni con questo nome");
+        System.out.println(p.getInit());
+        ActionParametersAsTerms par = new ActionParametersAsTerms();
+        par.add(p.getObjectByName("C"));
+        ActionSchema Load = a.getActionByName("pick-up");
+        System.out.println(Load);
+        InstatiatedAction load = Load.ground(par);
+        System.out.println(load);
+        
+        System.out.println(load.apply(p.getInit()));
+        System.out.println(p.getInit());
 
-        }else{
-            InstatiatedAction unstackI = unstack.ground(par);
+        
+        
+        
+//        par.add(c); par.add(b);
+        
 
-            System.out.println("unstack non istanziato:" + unstack);
-            System.out.println("unstack istanziato:" + unstackI);
-        }
+//      
+//        System.out.println("Oggetti del dominio" + p.getProblemObjects());
+//        Term c  = p.getObjectByName("C");
+//        Term b  = p.getObjectByName("b");
+//        ActionParametersAsTerms par = new ActionParametersAsTerms();
+//        par.add(c); par.add(b);
+//        
+//        ActionSchema unstack = a.getActionByName("unstack");
+//        if (unstack ==null){
+//            System.out.println("non ci sono azioni con questo nome");
+//
+//        }else{
+//            InstatiatedAction unstackI = unstack.ground(par);
+//
+//            System.out.println("unstack non istanziato:" + unstack);
+//            System.out.println("unstack istanziato:" + unstackI);
+//        }
         /*
         
         if (a.validate(p)){

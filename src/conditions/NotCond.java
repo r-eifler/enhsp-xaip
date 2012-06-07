@@ -52,4 +52,33 @@ public class NotCond extends Conditions{
         }
         return false;
     }
+
+    @Override
+    public boolean isSatisfied(State s) {
+        for(Object o :this.son){
+            Conditions c = (Conditions)o;
+            return !c.isSatisfied(s);
+        }
+        return false;
+    }
+    public State apply(State s){
+        State ret = s;
+        for (Object o : this.son){
+            if (o instanceof AndCond){
+                AndCond t = (AndCond)o;
+                ret  = t.remove(s);
+            }else if(o instanceof Predicate){
+                Predicate p = (Predicate)o;
+                ret = p.remove(s);
+            }else if(o instanceof NotCond){
+                NotCond n = (NotCond)o;
+                ret = n.apply(s);
+            }else{
+                System.out.println("Effect "+this+" is not valid. Please revise your action model");
+                System.exit(-1);
+            }
+        }
+        return ret;
+
+    }
 }

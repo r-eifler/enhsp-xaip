@@ -83,5 +83,13 @@ public class Assign extends Conditions{
         else
             return false;
     }
+
+    @Override
+    public boolean isSatisfied(State s) {
+        if (s.functionValue(one).getNumber().equals(two.getNumber()))
+            return true;
+        else
+            return false;
+    }
     
 }

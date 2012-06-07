@@ -24,4 +24,5 @@ public abstract class Conditions extends Object{
     //public abstract void addConditions(Conditions o);
     public abstract Conditions ground(Map substitution);
     public abstract  boolean eval(State s);
+    public abstract boolean isSatisfied(State s);
 }

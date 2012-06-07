@@ -391,7 +391,7 @@ public class PddlDomain extends Object {
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
-            System.out.println("Comparison:" + infoAction.getText());
+            //System.out.println("Comparison:" + infoAction.getText());
 
             Comparator c = new Comparator(infoAction.getChild(0).getText());
 
@@ -569,7 +569,7 @@ public class PddlDomain extends Object {
 
     private void addRequirements(Tree c) {
         if (c != null) {
-            System.out.println(c.getText());
+            //System.out.println(c.getText());
             for (int i = 0; i < c.getChildCount(); i++) {
                 this.Requirements.add(c.getChild(i).getText());
             }

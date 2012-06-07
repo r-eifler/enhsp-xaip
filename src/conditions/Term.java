@@ -87,4 +87,9 @@ public class Term extends Conditions {
     public boolean eval(State s) {
         return true;
     }
+
+    @Override
+    public boolean isSatisfied(State s) {
+        return true;
+    }
 }

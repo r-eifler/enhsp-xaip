@@ -104,4 +104,26 @@ public class Comparator extends Conditions{
 
         return false;
     }
+
+    @Override
+    public boolean isSatisfied(State s) {
+        Number first = one.eval(s);
+        Number second = two.eval(s);
+
+        if (this.getBin_comp().equals("<")){
+            return first.getNumber() < second.getNumber();
+        }else if (this.getBin_comp().equals("<=")){
+            return first.getNumber() <= second.getNumber();
+        }else if (this.getBin_comp().equals(">")){
+            return first.getNumber() > second.getNumber();
+        }else if (this.getBin_comp().equals(">=")){
+            return first.getNumber() >= second.getNumber();
+        }else if (this.getBin_comp().equals("=")){
+            return first.getNumber() == second.getNumber();
+        }else{
+            System.out.println(this.getBin_comp() + "  is not supported");
+        }
+
+        return false;
+    }
 }

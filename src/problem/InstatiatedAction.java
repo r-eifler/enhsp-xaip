@@ -1,5 +1,6 @@
 package problem;
 
+import conditions.AndCond;
 import conditions.Conditions;
 
 import domain.ActionParametersAsTerms;
@@ -46,4 +47,16 @@ public class InstatiatedAction extends GenericActionType {
     public void setParameters(ActionParametersAsTerms parameters) {
         this.parameters = parameters;
     }
+    
+    public State apply(State s){
+        State ret = s;
+        AndCond add = (AndCond)addList;
+        ret = add.apply(s);
+        AndCond del = (AndCond)delList;
+        ret = del.apply(s);
+        AndCond num = (AndCond)this.getNumeric();
+        ret = num.apply(s);       
+        return ret;
+    }
+    
 }

@@ -72,7 +72,7 @@ public class State extends Object {
         return null;
     }
 
-    void addProposition(Predicate buildInstPredicate) {
+    public void addProposition(Predicate buildInstPredicate) {
         propositions.add(buildInstPredicate);
     }
 
@@ -106,6 +106,10 @@ public class State extends Object {
             }
         }
         return;
+    }
+
+    public void removeProposition(Predicate aThis) {
+        propositions.remove(this);
     }
 
 }

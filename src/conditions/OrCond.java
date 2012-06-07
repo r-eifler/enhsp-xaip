@@ -52,4 +52,15 @@ public class OrCond extends Conditions {
 
         return false;
     }
+
+    @Override
+    public boolean isSatisfied(State s) {
+        for (Object o: son){
+            Conditions c = (Conditions)o;
+            if (c.eval(s))
+                return true;
+        }
+
+        return false;
+    }
 }

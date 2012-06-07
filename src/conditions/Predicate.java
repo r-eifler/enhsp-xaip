@@ -169,5 +169,20 @@ public class Predicate extends Conditions {
         return super.clone();
     }
 
+    @Override
+    public boolean isSatisfied(State s) {
+       return s.containProposition(this);
+    }
+
+    public State apply(State s) {
+        if (!s.containProposition(this))
+            s.addProposition(this);
+        return s;
+    }
+    public State remove(State s) {
+        s.removeProposition(this);
+        return s;
+    }
+
 
 }
