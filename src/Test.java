@@ -9,6 +9,7 @@ import problem.PddlProblem;
 import planners.*;
 
 import problem.InstatiatedAction;
+import problem.State;
 
 
 public class Test {
@@ -41,8 +42,11 @@ public class Test {
         System.out.println(Load);
         InstatiatedAction load = Load.ground(par);
         System.out.println(load);
-        
-        System.out.println(load.apply(p.getInit()));
+
+        State newState  = load.apply(p.getInit());
+        //System.out.println(newState);
+
+
         System.out.println(p.getInit());
 
         

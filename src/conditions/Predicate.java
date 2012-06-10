@@ -16,6 +16,8 @@ import problem.State;
  */
 public class Predicate extends Conditions {
 
+
+
     private String predicateName;
     private ArrayList variables;
     private ArrayList terms;
@@ -173,6 +175,21 @@ public class Predicate extends Conditions {
     public boolean isSatisfied(State s) {
        return s.containProposition(this);
     }
+        @Override
+    public boolean equals(Object obj) {
+        Predicate p = (Predicate)obj;
+        if (!p.getPredicateName().equalsIgnoreCase(this.predicateName))
+            return false;
+        if (this.grounded){
+            if (!(p.getTerms().equals(this.getTerms())))
+                return false;
+        }else{
+            if (!(p.getVariables().equals(this.variables)))
+                return false;
+        }
+        return true;
+    }
+
 
     public State apply(State s) {
         if (!s.containProposition(this))
@@ -181,8 +198,10 @@ public class Predicate extends Conditions {
     }
     public State remove(State s) {
         s.removeProposition(this);
+
         return s;
     }
+
 
 
 }

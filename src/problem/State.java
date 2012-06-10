@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package problem;
 
 import conditions.Assign;
@@ -10,12 +9,14 @@ import conditions.Predicate;
 import expressions.Function;
 import expressions.Number;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  *
  * @author enrico
  */
 public class State extends Object {
+
     HashSet propositions;
     HashSet numericFs;
     HashSet timedLiterals;
@@ -36,8 +37,8 @@ public class State extends Object {
     public State clone() throws CloneNotSupportedException {
         State ret_val = new State();
 
-        for (Object o: this.numericFs){
-            Assign ele = (Assign)o;
+        for (Object o : this.numericFs) {
+            Assign ele = (Assign) o;
             Assign newA = new Assign("=");
             newA.setOne(ele.getOne());
             Number newN = new Number(ele.getTwo().getNumber());
@@ -49,9 +50,9 @@ public class State extends Object {
 //            Predicate ele = (Predicate)o;
 //            ret_val.addProposition((Predicate) ele.clone());
 //        }
-        ret_val.propositions = (HashSet)this.propositions.clone();
+        ret_val.propositions = (HashSet) this.propositions.clone();
 
-        ret_val.timedLiterals = (HashSet)this.timedLiterals.clone();
+        ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
 
         return ret_val;
     }
@@ -61,10 +62,10 @@ public class State extends Object {
     }
 
     public Number functionValue(Function f) {
-        for (Object o: numericFs){
-            if (o instanceof Assign){
-                Assign a = (Assign)o;
-                if (a.getOne().equals(f)){
+        for (Object o : numericFs) {
+            if (o instanceof Assign) {
+                Assign a = (Assign) o;
+                if (a.getOne().equals(f)) {
                     return a.getTwo().eval(this);
                 }
             }
@@ -77,8 +78,8 @@ public class State extends Object {
     }
 
     public void addNumericFluent(Assign a) {
-        
-        
+
+
         numericFs.add(a);
     }
 
@@ -94,13 +95,11 @@ public class State extends Object {
         return this.propositions.contains(aThis);
     }
 
-
-
     public void setFunctionValue(Function f, Number after) {
-      for (Object o: numericFs){
-                if (o instanceof Assign){
-                Assign a = (Assign)o;
-                if (a.getOne().equals(f)){
+        for (Object o : numericFs) {
+            if (o instanceof Assign) {
+                Assign a = (Assign) o;
+                if (a.getOne().equals(f)) {
                     a.setTwo(after);
                 }
             }
@@ -109,7 +108,13 @@ public class State extends Object {
     }
 
     public void removeProposition(Predicate aThis) {
-        propositions.remove(this);
+        for (Iterator i = propositions.iterator(); i.hasNext();) {
+            Predicate p = (Predicate) i.next();
+            if (p.equals(aThis)) {
+                i.remove();
+                return;
+            }
+        }
+        System.out.println(aThis + "non trovato");
     }
-
 }
