@@ -22,5 +22,5 @@ public abstract class Expression extends Object {
     public abstract Number eval(State s);
 
     //public abstract State apply(State s);
-
+    public abstract NormExpression normalize();
 }

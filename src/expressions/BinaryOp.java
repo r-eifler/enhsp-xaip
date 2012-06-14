@@ -99,4 +99,31 @@ public class BinaryOp extends Expression{
         }
         return ret_val;
     }
+    
+    @Override
+    public NormExpression normalize(){
+        NormExpression ret = new NormExpression();
+        
+        NormExpression left = this.getOne().normalize();
+        NormExpression right = this.getTwo().normalize();
+        
+        
+        if (this.getOperator().equals("+")){
+            ret = left.sum(right);
+        
+        }else if (this.getOperator().equals("-")){
+            ret = left.minus(right);
+        }else if (this.getOperator().equals("*")){
+            ret = left.mult(right);
+
+        }else if (this.getOperator().equals("/")){
+            ret = left.div(right);
+
+        }else
+            System.out.println(this.operator + " not supported");
+        
+       
+        return ret;
+    
+    }
 }

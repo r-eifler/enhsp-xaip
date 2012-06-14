@@ -101,5 +101,10 @@ public class MultiOp extends Expression{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public MultiOp normalize() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
    
 }
