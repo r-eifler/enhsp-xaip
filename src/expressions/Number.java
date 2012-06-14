@@ -54,4 +54,15 @@ public class Number extends Expression
     public Number eval(State s) {
             return this;
     }
+
+    @Override
+    public NormExpression normalize() {
+        Addend a = new Addend();
+        a.n = this;
+        a.f = null;
+        NormExpression ret = new NormExpression();
+        ret.summations.add(a);
+        return ret;
+
+    }
 }

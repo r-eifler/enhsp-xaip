@@ -102,7 +102,7 @@ public class MultiOp extends Expression{
     }
 
     @Override
-    public MultiOp normalize() {
+    public NormExpression normalize() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -114,4 +114,15 @@ public class Function extends Expression {
      
         return s.functionValue(this);
     }
+
+    @Override
+    public NormExpression normalize() {
+        Addend a = new Addend();
+        a.n = new Number(1);
+        a.f = this;
+        NormExpression ret = new NormExpression();
+        ret.summations.add(a);
+        return ret;
+
+    }
 }

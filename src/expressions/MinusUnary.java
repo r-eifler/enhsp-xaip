@@ -37,4 +37,9 @@ public class MinusUnary extends Expression {
     public Number eval(State s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public NormExpression normalize() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

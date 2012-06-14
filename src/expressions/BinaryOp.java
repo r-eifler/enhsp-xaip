@@ -110,7 +110,6 @@ public class BinaryOp extends Expression{
         
         if (this.getOperator().equals("+")){
             ret = left.sum(right);
-        
         }else if (this.getOperator().equals("-")){
             ret = left.minus(right);
         }else if (this.getOperator().equals("*")){
