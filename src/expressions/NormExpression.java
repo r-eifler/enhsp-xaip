@@ -75,9 +75,14 @@ public class NormExpression extends Expression {
             Iterator it = right.summations.iterator();
             while (it.hasNext()) {
                 Addend a1 = (Addend) it.next();
-                if ((a1.f.equals(a.f)) || ((a1.f == null) && (a.f == null))) {
+                if ((a1.f == null) && (a.f == null)) {
                     a.n = new Number(a.n.getNumber() - a1.n.getNumber());
                     it.remove();
+                } else if (a1.f != null && a.f != null) {
+                    if (a1.f.equals(a.f)) {
+                        a.n = new Number(a.n.getNumber() - a1.n.getNumber());
+                        it.remove();
+                    }
                 }
             }
         }
