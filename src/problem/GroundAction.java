@@ -6,11 +6,11 @@ import conditions.Conditions;
 import domain.ActionParametersAsTerms;
 import domain.GenericActionType;
 
-public class InstatiatedAction extends GenericActionType {
+public class GroundAction extends GenericActionType {
     protected ActionParametersAsTerms parameters;
 
 
-    public InstatiatedAction(String name) {
+    public GroundAction(String name) {
         this.name = name;
     }
  

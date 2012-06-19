@@ -8,7 +8,7 @@ import problem.PddlProblem;
 
 import planners.*;
 
-import problem.InstatiatedAction;
+import problem.GroundAction;
 import problem.State;
 
 
@@ -40,7 +40,7 @@ public class Test {
         par.add(p.getObjectByName("C"));
         ActionSchema Load = a.getActionByName("pick-up");
         System.out.println(Load);
-        InstatiatedAction load = Load.ground(par);
+        GroundAction load = Load.ground(par);
         System.out.println(load);
 
         State newState  = load.apply(p.getInit());
@@ -67,7 +67,7 @@ public class Test {
 //            System.out.println("non ci sono azioni con questo nome");
 //
 //        }else{
-//            InstatiatedAction unstackI = unstack.ground(par);
+//            GroundAction unstackI = unstack.ground(par);
 //
 //            System.out.println("unstack non istanziato:" + unstack);
 //            System.out.println("unstack istanziato:" + unstackI);

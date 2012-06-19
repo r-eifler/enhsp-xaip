@@ -10,7 +10,7 @@ import conditions.Conditions;
 import conditions.Term;
 import java.util.HashMap;
 import java.util.Map;
-import problem.InstatiatedAction;
+import problem.GroundAction;
 
 /**
  *
@@ -53,8 +53,8 @@ public class ActionSchema extends GenericActionType {
         
     }
     
-    public InstatiatedAction ground(Map substitution){
-        InstatiatedAction ret = new InstatiatedAction(this.name);
+    public GroundAction ground(Map substitution){
+        GroundAction ret = new GroundAction(this.name);
         ActionParametersAsTerms input  = new ActionParametersAsTerms();
         for (Object o: parameters){
             Variable el  = (Variable)o;
@@ -72,8 +72,8 @@ public class ActionSchema extends GenericActionType {
    
     }
 
-    public InstatiatedAction ground(ActionParametersAsTerms par) {
-        InstatiatedAction ret = new InstatiatedAction(this.name);
+    public GroundAction ground(ActionParametersAsTerms par) {
+        GroundAction ret = new GroundAction(this.name);
         ActionParametersAsTerms input  = new ActionParametersAsTerms();
         int i=0;
         

@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import java.util.List;
 
-import problem.InstatiatedAction;
+import problem.GroundAction;
 import problem.ProblemObjects;
 
 class ActionFactory {
