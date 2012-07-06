@@ -142,7 +142,7 @@ public class Allocator extends Expression {
 
     }
 
-    @Override
+    //@Override
     public NormExpression normalize() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

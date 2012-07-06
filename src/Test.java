@@ -1,15 +1,13 @@
 
 
-import conditions.Term;
 import domain.ActionParametersAsTerms;
-import domain.ActionSchema;
 import domain.PddlDomain;
+import dynamictaskassignment.MMActionSchema;
+import dynamictaskassignment.MMGroundAction;
+import dynamictaskassignment.PddlMMDomain;
 import problem.PddlProblem;
 
-import planners.*;
 
-import problem.GroundAction;
-import problem.State;
 
 
 public class Test {
@@ -26,7 +24,7 @@ public class Test {
             System.exit(-1);
         }
 
-        PddlDomain a = new PddlDomain();
+        PddlMMDomain a = new PddlMMDomain();
         PddlProblem p = new PddlProblem();
         
         a.parseDomain(args[0]);
@@ -37,17 +35,20 @@ public class Test {
         
         System.out.println(p.getInit());
         ActionParametersAsTerms par = new ActionParametersAsTerms();
-        par.add(p.getObjectByName("C"));
-        ActionSchema Load = a.getActionByName("pick-up");
-        System.out.println(Load);
-        GroundAction load = Load.ground(par);
-        System.out.println(load);
 
-        State newState  = load.apply(p.getInit());
+        par.add(p.getObjectByName("plane1"));
+        par.add(p.getObjectByName("city1"));
+        par.add(p.getObjectByName("city2"));
+        
+        MMActionSchema action = a.getMMActionSchemaByName("fly");
+        
+        System.out.println(action);
+        MMGroundAction gAct = action.ground(par);
+        
+        System.out.println(action.ground(par));
+        
         //System.out.println(newState);
 
-
-        System.out.println(p.getInit());
 
         
         

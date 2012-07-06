@@ -42,8 +42,13 @@ public class AndCond extends Conditions {
         AndCond ret = new AndCond();
         
         for (Object o: son){
-            Conditions el = (Conditions)o;
-            ret.son.add(el.ground(substitution));
+            if (o instanceof Allocator){
+                Allocator el = (Allocator)o;
+                ret.son.add(el.ground(substitution));
+            }else{
+                Conditions el = (Conditions)o;
+                ret.son.add(el.ground(substitution));
+            }
         }
         ret.grounded = true;
         return ret;

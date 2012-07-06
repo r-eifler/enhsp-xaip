@@ -72,7 +72,8 @@ public class Function extends Expression {
         Function ret = new Function(getName());
        
         for (Object o: variables){
-            ret.addTerms((Term)substitution.get(o));
+            Term t = (Term)substitution.get(o);
+            ret.addTerms(t);
         }
         ret.grounded=true;
         return ret;

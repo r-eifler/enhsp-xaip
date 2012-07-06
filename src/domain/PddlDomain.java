@@ -48,7 +48,7 @@ import problem.PddlProblem;
 public class PddlDomain extends Object {
 
     String name;
-    private Set ActionsSchema;
+    protected Set ActionsSchema;
     private PredicateSet predicates;
     private HashSet types;
     private List functions;
@@ -395,8 +395,8 @@ public class PddlDomain extends Object {
 
             Comparator c = new Comparator(infoAction.getChild(0).getText());
 
-            c.setFirst(createExpression(infoAction.getChild(1)));
-            c.setTwo(createExpression(infoAction.getChild(2)));
+            c.setFirst(createExpression(infoAction.getChild(1),parTable));
+            c.setTwo(createExpression(infoAction.getChild(2),parTable));
             return c;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -558,8 +558,8 @@ public class PddlDomain extends Object {
             //gestendo il valore di ritorno come un attributo di and
         } else if (child.getType() == PddlParser.ASSIGN_EFFECT) {
             Allocator a = new Allocator(child.getChild(0).getText());
-            a.setOne((Function)createExpression(child.getChild(1)));
-            a.setTwo((Expression)createExpression(child.getChild(2)));
+            a.setOne((Function)createExpression(child.getChild(1),parameters));
+            a.setTwo((Expression)createExpression(child.getChild(2),parameters));
             return a;
 
 
@@ -609,13 +609,13 @@ public class PddlDomain extends Object {
         }
         return ret;
     }
-    private Expression createExpression(Tree t) {
+    private Expression createExpression(Tree t,ActionParameters parTable) {
 
         if (t.getType() == PddlParser.BINARY_OP) {
             BinaryOp ret = new BinaryOp();
             ret.setOperator(t.getChild(0).getText());
-            ret.setOne(createExpression(t.getChild(1)));
-            ret.setTwo(createExpression(t.getChild(2)));
+            ret.setOne(createExpression(t.getChild(1),parTable));
+            ret.setTwo(createExpression(t.getChild(2),parTable));
 
             return ret;
         } else if (t.getType() == PddlParser.NUMBER) {
@@ -623,17 +623,25 @@ public class PddlDomain extends Object {
             return ret;
         } else if (t.getType() == PddlParser.FUNC_HEAD) {
             Function ret = new Function(t.getChild(0).getText());
-            for (int i = 1; i < t.getChildCount(); i++) {
-                ret.addVariable(new Variable(t.getChild(i).getText()));
+        for (int i = 1; i < t.getChildCount(); i++) {
+            Variable v = new Variable(t.getChild(i).getText());
+
+                 Variable v1 = parTable.containsVariable(v);
+                if (v1 != null) {
+                     ret.addVariable(v1);
+                } else {
+                   System.out.println("La variabile " + v + " non è presente nei parametri");
+                   System.exit(-1);
+                }
             }
             return ret;
         } else if (t.getType() == PddlParser.UNARY_MINUS) {
-            return new MinusUnary(createExpression(t.getChild(0)));
+            return new MinusUnary(createExpression(t.getChild(0),parTable));
         } else if (t.getType() == PddlParser.MULTI_OP) {
             MultiOp ret = new MultiOp(t.getChild(0).getText());
             for (int i=1; i<t.getChildCount();i++){
                 //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
-                ret.addExpression(createExpression(t.getChild(i)));
+                ret.addExpression(createExpression(t.getChild(i),parTable));
             }
             return ret;
         }
