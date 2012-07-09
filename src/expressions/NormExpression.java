@@ -163,4 +163,14 @@ public class NormExpression extends Expression {
         System.out.println("Expression normalized by default");
         return this;
     }
+
+    @Override
+    public void changeVar(Map substitution) {
+        for (Object o : this.summations) {
+            
+            Addend a = (Addend) o;
+            a.f.changeVar(substitution);
+            
+        }
+    }
 }

@@ -7,20 +7,18 @@ package expressions;
 import java.util.Map;
 import problem.State;
 
-
 /**
  *
  * @author enrico
  */
-public class BinaryOp extends Expression{
+public class BinaryOp extends Expression {
+
     private String operator;
     private Expression one;
     private Expression two;
-    
-    
-    
-    public String toString(){
-        return getOperator() +" "+ getOne() + " " + getTwo();  
+
+    public String toString() {
+        return getOperator() + " " + getOne() + " " + getTwo();
     }
 
     /**
@@ -68,61 +66,70 @@ public class BinaryOp extends Expression{
     @Override
     public Expression ground(Map substitution) {
         BinaryOp ret = new BinaryOp();
-        
+
+        ret.operator = this.operator;
         ret.one = one.ground(substitution);
         ret.two = two.ground(substitution);
-        
+
         ret.grounded = true;
-        
+
         return ret;
     }
 
     @Override
     public Number eval(State s) {
-        Number ret_val =null;
+        Number ret_val = null;
         Number first = this.one.eval(s);
         Number second = this.two.eval(s);
-        if (this.getOperator().equals("+")){
+        if (this.getOperator().equals("+")) {
             ret_val = new Number(new Float(first.getNumber()) + new Float(second.getNumber()));
-        }else if (this.getOperator().equals("-")){
+        } else if (this.getOperator().equals("-")) {
             ret_val = new Number(new Float(first.getNumber()) - new Float(second.getNumber()));
-        }else if (this.getOperator().equals("*")){
+        } else if (this.getOperator().equals("*")) {
             ret_val = new Number(new Float(first.getNumber()) * new Float(second.getNumber()));
-        }else if (this.getOperator().equals("/")){
+        } else if (this.getOperator().equals("/")) {
             //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
             ret_val = new Number(new Float(first.getNumber()) / new Float(second.getNumber()));
-        }else if (this.getOperator().equals("min")){
+        } else if (this.getOperator().equals("min")) {
             //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
             ret_val = new Number(new Float(Math.min(first.getNumber(), second.getNumber())));
-        }else{
+        } else {
             System.out.println(this.operator + " not supported");
         }
         return ret_val;
     }
-    
+
     @Override
-    public NormExpression normalize(){
+    public NormExpression normalize() {
         NormExpression ret = new NormExpression();
-        
+
         NormExpression left = this.getOne().normalize();
         NormExpression right = this.getTwo().normalize();
-        
-        
-        if (this.getOperator().equals("+")){
+
+
+        if (this.getOperator().equals("+")) {
             ret = left.sum(right);
-        }else if (this.getOperator().equals("-")){
+        } else if (this.getOperator().equals("-")) {
             ret = left.minus(right);
-        }else if (this.getOperator().equals("*")){
+        } else if (this.getOperator().equals("*")) {
             ret = left.mult(right);
 
-        }else if (this.getOperator().equals("/")){
+        } else if (this.getOperator().equals("/")) {
             ret = left.div(right);
 
-        }else
+        } else {
             System.out.println(this.operator + " not supported");
-        
-       
+        }
+
+
         return ret;
-    
+
+    }
+
+    @Override
+    public void changeVar(Map substitution) {
+        this.one.changeVar(substitution);
+        this.two.changeVar(substitution);
+
     }
 }

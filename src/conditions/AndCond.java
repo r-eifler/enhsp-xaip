@@ -22,11 +22,9 @@ public class AndCond extends Conditions {
     public AndCond(){
         super();
     }
-    public void addConditions(Conditions c){
-        
+    public void addConditions(Conditions c){        
         son.add(c);
 
-        
     }
     public String toString(){
         String ret_val="And(";
@@ -42,9 +40,11 @@ public class AndCond extends Conditions {
         AndCond ret = new AndCond();
         
         for (Object o: son){
+            
             if (o instanceof Allocator){
                 Allocator el = (Allocator)o;
                 ret.son.add(el.ground(substitution));
+                
             }else{
                 Conditions el = (Conditions)o;
                 ret.son.add(el.ground(substitution));
@@ -53,6 +53,9 @@ public class AndCond extends Conditions {
         ret.grounded = true;
         return ret;
     }
+    
+    
+    
 
     @Override
     public boolean eval(State s) {
@@ -135,5 +138,20 @@ public class AndCond extends Conditions {
             }  
         }
         return s;
+    }
+
+    @Override
+    public void changeVar(Map substitution) {
+        for (Object o: son){
+            if (o instanceof Allocator){
+                Allocator el = (Allocator)o;
+                el.changeVar(substitution);
+                
+            }else{
+                Conditions el = (Conditions)o;
+                el.changeVar(substitution);
+            }
+        }
+
     }
 }

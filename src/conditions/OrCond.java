@@ -63,4 +63,13 @@ public class OrCond extends Conditions {
 
         return false;
     }
+
+    @Override
+    public void changeVar(Map substitution) {
+        
+        for (Object o: son){
+            Conditions el = (Conditions)o;
+            el.changeVar(substitution);
+        }
+    }
 }

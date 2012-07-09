@@ -91,5 +91,11 @@ public class Assign extends Conditions{
         else
             return false;
     }
+
+    @Override
+    public void changeVar(Map substitution) {
+        
+        this.one.changeVar(substitution);
+    }
     
 }

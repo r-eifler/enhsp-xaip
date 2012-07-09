@@ -106,5 +106,10 @@ public class MultiOp extends Expression{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public void changeVar(Map substitution) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
    
 }

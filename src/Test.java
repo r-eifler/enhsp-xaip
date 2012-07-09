@@ -23,7 +23,31 @@ public class Test {
             System.out.println("Usage: ... domain problem");
             System.exit(-1);
         }
+        
+        /*{
+            PddlDomain a = new PddlMMDomain();
+            PddlProblem p = new PddlProblem();
 
+            a.parseDomain(args[0]);
+            p.parseProblem(args[1]);
+            a.prettyPrint();
+            p.prettyPrint();
+            System.out.println("Validazione:..." +a.validate(p));
+
+            System.out.println(p.getInit());
+            ActionParametersAsTerms par = new ActionParametersAsTerms();
+
+            par.add(p.getObjectByName("plane1"));
+            par.add(p.getObjectByName("city1"));
+            par.add(p.getObjectByName("city2"));
+            
+            System.out.println("Grounding test" + a.getActionByName("fly-slow").ground(par));
+            
+            
+            
+        }
+        */
+        
         PddlMMDomain a = new PddlMMDomain();
         PddlProblem p = new PddlProblem();
         
@@ -31,9 +55,9 @@ public class Test {
         p.parseProblem(args[1]);
         a.prettyPrint();
         p.prettyPrint();
-        System.out.println("Validazione:..." +a.validate(p));
+        //System.out.println("Validazione:..." +a.validate(p));
         
-        System.out.println(p.getInit());
+        //System.out.println(p.getInit());
         ActionParametersAsTerms par = new ActionParametersAsTerms();
 
         par.add(p.getObjectByName("plane1"));
@@ -45,7 +69,8 @@ public class Test {
         System.out.println(action);
         MMGroundAction gAct = action.ground(par);
         
-        System.out.println(action.ground(par));
+        
+        System.out.println(gAct);
         
         //System.out.println(newState);
 

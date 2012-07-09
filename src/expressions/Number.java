@@ -65,4 +65,9 @@ public class Number extends Expression
         return ret;
 
     }
+
+    @Override
+    public void changeVar(Map substitution) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

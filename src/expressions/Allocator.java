@@ -147,5 +147,11 @@ public class Allocator extends Expression {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public void changeVar(Map substitution) {
+         this.one.changeVar(substitution);    
+         this.two.changeVar(substitution);
+    }
+
     
 }

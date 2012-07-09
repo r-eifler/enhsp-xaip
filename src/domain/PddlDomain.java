@@ -305,8 +305,6 @@ public class PddlDomain extends Object {
             }else
                 this.types.add(tip);        
 //                
-//            System.out.println("tipo di cazzo:" + tipo.toString());
-//            System.out.println("numero di figli" + tipo.getChildCount());
 //            
 //            this.types.add(tip);
             

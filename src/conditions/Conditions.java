@@ -19,10 +19,10 @@ public abstract class Conditions extends Object{
     public Conditions(){
         son = new HashSet();
         grounded = false;
-        
     }
     //public abstract void addConditions(Conditions o);
     public abstract Conditions ground(Map substitution);
     public abstract  boolean eval(State s);
     public abstract boolean isSatisfied(State s);
+    public abstract void changeVar(Map substitution);
 }

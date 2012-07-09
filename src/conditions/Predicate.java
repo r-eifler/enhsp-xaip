@@ -94,14 +94,15 @@ public class Predicate extends Conditions {
     public String toString() {
         String ret_val = "(" + this.predicateName + " ";
 
+        
         if (isGrounded()) {
             for (Object o : getTerms()) {
+                
                 ret_val = ret_val.concat(o.toString());
             }
         } else {
-            for (Object o : getVariables()) {
-                ret_val = ret_val.concat(o.toString());
-            }
+            ret_val = ret_val.concat(getVariables().toString());
+            
         }
         ret_val = ret_val.concat(") ");
         return ret_val;
@@ -153,10 +154,17 @@ public class Predicate extends Conditions {
     public Conditions ground(Map substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
-        
-        
+        ret.grounded = true;
+
         for (Object o : variables) {
-            ret.terms.add((Term) substitution.get(o));
+            
+            Term t = (Term)substitution.get(o);
+            if (t == null){
+                System.out.println("Error in substitution  for " + o);
+                System.exit(-1);
+            }else
+                
+                ret.terms.add(t);
         }
         return ret;
     }
@@ -200,6 +208,21 @@ public class Predicate extends Conditions {
         s.removeProposition(this);
 
         return s;
+    }
+
+    @Override
+    public void changeVar(Map substitution) {
+        ArrayList newVar = new ArrayList();
+        
+        for (Object o : variables) {
+            Variable v = (Variable)substitution.get(o);
+            if (v == null){
+                System.out.println("Not Found Variable" + o);
+                System.exit(-1);
+            }
+            newVar.add(substitution.get(o));
+        }
+        variables = newVar;
     }
 
 

@@ -126,4 +126,12 @@ public class Comparator extends Conditions{
 
         return false;
     }
+
+    @Override
+    public void changeVar(Map substitution) {
+        
+       this.one.changeVar(substitution);
+       this.two.changeVar(substitution);
+       
+    }
 }

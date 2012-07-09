@@ -73,7 +73,12 @@ public class Function extends Expression {
        
         for (Object o: variables){
             Term t = (Term)substitution.get(o);
-            ret.addTerms(t);
+            if (t == null){
+                System.out.println("Substitution Failed for " +o.toString());
+                System.exit(-1);
+            }else{
+               ret.addTerms(t); 
+            }
         }
         ret.grounded=true;
         return ret;
@@ -125,5 +130,15 @@ public class Function extends Expression {
         ret.summations.add(a);
         return ret;
 
+    }
+
+    @Override
+    public void changeVar(Map substitution) {
+        ArrayList newVar = new ArrayList();
+        
+        for (Object o : variables) {
+            newVar.add(substitution.get(o));
+        }
+        variables = newVar;
     }
 }

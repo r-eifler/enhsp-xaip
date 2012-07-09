@@ -22,6 +22,8 @@ public class Term extends Conditions {
         name = n;
     }
     public Term(String n, Type atype){
+        grounded=true;
+
         name = n;
         type = atype;
     }
@@ -91,5 +93,10 @@ public class Term extends Conditions {
     @Override
     public boolean isSatisfied(State s) {
         return true;
+    }
+
+    @Override
+    public void changeVar(Map substitution) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
