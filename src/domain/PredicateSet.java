@@ -6,7 +6,7 @@
 package domain;
 
 import conditions.Predicate;
-import conditions.Term;
+import conditions.PDDLObject;
 
 import java.util.HashSet;
 
@@ -37,7 +37,7 @@ class PredicateSet extends HashSet{
                     boolean found =true;
                     for (Object o:elP.getVariables()) {
                         Variable v = (Variable)o;
-                        Term t = (Term)p.getTerms().get(i);
+                        PDDLObject t = (PDDLObject)p.getTerms().get(i);
                         if (!(v.getType().equals(t.getType())) && !(t.getType().isAncestorOf(v.getType()))){
                             found= false;
                             

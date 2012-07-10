@@ -1,12 +1,5 @@
 
 
-import domain.ActionParametersAsTerms;
-import domain.PddlDomain;
-import dynamictaskassignment.MMActionSchema;
-import dynamictaskassignment.MMGroundAction;
-import dynamictaskassignment.PddlMMDomain;
-import problem.PddlProblem;
-
 
 
 
@@ -48,29 +41,29 @@ public class Test {
         }
         */
         
-        PddlMMDomain a = new PddlMMDomain();
-        PddlProblem p = new PddlProblem();
-        
-        a.parseDomain(args[0]);
-        p.parseProblem(args[1]);
-        a.prettyPrint();
-        p.prettyPrint();
-        //System.out.println("Validazione:..." +a.validate(p));
-        
-        //System.out.println(p.getInit());
-        ActionParametersAsTerms par = new ActionParametersAsTerms();
-
-        par.add(p.getObjectByName("plane1"));
-        par.add(p.getObjectByName("city1"));
-        par.add(p.getObjectByName("city2"));
-        
-        MMActionSchema action = a.getMMActionSchemaByName("fly");
-        
-        System.out.println(action);
-        MMGroundAction gAct = action.ground(par);
-        
-        
-        System.out.println(gAct);
+//        PddlMMDomain a = new PddlMMDomain();
+//        PddlProblem p = new PddlProblem();
+//        
+//        a.parseDomain(args[0]);
+//        p.parseProblem(args[1]);
+//        a.prettyPrint();
+//        p.prettyPrint();
+//        //System.out.println("Validazione:..." +a.validate(p));
+//        
+//        //System.out.println(p.getInit());
+//        ActionParametersAsTerms par = new ActionParametersAsTerms();
+//
+//        par.add(p.getObjectByName("plane1"));
+//        par.add(p.getObjectByName("city1"));
+//        par.add(p.getObjectByName("city2"));
+//        
+//        MMActionSchema action = a.getMMActionSchemaByName("fly");
+//        
+//        System.out.println(action);
+//        MMGroundAction gAct = action.ground(par);
+////        
+//        
+//        System.out.println(gAct);
         
         //System.out.println(newState);
 

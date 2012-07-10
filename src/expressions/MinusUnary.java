@@ -34,7 +34,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Number eval(State s) {
+    public PDDLNumber eval(State s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

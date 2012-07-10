@@ -14,14 +14,14 @@ import problem.State;
  *
  * @author enrico
  */
-public class Term extends Conditions {
+public class PDDLObject extends Conditions {
     private String name;
     private Type type;
-    public Term(String n){
+    public PDDLObject(String n){
         grounded=true;
         name = n;
     }
-    public Term(String n, Type atype){
+    public PDDLObject(String n, Type atype){
         grounded=true;
 
         name = n;
@@ -36,8 +36,8 @@ public class Term extends Conditions {
     }
     @Override
     public boolean equals(Object o){
-        if (o instanceof Term){
-            Term o1 = (Term)o;
+        if (o instanceof PDDLObject){
+            PDDLObject o1 = (PDDLObject)o;
             if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName())))
                     return true;
                 else
@@ -81,8 +81,8 @@ public class Term extends Conditions {
     }
 
     @Override
-    public Term ground(Map substitution) {
-        return new Term(name,type);
+    public PDDLObject ground(Map substitution) {
+        return new PDDLObject(name,type);
     }
 
     @Override

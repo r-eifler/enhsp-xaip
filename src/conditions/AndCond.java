@@ -5,7 +5,7 @@
 
 package conditions;
 
-import expressions.Allocator;
+import expressions.NumEffect;
 import expressions.Expression;
 import java.util.Map;
 import problem.State;
@@ -41,8 +41,8 @@ public class AndCond extends Conditions {
         
         for (Object o: son){
             
-            if (o instanceof Allocator){
-                Allocator el = (Allocator)o;
+            if (o instanceof NumEffect){
+                NumEffect el = (NumEffect)o;
                 ret.son.add(el.ground(substitution));
                 
             }else{
@@ -111,8 +111,8 @@ public class AndCond extends Conditions {
             }else if(o instanceof NotCond){
                 NotCond n = (NotCond)o;
                 ret = n.apply(s);
-            }else if(o instanceof Allocator){
-                Allocator n = (Allocator)o;
+            }else if(o instanceof NumEffect){
+                NumEffect n = (NumEffect)o;
                 n.apply(s);
             }else{
                 System.out.println("Effect "+this+" is not valid. Please revise your action model");
@@ -143,8 +143,8 @@ public class AndCond extends Conditions {
     @Override
     public void changeVar(Map substitution) {
         for (Object o: son){
-            if (o instanceof Allocator){
-                Allocator el = (Allocator)o;
+            if (o instanceof NumEffect){
+                NumEffect el = (NumEffect)o;
                 el.changeVar(substitution);
                 
             }else{

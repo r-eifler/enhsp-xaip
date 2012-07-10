@@ -5,21 +5,26 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class planningTool {
+
+    String outputPlanning;
+    Process process;
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
+        outputPlanning = "";
         try {
-            Process pr =
-                rt.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
+           process =
+                    rt.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
 
-            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             String line = null;
 
             while ((line = input.readLine()) != null) {
                 System.out.println(line);
+                outputPlanning = outputPlanning.concat(line);
             }
 
-            int exitVal = pr.waitFor();
+            int exitVal = process.waitFor();
             System.out.println("Exited with error code " + exitVal);
         } catch (IOException e) {
         } catch (InterruptedException e) {

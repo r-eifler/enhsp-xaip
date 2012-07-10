@@ -19,7 +19,7 @@ public abstract class Expression extends Object {
     }
     public abstract Expression ground(Map substitution);
 
-    public abstract Number eval(State s);
+    public abstract PDDLNumber eval(State s);
 
     //public abstract State apply(State s);
     public abstract NormExpression normalize();

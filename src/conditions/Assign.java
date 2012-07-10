@@ -4,8 +4,8 @@
  */
 package conditions;
 
-import expressions.Function;
-import expressions.Number;
+import expressions.NumFluent;
+import expressions.PDDLNumber;
 import java.util.Map;
 import problem.State;
 
@@ -15,8 +15,8 @@ import problem.State;
  */
 public class Assign extends Conditions{
     private String operator; //it must be equal to =
-    private Function one;
-    private Number two;
+    private NumFluent one;
+    private PDDLNumber two;
     public Assign(String operator){
         super();
         this.operator = operator;
@@ -43,35 +43,35 @@ public class Assign extends Conditions{
     /**
      * @return the one
      */
-    public Function getOne() {
+    public NumFluent getOne() {
         return one;
     }
 
     /**
      * @param one the one to set
      */
-    public void setOne(Function one) {
+    public void setOne(NumFluent one) {
         this.one = one;
     }
 
     /**
      * @return the two
      */
-    public Number getTwo() {
+    public PDDLNumber getTwo() {
         return two;
     }
 
     /**
      * @param two the two to set
      */
-    public void setTwo(Number two) {
+    public void setTwo(PDDLNumber two) {
         this.two = two;
     }
 
     @Override
     public Conditions ground(Map substitution) {
         Assign ret = new Assign(operator);
-        ret.one = (Function)one.ground(substitution);
+        ret.one = (NumFluent)one.ground(substitution);
         ret.grounded = true;
         return ret;
     }

@@ -5,8 +5,8 @@
 package expressions;
 
 import expressions.Expression;
-import expressions.Function;
-import expressions.Number;
+import expressions.NumFluent;
+import expressions.PDDLNumber;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,11 +16,11 @@ import problem.State;
  *
  * @author enrico
  */
-public class Allocator extends Expression {
+public class NumEffect extends Expression {
     private String operator;
-    private Function one;
+    private NumFluent one;
     private Expression two;
-    public Allocator(String operator){
+    public NumEffect(String operator){
         super();
         this.operator = operator;
     }
@@ -46,14 +46,14 @@ public class Allocator extends Expression {
     /**
      * @return the one
      */
-    public Function getOne() {
+    public NumFluent getOne() {
         return one;
     }
 
     /**
      * @param one the one to set
      */
-    public void setOne(Function one) {
+    public void setOne(NumFluent one) {
         this.one = one;
     }
 
@@ -73,23 +73,23 @@ public class Allocator extends Expression {
 
     @Override
     public Expression ground(Map substitution) {
-        Allocator ret = new Allocator(this.operator);
-        ret.one = (Function)this.one.ground(substitution);
+        NumEffect ret = new NumEffect(this.operator);
+        ret.one = (NumFluent)this.one.ground(substitution);
         ret.two = this.two.ground(substitution);
         ret.grounded=true;
         return ret;
     }
 
     @Override
-    public Number eval(State s) {
-        Number first = this.one.eval(s);
-        Number second = this.two.eval(s);
+    public PDDLNumber eval(State s) {
+        PDDLNumber first = this.one.eval(s);
+        PDDLNumber second = this.two.eval(s);
         if (this.getOperator().equals("increase")){
-            return new Number(new Float(first.getNumber()) + new Float(second.getNumber()));
+            return new PDDLNumber(new Float(first.getNumber()) + new Float(second.getNumber()));
         }else if (this.getOperator().equals("decrease")){
-            return new Number(new Float(first.getNumber()) - new Float(second.getNumber()));
+            return new PDDLNumber(new Float(first.getNumber()) - new Float(second.getNumber()));
         }else if (this.getOperator().equals("assign")){
-            return new Number(new Float(second.getNumber()));
+            return new PDDLNumber(new Float(second.getNumber()));
         }else{
             System.out.println(this.getOperator() + " does not supported");
         }
@@ -99,17 +99,17 @@ public class Allocator extends Expression {
 
     
     public void apply(State s) {
-        Number after = null;
+        PDDLNumber after = null;
        if (this.operator.equals("increase")){
-           Number current = s.functionValue(one);
-           Number eval = this.getTwo().eval(s);
-           after = new Number (current.getNumber() + eval.getNumber());
+           PDDLNumber current = s.functionValue(one);
+           PDDLNumber eval = this.getTwo().eval(s);
+           after = new PDDLNumber (current.getNumber() + eval.getNumber());
        }else if (this.operator.equals("decrease")){
-           Number current = s.functionValue(one);
-           Number eval = this.getTwo().eval(s);
-           after = new Number (current.getNumber() - eval.getNumber());
+           PDDLNumber current = s.functionValue(one);
+           PDDLNumber eval = this.getTwo().eval(s);
+           after = new PDDLNumber (current.getNumber() - eval.getNumber());
        }else if (this.operator.equals("increase")){
-           Number eval = this.getTwo().eval(s);
+           PDDLNumber eval = this.getTwo().eval(s);
             after = eval;
        }
         if (after != null)
@@ -120,17 +120,17 @@ public class Allocator extends Expression {
     }
 
     public State applyAndCreateNew(State s) throws CloneNotSupportedException {
-        Number after = null;
+        PDDLNumber after = null;
        if (this.operator.equals("increase")){
-           Number current = s.functionValue(one);
-           Number eval = this.getTwo().eval(s);
-           after = new Number (current.getNumber() + eval.getNumber());
+           PDDLNumber current = s.functionValue(one);
+           PDDLNumber eval = this.getTwo().eval(s);
+           after = new PDDLNumber (current.getNumber() + eval.getNumber());
        }else if (this.operator.equals("decrease")){
-           Number current = s.functionValue(one);
-           Number eval = this.getTwo().eval(s);
-           after = new Number (current.getNumber() - eval.getNumber());
+           PDDLNumber current = s.functionValue(one);
+           PDDLNumber eval = this.getTwo().eval(s);
+           after = new PDDLNumber (current.getNumber() - eval.getNumber());
        }else if (this.operator.equals("assign")){
-           Number eval = this.getTwo().eval(s);
+           PDDLNumber eval = this.getTwo().eval(s);
             after = eval;
        }
         State ret = s.clone();

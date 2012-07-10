@@ -11,16 +11,16 @@ import problem.State;
  *
  * @author enrico
  */
-public class Number extends Expression
+public class PDDLNumber extends Expression
 {
     private Float number;
-    public Number(Float n){
+    public PDDLNumber(Float n){
         grounded=true;
         number = n;
 
     }
 
-    public Number(int number) {
+    public PDDLNumber(int number) {
 
         grounded = true;
         this.number = new Float(number);
@@ -33,7 +33,7 @@ public class Number extends Expression
 
     @Override
     public Expression ground(Map substitution) {
-        return new Number(getNumber());
+        return new PDDLNumber(getNumber());
     }
 
     /**
@@ -51,7 +51,7 @@ public class Number extends Expression
     }
 
     @Override
-    public Number eval(State s) {
+    public PDDLNumber eval(State s) {
             return this;
     }
 
@@ -68,6 +68,7 @@ public class Number extends Expression
 
     @Override
     public void changeVar(Map substitution) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 }

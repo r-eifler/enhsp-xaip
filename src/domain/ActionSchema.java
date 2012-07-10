@@ -7,7 +7,7 @@ package domain;
 
 import conditions.Conditions;
 
-import conditions.Term;
+import conditions.PDDLObject;
 import java.util.HashMap;
 import java.util.Map;
 import problem.GroundAction;
@@ -58,7 +58,7 @@ public class ActionSchema extends GenericActionType {
         ActionParametersAsTerms input  = new ActionParametersAsTerms();
         for (Object o: parameters){
             Variable el  = (Variable)o;
-            Term t = (Term)substitution.get(el);
+            PDDLObject t = (PDDLObject)substitution.get(el);
             input.add(t);
         }
         ret.setParameters(input);
@@ -81,7 +81,7 @@ public class ActionSchema extends GenericActionType {
         for (Object o: parameters){
             Variable el  = (Variable)o;
             substitution.put(el, par.get(i));
-            Term t = (Term)substitution.get(el);
+            PDDLObject t = (PDDLObject)substitution.get(el);
             i++;
         }
         ret.setParameters(par);

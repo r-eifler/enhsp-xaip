@@ -10,7 +10,7 @@ package expressions;
  * @author enrico
  */
 public class Addend {
-    public Number n;
-    public Function f;
+    public PDDLNumber n;
+    public NumFluent f;
 
 }

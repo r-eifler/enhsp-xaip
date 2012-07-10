@@ -5,7 +5,7 @@
 
 package problem;
 
-import conditions.Term;
+import conditions.PDDLObject;
 
 import domain.Type;
 
@@ -19,30 +19,30 @@ import java.util.HashSet;
 public class ProblemObjects extends HashSet{
 
 
-    public boolean validate(Term t){
+    public boolean validate(PDDLObject t){
 
         for (Object el: this){
             
-            Term elP = (Term)el;
+            PDDLObject elP = (PDDLObject)el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()));
                     return true;
         }
         return false;
     }
 
-    public Type getTermType(Term t){
+    public Type getTermType(PDDLObject t){
         for (Object el: this){
 
-            Term elP = (Term)el;
+            PDDLObject elP = (PDDLObject)el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()))
                     return elP.getType();
         }
         return null;
     }
-    public Term containsTerm(Term t){
+    public PDDLObject containsTerm(PDDLObject t){
         for (Object el: this){
 
-            Term elP = (Term)el;
+            PDDLObject elP = (PDDLObject)el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()))
                     return elP;
         }
@@ -53,7 +53,7 @@ public class ProblemObjects extends HashSet{
     public String toString(){
         String ret_val="";
         for (Object el: this){
-            Term elemento= (Term) el;
+            PDDLObject elemento= (PDDLObject) el;
             ret_val += " " + elemento.toString() + " ";
         }
 

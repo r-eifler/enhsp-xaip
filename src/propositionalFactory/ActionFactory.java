@@ -1,6 +1,6 @@
 package propositionalFactory;
 
-import conditions.Term;
+import conditions.PDDLObject;
 
 import domain.ActionParameters;
 import domain.ActionSchema;
@@ -35,13 +35,13 @@ class ActionFactory {
         List combo = new ArrayList();
         ActionParameters aP = a.getParameters();
         int n_parametri = a.getParameters().size();
-        HashMap<Term,Variable>[] sub = new HashMap[n_parametri];
+        HashMap<PDDLObject,Variable>[] sub = new HashMap[n_parametri];
         int i=0;
         for(Object el1: aP){
             sub[i] = new HashMap();
             System.out.println("Variable" + el1);
             for (Object el : po) {
-                Term t = (Term) el;
+                PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) el1;
                 if (t.getType().equals(v.getType())) {
                     sub[i].put(t,v);
@@ -118,7 +118,7 @@ class ActionFactory {
         List ret = new ArrayList();
         if (index == aP.size()-1) {
             for (Object el : O) {
-                Term t = (Term) el;
+                PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) aP.get(index);
                 if (t.getType().equals(v.getType())) {
                     ret.add(t);
@@ -127,7 +127,7 @@ class ActionFactory {
         } else {
             List ret2 = creaCombinazione(O, aP, index + 1);
             for (Object el : O) {
-                Term t = (Term) el;
+                PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) aP.get(index);
                 if (t.getType().equals(v.getType())) {
                     

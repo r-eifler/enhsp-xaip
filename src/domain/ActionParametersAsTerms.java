@@ -5,7 +5,7 @@
 
 package domain;
 
-import conditions.Term;
+import conditions.PDDLObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,11 +16,11 @@ import java.util.Iterator;
  */
 public class ActionParametersAsTerms extends ArrayList{
 
-    public Term containsTerm(Term o){
+    public PDDLObject containsTerm(PDDLObject o){
         Integer ret_val=-1;
         Iterator it = this.iterator();
         while (it.hasNext()){
-            Term t = (Term)it.next();
+            PDDLObject t = (PDDLObject)it.next();
             if (t.getName() == null ? o.getName() == null : t.getName().equalsIgnoreCase(o.getName())){
                 return t;
             }

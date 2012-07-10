@@ -4,7 +4,7 @@
  */
 package expressions;
 
-import conditions.Term;
+import conditions.PDDLObject;
 
 import domain.Variable;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class Function extends Expression {
+public class NumFluent extends Expression {
     private String name;
     ArrayList variables;
     private ArrayList terms;
@@ -23,7 +23,7 @@ public class Function extends Expression {
     @Override
     public boolean equals(Object obj) {
         boolean equal =false;
-        Function objF = (Function)obj;
+        NumFluent objF = (NumFluent)obj;
         
         if (grounded){
             if (objF.terms.size() == this.terms.size()){
@@ -49,7 +49,16 @@ public class Function extends Expression {
         return true;
     }
 
-    public Function(String name) {
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 53 * hash + (this.variables != null ? this.variables.hashCode() : 0);
+        hash = 53 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+        return hash;
+    }
+
+    public NumFluent(String name) {
         super();
         this.name = name;
         variables = new ArrayList();
@@ -69,10 +78,10 @@ public class Function extends Expression {
 
     @Override
     public Expression ground(Map substitution) {
-        Function ret = new Function(getName());
+        NumFluent ret = new NumFluent(getName());
        
         for (Object o: variables){
-            Term t = (Term)substitution.get(o);
+            PDDLObject t = (PDDLObject)substitution.get(o);
             if (t == null){
                 System.out.println("Substitution Failed for " +o.toString());
                 System.exit(-1);
@@ -97,7 +106,7 @@ public class Function extends Expression {
     public void setTerms(ArrayList terms) {
         this.terms = terms;
     }
-    public void addTerms(Term el){
+    public void addTerms(PDDLObject el){
         terms.add(el);
     }
 
@@ -116,7 +125,7 @@ public class Function extends Expression {
     }
 
     @Override
-    public Number eval(State s) {
+    public PDDLNumber eval(State s) {
      
         return s.functionValue(this);
     }
@@ -124,7 +133,7 @@ public class Function extends Expression {
     @Override
     public NormExpression normalize() {
         Addend a = new Addend();
-        a.n = new Number(1);
+        a.n = new PDDLNumber(1);
         a.f = this;
         NormExpression ret = new NormExpression();
         ret.summations.add(a);

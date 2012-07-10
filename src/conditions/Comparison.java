@@ -7,20 +7,20 @@ package conditions;
 import expressions.Expression;
 import java.util.Map;
 import problem.State;
-import expressions.Number;
+import expressions.PDDLNumber;
 
 
 /**
  *
  * @author enrico
  */
-public class Comparator extends Conditions{
+public class Comparison extends Conditions{
     private String bin_comp;
     private Expression one;
     private Expression two;
 
 
-    public Comparator(String bin_comp_){
+    public Comparison(String bin_comp_){
         super();
         bin_comp = bin_comp_;
     }
@@ -75,7 +75,7 @@ public class Comparator extends Conditions{
 
     @Override
     public Conditions ground(Map substitution) {
-        Comparator ret = new Comparator(bin_comp);
+        Comparison ret = new Comparison(bin_comp);
         
        ret.one = one.ground(substitution);
        ret.two = two.ground(substitution);
@@ -85,8 +85,8 @@ public class Comparator extends Conditions{
 
     @Override
     public boolean eval(State s) {
-        Number first = one.eval(s);
-        Number second = two.eval(s);
+        PDDLNumber first = one.eval(s);
+        PDDLNumber second = two.eval(s);
 
         if (this.getBin_comp().equals("<")){
             return first.getNumber() < second.getNumber();
@@ -107,8 +107,8 @@ public class Comparator extends Conditions{
 
     @Override
     public boolean isSatisfied(State s) {
-        Number first = one.eval(s);
-        Number second = two.eval(s);
+        PDDLNumber first = one.eval(s);
+        PDDLNumber second = two.eval(s);
 
         if (this.getBin_comp().equals("<")){
             return first.getNumber() < second.getNumber();
@@ -133,5 +133,12 @@ public class Comparator extends Conditions{
        this.one.changeVar(substitution);
        this.two.changeVar(substitution);
        
+    }
+    
+    public Comparison normalize(){
+        Comparison ret = new Comparison(this.bin_comp);
+        ret.setFirst(this.one.normalize());
+        ret.setTwo(this.two.normalize());
+        return ret;
     }
 }

@@ -8,22 +8,22 @@ import antlr.RecognitionException;
 
 import conditions.AndCond;
 import conditions.Assign;
-import conditions.Comparator;
+import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
-import conditions.Term;
+import conditions.PDDLObject;
 
 import domain.Type;
 
 import domain.Variable;
 import expressions.BinaryOp;
 import expressions.Expression;
-import expressions.Function;
+import expressions.NumFluent;
 import expressions.MinusUnary;
 import expressions.MultiOp;
-import expressions.Number;
+import expressions.PDDLNumber;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -115,7 +115,7 @@ public class PddlProblem {
 
     private void addObjects(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            this.objects.add(new Term(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
+            this.objects.add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
 //            System.out.println("che è di tipo:" + new Type(c.getChild(i).getChild(0).getText()));
         }
@@ -132,7 +132,7 @@ public class PddlProblem {
         for (int i = 1; i < t.getChildCount(); i++) {
 
 
-            Term t1 = (Term) this.getObjectByName(t.getChild(i).getText());
+            PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
 
             if (t1 != null) {
                 a.addTerm(t1);
@@ -189,7 +189,7 @@ public class PddlProblem {
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
             //System.out.println("Comparison:" + infoAction.getText());
 
-            Comparator c = new Comparator(infoAction.getChild(0).getText());
+            Comparison c = new Comparison(infoAction.getChild(0).getText());
 
             c.setFirst(createExpression(infoAction.getChild(1)));
             c.setTwo(createExpression(infoAction.getChild(2)));
@@ -211,10 +211,10 @@ public class PddlProblem {
             ret.grounded = true;
             return ret;
         } else if (t.getType() == PddlParser.NUMBER) {
-            Number ret = new Number(new Float(t.getText()));
+            PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
             return ret;
         } else if (t.getType() == PddlParser.FUNC_HEAD) {
-            Function ret = new Function(t.getChild(0).getText());
+            NumFluent ret = new NumFluent(t.getChild(0).getText());
             for (int i = 1; i < t.getChildCount(); i++) {
                 ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
             }
@@ -244,8 +244,8 @@ public class PddlProblem {
 
             } else if (c.getType() == PddlParser.INIT_EQ) {
                 Assign a = new Assign("=");
-                a.setOne((Function) createExpression(c.getChild(0)));
-                a.setTwo((Number) createExpression(c.getChild(1)));
+                a.setOne((NumFluent) createExpression(c.getChild(0)));
+                a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
                 init.addNumericFluent(a);
             } else if (c.getType() == PddlParser.INIT_AT) {
                 init.addTimedLiteral(buildInstPredicate(c));
@@ -398,9 +398,9 @@ public class PddlProblem {
      * @param string - the name of the object we want
      * @return the term representing the object
      */
-    public Term getObjectByName(String string) {
+    public PDDLObject getObjectByName(String string) {
         for (Object o : this.objects) {
-            Term el = (Term) o;
+            PDDLObject el = (PDDLObject) o;
             if (el.getName().equalsIgnoreCase(string)) {
                 return el;
             }
@@ -408,17 +408,17 @@ public class PddlProblem {
         return null;
     }
 
-    public Float getInitFunctionValue(Function f) {
+    public Float getInitFunctionValue(NumFluent f) {
 
         return init.functionValue(f).getNumber();
     }
 
-    public Function getFunction(String string, ArrayList terms) {
+    public NumFluent getFunction(String string, ArrayList terms) {
         for (Object o : init.getNumericFluents()) {
 
             if (o instanceof Assign) {
                 Assign ele = (Assign) o;
-                Function fAssign = ele.getOne();
+                NumFluent fAssign = ele.getOne();
 
                 if (fAssign.getName().equals(string)) {
                     if (fAssign.getTerms().equals(terms)) {
@@ -438,7 +438,7 @@ public class PddlProblem {
 
             if (o instanceof Assign) {
                 Assign ele = (Assign) o;
-                Function fAssign = ele.getOne();
+                NumFluent fAssign = ele.getOne();
                 res.add(fAssign);
 
             }

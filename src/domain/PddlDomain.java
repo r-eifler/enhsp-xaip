@@ -4,20 +4,20 @@
  */
 package domain;
 
-import expressions.Allocator;
+import expressions.NumEffect;
 import conditions.AndCond;
 import conditions.Assign;
-import conditions.Comparator;
+import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
-import conditions.Term;
+import conditions.PDDLObject;
 
 import expressions.BinaryOp;
 import expressions.Expression;
-import expressions.Function;
-import expressions.Number;
+import expressions.NumFluent;
+import expressions.PDDLNumber;
 
 import expressions.MinusUnary;
 import expressions.MultiOp;
@@ -83,7 +83,7 @@ public class PddlDomain extends Object {
     public boolean validate(PddlProblem p) {
 
         for (Object o : p.getProblemObjects()) {
-            Term t = (Term) o;
+            PDDLObject t = (PDDLObject) o;
             Iterator it = types.iterator();
             boolean founded=false;
             while(it.hasNext()){
@@ -391,7 +391,7 @@ public class PddlDomain extends Object {
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
             //System.out.println("Comparison:" + infoAction.getText());
 
-            Comparator c = new Comparator(infoAction.getChild(0).getText());
+            Comparison c = new Comparison(infoAction.getChild(0).getText());
 
             c.setFirst(createExpression(infoAction.getChild(1),parTable));
             c.setTwo(createExpression(infoAction.getChild(2),parTable));
@@ -555,8 +555,8 @@ public class PddlDomain extends Object {
             //Crea un and e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di and
         } else if (child.getType() == PddlParser.ASSIGN_EFFECT) {
-            Allocator a = new Allocator(child.getChild(0).getText());
-            a.setOne((Function)createExpression(child.getChild(1),parameters));
+            NumEffect a = new NumEffect(child.getChild(0).getText());
+            a.setOne((NumFluent)createExpression(child.getChild(1),parameters));
             a.setTwo((Expression)createExpression(child.getChild(2),parameters));
             return a;
 
@@ -578,8 +578,8 @@ public class PddlDomain extends Object {
         if (c != null) {
             for (int i = 0; i < c.getChildCount(); i++) {
                 
-                System.out.println(c.getChild(i).getText());
-                Function ret = new Function(c.getChild(i).getText());
+                //System.out.println(c.getChild(i).getText());
+                NumFluent ret = new NumFluent(c.getChild(i).getText());
                 Tree t = c.getChild(i);
                for (int j = 0; j < t.getChildCount(); j++) {
                     ret.addVariable(new Variable(t.getChild(j).getText()));
@@ -617,10 +617,10 @@ public class PddlDomain extends Object {
 
             return ret;
         } else if (t.getType() == PddlParser.NUMBER) {
-            Number ret = new Number(new Float(t.getText()));
+            PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
             return ret;
         } else if (t.getType() == PddlParser.FUNC_HEAD) {
-            Function ret = new Function(t.getChild(0).getText());
+            NumFluent ret = new NumFluent(t.getChild(0).getText());
         for (int i = 1; i < t.getChildCount(); i++) {
             Variable v = new Variable(t.getChild(i).getText());
 

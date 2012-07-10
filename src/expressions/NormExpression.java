@@ -53,11 +53,11 @@ public class NormExpression extends Expression {
             while (it.hasNext()) {
                 Addend a1 = (Addend) it.next();
                 if ((a1.f == null) && (a.f == null)) {
-                    a.n = new Number(a.n.getNumber() + a1.n.getNumber());
+                    a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
                     it.remove();
                 } else if (a1.f != null && a.f != null) {
                     if (a1.f.equals(a.f)) {
-                        a.n = new Number(a.n.getNumber() + a1.n.getNumber());
+                        a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
                         it.remove();
                     }
                 }
@@ -76,11 +76,11 @@ public class NormExpression extends Expression {
             while (it.hasNext()) {
                 Addend a1 = (Addend) it.next();
                 if ((a1.f == null) && (a.f == null)) {
-                    a.n = new Number(a.n.getNumber() - a1.n.getNumber());
+                    a.n = new PDDLNumber(a.n.getNumber() - a1.n.getNumber());
                     it.remove();
                 } else if (a1.f != null && a.f != null) {
                     if (a1.f.equals(a.f)) {
-                        a.n = new Number(a.n.getNumber() - a1.n.getNumber());
+                        a.n = new PDDLNumber(a.n.getNumber() - a1.n.getNumber());
                         it.remove();
                     }
                 }
@@ -88,7 +88,7 @@ public class NormExpression extends Expression {
         }
         for (Object o1 : right.summations) {
             Addend a1 = (Addend) o1;
-            a1.n = new Number(a1.n.getNumber() * (-1));
+            a1.n = new PDDLNumber(a1.n.getNumber() * (-1));
             this.summations.add(o1);
         }
         return this;
@@ -101,7 +101,7 @@ public class NormExpression extends Expression {
             while (it.hasNext()) {
                 Addend a1 = (Addend) it.next();
                 if (!(a.f != null && a1.f != null)) {
-                    a.n = new Number(a.n.getNumber() * a1.n.getNumber());
+                    a.n = new PDDLNumber(a.n.getNumber() * a1.n.getNumber());
                     if (a.f == null) {
                         a.f = a1.f;
                     }
@@ -126,7 +126,7 @@ public class NormExpression extends Expression {
             Addend a1 = (Addend) right.summations.get(0);
             for (Object o : this.summations) {
                 Addend a = (Addend) o;
-                a.n = new Number(a.n.getNumber() / a1.n.getNumber());
+                a.n = new PDDLNumber(a.n.getNumber() / a1.n.getNumber());
             }
         }
         return this;
@@ -138,22 +138,22 @@ public class NormExpression extends Expression {
         for (Object o : this.summations) {
             Addend a = (Addend) o;
             Addend newA = new Addend();
-            newA.f = (Function) a.f.ground(substitution);
-            newA.n = new Number(a.n.getNumber());
+            newA.f = (NumFluent) a.f.ground(substitution);
+            newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
         }
         return ret;
     }
 
     @Override
-    public Number eval(State s) {
-        Number ret = new Number(0);
+    public PDDLNumber eval(State s) {
+        PDDLNumber ret = new PDDLNumber(0);
         for (Object o : this.summations) {
             Addend a = (Addend) o;
             if (a.f != null){
-                ret = new Number(ret.getNumber() + s.functionValue(a.f).getNumber() * a.n.getNumber());
+                ret = new PDDLNumber(ret.getNumber() + s.functionValue(a.f).getNumber() * a.n.getNumber());
             }else
-                ret = new Number(ret.getNumber() + a.n.getNumber());
+                ret = new PDDLNumber(ret.getNumber() + a.n.getNumber());
         }
         return ret;
     }

@@ -6,8 +6,8 @@ package problem;
 
 import conditions.Assign;
 import conditions.Predicate;
-import expressions.Function;
-import expressions.Number;
+import expressions.NumFluent;
+import expressions.PDDLNumber;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -41,7 +41,7 @@ public class State extends Object {
             Assign ele = (Assign) o;
             Assign newA = new Assign("=");
             newA.setOne(ele.getOne());
-            Number newN = new Number(ele.getTwo().getNumber());
+            PDDLNumber newN = new PDDLNumber(ele.getTwo().getNumber());
             newA.setTwo(newN);
             ret_val.addNumericFluent(newA);
         }
@@ -61,7 +61,7 @@ public class State extends Object {
         return numericFs;
     }
 
-    public Number functionValue(Function f) {
+    public PDDLNumber functionValue(NumFluent f) {
         for (Object o : numericFs) {
             if (o instanceof Assign) {
                 Assign a = (Assign) o;
@@ -95,7 +95,7 @@ public class State extends Object {
         return this.propositions.contains(aThis);
     }
 
-    public void setFunctionValue(Function f, Number after) {
+    public void setFunctionValue(NumFluent f, PDDLNumber after) {
         for (Object o : numericFs) {
             if (o instanceof Assign) {
                 Assign a = (Assign) o;

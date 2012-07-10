@@ -54,7 +54,7 @@ public class Predicate extends Conditions {
             return null;
         }
         for (Object o : terms_) {
-            Term t = (Term) o;
+            PDDLObject t = (PDDLObject) o;
             Variable v = (Variable) getVariables().get(i);
             if (!t.getType().equals(v.getType())) {
                 return null;
@@ -82,7 +82,7 @@ public class Predicate extends Conditions {
         }
     }
 
-    public void addTerm(Term t) {
+    public void addTerm(PDDLObject t) {
         if (!isGrounded()) {
             System.out.println("Predicate not grounded; no term is possible");
         } else {
@@ -158,7 +158,7 @@ public class Predicate extends Conditions {
 
         for (Object o : variables) {
             
-            Term t = (Term)substitution.get(o);
+            PDDLObject t = (PDDLObject)substitution.get(o);
             if (t == null){
                 System.out.println("Error in substitution  for " + o);
                 System.exit(-1);
