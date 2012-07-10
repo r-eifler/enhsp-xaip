@@ -14,7 +14,7 @@ public class metricFFWrapper extends planningTool {
     }
     
     public String putSolutionInFile() throws IOException{
-         int n = process.getInputStream().read();  //leggo l'output di metric-ff
+        int n = process.getInputStream().read();  //leggo l'output di metric-ff
         String s = "";
         String[] st = null;
 
