@@ -51,11 +51,14 @@ public class GroundAction extends GenericActionType {
     public State apply(State s){
         State ret = s;
         AndCond add = (AndCond)addList;
-        ret = add.apply(s);
+        if (add != null)
+            ret = add.apply(s);
         AndCond del = (AndCond)delList;
-        ret = del.apply(s);
+        if (del != null)
+            ret = del.apply(s);
         AndCond num = (AndCond)this.getNumeric();
-        ret = num.apply(s);       
+        if (num != null)
+            ret = num.apply(s);       
         return ret;
     }
     

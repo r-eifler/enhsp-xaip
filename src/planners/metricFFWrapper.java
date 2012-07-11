@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Scanner;
 
 public class metricFFWrapper extends planningTool {
     public metricFFWrapper() {
@@ -11,54 +12,35 @@ public class metricFFWrapper extends planningTool {
         option1 = "-O";
         option2 = "";
         planningExec = "/home/enrico/planner/planners/Metric-FF/ff";
+        storedSolutionPath = "sol.pddl";
+//        ArrayList solution;
     }
-    
-    public String putSolutionInFile() throws IOException{
-        int n = process.getInputStream().read();  //leggo l'output di metric-ff
-        String s = "";
-        String[] st = null;
 
+    public String plan() throws IOException{
+         this.executePlanning();
+         putSolutionInFile(this.outputPlanning);
+         return this.storedSolutionPath;
+    }
+    public String plan(String domainFile,String problemFile) throws IOException{
+         this.setDomainFile(domainFile);
+         this.setProblemFile(problemFile);
+         this.executePlanning();
+         putSolutionInFile(this.outputPlanning);
+         return this.storedSolutionPath;
+    }
 
-        boolean flag = false;
-
-
-        boolean exit = false;
-        Writer output = new BufferedWriter(new FileWriter("sol.pddl"));
-
-        /*pulisco l'output d metric-ff e aggiungo delle parentesi
-        tonde agli step della soluzione*/
-
-        while (n != -1 && !exit) {
-            s += (char) n;
-
-            if ('\n' == n) {
-                if (flag == false && s.contains("ff: found legal plan as follows")) {
-                    flag = true;
-
-                } else if (flag && s.contains("time spent:")) {
-                    exit = true;
-                    flag = false;
-
-                } else if (flag && !s.trim().equalsIgnoreCase("\n") && !s.trim().isEmpty()) {
-                    if (s.contains("step")) {
-                        s = s.replace("step", "    ");
-
-                    }
-                    s = s.trim() + ")\n";
-                    st = s.split(": ", 2);
-                    s = st[0] + ": (" + st[1];
-                    //System.out.println(s);
-                    output.write(s);
-                }
-                s = "";
-            }
-            n = process.getInputStream().read();
+    private void putSolutionInFile(String s) throws IOException {
+        
+        Scanner sc = new Scanner(s);
+        Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
+        output.write("\n");
+        while(sc.hasNextLine()){    
+            if (sc.findInLine("[0-9]: ") != null){
+                //System.out.println("("+sc.nextLine()+")");
+                output.write("("+sc.nextLine()+")\n");
+            }else
+                sc.nextLine();
         }
         output.close();
-        
-    
-        return "sol.pddl";
     }
-
-
 }
