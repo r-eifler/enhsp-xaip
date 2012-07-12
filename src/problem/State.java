@@ -5,11 +5,21 @@
 package problem;
 
 import conditions.Assign;
+import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Scanner;
 
 /**
  *
@@ -116,5 +126,67 @@ public class State extends Object {
             }
         }
         System.out.println(aThis + "non trovato");
+    }
+    
+    public String pddlPrint(){
+        String ret = "(:init\n";
+        
+        for (Object o: this.getPropositions()){
+            Predicate a = (Predicate)o;
+            ret = ret.concat("  ("+a.getPredicateName());
+            for (Object o1: a.getTerms()){
+                PDDLObject obj = (PDDLObject)o1;
+                ret  = ret.concat(" "+obj.getName());
+            }
+            ret = ret.concat(")\n");
+        }
+        for (Object o: this.getNumericFluents()){
+            Assign a = (Assign)o;
+            ret = ret.concat("  ( = ("+a.getOne().getName());
+            for (Object o1: a.getOne().getTerms()){
+                PDDLObject obj = (PDDLObject)o1;
+                ret =  ret.concat(" "+obj.getName());
+            }
+            ret = ret.concat(") "+a.getTwo().getNumber()+")\n");
+        }
+    
+        ret = ret.concat(")");
+        return ret;
+    }
+    public void generateNewProblemFile(String srcPath, String destPath) throws FileNotFoundException, IOException{
+        
+        
+        Reader input = new BufferedReader(new FileReader(srcPath));
+        
+        Scanner sc = new Scanner(input);
+        Writer output = new BufferedWriter(new FileWriter(destPath));
+        output.write("\n");
+        boolean initskipped = false;
+        boolean goalStarted = false;
+        
+        while(sc.hasNext()){    
+            if ((initskipped)&&(goalStarted)){
+                output.write(sc.nextLine());
+            }else{
+                if (!initskipped){
+                    if ((sc.findInLine(":init") != null)){
+                        initskipped=true;
+                        sc.next();
+                        output.write("\n" + this.pddlPrint());
+                    }else{
+                        output.write(sc.nextLine());//prima dello skip
+                    }
+                }else{
+                    if (sc.findInLine(":goal")!=null){
+                        goalStarted = true;
+                        output.write("\n(:goal "+ sc.nextLine());//dopo il goal
+                    }else
+                        sc.nextLine();
+                }   
+            }
+        }
+        output.close();
+        
+        
     }
 }
