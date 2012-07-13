@@ -4,7 +4,7 @@
  */
 package problem;
 
-import conditions.Assign;
+import conditions.Assigner;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumFluent;
@@ -48,8 +48,8 @@ public class State extends Object {
         State ret_val = new State();
 
         for (Object o : this.numericFs) {
-            Assign ele = (Assign) o;
-            Assign newA = new Assign("=");
+            Assigner ele = (Assigner) o;
+            Assigner newA = new Assigner("=");
             newA.setOne(ele.getOne());
             PDDLNumber newN = new PDDLNumber(ele.getTwo().getNumber());
             newA.setTwo(newN);
@@ -73,8 +73,8 @@ public class State extends Object {
 
     public PDDLNumber functionValue(NumFluent f) {
         for (Object o : numericFs) {
-            if (o instanceof Assign) {
-                Assign a = (Assign) o;
+            if (o instanceof Assigner) {
+                Assigner a = (Assigner) o;
                 if (a.getOne().equals(f)) {
                     return a.getTwo().eval(this);
                 }
@@ -87,7 +87,7 @@ public class State extends Object {
         propositions.add(buildInstPredicate);
     }
 
-    public void addNumericFluent(Assign a) {
+    public void addNumericFluent(Assigner a) {
 
 
         numericFs.add(a);
@@ -107,8 +107,8 @@ public class State extends Object {
 
     public void setFunctionValue(NumFluent f, PDDLNumber after) {
         for (Object o : numericFs) {
-            if (o instanceof Assign) {
-                Assign a = (Assign) o;
+            if (o instanceof Assigner) {
+                Assigner a = (Assigner) o;
                 if (a.getOne().equals(f)) {
                     a.setTwo(after);
                 }
@@ -141,7 +141,7 @@ public class State extends Object {
             ret = ret.concat(")\n");
         }
         for (Object o: this.getNumericFluents()){
-            Assign a = (Assign)o;
+            Assigner a = (Assigner)o;
             ret = ret.concat("  ( = ("+a.getOne().getName());
             for (Object o1: a.getOne().getTerms()){
                 PDDLObject obj = (PDDLObject)o1;

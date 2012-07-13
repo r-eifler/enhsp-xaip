@@ -111,5 +111,10 @@ public class MultiOp extends Expression{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public String pddlPrint() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
    
 }

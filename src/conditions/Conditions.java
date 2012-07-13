@@ -25,4 +25,7 @@ public abstract class Conditions extends Object{
     public abstract  boolean eval(State s);
     public abstract boolean isSatisfied(State s);
     public abstract void changeVar(Map substitution);
+
+    public abstract String pddlPrint();
+    
 }

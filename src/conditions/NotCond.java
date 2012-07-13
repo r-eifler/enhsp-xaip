@@ -90,4 +90,22 @@ public class NotCond extends Conditions{
             el.changeVar(substitution);
         }
     }
+    
+    public String pddlPrint() {
+        String ret_val="(not ";
+        for (Object o: son){
+            if (o instanceof Conditions){
+                Conditions c = (Conditions)o;
+                ret_val = ret_val.concat(c.pddlPrint());
+            }else if (o instanceof Comparison){
+                Comparison comp = (Comparison)o;
+                ret_val = ret_val.concat(comp.pddlPrint());
+            }else{
+                System.out.println("Error in pddlPrint:" + this);
+                System.exit(-1);
+            }
+        }
+        ret_val = ret_val.concat(")");
+        return ret_val;
+    }
 }

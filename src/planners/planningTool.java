@@ -12,11 +12,11 @@ import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class planningTool {
+public abstract class planningTool {
 
-    String outputPlanning;
+    public String outputPlanning;
     Process process;
-    String storedSolutionPath;
+    public String storedSolutionPath;
 
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
@@ -82,6 +82,12 @@ public class planningTool {
     public String getProblemFile() {
         return problemFile;
     }
+    
+    
+    public abstract String plan(String domainFile,String problemFile);
+    public abstract String plan();
+    
+    
     protected String option1;
     protected String option2;
     protected String planningExec;

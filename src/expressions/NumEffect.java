@@ -153,5 +153,11 @@ public class NumEffect extends Expression {
          this.two.changeVar(substitution);
     }
 
+    @Override
+    public String pddlPrint() {
+        return "(" +getOperator()+" "+ getOne().pddlPrint() + " " + getTwo().pddlPrint() +")";
+
+    }
+
     
 }

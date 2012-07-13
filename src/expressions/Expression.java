@@ -24,4 +24,7 @@ public abstract class Expression extends Object {
     //public abstract State apply(State s);
     public abstract NormExpression normalize();
     public abstract void changeVar(Map substitution);
+
+    public abstract String pddlPrint();
+
 }

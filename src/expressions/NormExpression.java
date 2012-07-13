@@ -5,6 +5,7 @@
 package expressions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import problem.State;
@@ -27,18 +28,24 @@ public class NormExpression extends Expression {
         boolean first  = true;
         for (Object o : this.summations) {
             Addend a = (Addend) o;
+//            if (a.f != null) {
+//                if (first){
+//                    ret = ret.concat(a.n + "x" + a.f );
+//                    first = false;
+//                }else
+//                    ret = ret.concat(" + " + a.n + "x" + a.f );
+//            } else {
+//                if (first){
+//                    ret = ret.concat(a.n.toString());
+//                    first = false;
+//                }else
+//                    ret = ret.concat("+" + a.n);
+//            }
+            
             if (a.f != null) {
-                if (first){
-                    ret = ret.concat(a.n + "x" + a.f );
-                    first = false;
-                }else
-                    ret = ret.concat(" + " + a.n + "x" + a.f );
+                ret = ret.concat("+" + a.n + "x" + a.f );
             } else {
-                if (first){
-                    ret = ret.concat(a.n.toString());
-                    first = false;
-                }else
-                    ret = ret.concat("+" + a.n);
+                ret = ret.concat("+" + a.n);
             }
         }
         ret = ret.concat("");
@@ -157,10 +164,43 @@ public class NormExpression extends Expression {
         }
         return ret;
     }
+    
+    public NormExpression weakEval(State s,HashMap invFluents){
+        NormExpression ret = new NormExpression();
+        PDDLNumber c = new PDDLNumber(0);
+        Iterator it = this.summations.iterator();
+        boolean zero = true;
+        while(it.hasNext()) {
+            Addend a = (Addend) it.next();
+            if (a.f != null){
+                if ((Boolean)invFluents.get(a.f)){
+                    zero=false;
+                    c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber()*a.n.getNumber());
+                }else
+                    ret.summations.add(a);
+            }
+        }
+        boolean trovato = false;
+        Iterator it2 = this.summations.iterator();
+        while(it2.hasNext()){
+             Addend a = (Addend) it2.next();
+             if (a.f == null){
+                 //System.out.println("TROVATO");
+                 ret.summations.add(new Addend(null,new PDDLNumber(a.n.getNumber() + c.getNumber())));
+                 trovato = true;
+                 break;
+             }
+            
+        }
+        if((!trovato)&&(!zero))
+            ret.summations.add(new Addend(null,c));
+
+        return ret;
+    }
 
     @Override
     public NormExpression normalize() {
-        System.out.println("Expression normalized by default");
+        //System.out.println("Expression normalized by default");
         return this;
     }
 
@@ -172,5 +212,10 @@ public class NormExpression extends Expression {
             a.f.changeVar(substitution);
             
         }
+    }
+
+    @Override
+    public String pddlPrint() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

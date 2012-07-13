@@ -59,4 +59,15 @@ public class ProblemObjects extends HashSet{
 
         return ret_val;
     }
+
+    public String pddlPrint() {
+        String ret = "(:objects \n";
+        for (Object o: this){
+            PDDLObject obj = (PDDLObject)o;
+            
+            ret = ret + "   "+obj.pddlPrint() +"\n";
+        }
+        
+        return ret+")\n";
+    }
 }

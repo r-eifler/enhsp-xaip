@@ -70,7 +70,7 @@ public class NumFluent extends Expression {
     }
     @Override
     public String toString(){
-        if (!grounded)
+    if (!grounded)
             return " "+ getName() + " " + variables;
         else
             return " "+ getName() + " " + terms;
@@ -149,5 +149,18 @@ public class NumFluent extends Expression {
             newVar.add(substitution.get(o));
         }
         variables = newVar;
+    }
+
+    @Override
+    public String pddlPrint() {
+        String ret = "";
+        ret = ret.concat(" (" + this.name);
+        for (Object o1 : this.getTerms()) {
+            PDDLObject obj = (PDDLObject) o1;
+            ret = ret.concat(" " + obj.getName());
+        }
+        ret = ret.concat(")");
+        return ret;
+    
     }
 }

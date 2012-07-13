@@ -13,4 +13,12 @@ public class Addend {
     public PDDLNumber n;
     public NumFluent f;
 
+    public Addend(){
+    
+    }
+    public Addend(NumFluent f, PDDLNumber n){
+    
+        this.f = f;
+        this.n = n;
+    }
 }

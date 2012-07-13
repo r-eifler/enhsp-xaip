@@ -71,4 +71,9 @@ public class PDDLNumber extends Expression
         //throw new UnsupportedOperationException("Not supported yet.");
         
     }
+
+    @Override
+    public String pddlPrint() {
+        return " "+ getNumber() + " ";
+    }
 }

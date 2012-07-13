@@ -7,7 +7,7 @@ package problem;
 import antlr.RecognitionException;
 
 import conditions.AndCond;
-import conditions.Assign;
+import conditions.Assigner;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
@@ -17,7 +17,6 @@ import conditions.PDDLObject;
 
 import domain.Type;
 
-import domain.Variable;
 import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.NumFluent;
@@ -25,13 +24,15 @@ import expressions.MinusUnary;
 import expressions.MultiOp;
 import expressions.PDDLNumber;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import java.util.HashSet;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -55,6 +56,61 @@ public class PddlProblem {
     private Integer indexInit;
     private Integer indexGoals;
     private Metric metric;
+    protected String pddlFilRef;
+    protected String domainName;
+
+    /**
+     * Get the value of domainName
+     *
+     * @return the value of domainName
+     */
+    public String getDomainName() {
+        return domainName;
+    }
+
+    /**
+     * Set the value of domainName
+     *
+     * @param domainName new value of domainName
+     */
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
+
+    /**
+     * Get the value of pddlFilRef
+     *
+     * @return the value of pddlFilRef
+     */
+    public String getPddlFilRef() {
+        return pddlFilRef;
+    }
+
+    /**
+     * Set the value of pddlFilRef
+     *
+     * @param pddlFilRef new value of pddlFilRef
+     */
+    public void setPddlFilRef(String pddlFilRef) {
+        this.pddlFilRef = pddlFilRef;
+    }
+    
+    public void saveProblem(String pddlNewFile) throws IOException{
+        
+        pddlFilRef = pddlNewFile;
+        
+        String toWrite = "(define (problem "+this.getName()+") "+
+                         "(:domain " +this.getDomainName()+") "+
+                          this.objects.pddlPrint()+"\n"+
+                          this.init.pddlPrint()+"\n"+
+                          "(:goal "+ this.goals.pddlPrint()+")\n"+
+                          this.metric.pddlPrint()+"\n"+
+                          ")";
+        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        file.write(toWrite);                          
+        file.close();
+    }
 
     /**
      * 
@@ -78,6 +134,8 @@ public class PddlProblem {
      * @throws org.antlr.runtime.RecognitionException
      */
     public void parseProblem(String file) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
+        
+        pddlFilRef = file;
         ANTLRInputStream in;
         in = new ANTLRInputStream(new FileInputStream(file));
         PddlLexer lexer = new PddlLexer(in);
@@ -93,7 +151,13 @@ public class PddlProblem {
 //        exploreTree(t);
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
+            
             switch (child.getType()) {
+                case PddlParser.PROBLEM_DOMAIN:
+                    System.out.println("dominio");
+                    System.out.println(child.toStringTree());
+                    this.setDomainName(child.getChild(0).getText());
+                    break;
                 case PddlParser.PROBLEM_NAME:
                     setName(child.getChild(0).getText());
                     break;
@@ -243,7 +307,7 @@ public class PddlProblem {
                 init.addProposition(buildInstPredicate(c));
 
             } else if (c.getType() == PddlParser.INIT_EQ) {
-                Assign a = new Assign("=");
+                Assigner a = new Assigner("=");
                 a.setOne((NumFluent) createExpression(c.getChild(0)));
                 a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
                 init.addNumericFluent(a);
@@ -325,7 +389,7 @@ public class PddlProblem {
         this.objects = object;
     }
 
-    private void setInit(State init) {
+    public void setInit(State init) {
         this.init = init;
     }
 
@@ -416,8 +480,8 @@ public class PddlProblem {
     public NumFluent getFunction(String string, ArrayList terms) {
         for (Object o : init.getNumericFluents()) {
 
-            if (o instanceof Assign) {
-                Assign ele = (Assign) o;
+            if (o instanceof Assigner) {
+                Assigner ele = (Assigner) o;
                 NumFluent fAssign = ele.getOne();
 
                 if (fAssign.getName().equals(string)) {
@@ -436,8 +500,8 @@ public class PddlProblem {
 
         for (Object o : init.getNumericFluents()) {
 
-            if (o instanceof Assign) {
-                Assign ele = (Assign) o;
+            if (o instanceof Assigner) {
+                Assigner ele = (Assigner) o;
                 NumFluent fAssign = ele.getOne();
                 res.add(fAssign);
 

@@ -24,11 +24,16 @@ public class Comparison extends Conditions{
         super();
         bin_comp = bin_comp_;
     }
+    
+    @Override
     public String toString(){
     
         return "(" +getBin_comp() +" "+ getFirst() + " " + getTwo() +")";
     
-    
+    }
+    @Override
+    public String pddlPrint() {
+        return "(" +getBin_comp() +" "+ getFirst().pddlPrint() + " " + getTwo().pddlPrint() +")";
     }
 
     /**
@@ -141,4 +146,6 @@ public class Comparison extends Conditions{
         ret.setTwo(this.two.normalize());
         return ret;
     }
+
+
 }

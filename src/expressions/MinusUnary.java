@@ -47,4 +47,9 @@ public class MinusUnary extends Expression {
     public void changeVar(Map substitution) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public String pddlPrint() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

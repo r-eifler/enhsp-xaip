@@ -61,7 +61,7 @@ public class Type extends Object{
         return hash;
     }
     public String toString(){
-        return " " + getName() + " ";
+        return " -" + getName() + " ";
     }
 
     public String getName() {

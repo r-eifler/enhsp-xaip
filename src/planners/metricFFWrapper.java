@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class metricFFWrapper extends planningTool {
     public metricFFWrapper() {
@@ -12,21 +14,33 @@ public class metricFFWrapper extends planningTool {
         option1 = "-O";
         option2 = "";
         planningExec = "/home/enrico/planner/planners/Metric-FF/ff";
-        storedSolutionPath = "sol.pddl";
+        storedSolutionPath = "temp.pddl";
 //        ArrayList solution;
     }
 
-    public String plan() throws IOException{
-         this.executePlanning();
-         putSolutionInFile(this.outputPlanning);
-         return this.storedSolutionPath;
+    @Override
+    public String plan(){
+        try {
+            this.executePlanning();
+            putSolutionInFile(this.outputPlanning);
+            return this.storedSolutionPath;
+        } catch (IOException ex) {
+            Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
-    public String plan(String domainFile,String problemFile) throws IOException{
-         this.setDomainFile(domainFile);
-         this.setProblemFile(problemFile);
-         this.executePlanning();
-         putSolutionInFile(this.outputPlanning);
-         return this.storedSolutionPath;
+    @Override
+    public String plan(String domainFile,String problemFile){
+        try {
+            this.setDomainFile(domainFile);
+            this.setProblemFile(problemFile);
+            this.executePlanning();
+            putSolutionInFile(this.outputPlanning);
+            return this.storedSolutionPath;
+        } catch (IOException ex) {
+            Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     private void putSolutionInFile(String s) throws IOException {

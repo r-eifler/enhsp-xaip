@@ -6,7 +6,7 @@ package domain;
 
 import expressions.NumEffect;
 import conditions.AndCond;
-import conditions.Assign;
+import conditions.Assigner;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
@@ -54,6 +54,7 @@ public class PddlDomain extends Object {
     private List functions;
     private List DurativeActions;
     private List Requirements;
+    private String pddlFilRef;
 
     private PddlDomain(Set ActionsSchema, PredicateSet Predicates, HashSet types, List Functions, List DurativeActions, List Requirements) {
         this.ActionsSchema = ActionsSchema;
@@ -101,7 +102,7 @@ public class PddlDomain extends Object {
         }
 
         for (Object o : p.getInit().getPropositions()) {
-            if (o instanceof Assign) {
+            if (o instanceof Assigner) {
             } else {
                 Predicate t = (Predicate) o;
                 if (!predicates.validateInst(t)) {
@@ -134,6 +135,7 @@ public class PddlDomain extends Object {
      * @throws RecognitionException
      */
     public void parseDomain(String file) throws IOException, RecognitionException {
+        this.setPddlFilRef(file);
         ANTLRInputStream in;
         in = new ANTLRInputStream(new FileInputStream(file));
         PddlLexer lexer = new PddlLexer(in);
@@ -646,5 +648,19 @@ public class PddlDomain extends Object {
 
         return null;
 
+    }
+
+    /**
+     * @return the pddlFilRef
+     */
+    public String getPddlFilRef() {
+        return pddlFilRef;
+    }
+
+    /**
+     * @param pddlFilRef the pddlFilRef to set
+     */
+    public void setPddlFilRef(String pddlFilRef) {
+        this.pddlFilRef = pddlFilRef;
     }
 }

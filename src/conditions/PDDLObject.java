@@ -99,4 +99,10 @@ public class PDDLObject extends Conditions {
     public void changeVar(Map substitution) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public String pddlPrint() {
+
+        return this.getName()+" "+this.getType();
+    }
 }

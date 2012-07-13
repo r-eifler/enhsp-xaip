@@ -16,8 +16,6 @@ import problem.State;
  */
 public class Predicate extends Conditions {
 
-
-
     private String predicateName;
     private ArrayList variables;
     private ArrayList terms;
@@ -94,15 +92,15 @@ public class Predicate extends Conditions {
     public String toString() {
         String ret_val = "(" + this.predicateName + " ";
 
-        
+
         if (isGrounded()) {
             for (Object o : getTerms()) {
-                
+
                 ret_val = ret_val.concat(o.toString());
             }
         } else {
             ret_val = ret_val.concat(getVariables().toString());
-            
+
         }
         ret_val = ret_val.concat(") ");
         return ret_val;
@@ -157,14 +155,14 @@ public class Predicate extends Conditions {
         ret.grounded = true;
 
         for (Object o : variables) {
-            
-            PDDLObject t = (PDDLObject)substitution.get(o);
-            if (t == null){
+
+            PDDLObject t = (PDDLObject) substitution.get(o);
+            if (t == null) {
                 System.out.println("Error in substitution  for " + o);
                 System.exit(-1);
-            }else
-                
+            } else {
                 ret.terms.add(t);
+            }
         }
         return ret;
     }
@@ -181,29 +179,34 @@ public class Predicate extends Conditions {
 
     @Override
     public boolean isSatisfied(State s) {
-       return s.containProposition(this);
+        return s.containProposition(this);
     }
-        @Override
+
+    @Override
     public boolean equals(Object obj) {
-        Predicate p = (Predicate)obj;
-        if (!p.getPredicateName().equalsIgnoreCase(this.predicateName))
+        Predicate p = (Predicate) obj;
+        if (!p.getPredicateName().equalsIgnoreCase(this.predicateName)) {
             return false;
-        if (this.grounded){
-            if (!(p.getTerms().equals(this.getTerms())))
+        }
+        if (this.grounded) {
+            if (!(p.getTerms().equals(this.getTerms()))) {
                 return false;
-        }else{
-            if (!(p.getVariables().equals(this.variables)))
+            }
+        } else {
+            if (!(p.getVariables().equals(this.variables))) {
                 return false;
+            }
         }
         return true;
     }
 
-
     public State apply(State s) {
-        if (!s.containProposition(this))
+        if (!s.containProposition(this)) {
             s.addProposition(this);
+        }
         return s;
     }
+
     public State remove(State s) {
         s.removeProposition(this);
 
@@ -213,10 +216,10 @@ public class Predicate extends Conditions {
     @Override
     public void changeVar(Map substitution) {
         ArrayList newVar = new ArrayList();
-        
+
         for (Object o : variables) {
-            Variable v = (Variable)substitution.get(o);
-            if (v == null){
+            Variable v = (Variable) substitution.get(o);
+            if (v == null) {
                 System.out.println("Not Found Variable" + o);
                 System.exit(-1);
             }
@@ -225,6 +228,15 @@ public class Predicate extends Conditions {
         variables = newVar;
     }
 
-
-
+    @Override
+    public String pddlPrint() {
+        String ret = "";
+        ret = ret.concat("  (" + this.getPredicateName());
+        for (Object o1 : this.getTerms()) {
+            PDDLObject obj = (PDDLObject) o1;
+            ret = ret.concat(" " + obj.getName());
+        }
+        ret = ret.concat(")");
+        return ret;
+    }
 }

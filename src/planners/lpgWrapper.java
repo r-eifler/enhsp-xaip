@@ -12,5 +12,15 @@ public class lpgWrapper extends planningTool {
         planningExec = "/home/enrico/planner/planners/lpg-td-1.0";
     }
 
+    @Override
+    public String plan(String domainFile, String problemFile) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String plan() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 
 }
