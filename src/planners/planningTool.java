@@ -1,16 +1,8 @@
 package planners;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Writer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public abstract class planningTool {
 
@@ -30,7 +22,7 @@ public abstract class planningTool {
             String line = null;
 
             while ((line = input.readLine()) != null) {
-                //System.out.println(line);
+                System.out.println(line);
                 outputPlanning = outputPlanning.concat(line + "\n");
             }
 
@@ -39,7 +31,9 @@ public abstract class planningTool {
             //System.out.println("Exited with error code " + exitVal);
             //this.putSolutionInFile(outputPlanning);
         } catch (IOException e) {
+            System.out.println("Planner eccezione"+e.toString());
         } catch (InterruptedException e) {
+            System.out.println("Planner eccezione"+e.toString());
         }
     }
 

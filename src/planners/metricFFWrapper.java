@@ -13,7 +13,7 @@ public class metricFFWrapper extends planningTool {
         super();
         option1 = "-O";
         option2 = "";
-        planningExec = "/home/enrico/planner/planners/Metric-FF/ff";
+        planningExec = "ff";
         storedSolutionPath = "temp.pddl";
 //        ArrayList solution;
     }
