@@ -115,6 +115,7 @@ public class Comparison extends Conditions{
         PDDLNumber first = one.eval(s);
         PDDLNumber second = two.eval(s);
 
+        
         if (this.getBin_comp().equals("<")){
             return first.getNumber() < second.getNumber();
         }else if (this.getBin_comp().equals("<=")){
@@ -124,7 +125,7 @@ public class Comparison extends Conditions{
         }else if (this.getBin_comp().equals(">=")){
             return first.getNumber() >= second.getNumber();
         }else if (this.getBin_comp().equals("=")){
-            return first.getNumber() == second.getNumber();
+            return first.getNumber().equals(second.getNumber());
         }else{
             System.out.println(this.getBin_comp() + "  is not supported");
         }

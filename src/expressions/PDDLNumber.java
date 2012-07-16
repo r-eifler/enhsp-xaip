@@ -4,6 +4,7 @@
  */
 package expressions;
 
+import java.util.HashMap;
 import java.util.Map;
 import problem.State;
 
@@ -75,5 +76,10 @@ public class PDDLNumber extends Expression
     @Override
     public String pddlPrint() {
         return " "+ getNumber() + " ";
+    }
+
+    @Override
+    public Expression weakEval(State s, HashMap invF) {
+        return this;
     }
 }

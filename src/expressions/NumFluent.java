@@ -8,6 +8,7 @@ import conditions.PDDLObject;
 
 import domain.Variable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import problem.State;
 
@@ -162,5 +163,15 @@ public class NumFluent extends Expression {
         ret = ret.concat(")");
         return ret;
     
+    }
+
+    @Override
+    public Expression weakEval(State s, HashMap invF) {
+       
+        if ((Boolean)invF.get(this)){
+            return s.functionValue(this);
+        }else{
+            return this;
+        }
     }
 }

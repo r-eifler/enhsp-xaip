@@ -4,6 +4,7 @@
  */
 package expressions;
 
+import java.util.HashMap;
 import java.util.Map;
 import problem.State;
 
@@ -139,4 +140,19 @@ public class BinaryOp extends Expression {
         return "("+getOperator() + " " + getOne().pddlPrint() + " " + getTwo().pddlPrint()+")";
 
     }
+
+    @Override
+    public Expression weakEval(State s, HashMap invF) {
+        BinaryOp ret = new BinaryOp();
+
+        ret.operator = this.operator;
+        ret.one = one.weakEval(s,invF);
+        ret.two = two.weakEval(s,invF);
+
+        return ret;
+        
+
+    }
+    
+    
 }

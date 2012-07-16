@@ -179,6 +179,7 @@ public class Predicate extends Conditions {
 
     @Override
     public boolean isSatisfied(State s) {
+        
         return s.containProposition(this);
     }
 
@@ -198,6 +199,16 @@ public class Predicate extends Conditions {
             }
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
+        hash = 59 * hash + (this.variables != null ? this.variables.hashCode() : 0);
+        hash = 59 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+        hash = 59 * hash + (this.grounded ? 1 : 0);
+        return hash;
     }
 
     public State apply(State s) {

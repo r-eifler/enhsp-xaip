@@ -5,6 +5,7 @@
 package expressions;
 
 
+import java.util.HashMap;
 import java.util.Map;
 import problem.State;
 
@@ -26,5 +27,6 @@ public abstract class Expression extends Object {
     public abstract void changeVar(Map substitution);
 
     public abstract String pddlPrint();
+    public abstract Expression weakEval(State s, HashMap invF);
 
 }

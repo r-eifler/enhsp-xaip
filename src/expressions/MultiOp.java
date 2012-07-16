@@ -5,6 +5,7 @@
 package expressions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import problem.State;
@@ -113,6 +114,11 @@ public class MultiOp extends Expression{
 
     @Override
     public String pddlPrint() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Expression weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

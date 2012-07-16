@@ -4,6 +4,7 @@
  */
 package expressions;
 
+import java.util.HashMap;
 import java.util.Map;
 import problem.State;
 
@@ -50,6 +51,11 @@ public class MinusUnary extends Expression {
 
     @Override
     public String pddlPrint() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Expression weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

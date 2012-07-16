@@ -7,6 +7,7 @@ package expressions;
 import expressions.Expression;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -159,5 +160,14 @@ public class NumEffect extends Expression {
 
     }
 
+    @Override
+    public Expression weakEval(State s, HashMap invF) {
+        NumEffect ret = new NumEffect(this.operator);
+        ret.one = (NumFluent)this.one.weakEval(s, invF);
+        ret.two = this.two.weakEval(s, invF);
+        return ret;
+    }
+
+    
     
 }

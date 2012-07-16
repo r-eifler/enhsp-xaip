@@ -92,8 +92,10 @@ public class AndCond extends Conditions {
         for (Object o : this.son){
             if (o instanceof Conditions){
                 Conditions c = (Conditions)o;
-                if (!c.isSatisfied(s))
+                if (!c.isSatisfied(s)){
+                    System.out.println(c + " is not satisfied in " + s);
                     return false;
+                }
             }
         }
         return true;
