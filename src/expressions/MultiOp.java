@@ -14,6 +14,8 @@ import problem.State;
  *
  * @author enrico
  */
+
+//only for summations
 public class MultiOp extends Expression{
     private String operator;
     private List expr;
@@ -99,7 +101,17 @@ public class MultiOp extends Expression{
 
     @Override
     public PDDLNumber eval(State s) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        PDDLNumber ret_val = new PDDLNumber(0);
+        
+        for (Object o: this.expr){
+            Expression e = (Expression)o;
+            if (this.getOperator().equals("+")) {
+                ret_val = new PDDLNumber(new Float(e.eval(s).getNumber()) + ret_val.getNumber());
+            } else {
+                System.out.println(this.operator + " not supported");
+            }
+        }
+        return ret_val;
     }
 
     @Override

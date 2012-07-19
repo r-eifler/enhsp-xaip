@@ -9,14 +9,14 @@ package expressions;
  *
  * @author enrico
  */
-public class Addend {
+public class Addendum {
     public PDDLNumber n;
     public NumFluent f;
 
-    public Addend(){
+    public Addendum(){
     
     }
-    public Addend(NumFluent f, PDDLNumber n){
+    public Addendum(NumFluent f, PDDLNumber n){
     
         this.f = f;
         this.n = n;

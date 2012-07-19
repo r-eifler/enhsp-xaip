@@ -27,7 +27,7 @@ public class NormExpression extends Expression {
         String ret = "";
         boolean first  = true;
         for (Object o : this.summations) {
-            Addend a = (Addend) o;
+            Addendum a = (Addendum) o;
 //            if (a.f != null) {
 //                if (first){
 //                    ret = ret.concat(a.n + "x" + a.f );
@@ -55,10 +55,10 @@ public class NormExpression extends Expression {
     NormExpression sum(NormExpression right) {
 
         for (Object o : summations) {
-            Addend a = (Addend) o;
+            Addendum a = (Addendum) o;
             Iterator it = right.summations.iterator();
             while (it.hasNext()) {
-                Addend a1 = (Addend) it.next();
+                Addendum a1 = (Addendum) it.next();
                 if ((a1.f == null) && (a.f == null)) {
                     a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
                     it.remove();
@@ -78,10 +78,10 @@ public class NormExpression extends Expression {
 
     NormExpression minus(NormExpression right) {
         for (Object o : summations) {
-            Addend a = (Addend) o;
+            Addendum a = (Addendum) o;
             Iterator it = right.summations.iterator();
             while (it.hasNext()) {
-                Addend a1 = (Addend) it.next();
+                Addendum a1 = (Addendum) it.next();
                 if ((a1.f == null) && (a.f == null)) {
                     a.n = new PDDLNumber(a.n.getNumber() - a1.n.getNumber());
                     it.remove();
@@ -94,7 +94,7 @@ public class NormExpression extends Expression {
             }
         }
         for (Object o1 : right.summations) {
-            Addend a1 = (Addend) o1;
+            Addendum a1 = (Addendum) o1;
             a1.n = new PDDLNumber(a1.n.getNumber() * (-1));
             this.summations.add(o1);
         }
@@ -103,10 +103,10 @@ public class NormExpression extends Expression {
 
     NormExpression mult(NormExpression right) {
         for (Object o : summations) {
-            Addend a = (Addend) o;
+            Addendum a = (Addendum) o;
             Iterator it = right.summations.iterator();
             while (it.hasNext()) {
-                Addend a1 = (Addend) it.next();
+                Addendum a1 = (Addendum) it.next();
                 if (!(a.f != null && a1.f != null)) {
                     a.n = new PDDLNumber(a.n.getNumber() * a1.n.getNumber());
                     if (a.f == null) {
@@ -122,7 +122,7 @@ public class NormExpression extends Expression {
 
     NormExpression div(NormExpression right) {
         if (right.summations.size() > 1) {
-            Addend a = (Addend) right.summations.get(0);
+            Addendum a = (Addendum) right.summations.get(0);
             if (a.f != null) {
                 System.out.println("Denominator cannot be a non constant term");
             } else {
@@ -130,9 +130,9 @@ public class NormExpression extends Expression {
             }
             System.exit(-1);
         } else {
-            Addend a1 = (Addend) right.summations.get(0);
+            Addendum a1 = (Addendum) right.summations.get(0);
             for (Object o : this.summations) {
-                Addend a = (Addend) o;
+                Addendum a = (Addendum) o;
                 a.n = new PDDLNumber(a.n.getNumber() / a1.n.getNumber());
             }
         }
@@ -143,8 +143,8 @@ public class NormExpression extends Expression {
     public Expression ground(Map substitution) {
         NormExpression ret = new NormExpression();
         for (Object o : this.summations) {
-            Addend a = (Addend) o;
-            Addend newA = new Addend();
+            Addendum a = (Addendum) o;
+            Addendum newA = new Addendum();
             newA.f = (NumFluent) a.f.ground(substitution);
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
@@ -156,7 +156,7 @@ public class NormExpression extends Expression {
     public PDDLNumber eval(State s) {
         PDDLNumber ret = new PDDLNumber(0);
         for (Object o : this.summations) {
-            Addend a = (Addend) o;
+            Addendum a = (Addendum) o;
             if (a.f != null){
                 ret = new PDDLNumber(ret.getNumber() + s.functionValue(a.f).getNumber() * a.n.getNumber());
             }else
@@ -171,7 +171,7 @@ public class NormExpression extends Expression {
         Iterator it = this.summations.iterator();
         boolean zero = true;
         while(it.hasNext()) {
-            Addend a = (Addend) it.next();
+            Addendum a = (Addendum) it.next();
             if (a.f != null){
                 if ((Boolean)invFluents.get(a.f)){
                     zero=false;
@@ -183,17 +183,17 @@ public class NormExpression extends Expression {
         boolean trovato = false;
         Iterator it2 = this.summations.iterator();
         while(it2.hasNext()){
-             Addend a = (Addend) it2.next();
+             Addendum a = (Addendum) it2.next();
              if (a.f == null){
                  //System.out.println("TROVATO");
-                 ret.summations.add(new Addend(null,new PDDLNumber(a.n.getNumber() + c.getNumber())));
+                 ret.summations.add(new Addendum(null,new PDDLNumber(a.n.getNumber() + c.getNumber())));
                  trovato = true;
                  break;
              }
             
         }
         if((!trovato)&&(!zero))
-            ret.summations.add(new Addend(null,c));
+            ret.summations.add(new Addendum(null,c));
 
         return ret;
     }
@@ -208,7 +208,7 @@ public class NormExpression extends Expression {
     public void changeVar(Map substitution) {
         for (Object o : this.summations) {
             
-            Addend a = (Addend) o;
+            Addendum a = (Addendum) o;
             a.f.changeVar(substitution);
             
         }

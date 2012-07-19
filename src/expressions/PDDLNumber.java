@@ -58,7 +58,7 @@ public class PDDLNumber extends Expression
 
     @Override
     public NormExpression normalize() {
-        Addend a = new Addend();
+        Addendum a = new Addendum();
         a.n = this;
         a.f = null;
         NormExpression ret = new NormExpression();

@@ -133,7 +133,7 @@ public class NumFluent extends Expression {
 
     @Override
     public NormExpression normalize() {
-        Addend a = new Addend();
+        Addendum a = new Addendum();
         a.n = new PDDLNumber(1);
         a.f = this;
         NormExpression ret = new NormExpression();
