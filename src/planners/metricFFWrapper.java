@@ -55,6 +55,19 @@ public class metricFFWrapper extends planningTool {
             }else
                 sc.nextLine();
         }
+        sc = new Scanner(s);
+        
+        
+        while(sc.hasNextLine()){
+            String test = sc.findInLine("[0-9]+[.][0-9]+ seconds total time");
+            if (test != null){
+                Scanner temp = new Scanner(test);
+                this.setTimePlanner((int)(Float.parseFloat(temp.findInLine("[0-9]+[.][0-9]+"))*1000));
+                System.out.println("time" + this.getTimePlanner());
+            }else
+                sc.nextLine();
+        }
+        
         output.close();
     }
 }

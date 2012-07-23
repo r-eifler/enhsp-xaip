@@ -3,37 +3,52 @@ package planners;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class planningTool {
 
     public String outputPlanning;
     Process process;
     public String storedSolutionPath;
+    private int timePlanner;
+    private long timeout;
+    
+    public planningTool(){
+        timeout = 1000000;
+    }
 
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = "";
         try {
-            process = rt.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
-
-            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
 
-            String line = null;
+            Runtime runtime = Runtime.getRuntime();
+            process = runtime.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
+            /* Set up process I/O. */
 
-            while ((line = input.readLine()) != null) {
-                System.out.println(line);
-                outputPlanning = outputPlanning.concat(line + "\n");
+            Worker worker = new Worker(process);
+            worker.start();
+            worker.join(getTimeout());
+          
+            if (worker.exit != null) {
+                BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line = null;
+                while ((line = input.readLine()) != null) {
+                    //System.out.println(line);
+                    outputPlanning = outputPlanning.concat(line + "\n");
+                }
+            }else{
+                process.destroy();
+                this.setTimePlanner((int)getTimeout());
             }
 
-            int exitVal = process.waitFor();
-            
-            //System.out.println("Exited with error code " + exitVal);
-            //this.putSolutionInFile(outputPlanning);
         } catch (IOException e) {
-            System.out.println("Planner eccezione"+e.toString());
+            System.out.println("Planner eccezione" + e.toString());
         } catch (InterruptedException e) {
-            System.out.println("Planner eccezione"+e.toString());
+            System.out.println("Planner eccezione" + e.toString());
         }
     }
 
@@ -76,15 +91,59 @@ public abstract class planningTool {
     public String getProblemFile() {
         return problemFile;
     }
-    
-    
-    public abstract String plan(String domainFile,String problemFile);
+
+    public abstract String plan(String domainFile, String problemFile);
+
     public abstract String plan();
-    
-    
     protected String option1;
     protected String option2;
     protected String planningExec;
     protected String domainFile;
     protected String problemFile;
+
+    /**
+     * @return the timePlanner
+     */
+    public int getTimePlanner() {
+        return timePlanner;
+    }
+
+    /**
+     * @param timePlanner the timePlanner to set
+     */
+    public void setTimePlanner(int timePlanner) {
+        this.timePlanner = timePlanner;
+    }
+
+    /**
+     * @return the timeout
+     */
+    public long getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * @param timeout the timeout to set
+     */
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
+    private static class Worker extends Thread {
+
+        private final Process process;
+        private Integer exit;
+
+        private Worker(Process process) {
+            this.process = process;
+        }
+
+        public void run() {
+            try {
+                exit = process.waitFor();
+            } catch (InterruptedException ignore) {
+                return;
+            }
+        }
+    }
 }
