@@ -7,14 +7,15 @@ import java.io.Writer;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import plan.SimplePlan;
 
 public class metricFFWrapper extends planningTool {
     public metricFFWrapper() {
         super();
-        option1 = "-O";
+        option1 = "-O";       //"-O";
         option2 = "";
         planningExec = "ff";
-        storedSolutionPath = "temp.pddl";
+        storedSolutionPath = "temp4.pddl";
 //        ArrayList solution;
     }
 
@@ -22,6 +23,8 @@ public class metricFFWrapper extends planningTool {
     public String plan(){
         try {
             this.executePlanning();
+            if (this.isFailed())
+                return null;
             putSolutionInFile(this.outputPlanning);
             return this.storedSolutionPath;
         } catch (IOException ex) {
@@ -32,6 +35,7 @@ public class metricFFWrapper extends planningTool {
     @Override
     public String plan(String domainFile,String problemFile){
         try {
+            //System.out.println("planning");
             this.setDomainFile(domainFile);
             this.setProblemFile(problemFile);
             this.executePlanning();
@@ -70,4 +74,6 @@ public class metricFFWrapper extends planningTool {
         
         output.close();
     }
+    
+
 }

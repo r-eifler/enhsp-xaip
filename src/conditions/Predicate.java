@@ -172,11 +172,6 @@ public class Predicate extends Conditions {
         return s.containProposition(this);
     }
 
-    @Override //to be refined!!
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
     @Override
     public boolean isSatisfied(State s) {
         
@@ -218,7 +213,7 @@ public class Predicate extends Conditions {
         return s;
     }
 
-    public State remove(State s) {
+    public State remove(State s){
         s.removeProposition(this);
 
         return s;
@@ -249,5 +244,19 @@ public class Predicate extends Conditions {
         }
         ret = ret.concat(")");
         return ret;
+    }
+
+    @Override
+    public Conditions clone() {
+//        Predicate ret_val = new Predicate();
+//        ret_val.setPredicateName(predicateName);
+//        ret_val.grounded = this.grounded;
+//        if (grounded)
+//            ret_val.terms = (ArrayList)this.terms.clone();
+//        else
+//            ret_val.variables = (ArrayList)this.variables.clone();
+//        
+//        return ret_val;
+        return this;
     }
 }

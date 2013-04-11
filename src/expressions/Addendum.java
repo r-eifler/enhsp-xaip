@@ -21,4 +21,16 @@ public class Addendum {
         this.f = f;
         this.n = n;
     }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Addendum ret = new Addendum();
+        if (this.f != null)
+            ret.f = (NumFluent)this.f.clone();
+        else
+            ret.f = null;
+        ret.n = (PDDLNumber)this.n.clone();
+        return ret;
+    }
+    
 }

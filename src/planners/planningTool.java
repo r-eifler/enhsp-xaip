@@ -14,6 +14,7 @@ public abstract class planningTool {
     public String storedSolutionPath;
     private int timePlanner;
     private long timeout;
+    private boolean failed = false;
     
     public planningTool(){
         timeout = 1000000;
@@ -38,10 +39,12 @@ public abstract class planningTool {
                 String line = null;
                 while ((line = input.readLine()) != null) {
                     //System.out.println(line);
+                    
                     outputPlanning = outputPlanning.concat(line + "\n");
                 }
             }else{
                 process.destroy();
+                failed = true;
                 this.setTimePlanner((int)getTimeout());
             }
 
@@ -127,6 +130,13 @@ public abstract class planningTool {
      */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+
+    /**
+     * @return the failed
+     */
+    public boolean isFailed() {
+        return failed;
     }
 
     private static class Worker extends Thread {

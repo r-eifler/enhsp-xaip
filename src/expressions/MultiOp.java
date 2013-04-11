@@ -134,5 +134,10 @@ public class MultiOp extends Expression{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public Expression clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
    
 }

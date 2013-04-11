@@ -5,6 +5,7 @@
 
 package conditions;
 
+import java.util.HashSet;
 import java.util.Map;
 import problem.State;
 
@@ -107,5 +108,36 @@ public class NotCond extends Conditions{
         }
         ret_val = ret_val.concat(")");
         return ret_val;
+    }
+
+    @Override
+    public Conditions clone() {
+        NotCond ret = new NotCond();
+  
+//        ret.son = new HashSet();
+        ret.son = (HashSet)this.son.clone();
+//        for(Object o: this.son){
+//            if (o instanceof AndCond){
+//                AndCond a = (AndCond)o;
+//                ret.son.add(a.clone());
+//            }else if(o instanceof NotCond){
+//                NotCond a = (NotCond)o;
+//                ret.son.add(a.clone());
+//            }else if(o instanceof OrCond){
+//                OrCond a = (OrCond)o;
+//                ret.son.add(a.clone());
+//            }else if(o instanceof Predicate){
+//                Predicate a = (Predicate)o;
+//                ret.son.add(a.clone());            
+//            }else if(o instanceof Comparison){
+//                Comparison a = (Comparison)o;
+//                ret.son.add(a.clone());            
+//            }else if(o instanceof Assigner){
+//                Assigner a = (Assigner)o;
+//                ret.son.add(a.clone());            
+//            }
+//        }
+        ret.grounded = this.grounded;
+        return ret;
     }
 }

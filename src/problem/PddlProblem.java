@@ -104,7 +104,7 @@ public class PddlProblem {
                          "(:domain " +this.getDomainName()+") "+
                           this.objects.pddlPrint()+"\n"+
                           this.init.pddlPrint()+"\n"+
-                          "(:goal "+ this.goals.pddlPrint()+")\n"+
+                          "(:goal "+ this.getGoals().pddlPrint()+")\n"+
                           this.metric.pddlPrint()+"\n"+
                           ")";
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
@@ -393,7 +393,7 @@ public class PddlProblem {
         this.init = init;
     }
 
-    private void setGoals(Conditions goals) {
+    public void setGoals(Conditions goals) {
         this.goals = goals;
     }
 

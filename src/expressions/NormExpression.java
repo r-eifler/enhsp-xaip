@@ -4,10 +4,13 @@
  */
 package expressions;
 
+import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import problem.State;
 
 /**
@@ -21,6 +24,8 @@ public class NormExpression extends Expression {
     public NormExpression() {
         this.summations = new ArrayList();
     }
+   
+    
 
     @Override
     public String toString() {
@@ -52,7 +57,7 @@ public class NormExpression extends Expression {
         return ret;
     }
 
-    NormExpression sum(NormExpression right) {
+    public NormExpression sum(NormExpression right) {
 
         for (Object o : summations) {
             Addendum a = (Addendum) o;
@@ -76,7 +81,7 @@ public class NormExpression extends Expression {
         return this;
     }
 
-    NormExpression minus(NormExpression right) {
+    public NormExpression minus(NormExpression right) {
         for (Object o : summations) {
             Addendum a = (Addendum) o;
             Iterator it = right.summations.iterator();
@@ -216,6 +221,101 @@ public class NormExpression extends Expression {
 
     @Override
     public String pddlPrint() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String ret_val = "";
+        
+        {
+            Addendum ad = (Addendum)summations.get(0);
+            if (ad.f==null){
+                
+                ret_val = " "+ad.n.pddlPrint()+" ";
+            }else{
+                ret_val = "(* "+ ad.f.pddlPrint()  +" "+ ad.n.pddlPrint()+")";
+            }
+        }
+        {
+            for (int i=1;i<summations.size();i++){
+                Addendum ad = (Addendum)summations.get(i);
+                
+                if (ad.f==null){
+                    ret_val = "(+ "+ret_val+" "+ad.n.pddlPrint()+" )";
+                }else{
+                    ret_val = "(+ "+ret_val+" "+"(* "+ ad.f.pddlPrint()  +" "+ ad.n.pddlPrint()+"))";
+                }
+            }
+        }
+         return ret_val;
+    }
+
+    public NormExpression subst(Conditions numeric) {
+        ArrayList toAdd = new ArrayList();
+        ArrayList toRemove = new ArrayList();
+        Iterator it = summations.iterator();
+        while(it.hasNext()){
+            Addendum ad = (Addendum)it.next();
+            if (ad.f != null){
+                for (Object o1: numeric.son){
+                    NumEffect ef = (NumEffect)o1;
+                    NumEffect eff = (NumEffect)ef.clone();
+                    //System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
+                    if (eff.getOne().equals(ad.f)){
+                        if ((eff.getOperator().equals("increase")) ){
+                            NormExpression res = new NormExpression();
+                            res.sum((NormExpression)eff.getTwo());
+                            res.mult(ad.n);
+                            toAdd.add(res);
+                        }else if (eff.getOperator().equals("decrease")){
+                            NormExpression res = new NormExpression();
+                            res.sum((NormExpression)eff.getTwo());
+                            res.mult(ad.n);
+                            toRemove.add(res);
+                        }else if (eff.getOperator().equals("assign")){
+                            NormExpression res = new NormExpression();
+                            res.sum((NormExpression)eff.getTwo());
+                            res.mult(ad.n);
+                            toAdd.add(res);
+                            it.remove();
+                        }
+                    }
+                }
+            }
+        }
+        
+        for (Object o: toAdd) {
+            this.sum((NormExpression)o);
+        }
+        for (Object o: toRemove) {
+            this.minus((NormExpression)o);
+        }
+        return this;
+    }
+
+    private void mult(PDDLNumber n) {
+        for (Object o: summations){
+            Addendum ad = (Addendum)o;
+            ad.n = new PDDLNumber(ad.n.getNumber() * n.getNumber());
+        }
+    }
+
+    @Override
+    public Expression clone() {
+        NormExpression ret = new NormExpression();
+        
+        ret.summations = new ArrayList();
+        
+        Iterator it = this.summations.iterator();
+        
+        while(it.hasNext()){
+            Addendum ad = (Addendum)it.next();
+            try {
+                ret.summations.add(ad.clone());
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        ret.grounded = this.grounded;
+        
+  
+        return ret;
     }
 }

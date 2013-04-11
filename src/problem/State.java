@@ -4,7 +4,9 @@
  */
 package problem;
 
+import conditions.AndCond;
 import conditions.Assigner;
+import conditions.Comparison;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumFluent;
@@ -56,11 +58,12 @@ public class State extends Object {
             ret_val.addNumericFluent(newA);
         }
 
-//        for (Object o: this.propositions){
-//            Predicate ele = (Predicate)o;
-//            ret_val.addProposition((Predicate) ele.clone());
-//        }
-        ret_val.propositions = (HashSet) this.propositions.clone();
+        
+        for (Object o: this.propositions){
+            Predicate ele = (Predicate)o;
+            ret_val.addProposition((Predicate) ele.clone());
+        }
+        //ret_val.propositions = (HashSet) this.propositions.clone();
 
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
 
@@ -102,7 +105,15 @@ public class State extends Object {
     }
 
     public boolean containProposition(Predicate aThis) {
-        return this.propositions.contains(aThis);
+        
+        for (Object o: this.propositions){
+            Predicate p = (Predicate)o;
+            if (p.equals(aThis)){
+                return true;
+            }            
+        }
+
+        return false;
     }
 
     public void setFunctionValue(NumFluent f, PDDLNumber after) {
@@ -123,6 +134,7 @@ public class State extends Object {
             if (p.equals(aThis)) {
                 i.remove();
                 return;
+  
             }
         }
         System.out.println(aThis + "non trovato");
@@ -187,6 +199,30 @@ public class State extends Object {
         }
         output.close();
         
+        
+    }
+
+    public boolean satisfy(AndCond con) {
+        
+        for (Object o: con.son){
+        
+            if (o instanceof Comparison){
+                Comparison c = (Comparison)o;
+                if (!c.isSatisfied(this)){
+                    System.out.println(c + "is not satisfied in " +this);
+                    return false;
+                }
+            
+            }else if (o instanceof Predicate){
+                
+                if (!propositions.contains(o)){
+                    System.out.println(o + "is not contained in " +this);                
+                }
+
+            }
+        
+        }
+        return true;
         
     }
 }

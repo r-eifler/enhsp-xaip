@@ -104,5 +104,14 @@ public class Assigner extends Conditions{
          
          
     }
+
+    @Override
+    public Conditions clone() {
+        Assigner ret = new Assigner(operator);
+        ret.one = (NumFluent)this.one.clone();
+        ret.grounded = this.grounded;
+        ret.two = new PDDLNumber(this.two.getNumber());
+        return ret;
+    }
     
 }

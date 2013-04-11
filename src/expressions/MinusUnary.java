@@ -58,4 +58,9 @@ public class MinusUnary extends Expression {
     public Expression weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public Expression clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

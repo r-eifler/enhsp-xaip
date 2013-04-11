@@ -100,6 +100,8 @@ public class NumEffect extends Expression {
 
     
     public void apply(State s) {
+        
+        
         PDDLNumber after = null;
        if (this.operator.equals("increase")){
            PDDLNumber current = s.functionValue(one);
@@ -109,7 +111,7 @@ public class NumEffect extends Expression {
            PDDLNumber current = s.functionValue(one);
            PDDLNumber eval = this.getTwo().eval(s);
            after = new PDDLNumber (current.getNumber() - eval.getNumber());
-       }else if (this.operator.equals("increase")){
+       }else if (this.operator.equals("assign")){
            PDDLNumber eval = this.getTwo().eval(s);
             after = eval;
        }
@@ -165,6 +167,15 @@ public class NumEffect extends Expression {
         NumEffect ret = new NumEffect(this.operator);
         ret.one = (NumFluent)this.one.weakEval(s, invF);
         ret.two = this.two.weakEval(s, invF);
+        return ret;
+    }
+
+    @Override
+    public Expression clone() {
+        NumEffect ret = new NumEffect(this.operator);
+        ret.one = (NumFluent)this.one.clone();
+        ret.two = this.two.clone();
+        ret.grounded=this.grounded;
         return ret;
     }
 

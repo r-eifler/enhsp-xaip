@@ -92,7 +92,9 @@ public class Comparison extends Conditions{
     public boolean eval(State s) {
         PDDLNumber first = one.eval(s);
         PDDLNumber second = two.eval(s);
-
+        if ((first == null) || (second == null))
+            return false;//negation by failure.
+        
         if (this.getBin_comp().equals("<")){
             return first.getNumber() < second.getNumber();
         }else if (this.getBin_comp().equals("<=")){
@@ -114,7 +116,8 @@ public class Comparison extends Conditions{
     public boolean isSatisfied(State s) {
         PDDLNumber first = one.eval(s);
         PDDLNumber second = two.eval(s);
-
+        if ((first == null) || (second == null))
+            return false;//negation by failure.
         
         if (this.getBin_comp().equals("<")){
             return first.getNumber() < second.getNumber();
@@ -145,6 +148,16 @@ public class Comparison extends Conditions{
         Comparison ret = new Comparison(this.bin_comp);
         ret.setFirst(this.one.normalize());
         ret.setTwo(this.two.normalize());
+        return ret;
+    }
+
+    @Override
+    public Conditions clone() {
+        Comparison ret = new Comparison(this.bin_comp);
+        ret.grounded = this.grounded;
+        ret.one = this.one.clone();
+        ret.two = this.two.clone();
+       
         return ret;
     }
 

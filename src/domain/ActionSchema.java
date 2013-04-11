@@ -5,9 +5,11 @@
 
 package domain;
 
-import conditions.Conditions;
+import conditions.AndCond;
 
 import conditions.PDDLObject;
+import expressions.NumEffect;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import problem.GroundAction;
@@ -18,6 +20,7 @@ import problem.GroundAction;
  */
 public class ActionSchema extends GenericActionType {
     private ActionParameters parameters;
+    
 
     public ActionSchema() {
         super();
@@ -67,6 +70,9 @@ public class ActionSchema extends GenericActionType {
         ret.setAddList(this.addList.ground(substitution));
         ret.setDelList(this.delList.ground(substitution));
         ret.setPreconditions(this.preconditions.ground(substitution));
+        
+
+        
         
         return ret;
    

@@ -174,4 +174,14 @@ public class NumFluent extends Expression {
             return this;
         }
     }
+
+    @Override
+    public Expression clone() {
+//        NumFluent ret = new NumFluent(this.name);
+//        ret.terms = (ArrayList)this.terms.clone();
+//        ret.variables = (ArrayList)this.variables.clone();
+//        ret.grounded = this.grounded;
+//        return ret;
+          return this;
+    }
 }

@@ -82,6 +82,9 @@ public class BinaryOp extends Expression {
         PDDLNumber ret_val = null;
         PDDLNumber first = this.one.eval(s);
         PDDLNumber second = this.two.eval(s);
+        if ((first == null) || (second == null))
+            return null;//negation by failure.
+        
         if (this.getOperator().equals("+")) {
             ret_val = new PDDLNumber(new Float(first.getNumber()) + new Float(second.getNumber()));
         } else if (this.getOperator().equals("-")) {
@@ -152,6 +155,19 @@ public class BinaryOp extends Expression {
         return ret;
         
 
+    }
+
+    @Override
+    public Expression clone() {
+        BinaryOp ret = new BinaryOp();
+
+        ret.operator = this.operator;
+        ret.one = one.clone();
+        ret.two = two.clone();
+
+        ret.grounded = this.grounded;
+
+        return ret;
     }
     
     

@@ -105,4 +105,12 @@ public class PDDLObject extends Conditions {
 
         return this.getName()+" "+this.getType();
     }
+
+    @Override
+    public Conditions clone() {
+//        PDDLObject ret = new PDDLObject(name,this.getType());
+//        ret.grounded = this.grounded;
+//        return ret;
+        return this;
+    }
 }

@@ -7,6 +7,7 @@ package conditions;
 
 import expressions.NumEffect;
 import expressions.Expression;
+import java.util.HashSet;
 import java.util.Map;
 import problem.State;
 
@@ -93,7 +94,7 @@ public class AndCond extends Conditions {
             if (o instanceof Conditions){
                 Conditions c = (Conditions)o;
                 if (!c.isSatisfied(s)){
-                    System.out.println(c + " is not satisfied in " + s);
+                    //System.out.println(c.pddlPrint() + " is not satisfied in " + s);
                     return false;
                 }
             }
@@ -174,5 +175,39 @@ public class AndCond extends Conditions {
         }
         ret_val = ret_val.concat(")");
         return ret_val;
+    }
+
+    @Override
+    public Conditions clone() {
+        AndCond ret = new AndCond();
+        ret.grounded = this.grounded;
+        //ret.son = (HashSet)this.son.clone();
+        ret.son = new HashSet();
+        
+        for(Object o: this.son){
+            if (o instanceof AndCond){
+                AndCond a = (AndCond)o;
+                ret.son.add(a.clone());
+            }else if(o instanceof NotCond){
+                NotCond a = (NotCond)o;
+                ret.son.add(a.clone());
+            }else if(o instanceof OrCond){
+                OrCond a = (OrCond)o;
+                ret.son.add(a.clone());
+            }else if(o instanceof Predicate){
+                Predicate a = (Predicate)o;
+                ret.son.add(a.clone());            
+            }else if(o instanceof Comparison){
+                Comparison a = (Comparison)o;
+                ret.son.add(a.clone());            
+            }else if(o instanceof Assigner){
+                Assigner a = (Assigner)o;
+                ret.son.add(a.clone());            
+            }
+        }
+        
+        ret.specialAndForExpression = this.specialAndForExpression;
+        return ret;
+                 
     }
 }

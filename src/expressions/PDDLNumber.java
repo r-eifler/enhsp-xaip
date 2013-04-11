@@ -82,4 +82,9 @@ public class PDDLNumber extends Expression
     public Expression weakEval(State s, HashMap invF) {
         return this;
     }
+
+    @Override
+    public Expression clone() {
+        return new PDDLNumber(this.getNumber());
+    }
 }
