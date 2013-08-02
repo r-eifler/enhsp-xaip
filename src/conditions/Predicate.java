@@ -202,7 +202,7 @@ public class Predicate extends Conditions {
         return s;
     }
 
-    public State remove(State s) {
+    public State remove(State s){
         s.removeProposition(this);
 
         return s;

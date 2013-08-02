@@ -20,6 +20,7 @@ import problem.GroundAction;
 public class ActionSchema extends GenericActionType {
 
     private ActionParameters parameters;
+    
 
     public ActionSchema() {
         super();

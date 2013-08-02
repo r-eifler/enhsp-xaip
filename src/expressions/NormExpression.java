@@ -25,6 +25,8 @@ public class NormExpression extends Expression {
     public NormExpression() {
         this.summations = new ArrayList();
     }
+   
+    
 
     @Override
     public String toString() {
