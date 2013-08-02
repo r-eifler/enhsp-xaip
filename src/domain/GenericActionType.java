@@ -5,11 +5,11 @@ import conditions.Conditions;
 import expressions.Expression;
 
 public abstract class GenericActionType extends Object {
-  
+
     protected String name;
     protected Conditions addList;
     protected Conditions delList;
-    protected Conditions numeric;
+    protected Conditions numericEffects;
     protected Conditions preconditions;
 
     /**
@@ -31,10 +31,10 @@ public abstract class GenericActionType extends Object {
     }
 
     /**
-     * @return the numeric
+     * @return the numericEffects
      */
-    public Conditions getNumeric() {
-        return numeric;
+    public Conditions getNumericEffects() {
+        return numericEffects;
     }
 
     /**
@@ -66,10 +66,10 @@ public abstract class GenericActionType extends Object {
     }
 
     /**
-     * @param numeric the numeric to set
+     * @param numericEffects the numericEffects to set
      */
-    public void setNumeric(Conditions numeric) {
-        this.numeric = numeric;
+    public void setNumericEffects(Conditions numericEffects) {
+        this.numericEffects = numericEffects;
     }
 
     /**
@@ -80,6 +80,4 @@ public abstract class GenericActionType extends Object {
     }
 
     public abstract String toString();
-
-
 }

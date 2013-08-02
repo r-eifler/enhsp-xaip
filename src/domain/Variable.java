@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package domain;
 
 /**
@@ -10,6 +9,7 @@ package domain;
  * @author enrico
  */
 public class Variable extends Object {
+
     private String Name;
     private Type type;
 
@@ -22,8 +22,9 @@ public class Variable extends Object {
         Name = text;
 
     }
+
     @Override
-    public String toString(){
+    public String toString() {
 
         return getName();
 
@@ -38,16 +39,18 @@ public class Variable extends Object {
     }
 
     @Override
-    public boolean equals(Object o){
-        if (o instanceof Variable){
-            Variable o1 = (Variable)o;
-            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName())))
-                if (o1.getType() == this.getType())
+    public boolean equals(Object o) {
+        if (o instanceof Variable) {
+            Variable o1 = (Variable) o;
+            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
+                if (o1.getType() == this.getType()) {
                     return true;
-                else
+                } else {
                     return false;
-            else
+                }
+            } else {
                 return false;
+            }
         }
         return false;
 
@@ -81,5 +84,4 @@ public class Variable extends Object {
     public void setType(Type type) {
         this.type = type;
     }
-
 }

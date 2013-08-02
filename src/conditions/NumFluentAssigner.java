@@ -6,24 +6,36 @@ package conditions;
 
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import java.util.HashSet;
 import java.util.Map;
+import problem.RelState;
 import problem.State;
 
 /**
  *
  * @author enrico
  */
-public class Assigner extends Conditions{
+public class NumFluentAssigner extends Conditions {
+
     private String operator; //it must be equal to =
-    private NumFluent one;
-    private PDDLNumber two;
-    public Assigner(String operator){
+    private NumFluent nFluent;
+    private PDDLNumber nFluentValue;
+    private PDDLNumber nFlunetValueUpperBound;//only for relaxed state. In case such value is not null it represents the upper bound of the domain of the fluent whereas nFluentValue represents the lower bound
+    public HashSet son;
+
+    public NumFluentAssigner(String operator) {
         super();
         this.operator = operator;
+        this.nFlunetValueUpperBound = null;
     }
-    public String toString(){
-    
-        return "(" +getOperator()+" "+ getOne() + " " + getTwo() +")";
+
+    public String toString() {
+
+        if (this.nFlunetValueUpperBound == null) {
+            return "(" + getOperator() + " " + getNFluent() + " " + getTwo() + ")";
+        } else {
+            return "(" + getOperator() + " " + getNFluent() + " (" + getTwo() + "," + this.getNFlunetValueUpperBound() + "))";
+        }
     }
 
     /**
@@ -41,68 +53,106 @@ public class Assigner extends Conditions{
     }
 
     /**
-     * @return the one
+     * @return the nFluent
      */
-    public NumFluent getOne() {
-        return one;
+    public NumFluent getNFluent() {
+        return nFluent;
     }
 
     /**
-     * @param one the one to set
+     * @param nFluent the nFluent to set
      */
-    public void setOne(NumFluent one) {
-        this.one = one;
+    public void setNFluent(NumFluent nFluent) {
+        this.nFluent = nFluent;
     }
 
     /**
-     * @return the two
+     * @return the nFluentValue
      */
     public PDDLNumber getTwo() {
-        return two;
+        return nFluentValue;
     }
 
     /**
-     * @param two the two to set
+     * @param nFluentValue the nFluentValue to set
      */
     public void setTwo(PDDLNumber two) {
-        this.two = two;
+        this.nFluentValue = two;
     }
 
     @Override
     public Conditions ground(Map substitution) {
-        Assigner ret = new Assigner(operator);
-        ret.one = (NumFluent)one.ground(substitution);
+        NumFluentAssigner ret = new NumFluentAssigner(operator);
+        ret.nFluent = (NumFluent) nFluent.ground(substitution);
         ret.grounded = true;
         return ret;
     }
 
     @Override
     public boolean eval(State s) {
-        if (s.functionValue(one).getNumber().equals(two.getNumber()))
+        if (s.functionValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     @Override
     public boolean isSatisfied(State s) {
-        if (s.functionValue(one).getNumber().equals(two.getNumber()))
+        if (s.functionValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
             return true;
-        else
+        } else {
             return false;
+        }
+    }
+
+    @Override
+    public boolean isSatisfied(RelState s) {
+        if (s.functionSupValue(nFluent).getNumber() >= s.functionInfValue(nFluent).getNumber()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void changeVar(Map substitution) {
-        
-        this.one.changeVar(substitution);
+
+        this.nFluent.changeVar(substitution);
     }
 
     @Override
     public String pddlPrint() {
-         return "( = (" + getOne() + " ) " + getTwo() +")";
-         
-         
+        return "( = (" + getNFluent() + " ) " + getTwo() + ")";
+
+
     }
-    
+
+    @Override
+    public Conditions clone() {
+        NumFluentAssigner ret = new NumFluentAssigner(operator);
+        ret.nFluent = (NumFluent) this.nFluent.clone();
+        ret.grounded = this.grounded;
+        ret.nFluentValue = new PDDLNumber(this.nFluentValue.getNumber());
+        return ret;
+    }
+
+    /**
+     * @return the nFlunetValueUpperBound
+     */
+    public PDDLNumber getNFlunetValueUpperBound() {
+        return nFlunetValueUpperBound;
+    }
+
+    /**
+     * @param nFlunetValueUpperBound the nFlunetValueUpperBound to set
+     */
+    public void setNFlunetValueUpperBound(PDDLNumber nFlunetValueUpperBound) {
+        this.nFlunetValueUpperBound = nFlunetValueUpperBound;
+    }
+
+    @Override
+    public void normalize() {
+        return;
+    }
 }

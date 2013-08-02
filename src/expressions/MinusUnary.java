@@ -4,8 +4,11 @@
  */
 package expressions;
 
+import conditions.Conditions;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import problem.RelState;
 import problem.State;
 
 /**
@@ -13,24 +16,24 @@ import problem.State;
  * @author enrico
  */
 public class MinusUnary extends Expression {
-    Expression one;
+
+    Expression element;
 
     public MinusUnary() {
         super();
     }
 
-    
     public MinusUnary(Expression expr) {
         super();
-        one = expr;
+        element = expr;
     }
 
     @Override
     public Expression ground(Map substitution) {
         MinusUnary ret = new MinusUnary();
-        
-        ret.one = one.ground(substitution);
-        ret.grounded=true;
+
+        ret.element = element.ground(substitution);
+        ret.grounded = true;
         return ret;
     }
 
@@ -56,6 +59,26 @@ public class MinusUnary extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Expression clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public PDDLNumbers eval(RelState s) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean involve(ArrayList<NumFluent> arrayList) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Expression subst(Conditions numeric) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

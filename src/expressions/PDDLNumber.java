@@ -4,19 +4,23 @@
  */
 package expressions;
 
+import conditions.Conditions;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import problem.RelState;
 import problem.State;
 
 /**
  *
  * @author enrico
  */
-public class PDDLNumber extends Expression
-{
+public class PDDLNumber extends Expression {
+
     private Float number;
-    public PDDLNumber(Float n){
-        grounded=true;
+
+    public PDDLNumber(Float n) {
+        grounded = true;
         number = n;
 
     }
@@ -27,9 +31,10 @@ public class PDDLNumber extends Expression
         this.number = new Float(number);
 
     }
-    public String toString(){
-    
-        return " "+ getNumber() + " ";
+
+    public String toString() {
+
+        return " " + getNumber() + " ";
     }
 
     @Override
@@ -53,7 +58,7 @@ public class PDDLNumber extends Expression
 
     @Override
     public PDDLNumber eval(State s) {
-            return this;
+        return this;
     }
 
     @Override
@@ -70,16 +75,35 @@ public class PDDLNumber extends Expression
     @Override
     public void changeVar(Map substitution) {
         //throw new UnsupportedOperationException("Not supported yet.");
-        
     }
 
     @Override
     public String pddlPrint() {
-        return " "+ getNumber() + " ";
+        return " " + getNumber() + " ";
     }
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
+        return this;
+    }
+
+    @Override
+    public Expression clone() {
+        return new PDDLNumber(this.getNumber());
+    }
+
+    @Override
+    public PDDLNumbers eval(RelState s) {
+        return new PDDLNumbers(this.getNumber());
+    }
+
+    @Override
+    public boolean involve(ArrayList<NumFluent> arrayList) {
+        return false;
+    }
+
+    @Override
+    public Expression subst(Conditions numeric) {
         return this;
     }
 }

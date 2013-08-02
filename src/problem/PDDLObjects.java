@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package problem;
 
 import conditions.PDDLObject;
@@ -16,44 +15,45 @@ import java.util.HashSet;
  *
  * @author enrico
  */
-public class ProblemObjects extends HashSet{
+public class PDDLObjects extends HashSet {
 
+    public boolean validate(PDDLObject t) {
 
-    public boolean validate(PDDLObject t){
+        for (Object el : this) {
 
-        for (Object el: this){
-            
-            PDDLObject elP = (PDDLObject)el;
+            PDDLObject elP = (PDDLObject) el;
             if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()));
-                    return true;
+            return true;
         }
         return false;
     }
 
-    public Type getTermType(PDDLObject t){
-        for (Object el: this){
+    public Type getTermType(PDDLObject t) {
+        for (Object el : this) {
 
-            PDDLObject elP = (PDDLObject)el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()))
-                    return elP.getType();
+            PDDLObject elP = (PDDLObject) el;
+            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName())) {
+                return elP.getType();
+            }
         }
         return null;
     }
-    public PDDLObject containsTerm(PDDLObject t){
-        for (Object el: this){
 
-            PDDLObject elP = (PDDLObject)el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()))
-                    return elP;
+    public PDDLObject containsTerm(PDDLObject t) {
+        for (Object el : this) {
+
+            PDDLObject elP = (PDDLObject) el;
+            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName())) {
+                return elP;
+            }
         }
         return null;
     }
-    
-    
-    public String toString(){
-        String ret_val="";
-        for (Object el: this){
-            PDDLObject elemento= (PDDLObject) el;
+
+    public String toString() {
+        String ret_val = "";
+        for (Object el : this) {
+            PDDLObject elemento = (PDDLObject) el;
             ret_val += " " + elemento.toString() + " ";
         }
 
@@ -62,12 +62,12 @@ public class ProblemObjects extends HashSet{
 
     public String pddlPrint() {
         String ret = "(:objects \n";
-        for (Object o: this){
-            PDDLObject obj = (PDDLObject)o;
-            
-            ret = ret + "   "+obj.pddlPrint() +"\n";
+        for (Object o : this) {
+            PDDLObject obj = (PDDLObject) o;
+
+            ret = ret + "   " + obj.pddlPrint() + "\n";
         }
-        
-        return ret+")\n";
+
+        return ret + ")\n";
     }
 }

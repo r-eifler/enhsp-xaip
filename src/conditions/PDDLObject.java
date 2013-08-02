@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package conditions;
 
 import domain.Type;
-import domain.Variable;
+import java.util.HashSet;
 import java.util.Map;
+import problem.RelState;
 import problem.State;
 
 /**
@@ -15,36 +15,44 @@ import problem.State;
  * @author enrico
  */
 public class PDDLObject extends Conditions {
+
     private String name;
     private Type type;
-    public PDDLObject(String n){
-        grounded=true;
+    public HashSet son;
+
+    public PDDLObject(String n) {
+        grounded = true;
         name = n;
     }
-    public PDDLObject(String n, Type atype){
-        grounded=true;
+
+    public PDDLObject(String n, Type atype) {
+        grounded = true;
 
         name = n;
         type = atype;
     }
 
     @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 17 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
-        return hash;
-    }
-    @Override
-    public boolean equals(Object o){
-        if (o instanceof PDDLObject){
-            PDDLObject o1 = (PDDLObject)o;
-            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName())))
-                    return true;
-                else
-                    return false;
+    public boolean equals(Object o) {
+        if (o instanceof PDDLObject) {
+            PDDLObject o1 = (PDDLObject) o;
+            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
+                return true;
+            } else {
+                return false;
+            }
         }
         return false;
-     }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 29 * hash + (this.type != null ? this.type.hashCode() : 0);
+        return hash;
+    }
+
     /**
      * @return the type
      */
@@ -58,8 +66,9 @@ public class PDDLObject extends Conditions {
     public void setType(Type type) {
         this.type = type;
     }
-    public String toString(){
-        String ret_val=null;
+
+    public String toString() {
+        String ret_val = null;
 
         ret_val = getName() + " " + type;
 
@@ -82,7 +91,7 @@ public class PDDLObject extends Conditions {
 
     @Override
     public PDDLObject ground(Map substitution) {
-        return new PDDLObject(name,type);
+        return new PDDLObject(name, type);
     }
 
     @Override
@@ -96,13 +105,31 @@ public class PDDLObject extends Conditions {
     }
 
     @Override
+    public boolean isSatisfied(RelState s) {
+        return true;
+    }
+
+    @Override
     public void changeVar(Map substitution) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return;
     }
 
     @Override
     public String pddlPrint() {
 
-        return this.getName()+" "+this.getType();
+        return this.getName() + " " + this.getType();
+    }
+
+    @Override
+    public Conditions clone() {
+//        PDDLObject ret = new PDDLObject(name,this.getType());
+//        ret.grounded = this.grounded;
+//        return ret;
+        return this;
+    }
+
+    @Override
+    public void normalize() {
+        return;
     }
 }

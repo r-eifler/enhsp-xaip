@@ -8,7 +8,5 @@ package expressions;
  *
  * @author enrico
  */
-public class TotalTime  {
-    
-    
+public class TotalTime {
 }

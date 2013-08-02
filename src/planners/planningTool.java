@@ -11,38 +11,42 @@ public abstract class planningTool {
 
     public String outputPlanning;
     Process process;
-    public String storedSolutionPath;
+    public String storedSolutionPath = "temp4.pddl";
     private int timePlanner;
     private long timeout;
-    
-    public planningTool(){
+    protected boolean failed = false;
+
+    public planningTool() {
         timeout = 1000000;
     }
+
+    abstract public String adapt(String domainFile, String problemFile, String planFile);
 
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = "";
         try {
 
-
+            Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
+            System.out.println("Executing: " + planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
             process = runtime.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
             /* Set up process I/O. */
 
             Worker worker = new Worker(process);
             worker.start();
             worker.join(getTimeout());
-          
+
             if (worker.exit != null) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line = null;
                 while ((line = input.readLine()) != null) {
-                    //System.out.println(line);
                     outputPlanning = outputPlanning.concat(line + "\n");
                 }
-            }else{
+            } else {
                 process.destroy();
-                this.setTimePlanner((int)getTimeout());
+                failed = true;
+                this.setTimePlanner((int) getTimeout());
             }
 
         } catch (IOException e) {
@@ -127,6 +131,13 @@ public abstract class planningTool {
      */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+
+    /**
+     * @return the failed
+     */
+    public boolean isFailed() {
+        return failed;
     }
 
     private static class Worker extends Thread {

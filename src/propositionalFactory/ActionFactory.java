@@ -3,120 +3,109 @@ package propositionalFactory;
 import conditions.PDDLObject;
 
 import domain.ActionParameters;
+import domain.ActionParametersAsTerms;
 import domain.ActionSchema;
 
 
-import domain.Type;
 import domain.Variable;
 
 import java.util.HashSet;
 
 import java.lang.Exception;
 
-import java.lang.reflect.Array;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 
 import java.util.List;
+import java.util.Set;
 
-import problem.GroundAction;
-import problem.ProblemObjects;
+import problem.PDDLObjects;
 
-class ActionFactory {
+public class ActionFactory {
 
     public ActionFactory() {
         super();
     }
 
-    public HashSet Substitution(ActionSchema a, ProblemObjects po) throws Exception {
+    public Set Substitutions(ActionSchema a, PDDLObjects po) throws Exception {
         HashSet ret = new HashSet();
-        List combo = new ArrayList();
+        Set combo = new HashSet();
         ActionParameters aP = a.getParameters();
         int n_parametri = a.getParameters().size();
-        HashMap<PDDLObject,Variable>[] sub = new HashMap[n_parametri];
-        int i=0;
-        for(Object el1: aP){
+        HashMap<PDDLObject, Variable>[] sub = new HashMap[n_parametri];
+        int i = 0;
+
+
+        if (aP.isEmpty()) {
+            combo.add(new PDDLObject("null"));
+            return combo;
+        }
+
+
+        for (Object el1 : aP) {
             sub[i] = new HashMap();
-            System.out.println("Variable" + el1);
+            //System.out.println("Variable" + el1);
             for (Object el : po) {
                 PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) el1;
-                if (t.getType().equals(v.getType())) {
-                    sub[i].put(t,v);
+                if ((t.getType().isAncestorOf(v.getType())) || (t.getType().equals(v.getType()))) {
+                    sub[i].put(t, v);
                 }
             }
             i++;
         }
 
         Integer[] sizes = new Integer[n_parametri];
-        for(i=0; i<n_parametri;i++){
-            sizes[i] = sub[i].keySet().size()-1;
+        for (i = 0; i < n_parametri; i++) {
+            sizes[i] = sub[i].keySet().size() - 1;
         }
-        for(i=0; i<n_parametri;i++){
-            System.out.println("Size delle mappature" + sizes[i]);
-        }
-        int j = n_parametri-1;
-        boolean jump=false;
 
         Integer[] counter = new Integer[n_parametri];
-        for(i=0; i<n_parametri;i++){
-            counter[i]=0;
+        for (i = 0; i < n_parametri; i++) {
+            counter[i] = 0;
         }
 
+        do {
+//                System.out.print("Combo: ");
+//                for(i=0; i<n_parametri;i++)
+//                    System.out.print(counter[i]);
+//                 System.out.println("");
 
-        do{
-                System.out.print("Combo: ");
-                for(i=0; i<n_parametri;i++)
-                    System.out.print(counter[i]);
-                 System.out.println("");
-          
-                ArrayList toAdd = new ArrayList();
-                for (int z=0;z<n_parametri;z++){
-                    toAdd.add(sub[z].keySet().toArray()[counter[z]]);
-                }
-                combo.add(toAdd);
-          
-        }while (incVettore(counter,n_parametri-1,sizes));
-        System.out.println("Combinazioni:" + combo);
+            ActionParametersAsTerms toAdd = new ActionParametersAsTerms();
+            for (int z = 0; z < n_parametri; z++) {
+                toAdd.add(sub[z].keySet().toArray()[counter[z]]);
+            }
+            combo.add(toAdd);
 
-        System.out.println("Grandezza delle mappature:" + sizes);
-//
+        } while (incVettore(counter, n_parametri - 1, sizes));
 
-
-
-
-
-//        System.out.println("Parametri interessati:" + types.size());
-        System.out.println("numero di unificazioni " + a.getName() + ":"
-                + creaCombinazione(po, aP, 0));
-        
-        return ret;
+        return combo;
     }
 
-    public boolean incVettore(Integer[] v, int n, Integer[] max){
+    public boolean incVettore(Integer[] v, int n, Integer[] max) {
 
-        if(n<0)
+        if (n < 0) {
             return false;
-        else{
-            if (v[n] == max[n]){
-                boolean temp = incVettore(v,n-1,max);
-                if (temp){
-                    v[n]=0;
+        } else {
+            if (v[n] == max[n]) {
+                boolean temp = incVettore(v, n - 1, max);
+                if (temp) {
+                    v[n] = 0;
                     return true;
-                }else{
+                } else {
                     return false;
                 }
-            }else{
+            } else {
                 v[n]++;
                 return true;
             }
         }
     }
-    private List creaCombinazione(ProblemObjects O, ActionParameters aP, int index) {
+
+    private List creaCombinazione(PDDLObjects O, ActionParameters aP, int index) {
         List ret = new ArrayList();
-        if (index == aP.size()-1) {
+        if (index == aP.size() - 1) {
             for (Object el : O) {
                 PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) aP.get(index);
@@ -130,10 +119,21 @@ class ActionFactory {
                 PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) aP.get(index);
                 if (t.getType().equals(v.getType())) {
-                    
                 }
             }
         }
         return ret;
+    }
+
+    public Set Propositionalize(ActionSchema a, PDDLObjects po) throws Exception {
+        Set ret = new HashSet();
+
+        Set combo = Substitutions(a, po);
+        for (Object o : combo) {
+            ret.add(a.ground((ActionParametersAsTerms) o));
+        }
+
+        return ret;
+
     }
 }

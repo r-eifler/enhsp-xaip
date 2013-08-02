@@ -7,13 +7,15 @@ package problem;
 import antlr.RecognitionException;
 
 import conditions.AndCond;
-import conditions.Assigner;
+import conditions.NumFluentAssigner;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
 import conditions.PDDLObject;
+import domain.ActionSchema;
+import domain.PddlDomain;
 
 import domain.Type;
 
@@ -25,13 +27,18 @@ import expressions.MultiOp;
 import expressions.PDDLNumber;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 import org.antlr.runtime.ANTLRInputStream;
@@ -41,6 +48,7 @@ import org.antlr.runtime.tree.Tree;
 
 import parser.PddlLexer;
 import parser.PddlParser;
+import propositionalFactory.ActionFactory;
 
 /**
  *
@@ -48,7 +56,7 @@ import parser.PddlParser;
  */
 public class PddlProblem {
 
-    private ProblemObjects objects;
+    private PDDLObjects objects;
     private State init;
     private Conditions goals;
     private String name;
@@ -58,6 +66,9 @@ public class PddlProblem {
     private Metric metric;
     protected String pddlFilRef;
     protected String domainName;
+    private PddlDomain linkedDomain;
+    private Set actions;
+    private long propositionalTime;
 
     /**
      * Get the value of domainName
@@ -77,7 +88,6 @@ public class PddlProblem {
         this.domainName = domainName;
     }
 
-
     /**
      * Get the value of pddlFilRef
      *
@@ -95,25 +105,25 @@ public class PddlProblem {
     public void setPddlFilRef(String pddlFilRef) {
         this.pddlFilRef = pddlFilRef;
     }
-    
-    public void saveProblem(String pddlNewFile) throws IOException{
-        
+
+    public void saveProblem(String pddlNewFile) throws IOException {
+
         pddlFilRef = pddlNewFile;
-        
-        String toWrite = "(define (problem "+this.getName()+") "+
-                         "(:domain " +this.getDomainName()+") "+
-                          this.objects.pddlPrint()+"\n"+
-                          this.init.pddlPrint()+"\n"+
-                          "(:goal "+ this.goals.pddlPrint()+")\n"+
-                          this.metric.pddlPrint()+"\n"+
-                          ")";
+
+        String toWrite = "(define (problem " + this.getName() + ") "
+                + "(:domain " + this.getDomainName() + ") "
+                + this.objects.pddlPrint() + "\n"
+                + this.init.pddlPrint() + "\n"
+                + "(:goal " + this.getGoals().pddlPrint() + ")\n"
+                + this.metric.pddlPrint() + "\n"
+                + ")";
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
-        file.write(toWrite);                          
+        file.write(toWrite);
         file.close();
     }
 
     /**
-     * 
+     *
      */
     public PddlProblem() {
 
@@ -122,19 +132,21 @@ public class PddlProblem {
         indexObject = 0;
         indexInit = 0;
         indexGoals = 0;
-        objects = new ProblemObjects();
+        objects = new PDDLObjects();
         metric = new Metric("NO");
+        linkedDomain = null;
+        actions = new HashSet();
     }
 
     /**
-     * 
+     *
      * @param file - the pathfile representing the pddl problem
      * @throws IOException
      * @throws RecognitionException
      * @throws org.antlr.runtime.RecognitionException
      */
     public void parseProblem(String file) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
-        
+
         pddlFilRef = file;
         ANTLRInputStream in;
         in = new ANTLRInputStream(new FileInputStream(file));
@@ -151,11 +163,9 @@ public class PddlProblem {
 //        exploreTree(t);
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
-            
+
             switch (child.getType()) {
                 case PddlParser.PROBLEM_DOMAIN:
-                    System.out.println("dominio");
-                    System.out.println(child.toStringTree());
                     this.setDomainName(child.getChild(0).getText());
                     break;
                 case PddlParser.PROBLEM_NAME:
@@ -192,16 +202,16 @@ public class PddlProblem {
         Predicate a = new Predicate(true);
         a.setPredicateName(t.getChild(0).getText());
         a.setGrounded(true);
-
+        //System.out.println(a);
         for (int i = 1; i < t.getChildCount(); i++) {
 
 
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
 
             if (t1 != null) {
-                a.addTerm(t1);
+                a.addObject(t1);
             } else {
-                System.out.println("La variabile " + t1 + " non è presente nei parametri");
+                System.out.println("Object " + t1 + " does not exist");
                 System.exit(-1);
             }
         }
@@ -267,11 +277,12 @@ public class PddlProblem {
 
     private Expression createExpression(Tree t) {
 
+        int test = t.getType();
         if (t.getType() == PddlParser.BINARY_OP) {
             BinaryOp ret = new BinaryOp();
             ret.setOperator(t.getChild(0).getText());
             ret.setOne(createExpression(t.getChild(1)));
-            ret.setTwo(createExpression(t.getChild(2)));
+            ret.setRight(createExpression(t.getChild(2)));
             ret.grounded = true;
             return ret;
         } else if (t.getType() == PddlParser.NUMBER) {
@@ -279,9 +290,11 @@ public class PddlProblem {
             return ret;
         } else if (t.getType() == PddlParser.FUNC_HEAD) {
             NumFluent ret = new NumFluent(t.getChild(0).getText());
+
             for (int i = 1; i < t.getChildCount(); i++) {
                 ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
             }
+
             ret.grounded = true;
             return ret;
         } else if (t.getType() == PddlParser.UNARY_MINUS) {
@@ -307,8 +320,8 @@ public class PddlProblem {
                 init.addProposition(buildInstPredicate(c));
 
             } else if (c.getType() == PddlParser.INIT_EQ) {
-                Assigner a = new Assigner("=");
-                a.setOne((NumFluent) createExpression(c.getChild(0)));
+                NumFluentAssigner a = new NumFluentAssigner("=");
+                a.setNFluent((NumFluent) createExpression(c.getChild(0)));
                 a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
                 init.addNumericFluent(a);
             } else if (c.getType() == PddlParser.INIT_AT) {
@@ -352,7 +365,7 @@ public class PddlProblem {
     /**
      * @return the objects - the objects of the pddl problem
      */
-    public ProblemObjects getProblemObjects() {
+    public PDDLObjects getProblemObjects() {
         return objects;
     }
 
@@ -385,7 +398,7 @@ public class PddlProblem {
 
     }
 
-    private void setObject(ProblemObjects object) {
+    private void setObject(PDDLObjects object) {
         this.objects = object;
     }
 
@@ -393,7 +406,7 @@ public class PddlProblem {
         this.init = init;
     }
 
-    private void setGoals(Conditions goals) {
+    public void setGoals(Conditions goals) {
         this.goals = goals;
     }
 
@@ -458,7 +471,7 @@ public class PddlProblem {
     }
 
     /**
-     * 
+     *
      * @param string - the name of the object we want
      * @return the term representing the object
      */
@@ -480,9 +493,9 @@ public class PddlProblem {
     public NumFluent getFunction(String string, ArrayList terms) {
         for (Object o : init.getNumericFluents()) {
 
-            if (o instanceof Assigner) {
-                Assigner ele = (Assigner) o;
-                NumFluent fAssign = ele.getOne();
+            if (o instanceof NumFluentAssigner) {
+                NumFluentAssigner ele = (NumFluentAssigner) o;
+                NumFluent fAssign = ele.getNFluent();
 
                 if (fAssign.getName().equals(string)) {
                     if (fAssign.getTerms().equals(terms)) {
@@ -500,9 +513,9 @@ public class PddlProblem {
 
         for (Object o : init.getNumericFluents()) {
 
-            if (o instanceof Assigner) {
-                Assigner ele = (Assigner) o;
-                NumFluent fAssign = ele.getOne();
+            if (o instanceof NumFluentAssigner) {
+                NumFluentAssigner ele = (NumFluentAssigner) o;
+                NumFluent fAssign = ele.getNFluent();
                 res.add(fAssign);
 
             }
@@ -510,6 +523,258 @@ public class PddlProblem {
         }
         return res;
     }
-    
-    
+
+    public void setDomain(PddlDomain aThis) {
+        linkedDomain = aThis;
+    }
+
+    public void generateActions() throws Exception {
+        long start = System.currentTimeMillis();
+        if (this.linkedDomain != null) {
+            ActionFactory af = new ActionFactory();
+            for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
+//                af.Propositionalize(act, objects);
+                getActions().addAll(af.Propositionalize(act, objects));
+            }
+
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+        setPropositionalTime(System.currentTimeMillis() - start);
+    }
+
+    public int distance(State sIn, Conditions c) {
+
+        Set level;
+        RelState s = sIn.relaxState();
+        int distance = 0;
+        while (true) {
+            if (s.satisfy(c)) {
+                return distance;
+            } else {
+                distance++;
+                level = new HashSet();
+                for (Iterator it = getActions().iterator(); it.hasNext();) {
+                    GroundAction gr = (GroundAction) it.next();
+                    if (gr.getPreconditions().isSatisfied(s)) {
+                        level.add(gr);
+                        it.remove();
+                    }
+                }
+                if (level.isEmpty()) {
+                    return Integer.MAX_VALUE;
+                }
+                for (Object o : level) {
+                    GroundAction gr = (GroundAction) o;
+                    gr.apply(s);
+                }
+            }
+        }
+    }
+
+    public Map distance(State sIn, List c_s) {
+
+        Set level;
+        RelState s = sIn.relaxState();
+
+        Map order = new HashMap();
+        ArrayList toVisit = new ArrayList();
+        toVisit.addAll(c_s);
+        int distance = 0;
+        while (true) {
+            for (Iterator it = toVisit.iterator(); it.hasNext();) {
+                Conditions c = (Conditions) it.next();
+                if (s.satisfy(c)) {
+                    order.put(c, distance);
+                    it.remove();
+                }
+
+            }
+            if (toVisit.isEmpty()) {
+                return order;
+            } else {
+                distance++;
+                level = new HashSet();
+                for (Iterator it = getActions().iterator(); it.hasNext();) {
+                    GroundAction gr = (GroundAction) it.next();
+                    if (gr.getPreconditions().isSatisfied(s)) {
+                        level.add(gr);
+                        it.remove();
+                    }
+                }
+                if (level.isEmpty()) {
+                    return order;
+                }
+                for (Object o : level) {
+                    GroundAction gr = (GroundAction) o;
+                    gr.apply(s);
+                }
+            }
+        }
+    }
+
+    private void pruneActions() {
+        boolean finished = false;
+        boolean goalReached = false;
+        Set level;
+        RelState s = this.init.relaxState();
+        int prec = 0;
+        int distance = 0;
+        Set totalActions = new HashSet();
+        while (!finished && !goalReached) {
+            distance++;
+            level = new HashSet();
+            for (Iterator it = getActions().iterator(); it.hasNext();) {
+                GroundAction gr = (GroundAction) it.next();
+                //System.out.println(gr.toEcoString());
+                if (gr.getPreconditions().isSatisfied(s)) {
+                    totalActions.add(gr);
+                    level.add(gr);
+                    it.remove();
+                }
+            }
+
+
+            for (Object o : level) {
+                GroundAction gr = (GroundAction) o;
+                gr.apply(s);
+            }
+            //if (s.satisfy(getGoals()))
+            //  goalReached=true;
+            System.out.println("Distance: " + distance);
+            System.out.println("ApplicableActions: " + level.size());
+            if (prec == totalActions.size()) {
+                finished = true;
+                getActions().clear();
+                setActions(totalActions);
+            }
+            prec = totalActions.size();
+        }
+
+    }
+
+    private void pruneActions_old() {
+        boolean finished = false;
+        boolean goalReached = false;
+        int distance = 0;
+        Set level;
+        RelState s = this.init.relaxState();
+        int prec = 0;
+        while (!finished && !goalReached) {
+            distance++;
+            level = new HashSet();
+            for (Iterator it = getActions().iterator(); it.hasNext();) {
+                GroundAction gr = (GroundAction) it.next();
+                //System.out.println(gr.toEcoString());
+                if (gr.getPreconditions().isSatisfied(s)) {
+                    level.add(gr);
+                }
+            }
+            for (Object o : level) {
+                GroundAction gr = (GroundAction) o;
+                gr.apply(s);
+            }
+            //if (s.satisfy(getGoals()))
+            //  goalReached=true;
+            //System.out.println("Distance: " +distance);
+            //System.out.println("ApplicableActions: " +level.size());
+            if (prec == level.size()) {
+                finished = true;
+                getActions().clear();
+                setActions(level);
+            }
+            prec = level.size();
+        }
+    }
+
+    /**
+     * @return the propositionalTime
+     */
+    public long getPropositionalTime() {
+        return propositionalTime;
+    }
+
+    /**
+     * @param propositionalTime the propositionalTime to set
+     */
+    public void setPropositionalTime(long propositionalTime) {
+        this.propositionalTime = propositionalTime;
+    }
+
+    /**
+     * @return the actions
+     */
+    public Set getActions() {
+        return actions;
+    }
+
+    /**
+     * @param actions the actions to set
+     */
+    public void setActions(Set actions) {
+        this.actions = actions;
+    }
+
+    public Map computeKernelDistance(ArrayList k) {
+        boolean finished = false;
+        boolean kernelVisited = false;
+        Set level;
+        RelState s = this.init.relaxState();
+        int prec = 0;
+        ArrayList toVisit = new ArrayList();
+        toVisit.addAll(k);
+        Map order = new HashMap();
+        Set totalActions = new HashSet();
+        int distance = -1;
+        while (!finished && !kernelVisited) {
+            distance++;
+            level = new HashSet();
+            for (Iterator it = getActions().iterator(); it.hasNext();) {
+                GroundAction gr = (GroundAction) it.next();
+                //System.out.println(gr.toEcoString());
+                if (gr.getPreconditions().isSatisfied(s)) {
+                    totalActions.add(gr);
+                    level.add(gr);
+                    it.remove();
+                }
+            }
+
+            for (Object o : level) {
+                GroundAction gr = (GroundAction) o;
+                gr.apply(s);
+            }
+            for (Iterator it = toVisit.iterator(); it.hasNext();) {
+                Conditions con = (Conditions) it.next();
+
+                if (s.satisfy(con)) {
+                    //System.out.println("Kernel " + con + " raggiunto a livello:" + distance);
+                    order.put((k.size() - k.indexOf(con)), distance);
+                    it.remove();
+                }
+            }
+            if (toVisit.isEmpty()) {
+                kernelVisited = true;
+
+            }
+            //  goalReached=true;
+            System.out.println("Distance: " + distance);
+            System.out.println("ApplicableActions: " + level.size());
+            if (prec == totalActions.size()) {
+                finished = true;
+            } else {
+                prec = totalActions.size();
+            }
+        }
+        getActions().clear();
+        setActions(totalActions);
+
+        return order;
+    }
+
+    public void parseProblem(String string, PDDLObjects constants) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
+        this.objects.addAll(constants);
+        parseProblem(string);
+    }
 }

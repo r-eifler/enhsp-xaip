@@ -11,6 +11,7 @@ import expressions.Expression;
  * @author enrico
  */
 public class Metric {
+
     private Expression metExpr;
     private String optimization;
 
@@ -45,20 +46,21 @@ public class Metric {
     public void setOptimization(String optimization) {
         this.optimization = optimization;
     }
-    @Override
-    public String toString(){
 
-        
-        return "Metric: " + this.optimization + " " +this.metExpr + " ";
-        
-    
+    @Override
+    public String toString() {
+
+
+        return "Metric: " + this.optimization + " " + this.metExpr + " ";
+
+
     }
 
     String pddlPrint() {
-        if (!this.optimization.equals("NO"))
-            return "(:metric: " + this.optimization + " " +this.metExpr.pddlPrint() + ")";
-        else 
+        if (!this.optimization.equals("NO")) {
+            return "(:metric " + this.optimization + " " + this.metExpr.pddlPrint() + ")";
+        } else {
             return "";
+        }
     }
-    
 }

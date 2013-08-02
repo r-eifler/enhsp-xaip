@@ -1,9 +1,13 @@
 
-
-
-
+import domain.PddlDomain;
+import plan.SimplePlan;
+import planners.metricFFWrapper;
+import problem.GroundAction;
+import problem.PddlProblem;
+import problem.State;
 
 public class Test {
+
     /**
      * @param args Call the program by passing domain and problem pddl files
      * @throws Exception Nothing
@@ -12,95 +16,68 @@ public class Test {
 
 
         //Controlling the input files
-        if (args.length < 2){
-            System.out.println("Usage: ... domain problem");
+        if (args.length < 2) {
+            System.out.println("Usage: ... domain problem plan");
             System.exit(-1);
         }
-        
-        /*{
-            PddlDomain a = new PddlMMDomain();
+
+        {
+            PddlDomain a = new PddlDomain();
             PddlProblem p = new PddlProblem();
 
-            a.parseDomain(args[0]);
-            p.parseProblem(args[1]);
-            a.prettyPrint();
-            p.prettyPrint();
-            System.out.println("Validazione:..." +a.validate(p));
+            a.parseDomain("zenonumeric.pddl");
+            //int i = Integer.parseInt(args[1]);
+            for (int i = 17; i < 18; i++) {
+                p.parseProblem("p" + Integer.toString(i));
+                //a.prettyPrint();
+                //p.prettyPrint();
+                metricFFWrapper ff = new metricFFWrapper();
 
-            System.out.println(p.getInit());
-            ActionParametersAsTerms par = new ActionParametersAsTerms();
-
-            par.add(p.getObjectByName("plane1"));
-            par.add(p.getObjectByName("city1"));
-            par.add(p.getObjectByName("city2"));
-            
-            System.out.println("Grounding test" + a.getActionByName("fly-slow").ground(par));
-            
-            
-            
-        }
-        */
-        
-//        PddlMMDomain a = new PddlMMDomain();
-//        PddlProblem p = new PddlProblem();
-//        
-//        a.parseDomain(args[0]);
-//        p.parseProblem(args[1]);
-//        a.prettyPrint();
-//        p.prettyPrint();
-//        //System.out.println("Validazione:..." +a.validate(p));
-//        
-//        //System.out.println(p.getInit());
-//        ActionParametersAsTerms par = new ActionParametersAsTerms();
-//
-//        par.add(p.getObjectByName("plane1"));
-//        par.add(p.getObjectByName("city1"));
-//        par.add(p.getObjectByName("city2"));
-//        
-//        MMActionSchema action = a.getMMActionSchemaByName("fly");
-//        
-//        System.out.println(action);
-//        MMGroundAction gAct = action.ground(par);
-////        
-//        
-//        System.out.println(gAct);
-        
-        //System.out.println(newState);
+                SimplePlan sp = new SimplePlan(a, p, false);
 
 
-        
-        
-        
-//        par.add(c); par.add(b);
-        
 
-//      
-//        System.out.println("Oggetti del dominio" + p.getProblemObjects());
-//        Term c  = p.getObjectByName("C");
-//        Term b  = p.getObjectByName("b");
-//        ActionParametersAsTerms par = new ActionParametersAsTerms();
-//        par.add(c); par.add(b);
-//        
-//        ActionSchema unstack = a.getActionByName("unstack");
-//        if (unstack ==null){
-//            System.out.println("non ci sono azioni con questo nome");
-//
-//        }else{
-//            GroundAction unstackI = unstack.ground(par);
-//
-//            System.out.println("unstack non istanziato:" + unstack);
-//            System.out.println("unstack istanziato:" + unstackI);
-//        }
-        /*
-        
-        if (a.validate(p)){
-            metric.setDomainFile(args[0]);
-            metric.setProblemFile(args[1]);
-            metric.executePlanning();
+                //sp.parseSolution(ff.plan("zenonumeric.pddl", "p" + Integer.toString(i)));
+                sp.parseSolution("piano" + Integer.toString(i));
 
+                sp.simplifyActions2();
+
+                System.out.println("Fino a qua non ho normalizzato");
+
+                System.out.println("Testing for Problem and plan number: " + i);
+
+                GroundAction a3 = new GroundAction();
+
+                for (Object o : sp) {
+                    GroundAction action = (GroundAction) o;
+                    a3 = a3.macroOperator(action);
+                }
+                //System.out.println(a3.toString());
+                a3.normalize();
+                //a3  = a3.macroOperator((GroundAction)sp.get(1));
+                //System.out.println(sp);
+                //System.out.println(a3.toString());
+
+//            System.out.println("a1: " + a1.toString());
+//            System.out.println("a0: " + a0.toString());
+
+//             System.out.println("Macro Operation is applicable? " + p.getInit().satisfy(a3.getPreconditions()));
+
+                System.out.println(a3.getParameters().pddlPrint());
+                System.out.println(a3.toPDDL());
+//             System.out.println("sN:" + sN);
+//             System.out.println(sN.satisfy(p.getGoals()));
+
+//             System.out.println("Final State: (relevant fluents)" + sN.printFluentByName("power") + " " + sN.printFluentByName("powerC"));
+
+                System.out.print("Applicable: " + p.getInit().satisfy(a3.getPreconditions()));
+                State sN = a3.apply(p.getInit().clone());
+                System.out.println(" Reach Final Goals: " + p.getGoals().isSatisfied(sN));
+                if (!p.getInit().satisfy(a3.getPreconditions()) || !sN.satisfy(p.getGoals())) {
+                    System.err.println("BUGGGG IN PROBLEM AND PLAN NUMBER: " + i);
+                }
             }
-        
-        */
-        //PddlDomain a = new PddlDomain(args[0]);
+//            SimplePlan sp =ff.plan(args[0], args[1]);
+        }
     }
 }

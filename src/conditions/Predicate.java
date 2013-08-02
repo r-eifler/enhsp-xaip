@@ -5,9 +5,12 @@
 package conditions;
 
 import domain.Variable;
+import expressions.NumFluent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import problem.RelState;
 import problem.State;
 
 /**
@@ -17,51 +20,52 @@ import problem.State;
 public class Predicate extends Conditions {
 
     private String predicateName;
-    private ArrayList variables;
+    //private ArrayList variables;
     private ArrayList terms;
     private boolean grounded;
+    public HashSet son;
 
     /**
      * @return the predicateName
      */
     public Predicate() {
         super();
-        variables = new ArrayList();
+        //variables = new ArrayList();
+        terms = new ArrayList();
     }
 
     public Predicate(boolean g) {
+
+        super();
         grounded = g;
-        if (grounded) {
-            terms = new ArrayList();
-        } else {
-            variables = new ArrayList();
-        }
+        //variables = new ArrayList();
+        terms = new ArrayList();
+
     }
 
     public String getPredicateName() {
         return predicateName;
     }
 
-    //return a grounded copy of the Predicate
-    public Predicate ground(ArrayList terms_) {
-
-        Predicate ret_val = new Predicate(true);
-        ret_val.setPredicateName(predicateName);
-        int i = 0;
-        if (terms_.size() != getVariables().size()) {
-            return null;
-        }
-        for (Object o : terms_) {
-            PDDLObject t = (PDDLObject) o;
-            Variable v = (Variable) getVariables().get(i);
-            if (!t.getType().equals(v.getType())) {
-                return null;
-            }
-        }
-        ret_val.setTerms(terms_);
-        return ret_val;
-    }
-
+//    //return a grounded copy of the Predicate
+//    public Predicate ground(ArrayList terms_) {
+//
+//        Predicate ret_val = new Predicate(true);
+//        ret_val.setPredicateName(predicateName);
+//        int i = 0;
+//        if (terms_.size() != getVariables().size()) {
+//            return null;
+//        }
+//        for (Object o : terms_) {
+//            PDDLObject t = (PDDLObject) o;
+//            Variable v = (Variable) getVariables().get(i);
+//            if (!t.getType().equals(v.getType())) {
+//                return null;
+//            }
+//        }
+//        ret_val.setTerms(terms_);
+//        return ret_val;
+//    }
     /**
      * @param predicateName the predicateName to set
      */
@@ -76,11 +80,11 @@ public class Predicate extends Conditions {
         if (isGrounded()) {
             System.out.println("Predicate grounded; no variable is possible");
         } else {
-            getVariables().add(v);
+            getTerms().add(v);
         }
     }
 
-    public void addTerm(PDDLObject t) {
+    public void addObject(PDDLObject t) {
         if (!isGrounded()) {
             System.out.println("Predicate not grounded; no term is possible");
         } else {
@@ -92,16 +96,8 @@ public class Predicate extends Conditions {
     public String toString() {
         String ret_val = "(" + this.predicateName + " ";
 
+        ret_val = ret_val.concat(getTerms().toString());
 
-        if (isGrounded()) {
-            for (Object o : getTerms()) {
-
-                ret_val = ret_val.concat(o.toString());
-            }
-        } else {
-            ret_val = ret_val.concat(getVariables().toString());
-
-        }
         ret_val = ret_val.concat(") ");
         return ret_val;
     }
@@ -111,20 +107,6 @@ public class Predicate extends Conditions {
      */
     public ArrayList getTerms() {
         return terms;
-    }
-
-    /**
-     * @return the variables
-     */
-    public ArrayList getVariables() {
-        return variables;
-    }
-
-    /**
-     * @param variables the variables to set
-     */
-    public void setVariables(ArrayList variables) {
-        this.variables = variables;
     }
 
     /**
@@ -152,16 +134,16 @@ public class Predicate extends Conditions {
     public Conditions ground(Map substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
-        ret.grounded = true;
 
-        for (Object o : variables) {
-
-            PDDLObject t = (PDDLObject) substitution.get(o);
-            if (t == null) {
-                System.out.println("Error in substitution  for " + o);
-                System.exit(-1);
-            } else {
-                ret.terms.add(t);
+        for (Object o : terms) {
+            if (o instanceof Variable) {
+                PDDLObject t = (PDDLObject) substitution.get(o);
+                if (t == null) {
+                    System.out.println("Error in substitution  for " + o);
+                    System.exit(-1);
+                } else {
+                    ret.terms.add(t);
+                }
             }
         }
         return ret;
@@ -172,42 +154,44 @@ public class Predicate extends Conditions {
         return s.containProposition(this);
     }
 
-    @Override //to be refined!!
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    @Override
+    public boolean isSatisfied(State s) {
+
+        return s.containProposition(this);
     }
 
     @Override
-    public boolean isSatisfied(State s) {
-        
+    public boolean isSatisfied(RelState s) {
+
         return s.containProposition(this);
     }
 
     @Override
     public boolean equals(Object obj) {
-        Predicate p = (Predicate) obj;
-        if (!p.getPredicateName().equalsIgnoreCase(this.predicateName)) {
-            return false;
-        }
-        if (this.grounded) {
-            if (!(p.getTerms().equals(this.getTerms()))) {
+        Predicate objF = (Predicate) obj;
+
+
+        if (objF.getPredicateName().equalsIgnoreCase(this.getPredicateName())) {
+            if (objF.terms.size() == this.terms.size()) {
+                for (int i = 0; i < objF.terms.size(); i++) {
+                    if (!(objF.terms.get(i).equals(this.terms.get(i)))) {
+                        return false;
+                    }
+                }
+            } else {
                 return false;
             }
         } else {
-            if (!(p.getVariables().equals(this.variables))) {
-                return false;
-            }
+            return false;
         }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
-        hash = 59 * hash + (this.variables != null ? this.variables.hashCode() : 0);
-        hash = 59 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-        hash = 59 * hash + (this.grounded ? 1 : 0);
+        int hash = 7;
+        hash = 79 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
+        hash = 79 * hash + (this.terms != null ? this.terms.hashCode() : 0);
         return hash;
     }
 
@@ -228,15 +212,19 @@ public class Predicate extends Conditions {
     public void changeVar(Map substitution) {
         ArrayList newVar = new ArrayList();
 
-        for (Object o : variables) {
-            Variable v = (Variable) substitution.get(o);
-            if (v == null) {
-                System.out.println("Not Found Variable" + o);
-                System.exit(-1);
+        for (Object o : terms) {
+            if (o instanceof Variable) {
+                Variable v = (Variable) substitution.get(o);
+                if (v == null) {
+                    System.out.println("Not Found Variable" + o);
+                    System.exit(-1);
+                }
+                newVar.add(v);
+            } else {
+                newVar.add(o);
             }
-            newVar.add(substitution.get(o));
         }
-        variables = newVar;
+        terms = newVar;
     }
 
     @Override
@@ -249,5 +237,38 @@ public class Predicate extends Conditions {
         }
         ret = ret.concat(")");
         return ret;
+    }
+
+    @Override
+    public Conditions clone() {
+//        Predicate ret_val = new Predicate();
+//        ret_val.setPredicateName(predicateName);
+//        ret_val.grounded = this.grounded;
+//        if (grounded)
+//            ret_val.terms = (ArrayList)this.terms.clone();
+//        else
+//            ret_val.variables = (ArrayList)this.variables.clone();
+//        
+//        return ret_val;
+        return this;
+    }
+
+    public RelState apply(RelState s) {
+
+        if (!s.containProposition(this)) {
+            s.addProposition(this);
+        }
+        return s;
+    }
+
+    RelState remove(RelState s) {
+        s.removeProposition(this);
+
+        return s;
+    }
+
+    @Override
+    public void normalize() {
+        return;
     }
 }

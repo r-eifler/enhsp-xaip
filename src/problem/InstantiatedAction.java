@@ -8,32 +8,31 @@ import domain.GenericActionType;
 
 @Deprecated
 public class InstantiatedAction extends GenericActionType {
-    protected ActionParametersAsTerms parameters;
 
+    protected ActionParametersAsTerms parameters;
 
     public InstantiatedAction(String name) {
         this.name = name;
     }
- 
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         String parametri = "";
-        for(Object o : getParameters()){
+        for (Object o : getParameters()) {
             parametri = parametri.concat(o.toString()).concat(" ");
         }
-        return "\n\nAction Name:" + this.name + " Parameters: " + parametri +"\nPre: " + this.preconditions +  "\nEffetti positivi: "+ this.getAddList() + "\nEffetti negativi: " + this.getDelList() +"\nNumeric Effects:  " + this.getNumeric();
-
-    }
-    public String toEcoString(){
-        String parametri = "";
-        for(Object o : getParameters()){
-            parametri = parametri.concat(o.toString()).concat(" ");
-        }
-        return "\n\nAction Name:" + this.name + " Parameters: " + parametri ;
+        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
 
     }
 
+    public String toEcoString() {
+        String parametri = "";
+        for (Object o : getParameters()) {
+            parametri = parametri.concat(o.toString()).concat(" ");
+        }
+        return "\n\nAction Name:" + this.name + " Parameters: " + parametri;
+
+    }
 
     /**
      * @return the parameters
@@ -48,16 +47,15 @@ public class InstantiatedAction extends GenericActionType {
     public void setParameters(ActionParametersAsTerms parameters) {
         this.parameters = parameters;
     }
-    
-    public State apply(State s){
+
+    public State apply(State s) {
         State ret = s;
-        AndCond add = (AndCond)addList;
+        AndCond add = (AndCond) addList;
         ret = add.apply(s);
-        AndCond del = (AndCond)delList;
+        AndCond del = (AndCond) delList;
         ret = del.apply(s);
-        AndCond num = (AndCond)this.getNumeric();
-        ret = num.apply(s);       
+        AndCond num = (AndCond) this.getNumericEffects();
+        ret = num.apply(s);
         return ret;
     }
-    
 }
