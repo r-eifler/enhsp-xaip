@@ -299,27 +299,5 @@ public class State extends Object {
         return ret;
     }
 
-    public boolean satisfy(AndCond con) {
-        
-        for (Object o: con.son){
-        
-            if (o instanceof Comparison){
-                Comparison c = (Comparison)o;
-                if (!c.isSatisfied(this)){
-                    System.out.println(c + "is not satisfied in " +this);
-                    return false;
-                }
-            
-            }else if (o instanceof Predicate){
-                
-                if (!propositions.contains(o)){
-                    System.out.println(o + "is not contained in " +this);                
-                }
 
-            }
-        
-        }
-        return true;
-        
-    }
 }

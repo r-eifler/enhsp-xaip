@@ -37,7 +37,7 @@ public abstract class Expression extends Object {
     public abstract Expression weakEval(State s, HashMap invF);
     public abstract Expression clone();
 
-    public abstract Expression clone();
+
 
     public abstract PDDLNumbers eval(RelState s);
 

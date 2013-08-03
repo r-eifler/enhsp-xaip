@@ -14,7 +14,7 @@ import problem.State;
 
 /**
  *
- * @author enrico
+ * @author Enrico Scala
  */
 public class AndCond extends Conditions {
 
@@ -28,11 +28,19 @@ public class AndCond extends Conditions {
         sons = new HashSet();
     }
 
+    /**
+     *
+     * @param c a condition to be added
+     */
     public void addConditions(Conditions c) {
         sons.add(c);
 
     }
 
+    /**
+     *
+     * @return a string representation of the and tree
+     */
     public String toString() {
         String ret_val = "And(";
         for (Object o : sons) {
@@ -42,6 +50,11 @@ public class AndCond extends Conditions {
         return ret_val;
     }
 
+    /**
+     *
+     * @param the sigma relating the the variable involved with concrete pddlobject
+     * @return
+     */
     @Override
     public Conditions ground(Map substitution) {
         AndCond ret = new AndCond();
@@ -61,6 +74,11 @@ public class AndCond extends Conditions {
         return ret;
     }
 
+    /**
+     *
+     * @param s
+     * @return
+     */
     @Override
     public boolean eval(State s) {
         for (Object o : this.sons) {
@@ -88,10 +106,19 @@ public class AndCond extends Conditions {
         this.specialAndForExpression = specialAndForExpression;
     }
 
+    /**
+     *
+     * @param e when used with numeric effect
+     */
     public void addExpression(Expression e) {
         this.sons.add(e);
     }
 
+    /**
+     *
+     * @param s 
+     * @return
+     */
     @Override
     public boolean isSatisfied(State s) {
         for (Object o : this.sons) {
@@ -106,6 +133,11 @@ public class AndCond extends Conditions {
         return true;
     }
 
+    /**
+     *
+     * @param s
+     * @return
+     */
     @Override
     public boolean isSatisfied(RelState s) {
         for (Object o : this.sons) {
@@ -120,6 +152,11 @@ public class AndCond extends Conditions {
         return true;
     }
 
+    /**
+     *
+     * @param s 
+     * @return
+     */
     public State apply(State s) {
         State ret = s;
         for (Object o : this.sons) {
@@ -144,6 +181,12 @@ public class AndCond extends Conditions {
 
     }
 
+    /**
+     *
+     * @param s
+     * @return
+     */
+    
     public State remove(State s) {
         State ret = s;
         for (Object o : this.sons) {
@@ -161,13 +204,16 @@ public class AndCond extends Conditions {
         return s;
     }
 
+    /**
+     *
+     * @param substitution
+     */
     @Override
     public void changeVar(Map substitution) {
         for (Object o : sons) {
             if (o instanceof NumEffect) {
                 NumEffect el = (NumEffect) o;
                 el.changeVar(substitution);
-
             } else {
                 Conditions el = (Conditions) o;
                 el.changeVar(substitution);
@@ -176,6 +222,10 @@ public class AndCond extends Conditions {
 
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String pddlPrint() {
         String ret_val = "(and ";
@@ -195,6 +245,10 @@ public class AndCond extends Conditions {
         return ret_val;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Conditions clone() {
         AndCond ret = new AndCond();
@@ -229,6 +283,11 @@ public class AndCond extends Conditions {
 
     }
 
+    /**
+     *
+     * @param s
+     * @return
+     */
     public RelState apply(RelState s) {
         RelState ret = s;
         for (Object o : this.sons) {
@@ -269,6 +328,11 @@ public class AndCond extends Conditions {
         return s;
     }
 
+    /**
+     *
+     * @param s
+     * @return
+     */
     public Conditions whatisnotSatisfied(RelState s) {
         for (Object o : this.sons) {
             if (o instanceof Conditions) {
@@ -282,6 +346,10 @@ public class AndCond extends Conditions {
         return null;
     }
 
+    /**
+     *
+     * @param delList
+     */
     public void subtractElements(AndCond delList) {
         if (delList == null) {
             return;
@@ -300,6 +368,10 @@ public class AndCond extends Conditions {
         }
     }
 
+    /**
+     *
+     * @param addList
+     */
     public void subtractNegation(AndCond addList) {
         if (addList == null) {
             return;
@@ -318,6 +390,9 @@ public class AndCond extends Conditions {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void normalize() {        
         Iterator it = sons.iterator();
