@@ -16,14 +16,23 @@ import problem.GroundAction;
 
 /**
  *
- * @author enrico
+ * @author Enrico Scala
  */
 public class NumericKernel extends HashMap {
 
+    /**
+     *
+     */
     public NumericKernel() {
         super();
     }
 
+    /**
+     *
+     * @param sp
+     * @param g
+     * @throws CloneNotSupportedException
+     */
     public void construct(SimplePlan sp, Conditions g) throws CloneNotSupportedException {
 
         Conditions goal = (Conditions) g.clone();
@@ -45,6 +54,13 @@ public class NumericKernel extends HashMap {
 
     }
 
+    /**
+     *
+     * @param sp Simple Plan
+     * @param g the Goal condition
+     * @throws CloneNotSupportedException
+     */
+    @Deprecated
     public void construct_old(SimplePlan sp, Conditions g) throws CloneNotSupportedException {
 
         Conditions goal = (Conditions) g.clone();
@@ -59,6 +75,12 @@ public class NumericKernel extends HashMap {
 
     }
 
+    /**
+     *
+     * @param a
+     * @param con
+     * @return
+     */
     public AndCond oplus(GroundAction a, AndCond con) {
 
         //AndCond result = (AndCond)con.clone();

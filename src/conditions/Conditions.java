@@ -34,6 +34,7 @@ public abstract class Conditions extends Object {
 
     public abstract String pddlPrint();
 
+    @Override
     public abstract Conditions clone();
 
     public abstract boolean isSatisfied(RelState aThis);

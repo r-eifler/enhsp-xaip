@@ -13,7 +13,7 @@ import problem.State;
 
 /**
  *
- * @author enrico
+ * @author Enrico Scala
  */
 public class NumFluentAssigner extends Conditions {
 
