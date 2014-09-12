@@ -26,6 +26,7 @@
 
 package domain;
 
+import conditions.PDDLObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -46,4 +47,17 @@ public class ActionParameters extends ArrayList {
         }
         return null;
     }
+    
+    @Override
+    public String toString(){
+        String ret="(";
+        for (Object o: this){
+            Variable v = (Variable)o;
+            ret+=v.pddlPrint();
+            
+        }
+        return ret+")";
+    
+    }
+ 
 }

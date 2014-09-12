@@ -42,9 +42,9 @@ public class PDDLObject extends Conditions {
     private Type type;
     public HashSet son;
 
-    public PDDLObject(String n) {
+    public PDDLObject(String name) {
         grounded = true;
-        name = n;
+        name = name;
     }
 
     public PDDLObject(String n, Type atype) {
@@ -137,9 +137,11 @@ public class PDDLObject extends Conditions {
     }
 
     @Override
-    public String pddlPrint() {
-
-        return this.getName() + " " + this.getType();
+    public String pddlPrint(boolean typeInformation) {
+        if (typeInformation)
+            return this.getName() + " " + this.getType();
+        else
+            return this.getName();
     }
 
     @Override

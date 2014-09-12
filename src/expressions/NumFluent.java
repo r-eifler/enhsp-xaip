@@ -51,7 +51,9 @@ public class NumFluent extends Expression {
         if (objF.getName().equalsIgnoreCase(this.getName())) {
             if (objF.terms.size() == this.terms.size()) {
                 for (int i = 0; i < objF.terms.size(); i++) {
-                    if (!(objF.terms.get(i).equals(this.terms.get(i)))) {
+                    PDDLObject ogg = (PDDLObject)objF.terms.get(i);
+                    PDDLObject ogg2 = (PDDLObject)this.terms.get(i);
+                    if (!(ogg.equals(ogg2))) {
                         return false;
                     }
                 }
@@ -85,7 +87,21 @@ public class NumFluent extends Expression {
 
     @Override
     public String toString() {
-        return " " + getName() + " " + terms;
+        String ret = "";
+        ret +="  (" + this.name;
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+                ret = ret.concat(" " + obj.getName()+obj.getType());
+                
+            }
+            
+        }
+        ret = ret.concat(")");
+        return ret;
     }
 
     @Override
@@ -189,12 +205,21 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         String ret = "";
-        ret = ret.concat(" (" + this.name);
+        ret +="  (" + this.name;
         for (Object o1 : this.getTerms()) {
-            PDDLObject obj = (PDDLObject) o1;
-            ret = ret.concat(" " + obj.getName());
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+                if (typeInformation)
+                    ret = ret.concat(" " + obj.getName()+obj.getType());
+                else
+                    ret = ret.concat(" " + obj.getName());
+            
+            }  
         }
         ret = ret.concat(")");
         return ret;
@@ -204,7 +229,10 @@ public class NumFluent extends Expression {
     @Override
     public Expression weakEval(State s, HashMap invF) {
 
+        if (invF.get(this)==null)
+            return null;
         if ((Boolean) invF.get(this)) {
+            //s.functionValue(this)
             return s.functionValue(this);
         } else {
             return this;

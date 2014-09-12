@@ -221,8 +221,8 @@ public class NumEffect extends Expression {
      * @return
      */
     @Override
-    public String pddlPrint() {
-        return "(" + getOperator() + " " + getFluentAffected().pddlPrint() + " " + getRight().pddlPrint() + ")";
+    public String pddlPrint(boolean typeInformation) {
+        return "(" + getOperator() + " " + getFluentAffected().pddlPrint(typeInformation) + " " + getRight().pddlPrint(typeInformation) + ")";
 
     }
 

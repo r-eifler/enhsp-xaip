@@ -63,9 +63,10 @@ public class ActionParametersAsTerms extends ArrayList {
 
         for (Object o : this) {
             PDDLObject t = (PDDLObject) o;
-            ret += t.pddlPrint();
+            ret += t.pddlPrint(true);
         }
 
         return ret;
     }
+    
 }

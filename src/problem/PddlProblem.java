@@ -61,6 +61,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import org.antlr.runtime.ANTLRInputStream;
@@ -89,8 +91,55 @@ public class PddlProblem {
     protected String pddlFilRef;
     protected String domainName;
     private PddlDomain linkedDomain;
+    private boolean validatedAgainstDomain;
     private Set actions;
     private long propositionalTime;
+        private boolean groundedActions;
+        private RelState possStates;
+
+    /**
+     * Get the value of groundedActions
+     *
+     * @return the value of groundedActions
+     */
+    public boolean isGroundedActions() {
+        return groundedActions;
+    }
+
+    /**
+     * Set the value of groundedActions
+     *
+     * @param groundedActions new value of groundedActions
+     */
+    public void setGroundedActions(boolean groundedActions) {
+        this.groundedActions = groundedActions;
+    }
+
+
+    public PddlProblem(String problemFile) {
+        super();
+        try {
+            init = new State();
+            indexObject = 0;
+            indexInit = 0;
+            indexGoals = 0;
+            objects = new PDDLObjects();
+            metric = new Metric("NO");
+            linkedDomain = null;
+            actions = new HashSet();
+            this.parseProblem(problemFile);
+            groundedActions=false;
+            validatedAgainstDomain=false;
+            possStates=null;
+        } catch (IOException ex) {
+            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RecognitionException ex) {
+            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (org.antlr.runtime.RecognitionException ex) {
+            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
 
     /**
      * Get the value of domainName
@@ -136,7 +185,7 @@ public class PddlProblem {
                 + "(:domain " + this.getDomainName() + ") "
                 + this.objects.pddlPrint() + "\n"
                 + this.init.pddlPrint() + "\n"
-                + "(:goal " + this.getGoals().pddlPrint() + ")\n"
+                + "(:goal " + this.getGoals().pddlPrint(false) + ")\n"
                 + this.metric.pddlPrint() + "\n"
                 + ")";
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
@@ -158,6 +207,8 @@ public class PddlProblem {
         metric = new Metric("NO");
         linkedDomain = null;
         actions = new HashSet();
+        groundedActions=false;
+
     }
 
     /**
@@ -287,8 +338,8 @@ public class PddlProblem {
 
             Comparison c = new Comparison(infoAction.getChild(0).getText());
 
-            c.setFirst(createExpression(infoAction.getChild(1)));
-            c.setTwo(createExpression(infoAction.getChild(2)));
+            c.setLeft(createExpression(infoAction.getChild(1)));
+            c.setRight(createExpression(infoAction.getChild(2)));
             return c;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -414,10 +465,15 @@ public class PddlProblem {
 
     private void addMetric(Tree t) {
 
-        System.out.println(t.toStringTree());
+        //System.out.println(t.toStringTree());
         metric = new Metric(t.getChild(0).getText());
         metric.setMetExpr(createExpression(t.getChild(1)));
+        
 
+    }
+    
+    public void setMetric(Metric m){
+        this.metric = m;
     }
 
     private void setObject(PDDLObjects object) {
@@ -485,12 +541,7 @@ public class PddlProblem {
         return metric;
     }
 
-    /**
-     * @param metric the metric to set
-     */
-    private void setMetric(Metric metric) {
-        this.metric = metric;
-    }
+  
 
     /**
      *
@@ -548,11 +599,12 @@ public class PddlProblem {
 
     public void setDomain(PddlDomain aThis) {
         linkedDomain = aThis;
+        
     }
 
     public void generateActions() throws Exception {
         long start = System.currentTimeMillis();
-        if (this.linkedDomain != null) {
+        if (this.isValidatedAgainstDomain()) {
             ActionFactory af = new ActionFactory();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
@@ -565,6 +617,8 @@ public class PddlProblem {
             System.exit(-1);
         }
         setPropositionalTime(System.currentTimeMillis() - start);
+        this.setGroundedActions(true);
+        
     }
 
     public int distance(State sIn, Conditions c) {
@@ -798,5 +852,33 @@ public class PddlProblem {
     public void parseProblem(String string, PDDLObjects constants) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
         this.objects.addAll(constants);
         parseProblem(string);
+    }
+
+    /**
+     * @return the validatedAgainstDomain
+     */
+    public boolean isValidatedAgainstDomain() {
+        return validatedAgainstDomain;
+    }
+
+    /**
+     * @param validatedAgainstDomain the validatedAgainstDomain to set
+     */
+    public void setValidatedAgainstDomain(boolean validatedAgainstDomain) {
+        this.validatedAgainstDomain = validatedAgainstDomain;
+    }
+
+    /**
+     * @return the possStates
+     */
+    public RelState getPossStates() {
+        return possStates;
+    }
+
+    /**
+     * @param possStates the possStates to set
+     */
+    public void setPossStates(RelState possStates) {
+        this.possStates = possStates;
     }
 }

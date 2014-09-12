@@ -80,7 +80,7 @@ public class Metric {
 
     String pddlPrint() {
         if (!this.optimization.equals("NO")) {
-            return "(:metric " + this.optimization + " " + this.metExpr.pddlPrint() + ")";
+            return "(:metric " + this.optimization + " " + this.metExpr.pddlPrint(false) + ")";
         } else {
             return "";
         }

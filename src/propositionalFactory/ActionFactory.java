@@ -44,6 +44,7 @@ import java.util.HashMap;
 
 import java.util.List;
 import java.util.Set;
+import problem.GroundAction;
 
 import problem.PDDLObjects;
 
@@ -96,9 +97,11 @@ public class ActionFactory {
 //                for(i=0; i<n_parametri;i++)
 //                    System.out.print(counter[i]);
 //                 System.out.println("");
-
+////                 System.out.println(sub[0]);
+////                 System.out.println(a);
             ActionParametersAsTerms toAdd = new ActionParametersAsTerms();
             for (int z = 0; z < n_parametri; z++) {
+                //System.out.println(sub[z]);
                 toAdd.add(sub[z].keySet().toArray()[counter[z]]);
             }
             combo.add(toAdd);
@@ -155,7 +158,9 @@ public class ActionFactory {
 
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
-            ret.add(a.ground((ActionParametersAsTerms) o));
+            GroundAction toAdd =a.ground((ActionParametersAsTerms) o);
+            toAdd.generateAffectedNumFluents();
+            ret.add(toAdd);
         }
 
         return ret;

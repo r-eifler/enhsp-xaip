@@ -35,13 +35,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import plan.SimplePlan;
 
-public class metricFFWrapper extends planningTool {
+public class metricFF21Wrapper extends planningTool {
 
-    public metricFFWrapper() {
+    public metricFF21Wrapper() {
         super();
         option1 = "";       //"-O";
         option2 = "";
-        planningExec = "ff";
+        planningExec = "ff21";
         this.setTimeout(10000);
         Utils.deleteFile(storedSolutionPath);
 
@@ -52,8 +52,15 @@ public class metricFFWrapper extends planningTool {
     public String plan() {
         try {
             System.out.println("Planning...");
+            if (this.getOption1().equalsIgnoreCase("noOpt")){
+                System.out.print("No Optimization");
+                this.setOption1("-s 0");
+            }else{
+                System.out.println("Optimization Modality");
+            }
+            
             this.executePlanning();
-            //System.out.println(outputPlanning);
+            System.out.println(outputPlanning);
             if (this.isTimeoutFail()){
                 System.out.println("....TIMEOUT");
                 return null;
@@ -78,7 +85,7 @@ public class metricFFWrapper extends planningTool {
 
             return this.storedSolutionPath;
         } catch (IOException ex) {
-            Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(metricFF21Wrapper.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }

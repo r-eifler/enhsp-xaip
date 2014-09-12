@@ -25,12 +25,15 @@
  *********************************************************************/ 
 
 import computation.NumericKernel;
+import computation.NumericPlanningGraph;
 import conditions.AndCond;
+import conditions.Conditions;
+import conditions.Predicate;
 import domain.PddlDomain;
+import java.util.Map;
+import java.util.Set;
 import plan.SimplePlan;
-import planners.metricFFWrapper;
 import problem.PddlProblem;
-import problem.State;
 
 public class Test {
 
@@ -43,38 +46,58 @@ public class Test {
 
         //Controlling the input files
         if (args.length < 2) {
-            System.out.println("Usage: ... domain problem plan");
+            System.out.println("Usage: ... domain problem [optionally] problem resaved");
             System.exit(-1);
         }
 
         {
-            PddlDomain a = new PddlDomain();
-            PddlProblem p = new PddlProblem();
-
-            String domainFile = "zenonumeric.pddl";
+            PddlDomain domain = new PddlDomain();
+            PddlProblem problem = new PddlProblem();
+            NumericKernel nk = new NumericKernel();
             
+           
+            domain.parseDomain(args[0]);
+            problem.parseProblem(args[1]);
+            domain.validate(problem);
+            System.out.println("Domain and Problem Parsed");
+            problem.generateActions();
+            System.out.println("Actions Number:" + problem.getActions().size());
+            SimplePlan p = new SimplePlan(domain,problem,true);
             
-            a.parseDomain(domainFile);
-            //int i = Integer.parseInt(args[1]);
-            for (int i = 1; i < 10; i++) {
-                String problemFile = "p" + Integer.toString(i) ;
-                p.parseProblem(problemFile);
-                //a.prettyPrint();
-                //p.prettyPrint();
-                metricFFWrapper ff = new metricFFWrapper();
-
-                SimplePlan sp = new SimplePlan(a, p);
-
-
-
-                //sp.parseSolution(ff.plan("zenonumeric.pddl", "p" + Integer.toString(i)));
-                sp.parseSolution(ff.plan(domainFile, problemFile));
+            NumericPlanningGraph ngr = new NumericPlanningGraph();
+            
+            Map<Predicate,Set<Predicate>> LM =ngr.findLandmarks(problem.getInit(), (AndCond)problem.getGoals(), problem.getActions());
+            
+            for (Object o: problem.getGoals().sons){
+                if (o instanceof Predicate){
+                    Predicate g = (Predicate)o;
+                    //System.out.println(g);
+                    System.out.println("LM("+g+"): "+ LM.get(g));
+                    System.out.println("FA("+g+"): "+ ngr.firstAchiever.get(g));
+                    
+                }
                 
-                NumericKernel nk = new NumericKernel();
-                nk.construct(sp, p.getGoals());
                 
-                System.out.println("Check Numeric Kernel:"+ p.getInit().satisfy((AndCond)nk.get(0)));
             }
+            
+            
+            
+            
+            findJustification(problem.getGoals(),LM);
+
+                
+            
+            
+            //finding justification:
+            
+            
+            //int i = Integer.parseInt(args[1]);
+
         }
+    }
+
+    private static void findJustification(Conditions goals, Map<Predicate, Set<Predicate>> LM) {
+        
+        
     }
 }

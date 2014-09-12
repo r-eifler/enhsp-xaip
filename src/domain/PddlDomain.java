@@ -1,29 +1,30 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ *
+ ********************************************************************
+ */
 package domain;
 
 import conditions.AndCond;
@@ -33,6 +34,7 @@ import conditions.NotCond;
 import conditions.NumFluentAssigner;
 import conditions.OrCond;
 import conditions.PDDLObject;
+import conditions.PDDLObjectsEquality;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.Expression;
@@ -44,10 +46,13 @@ import expressions.PDDLNumber;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -64,17 +69,17 @@ import problem.PddlProblem;
  */
 public class PddlDomain extends Object {
 
-    String name;
+    private String name;
     protected Set ActionsSchema;
     private PredicateSet predicates;
-    private HashSet types;
+    private List types;
     private PDDLObjects constants;
     private List functions;
     private List DurativeActions;
     private List Requirements;
     private String pddlReferenceFile;
 
-    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, HashSet types, List Functions, List DurativeActions, List Requirements) {
+    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List types, List Functions, List DurativeActions, List Requirements) {
         this.ActionsSchema = ActionsSchema;
         this.predicates = Predicates;
         this.types = types;
@@ -87,12 +92,28 @@ public class PddlDomain extends Object {
      *
      */
     public PddlDomain() {
-
-        types = new HashSet();
+        super();
+        types = new ArrayList();
         ActionsSchema = new HashSet();
         functions = new ArrayList();
         Requirements = new ArrayList();
         constants = new PDDLObjects();
+    }
+
+    public PddlDomain(String domainFile) {
+        super();
+        try {
+            types = new ArrayList();
+            ActionsSchema = new HashSet();
+            functions = new ArrayList();
+            Requirements = new ArrayList();
+            constants = new PDDLObjects();
+            this.parseDomain(domainFile);
+        } catch (IOException ex) {
+            Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RecognitionException ex) {
+            Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -116,20 +137,91 @@ public class PddlDomain extends Object {
                 }
             }
             if (!founded) {
-                System.out.println("Oggetto non valido:" + t);
+                System.out.println("The following object is not valid:" + t);
                 System.exit(-1);
             }
         }
 
         for (Object o : p.getInit().getPropositions()) {
             if (o instanceof NumFluentAssigner) {
+                NumFluentAssigner nf = (NumFluentAssigner) o;
+                for (Object o1 : nf.getNFluent().getTerms()) {
+                    PDDLObject t = (PDDLObject) o1;
+                    Iterator it = types.iterator();
+                    boolean founded = false;
+                    while (it.hasNext()) {
+                        Type ele = (Type) it.next();
+                        if (ele.equals(t.getType())) {
+                            t.setType(ele);
+                            founded = true;
+                            break;
+                        }
+                    }
+                    if (!founded) {
+                        System.out.println("The following object is not valid:" + t);
+                        System.exit(-1);
+                    }
+                }
             } else {
-                Predicate t = (Predicate) o;
-//                if (!predicates.validateInst(t)) {
-//                    System.out.println("Predicato: " + t + " non valido");
-//                    System.exit(-1);
-//
-//                }
+                Predicate t1 = (Predicate) o;
+                for (Object o1 : t1.getTerms()) {
+                    PDDLObject t = (PDDLObject) o1;
+                    Iterator it = types.iterator();
+                    boolean founded = false;
+                    while (it.hasNext()) {
+                        Type ele = (Type) it.next();
+                        if (ele.equals(t.getType())) {
+                            t.setType(ele);
+                            founded = true;
+                            break;
+                        }
+                    }
+                    if (!founded) {
+                        System.out.println("The following object is not valid:" + t);
+                        System.exit(-1);
+                    }
+                }
+            }
+        }
+        for (Object o : p.getInit().getNumericFluents()) {
+            if (o instanceof NumFluentAssigner) {
+                NumFluentAssigner nf = (NumFluentAssigner) o;
+                for (Object o1 : nf.getNFluent().getTerms()) {
+                    PDDLObject t = (PDDLObject) o1;
+                    Iterator it = types.iterator();
+                    boolean founded = false;
+                    while (it.hasNext()) {
+                        Type ele = (Type) it.next();
+                        if (ele.equals(t.getType())) {
+                            t.setType(ele);
+                            founded = true;
+                            break;
+                        }
+                    }
+                    if (!founded) {
+                        System.out.println("The following object is not valid:" + t);
+                        System.exit(-1);
+                    }
+                }
+            } else {
+                Predicate t1 = (Predicate) o;
+                for (Object o1 : t1.getTerms()) {
+                    PDDLObject t = (PDDLObject) o1;
+                    Iterator it = types.iterator();
+                    boolean founded = false;
+                    while (it.hasNext()) {
+                        Type ele = (Type) it.next();
+                        if (ele.equals(t.getType())) {
+                            t.setType(ele);
+                            founded = true;
+                            break;
+                        }
+                    }
+                    if (!founded) {
+                        System.out.println("The following object is not valid:" + t);
+                        System.exit(-1);
+                    }
+                }
             }
         }
         for (Object o : p.getGoals().sons) {
@@ -145,7 +237,7 @@ public class PddlDomain extends Object {
             }
         }
         p.setDomain(this);
-
+        p.setValidatedAgainstDomain(true);
 
         return true;
     }
@@ -172,7 +264,6 @@ public class PddlDomain extends Object {
             System.out.println("Errore di qualche genere");
         }
 
-
         CommonTree t = (CommonTree) root.getTree();
         int i;
         for (i = 0; i < t.getChildCount(); i++) {
@@ -181,7 +272,7 @@ public class PddlDomain extends Object {
 //            System.out.println("Tipo: " + c.getText());
             switch (type) {
                 case PddlParser.DOMAIN_NAME:
-                    name = c.getChild(0).getText();
+                    setName(c.getChild(0).getText());
                     break;
                 case PddlParser.TYPES:
                     addTypes(c);
@@ -236,14 +327,14 @@ public class PddlDomain extends Object {
     /**
      * @return the types declared in the domain
      */
-    public HashSet getTypes() {
+    public List getTypes() {
         return types;
     }
 
     /**
      * @param types the types to set
      */
-    private void setTypes(HashSet Types) {
+    private void setTypes(List Types) {
         this.types = Types;
     }
 
@@ -418,8 +509,9 @@ public class PddlDomain extends Object {
         if (infoAction == null) {
             return null;
         }
+
         if (infoAction.getType() == PddlParser.PRED_HEAD) {
-            //estrapola tutti i predicati e ritornali come set di predicati
+            //extract the predicate
             return buildPredicate(infoAction, parTable);
         } else if (infoAction.getType() == PddlParser.AND_GD) {
             AndCond and = new AndCond();
@@ -457,11 +549,25 @@ public class PddlDomain extends Object {
 
             Comparison c = new Comparison(infoAction.getChild(0).getText());
 
-            c.setFirst(createExpression(infoAction.getChild(1), parTable));
-            c.setTwo(createExpression(infoAction.getChild(2), parTable));
+            c.setLeft(createExpression(infoAction.getChild(1), parTable));
+            c.setRight(createExpression(infoAction.getChild(2), parTable));
             return c;
-            //Crea un not e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di not
+            //Create an equality structure for comparing Objects
+        } else if (infoAction.getType() == PddlParser.EQUALITY_CON) {
+            PDDLObjectsEquality equality = new PDDLObjectsEquality();
+
+            if (infoAction.getChild(1).getType() == PddlParser.NAME){
+                System.out.println("Constant objects in equality comparison are not supported");
+                System.exit(-1);
+            }else
+                equality.setLeftV(buildVariable(infoAction.getChild(1), parTable));
+            if (infoAction.getChild(1).getType() == PddlParser.NAME){
+                System.out.println("Constant objects in equality comparison are not supported");
+                System.exit(-1);
+            }else
+                equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
+            return equality;
+
         }
         return null;
     }
@@ -498,6 +604,7 @@ public class PddlDomain extends Object {
                 PDDLObject o = new PDDLObject(t.getChild(i).getText());
                 PDDLObject o1 = this.getConstants().containsTerm(o);
                 if (o1 != null) {
+                    a.setGrounded(true);
                     a.addObject(o1);
                 } else {
                     System.out.println("Variable " + o + " is not a constant object");
@@ -521,6 +628,29 @@ public class PddlDomain extends Object {
         }
         return a;
     }
+
+    private Variable buildVariable(Tree t, ActionParameters parTable) {
+        Variable a = null;
+        //a.setName(t.getChild(0).getText());
+        //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
+        if (t.getType() == PddlParser.NAME) {
+
+            System.out.println("Error in parsing variable terms");
+            System.exit(-1);
+
+        } else {
+            
+            a = new Variable(t.getText());
+            Variable v1 = parTable.containsVariable(a);
+            if (v1 == null) {
+                System.out.println("BuildPredicate: Variable " + a + " not involved in the action model");
+                System.exit(-1);
+            }
+            a = v1;
+        }
+        return a;
+    }
+ 
 
     private Conditions createDelEffect(ActionParameters parTable, Tree infoAction) {
         if (infoAction == null) {
@@ -637,7 +767,6 @@ public class PddlDomain extends Object {
             a.setRight((Expression) createExpression(child.getChild(2), parameters));
             return a;
 
-
         } else if (child.getType() == PddlParser.FORALL_EFFECT) {
             System.err.println("ADL not fully supported");
             System.exit(-1);
@@ -663,7 +792,14 @@ public class PddlDomain extends Object {
                 NumFluent ret = new NumFluent(c.getChild(i).getText());
                 Tree t = c.getChild(i);
                 for (int j = 0; j < t.getChildCount(); j++) {
-                    ret.addVariable(new Variable(t.getChild(j).getText()));
+                    Variable v = new Variable(t.getChild(j).getText());
+                    if (t.getChild(j).getChild(0) != null);
+                        //System.out.println(t.getChild(j));
+
+                    //System.out.println(t.getChild(j).getChild(0));
+                    v.setType(new Type(t.getChild(j).getChild(0).getText()));
+
+                    ret.addVariable(v);
                 }
                 this.functions.add(ret);
             }
@@ -785,11 +921,33 @@ public class PddlDomain extends Object {
     public void setConstants(PDDLObjects constants) {
         this.constants = constants;
     }
-    
-    public void saveDomain(String file){
-        
-        
-        
-        
+
+    public void saveDomain(String file) {
+
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public HashMap generateAbstractInvariantFluents() {
+        HashMap res = new HashMap();
+        for (ActionSchema as : (Set<ActionSchema>) this.ActionsSchema) {
+            Set s = as.getAbstractNumericFluentAffected();
+            for (NumFluent nf : (Set<NumFluent>) s) {
+                res.put(nf.getName(), false);
+            }
+        }
+        return res;
     }
 }

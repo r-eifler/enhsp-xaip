@@ -1,38 +1,42 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ *
+ ********************************************************************
+ */
 package domain;
 
 import conditions.AndCond;
+import conditions.NotCond;
 
 import conditions.PDDLObject;
+import conditions.Predicate;
 import expressions.NumEffect;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.GroundAction;
 
 /**
@@ -42,7 +46,6 @@ import problem.GroundAction;
 public class ActionSchema extends GenericActionType {
 
     private ActionParameters parameters;
-    
 
     public ActionSchema() {
         super();
@@ -114,7 +117,9 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(par);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution));
+        //System.out.println(this);
+        if (numericEffects!= null || !numericEffects.sons.isEmpty())
+            ret.setNumericEffects(this.numericEffects.ground(substitution));
         if (addList != null) {
             ret.setAddList(this.addList.ground(substitution));
         }
@@ -130,10 +135,64 @@ public class ActionSchema extends GenericActionType {
 
     @Override
     public String toString() {
-        String parametri = "";
-        for (Object o : parameters) {
-            parametri = parametri.concat(o.toString()).concat(" ");
+//        String parametri = "";
+//        for (Object o : parameters) {
+//            parametri = parametri.concat(o.toString()).concat(" ");
+//        }
+//        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
+//    }
+
+        String ret = "(:action " + this.name + "\n";
+
+        ret += ":parameters " + this.getParameters() + "\n";
+        ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
+        ret += ":effect " + this.pddlEffects();
+
+        return ret + ")";
+    }
+
+    private String pddlEffects() {
+        String ret = "(and ";
+        if (this.getAddList() != null) {
+            for (Object o : this.getAddList().sons) {
+                Predicate p = (Predicate) o;
+                ret += p.pddlPrint(false);
+            }
         }
-        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
+        if (this.getDelList() != null) {
+            for (Object o : this.getDelList().sons) {
+                NotCond p = (NotCond) o;
+                ret += p.pddlPrint(false);
+            }
+        }
+        if (this.getNumericEffects() != null) {
+            for (Object o : this.getNumericEffects().sons) {
+                NumEffect nE = (NumEffect) o;
+                ret += nE.pddlPrint(false);
+
+            }
+        }
+
+        return ret + ")";
+    }
+
+    public Set getAbstractNumericFluentAffected() {
+        HashSet anfa = new HashSet();
+        for (Object o: this.numericEffects.sons){
+            if (o instanceof AndCond){
+                AndCond a = (AndCond)o;
+                for (Object o1: a.sons){
+                    if (o1 instanceof NumEffect){
+                        NumEffect ne = (NumEffect)o1;
+                        anfa.add(ne.getFluentAffected());
+                    }    
+                }
+                
+            }else if (o instanceof NumEffect){
+                NumEffect ne = (NumEffect)o;
+                anfa.add(ne.getFluentAffected());
+            }
+        }
+        return anfa;
     }
 }
