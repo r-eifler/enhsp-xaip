@@ -150,7 +150,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

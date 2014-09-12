@@ -43,7 +43,7 @@ tokens {
 	PRED_HEAD;
 	GOAL;
 	BINARY_OP;
-	BINARY_OP2;
+	EQUALITY_CON;
 	MULTI_OP;
 	MINUS_OP;
 	UNARY_MINUS;
@@ -59,6 +59,8 @@ tokens {
 @header {
 package parser;
 }
+@lexer::header { package parser; }
+
 
 @parser::members {
 private boolean wasError = false;
@@ -132,7 +134,7 @@ singleTypeNameList
 
 type
 	: ( '(' 'either' primType+ ')' )
-	  -> ^(EITHER_TYPE primType+) {new String("cazzonelculo");}
+	  -> ^(EITHER_TYPE primType+) {new String("debug")}
 	| primType
 	;
 
@@ -196,9 +198,9 @@ structureDef
 
 actionDef
 	: '(' ':action' actionSymbol
-	      ':parameters' '(' typedVariableList ')'
+	      ':parameters'  '(' typedVariableList ')'
            actionDefBody ')'
-       -> ^(ACTION actionSymbol typedVariableList actionDefBody)
+       -> ^(ACTION actionSymbol typedVariableList? actionDefBody)
     ;
 
 actionSymbol : NAME ;
@@ -240,8 +242,13 @@ goalDesc
 	          -> ^(FORALL_GD typedVariableList goalDesc)
     | fComp
               -> ^(COMPARISON_GD fComp)
+	| equality 
+			  -> ^(EQUALITY_CON equality)
     ;
 
+equality
+	: '('! '=' term term ')'!
+	;
 fComp
 	: '('! binaryComp fExp fExp ')'!
 	;
@@ -256,7 +263,7 @@ term : NAME | VARIABLE ;
 
 durativeActionDef
 	: '(' ':durative-action' actionSymbol
-	      ':parameters' '(' typedVariableList ')'
+	      ':parameters'  '(' (typedVariableList)? ')'
            daDefBody ')'
        -> ^(DURATIVE_ACTION actionSymbol typedVariableList daDefBody)
     ;
@@ -527,9 +534,9 @@ fragment LETTER:	'a'..'z' | 'A'..'Z';
 
 fragment ANY_CHAR: LETTER | '0'..'9' | '-' | '_';
 
-VARIABLE : '?' LETTER ANY_CHAR* ;
+VARIABLE : '?' LETTER ANY_CHAR*  ;
 
-NUMBER : DIGIT+ ('.' DIGIT+)? ;
+NUMBER : ('-')? DIGIT+ ('.' DIGIT+)? ;
 
 fragment DIGIT: '0'..'9';
 

@@ -146,7 +146,8 @@ public class BinaryOp extends Expression {
         NormExpression ret = new NormExpression();
         NormExpression left = this.getOne().normalize();
         NormExpression right = this.getRight().normalize();
-
+        
+        
         if (this.getOperator().equals("+")) {
             ret = left.sum(right);
         } else if (this.getOperator().equals("-")) {
@@ -173,9 +174,9 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
 
-        return "(" + getOperator() + " " + getOne().pddlPrint() + " " + getRight().pddlPrint() + ")";
+        return "(" + getOperator() + " " + getOne().pddlPrint(typeInformation) + " " + getRight().pddlPrint(typeInformation) + ")";
 
     }
 
@@ -186,6 +187,10 @@ public class BinaryOp extends Expression {
         ret.operator = this.operator;
         ret.left = left.weakEval(s, invF);
         ret.right = right.weakEval(s, invF);
+        
+        if (ret.left == null || ret.right == null)
+            return null;
+        
 
         return ret;
 
@@ -210,6 +215,8 @@ public class BinaryOp extends Expression {
         PDDLNumbers ret_val = null;
         PDDLNumbers first = this.left.eval(s);
         PDDLNumbers second = this.right.eval(s);
+        
+        
         if ((first == null) || (second == null)) {
             return null;
         }

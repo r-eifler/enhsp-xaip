@@ -31,6 +31,8 @@ import expressions.Expression;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import problem.RelState;
 import problem.State;
 
@@ -89,6 +91,7 @@ public class AndCond extends Conditions {
 
             } else {
                 Conditions el = (Conditions) o;
+                //System.out.println(el);
                 ret.sons.add(el.ground(substitution));
             }
         }
@@ -180,17 +183,17 @@ public class AndCond extends Conditions {
      * @return
      */
     public State apply(State s) {
-        State ret = s;
+        
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
                 AndCond t = (AndCond) o;
-                ret = t.apply(s);
+                s = t.apply(s);
             } else if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.apply(s);
+                s = p.apply(s);
             } else if (o instanceof NotCond) {
                 NotCond n = (NotCond) o;
-                ret = n.apply(s);
+                s = n.apply(s);
             } else if (o instanceof NumEffect) {
                 NumEffect n = (NumEffect) o;
                 n.apply(s);
@@ -199,7 +202,7 @@ public class AndCond extends Conditions {
                 System.exit(-1);
             }
         }
-        return ret;
+        return s;
 
     }
 
@@ -249,15 +252,15 @@ public class AndCond extends Conditions {
      * @return
      */
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         String ret_val = "(and ";
         for (Object o : sons) {
             if (o instanceof Conditions) {
                 Conditions c = (Conditions) o;
-                ret_val = ret_val.concat(c.pddlPrint());
+                ret_val = ret_val.concat(c.pddlPrint(typeInformation));
             } else if (o instanceof Comparison) {
                 Comparison comp = (Comparison) o;
-                ret_val = ret_val.concat(comp.pddlPrint());
+                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
             } else {
                 System.out.println("Error in pddlPrint:" + this);
                 System.exit(-1);
@@ -296,6 +299,9 @@ public class AndCond extends Conditions {
                 ret.sons.add(a.clone());
             } else if (o instanceof NumFluentAssigner) {
                 NumFluentAssigner a = (NumFluentAssigner) o;
+                ret.sons.add(a.clone());
+            }else if (o instanceof NumEffect){
+                NumEffect a = (NumEffect)o;
                 ret.sons.add(a.clone());
             }
         }
@@ -376,10 +382,10 @@ public class AndCond extends Conditions {
         if (delList == null) {
             return;
         }
-        Iterator it = this.sons.iterator();
         Iterator it2 = delList.sons.iterator();
         while (it2.hasNext()) {
             NotCond nc = (NotCond) it2.next();
+            Iterator it = this.sons.iterator();
             while (it.hasNext()) {
                 //NotCond nc = (NotCond)it.next();
                 //System.out.println("Confronto : " + o.getClass());
@@ -398,10 +404,11 @@ public class AndCond extends Conditions {
         if (addList == null) {
             return;
         }
-        Iterator it = this.sons.iterator();
         Iterator it2 = addList.sons.iterator();
         while (it2.hasNext()) {
             Object o = it2.next();
+            Iterator it = this.sons.iterator();
+
             while (it.hasNext()) {
                 NotCond nc = (NotCond) it.next();
                 //System.out.println("Confronto : " + o.getClass());
@@ -422,12 +429,30 @@ public class AndCond extends Conditions {
             Object o = it.next();
             if (o instanceof Comparison){
                 Comparison comp = (Comparison)o;
-                comp = comp.normalizeAndCopy();
+                try {
+                    comp = comp.normalizeAndCopy();
+
+                } catch (Exception ex) {
+                    Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 if (comp==null) {
                     it.remove();
                 }
             }
         }
         
+    }
+
+    public State transformInStateIfPossible() {
+        State ret = new State();
+        for (Object o: this.sons){
+            if (o instanceof Predicate){
+                ret.addProposition((Predicate)o);
+            }else{
+                System.out.println("This AndCond cannot be transformed into a State");
+                return null;
+            }
+        }
+        return ret;
     }
 }

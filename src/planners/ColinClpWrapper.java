@@ -25,22 +25,28 @@
  *********************************************************************/ 
 package planners;
 
+import extraUtils.Utils;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plan.SimplePlan;
 
-public class metricFFWrapper extends planningTool {
+public class ColinClpWrapper extends planningTool {
 
-    public metricFFWrapper() {
+    public ColinClpWrapper() {
         super();
         option1 = "";       //"-O";
         option2 = "";
-        planningExec = "ff";
+        planningExec = "colin-clp";
+        this.setTimeout(10000);
+        Utils.deleteFile(storedSolutionPath);
 
 //        ArrayList solution;
     }
@@ -48,63 +54,92 @@ public class metricFFWrapper extends planningTool {
     @Override
     public String plan() {
         try {
+            System.out.println("Planning...");
             this.executePlanning();
-            if (this.isFailed()) {
+            //System.out.println(outputPlanning);
+            if (this.isTimeoutFail()){
+                this.setTimeoutFail(true);
+                this.failed=false;
+                System.out.println("....TIMEOUT");
+                this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
+            if (this.outputPlanning.contains("unsolvable")){
+                this.failed=true;
+                System.out.println("....UNSOLVABLE");
+                this.findTotalTimeInFile(outputPlanning);
+                return null;
+            }
+            if (!this.outputPlanning.contains("Solution Found")){
+                this.failed=false;
+                this.setPlannerError(true);
+                System.out.println("....UNKNOWN ERROR");
+                this.findTotalTimeInFile(outputPlanning);
+                return null;
+            }
+            
+            System.out.println("....SUCCESS");
             putSolutionInFile(this.outputPlanning);
+            this.findTotalTimeInFile(outputPlanning);
+
             return this.storedSolutionPath;
         } catch (IOException ex) {
-            Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ColinClpWrapper.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
 
     @Override
     public String plan(String domainFile, String problemFile) {
-        try {
+
             //System.out.println("planning");
             this.setDomainFile(domainFile);
             this.setProblemFile(problemFile);
-            this.executePlanning();
-            putSolutionInFile(this.outputPlanning);
-            return this.storedSolutionPath;
-        } catch (IOException ex) {
-            Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+
+            return plan();
+
     }
 
     private void putSolutionInFile(String s) throws IOException {
 
         Scanner sc = new Scanner(s);
-        boolean atleastanaction = false;
         Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
         output.write("\n");
-        while (sc.hasNextLine()) {
-            if (sc.findInLine("[0-9]: ") != null) {
-                //System.out.println("("+sc.nextLine()+")");
-                output.write("(" + sc.nextLine() + ")\n");
-                atleastanaction = true;
-            } else {
-                sc.nextLine();
-            }
+        //System.out.println("prova");
+        //ArrayList a = new ArrayList();
+        while (sc.hasNextLine()){
+            if (sc.findInLine("Solution Found")!= null)
+                    break;
+            sc.nextLine();
         }
-        sc = new Scanner(s);
-
-
+                 
         while (sc.hasNextLine()) {
-            String test = sc.findInLine("[0-9]+[.][0-9]+ seconds total time");
-            if (test != null) {
-                Scanner temp = new Scanner(test);
-                this.setTimePlanner((int) (Float.parseFloat(temp.findInLine("[0-9]+[.][0-9]+")) * 1000));
-                System.out.println("time" + this.getTimePlanner());
-            } else {
-                sc.nextLine();
-            }
-        }
 
+            String prova;
+            //prova = sc.findInLine("[0-9]+[.][0-9]+; [(][a-zA-Z0-9_[-]\\s]*[)]");
+            prova = sc.findInLine("[(][a-zA-Z0-9_[-]\\s]*[)]");
+            //prova = sc.findInLine("ACTION");
+            if (prova != null) {
+                output.write(prova + "\n");
+                //System.out.println(prova.substring(3));
+                //a.add(prova);
+            } else {
+                String time = sc.findInLine("Time[\\s]*[0-9]+[.][0-9]+");
+                if (time != null) {
+                    Float t = Float.parseFloat(time.substring(time.indexOf(" ") + 1));
+                    Integer msec = (int) (float) (t * 1000);
+                    this.setTimePlanner(msec);
+                    System.out.println("time" + this.getPlannerTime());
+
+                }
+
+            }
+
+            sc.nextLine();
+        }
+        //System.out.println(a.size());
         output.close();
+        //System.exit(-1);
 
     }
 
@@ -113,5 +148,198 @@ public class metricFFWrapper extends planningTool {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    public void findTotalTimeInFile(String s){
+            Scanner sc = new Scanner(s);
 
+
+        while (sc.hasNextLine()) {
+            String time = sc.findInLine("Time[\\s]*[0-9]+[.][0-9]+");
+            if (time != null) {
+                    Float t = Float.parseFloat(time.substring(time.indexOf(" ") + 1));
+                    Integer msec = (int) (float) (t * 1000);
+                    this.setTimePlanner(msec);
+                    System.out.println("time" + this.getPlannerTime());
+
+            } 
+                sc.nextLine();
+            
+        }
+    }
+    
+    
+    public void executePlanning() {
+        Runtime rt = Runtime.getRuntime();
+        outputPlanning = "";
+        try {
+
+            Utility.deleteFile("temp.SOL");
+            Runtime runtime = Runtime.getRuntime();
+            String[] toExecute  = new String[3];
+            toExecute[0] = planningExec;
+            toExecute[1] = domainFile;
+            toExecute[2] = problemFile;
+            //toExecute[0]= planningExec + "  " + domainFile + "  " + problemFile + " " + option1 + " " + option2;
+            System.out.println(toExecute[0]+" "+toExecute[1]+" "+toExecute[2]);
+            
+            //process = runtime.exec("ff" + " -o travellingMetric.pddl -f  " + problemFile + " " + option1 + " " + option2);
+            process = runtime.exec(planningExec + "  " + domainFile + "  " + problemFile );
+            /* Set up process I/O. */
+            
+            Killer kill = new Killer(process,timeout);
+            
+            kill.start();
+            System.out.println("Seeing the output");
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = "";
+            while ((line = input.readLine()) != null) {
+                outputPlanning = outputPlanning.concat(line + "\n");
+                //System.out.println(outputPlanning);
+            }
+            if (kill.isAlive()){
+                kill.stop();
+            } else {
+                
+                failed = true;
+                this.setTimeoutFail(true);
+                this.setTimePlanner((int) getTimeout());
+            }
+            //System.out.println("Time del planner: "+ this.getPlannerTime());
+
+        } catch (IOException e) {
+            System.out.println("Planner eccezione " + e.toString());
+        } catch (Exception e) {
+            System.out.println("Planner eccezione2 " + e.toString());
+        }
+    }
+    
+    
+    public void executePlanning_PROVA() {
+        Runtime rt = Runtime.getRuntime();
+        outputPlanning = "";
+        try {
+
+            Utility.deleteFile("temp.SOL");
+            Runtime runtime = Runtime.getRuntime();
+            String toExecute = this.planningExec + " " + domainFile + " " + problemFile + " " + option1 + " " + option2;
+            System.out.println("Executing: " + toExecute);
+// 
+//           java.lang.ProcessBuilder pb = new java.lang.ProcessBuilder(toExecute);
+//
+//            // Create an environment (shell variables)
+//
+//            // You can change the working directory
+//            //pb.directory(new java.io.File("/home/enrico/Scrivania/Dropbox/Trains/problemGeneration/"));
+//            // Start new process
+//            java.lang.Process p = pb.start();
+            process = runtime.exec(toExecute);
+ 
+            
+            
+            
+            BufferedReader reader =
+            new BufferedReader(new InputStreamReader(process.getInputStream()));
+            while ((reader.readLine()) != null) {}
+            System.out.println("Waiting for the Planning Process till the reaching of "+this.getTimeout());
+            //process.wait(getTimeout());
+            process.waitFor();
+            
+
+            System.out.println("Planning finished");
+            if (true) {
+                BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                
+                String line = null;
+                while ((line = input.readLine()) != null) {
+                    outputPlanning = outputPlanning.concat(line + "\n");
+                    //System.out.println(outputPlanning);
+                }
+            } else {
+                process.destroy();
+                failed = true;
+                this.setTimeoutFail(true);
+                this.setTimePlanner((int) getTimeout());
+            }
+            //System.out.println("Time del planner: "+ this.getPlannerTime());
+
+        } catch (IOException e) {
+            System.out.println("Planner eccezione" + e.toString());
+        } catch (InterruptedException e) {
+            System.out.println("Planner eccezione" + e.toString());
+        }
+    }
+
+
+     static class ProcessRunner extends Thread  {
+        ProcessBuilder b;
+        Process p;
+        boolean done = false;
+
+        ProcessRunner(String[] args)  {
+           super("ProcessRunner " + args); // got lazy here :D
+           b = new ProcessBuilder(args);
+        }
+
+        public void run()   {
+           try   {
+              p = b.start();
+
+              // Do your buffered reader and readline stuff here
+
+              // wait for the process to complete
+              p.waitFor();
+           }catch(Exception e) {
+              System.err.println(e.getMessage());
+           }finally {
+              // some cleanup code
+              done = true;
+           }
+        }
+
+        int exitValue() throws IllegalStateException  {
+           if(p != null)  {
+              return p.exitValue();
+           }         
+           throw new IllegalStateException("Process not started yet");
+        }
+
+        boolean isDone()  {
+           return done;
+        }
+
+        void abort()   {
+           if(! isDone()) {
+              // do some cleanup first
+              p.destroy();
+           }
+        }
+     }
+  
+    
+     static class Killer extends Thread  {
+        ProcessBuilder b;
+        Process p;
+        boolean done = false;
+        long timeout;
+
+        Killer(Process p,long timeout)  {
+           super("killer "); // got lazy here :D
+           this.p = p;
+           this.timeout = timeout;
+        }
+
+        public void run()   {
+           try   {
+               Thread.currentThread().sleep(this.timeout);
+               p.destroy();
+               
+           }catch(Exception e) {
+              System.err.println(e.getMessage());
+           }finally {
+              // some cleanup code
+              done = true;
+           }
+        }
+     }
+    
+    
 }

@@ -144,7 +144,7 @@ public class NumFluentAssigner extends Conditions {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         return "( = (" + getNFluent() + " ) " + getTwo() + ")";
 
 
@@ -177,4 +177,7 @@ public class NumFluentAssigner extends Conditions {
     public void normalize() {
         return;
     }
+
+
+
 }

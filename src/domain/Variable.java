@@ -36,12 +36,18 @@ public class Variable extends Object {
     private Type type;
 
     public Variable(String Name, Type type) {
+        super();
         this.Name = Name;
         this.type = type;
     }
 
     public Variable(String text) {
+        super();
         Name = text;
+
+    }
+    public Variable() {
+        super();
 
     }
 
@@ -105,5 +111,17 @@ public class Variable extends Object {
      */
     public void setType(Type type) {
         this.type = type;
+    }
+    
+    public String pddlPrint() {
+
+        return this.getName() + " " + this.getType();
+    }
+
+    public String pddlPrint(boolean typeInformation) {
+        if (typeInformation){
+            return this.getName() + " " + this.getType();
+        }else
+            return this.getName();
     }
 }

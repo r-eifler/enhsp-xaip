@@ -54,7 +54,7 @@ public abstract class Expression extends Object {
 
     public abstract void changeVar(Map substitution);
 
-    public abstract String pddlPrint();
+    public abstract String pddlPrint(boolean typeInformation);
 
     public abstract Expression weakEval(State s, HashMap invF);
     public abstract Expression clone();

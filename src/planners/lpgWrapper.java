@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class lpgWrapper extends planningTool {
+    protected long totalReplanningtime;
 
     public lpgWrapper() {
         super();
@@ -55,15 +56,19 @@ public class lpgWrapper extends planningTool {
             this.setDomainFile(domainFile);
             this.setProblemFile(problemFile);
             this.executePlanning();
-            System.out.println(this.outputPlanning);
-            //putSolutionInFile(this.outputPlanning);
-            if (!failed) {
-                if (!(new File("temp.SOL").exists())) {
-                    failed = true;
-                } else {
-                    putSolutionInFile2("temp.SOL");
-                }
+            //System.out.println(outputPlanning);
+
+            if (this.outputPlanning.contains("unsolvable")){
+                this.failed=true;
+                System.out.println("....UNSOLVABLE");
+                return null;
             }
+            if (this.isTimeoutFail()) {
+                System.out.println("....TIMEOUT");
+                return null;
+            }
+            putSolutionInFile2("temp.SOL");
+             
             return this.storedSolutionPath;
         } catch (IOException ex) {
             Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
@@ -136,7 +141,7 @@ public class lpgWrapper extends planningTool {
                     Float t = Float.parseFloat(time.substring(time.indexOf(":") + 1));
                     Integer msec = (int) (float) (t * 1000);
                     this.setTimePlanner(msec);
-                    System.out.println("time" + this.getTimePlanner());
+                    System.out.println("time" + this.getPlannerTime());
 
                 }
 
@@ -171,7 +176,7 @@ public class lpgWrapper extends planningTool {
                     Float t = Float.parseFloat(time.substring(time.indexOf(" ") + 1));
                     Integer msec = (int) (float) (t * 1000);
                     this.setTimePlanner(msec);
-                    System.out.println("time" + this.getTimePlanner());
+                    System.out.println("time" + this.getPlannerTime());
 
                 }
 
@@ -182,5 +187,19 @@ public class lpgWrapper extends planningTool {
         //System.out.println(a.size());
         output.close();
         //System.exit(-1);
+    }
+
+    /**
+     * @return the totalReplanningtime
+     */
+    public long getTotalReplanningTimeAllowedContinualPlanningsetting() {
+        return totalReplanningtime;
+    }
+
+    /**
+     * @param totalReplanningtime the totalReplanningtime to set
+     */
+    public void setTotalReplanningTimeContinualPlanningSetting(long totalReplanningtime) {
+        this.totalReplanningtime = totalReplanningtime;
     }
 }

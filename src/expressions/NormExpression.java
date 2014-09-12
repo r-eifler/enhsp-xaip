@@ -42,10 +42,16 @@ import problem.State;
  */
 public class NormExpression extends Expression {
 
-    public ArrayList summations;
+    public ArrayList<Addendum> summations;
 
     public NormExpression() {
         this.summations = new ArrayList();
+    }
+    public NormExpression(Float ele) {
+        this.summations = new ArrayList();
+        Addendum a = new Addendum();
+        a.n = new PDDLNumber(ele);
+        this.summations.add(a);
     }
    
     
@@ -101,7 +107,7 @@ public class NormExpression extends Expression {
                 }
             }
         }
-        for (Object o1 : right.summations) {
+        for (Addendum o1 : right.summations) {
             this.summations.add(o1);
         }
         return this;
@@ -128,7 +134,7 @@ public class NormExpression extends Expression {
                 }
             }
         }
-        for (Object o1 : right.summations) {
+        for (Addendum o1 : right.summations) {
             Addendum a1 = (Addendum) o1;
             a1.n = new PDDLNumber(a1.n.getNumber() * (-1));
             this.summations.add(o1);
@@ -155,7 +161,7 @@ public class NormExpression extends Expression {
                         a.f = a1.f;
                     }
                 } else {
-                    System.out.println("Error: only linear expression are supported");
+//                    System.out.println("Error: only linear expression are supported");
                 }
             }
         }
@@ -213,33 +219,20 @@ public class NormExpression extends Expression {
         NormExpression ret = new NormExpression();
         PDDLNumber c = new PDDLNumber(0);
         Iterator it = this.summations.iterator();
-        boolean zero = true;
         while (it.hasNext()) {
             Addendum a = (Addendum) it.next();
             if (a.f != null) {
                 if ((Boolean) invFluents.get(a.f)) {
-                    zero = false;
+
                     c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber() * a.n.getNumber());
                 } else {
                     ret.summations.add(a);
                 }
+            }else{
+                c = new PDDLNumber(c.getNumber() + a.n.getNumber());
             }
         }
-        boolean trovato = false;
-        Iterator it2 = this.summations.iterator();
-        while (it2.hasNext()) {
-            Addendum a = (Addendum) it2.next();
-            if (a.f == null) {
-                //System.out.println("TROVATO");
-                ret.summations.add(new Addendum(null, new PDDLNumber(a.n.getNumber() + c.getNumber())));
-                trovato = true;
-                break;
-            }
-
-        }
-        if ((!trovato) && (!zero)) {
-            ret.summations.add(new Addendum(null, c));
-        }
+        ret.summations.add(new Addendum(null,c));
 
         return ret;
     }
@@ -261,7 +254,7 @@ public class NormExpression extends Expression {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         String ret_val = "";
 
         {
@@ -269,9 +262,9 @@ public class NormExpression extends Expression {
             Addendum ad = (Addendum) summations.get(0);
             if (ad.f == null) {
 
-                ret_val = " " + ad.n.pddlPrint() + " ";
+                ret_val = " " + ad.n.pddlPrint(typeInformation) + " ";
             } else {
-                ret_val = "(* " + ad.f.pddlPrint() + " " + ad.n.pddlPrint() + ")";
+                ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + ")";
             }
         }
         {
@@ -279,9 +272,9 @@ public class NormExpression extends Expression {
                 Addendum ad = (Addendum) summations.get(i);
 
                 if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint() + " )";
+                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(typeInformation) + " )";
                 } else {
-                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint() + " " + ad.n.pddlPrint() + "))";
+                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + "))";
                 }
             }
         }
@@ -350,7 +343,7 @@ public class NormExpression extends Expression {
         while (it.hasNext()) {
             Addendum ad = (Addendum) it.next();
             try {
-                ret.summations.add(ad.clone());
+                ret.summations.add((Addendum)ad.clone());
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -372,8 +365,8 @@ public class NormExpression extends Expression {
                 PDDLNumbers temp = s.functionValues(a.f);
                 temp = temp.mult(a.n.getNumber());
                 ret = ret.sum(temp);
-//                ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
-//                ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
+                ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
+                ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
             } else {
                 ret = ret.sum(a.n.getNumber());
             }
@@ -398,15 +391,18 @@ public class NormExpression extends Expression {
 
     public boolean isNumber() {
         int counter =0;
+        //System.out.println(this);
         for (Object o: summations){
             Addendum ad = (Addendum)o;
+            
             if (ad.f != null)
                 return false;
             counter++;
         }
-        if (counter >1)
-            System.err.println("Something is gone wrong: ");
-        
+        if (counter >1){
+            System.err.println("Something is gone wrong!");
+            System.out.println("Expression contains more than a number without fluent:"+this.toString());
+        }
         return true;
     }
 

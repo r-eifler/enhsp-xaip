@@ -44,11 +44,16 @@ import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
+import org.jgrapht.alg.CycleDetector;
+import org.jgrapht.traverse.TopologicalOrderIterator;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+
 /**
  *
  * @author enrico
  */
-public class NumericalPlanningGraph {
+public class NumericPlanningGraph {
 
     public int levels;
     public Vector action_level;
@@ -59,8 +64,12 @@ public class NumericalPlanningGraph {
     private long spezzTime;
     private int numberOfActions;
     private long FPCTime;
+    private Set relevantActions;
+    private State init;
+    private RelState fixPoint;
+    public Map<Predicate, Set<Predicate>> firstAchiever;
 
-    public NumericalPlanningGraph() {
+    public NumericPlanningGraph() {
         super();
         levels = 0;
         action_level = new Vector();
@@ -68,8 +77,20 @@ public class NumericalPlanningGraph {
         goal_reached = false;
         spezzTime = 0;
         FPCTime = 0;
+        relevantActions = new HashSet();
     }
-//    NumericalPlanningGraph(RelState s, Conditions goal){
+    public NumericPlanningGraph(State init) {
+        super();
+        levels = 0;
+        action_level = new Vector();
+        rel_state_level = new Vector();
+        goal_reached = false;
+        spezzTime = 0;
+        FPCTime = 0;
+        relevantActions = new HashSet();
+        this.init = init;
+    }
+//    NumericPlanningGraph(RelState s, Conditions goal){
 //        super();
 //        levels=0;
 //        action_level = new ArrayList();
@@ -85,6 +106,8 @@ public class NumericalPlanningGraph {
         this.goal = goal;
         RelState current = s.relaxState();
         rel_state_level.add(current.clone());
+        
+        //actions to be used for planning purposes. This list is a temporary collection to do not compromise the input structure
         ArrayList acts = new ArrayList();
         acts.addAll(actions);
         long start = System.currentTimeMillis();
@@ -107,7 +130,7 @@ public class NumericalPlanningGraph {
                 if (level.isEmpty()) {
                     this.goal_reached = false;
                     numberOfActions = Integer.MAX_VALUE;
-                    return ret;//it means that the goal is unreacheable!
+                    return null;//it means that the goal is unreacheable!
                 }
                 long start2 = System.currentTimeMillis();
 
@@ -256,11 +279,143 @@ public class NumericalPlanningGraph {
             spezzTime += System.currentTimeMillis() - start2;
             levels++;
         }
+        
+        fixPoint = current.clone();
         FPCTime = System.currentTimeMillis() - start;
         System.out.println("Graphplan Building Time:" + (System.currentTimeMillis() - start));
         System.out.println("NumbersOfLevel" + (levels));
+        
         return numberOfActions;
     }
+    
+    public Set computeActionsUntilFixedPoint(State s, Set actions) throws CloneNotSupportedException {
+
+        RelState current = s.relaxState();
+        Set acts = new HashSet();
+        acts.addAll(actions);
+        long start = System.currentTimeMillis();
+        HashSet level = new HashSet(10000);
+        numberOfActions = 0;
+        while (true) {
+            boolean newActions = false;
+            for (Iterator it = acts.iterator(); it.hasNext();) {
+                GroundAction gr = (GroundAction) it.next();
+                if (gr.getPreconditions().isSatisfied(current)) {
+                    newActions = true;
+                    level.add(gr);
+                    this.numberOfActions++;
+                    it.remove();
+                }
+            }
+            if (!newActions) {
+                break;//it means that the goal is unreacheable!
+            }
+            long start2 = System.currentTimeMillis();
+
+            for (Object o : level) {
+                GroundAction gr = (GroundAction) o;
+                //System.out.println(gr.getName());
+                gr.apply(current);
+            }
+            spezzTime += System.currentTimeMillis() - start2;
+            levels++;
+        }
+        fixPoint = current.clone();
+        FPCTime = System.currentTimeMillis() - start;
+        System.out.println("Graphplan Building Time:" + (System.currentTimeMillis() - start));
+        System.out.println("Levels Number: " + (levels));
+        relevantActions = level;
+        return level;
+    }
+    
+    public Map<Predicate,Set<Predicate>> findLandmarks(State s, AndCond goals, Set actions) throws CloneNotSupportedException{
+        
+        Map<Predicate,Set<Predicate>> ret = new HashMap();
+        Map<Predicate,Set<Predicate>> FA = new HashMap();
+        
+//        Map<GroundAction,Boolean> visited = new HashMap();
+//        RelState current = s.relaxState();
+//        
+//
+//        
+//        while (true){
+//            for (Object o:actions){
+//                GroundAction gr = (GroundAction)o;
+//                if (visited.get(gr)==null){
+//                    if (gr.isApplicable(current)){
+//                        AndCond con = (AndCond)gr.getAddList();
+//                        for (Object f: con.sons){
+//                            
+//                        }
+//                    }
+//                    
+//                }
+//                
+//            }
+//        }
+       
+        
+        RelState current = s.relaxState();
+        Set acts = new HashSet();
+        acts.addAll(actions);
+        long start = System.currentTimeMillis();
+        for (Object o: s.getPropositions()){
+            HashSet set = new HashSet();
+            set.add(o);
+            ret.put((Predicate)o,set);
+        }
+        HashSet level = new HashSet(10000);
+        numberOfActions = 0;
+        while (true) {
+            boolean newActions = false;
+            for (Iterator it = acts.iterator(); it.hasNext();) {
+                GroundAction gr = (GroundAction) it.next();
+                if (gr.getPreconditions().isSatisfied(current)) {
+                    newActions = true;
+                    level.add(gr);
+                    this.numberOfActions++;
+                    it.remove();
+                    for (Object o: gr.getAddList().sons){
+                        Predicate p = (Predicate)o;
+                        if (ret.get(p) == null){//first time I achieved p
+                            HashSet lmOfP = new HashSet();
+                            lmOfP.add(p);
+                            addPredicatesPrecondition(lmOfP,ret,gr);
+                            setFA(p,gr,FA);
+                            
+                            ret.put(p, lmOfP);
+                        }else{
+                            HashSet lmOfP = (HashSet)ret.get(p);
+                            intersectPredicatesPrecondition(lmOfP,ret,gr);
+                            lmOfP.add(p);
+                            ret.put(p, lmOfP);
+                        }
+                    }
+                }
+            }
+            if (!newActions) {
+                break;//Fixed Point Reached
+            }
+            long start2 = System.currentTimeMillis();
+
+            for (Object o : level) {
+                GroundAction gr = (GroundAction) o;
+                //System.out.println(gr.getName());
+                gr.apply(current);
+            }
+            spezzTime += System.currentTimeMillis() - start2;
+            levels++;
+        }
+        fixPoint = current.clone();
+        FPCTime = System.currentTimeMillis() - start;
+        System.out.println("Graphplan Building Time:" + (System.currentTimeMillis() - start));
+        System.out.println("Levels Number: " + (levels));
+        relevantActions = level;
+        firstAchiever = FA;
+        return ret;
+        
+    }
+    
 
     private ArrayList extractPlan(Conditions goal, int levels) throws CloneNotSupportedException {
         Conditions AG[] = new Conditions[levels + 1];
@@ -285,18 +440,13 @@ public class NumericalPlanningGraph {
                         if (visited.get(p) == null) {
                             //System.out.println("Searching for the support for:" + p);
                             //GroundAction gr = searchForAndRemove((Collection) this.action_level.get(t), p);
-                            GroundAction gr = this.search((Collection) this.action_level.get(t), p);
+                            GroundAction gr = this.searchSupporter((Collection) this.action_level.get(t), p);
                             if (gr == null) {
                                 System.out.println("Error!! No supporter for " + p + " level " + t);
-
                                 System.out.println(rel_plan);
-
                                 System.out.println("Requisiti livello successivo:" + AG[t + 1]);
                                 System.exit(-1);
                             }
-
-
-
                             AG[t].sons.addAll(gr.getPreconditions().sons);
                             //System.out.println("AG[t]" + AG[t]);
                             //AG[t].sons.addAll(gr.getNumeric().sons);
@@ -500,7 +650,7 @@ public class NumericalPlanningGraph {
         return numberOfActions;
     }
 
-    private GroundAction search(Collection hashSet, Predicate p) {
+    private GroundAction searchSupporter(Collection hashSet, Predicate p) {
         Iterator it = hashSet.iterator();
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
@@ -510,4 +660,137 @@ public class NumericalPlanningGraph {
         }
         return null;
     }
+
+    public Set findFirstLevelActions() {
+        
+        Set actions = new HashSet();
+        if (this.init == null){
+            System.out.println("Initial state unknown");
+        }
+        //System.out.println("The number of relevant actions is: "+relevantActions.size());
+        for (GroundAction gr: (Set<GroundAction>)this.relevantActions){
+            //System.out.println(gr);
+            if (gr.isApplicable(init)) {
+                actions.add(gr);
+            }
+        }
+        return actions;
+    }
+
+    /**
+     * @return the fixPoint
+     */
+    public RelState getFixPoint() {
+        return fixPoint;
+    }
+
+    /**
+     * @param fixPoint the fixPoint to set
+     */
+    public void setFixPoint(RelState fixPoint) {
+        this.fixPoint = fixPoint;
+    }
+
+    public RelState computeStateBound(State init, Conditions goals, Set actions) throws CloneNotSupportedException {
+        
+        this.goal = goals;
+        RelState current = init.relaxState();
+        rel_state_level.add(current.clone());
+        
+        //actions to be used for planning purposes. This list is a temporary collection to do not compromise the input structure
+        ArrayList acts = new ArrayList();
+        acts.addAll(actions);
+        long start = System.currentTimeMillis();
+        ArrayList level = new ArrayList();
+        while (true) {
+            if (current.satisfy(goal)) {
+                goal_reached = true;
+                break;//goal reached!
+            } else {
+                level = new ArrayList();
+                for (Iterator it = acts.iterator(); it.hasNext();) {
+                    GroundAction gr = (GroundAction) it.next();
+                    if (gr.isApplicable(current)) {
+                        //if (gr.getPreconditions().isSatisfied(current)) {
+                        level.add(gr);
+                        it.remove();
+                    }
+                }
+                if (level.isEmpty()) {
+                    this.goal_reached = false;
+                    numberOfActions = Integer.MAX_VALUE;
+                    return null;//it means that the goal is unreacheable!
+                }
+                long start2 = System.currentTimeMillis();
+
+                for (Object o : level) {
+                    GroundAction gr = (GroundAction) o;
+                    gr.apply(current);
+                }
+                spezzTime += System.currentTimeMillis() - start2;
+                this.action_level.add(level);
+                this.rel_state_level.add(current.clone());
+                levels++;
+            }
+        }
+
+        this.goal_reached = true;
+        //System.out.println("Graphplan Building Time:" + (System.currentTimeMillis() - start));
+        //long start2 = System.currentTimeMillis();
+
+        cpu_time = System.currentTimeMillis() - start;
+
+        
+
+        return current;
+        
+        
+    }
+
+    private void addPredicatesPrecondition(HashSet lmOfP, Map<Predicate,Set<Predicate>> ret, GroundAction gr) {
+        
+        if (gr.getPreconditions() == null)
+            return ;
+        
+        for (Object o: gr.getPreconditions().sons){
+            if (o instanceof Predicate){
+                lmOfP.addAll(ret.get(o));
+                
+            }
+            
+        }
+    
+    }
+
+    private void intersectPredicatesPrecondition(HashSet lmOfP, Map<Predicate,Set<Predicate>> ret, GroundAction gr) {
+        if (gr.getPreconditions() == null)
+                lmOfP.clear();
+        else{
+            HashSet preconditions = new HashSet();
+            for (Object o: gr.getPreconditions().sons){
+                if (o instanceof Predicate){
+                    preconditions.addAll(ret.get(o));
+                }
+            }
+                     
+            lmOfP.retainAll(preconditions);
+            
+        }
+    }
+
+    private void setFA(Predicate p, GroundAction gr, Map<Predicate, Set<Predicate>> FA) {
+        
+        HashSet set = new HashSet();
+        for (Object o: gr.getPreconditions().sons){
+                if (o instanceof Predicate){
+                    set.add(o);
+                }
+            }
+        
+        FA.put(p, set);
+    
+    }
+
+
+
 }

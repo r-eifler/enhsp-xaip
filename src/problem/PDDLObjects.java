@@ -88,9 +88,10 @@ public class PDDLObjects extends HashSet {
         for (Object o : this) {
             PDDLObject obj = (PDDLObject) o;
 
-            ret = ret + "   " + obj.pddlPrint() + "\n";
+            ret = ret + "   " + obj.pddlPrint(true) + "\n";
         }
 
         return ret + ")\n";
     }
+    
 }

@@ -92,6 +92,13 @@ public class Type extends Object {
     public String toString() {
         return " -" + getName() + " ";
     }
+    
+    public String pddlString(){
+        if (this.getSubTypeOf()!=null)
+            return this.getName()+" -"+this.getSubTypeOf().getName()+" ";
+        else
+            return this.getName()+" -object ";
+    }
 
     public String getName() {
         return name;

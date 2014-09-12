@@ -157,6 +157,7 @@ public class Predicate extends Conditions {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
 
+        //System.out.println(this);
         for (Object o : terms) {
             if (o instanceof Variable) {
                 PDDLObject t = (PDDLObject) substitution.get(o);
@@ -184,7 +185,7 @@ public class Predicate extends Conditions {
 
     @Override
     public boolean isSatisfied(RelState s) {
-
+        
         return s.containProposition(this);
     }
 
@@ -250,12 +251,22 @@ public class Predicate extends Conditions {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         String ret = "";
         ret = ret.concat("  (" + this.getPredicateName());
         for (Object o1 : this.getTerms()) {
-            PDDLObject obj = (PDDLObject) o1;
-            ret = ret.concat(" " + obj.getName());
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+                if (typeInformation)
+                    ret = ret.concat(" " + obj.getName()+obj.getType());
+                else
+                    ret = ret.concat(" " + obj.getName());
+                
+            }
+            
         }
         ret = ret.concat(")");
         return ret;

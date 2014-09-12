@@ -36,10 +36,31 @@ public abstract class planningTool {
 
     public String outputPlanning;
     Process process;
-    public String storedSolutionPath = "temp4.pddl";
-    private int timePlanner;
-    private long timeout;
+    public String storedSolutionPath = "sol.pddl";
+    protected int plannerTime;
+    long timeout;
     protected boolean failed = false;
+        private boolean timeoutFail = false;
+    private boolean plannerError;
+
+    /**
+     * Get the value of timeoutFail
+     *
+     * @return the value of timeoutFail
+     */
+    public boolean isTimeoutFail() {
+        return timeoutFail;
+    }
+
+    /**
+     * Set the value of timeoutFail
+     *
+     * @param timeoutFail new value of timeoutFail
+     */
+    public void setTimeoutFail(boolean timeoutFail) {
+        this.timeoutFail = timeoutFail;
+    }
+
 
     public planningTool() {
         timeout = 1000000;
@@ -54,7 +75,8 @@ public abstract class planningTool {
 
             Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
-            System.out.println("Executing: " + planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
+
+            System.out.println("Executing: " + planningExec + " -o " + domainFile + " -f " + problemFile + " " + this.getOption1() + " " + option2);
             process = runtime.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
             /* Set up process I/O. */
 
@@ -64,15 +86,19 @@ public abstract class planningTool {
 
             if (worker.exit != null) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                
                 String line = null;
                 while ((line = input.readLine()) != null) {
                     outputPlanning = outputPlanning.concat(line + "\n");
+                    //System.out.println(outputPlanning);
                 }
             } else {
                 process.destroy();
-                failed = true;
+                failed = false;
+                this.setTimeoutFail(true);
                 this.setTimePlanner((int) getTimeout());
             }
+            //System.out.println("Time del planner: "+ this.getPlannerTime());
 
         } catch (IOException e) {
             System.out.println("Planner eccezione" + e.toString());
@@ -133,15 +159,15 @@ public abstract class planningTool {
     /**
      * @return the timePlanner
      */
-    public int getTimePlanner() {
-        return timePlanner;
+    public int getPlannerTime() {
+        return plannerTime;
     }
 
     /**
      * @param timePlanner the timePlanner to set
      */
     public void setTimePlanner(int timePlanner) {
-        this.timePlanner = timePlanner;
+        this.plannerTime = timePlanner;
     }
 
     /**
@@ -165,12 +191,26 @@ public abstract class planningTool {
         return failed;
     }
 
-    private static class Worker extends Thread {
+    /**
+     * @return the plannerError
+     */
+    public boolean isPlannerError() {
+        return plannerError;
+    }
 
-        private final Process process;
-        private Integer exit;
+    /**
+     * @param plannerError the plannerError to set
+     */
+    public void setPlannerError(boolean plannerError) {
+        this.plannerError = plannerError;
+    }
 
-        private Worker(Process process) {
+    protected static class Worker extends Thread {
+
+        protected final Process process;
+        protected Integer exit;
+
+        protected Worker(Process process) {
             this.process = process;
         }
 

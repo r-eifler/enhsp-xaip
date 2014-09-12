@@ -46,10 +46,11 @@ public class PDDLNumbers {
 
     public PDDLNumbers sum(PDDLNumbers b) {
         PDDLNumbers ret_val = new PDDLNumbers();
-
+//        System.out.println("Summing ("+this.inf+","+this.sup+")"+" with ("+b.inf+","+b.sup+")");
+//        System.out.println("Before ("+this.inf+","+this.sup+")");
         ret_val.inf = new PDDLNumber(new Float(inf.getNumber()) + new Float(b.inf.getNumber()));
         ret_val.sup = new PDDLNumber(new Float(sup.getNumber()) + new Float(b.sup.getNumber()));
-
+//        System.out.println("After ("+ret_val.inf+","+ret_val.sup+")");
         return ret_val;
     }
 

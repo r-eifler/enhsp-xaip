@@ -25,6 +25,7 @@
  *********************************************************************/ 
 package planners;
 
+import extraUtils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,6 +42,8 @@ public class metricFFWrapper extends planningTool {
         option1 = "";       //"-O";
         option2 = "";
         planningExec = "ff";
+        this.setTimeout(10000);
+        Utils.deleteFile(storedSolutionPath);
 
 //        ArrayList solution;
     }
@@ -48,11 +51,31 @@ public class metricFFWrapper extends planningTool {
     @Override
     public String plan() {
         try {
+            System.out.println("Planning...");
             this.executePlanning();
-            if (this.isFailed()) {
+            //System.out.println(outputPlanning);
+            if (this.isTimeoutFail()){
+                System.out.println("....TIMEOUT");
                 return null;
             }
+            if (this.outputPlanning.contains("unsolvable")){
+                this.failed=true;
+                System.out.println("....UNSOLVABLE");
+                this.findTotalTimeInFile(outputPlanning);
+                return null;
+            }
+            if (!this.outputPlanning.contains("found legal plan")){
+                this.failed=false;
+                this.setPlannerError(true);
+                System.out.println("....UNKNOWN ERROR!!");
+                this.findTotalTimeInFile(outputPlanning);
+                return null;
+            }
+            
+            System.out.println("....SUCCESS");
             putSolutionInFile(this.outputPlanning);
+            this.findTotalTimeInFile(outputPlanning);
+
             return this.storedSolutionPath;
         } catch (IOException ex) {
             Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
@@ -62,17 +85,13 @@ public class metricFFWrapper extends planningTool {
 
     @Override
     public String plan(String domainFile, String problemFile) {
-        try {
+
             //System.out.println("planning");
             this.setDomainFile(domainFile);
             this.setProblemFile(problemFile);
-            this.executePlanning();
-            putSolutionInFile(this.outputPlanning);
-            return this.storedSolutionPath;
-        } catch (IOException ex) {
-            Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+
+            return plan();
+
     }
 
     private void putSolutionInFile(String s) throws IOException {
@@ -90,19 +109,7 @@ public class metricFFWrapper extends planningTool {
                 sc.nextLine();
             }
         }
-        sc = new Scanner(s);
 
-
-        while (sc.hasNextLine()) {
-            String test = sc.findInLine("[0-9]+[.][0-9]+ seconds total time");
-            if (test != null) {
-                Scanner temp = new Scanner(test);
-                this.setTimePlanner((int) (Float.parseFloat(temp.findInLine("[0-9]+[.][0-9]+")) * 1000));
-                System.out.println("time" + this.getTimePlanner());
-            } else {
-                sc.nextLine();
-            }
-        }
 
         output.close();
 
@@ -113,5 +120,20 @@ public class metricFFWrapper extends planningTool {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    public void findTotalTimeInFile(String s){
+            Scanner sc = new Scanner(s);
+
+
+        while (sc.hasNextLine()) {
+            String test = sc.findInLine("[0-9]+[.][0-9]+ seconds total time");
+            if (test != null) {
+                Scanner temp = new Scanner(test);
+                this.setTimePlanner((int) (Float.parseFloat(temp.findInLine("[0-9]+[.][0-9]+")) * 1000));
+                System.out.println("time" + this.getPlannerTime());
+            } else {
+                sc.nextLine();
+            }
+        }
+    }
 
 }

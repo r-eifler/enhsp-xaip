@@ -100,7 +100,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public String pddlPrint() {
+    public String pddlPrint(boolean typeInformation) {
         return " " + getNumber() + " ";
     }
 
