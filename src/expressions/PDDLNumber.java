@@ -30,6 +30,7 @@ import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -61,6 +62,11 @@ public class PDDLNumber extends Expression {
 
     @Override
     public Expression ground(Map substitution) {
+        return new PDDLNumber(getNumber());
+    }
+    
+    @Override
+    public Expression unGround(Map substitution) {
         return new PDDLNumber(getNumber());
     }
 
@@ -127,5 +133,10 @@ public class PDDLNumber extends Expression {
     @Override
     public Expression subst(Conditions numeric) {
         return this;
+    }
+
+    @Override
+    public Set fluentsInvolved() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

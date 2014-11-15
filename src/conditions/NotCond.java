@@ -221,4 +221,16 @@ public class NotCond extends Conditions {
         return ret;
 
     }
+
+    @Override
+    public Conditions unGround(Map substitution) {
+        NotCond ret = new NotCond();
+
+        for (Object o : son) {
+            Conditions el = (Conditions) o;
+            ret.son.add(el.unGround(substitution));
+        }
+        ret.grounded = false;
+        return ret;
+    }
 }

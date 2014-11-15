@@ -31,10 +31,12 @@ import conditions.AndCond;
 import conditions.NumFluentAssigner;
 import conditions.Comparison;
 import conditions.Conditions;
+import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
+import domain.Variable;
 import expressions.Expression;
 import expressions.NumEffect;
 import java.io.BufferedWriter;
@@ -68,6 +70,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private boolean invariantAnalysis;
     private HashMap rank;
     private int employedMacro;
+    
+    
+    public SimplePlan(PddlDomain dom) {
+        super();
+        pd = dom;
+        
+        invariantAnalysis = false;
+        employedMacro=0;
+    }
 
     public SimplePlan(PddlDomain dom, PddlProblem prob) {
         super();
@@ -133,6 +144,72 @@ public class SimplePlan extends ArrayList<GroundAction> {
         this.add(grAction);
 
     }
+    
+        //to be done....
+    public void parseSolutionWithoutProblem(String solution_file) throws FileNotFoundException, Exception {
+        Scanner sc = new Scanner((new File(solution_file)));
+        String nameOperator;
+
+        this.removeAll(this);
+        while (sc.hasNextLine()) {
+            String s1, s2, cntStr = null;
+
+            String temp = sc.nextLine();
+            cntStr = sc.findInLine(";");
+
+//            System.out.println(cntStr);
+//            System.out.println(s1);
+            if (cntStr == null) {
+                if (temp.matches("[(][^)]++[)]")){
+                    s1 = temp;
+                }else
+                    s1 = sc.findInLine("[(][^)]++[)]");
+                //if (!(sc.next().charAt(0) == ';')) &&{
+                //System.out.println("Primo carattere:" + );
+                if (s1 != null) {
+                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                    s2 = s1.substring(1, s1.length() - 1);
+                    s1 = "(" + s2.trim().toLowerCase() + ")";
+                    //this.add(s1);
+                    int nameEndIndex = s1.indexOf(" ");
+                    if (nameEndIndex == -1) {
+                        nameOperator = s1.substring(1, s1.indexOf(")"));
+                    } else {
+                        nameOperator = s1.substring(1, nameEndIndex);
+                        boolean finish = false;
+                        s1 = s1.substring(nameEndIndex + 1);//passo al prossimo carattere dopo lo spazio
+                        int objectCounter = 0;
+                        do {
+                            String par;
+                            int parEndIndex = s1.indexOf(" ");//prendo l'indice limite del prossimo parametro
+                            if (parEndIndex == -1) {
+                                finish = true;
+                                par = s1.substring(0, s1.indexOf(")"));
+                            } else {
+                                par = s1.substring(0, parEndIndex);
+                                s1 = s1.substring(parEndIndex + 1);
+                            }
+                            //System.out.println(par);
+                            PDDLObject obj = new PDDLObject(par); 
+                            //System.out.println(obj);
+                            ActionSchema a = this.pd.getActionByName(nameOperator);
+                            Variable v = (Variable)a.getParameters().get(objectCounter);
+                            obj.setType(v.getType());
+                            
+                            pars.add(obj);
+                            objectCounter++;
+                        } while (!finish);
+                    }
+                    //System.out.println(nameOperator +  pars );
+                    this.putAction(nameOperator, pars);
+
+
+
+                }
+            }
+        }
+    }
+    
 
     //to be done....
     public void parseSolution(String solution_file) throws FileNotFoundException, Exception {

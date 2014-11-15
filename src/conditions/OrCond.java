@@ -188,4 +188,16 @@ public class OrCond extends Conditions {
         ret.grounded = this.grounded;
         return ret;
     }
+
+    @Override
+    public Conditions unGround(Map substitution) {
+        OrCond ret = new OrCond();
+
+        for (Object o : son) {
+            Conditions el = (Conditions) o;
+            ret.son.add(el.unGround(substitution));
+        }
+        ret.grounded = false;
+        return ret;
+    }
 }

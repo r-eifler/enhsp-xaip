@@ -29,7 +29,9 @@ package expressions;
 import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -270,5 +272,26 @@ public class BinaryOp extends Expression {
         ret.left = ret.left.subst(numeric);
         ret.right = ret.right.subst(numeric);
         return ret;
+    }
+
+    @Override
+    public Set fluentsInvolved() {
+        Set ret = new HashSet();
+        ret.addAll(this.left.fluentsInvolved());
+        ret.addAll(this.right.fluentsInvolved());
+        return ret;
+    }
+
+    @Override
+    public Expression unGround(Map substitution) {
+       BinaryOp ret = new BinaryOp();
+
+        ret.operator = this.operator;
+        ret.left = left.unGround(substitution);
+        ret.right = right.unGround(substitution);
+
+        ret.grounded = false;
+
+        return ret;    
     }
 }

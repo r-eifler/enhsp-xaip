@@ -63,5 +63,7 @@ public abstract class Conditions extends Object {
     
     public abstract void normalize();
 
+    public abstract Conditions unGround(Map asbstractionOf);
+
 
 }

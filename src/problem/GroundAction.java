@@ -27,7 +27,6 @@
  */
 package problem;
 
-import computation.NumericPlanningGraph;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
@@ -35,10 +34,11 @@ import conditions.NotCond;
 import conditions.NumFluentAssigner;
 import conditions.PDDLObject;
 import conditions.Predicate;
-
 import domain.ActionParametersAsTerms;
+import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
+import domain.Variable;
 import expressions.Expression;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -47,6 +47,7 @@ import expressions.PDDLNumbers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import plan.SimplePlan;
 
@@ -161,14 +162,16 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            //System.out.println("Action: " + this + "  is not applicable");
 //            return null;
 //        }
-        AndCond add = (AndCond) addList;
-        if (add != null) {
-            add.apply(s);
-        }
+        
         AndCond del = (AndCond) delList;
         if (del != null) {
             del.apply(s);
         }
+        AndCond add = (AndCond) addList;
+        if (add != null) {
+            add.apply(s);
+        }
+
         AndCond c = (AndCond) this.getNumericEffects();
         if (c != null) {
             ArrayList temporaryMod = new ArrayList();
@@ -372,6 +375,37 @@ public class GroundAction extends GenericActionType implements Comparable {
         return this.getPreconditions().isSatisfied(current);
     }
 
+        public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd) throws CloneNotSupportedException, Exception {
+        if (this.name == null) {
+            return (GroundAction) b.clone();
+        }
+        GroundAction a = this;
+        
+        GroundAction ab = new GroundAction(a.name+"_"+b.name);
+        if (a.getPrimitives().isEmpty())
+            a.getPrimitives().add(a);
+        ab.setPrimitives((ArrayList)a.getPrimitives().clone());
+        if (b.isMacro){
+            ab.getPrimitives().addAll(b.getPrimitives());
+        }
+            
+        ab.getPrimitives().add(b);
+        
+        
+        ab.setParameters((ActionParametersAsTerms) a.getParameters().clone());
+        ab.getParameters().addALLNewObjects(b.getParameters());
+
+        ab.setPreconditions(regress(b, a));
+        progress(a, b, ab);
+        ab.setIsMacro(true);
+        //System.out.println("Da dentro l'azione..."+ab);
+        //ab.simplifyModel(pd, pp);
+        //ab.computeDistance(pd,pp,consideringNumericInformationInDistance);
+        return ab;
+    }
+    
+    
+    
     public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
         if (this.name == null) {
             return (GroundAction) b.clone();
@@ -1068,6 +1102,45 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         return result;
     }
+
+    
+    public ActionSchema unGround() {
+        ActionSchema result = new ActionSchema();
+        result.setName(this.name);
+        
+        Map asbstractionOf = this.abstractParameters();
+        for (Object o: this.getParameters()){
+            PDDLObject obj = (PDDLObject)o;
+            result.addParameter((Variable)asbstractionOf.get(obj.getName()));
+        }
+        //System.out.println("Macro Action: " + result.getName());
+        //System.out.println(asbstractionOf);
+        result.setPreconditions(preconditions.unGround(asbstractionOf));
+        result.setAddList(addList.unGround(asbstractionOf));
+        result.setDelList(delList.unGround(asbstractionOf));
+        result.setNumericEffects(this.numericEffects.unGround(asbstractionOf));
+
+        
+        
+        return result;
+    }
+
+    private Map abstractParameters() {
+
+        HashMap result = new HashMap();
+        for(Object o: this.getParameters()){
+            PDDLObject po = (PDDLObject)o;
+            Variable absPo = new Variable();
+            absPo.setName("?"+po.getName());
+            absPo.setType(po.getType());
+            result.put(po.getName(), absPo);
+        }
+        return result;
+    }
+        
+    
+    
+   
 
 
     

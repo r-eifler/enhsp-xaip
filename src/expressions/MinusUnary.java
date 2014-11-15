@@ -31,6 +31,7 @@ import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -59,6 +60,16 @@ public class MinusUnary extends Expression {
         ret.grounded = true;
         return ret;
     }
+    
+    @Override
+    public Expression unGround(Map substitution) {
+        MinusUnary ret = new MinusUnary();
+
+        ret.element = element.unGround(substitution);
+        ret.grounded = false;
+        return ret;
+    }
+    
 
     @Override
     public PDDLNumber eval(State s) {
@@ -103,5 +114,10 @@ public class MinusUnary extends Expression {
     @Override
     public Expression subst(Conditions numeric) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Set fluentsInvolved() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

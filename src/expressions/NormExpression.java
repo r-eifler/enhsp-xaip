@@ -29,8 +29,10 @@ package expressions;
 import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.RelState;
@@ -200,6 +202,22 @@ public class NormExpression extends Expression {
         }
         return ret;
     }
+    
+    @Override
+    public Expression unGround(Map substitution) {
+        NormExpression ret = new NormExpression();
+        for (Object o : this.summations) {
+            Addendum a = (Addendum) o;
+            Addendum newA = new Addendum();
+            newA.f = (NumFluent) a.f.unGround(substitution);
+            newA.n = new PDDLNumber(a.n.getNumber());
+            ret.summations.add(newA);
+        }
+        ret.grounded = false;
+        return ret;
+    }
+    
+    
 
     @Override
     public PDDLNumber eval(State s) {
@@ -289,6 +307,7 @@ public class NormExpression extends Expression {
         while (it.hasNext()) {
             Addendum ad = (Addendum) it.next();
             if (ad.f != null) {
+                //System.out.println(numeric);
                 for (Object o1 : numeric.sons) {
                     NumEffect ef = (NumEffect) o1;
                     NumEffect eff = (NumEffect) ef.clone();
@@ -420,5 +439,17 @@ public class NormExpression extends Expression {
             return null;
         }
             
+    }
+    
+    @Override
+    public Set fluentsInvolved() {
+        Set ret = new HashSet();
+        for (Object o : this.summations) {
+            Addendum a = (Addendum)o;
+            if (a.f != null) {
+                ret.add(a.f);
+            }
+        }
+        return ret;
     }
 }

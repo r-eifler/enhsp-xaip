@@ -30,6 +30,7 @@ import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -46,6 +47,9 @@ public abstract class Expression extends Object {
     }
 
     public abstract Expression ground(Map substitution);
+    
+    public abstract Expression unGround(Map substitution);
+
 
     public abstract PDDLNumber eval(State s);
 
@@ -66,4 +70,9 @@ public abstract class Expression extends Object {
     public abstract boolean involve(ArrayList<NumFluent> arrayList);
 
     public abstract Expression subst(Conditions numeric);
+
+    public abstract Set fluentsInvolved();
+        
+
+  
 }

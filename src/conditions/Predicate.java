@@ -304,4 +304,28 @@ public class Predicate extends Conditions {
     public void normalize() {
         return;
     }
+    
+    @Override
+    public Conditions unGround(Map substitution) {
+        Predicate ret = new Predicate(true);
+        ret.setPredicateName(predicateName);
+
+        //System.out.println(this);
+        for (Object o : this.getTerms()) {
+            if (o instanceof PDDLObject) {
+                PDDLObject obj = (PDDLObject)o;
+                Variable t = (Variable) substitution.get(obj.getName());
+                
+                if (t == null) {
+                    System.out.println("Error in substitution  for " + o);
+                    System.exit(-1);
+                } else {
+                    ret.terms.add(t);
+                }
+            }
+        }
+        this.grounded = false;
+        return ret;
+    }
+    
 }

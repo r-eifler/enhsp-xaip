@@ -28,6 +28,7 @@
 package computation;
 
 import domain.ActionParametersAsTerms;
+import domain.ActionSchema;
 import domain.PddlDomain;
 import extraUtils.Utils;
 import java.io.BufferedWriter;
@@ -93,7 +94,7 @@ public class DomainEnhancer {
         f.close();
     }
 
-    public Map addMacroOperators(PddlDomain domain, List macroOps) throws IOException {
+    public Map addMacroActions(PddlDomain domain, List macroOps) throws IOException {
         
         Writer f;
         Map ret = new HashMap();
@@ -135,7 +136,7 @@ public class DomainEnhancer {
         return ret;
     }
     
-    public Map addMacroOperators(PddlDomain domain, List macroOps, SimplePlan sp) throws IOException {
+    public Map addMacroActions(PddlDomain domain, List macroOps, SimplePlan sp) throws IOException {
         
         Writer f;
         Map ret = new HashMap();
@@ -178,7 +179,100 @@ public class DomainEnhancer {
         f.close();
         return ret;
     }
+    
+    /**
+     *
+     * @param domain
+     * @param macroOps
+     * @param sp
+     * @return
+     * @throws IOException
+     */
+    public Map addMacroOperators2(PddlDomain domain, List<ActionSchema> macroOps, SimplePlan sp) throws IOException {
+        
+        Writer f;
+        Map ret = new HashMap();
+        setEnhancedDomainFileName(domain.getPddlFilRef()+"enh");
 
+        f = new BufferedWriter(new FileWriter(domain.getPddlFilRef()+"enh"));
+        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        String actions = "\n";
+        int i=0;
+        for (Object o: macroOps){
+            
+            ActionSchema as = (ActionSchema)o;
+            //constants.addALLNewObjects(gr.getParameters());
+
+            actions += as+"\n";
+            i++;
+        }
+        f.write("(define (domain "+domain.getName()+")\n");
+        if (domain.getRequirements()!=null)
+            f.write("(:requirements "+Utils.toPDDLSet(domain.getRequirements())+")\n");
+        if (domain.getTypes()!=null)
+            f.write("(:types "+Utils.toPDDLTypesSet(domain.getTypes())+")\n");
+        if (!domain.getPredicates().isEmpty())
+       // f.write("(:constants "+constants.pddlPrint()+")\n");
+            f.write("(:predicates "+domain.getPredicates().pddlPrint(true) +"\n");
+        if (!domain.getFunctions().isEmpty())
+            f.write("(:functions "+Utils.toPDDLSet(domain.getFunctions()) +")\n");
+       
+        if (!domain.getActionsSchema().isEmpty()) {
+            f.write(Utils.toPDDLSetWithBreak(domain.getActionsSchema()));
+        }
+        
+        f.write(actions);
+        f.write("\n)");
+        f.close();
+        f.close();
+        return ret;
+    }
+
+    
+        public Map addMacroOperators(PddlDomain domain, List<GroundAction> macroOps, SimplePlan sp) throws IOException {
+        
+        Writer f;
+        Map ret = new HashMap();
+        setEnhancedDomainFileName(domain.getPddlFilRef()+"enh");
+
+        f = new BufferedWriter(new FileWriter(domain.getPddlFilRef()+"enh"));
+        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        String actions = "\n";
+        int i=0;
+        for (Object o: macroOps){
+            
+            GroundAction as = (GroundAction)o;
+            //constants.addALLNewObjects(gr.getParameters());
+
+            actions += as+"\n";
+            i++;
+        }
+        f.write("(define (domain "+domain.getName()+")\n");
+        if (domain.getRequirements()!=null)
+            f.write("(:requirements "+Utils.toPDDLSet(domain.getRequirements())+")\n");
+        if (domain.getTypes()!=null)
+            f.write("(:types "+Utils.toPDDLTypesSet(domain.getTypes())+")\n");
+        if (!domain.getPredicates().isEmpty())
+       // f.write("(:constants "+constants.pddlPrint()+")\n");
+            f.write("(:predicates "+domain.getPredicates().pddlPrint(true) +"\n");
+        if (!domain.getFunctions().isEmpty())
+            f.write("(:functions "+Utils.toPDDLSet(domain.getFunctions()) +")\n");
+       
+        if (!domain.getActionsSchema().isEmpty()) {
+            f.write(Utils.toPDDLSetWithBreak(domain.getActionsSchema()));
+        }
+        
+        f.write(actions);
+        f.write("\n)");
+        f.close();
+        f.close();
+        return ret;
+    }
+    
+    
+    
+    
+    
     /**
      * @return the domainEnhancedFileName
      */
