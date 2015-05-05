@@ -53,10 +53,37 @@ public class ActionParameters extends ArrayList {
         String ret="(";
         for (Object o: this){
             Variable v = (Variable)o;
+            //System.out.println(v.getName());
             ret+=v.pddlPrint();
             
         }
         return ret+")";
+    
+    }
+
+    void mergeParameters(ActionParameters a) {
+        int counter =0;
+        for (Object o : a) {
+            Variable obj = (Variable) o;
+            boolean found = false;
+            for (Object o1 : this){
+                Variable obj2 = (Variable)o1;
+                if (obj2.getType().equals(obj.getType())){
+                    found = true;
+                    break;
+                }
+            }
+            if (!found){
+                Variable obj3 = new Variable();
+                obj3.setName(obj.getName()+counter);
+                obj3.setType(obj.getType());
+                //obj.setName(obj.getName()+counter);
+                this.add(obj3);
+                counter++;
+            }
+
+        }    
+    
     
     }
  

@@ -481,4 +481,17 @@ public class Comparison extends Conditions {
 
     }
 
+    @Override
+    public Conditions unGround(Map asbstractionOf) {
+ 
+        Comparison ret = new Comparison(comparator);
+
+        ret.left = left.unGround(asbstractionOf);
+        ret.right = right.unGround(asbstractionOf);
+        ret.grounded = false;
+        return ret;
+    }
+    
+    
+
 }

@@ -31,7 +31,9 @@ import conditions.PDDLObject;
 import domain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -51,10 +53,18 @@ public class NumFluent extends Expression {
         if (objF.getName().equalsIgnoreCase(this.getName())) {
             if (objF.terms.size() == this.terms.size()) {
                 for (int i = 0; i < objF.terms.size(); i++) {
-                    PDDLObject ogg = (PDDLObject)objF.terms.get(i);
-                    PDDLObject ogg2 = (PDDLObject)this.terms.get(i);
-                    if (!(ogg.equals(ogg2))) {
-                        return false;
+                    if (objF.terms.get(i) instanceof PDDLObject){
+                        PDDLObject ogg = (PDDLObject)objF.terms.get(i);
+                        PDDLObject ogg2 = (PDDLObject)this.terms.get(i);
+                        if (!(ogg.equals(ogg2))) {
+                            return false;
+                        }
+                    }else if (objF.terms.get(i) instanceof Variable){
+                        Variable ogg = (Variable)objF.terms.get(i);
+                        Variable ogg2 = (Variable)this.terms.get(i);
+                        if (!(ogg.equals(ogg2))) {
+                            return false;
+                        }    
                     }
                 }
             } else {
@@ -124,6 +134,29 @@ public class NumFluent extends Expression {
         ret.grounded = true;
         return ret;
     }
+    
+    @Override
+    public Expression unGround(Map substitution) {
+        NumFluent ret = new NumFluent(getName());
+
+        for (Object o : terms) {
+            if (o instanceof PDDLObject) {
+                PDDLObject obj = (PDDLObject)o;
+                Variable t = (Variable) substitution.get(obj.getName());
+                if (t == null) {
+                    System.out.println("Substitution Failed for " + o.toString());
+                    System.exit(-1);
+                } else {
+                    ret.addVariable(t);
+                }
+            } else {
+                ret.addVariable((Variable) o);
+            }
+        }
+        ret.grounded = false;
+        return ret;
+    }
+    
 
     /**
      * @return the terms
@@ -159,7 +192,9 @@ public class NumFluent extends Expression {
 
     @Override
     public PDDLNumber eval(State s) {
-
+        if (s == null){
+            System.out.println("stato nullo!!");
+        }
         return s.functionValue(this);
     }
 
@@ -193,7 +228,7 @@ public class NumFluent extends Expression {
             if (o instanceof Variable) {
                 Variable v = (Variable) substitution.get(o);
                 if (v == null) {
-                    System.out.println("Not Found Variable" + o);
+                        System.out.println("Not Found Variable" + o);
                     System.exit(-1);
                 }
                 newVar.add(v);
@@ -299,5 +334,12 @@ public class NumFluent extends Expression {
 
         }
         return this;
+    }
+
+    @Override
+    public Set fluentsInvolved() {
+        Set ret = new HashSet();
+        ret.add(this);
+        return ret;
     }
 }

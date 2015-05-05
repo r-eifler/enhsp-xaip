@@ -44,7 +44,7 @@ public class PDDLObject extends Conditions {
 
     public PDDLObject(String name) {
         grounded = true;
-        name = name;
+        this.name = name;
     }
 
     public PDDLObject(String n, Type atype) {
@@ -156,6 +156,12 @@ public class PDDLObject extends Conditions {
     public void normalize() {
         return;
     }
+
+    @Override
+    public Conditions unGround(Map asbstractionOf) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 
 
 }

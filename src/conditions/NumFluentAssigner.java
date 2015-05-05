@@ -178,6 +178,14 @@ public class NumFluentAssigner extends Conditions {
         return;
     }
 
+    @Override
+    public Conditions unGround(Map asbstractionOf) {
+        NumFluentAssigner ret = new NumFluentAssigner(operator);
+        ret.nFluent = (NumFluent) nFluent.unGround(asbstractionOf);
+        ret.grounded = false;
+        return ret;
+    }    
+
 
 
 }

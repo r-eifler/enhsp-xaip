@@ -150,7 +150,7 @@ public class AndCond extends Conditions {
             if (o instanceof Conditions) {
                 Conditions c = (Conditions) o;
                 if (!c.isSatisfied(s)) {
-                    //System.out.println(c.toString() + " is not satisfied in " + s);
+                    System.out.println(c.toString() + " is not satisfied in " + s);
                     return false;
                 }
             }
@@ -453,6 +453,26 @@ public class AndCond extends Conditions {
                 return null;
             }
         }
+        return ret;
+    }
+
+    @Override
+    public Conditions unGround(Map substitution) {
+        AndCond ret = new AndCond();
+
+        for (Object o : sons) {
+
+            if (o instanceof NumEffect) {
+                NumEffect el = (NumEffect) o;
+                ret.sons.add(el.unGround(substitution));
+
+            } else {
+                Conditions el = (Conditions) o;
+                //System.out.println(el);
+                ret.sons.add(el.unGround(substitution));
+            }
+        }
+        ret.grounded = false;
         return ret;
     }
 }

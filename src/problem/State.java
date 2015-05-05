@@ -241,6 +241,25 @@ public class State extends Object {
         return true;
 
     }
+    
+    public boolean satisfyNumerically(AndCond con) {
+
+        for (Object o : con.sons) {
+
+            if (o instanceof Comparison) {
+                Comparison c = (Comparison) o;
+                if (!c.isSatisfied(this)) {
+                    //System.out.println(c + "is not satisfied in " +this);
+                    return false;
+                }
+
+            }
+
+        }
+        return true;
+
+    }
+    
 
     public boolean satisfy(Conditions input) {
 
@@ -427,6 +446,7 @@ public class State extends Object {
     public Float normalizedRisk(Conditions conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
         Float total = new Float(0.0);
 
+        String threateningConstraint = new String();
         if (conditions instanceof AndCond) {
             for (Object o : conditions.sons) {
                 if (o instanceof Comparison) {
@@ -492,6 +512,7 @@ public class State extends Object {
                                 dist = dist+(float)0.00000000001;
                             }
                             if (!collapsed){
+                                threateningConstraint = comp.toString();
                                 total = Math.max((float)1 - (float)(dist/maxDist), total);
                             }else{
                                 System.out.println(comp + "============================================= Collapsed!!!!!");
@@ -509,6 +530,8 @@ public class State extends Object {
 
             }
         }
+        
+        //System.out.println("the responsible for the risk is: "+threateningConstraint);
         return total;
 
     }
@@ -552,5 +575,86 @@ public class State extends Object {
         return total;
 
     }
+
+    public Float normalizedRiskViaPlanBounds(AndCond conditions, String distStrategy) {
+            Float total = new Float(0.0);
+
+        String threateningConstraint = new String();
+        if (conditions instanceof AndCond) {
+            for (Object o : conditions.sons) {
+                if (o instanceof Comparison) {
+                    Comparison comp = (Comparison) o;
+
+                    if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
+                        NormExpression lExpr = (NormExpression) comp.getLeft();
+                        Float num = new Float(0.0);
+                        Float den = new Float(0.0);
+                        //Float den = new Float(0.0);
+                        //checking for collapsed constraints (6>4)
+                        boolean collapsed = true;
+                        for (Addendum a : lExpr.summations) {
+                            if (a.f == null) {
+                                num += a.n.getNumber();
+                            } else {
+                                PDDLNumber evaluation = (PDDLNumber) a.f.eval(this);
+                                //System.out.println("Evaluation of " + a.f +" "+evaluation);
+                                num += a.n.getNumber() * evaluation.getNumber();
+                                den += (float) Math.pow(a.n.getNumber(), 2);
+                                //System.out.println("Coefficient: " + a.n );
+                                //System.out.println(num);
+                                //den += new Float(Math.pow(a.n.getNumber(),2));
+                                collapsed = false;
+                            }
+                        }
+                        //System.out.println("Comparison under process: " + comp);
+                        //System.out.println("Num: " + num +" Den: "+den);
+                        //System.out.println("Dist: " +  new Float(1.0)/ ( new Float(Math.abs(num))/(new Float(Math.pow(den,0.5)))));
+
+                        /*Contribution of each comparison*/
+                        Float dist = Math.abs(num);///(float)Math.sqrt((double)den);
+                        num = new Float(0.0);
+                        Float maxDist = new Float(0.0);
+                        
+
+                            //System.out.println("UNO ALMENO L'HA TROVATO");
+                            maxDist = comp.maxDist;
+
+
+                        //System.out.println("Distance: "+dist);
+                        //System.out.println("Max Distance: "+maxDist);
+                        if (distStrategy.equals("sum")) {
+                            total += maxDist / dist;
+                            //total += (float)1 - (float)(dist/Math.max(maxDist,dist));
+                        } else if (distStrategy.equals("max")) {
+                            if ((comp.getComparator().equals(">=") || comp.getComparator().equals("<=") )){
+                                //System.out.println("Constraints Adjusted");
+                                dist = dist+(float)0.00000000001;
+                            }
+                            if (!collapsed){
+                                threateningConstraint = comp.toString();
+                                //System.out.println(maxDist);
+                                total = Math.max((float)1 - (float)(dist/maxDist), total);
+                            }else{
+                                System.out.println(comp + "============================================= Collapsed!!!!!");
+
+                            }
+                            
+                               
+                        }
+
+                    } else {
+                        System.out.println("Comparison must be normalized for computing the euclidean distance");
+                        System.exit(-1);
+                    }
+                }
+
+            }
+        }
+        
+        //System.out.println("the responsible for the risk is: "+threateningConstraint);
+        return total;
+    }
+
+   
 
 }

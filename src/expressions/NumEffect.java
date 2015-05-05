@@ -30,6 +30,7 @@ import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -116,6 +117,16 @@ public class NumEffect extends Expression {
         ret.grounded = true;
         return ret;
     }
+    
+    @Override
+    public Expression unGround(Map substitution) {
+        NumEffect ret = new NumEffect(this.operator);
+        ret.fluentAffected = (NumFluent) this.fluentAffected.unGround(substitution);
+        ret.right = this.right.unGround(substitution);
+        ret.grounded = false;
+        return ret;
+    }
+    
 
     /**
      *
@@ -345,5 +356,10 @@ public class NumEffect extends Expression {
         }
 
         return ret;
+    }
+
+    @Override
+    public Set fluentsInvolved() {
+        return this.right.fluentsInvolved();
     }
 }
