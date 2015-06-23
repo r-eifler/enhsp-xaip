@@ -31,14 +31,13 @@ import conditions.PDDLObject;
 
 import domain.Type;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 /**
  *
  * @author enrico
  */
-public class PDDLObjects extends HashSet {
+public class PDDLObjects extends LinkedHashSet {
 
     public boolean validate(PDDLObject t) {
 

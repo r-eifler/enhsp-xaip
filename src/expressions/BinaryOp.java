@@ -1,29 +1,30 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ *
+ ********************************************************************
+ */
 package expressions;
 
 import conditions.Conditions;
@@ -32,6 +33,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import problem.RelState;
 import problem.State;
 
@@ -59,7 +62,7 @@ public class BinaryOp extends Expression {
     }
 
     public String toString() {
-        return "(" + getOne() + " " + getOperator() + " " + getRight() + ")";
+        return "(" + getOperator() + " (" + getOne() + " " + getRight() + "))";
     }
 
     /**
@@ -148,20 +151,25 @@ public class BinaryOp extends Expression {
         NormExpression ret = new NormExpression();
         NormExpression left = this.getOne().normalize();
         NormExpression right = this.getRight().normalize();
-        
-        
-        if (this.getOperator().equals("+")) {
-            ret = left.sum(right);
-        } else if (this.getOperator().equals("-")) {
-            ret = left.minus(right);
-        } else if (this.getOperator().equals("*")) {
-            ret = left.mult(right);
 
-        } else if (this.getOperator().equals("/")) {
-            ret = left.div(right);
+        try {
+            if (this.getOperator().equals("+")) {
+                ret = left.sum(right);
+            } else if (this.getOperator().equals("-")) {
+                ret = left.minus(right);
+            } else if (this.getOperator().equals("*")) {
+//            System.out.println("DEBUG: left:"+left+" right:"+right);
+                ret = left.mult(right);
 
-        } else {
-            System.out.println(this.operator + " not supported");
+            } else if (this.getOperator().equals("/")) {
+                ret = left.div(right);
+
+            } else {
+                System.out.println(this.operator + " not supported");
+            }
+
+        } catch (Exception ex) {
+            Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return ret;
@@ -187,15 +195,16 @@ public class BinaryOp extends Expression {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
+        left.freeVarSemantic = freeVarSemantic;
+        right.freeVarSemantic = freeVarSemantic;
         ret.left = left.weakEval(s, invF);
         ret.right = right.weakEval(s, invF);
-        
-        if (ret.left == null || ret.right == null)
+
+        if (ret.left == null || ret.right == null) {
             return null;
-        
+        }
 
         return ret;
-
 
     }
 
@@ -217,8 +226,7 @@ public class BinaryOp extends Expression {
         PDDLNumbers ret_val = null;
         PDDLNumbers first = this.left.eval(s);
         PDDLNumbers second = this.right.eval(s);
-        
-        
+
         if ((first == null) || (second == null)) {
             return null;
         }
@@ -258,7 +266,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public boolean involve(ArrayList<NumFluent> arrayList) {
+    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
         if (this.left.involve(arrayList)) {
             return true;
         } else {
@@ -284,7 +292,7 @@ public class BinaryOp extends Expression {
 
     @Override
     public Expression unGround(Map substitution) {
-       BinaryOp ret = new BinaryOp();
+        BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
         ret.left = left.unGround(substitution);
@@ -292,6 +300,39 @@ public class BinaryOp extends Expression {
 
         ret.grounded = false;
 
-        return ret;    
+        return ret;
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Expression expr) {
+        if (expr instanceof BinaryOp) {
+            BinaryOp bin = (BinaryOp) expr;
+            if (bin.getOperator().equals(this.getOperator())) {
+                if (this.getOne().isUngroundVersionOf(bin.getOne()) && this.getRight().isUngroundVersionOf(bin.getRight())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(int j) {
+        this.left = this.left.susbtFluentsWithTheirInvariants(j);
+        this.right = this.right.susbtFluentsWithTheirInvariants(++j);
+        return this;
+
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+        this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
+        this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
+        return this;
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        return "(" + this.operator + " " + this.getOne().toSmtVariableString(i) + " " + this.getRight().toSmtVariableString(i) + ")";
     }
 }

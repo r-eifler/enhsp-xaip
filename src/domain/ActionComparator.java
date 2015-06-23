@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -27,38 +26,27 @@
  *
  ********************************************************************
  */
-import computation.DomainEnhancer;
-import computation.NumericKernel;
-import domain.ActionSchema;
-import domain.PddlDomain;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import plan.SimplePlan;
-import problem.GroundAction;
+package domain;
 
-public class Test {
+//import java.util.Comparator;
+import java.util.Comparator;
 
-    /**
-     * @param args Call the program by passing domain and problem pddl files
-     * @throws Exception Nothing
-     */
-    public static void main(String[] args) throws Exception {
+/**
+ *
+ * @author enrico
+ */
+class ActionComparator implements Comparator {
 
-        //Controlling the input files
-        if (args.length < 2) {
-            System.out.println("Usage: ... domain problem ...");
-            System.exit(-1);
-        }
-
-        {
-            PddlDomain domain = new PddlDomain();
-            NumericKernel nk = new NumericKernel();
-            domain.parseDomain(args[0]);
-
-        }
+    public ActionComparator() {
     }
 
+    @Override
+    public int compare(Object arg0, Object arg1) {
+        GenericActionType gr0 = (GenericActionType)arg0;
+        GenericActionType gr1 = (GenericActionType)arg1;
+        
+       return gr0.name.compareTo(gr1.name);
+        
+    }
+    
 }

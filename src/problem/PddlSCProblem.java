@@ -27,6 +27,11 @@
  */
 package problem;
 
+import domain.ActionSchema;
+import java.util.Iterator;
+import java.util.Set;
+import propositionalFactory.ActionFactory;
+
 /**
  *
  * @author enrico
@@ -42,5 +47,45 @@ public class PddlSCProblem extends PddlProblem{
         super(problemFile,po);
         
     }
-    
+    @Override
+     public void generateActions() throws Exception {
+        long start = System.currentTimeMillis();
+        if (this.isValidatedAgainstDomain()) {
+            ActionFactory af = new ActionFactory();
+            for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
+//                af.Propositionalize(act, objects);
+                if (act.getParameters().size()!=0)
+                    getActions().addAll(af.Propositionalize(act, getObjects()));
+                else{
+                    GroundAction gr = act.ground();
+                    getActions().add(gr);
+                    
+                }
+            }
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+        Iterator it = getActions().iterator();
+        //System.out.println("prova");
+        System.out.println(getActions().size());
+        while (it.hasNext()){
+            GroundAction act = (GroundAction)it.next();
+            boolean keep = true;
+            if (isSimplifyActions()){
+               keep =  act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            }
+            if (!keep){
+                //System.out.println("Pruning action:"+act.getName());
+                it.remove();
+            }
+        }
+                System.out.println(getActions().size());
+
+        setPropositionalTime(System.currentTimeMillis() - start);
+        this.setGroundedActions(true);
+        
+        
+    }
 }

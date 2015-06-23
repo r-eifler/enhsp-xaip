@@ -43,14 +43,19 @@ import expressions.MultiOp;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import extraUtils.Utils;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
@@ -75,9 +80,11 @@ public class PddlDomain extends Object {
     private List types;
     private PDDLObjects constants;
     private List functions;
+    private List free_functions;
     private List DurativeActions;
     private List Requirements;
     private String pddlReferenceFile;
+    private HashMap abstractInvariantFluents;
 
     private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List types, List Functions, List DurativeActions, List Requirements) {
         this.ActionsSchema = ActionsSchema;
@@ -94,8 +101,9 @@ public class PddlDomain extends Object {
     public PddlDomain() {
         super();
         types = new ArrayList();
-        ActionsSchema = new HashSet();
+        ActionsSchema = new TreeSet(new ActionComparator());
         functions = new ArrayList();
+        free_functions = new ArrayList();
         Requirements = new ArrayList();
         constants = new PDDLObjects();
     }
@@ -104,8 +112,9 @@ public class PddlDomain extends Object {
         super();
         try {
             types = new ArrayList();
-            ActionsSchema = new HashSet();
+            ActionsSchema = new TreeSet(new ActionComparator());
             functions = new ArrayList();
+            free_functions = new ArrayList();
             Requirements = new ArrayList();
             constants = new PDDLObjects();
             this.parseDomain(domainFile);
@@ -167,16 +176,16 @@ public class PddlDomain extends Object {
                 for (Object o1 : t1.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator it = types.iterator();
-                    boolean founded = false;
+                    boolean found = false;
                     while (it.hasNext()) {
                         Type ele = (Type) it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
-                            founded = true;
+                            found = true;
                             break;
                         }
                     }
-                    if (!founded) {
+                    if (!found) {
                         System.out.println("The following object is not valid:" + t);
                         System.exit(-1);
                     }
@@ -189,16 +198,16 @@ public class PddlDomain extends Object {
                 for (Object o1 : nf.getNFluent().getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator it = types.iterator();
-                    boolean founded = false;
+                    boolean found = false;
                     while (it.hasNext()) {
                         Type ele = (Type) it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
-                            founded = true;
+                            found = true;
                             break;
                         }
                     }
-                    if (!founded) {
+                    if (!found) {
                         System.out.println("The following object is not valid:" + t);
                         System.exit(-1);
                     }
@@ -208,16 +217,16 @@ public class PddlDomain extends Object {
                 for (Object o1 : t1.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator it = types.iterator();
-                    boolean founded = false;
+                    boolean found = false;
                     while (it.hasNext()) {
                         Type ele = (Type) it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
-                            founded = true;
+                            found = true;
                             break;
                         }
                     }
-                    if (!founded) {
+                    if (!found) {
                         System.out.println("The following object is not valid:" + t);
                         System.exit(-1);
                     }
@@ -236,6 +245,11 @@ public class PddlDomain extends Object {
 //                }
             }
         }
+        for (Object o: this.getConstants()){
+            p.getProblemObjects().add(o);
+        }
+        //System.out.println(p.getProblemObjects());
+        
         p.setDomain(this);
         p.setValidatedAgainstDomain(true);
 
@@ -293,6 +307,12 @@ public class PddlDomain extends Object {
                 case PddlParser.CONSTANTS:
                     addConstants(c);
                     break;
+                case PddlParser.FREE_FUNCTIONS:
+                    addFree_Functions(c);
+                    break; 
+//                case PddlParser.DOM_CONSTRAINTS:
+//                    addGlobalConstraints(c);
+//                    break; 
             }
         }
 
@@ -313,7 +333,7 @@ public class PddlDomain extends Object {
      * @return the ActionsSchema- a Set which contains all the action schema of
      * the domain
      */
-    public Set getActionsSchema() {
+    public Set<ActionSchema> getActionsSchema() {
         return ActionsSchema;
     }
 
@@ -442,7 +462,7 @@ public class PddlDomain extends Object {
         ActionSchema a = new ActionSchema();
         Tree action = (Tree) c.getChild(0);
         a.setName(action.getText());
-
+        //System.out.println("Adding:"+a.getName());
         this.ActionsSchema.add(a);
 
         for (int i = 1; i < c.getChildCount(); i++) {
@@ -556,18 +576,26 @@ public class PddlDomain extends Object {
         } else if (infoAction.getType() == PddlParser.EQUALITY_CON) {
             PDDLObjectsEquality equality = new PDDLObjectsEquality();
 
-            if (infoAction.getChild(1).getType() == PddlParser.NAME){
+            if (infoAction.getChild(1).getType() == PddlParser.NAME) {
                 System.out.println("Constant objects in equality comparison are not supported");
                 System.exit(-1);
-            }else
+            } else {
                 equality.setLeftV(buildVariable(infoAction.getChild(1), parTable));
-            if (infoAction.getChild(1).getType() == PddlParser.NAME){
+            }
+            if (infoAction.getChild(1).getType() == PddlParser.NAME) {
                 System.out.println("Constant objects in equality comparison are not supported");
                 System.exit(-1);
-            }else
+            } else {
                 equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
+            }
             return equality;
 
+        }else if (infoAction.getType() == PddlParser.IMPLY_GD) {
+            
+            System.out.println("Implication:" + infoAction.getText());
+
+            return null;
+            //Create an equality structure for comparing Objects
         }
         return null;
     }
@@ -639,7 +667,7 @@ public class PddlDomain extends Object {
             System.exit(-1);
 
         } else {
-            
+
             a = new Variable(t.getText());
             Variable v1 = parTable.containsVariable(a);
             if (v1 == null) {
@@ -650,7 +678,6 @@ public class PddlDomain extends Object {
         }
         return a;
     }
- 
 
     private Conditions createDelEffect(ActionParameters parTable, Tree infoAction) {
         if (infoAction == null) {
@@ -677,6 +704,9 @@ public class PddlDomain extends Object {
                     and.addConditions(ret_val);
                 }
             }
+            //System.out.println(and);
+ 
+                
             if (!and.sons.isEmpty()) {
                 return and;
             } else {
@@ -749,6 +779,8 @@ public class PddlDomain extends Object {
 
     private Object createNumericEffect(ActionParameters parameters, Tree child) {
 
+        if (child== null)
+            return new AndCond();
         if (child.getType() == PddlParser.AND_EFFECT) {
             AndCond and = new AndCond();
             for (int i = 0; i < child.getChildCount(); i++) {
@@ -922,8 +954,37 @@ public class PddlDomain extends Object {
         this.constants = constants;
     }
 
-    public void saveDomain(String file) {
+    public void saveDomain(String file) throws IOException {
+        PddlDomain domain = this;
+        Writer f;
 
+        f = new BufferedWriter(new FileWriter(file));
+        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        String actions = "\n";
+
+        f.write("(define (domain " + domain.getName() + ")\n");
+        if (domain.getRequirements() != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        }
+        if (domain.getTypes() != null) {
+            f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
+        }
+        if (!domain.getPredicates().isEmpty()) // f.write("(:constants "+constants.pddlPrint()+")\n");
+        {
+            f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
+        }
+        if (!domain.getFunctions().isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        }
+
+        if (!domain.getActionsSchema().isEmpty()) {
+            f.write(Utils.toPDDLSetWithBreak(domain.getActionsSchema()));
+        }
+
+        f.write(actions);
+        f.write("\n)");
+        f.close();
+        f.close();
     }
 
     /**
@@ -941,13 +1002,128 @@ public class PddlDomain extends Object {
     }
 
     public HashMap generateAbstractInvariantFluents() {
-        HashMap res = new HashMap();
+        if (getAbstractInvariantFluents() != null)
+            return getAbstractInvariantFluents();
+        HashMap abstractInvariantFluents = new HashMap();
         for (ActionSchema as : (Set<ActionSchema>) this.ActionsSchema) {
             Set s = as.getAbstractNumericFluentAffected();
             for (NumFluent nf : (Set<NumFluent>) s) {
-                res.put(nf.getName(), false);
+                abstractInvariantFluents.put(nf.getName(), false);
             }
         }
-        return res;
+        for (NumFluent nf : (Collection<NumFluent>)this.getFree_functions()){
+            abstractInvariantFluents.put(nf.getName(), false);
+        }
+        
+        
+        
+        return abstractInvariantFluents;
     }
+
+    public Type getTypeByName(String text) {
+        for (Type t : (List<Type>) this.getTypes()) {
+            if (t.getName().equals(text)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public HashMap<Object, Boolean> generateInvariant() {
+        HashMap<Object, Boolean> ret = new HashMap();
+        for (ActionSchema as: this.getActionsSchema()){
+            Conditions prop_effects = as.getAddList();
+            if (prop_effects instanceof AndCond){
+                AndCond ac = (AndCond)prop_effects;
+                for (Object o: ac.sons){
+                    if (o instanceof Predicate){
+                        Predicate p = (Predicate)o;
+                        Predicate pDef = this.getPredicates().findAssociated(p);
+                        ret.put(pDef, Boolean.FALSE);
+                    }
+                }
+            }else{
+                System.out.println("Support only and cond as prop effects. In case of singleton, please put it under AND");
+            }
+            prop_effects = as.getDelList();
+            if (prop_effects != null){
+                if (prop_effects instanceof AndCond){
+                    AndCond ac = (AndCond)prop_effects;
+                    for (Object o: ac.sons){
+                        if (o instanceof NotCond){
+                            NotCond nc = (NotCond)o;
+                            //System.out.println(nc);
+                            for (Object o1:nc.son){
+                                Predicate p = (Predicate)o1;
+                                Predicate pDef = this.getPredicates().findAssociated(p);
+                                ret.put(pDef, Boolean.FALSE);
+                            }
+
+                        }
+                    }
+                }else{
+                    System.out.println("Support only AND as prop effects. In case of singleton, please put it under AND also if it is just one proposition");
+                }
+            }
+            Set<NumFluent> anfa = (Set<NumFluent>)as.getAbstractNumericFluentAffected();
+            for (NumFluent nf : anfa ){
+                ret.put(nf, Boolean.FALSE);
+            }
+        }
+        return ret;
+    }
+
+    private void addFree_Functions(Tree c) {
+        if (c != null) {
+            for (int i = 0; i < c.getChildCount(); i++) {
+                //System.out.println(c.getChild(i).getText());
+                NumFluent ret = new NumFluent(c.getChild(i).getText());
+                Tree t = c.getChild(i);
+                for (int j = 0; j < t.getChildCount(); j++) {
+                    Variable v = new Variable(t.getChild(j).getText());
+                    if (t.getChild(j).getChild(0) != null);
+                        //System.out.println(t.getChild(j));
+
+                    //System.out.println(t.getChild(j).getChild(0));
+                    v.setType(new Type(t.getChild(j).getChild(0).getText()));
+
+                    ret.addVariable(v);
+                }
+                this.getFree_functions().add(ret);
+            }
+        }
+    }
+
+    /**
+     * @return the free_functions
+     */
+    public List getFree_functions() {
+        return free_functions;
+    }
+
+    /**
+     * @param free_functions the free_functions to set
+     */
+    public void setFree_functions(List free_functions) {
+        this.free_functions = free_functions;
+    }
+
+    private void addGlobalConstraints(Tree c) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @return the abstractInvariantFluents
+     */
+    public HashMap getAbstractInvariantFluents() {
+        return abstractInvariantFluents;
+    }
+
+    /**
+     * @param abstractInvariantFluents the abstractInvariantFluents to set
+     */
+    public void setAbstractInvariantFluents(HashMap abstractInvariantFluents) {
+        this.abstractInvariantFluents = abstractInvariantFluents;
+    }
+
 }

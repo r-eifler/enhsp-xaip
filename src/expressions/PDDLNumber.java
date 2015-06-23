@@ -29,6 +29,8 @@ package expressions;
 import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import problem.RelState;
@@ -57,7 +59,7 @@ public class PDDLNumber extends Expression {
 
     public String toString() {
 
-        return " " + getNumber() + " ";
+        return " " + String.format(Locale.US,"%.4f",this.getNumber()) + " ";
     }
 
     @Override
@@ -107,7 +109,7 @@ public class PDDLNumber extends Expression {
 
     @Override
     public String pddlPrint(boolean typeInformation) {
-        return " " + getNumber() + " ";
+        return " " + String.format(Locale.US,"%.4f",this.getNumber()) + " ";
     }
 
     @Override
@@ -117,7 +119,8 @@ public class PDDLNumber extends Expression {
 
     @Override
     public Expression clone() {
-        return new PDDLNumber(this.getNumber());
+        //return new PDDLNumber(this.getNumber());
+        return this;
     }
 
     @Override
@@ -126,7 +129,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public boolean involve(ArrayList<NumFluent> arrayList) {
+    public boolean involve(HashMap<NumFluent,Boolean> arrayList) {
         return false;
     }
 
@@ -137,6 +140,53 @@ public class PDDLNumber extends Expression {
 
     @Override
     public Set fluentsInvolved() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new HashSet(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Expression expr) {
+        if (expr instanceof PDDLNumber){
+            PDDLNumber num = (PDDLNumber)expr;
+            if (this.getNumber().equals(num.getNumber()))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(int j) {
+        return this;
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + (this.number != null ? this.number.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PDDLNumber other = (PDDLNumber) obj;
+        if (this.number != other.number && (this.number == null || !this.number.equals(other.number))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        return toString();
     }
 }

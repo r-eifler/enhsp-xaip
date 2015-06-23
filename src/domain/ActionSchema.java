@@ -108,6 +108,23 @@ public class ActionSchema extends GenericActionType {
         return ret;
 
     }
+    
+    public GroundAction ground(Map substitution, int c) {
+        GroundAction ret = new GroundAction(this.name);
+        ActionParametersAsTerms input = new ActionParametersAsTerms();
+        for (Object o : parameters) {
+            Variable el = (Variable) o;
+            PDDLObject t = (PDDLObject) substitution.get(el);
+            input.add(t);
+        }
+        ret.setParameters(input);
+
+        ret.setNumericEffects(this.numericEffects.ground(substitution,c++));
+        ret.setAddList(this.addList.ground(substitution,c++));
+        ret.setDelList(this.delList.ground(substitution,c++));
+        ret.setPreconditions(this.preconditions.ground(substitution,c++));
+        return ret;
+    }
 
     public GroundAction ground(ActionParametersAsTerms par) {
         GroundAction ret = new GroundAction(this.name);
@@ -124,9 +141,10 @@ public class ActionSchema extends GenericActionType {
         ret.setParameters(par);
 
         //System.out.println(this);
-        if (numericEffects!= null || !numericEffects.sons.isEmpty())
+        if (numericEffects!= null || !numericEffects.sons.isEmpty()){
+            //System.out.println(this);
             ret.setNumericEffects(this.numericEffects.ground(substitution));
-        if (addList != null) {
+        }if (addList != null) {
             ret.setAddList(this.addList.ground(substitution));
         }
         if (delList != null) {
@@ -135,6 +153,19 @@ public class ActionSchema extends GenericActionType {
         if (preconditions != null) {
             ret.setPreconditions(this.preconditions.ground(substitution));
         }
+
+        return ret;
+    }
+    
+    public GroundAction ground() {
+        GroundAction ret = new GroundAction(this.name);
+        ActionParametersAsTerms input = new ActionParametersAsTerms();
+
+        ret.setParameters(input);
+        ret.setPreconditions(preconditions);
+        ret.setAddList(addList);
+        ret.setDelList(delList);
+        ret.setNumericEffects(numericEffects);
 
         return ret;
     }

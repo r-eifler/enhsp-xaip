@@ -1,36 +1,41 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ *
+ ********************************************************************
+ */
 package conditions;
 
 import expressions.NumEffect;
 import expressions.Expression;
+import expressions.NumFluent;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.RelState;
@@ -44,12 +49,33 @@ public class AndCond extends Conditions {
 
     private boolean specialAndForExpression;
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AndCond other = (AndCond) obj;
+
+//        System.out.println("ANDCOND: equal function not implemented yet");
+//        System.exit(-1);
+        return false;
+    }
+
     /**
      * Standard Constructor for the AndCond.
      */
     public AndCond() {
         super();
-        sons = new HashSet();
+        sons = new LinkedHashSet();
     }
 
     /**
@@ -76,7 +102,8 @@ public class AndCond extends Conditions {
 
     /**
      *
-     * @param the sigma relating the the variable involved with concrete pddlobject
+     * @param the sigma relating the the variable involved with concrete
+     * pddlobject
      * @return
      */
     @Override
@@ -141,7 +168,7 @@ public class AndCond extends Conditions {
 
     /**
      *
-     * @param s 
+     * @param s
      * @return
      */
     @Override
@@ -150,7 +177,7 @@ public class AndCond extends Conditions {
             if (o instanceof Conditions) {
                 Conditions c = (Conditions) o;
                 if (!c.isSatisfied(s)) {
-                    System.out.println(c.toString() + " is not satisfied in " + s);
+                    //System.out.println(c.toString() + " is not satisfied in " + s);
                     return false;
                 }
             }
@@ -179,11 +206,11 @@ public class AndCond extends Conditions {
 
     /**
      *
-     * @param s 
+     * @param s
      * @return
      */
     public State apply(State s) {
-        
+
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
                 AndCond t = (AndCond) o;
@@ -211,7 +238,6 @@ public class AndCond extends Conditions {
      * @param s
      * @return
      */
-    
     public State remove(State s) {
         State ret = s;
         for (Object o : this.sons) {
@@ -279,7 +305,7 @@ public class AndCond extends Conditions {
         AndCond ret = new AndCond();
         ret.grounded = this.grounded;
         //ret.sons = (HashSet)this.sons.clone();
-        ret.sons = new HashSet();
+        ret.sons = new LinkedHashSet();
 
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
@@ -300,8 +326,8 @@ public class AndCond extends Conditions {
             } else if (o instanceof NumFluentAssigner) {
                 NumFluentAssigner a = (NumFluentAssigner) o;
                 ret.sons.add(a.clone());
-            }else if (o instanceof NumEffect){
-                NumEffect a = (NumEffect)o;
+            } else if (o instanceof NumEffect) {
+                NumEffect a = (NumEffect) o;
                 ret.sons.add(a.clone());
             }
         }
@@ -423,32 +449,47 @@ public class AndCond extends Conditions {
      *
      */
     @Override
-    public void normalize() {        
+    public void normalize() {
+
         Iterator it = sons.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             Object o = it.next();
-            if (o instanceof Comparison){
-                Comparison comp = (Comparison)o;
+            if (o instanceof Comparison) {
+                Comparison comp = (Comparison) o;
                 try {
-                    comp = comp.normalizeAndCopy();
+                    //comp = comp.normalizeAndCopy();
+                    comp.normalize();
 
                 } catch (Exception ex) {
                     Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                if (comp==null) {
+                if (comp == null) {
+                    
                     it.remove();
+                }else{
+                    if (comp.isUnsatisfiable())
+                        this.setUnsatisfiable(true);
                 }
+            } else if (o instanceof AndCond) {
+                AndCond temp = (AndCond) o;
+                temp.normalize();
+            } else if (o instanceof NotCond) {
+                NotCond temp = (NotCond) o;
+                temp.normalize();
+            } else if (o instanceof OrCond) {
+                OrCond temp = (OrCond) o;
+                temp.normalize();
             }
         }
-        
+
     }
 
     public State transformInStateIfPossible() {
         State ret = new State();
-        for (Object o: this.sons){
-            if (o instanceof Predicate){
-                ret.addProposition((Predicate)o);
-            }else{
+        for (Object o : this.sons) {
+            if (o instanceof Predicate) {
+                ret.addProposition((Predicate) o);
+            } else {
                 System.out.println("This AndCond cannot be transformed into a State");
                 return null;
             }
@@ -475,4 +516,176 @@ public class AndCond extends Conditions {
         ret.grounded = false;
         return ret;
     }
+
+    public Conditions requireAnInstanceOf(Conditions con) {
+
+        for (Object o : this.sons) {
+            //System.out.println("testing "+con+" with"+o);
+            if (con.isUngroundVersionOf((Conditions) o)) {
+                //System.out.println("ok");
+                return (Conditions) o;
+            }
+        }
+        return null;
+
+    }
+
+    public Predicate requireAnInstanceOfAndWhichis(Conditions con) {
+
+        for (Object o : this.sons) {
+            //System.out.println("testing "+con+" with"+o);
+            if (con.isUngroundVersionOf((Conditions) o)) {
+                //System.out.println("ok");
+                return (Predicate) o;
+            }
+        }
+        return null;
+
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Conditions con) {
+        if (con instanceof AndCond) {
+            AndCond ac = (AndCond) con;
+            Object[] sonsThis = this.sons.toArray();
+            Object[] sonsCon = con.sons.toArray();
+            if (sonsThis.length == sonsCon.length) {
+                for (int i = 0; i < sonsThis.length; i++) {
+                    boolean trovato = false;
+                    for (int j = 0; j < sonsThis.length; j++) {
+                        if (sonsThis[i].getClass() == sonsCon[j].getClass()) {
+                            if (sonsThis[i] instanceof Comparison) {
+                                Comparison fromThis = (Comparison) sonsThis[i];
+                                Comparison fromCon = (Comparison) sonsCon[j];
+                                if (fromThis.isUngroundVersionOf(fromCon)) {
+                                    trovato = true;
+                                    break;
+                                }
+                            } else if (sonsThis[i] instanceof Predicate) {
+                                Predicate fromThis = (Predicate) sonsThis[i];
+                                Predicate fromCon = (Predicate) sonsCon[j];
+                                if (fromThis.isUngroundVersionOf(fromCon)) {
+                                    trovato = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!trovato) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+
+        String ret = "";
+        if (this.sons != null) {
+            if (this.sons.size() > 1) {
+                ret += "(and";
+            }
+
+            for (Object o : this.sons) {
+                if (o instanceof Predicate) {
+                    Predicate p = (Predicate) o;
+                    ret += " " + p.toSmtVariableString(i);
+                } else if (o instanceof NotCond) {
+                    NotCond nc = (NotCond) o;
+                    ret += " " + nc.toSmtVariableString(i);
+                } else if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    if (c.toSmtVariableString(i)!=null)
+                        ret += c.toSmtVariableString(i);
+                    
+                } else if (o instanceof NumEffect) {
+                    NumEffect neff = (NumEffect) o;
+                    ret += neff.toSmtVariableString(i);
+                }
+            }
+            if (this.sons.size() > 1) {
+                ret += ")";
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<NumFluent> getInvolvedFluents() {
+        Set<NumFluent> ret = new HashSet();
+
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                if (o instanceof NumFluent) {
+                    ret.add((NumFluent) o);
+                } else {
+                    if (o instanceof Conditions) {
+                        Conditions c = (Conditions) o;
+                        if (c.getInvolvedFluents() != null) {
+                            ret.addAll(c.getInvolvedFluents());
+                        }
+                    } else if (o instanceof NumEffect) {
+                        NumEffect c = (NumEffect) o;
+                        if (c.getInvolvedFluents() != null) {
+                            ret.addAll(c.getInvolvedFluents());
+                        }
+                    } else{
+                        System.out.println("Error in getting involved fluents");
+                    }
+                }
+            }
+        }
+
+        return ret;
+
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        Map<Conditions,Boolean> toRemove = new HashMap();
+        if (this.sons != null) {
+            for (Object o2 : this.sons) {
+                if (o2 instanceof Conditions) {
+                    Conditions c = (Conditions) o2;
+                    c.setFreeVarSemantic(this.freeVarSemantic);
+                    c = c.weakEval(s, invF);
+                    if (c == null) {
+                        return null;
+                    }
+                    if (c.isValid())
+                        toRemove.put(c,Boolean.TRUE);
+                    if (c.isUnsatisfiable())
+                        this.isUnsatisfiable();
+                        
+                }else if(o2 instanceof NumEffect){
+                    NumEffect ne = (NumEffect)o2;
+                    ne.setFreeVarSemantic(freeVarSemantic);
+                    ne = (NumEffect)ne.weakEval(s, invF);
+                    if (ne == null)
+                        return null;
+                }else{
+                    System.out.println("Unsupported operation for :"+o2.getClass());
+                }
+            }
+            Iterator it = this.sons.iterator();
+            while(it.hasNext()){
+                if (toRemove.get(it.next())!=null)
+                    it.remove();
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public Conditions ground(Map substitution, int c) {
+        Conditions ret = this.ground(substitution);
+        ret.setCounter(c);
+        return ret;
+    }
+
+
 }

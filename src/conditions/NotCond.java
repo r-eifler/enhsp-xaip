@@ -26,9 +26,12 @@
 
 package conditions;
 
+import expressions.NumFluent;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.RelState;
@@ -72,6 +75,13 @@ public class NotCond extends Conditions {
         ret.grounded = true;
         return ret;
     }
+    
+    @Override
+    public Conditions ground(Map substitution, int c) {
+        Conditions ret = this.ground(substitution);
+        ret.setCounter(c);
+        return ret;
+    }
 
     //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
     //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
@@ -95,11 +105,12 @@ public class NotCond extends Conditions {
 
     @Override
     public boolean isSatisfied(RelState s) {
-        for (Object o : this.son) {
-            Conditions c = (Conditions) o;
-            return !c.isSatisfied(s);
-        }
-        return false;
+        return true;
+//        for (Object o : this.son) {
+//            Conditions c = (Conditions) o;
+//            return !c.isSatisfied(s);
+//        }
+//        return false;
     }
 
     public State apply(State s) {
@@ -125,7 +136,8 @@ public class NotCond extends Conditions {
 
     @Override
     public void normalize() {        
-        Iterator it = sons.iterator();
+       
+        Iterator it = son.iterator();
         while(it.hasNext()){
             Object o = it.next();
             if (o instanceof Comparison){
@@ -223,6 +235,18 @@ public class NotCond extends Conditions {
     }
 
     @Override
+    public boolean isUngroundVersionOf(Conditions con) {
+        if (con instanceof NotCond){
+            NotCond nc = (NotCond)con;
+            Conditions c1 = (Conditions)this.son.toArray()[0]; 
+            Conditions c2 = (Conditions)nc.son.toArray()[0]; 
+            if (c1.isUngroundVersionOf(c2))
+                return true;
+            
+        }
+        return false;
+    }
+    @Override
     public Conditions unGround(Map substitution) {
         NotCond ret = new NotCond();
 
@@ -233,4 +257,55 @@ public class NotCond extends Conditions {
         ret.grounded = false;
         return ret;
     }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        Conditions p = (Conditions)this.son.iterator().next();
+        return "(not "+p.toSmtVariableString(i)+")";
+    }
+
+    @Override
+    public Set<NumFluent> getInvolvedFluents() {
+        Set<NumFluent> ret = new HashSet();
+        
+        if (this.son != null){
+            for (Object o: this.son){
+                if (o instanceof NumFluent){
+                    ret.add((NumFluent)o);
+                }else{
+                    if (o instanceof Conditions){
+                        Conditions c = (Conditions)o;
+                        if (c.getInvolvedFluents() != null)
+                            ret.addAll(c.getInvolvedFluents());
+                    }else{
+                        System.out.println("Error in getting involved fluents");
+                    }
+                }
+            }
+        }
+            
+        return ret;
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        Map<Conditions,Boolean> toRemove = new HashMap();
+        for (Object o : son) {
+            Conditions el = (Conditions) o;
+            el.setFreeVarSemantic(freeVarSemantic);
+            el = el.weakEval(s, invF);   
+            if (el.isValid()){
+                this.isUnsatisfiable();
+            }else if (el.isUnsatisfiable()){
+                this.setValid(true);
+            }
+        }
+        
+        
+        return this;
+    }
+
+
+
+
 }

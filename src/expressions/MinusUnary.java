@@ -107,7 +107,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public boolean involve(ArrayList<NumFluent> arrayList) {
+    public boolean involve(HashMap<NumFluent,Boolean> arrayList) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -118,6 +118,26 @@ public class MinusUnary extends Expression {
 
     @Override
     public Set fluentsInvolved() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Expression expr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(int j) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

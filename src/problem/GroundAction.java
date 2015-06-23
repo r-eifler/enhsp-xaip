@@ -32,6 +32,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
 import conditions.NumFluentAssigner;
+import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionParametersAsTerms;
@@ -40,26 +41,39 @@ import domain.GenericActionType;
 import domain.PddlDomain;
 import domain.Variable;
 import expressions.Expression;
+import expressions.NormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.PDDLNumbers;
+import extraUtils.Pair;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import plan.SimplePlan;
+import search.RegressedSearchNode;
 
 public class GroundAction extends GenericActionType implements Comparable {
 
     protected ActionParametersAsTerms parameters;
     public boolean normalized;
-    private ArrayList numericFluentAffected;
+    private HashMap<NumFluent,Boolean> numericFluentAffected;
     private ArrayList primitives;
     private boolean isMacro;
     public int hiddenParametersNumber;
     private Float prevDistanceFromProblem;
+    public Comparison achievedComparison = null;
+    public GroundAction generator;
+    public HashSet<Conditions> achievedComparisons;
+    private boolean unsatisfiable = false;
+    private HashMap<NumFluent,Float> coefficientAffected;
+    private float action_cost;
+    public int counter;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -71,61 +85,98 @@ public class GroundAction extends GenericActionType implements Comparable {
             ret.delList = this.delList.clone();
         }
         ret.normalized = this.normalized;
-        if (this.numericEffects!=null)
+        if (this.numericEffects != null) {
             ret.numericEffects = this.numericEffects.clone();
-        ret.numericFluentAffected = (ArrayList) this.numericFluentAffected.clone();
-        ret.parameters = (ActionParametersAsTerms) this.parameters.clone();
-        if (this.preconditions != null)
+        }
+        ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+        if (this.parameters != null) {
+            ret.parameters = (ActionParametersAsTerms) this.parameters.clone();
+        }
+        if (this.preconditions != null) {
             ret.preconditions = this.preconditions.clone();
+        }
         return ret;
 
     }
 
+    /**
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         GroundAction gr = (GroundAction) obj;
-        if ((gr.getName().equalsIgnoreCase(this.getName())) && gr.getParameters().equals(this.getParameters())) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return (gr.getName().equalsIgnoreCase(this.getName())) && gr.getParameters().equals(this.getParameters());
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 37 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+        int hash = 3;
+        hash = 29 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
         return hash;
     }
 
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 11 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+//        return hash;
+//    }
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 37 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+//        return hash;
+//    }
     public GroundAction() {
         super();
         this.name = null;
-        numericFluentAffected = new ArrayList();
+        numericFluentAffected = null;
         this.parameters = new ActionParametersAsTerms();
+        //numericFluentAffected = new HashMap();
+        action_cost = 0;
     }
 
     public GroundAction(String name) {
         super();
         this.name = name;
-        numericFluentAffected = new ArrayList();
+        numericFluentAffected = null;
         this.parameters = new ActionParametersAsTerms();
+        this.preconditions = new AndCond();
+        //numericFluentAffected = new HashMap();
+        action_cost = 0;
     }
 
+//    @Override
+//    public String toString() {
+//        String parametri = "";
+//        for (Object o : getParameters()) {
+//            parametri = parametri.concat(o.toString()).concat(" ");
+//        }
+//        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
+//
+//    }
     @Override
     public String toString() {
         String parametri = "";
-        for (Object o : getParameters()) {
-            parametri = parametri.concat(o.toString()).concat(" ");
+        if (getParameters() != null) {
+            for (Object o : getParameters()) {
+                parametri = parametri.concat(o.toString()).concat(" ");
+            }
         }
-        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
+        return this.name + " " + parametri;
 
     }
 
     public String toEcoString() {
         String parametri = "";
-        for (Object o : getParameters()) {
-            parametri = parametri.concat(o.toString()).concat(" ");
+        if (getParameters() != null) {
+            for (Object o : getParameters()) {
+                parametri = parametri.concat(o.toString()).concat(" ");
+            }
         }
         return "Action Name:" + this.name + " Parameters: " + parametri;
 
@@ -157,12 +208,11 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public State apply(State s) {
-        ;
+
 //        if (!this.isApplicable(ret)){
 //            //System.out.println("Action: " + this + "  is not applicable");
 //            return null;
 //        }
-        
         AndCond del = (AndCond) delList;
         if (del != null) {
             del.apply(s);
@@ -182,18 +232,29 @@ public class GroundAction extends GenericActionType implements Comparable {
                 PDDLNumber newN = null;
 
                 Float rValue;
-                rValue = all.getRight().eval(s).getNumber();
-                //System.out.println("Rvalue!!:" + rValue);
-                if (all.getOperator().equals("increase")) {
-                    newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
-                } else if (all.getOperator().equals("decrease")) {
-
-//                    System.out.print("Valore di " + f);
-//                    System.out.println(" :"+ s.functionValue(f).getNumber()); 
-                    newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
-                } else if (all.getOperator().equals("assign")) {
-                    //System.out.println("================ASSIGN===========");
-                    newN = new PDDLNumber(rValue);
+                if (all.getRight().eval(s) == null) {
+                    newN = null;
+                } else {
+                    rValue = all.getRight().eval(s).getNumber();
+                    //System.out.println("Rvalue!!:" + rValue);
+                    if (all.getOperator().equals("increase")) {
+                        if (s.functionValue(f) == null) {
+                            newN = null;
+                        } else {
+                            newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
+                        }
+                    } else if (all.getOperator().equals("decrease")) {
+                        //                    System.out.print("Valore di " + f);
+                        //                    System.out.println(" :"+ s.functionValue(f).getNumber());
+                        if (s.functionValue(f) == null) {
+                            newN = null;
+                        } else {
+                            newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
+                        }
+                    } else if (all.getOperator().equals("assign")) {
+                        //System.out.println("================ASSIGN===========");
+                        newN = new PDDLNumber(rValue);
+                    }
                 }
                 temporaryMod.add(f);
                 fun2numb.put(f, newN);
@@ -212,14 +273,22 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public void generateAffectedNumFluents() {
+        
+        
+        
+        if (numericFluentAffected != null) {
+            return;
+        }
 
+        
+        numericFluentAffected = new HashMap();
         AndCond num = (AndCond) this.getNumericEffects();
 
         if (num != null) {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {
                     NumEffect e = (NumEffect) o;
-                    this.numericFluentAffected.add(e.getFluentAffected());
+                    this.numericFluentAffected.put(e.getFluentAffected(),Boolean.TRUE);
                 }
             }
         }
@@ -228,43 +297,15 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public void normalize() throws Exception {
 
-
-        AndCond temp = new AndCond();
-        if (this.preconditions instanceof Predicate) {
-            temp.sons.add(this.preconditions);
-        } else if (this.preconditions instanceof Comparison) {
-            Comparison c = (Comparison) this.preconditions;
-            c = c.normalizeAndCopy();
-            if (c != null) {
-                temp.sons.add(c);
-            }
-        } else {
-            if (this.preconditions != null){
-                for (Object o : this.preconditions.sons) {
-                    if (o instanceof Comparison) {
-                        Comparison c = (Comparison) o;
-                        //System.out.println(this);
-                        //System.out.println("Normalizing:" +c);
-                        c = c.normalizeAndCopy();
-                        if (c != null) {
-                            temp.sons.add(c);
-                        }
-                    } else if (o instanceof Predicate) {
-                        temp.sons.add(o);
-                    } else if (o instanceof NotCond){
-                        temp.sons.add(o);
-                    }
-                }
-            }
+        if (normalized) {
+            return;
         }
-        this.setPreconditions(temp);
-//        for (Object o : this.preconditions.sons) {
-//
-//            if (o instanceof Comparison) {
-//                Comparison c = (Comparison) o;
-//                c = c.normalizeAndCopy();
-//            }
-//        }
+
+        this.getPreconditions().normalize();
+        if (this.getPreconditions().isUnsatisfiable()) {
+            this.setUnsatisfiable(true);
+        }
+
         AndCond num = (AndCond) this.getNumericEffects();
         if (num != null) {
             for (Object o : num.sons) {
@@ -277,14 +318,15 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.normalized = true;
     }
 
-    public ArrayList getNumericFluentAffected() {
+    public HashMap<NumFluent,Boolean> getNumericFluentAffected() {
+        this.generateAffectedNumFluents();
         return this.numericFluentAffected;
     }
 
     /**
      * @param numericFluentAffected the numericFluentAffected to set
      */
-    public void setNumericFluentAffected(ArrayList numericFluentAffected) {
+    public void setNumericFluentAffected(HashMap<NumFluent,Boolean> numericFluentAffected) {
         this.numericFluentAffected = numericFluentAffected;
     }
 
@@ -303,7 +345,6 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //all.apply(s);
                 NumFluent f = all.getFluentAffected();
 
-
                 PDDLNumbers after = new PDDLNumbers();
 //                if (f.getName().contains("fuel-used")){
 //                    System.out.println("Something affecting Fuel");
@@ -320,8 +361,9 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                    System.out.println("Before ("+current.inf+","+current.sup+")");
 //                
 //                }
-
                 if (all.getOperator().equals("increase")) {
+                    //System.out.println(current);
+                    //System.out.println(current.sum(eval).inf);
                     after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
                     after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
 //                    System.out.println(current.sum(eval).inf.getNumber());
@@ -360,13 +402,17 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public boolean isApplicable(RelState current) {
+
+        if (numericEffectUndefined(current)) {
+            return false;
+        }
+
         if (this.getPreconditions() == null) {
             return true;
         }
-        
+
         return this.getPreconditions().isSatisfied(current);
     }
-
 
     public boolean isApplicable(State current) {
         if (this.getPreconditions() == null) {
@@ -375,25 +421,28 @@ public class GroundAction extends GenericActionType implements Comparable {
         return this.getPreconditions().isSatisfied(current);
     }
 
-        public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd) throws CloneNotSupportedException, Exception {
+    public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd) throws CloneNotSupportedException, Exception {
         if (this.name == null) {
             return (GroundAction) b.clone();
         }
         GroundAction a = this;
-        
-        GroundAction ab = new GroundAction(a.name+"_"+b.name);
-        if (a.getPrimitives().isEmpty())
+
+        GroundAction ab = new GroundAction(a.name + "_" + b.name);
+        if (a.getPrimitives().isEmpty()) {
             a.getPrimitives().add(a);
-        ab.setPrimitives((ArrayList)a.getPrimitives().clone());
-        if (b.isMacro){
+        }
+        ab.setPrimitives((ArrayList) a.getPrimitives().clone());
+        if (b.isMacro) {
             ab.getPrimitives().addAll(b.getPrimitives());
         }
-            
+
         ab.getPrimitives().add(b);
-        
-        
-        ab.setParameters((ActionParametersAsTerms) a.getParameters().clone());
-        ab.getParameters().addALLNewObjects(b.getParameters());
+        if (a.getParameters() != null) {
+            ab.setParameters((ActionParametersAsTerms) a.getParameters().clone());
+        }
+        if (b.getParameters() != null) {
+            ab.getParameters().addALLNewObjects(b.getParameters());
+        }
 
         ab.setPreconditions(regress(b, a));
         progress(a, b, ab);
@@ -403,42 +452,47 @@ public class GroundAction extends GenericActionType implements Comparable {
         //ab.computeDistance(pd,pp,consideringNumericInformationInDistance);
         return ab;
     }
-    
-    
-    
+
     public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
         if (this.name == null) {
+
             return (GroundAction) b.clone();
         }
         GroundAction a = this;
-        
-        GroundAction ab = new GroundAction(a.name+"_"+b.name);
-        if (a.getPrimitives().isEmpty())
+
+        GroundAction ab = new GroundAction(a.name + "_" + b.name);
+        if (a.getPrimitives().isEmpty()) {
             a.getPrimitives().add(a);
-        ab.setPrimitives((ArrayList)a.getPrimitives().clone());
-        if (b.isMacro){
+        }
+        ab.setPrimitives((ArrayList) a.getPrimitives().clone());
+        if (b.isMacro) {
             ab.getPrimitives().addAll(b.getPrimitives());
         }
-            
+
         ab.getPrimitives().add(b);
-        
-        
+
         ab.setParameters((ActionParametersAsTerms) a.getParameters().clone());
         ab.getParameters().addALLNewObjects(b.getParameters());
 
+        //System.out.println(b.pddlEffects());
+        //      System.out.println(a.pddlEffects());
         ab.setPreconditions(regress(b, a));
         progress(a, b, ab);
         ab.setIsMacro(true);
         //System.out.println("Da dentro l'azione..."+ab);
         ab.simplifyModel(pd, pp);
-        ab.computeDistance(pd,pp,consideringNumericInformationInDistance);
+        ab.computeDistance(pd, pp, consideringNumericInformationInDistance);
+
+        if (ab.getName() == null) {
+            System.out.println(a + " " + b + " created a null action");
+        }
+
         return ab;
     }
 
     public Conditions regress(GroundAction b, GroundAction a) {
 
         /*Propositional Part first*/
-
         AndCond result = (AndCond) b.getPreconditions().clone();
 
         /*probably something more efficient can be done here*/
@@ -451,9 +505,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             if (o1 instanceof Comparison) {
                 Comparison c = (Comparison) o1;
                 c.setLeft(c.getLeft().subst(a.getNumericEffects()));
-
                 c.setRight(c.getRight().subst(a.getNumericEffects()));
-
             } else if (a.getDelList() != null) {
                 if (a.getDelList().sons.contains(o1)) {
                     System.out.println("Error, " + a.name + " cannot be followed by " + b.name);
@@ -466,19 +518,33 @@ public class GroundAction extends GenericActionType implements Comparable {
         result.sons.addAll(a.getPreconditions().sons);
 
         //AndCond numericCondition = 
-
         return result;
+    }
+
+    public Comparison regressComparison(Comparison cond) {
+
+        Comparison c = (Comparison) cond;
+        c.setNormalized(false);
+        c.setLeft(c.getLeft().subst(this.getNumericEffects()));
+        c.setRight(c.getRight().subst(this.getNumericEffects()));
+        return c;
     }
 
     public Conditions regress(Conditions cond) {
 
-        /*Propositional Part first*/
+        if (cond instanceof Comparison) {
+            Comparison c = (Comparison) cond;
+            c.setLeft(c.getLeft().subst(this.getNumericEffects()));
+            c.setRight(c.getRight().subst(this.getNumericEffects()));
+            return c;//this is an error!!!
+        }
 
+        /*Propositional Part first*/
         AndCond result = (AndCond) cond;
-        
+
 
         /*probably something more efficient can be done here*/
-        if (this.getAddList() != null){
+        if (this.getAddList() != null) {
             for (Object o1 : this.getAddList().sons) {
                 result.sons.remove(o1);
             }
@@ -500,11 +566,11 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         }
 
-        if (this.getPreconditions() != null)
+        if (this.getPreconditions() != null) {
             result.sons.addAll(this.getPreconditions().sons);
+        }
 
         //AndCond numericCondition = 
-
         return result;
     }
 
@@ -514,14 +580,14 @@ public class GroundAction extends GenericActionType implements Comparable {
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/
-
         localAddList.subtractElements((AndCond) b.getDelList());
 
         /*atoms achieved by b*/
+        //System.out.println(b);
+        //System.out.println(b.getAddList());
         localAddList.sons.addAll(b.getAddList().sons);
 
         /*Starting from what action a deletes*/
-
         AndCond localDelList = null;
         if (a.delList != null) {
             localDelList = (AndCond) a.delList.clone();
@@ -546,27 +612,25 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 numEff.sons.add(nf.subst(a.getNumericEffects()));
-                ab.numericFluentAffected.add(nf.getFluentAffected());
+                ab.numericFluentAffected.put(nf.getFluentAffected(),Boolean.TRUE);
             }
         }
         if (a.getNumericEffects() != null) {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
-                if (!ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
+                //nf.getFluentAffected();
+                if (ab.getNumericFluentAffected().get(nf.getFluentAffected())!=null) {
                     numEff.sons.add(o);
-                    ab.numericFluentAffected.add(nf.getFluentAffected());
+                    ab.numericFluentAffected.put(nf.getFluentAffected(),Boolean.TRUE);
                 }
             }
         }
 
         ab.setNumericEffects(numEff);
 
-
-
     }
 
     public String toPDDL() {
-
 
         String ret = "(:action " + this.name + "\n";
 
@@ -575,9 +639,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         ret += ":effect " + this.pddlEffects();
 
         return ret + ")";
-
-
-
 
     }
 //    
@@ -591,19 +652,20 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     private String pddlEffects() {
         String ret = "(and ";
-        if (this.getAddList() != null) {
+        if (this.getAddList() != null && this.getAddList().sons != null) {
+
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
                 ret += p.pddlPrint(false);
             }
         }
-        if (this.getDelList() != null) {
+        if (this.getDelList() != null && this.getDelList().sons != null) {
             for (Object o : this.getDelList().sons) {
                 NotCond p = (NotCond) o;
                 ret += p.pddlPrint(false);
             }
         }
-        if (this.getNumericEffects() != null) {
+        if (this.getNumericEffects() != null && this.getNumericEffects().sons != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
                 ret += nE.pddlPrint(false);
@@ -613,95 +675,34 @@ public class GroundAction extends GenericActionType implements Comparable {
         return ret + ")";
     }
 
-    public void simplifyModel(PddlDomain domain, PddlProblem problem) throws Exception {
+    public boolean simplifyModel(PddlDomain domain, PddlProblem problem) throws Exception {
 
-
-        HashMap invariantFluents = new HashMap();
-
-//        if (!problem.isGroundedActions()){
-//            System.err.println("Actions must me grounded for simplifying the models");
-//            System.exit(-1);
-//        }
-//
-//        for (Object anAction : problem.getActions()) {
-//            GroundAction a = (GroundAction) anAction;
-//
-//            for (Object o2 : a.getNumericFluentAffected()) {     
-//                invariantFluents.put(o2, false);
-//            }
-//        }
-//
         HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
-        //invariantFluents.put(pp.getFunctions(), true);
 
-        //For each concrete numeric fluent, I look if there is at least an action modifying its abstraction
-        for (Object o3 : problem.getInit().getNumericFluents()) {
-            NumFluentAssigner ass = (NumFluentAssigner) o3;
-            if (abstractInvariantFluents.get(ass.getNFluent().getName()) == null) {
-                invariantFluents.put(ass.getNFluent(), true);
-            } else {
-                invariantFluents.put(ass.getNFluent(), false);
-            }
-
-        }
         GroundAction a = this;
-        //a.normalizeAndCopy();
-
 
         Conditions con = a.getPreconditions();
+
+        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+ 
+        if (con == null){
+            //System.out.println("A precondition is never satisfiable");
+            return false;
+        }
+        
+
         Conditions eff = a.getNumericEffects();
-//                    System.out.println(con);
-//                    System.out.println(eff);
-        if (con instanceof AndCond) {
-            for (Object o2 : con.sons) {
-                if (o2 instanceof Comparison) {
-                    Comparison comp = (Comparison) o2;
-                    Expression lValue = comp.getLeft();
-                    Expression rValue = comp.getRight();
-//                    System.out.println("before" + lValue + rValue);
-//                    System.out.println("lvalueClass:" + lValue.getClass());
-                    lValue = lValue.weakEval(problem.getInit(), invariantFluents);
-                    rValue = rValue.weakEval(problem.getInit(), invariantFluents);
-                    comp.setLeft(lValue);
-                    comp.setRight(rValue);
-//                    System.out.println("after" + lValue + rValue);
-                }
-            }
-        } else {
-            if (con instanceof Predicate) {
-            } else {
-                if (con instanceof Comparison) {
-                    Comparison comp = (Comparison) con;
-                    Expression lValue = comp.getLeft();
-                    Expression rValue = comp.getRight();
-                    //System.out.println("before" + lValue + rValue);
-                    lValue = lValue.weakEval(problem.getInit(), invariantFluents);
-                    rValue = rValue.weakEval(problem.getInit(), invariantFluents);
-                    comp.setLeft(lValue);
-                    comp.setRight(rValue);
-                } else {
-                    System.err.println("Conditions of the type: " + con.getClass());
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
-            }
-        }
 
-        if (eff instanceof AndCond) {
-            for (Object o2 : eff.sons) {
-                NumEffect nEff = (NumEffect) o2;
-                //System.out.println(nEff.getRight().getClass());
-                Expression rValue = nEff.getRight();
-                //System.out.println("before" + rValue);
-                rValue = rValue.weakEval(problem.getInit(), invariantFluents);
-                nEff.setRight(rValue);
-                //System.out.println("after" + rValue);
+        eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
 
-            }
-        } else {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
+        if (eff == null)
+            return false;
+        //System.out.println(a.toPDDL());
         a.normalize();
-
+//        if (a.isUnsatisfiable())
+//            return false;
+        //System.out.println(a.toPDDL());
+        return true;
     }
 
     public void setPrimitives(ArrayList primitives) {
@@ -785,7 +786,8 @@ public class GroundAction extends GenericActionType implements Comparable {
                     }
                 }
             } else if (o instanceof Comparison) {
-                System.out.println("distanza da comparison del goal da fare!");
+
+                //System.out.println("distanza da comparison del goal da fare!");
             }
         }
         if (this.delList instanceof Predicate) {
@@ -810,10 +812,9 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            malus = 100*(float) this.primitives.size()/rA;
 //        }
 
-        dist = (float) (missingGoals + destroyingGoals + missingPreconditions );
+        dist = (float) (missingGoals + destroyingGoals + missingPreconditions);
 
         float a = 0;// 1-this.getParametersFusionNumber()/(float)this.hiddenParametersNumber;
-
 
         //System.out.println("Missing Goal!!:" +missingGoals +" Normalizzato" + (float)(prob.getGoals().sons.size()-missingGoals)/(float)prob.getGoals().sons.size());
         this.setPrevDistanceFromProblem((Float) dist + a);
@@ -839,13 +840,13 @@ public class GroundAction extends GenericActionType implements Comparable {
             return (GroundAction) a.clone();
         }
         GroundAction b = (GroundAction) this;
-        
-        
-        GroundAction ba = new GroundAction(a.name+"_"+b.name);
-        if (b.getPrimitives().isEmpty())
+
+        GroundAction ba = new GroundAction(a.name + "_" + b.name);
+        if (b.getPrimitives().isEmpty()) {
             b.getPrimitives().add(b);
-        ba.setPrimitives((ArrayList)b.getPrimitives().clone());
-        ba.getPrimitives().add(0,a);
+        }
+        ba.setPrimitives((ArrayList) b.getPrimitives().clone());
+        ba.getPrimitives().add(0, a);
 
         ba.setParameters((ActionParametersAsTerms) b.getParameters().clone());
         ba.getParameters().addALLNewObjects(a.getParameters());
@@ -854,7 +855,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         progress(a, b, ba);
         ba.setIsMacro(true);
         ba.simplifyModel(pd, pp);
-        ba.computeDistance(pd,pp,consideringNumericInformationInDistance);
+        ba.computeDistance(pd, pp, consideringNumericInformationInDistance);
 
         return ba;
     }
@@ -866,14 +867,15 @@ public class GroundAction extends GenericActionType implements Comparable {
     @Override
     public int compareTo(Object t) {
         GroundAction gr = (GroundAction) t;
-        if (this.getPrevDistanceFromProblem().equals(gr.getPrevDistanceFromProblem()))
+        if (this.getPrevDistanceFromProblem().equals(gr.getPrevDistanceFromProblem())) {
             return -1;
-        
+        }
+
         return this.getPrevDistanceFromProblem().compareTo(gr.getPrevDistanceFromProblem());
     }
 
     private int computeReputedActions() {
-        
+
         HashSet counter = new HashSet();
         for (Object o : this.primitives) {
             GroundAction a = (GroundAction) o;
@@ -898,14 +900,14 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public boolean threatenConditions(Conditions goal, SimplePlan sp, State current) {
-        boolean  threatened=false;
+        boolean threatened = false;
         for (Object o : goal.sons) {
             if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
                 if (this.addList instanceof Predicate) {
                     if (!p.equals(this.addList)) {
                         threatened = true;
-                        
+
                     }
                 } else if (this.addList instanceof AndCond) {
                     if (!this.addList.sons.contains(o)) {
@@ -916,49 +918,53 @@ public class GroundAction extends GenericActionType implements Comparable {
                 System.out.println("Minacce su goal comparison da fare!");
             }
         }
-        
+
         return threatened;
-        
+
     }
 
     public boolean threatGoalConditions(Conditions goal, SimplePlan sp, int j, State current) throws CloneNotSupportedException {
-        boolean  threatened=false;
-        
+        boolean threatened = false;
+
         Set threatenedAtoms = new HashSet();
-        
+
         if (this.delList instanceof Predicate) {
-            for (Object o: goal.sons){
-                if (o.equals(delList))
+            for (Object o : goal.sons) {
+                if (o.equals(delList)) {
                     threatenedAtoms.add(o);
+                }
             }
         } else if (delList instanceof AndCond) {
             for (NotCond o : (HashSet<NotCond>) delList.sons) {
                 //System.out.println(o);
-                for (Object o1: goal.sons){
+                for (Object o1 : goal.sons) {
                     //System.out.println(o1);
                     //System.out.println(o.son.iterator().next());
-                    Predicate a = (Predicate)o.son.iterator().next();
-                    Predicate b = (Predicate)o1;
-                    if (a.toString().equalsIgnoreCase(b.toString())){
-                        System.out.println("Scoperto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<=======================================");
-                        System.out.println("Per azione:"+j);
+                    Predicate a = (Predicate) o.son.iterator().next();
+                    Predicate b = (Predicate) o1;
+                    if (a.toString().equalsIgnoreCase(b.toString())) {
+                        //System.out.println("Scoperto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<=======================================");
+                        //System.out.println("Per azione:" + j);
                         threatenedAtoms.add(o1);
                     }
                 }
             }
         }
-        if (threatenedAtoms.isEmpty())
+        if (threatenedAtoms.isEmpty()) {
             return false;
+        }
         State end = current.clone();
-        for (int i=j;i<sp.size();i++){
+        for (int i = j; i < sp.size(); i++) {
             end = sp.get(i).apply(end);
         }
-        for (Object o: threatenedAtoms){
-            if (!end.containProposition((Predicate)o))
+        for (Object o : threatenedAtoms) {
+            if (!end.containProposition((Predicate) o)) {
+                System.out.println("=================Found a goal threat=============");
                 return true;
-                
+            }
+
         }
-        
+
         return false;
     }
 
@@ -968,16 +974,11 @@ public class GroundAction extends GenericActionType implements Comparable {
         int missingPreconditions = 0;
         int cumulativeComparisonDistance = 0;
         AndCond prec = new AndCond();
-        
-        
-        
+
         //NumericPlanningGraph gr = new NumericPlanningGraph();
         //prob.generateActions();
         //System.out.println("Propositional Time:"+pp.getPropositionalTime());
-        
-        
         //RelState rel_state = gr.computeStateBound(prob.getInit(),prob.getGoals(),prob.getActions());
-        
         float dist = 0;//this.getPrimitives().size()/2;
         if (this.preconditions instanceof Predicate) {
             prec.addConditions((Predicate) this.preconditions);
@@ -995,7 +996,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (!p.isSatisfied(prob.getInit())) {
                     missingPreconditions++;
                 }
-            } 
+            }
         }
         cumulativeComparisonDistance += prob.getInit().normalizedDist(prec, prob.getPossStates(), "sum");
         AndCond goal = new AndCond();
@@ -1022,7 +1023,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     }
                 }
             } else if (o instanceof Comparison) {
-                System.out.println("distanza da comparison del goal da fare!");
+                //System.out.println("distanza da comparison del goal da fare!");
             }
         }
         if (this.delList instanceof Predicate) {
@@ -1047,32 +1048,33 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            malus = 100*(float) this.primitives.size()/rA;
 //        }
 
-        if (!consideringNumericInformationInDistance){
+        if (!consideringNumericInformationInDistance) {
             cumulativeComparisonDistance = 0;
         }
         dist = (float) (missingGoals + destroyingGoals + missingPreconditions + cumulativeComparisonDistance);
 
         float a = 0;// 1-this.getParametersFusionNumber()/(float)this.hiddenParametersNumber;
 
-
         //System.out.println("Missing Goal!!:" +missingGoals +" Normalizzato" + (float)(prob.getGoals().sons.size()-missingGoals)/(float)prob.getGoals().sons.size());
         this.setPrevDistanceFromProblem((Float) dist + a);
         //this.prevDistanceFromProblem = dist;
 
-        return getPrevDistanceFromProblem();    }
+        return getPrevDistanceFromProblem();
+    }
 
     public Conditions regressAndStoreFatherPointer(Conditions cond) {
         /*Propositional Part first*/
 
         AndCond result = new AndCond();
-        
+
 
         /*probably something more efficient can be done here*/
-        if (this.getAddList() != null){
-            for (Object o1 : cond.sons){
-                if (o1 instanceof Predicate){
-                    if (!this.getAddList().sons.contains(o1))
+        if (this.getAddList() != null) {
+            for (Object o1 : cond.sons) {
+                if (o1 instanceof Predicate) {
+                    if (!this.getAddList().sons.contains(o1)) {
                         result.sons.add(o1);
+                    }
                 }
             }
 
@@ -1081,8 +1083,8 @@ public class GroundAction extends GenericActionType implements Comparable {
 
             //Numeric part. Substitution of variables
             if (o1 instanceof Comparison) {
-                Comparison temp= (Comparison)o1;
-                Comparison c = (Comparison)temp.clone();
+                Comparison temp = (Comparison) o1;
+                Comparison c = (Comparison) temp.clone();
                 c.setLeft(c.getLeft().subst(this.getNumericEffects()));
                 c.setRight(c.getRight().subst(this.getNumericEffects()));
                 c.fatherFromRegression = temp;
@@ -1097,21 +1099,19 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
 
         result.sons.addAll(this.getPreconditions().sons);
-        
-        //AndCond numericCondition = 
 
+        //AndCond numericCondition = 
         return result;
     }
 
-    
     public ActionSchema unGround() {
         ActionSchema result = new ActionSchema();
         result.setName(this.name);
-        
+
         Map asbstractionOf = this.abstractParameters();
-        for (Object o: this.getParameters()){
-            PDDLObject obj = (PDDLObject)o;
-            result.addParameter((Variable)asbstractionOf.get(obj.getName()));
+        for (Object o : this.getParameters()) {
+            PDDLObject obj = (PDDLObject) o;
+            result.addParameter((Variable) asbstractionOf.get(obj.getName()));
         }
         //System.out.println("Macro Action: " + result.getName());
         //System.out.println(asbstractionOf);
@@ -1120,28 +1120,803 @@ public class GroundAction extends GenericActionType implements Comparable {
         result.setDelList(delList.unGround(asbstractionOf));
         result.setNumericEffects(this.numericEffects.unGround(asbstractionOf));
 
-        
-        
         return result;
     }
 
     private Map abstractParameters() {
 
         HashMap result = new HashMap();
-        for(Object o: this.getParameters()){
-            PDDLObject po = (PDDLObject)o;
+        for (Object o : this.getParameters()) {
+            PDDLObject po = (PDDLObject) o;
             Variable absPo = new Variable();
-            absPo.setName("?"+po.getName());
+            absPo.setName("?" + po.getName());
             absPo.setType(po.getType());
             result.put(po.getName(), absPo);
         }
         return result;
     }
+
+    public boolean achieve(Predicate p) {
+        AndCond add = (AndCond) this.getAddList();
+
+        if (add == null) {
+            return false;
+        }
+        if (add.sons == null) {
+            return false;
+        }
+        if (add.sons.contains(p)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean delete(Predicate p) {
+        AndCond add = (AndCond) this.getDelList();
+        //System.out.println(this.toPDDL());
+        //System.out.println(this.getDelList());
+        if (add == null) {
+            return false;
+        }
+        if (add.sons == null) {
+            return false;
+        }
+        for (Object o : this.getDelList().sons) {
+            NotCond nc = (NotCond) o;
+            //System.out.println(nc);
+
+            if (nc.son.contains(p)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public State transformInState() {
+        State ret = new State();
+        ret = this.apply(ret);
+        return ret;
+    }
+
+    public boolean mayInfluence(Comparison aThis) {
+
+        this.generateAffectedNumFluents();
+        if (aThis.isNormalized()) {
+            return aThis.getLeft().involve(numericFluentAffected) || aThis.getRight().involve(this.numericFluentAffected);
+        } else {
+            return aThis.getLeft().involve(this.numericFluentAffected) || aThis.getRight().involve(this.numericFluentAffected);
+        }
+
+    }
+
+    @Deprecated
+    public Pair<Boolean, Integer> improve_k_old(State s_0, Comparison c, int k, HashMap<GroundAction, HashSet<GroundAction>> influence_graph, HashMap<GroundAction, Boolean> visited) throws Exception {
+        Pair<Boolean, Integer> ret = new Pair(Boolean.FALSE, 0);
+        int res = this.improve_new(s_0, c);
+        if (res == 1) {
+            ret.setFirst(Boolean.TRUE);
+            return ret;
+        }
+        if (res == -1) {//when it does not influence
+            return ret;
+        }
+        if (!this.effects_might_be_influenced()) {//when it cannot be influenced (the right side is a number)
+            return ret;
+        }
+
+        //System.out.println("gr:"+this.pddlEffects());
+        if (k == 0) {
+            ret.setSecond(1);
+            return ret;
+        }
+        if (visited == null) {
+            visited = new HashMap();
+        }
+        visited.put(this, Boolean.TRUE);
+        //System.out.println(this);
+        for (GroundAction gr : influence_graph.get(this)) {
+            if (visited.get(gr) != null) {
+                continue;
+            }
+            Pair<Boolean, Integer> temp = gr.improve_k(s_0, this.regressComparison((Comparison) c.clone()), k - 1, influence_graph, visited);
+            if (temp.getFirst()) {
+                ret.setFirst(Boolean.TRUE);
+                return ret;
+            } else {
+                if (temp.getSecond() > 0) {
+                    ret.setSecond(temp.getSecond() + 1);
+                }
+            }
+
+        }
+        return ret;
+
+    }
+
+    public Pair<Boolean, Integer> improve_k(State s_0, Comparison c, int k, HashMap<GroundAction, HashSet<GroundAction>> influence_graph, HashMap<GroundAction, Boolean> visited) throws Exception {
+        Pair<Boolean, Integer> ret = new Pair(Boolean.FALSE, 0);
+        ret.setSecond(0);
+        int res = this.improve_new(s_0, c);
+        if (res == 1) {
+            ret.setFirst(Boolean.TRUE);
+            return ret;
+        }
+        if (res == -1) {//when it does not influence
+            return ret;
+        }
+//        if (!this.effects_might_be_influenced()) {//when it cannot be influenced (the right side is a number)
+//            return ret;
+//        }
+
+        if (res == 2) {
+            //check for invariant to be put;
+            //System.out.println("To Undefined State");
+            ret.setSecond(1);
+            return ret;
+        }
+
+        //System.out.println("gr:"+this.pddlEffects());
+        if (k == 0) {
+            ret.setSecond(1);
+            return ret;
+        }
+
+        visited = new HashMap();
+
+        //System.out.println(this);
+        Queue<RegressedSearchNode> q = new ArrayDeque();
+
+        q.add(new RegressedSearchNode(this, 0));
+
+        Comparison current = (Comparison) c.clone();
+        while (!q.isEmpty()) {
+            RegressedSearchNode node = q.poll();
+            if (node.action_cost_to_get_here >= k) {
+                ret.setSecond(node.action_cost_to_get_here);
+                //System.out.println("limit reached:"+node.action_cost_to_get_here);
+                return ret;
+            }
+            if (visited.get(node.action) == null) {
+                visited.put(node.action, Boolean.TRUE);
+                if (!this.equals(node.action)) {
+                    if (node.action.improve_new(s_0, current) == 1) {
+                        ret.setSecond(node.action_cost_to_get_here);
+                        //System.out.println("Indirect influence found at cost:"+node.action_cost_to_get_here);
+                        return ret;
+                    }
+                }
+                current = node.action.regressComparison((Comparison) current);
+                //System.out.println(node.action);
+                if (influence_graph.get(node.action) != null) {
+                    for (GroundAction gr : influence_graph.get(node.action)) {
+                        q.add(new RegressedSearchNode(gr, node.action_cost_to_get_here + 1));
+                    }
+                }
+            }
+        }
+        return ret;
+
+    }
+
+    public boolean influence(HashMap<NumFluent, HashSet<NumFluent>> dependsOn) {
+
+        for (NumFluent nf : dependsOn.keySet()) {
+//            if (numericFluentAffected.contains(nf)) {
+//                    return true;
+//                }
+            for (NumFluent nf1 : dependsOn.get(nf)) {
+                if (numericFluentAffected.get(nf1)!=null) {
+                    //System.out.println(nf+" <-"+nf1);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+    public boolean influence(NumFluent nf) {
+        return numericFluentAffected.get(nf)!=null;
+    }
+
+    public Set influencedBy(NumFluent nf) {
+        HashSet<NumFluent> ret = new HashSet();
+        Conditions c = this.getNumericEffects();
+        if (c != null) {
+            if (c instanceof AndCond) {
+                for (Object o : c.sons) {
+                    NumEffect eff = (NumEffect) o;
+                    if (eff.getFluentAffected().equals(nf)) {
+                        return eff.getRight().fluentsInvolved();
+                    }
+
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public State partialApply(State s, HashSet<NumFluent> toTest) {
+
+        State ret = new State();
+
+        for (Object o : toTest) {
+            NumFluent f = (NumFluent) o;
+            ret.setFunctionValue(f, f.eval(s));
+            //System.out.println(s.printFluentByName("in-at"));
+        }
+
+        AndCond c = (AndCond) this.getNumericEffects();
+        if (c != null) {
+            ArrayList temporaryMod = new ArrayList();
+            HashMap fun2numb = new HashMap();
+            for (Object o : c.sons) {
+                NumEffect all = (NumEffect) o;
+                NumFluent f = all.getFluentAffected();
+                PDDLNumber newN = null;
+
+                Float rValue;
+                if (all.getRight().eval(s) == null) {
+                    newN = null;
+                } else {
+                    rValue = all.getRight().eval(s).getNumber();
+                    //System.out.println("Rvalue!!:" + rValue);
+                    if (all.getOperator().equals("increase")) {
+                        if (s.functionValue(f) == null) {
+                            newN = null;
+                        } else {
+                            newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
+                        }
+                    } else if (all.getOperator().equals("decrease")) {
+                        //                    System.out.print("Valore di " + f);
+                        //                    System.out.println(" :"+ s.functionValue(f).getNumber());
+                        if (s.functionValue(f) == null) {
+                            newN = null;
+                        } else {
+                            newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
+                        }
+                    } else if (all.getOperator().equals("assign")) {
+                        //System.out.println("================ASSIGN===========");
+                        newN = new PDDLNumber(rValue);
+                    }
+                }
+                temporaryMod.add(f);
+                fun2numb.put(f, newN);
+            }
+
+            for (Object o : temporaryMod) {
+                NumFluent f = (NumFluent) o;
+                PDDLNumber n = (PDDLNumber) fun2numb.get(f);
+
+                ret.setFunctionValue(f, n);
+                //System.out.println(s.printFluentByName("in-at"));
+            }
+
+        }
+        return ret;
+
+    }
+
+    public String toSmtVariableString() {
+        String parametri = "";
+        for (Object o : getParameters()) {
+            parametri = parametri.concat(o.toString()).concat("");
+        }
+        return ("ACTION" + this.name + "" + parametri).replaceAll("\\s+", "");
+    }
+
+    public boolean threat(AndCond andCond) {
+        if (this.delList == null) {
+            return false;
+        }
+        if (this.delList.sons == null) {
+            return false;
+        }
+        if (andCond.sons != null) {
+
+            for (Object o : this.delList.sons) {
+                NotCond nc = (NotCond) o;
+                Predicate p = (Predicate) nc.son.iterator().next();
+                for (Object o2 : andCond.sons) {
+                    if (o2 instanceof Predicate) {
+                        Predicate p1 = (Predicate) o2;
+                        if (p1.equals(p)) {
+                            //System.out.println("Found: "+p1+p);
+                            return true;
+                        }
+                    }
+
+                }
+            }
+        }
+        return false;
+    }
+    
+//    public HashMap threats(AndCond andCond) {
+//        if (this.delList == null) {
+//            return false;
+//        }
+//        if (this.delList.sons == null) {
+//            return false;
+//        }
+//        if (andCond.sons != null) {
+//
+//            for (Object o : this.delList.sons) {
+//                NotCond nc = (NotCond) o;
+//                Predicate p = (Predicate) nc.son.iterator().next();
+//                for (Object o2 : andCond.sons) {
+//                    if (o2 instanceof Predicate) {
+//                        Predicate p1 = (Predicate) o2;
+//                        if (p1.equals(p)) {
+//                            //System.out.println("Found: "+p1+p);
+//                            return true;
+//                        }
+//                    }
+//
+//                }
+//            }
+//        }
+//        return false;
+//    }
+//    
+    
+
+    public String toSmtVariableString(int i) {
+        String parametri = "";
+        for (Object o : getParameters()) {
+            PDDLObject po = (PDDLObject) o;
+            parametri += "@" + po.getName();
+            //parametri = parametri.concat(po.getName()).concat("_");
+        }
+        return ("ACTION" + this.name + parametri + "@" + i).replaceAll("\\s+", "");
+    }
+
+    //This function regresses the cond passed as input according to the model of the action. The value of the parameter will be modified. So if you want to generate a new condition please clone before using the function
+    public Conditions regressNew(Conditions cond) {
+
+        AndCond result = null;
+
+        /*Propositional Part first*/
+        if (cond instanceof AndCond) {
+            result = (AndCond) cond;
+        } else {
+            result = new AndCond();
+            result.addConditions(cond);
+        }
+
+
+        /*probably something more efficient can be done here*/
+        if (this.getAddList() != null) {
+            for (Object o1 : this.getAddList().sons) {
+                //System.out.println(result);
+                result.sons.remove(o1);
+                //System.out.println(result);
+            }
+
+        }
+        for (Object o1 : result.sons) {
+
+            //Numeric part. Substitution of variables
+            if (o1 instanceof Comparison) {
+                Comparison c = (Comparison) o1;
+                c.setLeft(c.getLeft().subst(this.getNumericEffects()));
+                c.setRight(c.getRight().subst(this.getNumericEffects()));
+
+            } else if (this.getDelList() != null) {
+                if (this.getDelList().sons.contains(o1)) {
+                    System.out.println("Error, " + this.name + " cannot achieve " + cond.toString());
+                    return null;
+                }
+            }
+
+        }
+
+        //System.out.println(result);
+        if (this.getPreconditions() != null) {
+            result.sons.addAll(this.getPreconditions().sons);
+        }
+
+        //System.out.println(result);
+        //AndCond numericCondition = 
+        return result;
+
+    }
+
+    public boolean improve(Comparison t1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public boolean improve(State init, Comparison t1) throws Exception {
+        if (!this.mayInfluence(t1)) {
+            //System.out.println("Does not influence...");
+            return false;
+        }
+
+        //System.out.println("Trying with:"+this);
+        this.normalize();
+        Float currentD = init.distance2(t1);
+        if (currentD.isNaN()) {
+            //System.out.println("The value of the current distance is not defined");
+            currentD = Float.MIN_VALUE;
+        }
+        Comparison regr = this.regressComparison((Comparison) t1.clone());
+        regr.normalize();
+//        System.out.println("Constraint:"+t1);
+//        System.out.println("Regressed Constraint:"+regr);
+        Float newDist = init.distance2(regr);
+//        System.out.println("newDist:"+newDist);
+//        System.out.println("prevDist:"+currentD);
+        if (newDist > currentD) {
+
+            return true;
+        }
+        return false;
+    }
+
+    public int improve_new(State init, Comparison t1) throws Exception {
+        if (!this.mayInfluence(t1)) {
+            //System.out.println("Does not influence...");
+            return -1;
+        }
+
+//        System.out.println("Trying with:"+this);
+        this.normalize();
+        Float currentD = init.distance2(t1);
+
+        Comparison regr = this.regressComparison((Comparison) t1.clone());
+        regr.normalize();
+        if (regr.isUnsatisfiable()) {
+            return 0;
+        }
+//        System.out.println("Constraint:"+t1);
+//        System.out.println("Regressed Constraint:"+regr);
+        Float newDist = init.distance2(regr);
+//        System.out.println("newDist:"+newDist);
+//        System.out.println("prevDist:"+currentD);
+
+        if (!newDist.isNaN() && currentD.isNaN()) {
+            //System.out.println("The value of the current distance is not defined");
+            return 1;
+        }
+
+        if (newDist > currentD) {
+
+            return 1;
+        }
+        if (currentD.isNaN()) {
+            //System.out.println("The value of the current distance is not defined");
+            return 2;// this is the case in which the state has an undefined value.
+        }
+        return 0;
+    }
+
+    public Comparison improve2(State init, Comparison t1) throws Exception {
+        if (!this.mayInfluence(t1)) {
+            //System.out.println("Does not influence...");
+            return null;
+        }
+
+        //System.out.println("Trying with:"+this);
+        this.normalize();
+        Float currentD = init.distance2(t1);
+        if (currentD.isNaN()) {
+            //System.out.println("The value of the current distance is not defined");
+            currentD = Float.MIN_VALUE;
+        }
+        Comparison regr = this.regressComparison((Comparison) t1.clone());
+        regr.normalize();
+//        System.out.println("Constraint:"+t1);
+//        System.out.println("Regressed Constraint:"+regr);
+        Float newDist = init.distance2(regr);
+//        System.out.println("newDist:"+newDist);
+//        System.out.println("prevDist:"+currentD);
+        if (newDist > currentD) {
+
+            return regr;
+        }
+        return null;
+    }
+
+    private boolean numericEffectUndefined(RelState current) {
+        return false;//to do!!!
+    }
+
+    public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, PddlProblem problem) throws Exception {
+
+        HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
+
         
-    
-    
-   
+        GroundAction a = this;
+        //a.normalizeAndCopy();
 
+        Conditions con = a.getPreconditions();
+        con.setFreeVarSemantic(true);
+//        System.out.println(con);
+        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+ 
+        if (con == null || con.isUnsatisfiable()){
+//            if (con == null)
+//                System.out.println("A precondition is never satisfiable; pruning"+a.toEcoString());
+            return false;
+        }
+        
+        Conditions eff = a.getNumericEffects();
+        eff.setFreeVarSemantic(true);
+        eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
 
+        if (eff == null){
+//            System.out.println("Pruning because of the effect");
+            return false;
+        }
+        //System.out.println(a.toPDDL());
+        a.normalize();
+//        if (a.isUnsatisfiable())
+//            return false;
+        //System.out.println(a.toPDDL());
+        return true;
+    }
+
+    void simplifyModelWithControllableVariablesSem_old(PddlDomain domain, PddlSCProblem problem) throws Exception {
+        HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
+
+        GroundAction a = this;
+        //a.normalizeAndCopy();
+
+        Conditions con = a.getPreconditions();
+        Conditions eff = a.getNumericEffects();
+//                    System.out.println(con);
+//                    System.out.println(eff);
+        con.setFreeVarSemantic(true);
+
+        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+        if (con == null) {
+            this.setName("");
+            return;
+        }
+
+        if (eff instanceof AndCond) {
+            for (Object o2 : eff.sons) {
+                NumEffect nEff = (NumEffect) o2;
+                //System.out.println(nEff.getRight().getClass());
+                Expression rValue = nEff.getRight();
+                //System.out.println("before" + rValue);
+                rValue = rValue.weakEval(problem.getInit(), abstractInvariantFluents);
+                if (rValue == null) {
+                    this.setName("");
+                    return;
+                }
+                nEff.setRight(rValue);
+                //System.out.println("after" + rValue);
+
+            }
+        } else {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        //System.out.println(a.toPDDL());
+        a.normalize();
+        //System.out.println(a.toPDDL());
+    }
+
+    public void addPreconditions(Conditions c) {
+        if (this.getPreconditions() != null) {
+            if (this.getPreconditions().sons != null) {
+                this.getPreconditions().sons.add(c);
+            } else {
+                this.preconditions.sons = new LinkedHashSet();
+                this.getPreconditions().sons.add(c);
+            }
+        } else {
+            this.preconditions = new AndCond();
+            this.preconditions.sons = new LinkedHashSet();
+            this.getPreconditions().sons.add(c);
+        }
+    }
+
+    private boolean effects_might_be_influenced() throws Exception {
+        boolean ret = true;
+        for (Object o : this.getNumericEffects().sons) {
+            NumEffect nf = (NumEffect) o;
+            //System.out.println("nf:"+nf.getRight().getClass());
+            if (nf.getRight() instanceof NormExpression) {
+                NormExpression ne = (NormExpression) nf.getRight();
+                //System.out.println(ne);
+                if (!ne.isNumber()) {
+                    return true;
+                }
+            } else {
+                if (!(nf.getRight() instanceof PDDLNumber)) {
+                    //System.out.println(nf.getRight());
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean is_influenced_by(GroundAction a) {
+        for (Object o : this.getNumericEffects().sons) {
+            NumEffect nf = (NumEffect) o;
+            if (nf.getRight().involve(a.getNumericFluentAffected())) {
+                return true;
+            }
+//            if ((nf.getOperator().equals("increase"))|| (nf.getOperator().equals("increase")) && (a.getNumericFluentAffected().contains(nf.getFluentAffected())))
+//                return true;
+
+        }
+        return false;
+    }
+
+    public void addAchievedComparison(Conditions c_1) {
+        if (this.achievedComparisons == null) {
+            this.achievedComparisons = new HashSet();
+        }
+        this.achievedComparisons.add(c_1);
+    }
+
+    /**
+     * @return the unsatisfiable
+     */
+    public boolean isUnsatisfiable() {
+        return unsatisfiable;
+    }
+
+    /**
+     * @param unsatisfiable the unsatisfiable to set
+     */
+    public void setUnsatisfiable(boolean unsatisfiable) {
+        this.unsatisfiable = unsatisfiable;
+    }
+
+    public boolean assign_unassigned_fluent(State s) {
+        if (this.getNumericEffects() == null) {
+            return false;
+        }
+        boolean some_change = false;
+        //for (Conditions c = this.getNumericEffects().sons){
+        ArrayList temporaryMod = new ArrayList();
+        HashMap fun2numb = new HashMap();
+        for (Object o : this.getNumericEffects().sons) {
+
+            NumEffect all = (NumEffect) o;
+            PDDLNumber newN;
+            NumFluent f = all.getFluentAffected();
+            if (s.functionValue(f) == null) {
+                if (all.getOperator().equals("assign")) {
+                    //System.out.println("================ASSIGN===========");
+                    Float rValue = all.getRight().eval(s).getNumber();
+                    newN = new PDDLNumber(rValue);
+                    temporaryMod.add(f);
+                    fun2numb.put(f, newN);
+                    some_change = true;
+                }
+
+            }
+        }
+        for (Object o : temporaryMod) {
+            NumFluent f = (NumFluent) o;
+            PDDLNumber n = (PDDLNumber) fun2numb.get(f);
+            s.setFunctionValue(f, n);
+            //System.out.println(s.printFluentByName("in-at"));
+        }
+
+        return some_change;
+    }
+
+//    public void getSatEffort(State s_0,Comparison comp) {
+//        float a1;
+//        float a2;
+//        float b;
+//
+//                
+//        a1 = comp.eval_not_affected(s_0,this);
+//    }
+
+    public int getSatEffort(State s_0, Comparison comp) {
+        float a1;
+        float b;
+      
+        a1 = comp.eval_not_affected(s_0,this);
+        b = comp.eval_affected(s_0,this);
+//        System.out.println(a1);
+//        System.out.println(b);
+        //Assumption: comparison are normalized!
+        if (comp.getComparator().equals("=")){
+            int m1 = (int)(-a1/b);
+            if (m1 < 0 || a1%b !=0)
+                return Integer.MAX_VALUE;
+            else
+                return m1;
+        }else{//it is >=
+            float m1 = -a1/b;
+            if (m1 >= 0){
+                if (comp.getComparator().equals(">"))
+                    m1 += 1;
+                return (int)Math.ceil(m1);
+            }else
+                return Integer.MAX_VALUE;
+        }
+    }
+
+    public Float getCoefficientAffected(NumFluent f) {
+        this.generateCoefficeintAffected();
+        return this.coefficientAffected.get(f);
+    }
+
+    private void generateCoefficeintAffected() {
+        
+        if (this.getNumericEffects()==null)
+            return;
+        if (coefficientAffected!=null)
+            return;
+        coefficientAffected = new HashMap();
+        for (Object c : this.getNumericEffects().sons){
+            NumEffect nEff = (NumEffect)c;
+            NormExpression right = (NormExpression)nEff.getRight();
+            if (nEff.getOperator().equals("increase") || nEff.getOperator().equals("decrease"))
+                coefficientAffected.put(nEff.getFluentAffected(),1+right.getCoefficient(nEff.getFluentAffected()));
+            else
+                coefficientAffected.put(nEff.getFluentAffected(),right.getCoefficient(nEff.getFluentAffected()));
+        }
+               
+    }
+
+    public Float getValueOfRightExpApartFromAffected(NumFluent f, State s_0) {
+        for (Object c : this.getNumericEffects().sons){
+            NumEffect nEff = (NumEffect)c;
+            if (nEff.getFluentAffected().equals(f)){
+                NormExpression right = (NormExpression)nEff.getRight();
+                return right.eval_apart_from_f(f,s_0);
+            }
+            
+        }
+        System.err.println("Some errors occured");
+        System.exit(-1);
+        return null;
+    }
+
+    /**
+     * @return the action_cost
+     */
+    public float getAction_cost() {
+        return action_cost;
+    }
     
+    public void setAction_cost(State s_0){
+        if (true){
+            action_cost = 1;
+            return;
+        }
+        
+        if (action_cost == 0){
+            if (this.getNumericEffects() != null){
+                AndCond temp = (AndCond)this.getNumericEffects();
+                for (NumEffect e: (LinkedHashSet<NumEffect>)temp.sons){
+                    if (e.getFluentAffected().getName().equals("total-cost")){
+                        action_cost = Math.max(e.getRight().eval(s_0).getNumber(),1);
+                        return;
+                    }
+                }  
+            }
+            action_cost = 1;
+        }
+        
+    }
+
+    /**
+     * @param action_cost the action_cost to set
+     */
+    public void setAction_cost(float action_cost) {
+        this.action_cost = action_cost;
+    }
+
+    public NumEffect getAffectorOf(NumFluent f) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+ 
+
 }

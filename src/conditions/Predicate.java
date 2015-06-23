@@ -30,8 +30,10 @@ import domain.Variable;
 import expressions.NumFluent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -39,13 +41,14 @@ import problem.State;
  *
  * @author enrico
  */
-public class Predicate extends Conditions {
+public class  Predicate extends Conditions {
 
     private String predicateName;
     //private ArrayList variables;
     private ArrayList terms;
     private boolean grounded;
     public HashSet son;
+    public Integer hash_code;
 
     /**
      * @return the predicateName
@@ -53,6 +56,13 @@ public class Predicate extends Conditions {
     public Predicate() {
         super();
         //variables = new ArrayList();
+        terms = new ArrayList();
+    }
+    
+    public Predicate(String name) {
+        super();
+        //variables = new ArrayList();
+        this.predicateName = name;
         terms = new ArrayList();
     }
 
@@ -156,6 +166,7 @@ public class Predicate extends Conditions {
     public Conditions ground(Map substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
+        ret.grounded = true;
 
         //System.out.println(this);
         for (Object o : terms) {
@@ -169,6 +180,13 @@ public class Predicate extends Conditions {
                 }
             }
         }
+        return ret;
+    }
+    
+    @Override
+    public Conditions ground(Map substitution, int c) {
+        Conditions ret = this.ground(substitution);
+        ret.setCounter(c);
         return ret;
     }
 
@@ -185,39 +203,76 @@ public class Predicate extends Conditions {
 
     @Override
     public boolean isSatisfied(RelState s) {
-        
         return s.containProposition(this);
     }
 
+//    /**
+//     *
+//     * @param obj
+//     * @return
+//     */
+//    @Override
+//    public boolean equals(Object obj) {
+//        Predicate objF = (Predicate) obj;
+//        if (objF.getPredicateName().equalsIgnoreCase(this.getPredicateName())) {
+//            if (objF.terms.size() == this.terms.size()) {
+//                for (int i = 0; i < objF.terms.size(); i++) {
+//                    if (!(objF.terms.get(i).equals(this.terms.get(i)))) {
+//                        return false;
+//                    }
+//                }
+//            } else {
+//                return false;
+//            }
+//        } else {
+//            return false;
+//        }
+//        return true;
+//    }
+
+    @Override
+    public int hashCode() {
+        if (this.hash_code == null){
+            int hash = 7;
+            hash = 79 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
+            hash = 79 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+            this.hash_code = hash;
+        }
+        
+        return this.hash_code;
+    }
+
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 97 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+//        return hash;
+//    }
+
     @Override
     public boolean equals(Object obj) {
-        Predicate objF = (Predicate) obj;
-
-
-        if (objF.getPredicateName().equalsIgnoreCase(this.getPredicateName())) {
-            if (objF.terms.size() == this.terms.size()) {
-                for (int i = 0; i < objF.terms.size(); i++) {
-                    if (!(objF.terms.get(i).equals(this.terms.get(i)))) {
-                        return false;
-                    }
-                }
-            } else {
-                return false;
-            }
-        } else {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Predicate other = (Predicate) obj;
+        if ((this.predicateName == null) ? (other.predicateName != null) : !this.predicateName.equals(other.predicateName)) {
+            return false;
+        }
+        if (this.terms != other.terms && (this.terms == null || !this.terms.equals(other.terms))) {
+            return false;
+        }
+        if (this.hash_code != other.hash_code && (this.hash_code == null || !this.hash_code.equals(other.hash_code))) {
             return false;
         }
         return true;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 79 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
-        hash = 79 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-        return hash;
-    }
 
+
+    
     public State apply(State s) {
         if (!s.containProposition(this)) {
             s.addProposition(this);
@@ -327,5 +382,65 @@ public class Predicate extends Conditions {
         this.grounded = false;
         return ret;
     }
+
+    @Override
+    public boolean isUngroundVersionOf(Conditions con) {
+        if (con instanceof Predicate){
+            Predicate p = (Predicate)con;
+            if (this.getPredicateName().equals(p.getPredicateName())){
+                if (this.getTerms().size() == p.getTerms().size()){
+                    for (int i=0; i< this.getTerms().size();i++){
+                        Variable v = (Variable)this.getTerms().get(i);
+                        PDDLObject obj = (PDDLObject)p.getTerms().get(i);
+                        //System.out.print("Matching Types between: "+ v.getType() + obj.getType());
+                        if (!v.getType().equals(obj.getType())){
+                            if (!v.getType().isAncestorOf(obj.getType())){
+                                //System.out.println("Sottotipo di:"+obj.getType().getSubTypeOf());
+                                //System.out.println(" FAILURE!!");
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+    
+            }
+                
+        }
+        return false;
+    }
+
+
+    @Override
+    public String toSmtVariableString(int i) {
+                String ret = "";
+        ret = ret.concat(this.getPredicateName());
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+                ret = ret.concat(" " + obj.getName());
+                
+            }
+            
+        }
+        ret+="-"+i;
+        //ret = ret.concat(")");
+        return ret.replaceAll("\\s+","");
+    }
+
+    @Override
+    public Set<NumFluent> getInvolvedFluents() {
+        return null;
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        return this;
+    }
+
+  
     
 }

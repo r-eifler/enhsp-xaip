@@ -55,4 +55,52 @@ public class Addendum {
         ret.n = (PDDLNumber) this.n.clone();
         return ret;
     }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Addendum other = (Addendum) obj;
+        if (!other.n.equals(this.n))
+            return false;
+        if (other.f == null && this.f!= null)
+            return false;
+        if (other.f != null && this.f== null)
+            return false;
+        if (other.f == null && this.f== null)
+            return true;
+        
+        if (!other.f.equals(this.f))
+            return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 37 * hash + (this.n != null ? this.n.hashCode() : 0);
+        hash = 37 * hash + (this.f != null ? this.f.hashCode() : 0);
+        return hash;
+    }
+    
+    public Float scale(Addendum obj){
+        if (this.f != obj.f)
+            return null;
+        Float a = this.n.getNumber();
+        Float b = obj.n.getNumber();
+        return a/b;
+    }
+
+    @Override
+    public String toString() {
+        return "Addendum{" + "n=" + n + ", f=" + f + '}';
+    }
+    
+    
 }

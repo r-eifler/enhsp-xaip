@@ -1,29 +1,30 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ *
+ ********************************************************************
+ */
 package expressions;
 
 import conditions.Conditions;
@@ -43,8 +44,9 @@ import problem.State;
  */
 public class NumFluent extends Expression {
 
-    private String name;
+    final private String name;
     private ArrayList terms;
+    private String beforeReformulation;
 
     @Override
     public boolean equals(Object obj) {
@@ -53,18 +55,18 @@ public class NumFluent extends Expression {
         if (objF.getName().equalsIgnoreCase(this.getName())) {
             if (objF.terms.size() == this.terms.size()) {
                 for (int i = 0; i < objF.terms.size(); i++) {
-                    if (objF.terms.get(i) instanceof PDDLObject){
-                        PDDLObject ogg = (PDDLObject)objF.terms.get(i);
-                        PDDLObject ogg2 = (PDDLObject)this.terms.get(i);
+                    if (objF.terms.get(i) instanceof PDDLObject) {
+                        PDDLObject ogg = (PDDLObject) objF.terms.get(i);
+                        PDDLObject ogg2 = (PDDLObject) this.terms.get(i);
                         if (!(ogg.equals(ogg2))) {
                             return false;
                         }
-                    }else if (objF.terms.get(i) instanceof Variable){
-                        Variable ogg = (Variable)objF.terms.get(i);
-                        Variable ogg2 = (Variable)this.terms.get(i);
+                    } else if (objF.terms.get(i) instanceof Variable) {
+                        Variable ogg = (Variable) objF.terms.get(i);
+                        Variable ogg2 = (Variable) this.terms.get(i);
                         if (!(ogg.equals(ogg2))) {
                             return false;
-                        }    
+                        }
                     }
                 }
             } else {
@@ -89,6 +91,7 @@ public class NumFluent extends Expression {
         this.name = name;
         //variables = new ArrayList();
         terms = new ArrayList();
+        this.beforeReformulation = null;
     }
 
     public void addVariable(Variable variable) {
@@ -98,17 +101,17 @@ public class NumFluent extends Expression {
     @Override
     public String toString() {
         String ret = "";
-        ret +="  (" + this.name;
+        ret += "  (" + this.name;
         for (Object o1 : this.getTerms()) {
-            if (o1 instanceof PDDLObject){
+            if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
-            }else{
+            } else {
                 Variable obj = (Variable) o1;
-                ret = ret.concat(" " + obj.getName()+obj.getType());
-                
+                ret = ret.concat(" " + obj.getName() + obj.getType());
+
             }
-            
+
         }
         ret = ret.concat(")");
         return ret;
@@ -134,14 +137,14 @@ public class NumFluent extends Expression {
         ret.grounded = true;
         return ret;
     }
-    
+
     @Override
     public Expression unGround(Map substitution) {
         NumFluent ret = new NumFluent(getName());
 
         for (Object o : terms) {
             if (o instanceof PDDLObject) {
-                PDDLObject obj = (PDDLObject)o;
+                PDDLObject obj = (PDDLObject) o;
                 Variable t = (Variable) substitution.get(obj.getName());
                 if (t == null) {
                     System.out.println("Substitution Failed for " + o.toString());
@@ -156,7 +159,6 @@ public class NumFluent extends Expression {
         ret.grounded = false;
         return ret;
     }
-    
 
     /**
      * @return the terms
@@ -186,13 +188,13 @@ public class NumFluent extends Expression {
     /**
      * @param name the name to set
      */
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     @Override
     public PDDLNumber eval(State s) {
-        if (s == null){
+        if (s == null) {
             System.out.println("stato nullo!!");
         }
         return s.functionValue(this);
@@ -228,7 +230,7 @@ public class NumFluent extends Expression {
             if (o instanceof Variable) {
                 Variable v = (Variable) substitution.get(o);
                 if (v == null) {
-                        System.out.println("Not Found Variable" + o);
+                    System.out.println("Not Found Variable" + o);
                     System.exit(-1);
                 }
                 newVar.add(v);
@@ -242,19 +244,20 @@ public class NumFluent extends Expression {
     @Override
     public String pddlPrint(boolean typeInformation) {
         String ret = "";
-        ret +="  (" + this.name;
+        ret += "  (" + this.name;
         for (Object o1 : this.getTerms()) {
-            if (o1 instanceof PDDLObject){
+            if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
-            }else{
+            } else {
                 Variable obj = (Variable) o1;
-                if (typeInformation)
-                    ret = ret.concat(" " + obj.getName()+obj.getType());
-                else
+                if (typeInformation) {
+                    ret = ret.concat(" " + obj.getName() + obj.getType());
+                } else {
                     ret = ret.concat(" " + obj.getName());
-            
-            }  
+                }
+
+            }
         }
         ret = ret.concat(")");
         return ret;
@@ -263,13 +266,26 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
+//
 
-        if (invF.get(this)==null)
+        if (invF.get(this.getName()) == null) {
+
+                if (s.functionValue(this)!=null){
+
+                    return s.functionValue(this);
+                }
+            
+            
+            //System.out.println(this + ": is not present in the Invariant Mapping!!! Why?!"+" Free Var activated:"+freeVarSemantic);
             return null;
-        if ((Boolean) invF.get(this)) {
+        }
+        if ((Boolean) invF.get(this.getName())) {
             //s.functionValue(this)
+//            System.out.println("Variable to Substitute:"+this);
+//            System.out.println("Evaluation in s:"+s.functionValue(this));
             return s.functionValue(this);
         } else {
+            //System.out.println("Itself");
             return this;
         }
     }
@@ -285,13 +301,8 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public boolean involve(ArrayList<NumFluent> arrayList) {
-        for (NumFluent f : arrayList) {
-            if (f.equals(this)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean involve(HashMap<NumFluent,Boolean> map) {
+        return map.get(this)!=null;
     }
 
     @Override
@@ -341,5 +352,90 @@ public class NumFluent extends Expression {
         Set ret = new HashSet();
         ret.add(this);
         return ret;
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Expression expr) {
+        if (expr instanceof NumFluent) {
+            NumFluent nf = (NumFluent) expr;
+            if (this.getName().equals(nf.getName())) {
+                if (this.getTerms().size() == nf.getTerms().size()) {
+                    for (int i = 0; i < this.getTerms().size(); i++) {
+                        Variable v = (Variable) this.getTerms().get(i);
+                        PDDLObject obj = (PDDLObject) nf.getTerms().get(i);
+                        if (!v.getType().equals(obj.getType())) {
+                            if (!v.getType().isAncestorOf(obj.getType())) {
+                                return false;
+                            }
+                        }
+
+                    }
+                    return true;
+                }
+
+            }
+
+        }
+
+        return false;
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(int j) {
+        NumFluent ret = new NumFluent(this.name + j);
+        ret.setTerms(terms);
+        ret.grounded = false;
+        return ret;
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+        
+        
+ 
+       
+        if (invariantFluent.get(this) != null) {
+            NumFluent ret = new NumFluent(this.name + j);
+            ret.setTerms(terms);
+            ret.grounded = false;
+            ret.setBeforeReformulation(this.pddlPrint(true));
+            return ret;
+        } else {
+            this.setBeforeReformulation("same");
+            return this;
+        }
+    }
+
+    /**
+     * @return the beforeReformulation
+     */
+    public String getBeforeReformulation() {
+        return beforeReformulation;
+    }
+
+    /**
+     * @param beforeReformulation the beforeReformulation to set
+     */
+    public void setBeforeReformulation(String beforeReformulation) {
+        this.beforeReformulation = beforeReformulation;
+    }
+
+    public String toSmtVariableString(int i) {
+        String ret = "";
+        ret = ret.concat(this.getName());
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+                ret = ret.concat(" " + obj.getName());
+                
+            }
+            
+        }
+        ret+="-"+i;
+        //ret = ret.concat(")");
+        return ret.replaceAll("\\s+","");
     }
 }

@@ -41,6 +41,7 @@ import problem.State;
 public abstract class Expression extends Object {
 
     public boolean grounded;
+    protected boolean freeVarSemantic = false;
 
     public Expression() {
         grounded = false;
@@ -61,17 +62,38 @@ public abstract class Expression extends Object {
     public abstract String pddlPrint(boolean typeInformation);
 
     public abstract Expression weakEval(State s, HashMap invF);
+    @Override
     public abstract Expression clone();
-
-
 
     public abstract PDDLNumbers eval(RelState s);
 
-    public abstract boolean involve(ArrayList<NumFluent> arrayList);
+    public abstract boolean involve(HashMap<NumFluent,Boolean> arrayList);
 
     public abstract Expression subst(Conditions numeric);
 
     public abstract Set fluentsInvolved();
+
+    public abstract boolean isUngroundVersionOf(Expression expr);
+
+    public abstract Expression susbtFluentsWithTheirInvariants(int j);
+
+    public abstract Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j);
+
+    public abstract String toSmtVariableString(int i);
+
+    /**
+     * @return the freeVarSemantic
+     */
+    public boolean isFreeVarSemantic() {
+        return freeVarSemantic;
+    }
+
+    /**
+     * @param freeVarSemantic the freeVarSemantic to set
+     */
+    public void setFreeVarSemantic(boolean freeVarSemantic) {
+        this.freeVarSemantic = freeVarSemantic;
+    }
         
 
   

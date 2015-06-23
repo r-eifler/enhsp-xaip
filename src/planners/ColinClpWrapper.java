@@ -129,7 +129,7 @@ public class ColinClpWrapper extends planningTool {
                     Float t = Float.parseFloat(time.substring(time.indexOf(" ") + 1));
                     Integer msec = (int) (float) (t * 1000);
                     this.setTimePlanner(msec);
-                    System.out.println("time" + this.getPlannerTime());
+                    //System.out.println("time" + this.getPlannerTime());
 
                 }
 
@@ -266,6 +266,11 @@ public class ColinClpWrapper extends planningTool {
         } catch (InterruptedException e) {
             System.out.println("Planner eccezione" + e.toString());
         }
+    }
+
+    @Override
+    public void changePlannersPath() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

@@ -29,6 +29,7 @@ package expressions;
 import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.RelState;
@@ -40,7 +41,7 @@ import problem.State;
  */
 public class NumEffect extends Expression {
 
-    private String operator;
+    public String operator;
     private NumFluent fluentAffected;
     private Expression right;
 
@@ -245,10 +246,11 @@ public class NumEffect extends Expression {
      */
     @Override
     public Expression weakEval(State s, HashMap invF) {
-        NumEffect ret = new NumEffect(this.operator);
-        ret.fluentAffected = (NumFluent) this.fluentAffected.weakEval(s, invF);
-        ret.right = this.right.weakEval(s, invF);
-        return ret;
+        this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
+        this.setRight(this.right.weakEval(s, invF));
+        if (this.right == null)
+            return null;
+        return this;
     }
 
     /**
@@ -311,7 +313,7 @@ public class NumEffect extends Expression {
      * @return
      */
     @Override
-    public boolean involve(ArrayList<NumFluent> arrayList) {
+    public boolean involve(HashMap<NumFluent,Boolean> arrayList) {
         return this.getRight().involve(arrayList);
     }
 
@@ -361,5 +363,65 @@ public class NumEffect extends Expression {
     @Override
     public Set fluentsInvolved() {
         return this.right.fluentsInvolved();
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Expression expr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(int j) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        BinaryOp op = new BinaryOp();
+        if (this.operator.equals("increase")) {
+            op.setOperator("+");
+            op.setRight(this.getRight());
+            op.setOne(this.getFluentAffected());
+            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ op.toSmtVariableString(i)+")";
+
+        } else if (this.operator.equals("decrease")) {
+            op.setOperator("-");
+            op.setRight(this.getRight());
+            op.setOne(this.getFluentAffected());
+            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ op.toSmtVariableString(i)+")";
+
+        } else if (this.operator.equals("assign")) {
+            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ this.getRight().toSmtVariableString(i)+")";
+        }
+
+        return null;
+    }
+    
+    public String toSmtVariableString(int i, String var) {
+        
+        
+        if (this.operator.equals("increase")) {
+            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +"(+ "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" )))";
+        } else if (this.operator.equals("decrease")) {
+            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +"(- "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" )))";
+        } else if (this.operator.equals("assign")) {
+            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ this.getRight().toSmtVariableString(i)+")";
+        }
+
+        return null;
+    }
+    
+    
+
+    public Set<NumFluent> getInvolvedFluents() {
+        Set<NumFluent> ret = new LinkedHashSet();
+        ret.add(this.getFluentAffected());
+        ret.addAll(this.getRight().fluentsInvolved());
+        return ret;
     }
 }

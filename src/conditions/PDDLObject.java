@@ -27,8 +27,11 @@
 package conditions;
 
 import domain.Type;
+import expressions.NumFluent;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -71,7 +74,7 @@ public class PDDLObject extends Conditions {
     public int hashCode() {
         int hash = 7;
         hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 29 * hash + (this.type != null ? this.type.hashCode() : 0);
+        //hash = 29 * hash + (this.type != null ? this.type.hashCode() : 0);
         return hash;
     }
 
@@ -114,6 +117,13 @@ public class PDDLObject extends Conditions {
     @Override
     public PDDLObject ground(Map substitution) {
         return new PDDLObject(name, type);
+    }
+    
+    @Override
+    public Conditions ground(Map substitution, int c) {
+        Conditions ret = this.ground(substitution);
+        ret.setCounter(c);
+        return ret;
     }
 
     @Override
@@ -161,6 +171,28 @@ public class PDDLObject extends Conditions {
     public Conditions unGround(Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public boolean isUngroundVersionOf(Conditions conditions) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Set<NumFluent> getInvolvedFluents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        return this;
+    }
+
+   
 
 
 
