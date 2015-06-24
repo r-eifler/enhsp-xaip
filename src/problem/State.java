@@ -34,7 +34,9 @@ import conditions.Conditions;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.Addendum;
+import expressions.Expression;
 import expressions.NormExpression;
+import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import java.io.BufferedReader;
@@ -65,6 +67,7 @@ public class State extends Object {
         super();
         propositions = new HashMap();
         numericFs = new HashMap();
+        
         timedLiterals = new HashSet();
     }
 
@@ -81,13 +84,15 @@ public class State extends Object {
             NumFluentAssigner ele = (NumFluentAssigner) o;
             NumFluentAssigner newA = new NumFluentAssigner("=");
             newA.setNFluent(ele.getNFluent());
-            PDDLNumber newN = new PDDLNumber(ele.getTwo().getNumber());
-            newA.setTwo(newN);
+
+            newA.setTwo(ele.getTwo());
+            
             ret_val.addNumericFluent(newA);
         }
 
         for (Object o : this.propositions.keySet()) {
             Predicate ele = (Predicate) o;
+            //ret_val.addProposition((Predicate) ele.clone());
             ret_val.addProposition((Predicate) ele.clone());
         }
         //ret_val.propositions = (HashSet) this.propositions.clone();
@@ -103,13 +108,20 @@ public class State extends Object {
 
     public PDDLNumber functionValue(NumFluent f) {
 
+//        for (Object o : this.getNumericFluents()) {
+//            NumFluentAssigner nf_assigner = (NumFluentAssigner) o;
+//            if (nf_assigner.getNFluent().equals(f)) {
+//                    return nf_assigner.getTwo();
+//            }
+//        }
+
         NumFluentAssigner a = (NumFluentAssigner) numericFs.get(f);
 
         if (a != null) {
             return a.getTwo();
         }
 
-        System.out.println(f + " is not expressed in " + this);
+        //System.out.println(f + " is not expressed in " + this);
         return null;
     }
 
@@ -141,10 +153,10 @@ public class State extends Object {
 
     public void setFunctionValue(NumFluent f, PDDLNumber after) {
         NumFluentAssigner a = (NumFluentAssigner) this.numericFs.get(f);
-        
+
         if (a != null) {
             a.setTwo(after);
-        }else{
+        } else {
             NumFluentAssigner b = new NumFluentAssigner("=");
             b.setNFluent(f);
             b.setTwo(after);
@@ -241,7 +253,7 @@ public class State extends Object {
         return true;
 
     }
-    
+
     public boolean satisfyNumerically(AndCond con) {
 
         for (Object o : con.sons) {
@@ -259,7 +271,6 @@ public class State extends Object {
         return true;
 
     }
-    
 
     public boolean satisfy(Conditions input) {
 
@@ -289,7 +300,7 @@ public class State extends Object {
             }
 
         }
-        return true;
+        return ret;
 
     }
 
@@ -342,21 +353,62 @@ public class State extends Object {
             NumFluent nf = (NumFluent) o;
             if (nf.getName().equals(input)) {
                 ret = ret + this.numericFs.get(nf);
-                
+
             }
 
         }
         return ret;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final State other = (State) obj;
+
+        for (Object o : this.getNumericFluents()) {
+            NumFluentAssigner ass_init = (NumFluentAssigner) o;
+            if (!ass_init.getTwo().equals(other.functionValue(ass_init.getNFluent()))) {
+                return false;
+            }
+        }
+        for (Object o : this.getPropositions()) {
+            Predicate p = (Predicate) o;
+            if (this.containProposition(p)) {
+                if (!other.containProposition(p)) {
+
+                    return false;
+                }
+            }
+
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + (this.propositions != null ? this.propositions.hashCode() : 0);
+        hash = 89 * hash + (this.numericFs != null ? this.numericFs.hashCode() : 0);
+        return hash;
+    }
+
+
+
     public String printValueOfTheFluentByName(String input) {
         String ret = "";
 
         for (Object o : this.numericFs.keySet()) {
             NumFluent nf = (NumFluent) o;
             if (nf.getName().equals(input)) {
-                NumFluentAssigner a = (NumFluentAssigner)this.numericFs.get(nf);
+                NumFluentAssigner a = (NumFluentAssigner) this.numericFs.get(nf);
                 ret += a.getTwo().getNumber();
-                
+
             }
 
         }
@@ -481,8 +533,8 @@ public class State extends Object {
                         Float dist = Math.abs(num);///(float)Math.sqrt((double)den);
                         num = new Float(0.0);
                         Float maxDist = new Float(0.0);
-                        
-                        if (comp.maxDist == null){
+
+                        if (comp.maxDist == null) {
                             for (Addendum a : lExpr.summations) {
                                 if (a.f == null) {
                                     num += Math.abs(a.n.getNumber());
@@ -490,13 +542,13 @@ public class State extends Object {
                                     num += Math.max(Math.abs(a.n.getNumber() * numericFleuntsBoundaries.functionInfValue(a.f).getNumber()), Math.abs(a.n.getNumber() * numericFleuntsBoundaries.functionSupValue(a.f).getNumber()));
                                 }
                             }
-                            if (preprocessMaxs){
-                                
+                            if (preprocessMaxs) {
+
                                 //System.out.println("A bug somewhere...exiting ("+comp.pddlPrint(true)+")");
                                 //System.exit(-1);
                             }
                             maxDist = Math.abs(num);
-                        }else{
+                        } else {
                             //System.out.println("UNO ALMENO L'HA TROVATO");
                             maxDist = comp.maxDist;
                         }
@@ -507,19 +559,18 @@ public class State extends Object {
                             total += maxDist / dist;
                             //total += (float)1 - (float)(dist/Math.max(maxDist,dist));
                         } else if (distStrategy.equals("max")) {
-                            if ((comp.getComparator().equals(">=") || comp.getComparator().equals("<=") )){
+                            if ((comp.getComparator().equals(">=") || comp.getComparator().equals("<="))) {
                                 //System.out.println("Constraints Adjusted");
-                                dist = dist+(float)0.00000000001;
+                                dist = dist + (float) 0.00000000001;
                             }
-                            if (!collapsed){
+                            if (!collapsed) {
                                 threateningConstraint = comp.toString();
-                                total = Math.max((float)1 - (float)(dist/maxDist), total);
-                            }else{
+                                total = Math.max((float) 1 - (float) (dist / maxDist), total);
+                            } else {
                                 System.out.println(comp + "============================================= Collapsed!!!!!");
 
                             }
-                            
-                               
+
                         }
 
                     } else {
@@ -530,7 +581,7 @@ public class State extends Object {
 
             }
         }
-        
+
         //System.out.println("the responsible for the risk is: "+threateningConstraint);
         return total;
 
@@ -558,17 +609,17 @@ public class State extends Object {
                 }
             }
         } else {
-            if (conditions instanceof Comparison){
-                    Comparison comp = (Comparison) conditions;
+            if (conditions instanceof Comparison) {
+                Comparison comp = (Comparison) conditions;
 
-                    if (distStrategy.equals("sum")) {
-                        total += comp.getDistance(this, numericFleuntsBoundaries);
+                if (distStrategy.equals("sum")) {
+                    total += comp.getDistance(this, numericFleuntsBoundaries);
 
-                    } else if (distStrategy.equals("max")) {
-                        total = Math.max(comp.getDistance(this, numericFleuntsBoundaries), total);
-                        //System.out.println("Distance: "+dist);
-                    }    
-            
+                } else if (distStrategy.equals("max")) {
+                    total = Math.max(comp.getDistance(this, numericFleuntsBoundaries), total);
+                    //System.out.println("Distance: "+dist);
+                }
+
             }
 
         }
@@ -577,7 +628,7 @@ public class State extends Object {
     }
 
     public Float normalizedRiskViaPlanBounds(AndCond conditions, String distStrategy) {
-            Float total = new Float(0.0);
+        Float total = new Float(0.0);
 
         String threateningConstraint = new String();
         if (conditions instanceof AndCond) {
@@ -614,11 +665,9 @@ public class State extends Object {
                         Float dist = Math.abs(num);///(float)Math.sqrt((double)den);
                         num = new Float(0.0);
                         Float maxDist = new Float(0.0);
-                        
 
-                            //System.out.println("UNO ALMENO L'HA TROVATO");
-                            maxDist = comp.maxDist;
-
+                        //System.out.println("UNO ALMENO L'HA TROVATO");
+                        maxDist = comp.maxDist;
 
                         //System.out.println("Distance: "+dist);
                         //System.out.println("Max Distance: "+maxDist);
@@ -626,20 +675,19 @@ public class State extends Object {
                             total += maxDist / dist;
                             //total += (float)1 - (float)(dist/Math.max(maxDist,dist));
                         } else if (distStrategy.equals("max")) {
-                            if ((comp.getComparator().equals(">=") || comp.getComparator().equals("<=") )){
+                            if ((comp.getComparator().equals(">=") || comp.getComparator().equals("<="))) {
                                 //System.out.println("Constraints Adjusted");
-                                dist = dist+(float)0.00000000001;
+                                dist = dist + (float) 0.00000000001;
                             }
-                            if (!collapsed){
+                            if (!collapsed) {
                                 threateningConstraint = comp.toString();
                                 //System.out.println(maxDist);
-                                total = Math.max((float)1 - (float)(dist/maxDist), total);
-                            }else{
+                                total = Math.max((float) 1 - (float) (dist / maxDist), total);
+                            } else {
                                 System.out.println(comp + "============================================= Collapsed!!!!!");
 
                             }
-                            
-                               
+
                         }
 
                     } else {
@@ -650,11 +698,156 @@ public class State extends Object {
 
             }
         }
-        
+
         //System.out.println("the responsible for the risk is: "+threateningConstraint);
         return total;
     }
 
-   
+    public Float distance(Conditions c) {
+        Comparison comp = (Comparison) c;
+        if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
+            NormExpression lExpr = (NormExpression) comp.getLeft();
+            Float num = new Float(0.0);
+            Float den = new Float(0.0);
+            for (Addendum a : lExpr.summations) {
+                if (a.f == null) {
+                    num += a.n.getNumber();
+                } else {
+                    if (a.f.eval(this) == null) {
+                        //System.out.println("Eccolo");
+                        return (float) -1000000000000.0;
+                    }
+                    PDDLNumber evaluation = (PDDLNumber) a.f.eval(this);
+                    //System.out.println("Evaluation of " + a.f +" "+evaluation);
+                    //if (evaluation.getNumber() != 0){
+                    num += a.n.getNumber() * evaluation.getNumber();
+                    //System.out.println("Coefficient: " + a.n );
+                    //System.out.println(num);
+                    den += new Float(Math.pow(a.n.getNumber(), 2));
+                    //}
+                }
+            }
+            //System.out.println("Comparison under process: " + comp);
+            //System.out.println("Dist: " +  new Float(1.0)/ ( new Float(Math.abs(num))/(new Float(Math.pow(den,0.5)))));
+
+            /*Contribution of each comparison*/
+            if (num == 0.0) {
+                return new Float(0.0);
+            }
+            if (this.satisfy(c)) {
+                //System.out.println("Num: " + 1.0*num +" Den: "+den);
+                //System.out.println("Seems to be satisfied...");
+                return new Float(1.0) * (new Float(Math.abs(num)) / (new Float(Math.pow(den, 0.5))));
+            } else {
+                //System.out.println("not satisfied");
+                //System.out.println("Num: " + (-1.0)*num +" Den: "+den);
+                Float ret = new Float(-1.0) * (new Float(Math.abs(num)) / (new Float(Math.pow(den, 0.5))));
+                if (ret == Float.NaN) {
+                    System.out.println("Errors in checking the result of the division");
+                }
+                if (ret == 0.0) {
+                    ret = (float) -0.000000000001;//this is our epsilon
+                }
+                return ret;
+            }
+
+        } else {
+            System.out.println("Comparison must be normalized for computing the euclidean distance");
+            System.exit(-1);
+        }
+        return null;
+    }
+
+    public Float distance2(Conditions c) {
+        Comparison comp = (Comparison) c;
+        if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
+            NormExpression lExpr = (NormExpression) comp.getLeft();
+            Float num = new Float(0.0);
+            Float den = new Float(1.0);
+            for (Addendum a : lExpr.summations) {
+                if (a.f == null) {
+                    num += a.n.getNumber();
+                } else {
+                    if (a.f.eval(this) == null) {
+                        //System.out.println("Eccolo");
+                        return Float.NaN;//optimistic assumption
+                    }
+                    PDDLNumber evaluation = (PDDLNumber) a.f.eval(this);
+                    //System.out.println("Evaluation of " + a.f +" "+evaluation);
+                    //if (evaluation.getNumber() != 0){
+                    num += a.n.getNumber() * evaluation.getNumber();
+                                //System.out.println("Coefficient: " + a.n );
+                    //System.out.println(num);
+                    //den += new Float(Math.pow(a.n.getNumber(), 2));
+                    //}
+                }
+            }
+            //System.out.println("Comparison under process: " + comp);
+            //System.out.println("Dist: " +  new Float(1.0)/ ( new Float(Math.abs(num))/(new Float(Math.pow(den,0.5)))));
+
+            /*Contribution of each comparison*/
+            if (num == 0.0) {
+                if (this.satisfy(c)) {
+                    return new Float(0.00000001);
+                } else {
+                    return new Float(-0.00000001);
+                }
+            }
+            if (this.satisfy(c)) {
+                //System.out.println("Num: " + 1.0*num +" Den: "+den);
+                //System.out.println("Seems to be satisfied...");
+                return new Float(1.0) * (new Float(Math.abs(num)) / (new Float(Math.pow(den, 0.5))));
+            } else {
+                //System.out.println("not satisfied");
+                //System.out.println("Num: " + (-1.0)*num +" Den: "+den);
+                Float ret = new Float(-1.0) * (new Float(Math.abs(num)) / (new Float(Math.pow(den, 0.5))));
+                if (ret == Float.NaN) {
+                    System.out.println("Errors in checking the result of the division");
+                }
+                if (ret == 0.0) {
+                    ret = (float) -0.000000000001;//this is our epsilon
+                }
+                return ret;
+            }
+
+        } else {
+            System.out.println("Comparison must be normalized for computing the euclidean distance");
+            System.exit(-1);
+        }
+        return null;
+    }
+
+    public GroundAction transformInAction() {
+        GroundAction a = new GroundAction("InitAction");
+
+        AndCond addList = new AndCond();
+        AndCond numericEffects = new AndCond();
+
+        for (Object o : this.propositions.keySet()) {
+            Predicate p = (Predicate) o;
+            addList.addConditions(p);
+        }
+        for (Object o : this.numericFs.keySet()) {
+            NumFluent f = (NumFluent) o;
+
+            NumEffect b = new NumEffect("assign");
+            b.setFluentAffected(f);
+            NumFluentAssigner temp = (NumFluentAssigner) numericFs.get(f);
+
+            b.setRight(temp.getTwo());
+            numericEffects.addExpression(b);
+        }
+        a.setAddList(addList);
+        a.setNumericEffects(numericEffects);
+
+        return a;
+
+    }
+
+    public void updateValues(HashSet<NumFluent> toUpdate, State temp) {
+        for (NumFluent n : toUpdate) {
+            this.setFunctionValue(n, temp.functionValue(n));
+        }
+    }
 
 }

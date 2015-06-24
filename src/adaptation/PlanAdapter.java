@@ -32,19 +32,29 @@ import computation.NumericKernel;
 import computation.NumericPlanningGraph;
 import conditions.Conditions;
 import domain.PddlDomain;
+import extraUtils.Utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.alg.BiconnectivityInspector;
+import org.jgrapht.alg.TransitiveClosure;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.graph.AsUndirectedGraph;
 import plan.SimplePlan;
+import planners.metricFFWrapper;
 import planners.planningTool;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.PddlProblem;
 import problem.RelState;
 import problem.State;
@@ -80,6 +90,8 @@ public class PlanAdapter {
     
     //reacheable States
     private RelState poss_state;
+    private int connectedComponentsNumber;
+    private int uselessActionPruning;
 
     /**
      * Get the value of employedMacros
@@ -145,6 +157,7 @@ public class PlanAdapter {
         this.planner = planner;
         solution = null;
         planner.setTimeout(100000);
+        uselessActionPruning = 0;
     }
 
     /**
@@ -910,11 +923,26 @@ public class PlanAdapter {
         //planning using the enhanced domain
         //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
         SimplePlan new_plan = new SimplePlan(domain, problem, false);
-        String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFilRef());
+        String solutionString = null;
+        if (planner instanceof metricFFWrapper){
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFilRef());
+        }else{
+            PDDLObjects temp  = (PDDLObjects)problem.getObjects().clone();
+            problem.removeObjects(dEnh.getConstantsFound());
+            problem.saveProblem("temp");
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), "temp");
+            problem.setObjects(temp);
+            Utils.deleteFile("temp");
+        }
+        
         
         if (solutionString == null) {
             return null;
         }
+        
+        
+        
+        
         new_plan.parseSolutionWithMacro(solutionString, m);
         this.setEmployedMacros(new_plan.getEmployedMacro());
         new File(solutionString).delete();
@@ -954,6 +982,176 @@ public class PlanAdapter {
         this.poss_state = poss_state;
     }
 
+    public SimplePlan adaptViaPop(SimplePlan plan, PddlProblem prob, PddlDomain domain,boolean endlessActionPruning,
+                                  boolean biconnectivity,boolean missingServicesCut,boolean goalachievingCut,boolean goalthreatCut) throws Exception {
+        
+        
+        System.out.println("Deordering..");
+        //HashMap achieveGoal = new HashMap();
+        long beforeMacrogeneration = System.currentTimeMillis();
+        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(),goalachievingCut);
+        //System.out.println(po);
+        if (endlessActionPruning)
+            removeUselessActions(po,plan.size()-1);   
+        //System.out.println(po);
+        //System.out.println(plan.toStringWithIndex());
+        po = plan.removeInitGoal(po);        
+        DomainEnhancer dEnh = new DomainEnhancer();
+        List c = null;
+        c =plan.generateMacrosFromPop(po,plan.getGoalAchiever(),missingServicesCut,biconnectivity,goalthreatCut);
+
+        this.setConnectedComponentsNumber(plan.getConnectedSetBuilder().connectedSets().size());
+        //System.out.println(c);
+        List macros = new ArrayList();
+        macros.addAll(pruneSmallMacros(c,1000000));
+        
+        Map m = dEnh.addMacroActions(domain,macros,plan);
+        
+        //System.out.println("time for adding in the file:" + (System.currentTimeMillis() - beforeAddingFile));
+
+        /**/macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
+        //System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
+
+        //planning using the enhanced domain
+        //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
+        
+        SimplePlan new_plan = new SimplePlan(domain, prob, false);
+        
+        
+        //PddlProblem temp = new PddlProblem();
+ 
+        String solutionString = null;
+        if (planner instanceof metricFFWrapper){
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFilRef());
+        }else{
+            PDDLObjects temp  = (PDDLObjects)prob.getObjects().clone();
+            prob.removeObjects(dEnh.getConstantsFound());
+            prob.saveProblem("temp");
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), "temp");
+            prob.setObjects(temp);
+            Utils.deleteFile("temp");
+        }
+        
+    
+        
+        
+        if (solutionString == null) {
+            return null;
+        }
+        new_plan.parseSolutionWithMacro(solutionString, m);
+        this.setEmployedMacros(new_plan.getEmployedMacro());
+        new File(solutionString).delete();
+
+        setPlannerTime(planner.getPlannerTime());
+        this.setAdaptationTime(plannerTime + macroActionsConstructionTime);
+        solution = new_plan;
+        return new_plan;
+    }
+
+
+
+    public int adaptViaPopDEBUG(SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean goalPruning, boolean biconnectivity) throws Exception {
+        
+        long beforeMacrogeneration = System.currentTimeMillis();
+
+        System.out.println("Deordering..");
+        //HashMap achieveGoal = new HashMap();
+        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(),false);
+
+        if (goalPruning)
+            this.removeUselessActions(po,plan.size()-1);
+        
+        System.out.println(plan.getGoalAchiever());
+      
+        po = plan.removeInitGoal(po);
+        BiconnectivityInspector bI = new BiconnectivityInspector(new AsUndirectedGraph(po));
+        //System.out.println("Number of BiconnectedComponents: "+bI.getCutpoints());
+        
+        //System.out.println("Number of macros"+macros.size());
+        //long beforeAddingFile = System.currentTimeMillis();
+        DomainEnhancer dEnh = new DomainEnhancer();
+        List c = null;
+
+            c =plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,biconnectivity,false);
+    
+        setConnectedComponentsNumber(plan.getConnectedSetBuilder().connectedSets().size());
+        
+        return 0;
+    }
+
+    /**
+     * @return the connectedComponentsNumber
+     */
+    public int getConnectedComponentsNumber() {
+        return connectedComponentsNumber;
+    }
+
+    /**
+     * @param connectedComponentsNumber the connectedComponentsNumber to set
+     */
+    public void setConnectedComponentsNumber(int connectedComponentsNumber) {
+        this.connectedComponentsNumber = connectedComponentsNumber;
+    }
+
+    public DirectedAcyclicGraph removeUselessActions(DirectedAcyclicGraph po,int goalIndex) {
+        int counter = 0;
+        DirectedAcyclicGraph po1 = (DirectedAcyclicGraph)po.clone();
+        TransitiveClosure.INSTANCE.closeSimpleDirectedGraph(po1);
+        
+        Set s = new HashSet();
+        for (int v=1;v<goalIndex;v++){
+            if (!po1.containsEdge(v, goalIndex)){
+                System.out.println(v);
+                counter++;
+                s.add(v);
+            }
+        }
+        System.out.println(s);
+        for (Object v: s)
+            po.removeVertex(v);
+        
+        System.out.println("actins belonging to endless path:"+counter);
+        
+        setUselessActionPruning(counter);
+        
+        return po;
+        
+    }
+
+    /**
+     * @return the uselessActionPruning
+     */
+    public int getUselessActionPruning() {
+        return uselessActionPruning;
+    }
+
+    /**
+     * @param uselessActionPruning the uselessActionPruning to set
+     */
+    public void setUselessActionPruning(int uselessActionPruning) {
+        this.uselessActionPruning = uselessActionPruning;
+    }
+
+    private TreeSet pruneSmallMacros(List c, int i) {
+        
+        TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
+        ret.addAll(c);
+        
+        while(ret.size()>i)
+            ret.pollFirst();
+        return ret;
+        
+    }
+    public class GroundActionComparator implements Comparator<GroundAction> {
+    @Override
+    public int compare(GroundAction x, GroundAction y) {
+        if (x.getPrimitives().size()<=y.getPrimitives().size())
+            return -1;
+        if (x.getPrimitives().size()==y.getPrimitives().size())
+            return 0;
+        return 1;  // do your comparison
+    }
+}
     
 
 }

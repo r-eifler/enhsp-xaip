@@ -28,8 +28,10 @@ package conditions;
 
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -109,6 +111,13 @@ public class NumFluentAssigner extends Conditions {
         ret.grounded = true;
         return ret;
     }
+    
+    @Override
+    public Conditions ground(Map substitution, int c) {
+        Conditions ret = this.ground(substitution);
+        ret.setCounter(c);
+        return ret;
+    }
 
     @Override
     public boolean eval(State s) {
@@ -185,6 +194,54 @@ public class NumFluentAssigner extends Conditions {
         ret.grounded = false;
         return ret;
     }    
+
+    @Override
+    public boolean isUngroundVersionOf(Conditions conditions) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Set<NumFluent> getInvolvedFluents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NumFluentAssigner other = (NumFluentAssigner) obj;
+        if (this.nFluent != other.nFluent && (this.nFluent == null || !this.nFluent.equals(other.nFluent))) {
+            return false;
+        }
+        if (this.nFluentValue != other.nFluentValue && (this.nFluentValue == null || !this.nFluentValue.equals(other.nFluentValue))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + (this.nFluent != null ? this.nFluent.hashCode() : 0);
+        hash = 97 * hash + (this.nFluentValue != null ? this.nFluentValue.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 
 

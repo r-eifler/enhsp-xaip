@@ -41,6 +41,7 @@ import java.lang.Exception;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 import java.util.List;
 import java.util.Set;
@@ -75,7 +76,7 @@ public class ActionFactory {
             for (Object el : po) {
                 PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) el1;
-                if ((t.getType().isAncestorOf(v.getType())) || (t.getType().equals(v.getType()))) {
+                if ((v.getType().isAncestorOf(t.getType())) || (t.getType().equals(v.getType()))) {
                     sub[i].put(t, v);
                 }
             }
@@ -154,13 +155,15 @@ public class ActionFactory {
     }
 
     public Set Propositionalize(ActionSchema a, PDDLObjects po) throws Exception {
-        Set ret = new HashSet();
+        Set ret = new LinkedHashSet();
 
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
-            GroundAction toAdd =a.ground((ActionParametersAsTerms) o);
-            toAdd.generateAffectedNumFluents();
-            ret.add(toAdd);
+            if (o instanceof ActionParametersAsTerms){
+                GroundAction toAdd =a.ground((ActionParametersAsTerms) o);
+                toAdd.generateAffectedNumFluents();
+                ret.add(toAdd);
+            }
         }
 
         return ret;

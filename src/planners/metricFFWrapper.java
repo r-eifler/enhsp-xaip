@@ -27,8 +27,10 @@ package planners;
 
 import extraUtils.Utils;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -41,12 +43,15 @@ public class metricFFWrapper extends planningTool {
         super();
         option1 = "";       //"-O";
         option2 = "";
+
         planningExec = "ff";
         this.setTimeout(10000);
         Utils.deleteFile(storedSolutionPath);
 
 //        ArrayList solution;
     }
+    
+
 
     @Override
     public String plan() {
@@ -134,6 +139,11 @@ public class metricFFWrapper extends planningTool {
                 sc.nextLine();
             }
         }
+    }
+
+    @Override
+    public void changePlannersPath() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

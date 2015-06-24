@@ -1,4 +1,4 @@
-/*********************************************************************
+ /*********************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,8 +26,11 @@
 
 package conditions;
 
-import java.util.HashSet;
+import expressions.NumFluent;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -38,15 +41,22 @@ import problem.State;
 public abstract class Conditions extends Object {
 
     public boolean grounded;
-    public HashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
-
+    public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
+    protected boolean freeVarSemantic = false;
+    private boolean unsatisfiable = false;
+    private boolean valid = false;
+    private int counter;
     public Conditions() {
         //son = new HashSet();
         grounded = false;
+        unsatisfiable = false;
     }
+    
+    public abstract Conditions weakEval(State s, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
     public abstract Conditions ground(Map substitution);
+    public abstract Conditions ground(Map substitution, int c);
 
     public abstract boolean eval(State s);
 
@@ -64,6 +74,69 @@ public abstract class Conditions extends Object {
     public abstract void normalize();
 
     public abstract Conditions unGround(Map asbstractionOf);
+
+    public abstract boolean isUngroundVersionOf(Conditions conditions);
+
+    public abstract String toSmtVariableString(int i);//just for and condition
+    
+    public abstract Set<NumFluent> getInvolvedFluents();
+
+    /**
+     * @return the freeVarSemantic
+     */
+    public boolean isFreeVarSemantic() {
+        return freeVarSemantic;
+    }
+
+    /**
+     * @param freeVarSemantic the freeVarSemantic to set
+     */
+    public void setFreeVarSemantic(boolean freeVarSemantic) {
+        this.freeVarSemantic = freeVarSemantic;
+    }
+
+    /**
+     * @return the unsatisfiable
+     */
+    public boolean isUnsatisfiable() {
+        return unsatisfiable;
+    }
+
+    /**
+     * @param unsatisfiable the unsatisfiable to set
+     */
+    public void setUnsatisfiable(boolean unsatisfiable) {
+        this.unsatisfiable = unsatisfiable;
+    }
+
+    /**
+     * @return the counter
+     */
+    public int getCounter() {
+        return counter;
+    }
+
+    /**
+     * @param counter the counter to set
+     */
+    public void setCounter(int counter) {
+        this.counter = counter;
+    }
+
+    /**
+     * @return the valid
+     */
+    public boolean isValid() {
+        return valid;
+    }
+
+    /**
+     * @param valid the valid to set
+     */
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+        
 
 
 }

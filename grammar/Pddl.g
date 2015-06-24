@@ -17,6 +17,7 @@ tokens {
     EITHER_TYPE;
     CONSTANTS;
     FUNCTIONS;
+    FREE_FUNCTIONS;
     PREDICATES;
     ACTION;
     DURATIVE_ACTION;
@@ -99,13 +100,19 @@ domain
       constantsDef?
       predicatesDef?
       functionsDef?
+      free_functionsDef?
       constraints?
       structureDef*
       ')'
       -> ^(DOMAIN domainName requireDef? typesDef?
-                constantsDef? predicatesDef? functionsDef?
+                constantsDef? predicatesDef? functionsDef? free_functionsDef?
                 constraints? structureDef*)
     ;
+
+free_functionsDef
+	: '(' ':free_functions' functionList ')'
+	-> ^(FREE_FUNCTIONS functionList)
+	;
 
 domainName
     : '(' 'domain' NAME ')'
@@ -492,7 +499,7 @@ conGD
 	: '(' 'and' conGD* ')'
 	| '(' 'forall' '(' typedVariableList ')' conGD ')'
 	| '(' 'at' 'end' goalDesc ')'
-    | '(' 'always' goalDesc ')'
+                      | '(' 'always' goalDesc ')'
 	| '(' 'sometime' goalDesc ')'
  	| '(' 'within' NUMBER goalDesc ')'
 	| '(' 'at-most-once' goalDesc ')'

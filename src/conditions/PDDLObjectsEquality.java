@@ -28,7 +28,11 @@
 package conditions;
 
 import domain.Variable;
+import expressions.NumFluent;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -78,6 +82,13 @@ public class PDDLObjectsEquality extends Conditions {
 
         return ret;
 
+    }
+    
+    @Override
+    public Conditions ground(Map substitution, int c) {
+        Conditions ret = this.ground(substitution);
+        ret.setCounter(c);
+        return ret;
     }
 
     @Override
@@ -224,6 +235,48 @@ public class PDDLObjectsEquality extends Conditions {
 
         return ret;    
     
+    }
+
+    @Override
+    public boolean isUngroundVersionOf(Conditions conditions) {
+        if (conditions instanceof PDDLObjectsEquality){
+            PDDLObjectsEquality c = (PDDLObjectsEquality)conditions;
+            Variable v1 = (Variable)this.getLeftV();
+            Variable v2 = (Variable)this.getRightV();
+            PDDLObject obj1 = (PDDLObject)c.getLeft();
+            PDDLObject obj2 = (PDDLObject)c.getRight();
+                        //System.out.print("Matching Types between: "+ v.getType() + obj.getType());
+            if (!v1.getType().equals(obj1.getType()))
+                if (!v1.getType().isAncestorOf(obj1.getType()))
+                    return false;
+            if (!v2.getType().equals(obj2.getType()))
+                if (!v2.getType().isAncestorOf(obj2.getType()))
+                    return false;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String toSmtVariableString(int i) {
+        return "true";
+    }
+
+    @Override
+    public Set<NumFluent> getInvolvedFluents() {
+        return new HashSet();
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        if (this.left.equals(this.right)){
+            this.setValid(true);
+            this.setUnsatisfiable(false);
+        }else{ 
+            this.setUnsatisfiable(true);
+            this.setValid(false);
+        }
+        return this;
     }
 
 }

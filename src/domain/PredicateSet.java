@@ -43,12 +43,35 @@ public class PredicateSet extends HashSet {
         for (Object el : this) {
             Predicate elP = (Predicate) el;
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
-                if (elP.getTerms().size() == p.getTerms().size()) {
+                if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     return true;
                 }
             }
         }
         return false;
+    }
+    
+    public Predicate findAssociated(Predicate p) {
+
+        for (Object el : this) {
+            Predicate elP = (Predicate) el;
+            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
+                if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
+//                    for (Object o: elP.getTerms())
+                        for (int i=0;i<p.getTerms().size();i++){
+                            Variable v = (Variable)elP.getTerms().get(i);
+                            Variable v1 = (Variable)p.getTerms().get(i);
+                             if (!(v.getType().equals(v1.getType())) && !(v.getType().isAncestorOf(v1.getType()))) {
+                                System.out.println(v1+" is neither a valid instance nor a valid subtype for "+v1);
+                                return null;
+                            }
+                        }
+                            
+                    return elP;
+                }
+            }
+        }
+        return null;
     }
 
     public boolean validateInst(Predicate p) {
@@ -90,5 +113,44 @@ public class PredicateSet extends HashSet {
             ret += elP.pddlPrint(typeInformation);
          }
         return ret+")";
+    }
+
+    public void addIfNecessary(Predicate p) {
+        boolean found = false;
+        String name ="";
+        for (Object el : this) {
+            Predicate elP = (Predicate) el;
+            if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
+                if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
+                    found = true;
+//                    for (Object o: elP.getTerms())
+                        for (int i=0;i<p.getTerms().size();i++){
+                            Variable v = (Variable)elP.getTerms().get(i);
+                            Variable v1 = (Variable)p.getTerms().get(i);
+                             if (!(v.getType().equals(v1.getType())) && !(v.getType().isAncestorOf(v1.getType()))) {
+                                System.out.println(v1+" is neither a valid instance nor a valid subtype for "+v);
+                                if (!(v1.getType().equals(v.getType())) && !(v1.getType().isAncestorOf(v.getType()))) {
+                                    System.out.println(v+" is neither a valid instance nor a valid subtype for "+v1);
+                                    found = false;
+                                }else{
+                                    found = true;
+                                    v.setType(v1.getType());
+                                }
+                                      
+                             }else{
+                                 found=true;
+                                 break;
+                             }
+                                 
+                        }
+     
+                    
+                }
+            }
+        }
+        if (!found)
+            this.add(p);
+
+         
     }
 }

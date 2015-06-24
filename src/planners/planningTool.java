@@ -68,6 +68,8 @@ public abstract class planningTool {
 
     abstract public String adapt(String domainFile, String problemFile, String planFile);
 
+    abstract public void changePlannersPath();
+    
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = "";

@@ -248,7 +248,10 @@ public class RelState extends Object {
 //    }
     public boolean satisfy(Conditions con) {
 
-        
+        if (con == null){
+            System.out.println(this);
+            System.out.println("something wrong");
+        }
         return con.isSatisfied(this);
 
 

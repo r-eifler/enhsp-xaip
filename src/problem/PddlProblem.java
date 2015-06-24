@@ -1,29 +1,30 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ *
+ ********************************************************************
+ */
 package problem;
 
 import antlr.RecognitionException;
@@ -36,6 +37,7 @@ import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
 import conditions.PDDLObject;
+import domain.ActionParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
 
@@ -58,12 +60,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -90,12 +92,14 @@ public class PddlProblem {
     private Metric metric;
     protected String pddlFilRef;
     protected String domainName;
-    private PddlDomain linkedDomain;
+    PddlDomain linkedDomain;
     private boolean validatedAgainstDomain;
     private Set actions;
     private long propositionalTime;
-        private boolean groundedActions;
-        private RelState possStates;
+    private boolean groundActions;
+    private RelState possStates;
+    public int counterNumericFluents = 0;
+    private boolean simplifyActions;
 
     /**
      * Get the value of groundedActions
@@ -103,7 +107,7 @@ public class PddlProblem {
      * @return the value of groundedActions
      */
     public boolean isGroundedActions() {
-        return groundedActions;
+        return groundActions;
     }
 
     /**
@@ -112,9 +116,35 @@ public class PddlProblem {
      * @param groundedActions new value of groundedActions
      */
     public void setGroundedActions(boolean groundedActions) {
-        this.groundedActions = groundedActions;
+        this.groundActions = groundedActions;
     }
 
+    public PddlProblem(String problemFile, PDDLObjects po) {
+        super();
+        try {
+            init = new State();
+            indexObject = 0;
+            indexInit = 0;
+            indexGoals = 0;
+            objects = new PDDLObjects();
+            objects.addAll(po);
+            metric = new Metric("NO");
+            linkedDomain = null;
+            actions = new LinkedHashSet();
+            this.parseProblem(problemFile);
+            groundActions = false;
+            validatedAgainstDomain = false;
+            possStates = null;
+            simplifyActions = true;
+        } catch (IOException ex) {
+            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RecognitionException ex) {
+            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (org.antlr.runtime.RecognitionException ex) {
+            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 
     public PddlProblem(String problemFile) {
         super();
@@ -128,9 +158,9 @@ public class PddlProblem {
             linkedDomain = null;
             actions = new HashSet();
             this.parseProblem(problemFile);
-            groundedActions=false;
-            validatedAgainstDomain=false;
-            possStates=null;
+            groundActions = false;
+            validatedAgainstDomain = false;
+            possStates = null;
         } catch (IOException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RecognitionException ex) {
@@ -138,7 +168,7 @@ public class PddlProblem {
         } catch (org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     /**
@@ -183,7 +213,7 @@ public class PddlProblem {
 
         String toWrite = "(define (problem " + this.getName() + ") "
                 + "(:domain " + this.getDomainName() + ") "
-                + this.objects.pddlPrint() + "\n"
+                + this.getObjects().pddlPrint() + "\n"
                 + this.init.pddlPrint() + "\n"
                 + "(:goal " + this.getGoals().pddlPrint(false) + ")\n"
                 + this.metric.pddlPrint() + "\n"
@@ -207,7 +237,7 @@ public class PddlProblem {
         metric = new Metric("NO");
         linkedDomain = null;
         actions = new HashSet();
-        groundedActions=false;
+        groundActions = false;
 
     }
 
@@ -236,6 +266,7 @@ public class PddlProblem {
 //        exploreTree(t);
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
+            //System.out.println(child.getChild(0).getText());
 
             switch (child.getType()) {
                 case PddlParser.PROBLEM_DOMAIN:
@@ -258,12 +289,23 @@ public class PddlProblem {
                     break;
             }
         }
+        //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
     private void addObjects(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            this.objects.add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
+            if (this.linkedDomain != null) {
+                Type t = linkedDomain.getTypeByName(c.getChild(i).getChild(0).getText());
+                if (t == null) {
+                    System.out.println(c.getChild(i).getChild(0).getText() + " not found");
+                    System.exit(-1);
+                }
+                this.getObjects().add(new PDDLObject(c.getChild(i).getText(), t));
+
+            } else {
+                this.getObjects().add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
+            }
 //            System.out.println("che è di tipo:" + new Type(c.getChild(i).getChild(0).getText()));
         }
     }
@@ -277,7 +319,6 @@ public class PddlProblem {
         a.setGrounded(true);
         //System.out.println(a);
         for (int i = 1; i < t.getChildCount(); i++) {
-
 
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
 
@@ -393,9 +434,11 @@ public class PddlProblem {
                 init.addProposition(buildInstPredicate(c));
 
             } else if (c.getType() == PddlParser.INIT_EQ) {
+                counterNumericFluents++;
                 NumFluentAssigner a = new NumFluentAssigner("=");
                 a.setNFluent((NumFluent) createExpression(c.getChild(0)));
                 a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
+                //System.out.println(a);
                 init.addNumericFluent(a);
             } else if (c.getType() == PddlParser.INIT_AT) {
                 init.addTimedLiteral(buildInstPredicate(c));
@@ -439,7 +482,7 @@ public class PddlProblem {
      * @return the objects - the objects of the pddl problem
      */
     public PDDLObjects getProblemObjects() {
-        return objects;
+        return getObjects();
     }
 
     /**
@@ -468,16 +511,15 @@ public class PddlProblem {
         //System.out.println(t.toStringTree());
         metric = new Metric(t.getChild(0).getText());
         metric.setMetExpr(createExpression(t.getChild(1)));
-        
 
     }
-    
-    public void setMetric(Metric m){
+
+    public void setMetric(Metric m) {
         this.metric = m;
     }
 
     private void setObject(PDDLObjects object) {
-        this.objects = object;
+        this.setObjects(object);
     }
 
     public void setInit(State init) {
@@ -541,15 +583,13 @@ public class PddlProblem {
         return metric;
     }
 
-  
-
     /**
      *
      * @param string - the name of the object we want
      * @return the term representing the object
      */
     public PDDLObject getObjectByName(String string) {
-        for (Object o : this.objects) {
+        for (Object o : this.getObjects()) {
             PDDLObject el = (PDDLObject) o;
             if (el.getName().equalsIgnoreCase(string)) {
                 return el;
@@ -599,7 +639,7 @@ public class PddlProblem {
 
     public void setDomain(PddlDomain aThis) {
         linkedDomain = aThis;
-        
+
     }
 
     public void generateActions() throws Exception {
@@ -608,17 +648,38 @@ public class PddlProblem {
             ActionFactory af = new ActionFactory();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
-                getActions().addAll(af.Propositionalize(act, objects));
-            }
+                if (act.getParameters().size() != 0) {
+                    getActions().addAll(af.Propositionalize(act, getObjects()));
+                } else {
+                    GroundAction gr = act.ground();
+                    getActions().add(gr);
 
+                }
+            }
             //pruneActions();
         } else {
             System.err.println("Please connect the domain of the problem via validation");
             System.exit(-1);
         }
+        Iterator it = getActions().iterator();
+        //System.out.println("prova");
+        System.out.println("|A| just after grounding:"+getActions().size());
+        while (it.hasNext()) {//iteration of the action for pruning the trivial unreacheable ones (because of the grounding and weak evaluation)
+            GroundAction act = (GroundAction) it.next();
+            boolean keep = true;
+            if (isSimplifyActions()) {
+                keep = act.simplifyModel(linkedDomain, this);
+            }
+            if (!keep) {
+                //System.out.println("Action removed:" + act.toEcoString());
+                it.remove();
+            }
+        }
+        System.out.println("|A| just after simplification:"+getActions().size());
+
         setPropositionalTime(System.currentTimeMillis() - start);
         this.setGroundedActions(true);
-        
+
     }
 
     public int distance(State sIn, Conditions c) {
@@ -711,7 +772,6 @@ public class PddlProblem {
                     it.remove();
                 }
             }
-
 
             for (Object o : level) {
                 GroundAction gr = (GroundAction) o;
@@ -850,7 +910,7 @@ public class PddlProblem {
     }
 
     public void parseProblem(String string, PDDLObjects constants) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
-        this.objects.addAll(constants);
+        this.getObjects().addAll(constants);
         parseProblem(string);
     }
 
@@ -880,5 +940,39 @@ public class PddlProblem {
      */
     public void setPossStates(RelState possStates) {
         this.possStates = possStates;
+    }
+
+    public void removeObjects(ActionParametersAsTerms constantsFound) {
+        for (Object c : constantsFound) {
+            this.getObjects().remove(c);
+        }
+    }
+
+    /**
+     * @return the objects
+     */
+    public PDDLObjects getObjects() {
+        return objects;
+    }
+
+    /**
+     * @param objects the objects to set
+     */
+    public void setObjects(PDDLObjects objects) {
+        this.objects = objects;
+    }
+
+    /**
+     * @return the simplifyActions
+     */
+    public boolean isSimplifyActions() {
+        return simplifyActions;
+    }
+
+    /**
+     * @param simplifyActions the simplifyActions to set
+     */
+    public void setSimplifyActions(boolean simplifyActions) {
+        this.simplifyActions = simplifyActions;
     }
 }

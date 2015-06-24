@@ -36,16 +36,13 @@ import problem.State;
  *
  * @author enrico
  */
-public class SearchNode implements Comparable{
-    public State s;
+public class RegressedSearchNode implements Comparable{
     public GroundAction action;
-    public int goal_distance;
-    public SearchNode father;
-    public float action_cost_to_get_here;
-    public SearchNode(State s1, GroundAction action,SearchNode father,float action_cost_to_get_here,int goal_distance){
-        s = s1;
+
+    public RegressedSearchNode father;
+    public int action_cost_to_get_here;
+    public RegressedSearchNode(GroundAction action, int action_cost_to_get_here){
         this.action = action;
-        this.goal_distance = goal_distance;
         this.father = father;
         this.action_cost_to_get_here= action_cost_to_get_here;
     }
@@ -60,9 +57,9 @@ public class SearchNode implements Comparable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SearchNode other = (SearchNode) obj;
+        final RegressedSearchNode other = (RegressedSearchNode) obj;
         
-        if (!this.s.equals(other.s)) {
+        if (!this.action.equals(other.action)) {
             return false;
         }
         return true;
@@ -71,11 +68,9 @@ public class SearchNode implements Comparable{
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
         hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-        hash = 29 * hash + this.goal_distance;
         hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-        hash = 29 * hash + (int)this.action_cost_to_get_here;
+        hash = 29 * hash + this.action_cost_to_get_here;
         return hash;
     }
 
@@ -92,10 +87,10 @@ public class SearchNode implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-        final SearchNode other = (SearchNode) o;
-        if ((this.goal_distance+this.action_cost_to_get_here) == (other.goal_distance+other.action_cost_to_get_here))
+        final RegressedSearchNode other = (RegressedSearchNode) o;
+        if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here))
             return 0;
-        if ((this.goal_distance+this.action_cost_to_get_here) < (other.goal_distance+other.action_cost_to_get_here))
+        if ((this.action_cost_to_get_here) < (other.action_cost_to_get_here))
             return -1;
         else
             return +1;

@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -56,9 +57,10 @@ public class lpgWrapper extends planningTool {
             this.setDomainFile(domainFile);
             this.setProblemFile(problemFile);
             this.executePlanning();
-            //System.out.println(outputPlanning);
+            System.out.println(outputPlanning);
 
-            if (this.outputPlanning.contains("unsolvable")){
+            if (this.outputPlanning.contains("unsolvable") || this.outputPlanning.contains("can not be reached")){
+                moveFiles(problemFile);
                 this.failed=true;
                 System.out.println("....UNSOLVABLE");
                 return null;
@@ -201,5 +203,26 @@ public class lpgWrapper extends planningTool {
      */
     public void setTotalReplanningTimeContinualPlanningSetting(long totalReplanningtime) {
         this.totalReplanningtime = totalReplanningtime;
+    }
+
+    private void moveFiles(String problemFile) {
+        
+        try{
+        File afile =new File(problemFile);
+        
+    	   if(afile.renameTo(new File(problemFile + "UNSOLVABLE"))){
+    		System.out.println("File is moved successful!");
+    	   }else{
+    		System.out.println("File is failed to move!");
+    	   }
+ 
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+    }
+
+    @Override
+    public void changePlannersPath() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

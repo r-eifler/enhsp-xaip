@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import problem.GroundAction;
+import problem.PddlProblem;
 import problem.PddlSCProblem;
 import problem.State;
 
@@ -46,27 +47,34 @@ import problem.State;
  * @author enrico
  */
 public class SearchStrategies {
-    private static int w=4;
+    private int hw=4;
     public static int priority_queue_size;
+    private boolean checking_visited=true;
+    private Heuristics heuristic;
+    private int gw;
     
-    public static LinkedList enforced_hill_climbing(PddlSCProblem problem) throws Exception{
+    public void setup_heuristic(Heuristics input){
+        this.heuristic = input;
+        setGw(0);
+        setHw(1);
+        
+    }
+    
+    public LinkedList enforced_hill_climbing(PddlProblem problem) throws Exception{
         long start_global =System.currentTimeMillis();
+        LinkedHashSet rel_actions =  new LinkedHashSet(problem.getActions());
+        
+        heuristic.setup(problem.getInit());
 
-        problem.generateActions();
-        NumericPlanningGraph np = new NumericPlanningGraph(); 
-        np.goal = problem.getGoals();
-        LinkedHashSet a =  new LinkedHashSet(problem.getActions());
         State current = problem.getInit();
         LinkedList plan = new LinkedList();
-        a = new LinkedHashSet(np.reacheability(problem.getInit(), problem.getActions()));
-        HashMap predAchievers = getAchievers(np,a);
+        //a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit(), problem.getActions()));
         //System.out.println("Goals:"+problem.getGoals());
-        System.out.println("All Actions:"+a.size());
-        Heuristics.computeH1(current, problem.getGoals(),  a, new HashMap(), 0, false,null,predAchievers);
-        //a = new LinkedHashSet(np.reacheability(problem.getInit(), problem.getActions()));
-        //System.out.println("After Reacheability Actions:"+a.size());
+        rel_actions = heuristic.reachable;
+        System.out.println("All Actions:"+rel_actions.size());
+
         while (!current.satisfy(problem.getGoals())){
-            SearchNode succ = breadth_first_search(current,problem.getGoals(),a,predAchievers);
+            SearchNode succ = breadth_first_search(current,problem.getGoals(),rel_actions,heuristic);
             if (succ == null){
                 System.out.println("No plan exists with EHC");
                 return null;
@@ -86,12 +94,13 @@ public class SearchStrategies {
     }
     
     public static int nodes_expanded = 0;
-    private static SearchNode breadth_first_search(State current, Conditions goals, HashSet actions, HashMap predAchievers) throws Exception {
+    public SearchNode breadth_first_search(State current, Conditions goals, HashSet actions, Heuristics heuristic) throws Exception {
         HashMap<State,Boolean> visited = new HashMap();
         //System.out.println("Visited size:"+visited.size());
         Deque<SearchNode> frontier = new LinkedList();
-        
-        int current_value = Heuristics.computeH1(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);
+        boolean strong_relaxation = false;
+        //int current_value = Heuristics.h1_recursion_memoization(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);
+        int current_value = heuristic.compute_estimate(current);
         System.out.println("Current Distance:"+current_value);
         SearchNode init = new SearchNode(current,null,null,0,current_value);
         frontier.add(init);
@@ -106,14 +115,14 @@ public class SearchStrategies {
                     //act.normalize();
                     if (visited.get(temp) == null){
                         long start = System.currentTimeMillis();
-                        int d = Heuristics.computeH1(temp, goals,  actions, new HashMap(), 0, false,null,predAchievers);
+                        int d = heuristic.compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
                         if (d!=Integer.MAX_VALUE && d <= current_value){
                             SearchNode new_node = new SearchNode(temp,act,node,1,d);
                             frontier.addLast(new_node);
                             if (d<current_value){
                                 nodes_expanded++;
-                                System.out.println("Expanded:"+nodes_expanded);
+                                //System.out.println("Expanded:"+nodes_expanded);
                                 return new_node;
                             }
                         }
@@ -128,25 +137,37 @@ public class SearchStrategies {
     public static long heuristic_time;
     public static long overall_search_time;
     
-    public static LinkedList wa_star(PddlSCProblem problem,int weight) throws Exception{
-        w = weight;
+    public LinkedList wa_star(PddlProblem problem) throws Exception{
+        boolean helpful_actions = true;
+        
         long start_global =System.currentTimeMillis();
         PriorityQueue<SearchNode> pw = new PriorityQueue();
         State current = (State)problem.getInit();
-        problem.generateActions();
-        int current_value = Heuristics.computeH1(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*w;
+        //problem.generateActions();
+ 
+        LinkedHashSet rel_actions = new LinkedHashSet(problem.getActions());
+        //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
+        System.out.println("After Reacheability Actions:"+rel_actions.size());
+
+        heuristic.setup(current);
+        
+        int current_value = heuristic.compute_estimate(current)*getHw();
+        
+        //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
         System.out.println("H(s_0,G)=:"+current_value);
         if (current_value == Integer.MAX_VALUE)
             return null;
         SearchNode init = new SearchNode((State)problem.getInit().clone(),null,null,0,current_value);
         pw.add(init);
         HashMap<State,Boolean> visited = new HashMap();
-        HashMap<State,Integer> cost = new HashMap();
+        HashMap<State,Float> cost = new HashMap();
         heuristic_time = 0;
         while (!pw.isEmpty()){
             SearchNode current_node = pw.poll();
             nodes_expanded++;
             priority_queue_size = pw.size();
+            //System.out.println("Current Distance:"+current_node.action_cost_to_get_here);
+            //System.out.println("Current Cost:"+current_node.action_cost_to_get_here);
             if (current_value > current_node.goal_distance){
                 System.out.println("Current Distance:"+current_node.goal_distance);
                 current_value = current_node.goal_distance;
@@ -164,17 +185,20 @@ public class SearchStrategies {
                     cost.put(temp,current_node.action_cost_to_get_here+1);
 
                     //act.normalize();
-                    if (visited.get(temp) == null || (visited.get(temp)==true) && (cost.get(temp)>current_node.action_cost_to_get_here+1)){
+                    if (visited.get(temp) == null || (visited.get(temp)==true) && (cost.get(temp)>current_node.action_cost_to_get_here)){
                         if (visited.get(temp)!=null){
                             System.out.println("Node re-opening");
                         }
                         long start = System.currentTimeMillis();
-                        int d = Heuristics.computeH1(temp, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null);
+                        int d = heuristic.compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
                         //System.out.print(d+" ");
-                        if (d!=Integer.MAX_VALUE){
-                            SearchNode new_node = new SearchNode(temp,act,current_node,current_node.action_cost_to_get_here+1,d*w);
-                            //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*w);
+                        if (d!=Integer.MAX_VALUE && ( !helpful_actions ||d <= current_value ) ){
+//                        if (d!=Integer.MAX_VALUE && ( d <= current_value ) ){
+
+                            act.setAction_cost(temp);
+                            SearchNode new_node = new SearchNode(temp,act,current_node,current_node.action_cost_to_get_here+(int)act.getAction_cost(),d*getHw());
+                            //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                             pw.add(new_node);
 //                            if (new_node.s.satisfy(problem.getGoals()))
 //                              return extract_plan(new_node);
@@ -187,32 +211,29 @@ public class SearchStrategies {
         return null;
     }
     
-    public static LinkedList greedy_best_first_search(PddlSCProblem problem) throws Exception{
+    public LinkedList greedy_best_first_search(PddlProblem problem) throws Exception{
         long start_global =System.currentTimeMillis();
         PriorityQueue<SearchNode> pw = new PriorityQueue();
         State current = (State)problem.getInit();
-        problem.generateActions();
-        NumericPlanningGraph np = new NumericPlanningGraph();
-        np.goal = problem.getGoals();
-        LinkedHashSet a = new LinkedHashSet(problem.getActions());
-        a = new LinkedHashSet(np.reacheability(problem.getInit().clone(), problem.getActions()));
-        System.out.println("After Reacheability Actions:"+a.size());
-//        for (Object o: a){
-//            System.out.println(o);
-//        }
-        HashMap predAchievers = getAchievers(np,a);
-
-        int current_value = Heuristics.computeH1(current, problem.getGoals(),  a, new HashMap(), 0, false,null,predAchievers);
+        heuristic.setup(current);
+        System.out.println("|A| (After Relevance Analysis):"+heuristic.reachable.size());
+//        rel_actions = (LinkedHashSet) heuristic.compute_relevant_actions(current, problem.getGoals(), rel_actions);
+        //heuristic.build_integer_representation(rel_actions, problem.getGoals());
+        System.out.println("Computing H1...");
+        long start = System.currentTimeMillis();
+        int current_value = heuristic.compute_estimate(current);
+        
+        System.out.println("Initial h1 cost:"+ (System.currentTimeMillis()-start));
         System.out.println("H(s_0,G)=:"+current_value);
 
-        if (current_value == -1)
+        if (current_value == Integer.MAX_VALUE){
+            overall_search_time = System.currentTimeMillis()-start_global;
             return null;
-        
-        
-        SearchNode init = new SearchNode((State)problem.getInit().clone(),null,null,0,current_value);
+        }
+        SearchNode init = new SearchNode((State)problem.getInit(),null,null,0,current_value);
         pw.add(init);
         HashMap<State,Boolean> visited = new HashMap();
-        HashMap<State,Integer> cost = new HashMap();
+//        HashMap<State,Integer> cost = new HashMap();
         heuristic_time = 0;
         while (!pw.isEmpty()){
             SearchNode current_node = pw.poll();
@@ -221,31 +242,25 @@ public class SearchStrategies {
                 System.out.println("Current Distance:"+current_node.goal_distance);
                 current_value = current_node.goal_distance;
             }
-            //if (current_node.action!= null)
-                //System.out.println("Action:"+current_node.action);
             if (current_node.s.satisfy(problem.getGoals())){
                 overall_search_time = System.currentTimeMillis()-start_global;
                 return extract_plan(current_node);
             }
             nodes_expanded++;
-            visited.put(current_node.s, Boolean.TRUE);
-            for (GroundAction act: (LinkedHashSet<GroundAction>)problem.getActions()){
+            if (checking_visited)
+                visited.put(current_node.s, Boolean.TRUE);
+            for (GroundAction act: heuristic.reachable){
                 if (act.isApplicable(current_node.s)){
                     State temp = act.apply(current_node.s.clone());
-                    cost.put(temp,current_node.action_cost_to_get_here+1);
-
-                    //act.normalize();
-                    if (visited.get(temp) == null){// || (visited.get(temp)==true) && (cost.get(temp)>current_node.action_cost_to_get_here+1)){
-                        long start = System.currentTimeMillis();
-                        int d = Heuristics.computeH1(temp, problem.getGoals(),  a, new HashMap(), 0, false,null,predAchievers);
+                    //if (!checking_visited || visited.get(temp) == null){
+                    if (visited.get(temp) == null){
+                        start = System.currentTimeMillis();
+                        int d = heuristic.compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
-                        //System.out.print(d+" ");
+                        //System.out.print("Exploration:"+d);
                         if (d!=Integer.MAX_VALUE){
-                            SearchNode new_node = new SearchNode(temp,act,current_node,0,d);
-                            //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*w);
-                            pw.add(new_node);
-//                            if (new_node.s.satisfy(problem.getGoals()))
-//                              return extract_plan(new_node);
+                            SearchNode new_node = new SearchNode(temp,act,current_node,(current_node.action_cost_to_get_here+act.getAction_cost())*getGw(),d*getHw());
+                            pw.add(new_node);      
                         }
                     }
                 }
@@ -254,7 +269,9 @@ public class SearchStrategies {
         
         return null;
     }
-
+    
+    
+   
     
     private static HashMap getAchievers(NumericPlanningGraph np, LinkedHashSet a){
             
@@ -292,6 +309,34 @@ public class SearchStrategies {
             c = c.father;
         }
         return plan;
+    }
+
+    /**
+     * @return the gw
+     */
+    public int getGw() {
+        return gw;
+    }
+
+    /**
+     * @param gw the gw to set
+     */
+    public void setGw(int gw) {
+        this.gw = gw;
+    }
+
+    /**
+     * @return the hw
+     */
+    public int getHw() {
+        return hw;
+    }
+
+    /**
+     * @param hw the hw to set
+     */
+    public void setHw(int hw) {
+        this.hw = hw;
     }
     
 }
