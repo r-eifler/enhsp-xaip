@@ -62,6 +62,7 @@ import java.util.logging.Logger;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
+import problem.GlobalConstraint;
 import problem.GroundAction;
 import problem.PddlProblem;
 import problem.State;
@@ -2098,6 +2099,42 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public void addActionsFromPartialOrder(Set actionsOfThePlan) {
 
+    }
+
+    public State execute(State init, HashSet globalConstraintSet) throws CloneNotSupportedException {
+        State temp = init.clone();
+        int i=0;
+        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+            for (GlobalConstraint constr: (Collection<GlobalConstraint>)globalConstraintSet){
+                    if (!temp.satisfy(constr.condition)){
+                        System.out.println("Global Constraint is not satisfied:"+constr.name);
+                        return temp;
+                    }
+                        
+            } 
+            if (gr.isApplicable(temp)) {
+                i++;
+                temp = gr.apply(temp);
+
+                if (debug >1){
+                    System.out.println(gr.getName()+" action has been applied");
+                    //System.out.println(temp.pddlPrint());
+                }
+                //System.out.println("in-at"+ temp.printFluentByName("in-at"));
+            } else {
+                if (debug > 1){
+                    System.out.println(gr.toEcoString() + "is not applicable");
+                    System.out.println("Step:"+i);
+                    
+                    //AndCond c= (AndCond)gr.getPreconditions();
+                    System.out.println(temp.pddlPrint());
+
+                    System.out.println(temp.whatIsNotsatisfied((AndCond)gr.getPreconditions()));
+                }
+                return temp;
+            }
+        }
+        return temp;    
     }
 
 }

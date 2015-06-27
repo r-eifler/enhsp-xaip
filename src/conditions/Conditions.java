@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
@@ -60,6 +61,9 @@ public abstract class Conditions extends Object {
 
     public abstract boolean eval(State s);
 
+    
+    public abstract String toSmtVariableString(int k, GroundAction gr, String var);
+    
     public abstract boolean isSatisfied(State s);
 
     public abstract void changeVar(Map substitution);

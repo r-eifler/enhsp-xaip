@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
@@ -240,6 +241,11 @@ public class NumFluentAssigner extends Conditions {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toSmtVariableString(int k, GroundAction gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

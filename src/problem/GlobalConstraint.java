@@ -59,7 +59,9 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
 
         Conditions con = constr.condition;
         con.setFreeVarSemantic(true);
-//        System.out.println(con);
+        //System.out.println(con);
+        //con.normalize();
+        //System.out.println(con);
         con = con.weakEval(problem.getInit(), abstractInvariantFluents);
  
         if (con == null || con.isUnsatisfiable()){
@@ -69,7 +71,9 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         }
 
         //System.out.println(a.toPDDL());
+//        System.out.println(constr);
         constr.normalize();
+//        System.out.println(constr);
 //        if (a.isUnsatisfiable())
 //            return false;
         //System.out.println(a.toPDDL());

@@ -751,6 +751,9 @@ public class Comparison extends Conditions {
     }
 
     public String toSmtVariableString(int k, GroundAction gr, String var) {
+        if (!gr.mayInfluence(this)){
+            return " true ";
+        }
         NormExpression norm = (NormExpression) this.getLeft();
         String ret_val = "";
 
