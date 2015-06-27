@@ -217,7 +217,7 @@ constraintDef
 	: '(' ':constraint' constraintSymbol
 	      ':parameters'  '(' typedVariableList ')'
            constraintDefBody ')'
-       -> ^(GLOBAL_CONSTRAINT constraintDefBody typedVariableList? constraintDefBody)
+       -> ^(GLOBAL_CONSTRAINT constraintSymbol typedVariableList? constraintDefBody)
     ;
 
 

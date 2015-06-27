@@ -49,13 +49,13 @@ import problem.PddlProblem;
  */
 public class ActionSchema extends GenericActionType {
 
-    private ActionParameters parameters;
+    private SchemaParameters parameters;
     private HashSet numericFluentAffected;
 
 
     public ActionSchema() {
         super();
-        parameters = new ActionParameters();
+        parameters = new SchemaParameters();
         numericFluentAffected = new HashSet();
     }
 
@@ -70,14 +70,14 @@ public class ActionSchema extends GenericActionType {
     /**
      * @return the parameters
      */
-    public ActionParameters getParameters() {
+    public SchemaParameters getParameters() {
         return parameters;
     }
 
     /**
      * @param parameters the parameters to set
      */
-    public void setParameters(ActionParameters parameters) {
+    public void setParameters(SchemaParameters parameters) {
         this.parameters = parameters;
     }
 
@@ -89,7 +89,7 @@ public class ActionSchema extends GenericActionType {
 
     public GroundAction ground(Map substitution) {
         GroundAction ret = new GroundAction(this.name);
-        ActionParametersAsTerms input = new ActionParametersAsTerms();
+        ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
             PDDLObject t = (PDDLObject) substitution.get(el);
@@ -111,7 +111,7 @@ public class ActionSchema extends GenericActionType {
     
     public GroundAction ground(Map substitution, int c) {
         GroundAction ret = new GroundAction(this.name);
-        ActionParametersAsTerms input = new ActionParametersAsTerms();
+        ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
             PDDLObject t = (PDDLObject) substitution.get(el);
@@ -126,9 +126,9 @@ public class ActionSchema extends GenericActionType {
         return ret;
     }
 
-    public GroundAction ground(ActionParametersAsTerms par) {
+    public GroundAction ground(ParametersAsTerms par) {
         GroundAction ret = new GroundAction(this.name);
-        ActionParametersAsTerms input = new ActionParametersAsTerms();
+        ParametersAsTerms input = new ParametersAsTerms();
         int i = 0;
 
         Map substitution = new HashMap();
@@ -159,7 +159,7 @@ public class ActionSchema extends GenericActionType {
     
     public GroundAction ground() {
         GroundAction ret = new GroundAction(this.name);
-        ActionParametersAsTerms input = new ActionParametersAsTerms();
+        ParametersAsTerms input = new ParametersAsTerms();
 
         ret.setParameters(input);
         ret.setPreconditions(preconditions);
@@ -245,7 +245,7 @@ public class ActionSchema extends GenericActionType {
         ab.name = this.name+"_"+as2.name;
         
         
-        ab.setParameters( (ActionParameters) a.getParameters().clone());
+        ab.setParameters( (SchemaParameters) a.getParameters().clone());
         ab.getParameters().mergeParameters(as2.getParameters());
 
         ab.setPreconditions(this.regress(as2, a));

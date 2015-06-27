@@ -258,7 +258,10 @@ public class NormExpression extends Expression {
         for (Object o : this.summations) {
             Addendum a = (Addendum) o;
             Addendum newA = new Addendum();
-            newA.f = (NumFluent) a.f.ground(substitution);
+//            System.out.println(substitution);
+//            System.out.println(a);
+            if (a.f != null)
+                newA.f = (NumFluent) a.f.ground(substitution);
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
         }

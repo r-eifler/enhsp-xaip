@@ -27,19 +27,10 @@
  *
  ********************************************************************
  */
-import computation.DomainEnhancer;
-import computation.NumericKernel;
-import domain.ActionSchema;
 import domain.PddlDomain;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import plan.SimplePlan;
-import problem.GroundAction;
+import problem.PddlSCProblem;
 
-public class Test {
+public class domainTester {
 
     /**
      * @param args Call the program by passing domain and problem pddl files
@@ -55,9 +46,14 @@ public class Test {
 
         {
             PddlDomain domain = new PddlDomain();
-            NumericKernel nk = new NumericKernel();
             domain.parseDomain(args[0]);
+            domain.prettyPrint();
+            PddlSCProblem problem = new PddlSCProblem(args[1], domain.getConstants());
 
+            domain.validate(problem);
+            problem.instantiate();
+            System.out.println(problem.globalConstraintSet);
+            
         }
     }
 

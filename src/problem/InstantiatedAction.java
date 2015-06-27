@@ -28,13 +28,13 @@ package problem;
 import conditions.AndCond;
 import conditions.Conditions;
 
-import domain.ActionParametersAsTerms;
+import domain.ParametersAsTerms;
 import domain.GenericActionType;
 
 @Deprecated
 public class InstantiatedAction extends GenericActionType {
 
-    protected ActionParametersAsTerms parameters;
+    protected ParametersAsTerms parameters;
 
     public InstantiatedAction(String name) {
         this.name = name;
@@ -62,14 +62,14 @@ public class InstantiatedAction extends GenericActionType {
     /**
      * @return the parameters
      */
-    public ActionParametersAsTerms getParameters() {
+    public ParametersAsTerms getParameters() {
         return parameters;
     }
 
     /**
      * @param parameters the parameters to set
      */
-    public void setParameters(ActionParametersAsTerms parameters) {
+    public void setParameters(ParametersAsTerms parameters) {
         this.parameters = parameters;
     }
 
