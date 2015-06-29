@@ -620,7 +620,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 //nf.getFluentAffected();
-                if (ab.getNumericFluentAffected().get(nf.getFluentAffected())!=null) {
+                if (ab.getNumericFluentAffected().get(nf.getFluentAffected())==null) {
                     numEff.sons.add(o);
                     ab.addNumericFluentAffected(nf.getFluentAffected());
                 }
@@ -694,7 +694,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         Conditions eff = a.getNumericEffects();
 
-        System.out.println(abstractInvariantFluents);
+        //System.out.println(abstractInvariantFluents);
         eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
 
         if (eff == null)

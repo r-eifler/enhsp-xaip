@@ -1032,9 +1032,6 @@ public class PlanAdapter {
             Utils.deleteFile("temp");
         }
         
-    
-        
-        
         if (solutionString == null) {
             return null;
         }
@@ -1142,6 +1139,25 @@ public class PlanAdapter {
         return ret;
         
     }
+
+    public void adaptViaBlockDeordering(SimplePlan sp, PddlProblem problem, PddlDomain domain, String planFile) {
+        
+        //Block deordering invocation
+           
+        //Build Macro Action
+        
+        //Write domain extended
+        
+        //Planning with off-the shelf planner on the extended domain representation
+        
+        
+        
+    }
+
+
+
+
+
     public class GroundActionComparator implements Comparator<GroundAction> {
     @Override
     public int compare(GroundAction x, GroundAction y) {
@@ -1151,7 +1167,8 @@ public class PlanAdapter {
             return 0;
         return 1;  // do your comparison
     }
-}
+    }
+
     
 
 }

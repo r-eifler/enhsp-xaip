@@ -131,7 +131,7 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
@@ -183,7 +183,7 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
@@ -239,7 +239,7 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
