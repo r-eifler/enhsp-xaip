@@ -34,8 +34,8 @@ import conditions.NotCond;
 import conditions.NumFluentAssigner;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import domain.ActionParametersAsTerms;
 import domain.ActionSchema;
+import domain.ParametersAsTerms;
 import domain.PddlDomain;
 import domain.Variable;
 import expressions.Expression;
@@ -62,6 +62,7 @@ import java.util.logging.Logger;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
+import problem.GlobalConstraint;
 import problem.GroundAction;
 import problem.PddlProblem;
 import problem.State;
@@ -159,12 +160,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     //it will be handled as a mmaction
-    public void putAction(String actionName, ActionParametersAsTerms par) {
+    public void putAction(String actionName, ParametersAsTerms par){
 
         ActionSchema action = pd.getActionByName(actionName);
         if (action == null) {
             System.out.println("Action not found in the domain theory!!" + actionName);
         }
+        //System.out.println(par);
         GroundAction grAction = action.ground(par);
         grAction.generateAffectedNumFluents();
         //grAction.normalizeAndCopy();
@@ -195,7 +197,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                    ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -238,9 +240,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public void addActionsFromString(String s1) {
         String nameOperator, s2;
-        ActionParametersAsTerms pars = new ActionParametersAsTerms();
-        s2 = s1.substring(s1.indexOf(":")+1, s1.length());
-        
+        ParametersAsTerms pars = new ParametersAsTerms();
+        s2 = s1.substring(s1.indexOf(":")+1, s1.length());        
         s1 = s2.trim().toLowerCase();
         //System.out.println(s1);
         //this.add(s1);
@@ -304,7 +305,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -662,13 +663,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr.isApplicable(temp)) {
                 i++;
                 temp = gr.apply(temp);
-                if (debug == 1){
+                if (debug >1){
                     System.out.println(gr.getName()+" action has been applied");
                     //System.out.println(temp.pddlPrint());
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
-                if (debug == 0){
+                if (debug > 1){
                     System.out.println(gr.toEcoString() + "is not applicable");
                     System.out.println("Step:"+i);
                     
@@ -787,7 +788,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                    ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -2098,6 +2099,42 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public void addActionsFromPartialOrder(Set actionsOfThePlan) {
 
+    }
+
+    public State execute(State init, HashSet globalConstraintSet) throws CloneNotSupportedException {
+        State temp = init.clone();
+        int i=0;
+        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+            for (GlobalConstraint constr: (Collection<GlobalConstraint>)globalConstraintSet){
+                    if (!temp.satisfy(constr.condition)){
+                        System.out.println("Global Constraint is not satisfied:"+constr.name);
+                        return temp;
+                    }
+                        
+            } 
+            if (gr.isApplicable(temp)) {
+                i++;
+                temp = gr.apply(temp);
+
+                if (debug >1){
+                    System.out.println(gr.getName()+" action has been applied");
+                    //System.out.println(temp.pddlPrint());
+                }
+                //System.out.println("in-at"+ temp.printFluentByName("in-at"));
+            } else {
+                if (debug > 1){
+                    System.out.println(gr.toEcoString() + "is not applicable");
+                    System.out.println("Step:"+i);
+                    
+                    //AndCond c= (AndCond)gr.getPreconditions();
+                    System.out.println(temp.pddlPrint());
+
+                    System.out.println(temp.whatIsNotsatisfied((AndCond)gr.getPreconditions()));
+                }
+                return temp;
+            }
+        }
+        return temp;    
     }
 
 }

@@ -35,7 +35,7 @@ import conditions.NumFluentAssigner;
 import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import domain.ActionParametersAsTerms;
+import domain.ParametersAsTerms;
 import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
@@ -60,7 +60,7 @@ import search.RegressedSearchNode;
 
 public class GroundAction extends GenericActionType implements Comparable {
 
-    protected ActionParametersAsTerms parameters;
+    protected ParametersAsTerms parameters;
     public boolean normalized;
     private HashMap<NumFluent,Boolean> numericFluentAffected;
     private ArrayList primitives;
@@ -70,7 +70,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public Comparison achievedComparison = null;
     public GroundAction generator;
     public HashSet<Conditions> achievedComparisons;
-    private boolean unsatisfiable = false;
+    private boolean reacheable = false;
     private HashMap<NumFluent,Float> coefficientAffected;
     private float action_cost;
     public int counter;
@@ -90,7 +90,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
         ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
         if (this.parameters != null) {
-            ret.parameters = (ActionParametersAsTerms) this.parameters.clone();
+            ret.parameters = (ParametersAsTerms) this.parameters.clone();
         }
         if (this.preconditions != null) {
             ret.preconditions = this.preconditions.clone();
@@ -135,7 +135,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         super();
         this.name = null;
         numericFluentAffected = null;
-        this.parameters = new ActionParametersAsTerms();
+        this.parameters = new ParametersAsTerms();
         //numericFluentAffected = new HashMap();
         action_cost = 0;
     }
@@ -144,7 +144,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         super();
         this.name = name;
         numericFluentAffected = null;
-        this.parameters = new ActionParametersAsTerms();
+        this.parameters = new ParametersAsTerms();
         this.preconditions = new AndCond();
         //numericFluentAffected = new HashMap();
         action_cost = 0;
@@ -196,14 +196,14 @@ public class GroundAction extends GenericActionType implements Comparable {
     /**
      * @return the parameters
      */
-    public ActionParametersAsTerms getParameters() {
+    public ParametersAsTerms getParameters() {
         return parameters;
     }
 
     /**
      * @param parameters the parameters to set
      */
-    public void setParameters(ActionParametersAsTerms parameters) {
+    public void setParameters(ParametersAsTerms parameters) {
         this.parameters = parameters;
     }
 
@@ -303,7 +303,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         this.getPreconditions().normalize();
         if (this.getPreconditions().isUnsatisfiable()) {
-            this.setUnsatisfiable(true);
+            this.setReacheable(true);
         }
 
         AndCond num = (AndCond) this.getNumericEffects();
@@ -438,7 +438,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         ab.getPrimitives().add(b);
         if (a.getParameters() != null) {
-            ab.setParameters((ActionParametersAsTerms) a.getParameters().clone());
+            ab.setParameters((ParametersAsTerms) a.getParameters().clone());
         }
         if (b.getParameters() != null) {
             ab.getParameters().addALLNewObjects(b.getParameters());
@@ -471,7 +471,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         ab.getPrimitives().add(b);
 
-        ab.setParameters((ActionParametersAsTerms) a.getParameters().clone());
+        ab.setParameters((ParametersAsTerms) a.getParameters().clone());
         ab.getParameters().addALLNewObjects(b.getParameters());
 
         //System.out.println(b.pddlEffects());
@@ -585,7 +585,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         /*atoms achieved by b*/
         //System.out.println(b);
         //System.out.println(b.getAddList());
-        localAddList.sons.addAll(b.getAddList().sons);
+        if (b.getAddList()!= null)
+            localAddList.sons.addAll(b.getAddList().sons);
 
         /*Starting from what action a deletes*/
         AndCond localDelList = null;
@@ -612,7 +613,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 numEff.sons.add(nf.subst(a.getNumericEffects()));
-                ab.numericFluentAffected.put(nf.getFluentAffected(),Boolean.TRUE);
+                ab.addNumericFluentAffected(nf.getFluentAffected());
             }
         }
         if (a.getNumericEffects() != null) {
@@ -621,7 +622,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //nf.getFluentAffected();
                 if (ab.getNumericFluentAffected().get(nf.getFluentAffected())!=null) {
                     numEff.sons.add(o);
-                    ab.numericFluentAffected.put(nf.getFluentAffected(),Boolean.TRUE);
+                    ab.addNumericFluentAffected(nf.getFluentAffected());
                 }
             }
         }
@@ -693,6 +694,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         Conditions eff = a.getNumericEffects();
 
+        System.out.println(abstractInvariantFluents);
         eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
 
         if (eff == null)
@@ -848,7 +850,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         ba.setPrimitives((ArrayList) b.getPrimitives().clone());
         ba.getPrimitives().add(0, a);
 
-        ba.setParameters((ActionParametersAsTerms) b.getParameters().clone());
+        ba.setParameters((ParametersAsTerms) b.getParameters().clone());
         ba.getParameters().addALLNewObjects(a.getParameters());
 
         ba.setPreconditions(regress(b, a));
@@ -1758,17 +1760,17 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     /**
-     * @return the unsatisfiable
+     * @return the reacheable
      */
-    public boolean isUnsatisfiable() {
-        return unsatisfiable;
+    public boolean isReacheable() {
+        return reacheable;
     }
 
     /**
-     * @param unsatisfiable the unsatisfiable to set
+     * @param reacheable the reacheable to set
      */
-    public void setUnsatisfiable(boolean unsatisfiable) {
-        this.unsatisfiable = unsatisfiable;
+    public void setReacheable(boolean reacheable) {
+        this.reacheable = reacheable;
     }
 
     public boolean assign_unassigned_fluent(State s) {
@@ -1915,6 +1917,13 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public NumEffect getAffectorOf(NumFluent f) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void addNumericFluentAffected(NumFluent fluentAffected) {
+        if (this.numericFluentAffected == null){
+            this.numericFluentAffected = new HashMap();
+        }
+        this.numericFluentAffected.put(fluentAffected,Boolean.TRUE);
     }
 
  

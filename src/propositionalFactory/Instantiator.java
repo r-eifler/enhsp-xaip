@@ -25,11 +25,13 @@
  *********************************************************************/ 
 package propositionalFactory;
 
+import problem.GlobalConstraint;
 import conditions.PDDLObject;
 
-import domain.ActionParameters;
-import domain.ActionParametersAsTerms;
+import domain.SchemaParameters;
+import domain.ParametersAsTerms;
 import domain.ActionSchema;
+import domain.SchemaGlobalConstraint;
 
 
 import domain.Variable;
@@ -49,69 +51,31 @@ import problem.GroundAction;
 
 import problem.PDDLObjects;
 
-public class ActionFactory {
+public class Instantiator {
 
-    public ActionFactory() {
+    public Instantiator() {
         super();
     }
 
     public Set Substitutions(ActionSchema a, PDDLObjects po) throws Exception {
         HashSet ret = new HashSet();
         Set combo = new HashSet();
-        ActionParameters aP = a.getParameters();
+        SchemaParameters param = a.getParameters();
         int n_parametri = a.getParameters().size();
-        HashMap<PDDLObject, Variable>[] sub = new HashMap[n_parametri];
-        int i = 0;
+        return sub(param,n_parametri,po);
 
-
-        if (aP.isEmpty()) {
-            combo.add(new PDDLObject("null"));
-            return combo;
-        }
-
-
-        for (Object el1 : aP) {
-            sub[i] = new HashMap();
-            //System.out.println("Variable" + el1);
-            for (Object el : po) {
-                PDDLObject t = (PDDLObject) el;
-                Variable v = (Variable) el1;
-                if ((v.getType().isAncestorOf(t.getType())) || (t.getType().equals(v.getType()))) {
-                    sub[i].put(t, v);
-                }
-            }
-            i++;
-        }
-
-        Integer[] sizes = new Integer[n_parametri];
-        for (i = 0; i < n_parametri; i++) {
-            sizes[i] = sub[i].keySet().size() - 1;
-        }
-
-        Integer[] counter = new Integer[n_parametri];
-        for (i = 0; i < n_parametri; i++) {
-            counter[i] = 0;
-        }
-
-        do {
-//                System.out.print("Combo: ");
-//                for(i=0; i<n_parametri;i++)
-//                    System.out.print(counter[i]);
-//                 System.out.println("");
-////                 System.out.println(sub[0]);
-////                 System.out.println(a);
-            ActionParametersAsTerms toAdd = new ActionParametersAsTerms();
-            for (int z = 0; z < n_parametri; z++) {
-                //System.out.println(sub[z]);
-                toAdd.add(sub[z].keySet().toArray()[counter[z]]);
-            }
-            combo.add(toAdd);
-
-        } while (incVettore(counter, n_parametri - 1, sizes));
-
-        return combo;
     }
 
+    public Set Substitutions(SchemaGlobalConstraint constr, PDDLObjects po) throws Exception {
+        SchemaParameters param = constr.parameters;
+        int n_parametri = constr.parameters.size();
+        
+        return sub(param,n_parametri,po);
+        
+        
+    }
+
+    
     public boolean incVettore(Integer[] v, int n, Integer[] max) {
 
         if (n < 0) {
@@ -132,7 +96,7 @@ public class ActionFactory {
         }
     }
 
-    private List creaCombinazione(PDDLObjects O, ActionParameters aP, int index) {
+    private List creaCombinazione(PDDLObjects O, SchemaParameters aP, int index) {
         List ret = new ArrayList();
         if (index == aP.size() - 1) {
             for (Object el : O) {
@@ -159,8 +123,8 @@ public class ActionFactory {
 
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
-            if (o instanceof ActionParametersAsTerms){
-                GroundAction toAdd =a.ground((ActionParametersAsTerms) o);
+            if (o instanceof ParametersAsTerms){
+                GroundAction toAdd =a.ground((ParametersAsTerms) o);
                 toAdd.generateAffectedNumFluents();
                 ret.add(toAdd);
             }
@@ -169,4 +133,83 @@ public class ActionFactory {
         return ret;
 
     }
+    
+    public Set Propositionalize(SchemaGlobalConstraint constr, PDDLObjects po) throws Exception {
+        Set ret = new LinkedHashSet();
+
+        Set combo = Substitutions(constr, po);
+        for (Object o : combo) {
+            if (o instanceof ParametersAsTerms){
+                GlobalConstraint toAdd =constr.ground((ParametersAsTerms) o);
+                ret.add(toAdd);
+            }
+        }
+
+        return ret;
+
+    }
+
+    private Set sub(SchemaParameters param, int n_parametri, PDDLObjects po) {
+        HashSet combo = new HashSet();
+        HashMap<PDDLObject, Variable>[] sub = new HashMap[n_parametri];
+        int i = 0;
+
+        if (po.isEmpty())
+            return combo;
+        
+
+        if (param.isEmpty()) {
+            combo.add(new PDDLObject("null"));
+            return combo;
+        }
+
+
+        for (Object el1 : param) {
+            sub[i] = new HashMap();
+            //System.out.println("Variable" + el1);
+            boolean at_least_one = false;
+            for (Object el : po) {
+                PDDLObject t = (PDDLObject) el;
+                Variable v = (Variable) el1;
+                if ((v.getType().isAncestorOf(t.getType())) || (t.getType().equals(v.getType()))) {
+                    sub[i].put(t, v);
+                    at_least_one = true;
+                }
+               
+            }
+            if (!at_least_one)
+                return combo;
+            i++;
+        }
+
+        Integer[] sizes = new Integer[n_parametri];
+        for (i = 0; i < n_parametri; i++) {
+            sizes[i] = sub[i].keySet().size() - 1;
+        }
+
+        Integer[] counter = new Integer[n_parametri];
+        for (i = 0; i < n_parametri; i++) {
+            counter[i] = 0;
+        }
+
+        do {
+//                System.out.print("Combo: ");
+//                for(i=0; i<n_parametri;i++)
+//                    System.out.print(counter[i]);
+//                 System.out.println("");
+////                 System.out.println(sub[0]);
+////                 System.out.println(a);
+            ParametersAsTerms toAdd = new ParametersAsTerms();
+            for (int z = 0; z < n_parametri; z++) {
+                //System.out.println(sub[z]);
+                toAdd.add(sub[z].keySet().toArray()[counter[z]]);
+            }
+            combo.add(toAdd);
+
+        } while (incVettore(counter, n_parametri - 1, sizes));
+
+        return combo;
+    }
+    
+    
 }

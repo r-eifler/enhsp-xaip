@@ -20,6 +20,8 @@ tokens {
     FREE_FUNCTIONS;
     PREDICATES;
     ACTION;
+    CONSTRAINT;
+    GLOBAL_CONSTRAINT;
     DURATIVE_ACTION;
     PROBLEM;
     PROBLEM_NAME;
@@ -198,6 +200,7 @@ structureDef
 	: actionDef
 	| durativeActionDef
 	| derivedDef
+	| constraintDef
 	;
 
 
@@ -210,8 +213,17 @@ actionDef
        -> ^(ACTION actionSymbol typedVariableList? actionDefBody)
     ;
 
+constraintDef
+	: '(' ':constraint' constraintSymbol
+	      ':parameters'  '(' typedVariableList ')'
+           constraintDefBody ')'
+       -> ^(GLOBAL_CONSTRAINT constraintSymbol typedVariableList? constraintDefBody)
+    ;
+
+
 actionSymbol : NAME ;
 
+constraintSymbol : NAME ;
 
 // Should allow preGD instead of goalDesc for preconditions -
 // but I can't get the LL(*) parsing to work
@@ -221,6 +233,12 @@ actionDefBody
 	  ( ':effect' (('(' ')') | effect))?
 	  -> ^(PRECONDITION goalDesc?) ^(EFFECT effect?)
 	;
+
+constraintDefBody
+	: ( ':condition' (('(' ')') | goalDesc))?
+	  -> ^(PRECONDITION goalDesc?)
+	;
+
 
 //preGD
 //	: prefGD
@@ -559,3 +577,6 @@ WHITESPACE
         )+
         { $channel = HIDDEN; }
     ;
+
+
+

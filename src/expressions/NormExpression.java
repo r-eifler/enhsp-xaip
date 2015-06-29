@@ -258,7 +258,10 @@ public class NormExpression extends Expression {
         for (Object o : this.summations) {
             Addendum a = (Addendum) o;
             Addendum newA = new Addendum();
-            newA.f = (NumFluent) a.f.ground(substitution);
+//            System.out.println(substitution);
+//            System.out.println(a);
+            if (a.f != null)
+                newA.f = (NumFluent) a.f.ground(substitution);
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
         }
@@ -308,7 +311,12 @@ public class NormExpression extends Expression {
         PDDLNumber c = new PDDLNumber(0);
         for (Addendum a : this.summations) {
             if (a.f != null) {
-                if ((Boolean) invFluents.get(a.f)) {
+//                System.out.println(a.f);
+//                //System.out.println(invFluents);
+//                if (invFluents.get(a.f)==null){
+//                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
+//                }
+                if (invFluents.get(a.f)!= null && (Boolean) invFluents.get(a.f)) {
                     c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber() * a.n.getNumber());
                 } else {
                     ret.summations.add(a);

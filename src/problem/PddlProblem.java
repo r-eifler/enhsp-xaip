@@ -37,7 +37,7 @@ import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
 import conditions.PDDLObject;
-import domain.ActionParametersAsTerms;
+import domain.ParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
 
@@ -74,7 +74,7 @@ import org.antlr.runtime.tree.Tree;
 
 import parser.PddlLexer;
 import parser.PddlParser;
-import propositionalFactory.ActionFactory;
+import propositionalFactory.Instantiator;
 
 /**
  *
@@ -645,7 +645,7 @@ public class PddlProblem {
     public void generateActions() throws Exception {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            ActionFactory af = new ActionFactory();
+            Instantiator af = new Instantiator();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
                 if (act.getParameters().size() != 0) {
@@ -942,7 +942,7 @@ public class PddlProblem {
         this.possStates = possStates;
     }
 
-    public void removeObjects(ActionParametersAsTerms constantsFound) {
+    public void removeObjects(ParametersAsTerms constantsFound) {
         for (Object c : constantsFound) {
             this.getObjects().remove(c);
         }

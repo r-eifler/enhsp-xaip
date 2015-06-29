@@ -117,8 +117,10 @@ public class deordering {
         
         
         DomainEnhancer dEnh = new DomainEnhancer();
-        po = plan.removeInitGoal(po);        
+        //po = plan.removeInitGoal(po);        
 
+
+        
         List c =plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,false,false);
         System.out.println(c);
         Map m = dEnh.addMacroActions(dom,c,plan);
@@ -143,7 +145,7 @@ public class deordering {
                 totalOrder.addEdge(i, j);
             }
         }
-        m_jgAdapter = new JGraphModelAdapter(totalOrder);        
+        m_jgAdapter = new JGraphModelAdapter(po);        
 
         //po = totalOrder;
         
@@ -152,7 +154,7 @@ public class deordering {
         int x = 0;
         int y = 0;
         int counter = 0;
-        for (Object o : totalOrder.vertexSet()) {
+        for (Object o : po.vertexSet()) {
             Integer v = (Integer)o;
             
             GroundAction gr = plan.get(v);
