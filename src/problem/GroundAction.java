@@ -585,7 +585,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         /*atoms achieved by b*/
         //System.out.println(b);
         //System.out.println(b.getAddList());
-        localAddList.sons.addAll(b.getAddList().sons);
+        if (b.getAddList()!= null)
+            localAddList.sons.addAll(b.getAddList().sons);
 
         /*Starting from what action a deletes*/
         AndCond localDelList = null;
@@ -612,7 +613,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 numEff.sons.add(nf.subst(a.getNumericEffects()));
-                ab.numericFluentAffected.put(nf.getFluentAffected(),Boolean.TRUE);
+                ab.addNumericFluentAffected(nf.getFluentAffected());
             }
         }
         if (a.getNumericEffects() != null) {
@@ -621,7 +622,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //nf.getFluentAffected();
                 if (ab.getNumericFluentAffected().get(nf.getFluentAffected())!=null) {
                     numEff.sons.add(o);
-                    ab.numericFluentAffected.put(nf.getFluentAffected(),Boolean.TRUE);
+                    ab.addNumericFluentAffected(nf.getFluentAffected());
                 }
             }
         }
@@ -693,6 +694,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         Conditions eff = a.getNumericEffects();
 
+        System.out.println(abstractInvariantFluents);
         eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
 
         if (eff == null)
@@ -1915,6 +1917,13 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public NumEffect getAffectorOf(NumFluent f) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void addNumericFluentAffected(NumFluent fluentAffected) {
+        if (this.numericFluentAffected == null){
+            this.numericFluentAffected = new HashMap();
+        }
+        this.numericFluentAffected.put(fluentAffected,Boolean.TRUE);
     }
 
  
