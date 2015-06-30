@@ -248,6 +248,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         int nameEndIndex = s1.indexOf(" ");
         if (nameEndIndex == -1) {
             nameOperator = s1.substring(1, s1.indexOf(")"));
+            //System.out.println(nameOperator);
         } else {
             nameOperator = s1.substring(1, nameEndIndex);
             //System.out.println(nameOperator);
@@ -266,7 +267,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
                 //System.out.println(par);
                 PDDLObject obj = new PDDLObject(par);
-//                System.out.println(nameOperator);
+                //System.out.println(nameOperator);
                 ActionSchema a = this.pd.getActionByName(nameOperator);
 //                System.out.println(a);
 //               System.out.println(a.getParameters().size());
