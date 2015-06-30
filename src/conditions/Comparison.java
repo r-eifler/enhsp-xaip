@@ -64,9 +64,9 @@ public class Comparison extends Conditions {
         }
         final Comparison other = (Comparison) obj;
         //System.out.println("Testing equality");
-        if (!other.normalized || !this.normalized) {
-            return false;
-        }
+//        if (!other.normalized || !this.normalized) {
+//            return false;
+//        }
         if ((this.comparator == null) ? (other.comparator != null) : !this.comparator.equals(other.comparator)) {
             return false;
         }

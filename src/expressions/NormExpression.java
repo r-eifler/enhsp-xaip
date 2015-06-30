@@ -430,58 +430,58 @@ public class NormExpression extends Expression {
         return this;
     }
 
-    public NormExpression subst(Conditions numeric, String var) {
-        ArrayList toAdd = new ArrayList();
-        ArrayList toRemove = new ArrayList();
-        Iterator it = summations.iterator();
-        try{
-        while (it.hasNext()) {
-            Addendum ad = (Addendum) it.next();
-            if (ad.f != null) {
-                //System.out.println(numeric);
-                if (numeric != null) {
-                    for (Object o1 : numeric.sons) {
-                        NumEffect ef = (NumEffect) o1;
-                        NumEffect eff = (NumEffect) ef.clone();
-                        //eff.setRight(eff.getRight().normalize());
-//                    System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
-                        if (eff.getFluentAffected().equals(ad.f)) {
-                            if ((eff.getOperator().equals("increase"))) {
-                                NormExpression res = new NormExpression();
-                                res.sum((NormExpression) eff.getRight());
-                                res.mult(ad.n);
-                                toAdd.add(res);
-                            } else if (eff.getOperator().equals("decrease")) {
-                                NormExpression res = new NormExpression();
-                                //System.out.println(eff);
-                                //eff.setRight(eff.getRight().normalize());
-                                res.sum((NormExpression) eff.getRight());
-                                res.mult(ad.n);
-                                toRemove.add(res);
-                            } else if (eff.getOperator().equals("assign")) {
-                                NormExpression res = new NormExpression();
-                                res.sum((NormExpression) eff.getRight());
-                                res.mult(ad.n);
-                                toAdd.add(res);
-                                it.remove();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for (Object o : toAdd) {
-            this.sum((NormExpression) o);
-        }
-        for (Object o : toRemove) {
-            this.minus((NormExpression) o);
-        }
-                                            } catch (Exception ex) {
-                                Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-        return this;
-    }
+//    public NormExpression subst(Conditions numeric, String var) {
+//        ArrayList toAdd = new ArrayList();
+//        ArrayList toRemove = new ArrayList();
+//        Iterator it = summations.iterator();
+//        try{
+//        while (it.hasNext()) {
+//            Addendum ad = (Addendum) it.next();
+//            if (ad.f != null) {
+//                //System.out.println(numeric);
+//                if (numeric != null) {
+//                    for (Object o1 : numeric.sons) {
+//                        NumEffect ef = (NumEffect) o1;
+//                        NumEffect eff = (NumEffect) ef.clone();
+//                        //eff.setRight(eff.getRight().normalize());
+////                    System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
+//                        if (eff.getFluentAffected().equals(ad.f)) {
+//                            if ((eff.getOperator().equals("increase"))) {
+//                                NormExpression res = new NormExpression();
+//                                res.sum((NormExpression) eff.getRight());
+//                                res.mult(ad.n);
+//                                toAdd.add(res);
+//                            } else if (eff.getOperator().equals("decrease")) {
+//                                NormExpression res = new NormExpression();
+//                                //System.out.println(eff);
+//                                //eff.setRight(eff.getRight().normalize());
+//                                res.sum((NormExpression) eff.getRight());
+//                                res.mult(ad.n);
+//                                toRemove.add(res);
+//                            } else if (eff.getOperator().equals("assign")) {
+//                                NormExpression res = new NormExpression();
+//                                res.sum((NormExpression) eff.getRight());
+//                                res.mult(ad.n);
+//                                toAdd.add(res);
+//                                it.remove();
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        for (Object o : toAdd) {
+//            this.sum((NormExpression) o);
+//        }
+//        for (Object o : toRemove) {
+//            this.minus((NormExpression) o);
+//        }
+//                                            } catch (Exception ex) {
+//                                Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
+//        return this;
+//    }
 
     private void mult(PDDLNumber n) {
         for (Object o : summations) {
