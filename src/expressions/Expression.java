@@ -80,6 +80,8 @@ public abstract class Expression extends Object {
     public abstract Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j);
 
     public abstract String toSmtVariableString(int i);
+    
+    
 
     /**
      * @return the freeVarSemantic

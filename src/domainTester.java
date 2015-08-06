@@ -51,7 +51,7 @@ public class domainTester {
             PddlSCProblem problem = new PddlSCProblem(args[1], domain.getConstants());
 
             domain.validate(problem);
-            problem.instantiate();
+            problem.grounding();
             System.out.println(problem.globalConstraintSet);
             
         }

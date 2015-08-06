@@ -31,8 +31,6 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.NumFluentAssigner;
-import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ParametersAsTerms;
@@ -49,6 +47,7 @@ import expressions.PDDLNumbers;
 import extraUtils.Pair;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -620,7 +619,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 //nf.getFluentAffected();
-                if (ab.getNumericFluentAffected().get(nf.getFluentAffected())!=null) {
+                if (ab.getNumericFluentAffected().get(nf.getFluentAffected())==null) {
                     numEff.sons.add(o);
                     ab.addNumericFluentAffected(nf.getFluentAffected());
                 }
@@ -694,7 +693,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         Conditions eff = a.getNumericEffects();
 
-        System.out.println(abstractInvariantFluents);
+        //System.out.println(abstractInvariantFluents);
         eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
 
         if (eff == null)
@@ -1402,13 +1401,13 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-    public String toSmtVariableString() {
-        String parametri = "";
-        for (Object o : getParameters()) {
-            parametri = parametri.concat(o.toString()).concat("");
-        }
-        return ("ACTION" + this.name + "" + parametri).replaceAll("\\s+", "");
-    }
+//    public String toSmtVariableString() {
+//        String parametri = "";
+//        for (Object o : getParameters()) {
+//            parametri = parametri.concat(o.toString()).concat("");
+//        }
+//        return ("ACTION" + this.name + "" + parametri).replaceAll("\\s+", "");
+//    }
 
     public boolean threat(AndCond andCond) {
         if (this.delList == null) {
@@ -1473,8 +1472,19 @@ public class GroundAction extends GenericActionType implements Comparable {
             parametri += "@" + po.getName();
             //parametri = parametri.concat(po.getName()).concat("_");
         }
-        return ("ACTION" + this.name + parametri + "@" + i).replaceAll("\\s+", "");
+        return ("ACTION" + this.name + parametri + "@-" + i).replaceAll("\\s+", "");
     }
+    
+    public String toVariableString() {
+        String parametri = "";
+        for (Object o : getParameters()) {
+            PDDLObject po = (PDDLObject) o;
+            parametri += "@" + po.getName();
+            //parametri = parametri.concat(po.getName()).concat("_");
+        }
+        return ("ACTION" + this.name + parametri + "@").replaceAll("\\s+", "");
+    }
+    
 
     //This function regresses the cond passed as input according to the model of the action. The value of the parameter will be modified. So if you want to generate a new condition please clone before using the function
     public Conditions regressNew(Conditions cond) {
@@ -1924,6 +1934,21 @@ public class GroundAction extends GenericActionType implements Comparable {
             this.numericFluentAffected = new HashMap();
         }
         this.numericFluentAffected.put(fluentAffected,Boolean.TRUE);
+    }
+
+    public Comparison regressComparisonMtimes(Comparison comparison) {
+        
+        AndCond temp = new AndCond();
+        if (this.getNumericEffects() != null){
+            for (NumEffect ne: (Collection<NumEffect>) this.getNumericEffects().sons){
+                NumFluent m = new NumFluent(this.toVariableString());//generate the variable capturin the m repetition
+                temp.sons.add(ne.generate_m_times_extension(m));//assuming that m is an integer
+            }
+        }
+        GroundAction grTemp = new GroundAction();
+        grTemp.setNumericEffects(temp);
+        return grTemp.regressComparison(comparison);
+        
     }
 
  

@@ -45,11 +45,13 @@ public class PddlSCProblem extends PddlProblem {
 
     public HashSet globalConstraintSet;
     private boolean globalConstraintGrounded;
+    private boolean grounding;
 
     public PddlSCProblem(String problemFile) {
         super(problemFile);
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
+        grounding = false;
 
     }
 
@@ -57,14 +59,16 @@ public class PddlSCProblem extends PddlProblem {
         super(problemFile, po);
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
-
+        grounding = false;
     }
 
-    public void instantiate() {
+    public void grounding() {
         try {
+            if (grounding)
+                return;
             this.generateActions();
             this.generateConstraints();
-
+            grounding = true;
         } catch (Exception ex) {
             Logger.getLogger(PddlSCProblem.class.getName()).log(Level.SEVERE, null, ex);
         }

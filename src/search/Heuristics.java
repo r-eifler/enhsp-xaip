@@ -101,6 +101,11 @@ public abstract class Heuristics {
         int counter2 = 0;
         ArrayList conditions = new ArrayList();
         for (GroundAction a : A) {
+            try {
+                a.normalize();
+            } catch (Exception ex) {
+                Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
             LinkedHashSet temp = new LinkedHashSet();
             for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
@@ -171,7 +176,7 @@ public abstract class Heuristics {
         A1.addAll(A);
         //assuming it is an and condition
         int ret = Integer.MAX_VALUE;
-        System.out.println("Starting Relevance Analysis....");
+        //System.out.println("Starting Relevance Analysis....");
         long start = System.currentTimeMillis();
 
         for (Conditions c_1 : this.all_conditions) {
@@ -207,7 +212,7 @@ public abstract class Heuristics {
         }
         update_reacheable_predicates(h, s_0);
         update_definable_fluents();
-        System.out.println("Finished Relevance Analysis; Cpu-Time:" + (System.currentTimeMillis() - start));
+        //System.out.println("Finished Relevance Analysis; Cpu-Time:" + (System.currentTimeMillis() - start));
         return;
     }
 

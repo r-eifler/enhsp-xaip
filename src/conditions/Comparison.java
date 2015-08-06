@@ -63,10 +63,14 @@ public class Comparison extends Conditions {
             return false;
         }
         final Comparison other = (Comparison) obj;
+        
+        other.normalize();
+        this.normalize();
+        
         //System.out.println("Testing equality");
-        if (!other.normalized || !this.normalized) {
-            return false;
-        }
+//        if (!other.normalized || !this.normalized) {
+//            return false;
+//        }
         if ((this.comparator == null) ? (other.comparator != null) : !this.comparator.equals(other.comparator)) {
             return false;
         }
@@ -76,6 +80,8 @@ public class Comparison extends Conditions {
         if (this.right != other.right && (this.right == null || !this.right.equals(other.right))) {
             return false;
         }
+        
+        
         NormExpression left_expr = (NormExpression) left;
         NormExpression left_expr2 = (NormExpression) other.left;
         if (!left_expr.equals(left_expr2)) {
