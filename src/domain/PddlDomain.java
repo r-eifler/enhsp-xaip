@@ -1016,7 +1016,7 @@ public class PddlDomain extends Object {
     public HashMap generateAbstractInvariantFluents() {
         if (getAbstractInvariantFluents() != null)
             return getAbstractInvariantFluents();
-        HashMap abstractInvariantFluents = new HashMap();
+        abstractInvariantFluents = new HashMap();
         for (ActionSchema as : (Set<ActionSchema>) this.ActionsSchema) {
             Set s = as.getAbstractNumericFluentAffected();
             for (NumFluent nf : (Set<NumFluent>) s) {
