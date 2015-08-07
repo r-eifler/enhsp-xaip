@@ -310,6 +310,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {
                     NumEffect e = (NumEffect) o;
+                    //System.out.println(e);
                     e.setRight(e.getRight().normalize());
                 }
             }
@@ -478,7 +479,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         ab.setPreconditions(regress(b, a));
         progress(a, b, ab);
         ab.setIsMacro(true);
-        //System.out.println("Da dentro l'azione..."+ab);
+//        System.out.println("Da dentro l'azione..."+ab);
         ab.simplifyModel(pd, pp);
         ab.computeDistance(pd, pp, consideringNumericInformationInDistance);
 
@@ -677,13 +678,17 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public boolean simplifyModel(PddlDomain domain, PddlProblem problem) throws Exception {
 
-        HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
+        HashMap invariantFluents = problem.getInvariantFluents();
+        //add invariantFluents because free variable
+        for (NumFluent nf : (Collection<NumFluent>)domain.getFree_functions()){
+            invariantFluents.put(nf.getName(),Boolean.FALSE);
+        }
 
         GroundAction a = this;
 
         Conditions con = a.getPreconditions();
 
-        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+        con = con.weakEval(problem.getInit(), invariantFluents);
  
         if (con == null){
             //System.out.println("A precondition is never satisfiable");
@@ -694,7 +699,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         Conditions eff = a.getNumericEffects();
 
         //System.out.println(abstractInvariantFluents);
-        eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
+        eff = eff.weakEval(problem.getInit(), invariantFluents);
 
         if (eff == null)
             return false;
@@ -1319,6 +1324,9 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public boolean influence(NumFluent nf) {
+        if (this.numericFluentAffected == null)
+            this.generateAffectedNumFluents();
+        
         return numericFluentAffected.get(nf)!=null;
     }
 
@@ -1637,9 +1645,13 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, PddlProblem problem) throws Exception {
-
-        HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
-
+        
+        
+        HashMap invariantFluents = problem.getInvariantFluents();
+        //add invariantFluents because free variable
+        for (NumFluent nf : (Collection<NumFluent>)domain.getFree_functions()){
+            invariantFluents.put(nf.getName(),Boolean.FALSE);
+        }
         
         GroundAction a = this;
         //a.normalizeAndCopy();
@@ -1647,7 +1659,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         Conditions con = a.getPreconditions();
         con.setFreeVarSemantic(true);
 //        System.out.println(con);
-        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+        con = con.weakEval(problem.getInit(), invariantFluents);
  
         if (con == null || con.isUnsatisfiable()){
 //            if (con == null)
@@ -1657,7 +1669,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         
         Conditions eff = a.getNumericEffects();
         eff.setFreeVarSemantic(true);
-        eff = eff.weakEval(problem.getInit(), abstractInvariantFluents);
+        eff = eff.weakEval(problem.getInit(), invariantFluents);
 
         if (eff == null){
 //            System.out.println("Pruning because of the effect");
@@ -1752,6 +1764,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public boolean is_influenced_by(GroundAction a) {
         for (Object o : this.getNumericEffects().sons) {
             NumEffect nf = (NumEffect) o;
+            //System.out.println(nf);
             if (nf.getRight().involve(a.getNumericFluentAffected())) {
                 return true;
             }

@@ -66,20 +66,20 @@ import problem.State;
 public class PlanAdapter {
 
     //wrapper for external planning tool
-    private planningTool planner;
+    protected planningTool planner;
     
     //statistics informations
     private long kernelConstructionTime;
-    private int plannerTime;
+    protected int plannerTime;
     private long adaptationTime;
     private long heuristicComputationTime;
-    private long macroActionsConstructionTime;
+    protected long macroActionsConstructionTime;
     
     //if true, use kernel heuristic repair instead of greedy repair. See AIXIA 2013, Enrico Scala article
     private boolean kernelHeuristicRepair;
     
     //The solution container
-    private SimplePlan solution;
+    protected SimplePlan solution;
     //public boolean debuggingMacrioActionConstructionBench;
     
     //number of macro actions exploited for performing the repair
@@ -1129,7 +1129,7 @@ public class PlanAdapter {
         this.uselessActionPruning = uselessActionPruning;
     }
 
-    private TreeSet pruneSmallMacros(List c, int i) {
+    protected TreeSet pruneSmallMacros(List c, int i) {
         
         TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
         ret.addAll(c);

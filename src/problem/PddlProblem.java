@@ -57,6 +57,7 @@ import java.io.IOException;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -100,6 +101,7 @@ public class PddlProblem {
     private RelState possStates;
     public int counterNumericFluents = 0;
     private boolean simplifyActions;
+    private HashMap invariantFluents;
 
     /**
      * Get the value of groundedActions
@@ -259,7 +261,7 @@ public class PddlProblem {
         PddlParser.pddlDoc_return root = parser.pddlDoc();
 
         if (parser.invalidGrammar()) {
-            System.out.println("General Problem Parsing");
+            System.out.println("Grammar is violated");
         }
         CommonTree t = (CommonTree) root.getTree();
 //        System.out.println("tree:" + t.toStringTree());
@@ -647,13 +649,11 @@ public class PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Instantiator af = new Instantiator();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
-//                af.Propositionalize(act, objects);
                 if (act.getParameters().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
                     GroundAction gr = act.ground();
                     getActions().add(gr);
-
                 }
             }
             //pruneActions();
@@ -974,5 +974,19 @@ public class PddlProblem {
      */
     public void setSimplifyActions(boolean simplifyActions) {
         this.simplifyActions = simplifyActions;
+    }
+
+    public HashMap getInvariantFluents() throws Exception {
+        if (invariantFluents == null){
+            invariantFluents = new HashMap();
+            if (this.getActions() == null)
+                this.generateActions();
+            for (GroundAction gr : (Collection<GroundAction>)this.getActions()){
+                for (NumFluent nf :gr.getNumericFluentAffected().keySet()){
+                    invariantFluents.put(nf,Boolean.FALSE);
+                }
+            }
+        }
+        return invariantFluents;
     }
 }

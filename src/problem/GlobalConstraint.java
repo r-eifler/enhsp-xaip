@@ -28,12 +28,15 @@
  */
 package problem;
 
-import conditions.AndCond;
 import conditions.Conditions;
+import conditions.NotCond;
+import conditions.OrCond;
+import conditions.Predicate;
 import domain.ParametersAsTerms;
 import domain.PddlDomain;
 import domain.SchemaGlobalConstraint;
-import expressions.NumEffect;
+import expressions.NumFluent;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -49,11 +52,15 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         super(name);
     }
 
-    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, PddlSCProblem problem) {
+    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, PddlSCProblem problem) throws Exception {
         
       
-        HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
-
+        HashMap invariantFluents = problem.getInvariantFluents();
+        //add invariantFluents because free variable
+        for (NumFluent nf : (Collection<NumFluent>)domain.getFree_functions()){
+            invariantFluents.put(nf.getName(),Boolean.FALSE);
+        }
+        
         GlobalConstraint constr = this;
         //a.normalizeAndCopy();
 
@@ -62,11 +69,11 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         //System.out.println(con);
         //con.normalize();
         //System.out.println(con);
-        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+        con = con.weakEval(problem.getInit(), invariantFluents);
  
+        
+        
         if (con == null || con.isUnsatisfiable()){
-//            if (con == null)
-//                System.out.println("A precondition is never satisfiable; pruning"+a.toEcoString());
             return false;
         }
 
@@ -103,6 +110,27 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
      */
     public void setReacheable(boolean reacheable) {
         this.reacheable = reacheable;
+    }
+
+    public boolean isTautology(State reacheableState) {
+        
+        //for now tautology is checked for disjunction in which one of the element is always true
+        if (this.condition instanceof OrCond){
+            OrCond or = (OrCond)this.condition;
+            for (Conditions c : (Collection<Conditions>)or.sons){
+                if (c instanceof NotCond){
+                    NotCond nc = (NotCond)c;
+                    Object o = nc.son.iterator().next();
+                    if (o instanceof Predicate){
+                        Predicate p = (Predicate)o;
+                        if (!p.isSatisfied(reacheableState))
+                            return true;
+                    }
+                }
+            }
+        }
+            
+        return false;
     }
     
 }

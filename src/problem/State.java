@@ -567,7 +567,7 @@ public class State extends Object {
                                 threateningConstraint = comp.toString();
                                 total = Math.max((float) 1 - (float) (dist / maxDist), total);
                             } else {
-                                System.out.println(comp + "============================================= Collapsed!!!!!");
+                                //System.out.println(comp + "============================================= Collapsed!!!!!");
 
                             }
 
@@ -684,7 +684,7 @@ public class State extends Object {
                                 //System.out.println(maxDist);
                                 total = Math.max((float) 1 - (float) (dist / maxDist), total);
                             } else {
-                                System.out.println(comp + "============================================= Collapsed!!!!!");
+                                //System.out.println(comp + "============================================= Collapsed!!!!!");
 
                             }
 

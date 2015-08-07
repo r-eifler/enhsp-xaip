@@ -101,12 +101,6 @@ public abstract class Heuristics {
         int counter2 = 0;
         ArrayList conditions = new ArrayList();
         for (GroundAction a : A) {
-            try {
-                a.normalize();
-            } catch (Exception ex) {
-                Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
             LinkedHashSet temp = new LinkedHashSet();
             for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
                 int index = conditions.indexOf(c_1);
@@ -511,7 +505,6 @@ public abstract class Heuristics {
 //                    System.out.println("Processing Condition: "+regr);
                     regr.normalize();
 //                    System.out.println("After Normalization: "+regr);
-
                     if (regr.isSatisfied(s_0)) {
                         h.put(regr, 0);
                         new_relevant_condition = true;

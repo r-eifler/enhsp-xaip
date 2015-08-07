@@ -665,6 +665,7 @@ public class AndCond extends Conditions {
                 }else if(o2 instanceof NumEffect){
                     NumEffect ne = (NumEffect)o2;
                     ne.setFreeVarSemantic(freeVarSemantic);
+//                    System.out.println(ne);
                     ne = (NumEffect)ne.weakEval(s, invF);
                     if (ne == null)
                         return null;

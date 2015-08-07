@@ -245,10 +245,13 @@ public class NumEffect extends Expression {
      */
     @Override
     public Expression weakEval(State s, HashMap invF) {
+//        System.out.println(this.fluentAffected.weakEval(s, invF));
         this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.setRight(this.right.weakEval(s, invF));
-        if (this.right == null)
+        if (this.right == null){
+            //System.out.println(this);
             return null;
+        }
         return this;
     }
 

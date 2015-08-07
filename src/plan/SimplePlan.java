@@ -103,7 +103,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         super();
         pd = dom;
         pp = prob;
-        invariantAnalysis = true;
+        invariantAnalysis = false;
         employedMacro = 0;
     }
 
@@ -337,23 +337,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
 
-        if (invariantAnalysis) {
-            this.invariantFluents = new HashMap();
-            for (Object anAction : this) {
-                GroundAction a = (GroundAction) anAction;
-                for (Object o2 : a.getNumericFluentAffected().keySet()) {
-                    invariantFluents.put(o2, false);
-                }
-            }
-
-            //invariantFluents.put(pp.getFunctions(), true);
-            for (Object o3 : pp.getInit().getNumericFluents()) {
-                NumFluentAssigner ass = (NumFluentAssigner) o3;
-                if (invariantFluents.get(ass.getNFluent()) == null) {
-                    invariantFluents.put(ass.getNFluent(), true);
-
-                }
-            }
+        if (this.invariantAnalysis){
+            setInvariantFluents(this.pd.generateAbstractInvariantFluents());
             this.simplifyActions();
         }
     }
@@ -489,69 +474,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //i valori nello stato iniziale
         //dopo aver fatto cio' semplifico le variabili nelle azioni del piano
         for (Object o : this) {
+            
             GroundAction a = (GroundAction) o;
             //a.normalizeAndCopy();
-
-            Conditions con = a.getPreconditions();
-            Conditions eff = a.getNumericEffects();
-//                    System.out.println(con);
-//                    System.out.println(eff);
-            if (con != null) {
-                if (con instanceof AndCond) {
-                    for (Object o2 : con.sons) {
-                        if (o2 instanceof Comparison) {
-                            Comparison comp = (Comparison) o2;
-                            Expression lValue = comp.getLeft();
-                            Expression rValue = comp.getRight();
-                            //System.out.println("before" + lValue + rValue);
-                            lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                            rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                            comp.setLeft(lValue);
-                            comp.setRight(rValue);
-                            //System.out.println("after" + lValue + rValue);
-                        }
-                    }
-                } else {
-                    if (con instanceof Predicate) {
-                    } else {
-
-                        if (con instanceof Comparison) {
-                            Comparison comp = (Comparison) con;
-                            Expression lValue = comp.getLeft();
-                            Expression rValue = comp.getRight();
-                            //System.out.println("before" + lValue + rValue);
-                            lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                            rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                            comp.setLeft(lValue);
-                            comp.setRight(rValue);
-                        } else {
-                            System.err.println("Conditions of the type: " + con.getClass());
-                            throw new UnsupportedOperationException("Not supported yet.");
-                        }
-                    }
-                }
-            }
-
-            if (eff != null) {
-                if (eff instanceof AndCond) {
-                    for (Object o2 : eff.sons) {
-                        NumEffect nEff = (NumEffect) o2;
-                        //System.out.println(nEff.getRight().getClass());
-                        Expression rValue = nEff.getRight();
-                        //System.out.println("before" + rValue);
-                        rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                        nEff.setRight(rValue);
-                        //System.out.println("after" + rValue);
-
-                    }
-                } else {
-                    System.err.println("Effects of the type: " + eff.getClass());
-
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
-
-            }
-            a.normalize();
+            a.simplifyModel(pd, pp);
+          
         }
 
     }
@@ -819,7 +746,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
                         ArrayList primitives = (ArrayList) macroToPrimitives.get(nameOperator);
                         this.addAll(primitives);
                         setEmployedMacro(getEmployedMacro() + 1);
-
                     } else {
                         this.putAction(nameOperator, pars);
                     }
@@ -1042,8 +968,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         if (problem.getMetric() != null) {
             if (problem.getMetric().getMetExpr() != null) {
-                //System.out.println(problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())));
-
+                //System.out.println(problem.getMetric().getMetExpr());
+                if (problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())) == null)
+                    return new Float(this.size());
                 return problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())).getNumber();
             } else {
                 return new Float(this.size());
@@ -1087,6 +1014,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     TreeSet<Integer> chain = new TreeSet();
                     Conditions c = (Conditions) o;
                     //Finding the numeric justification. This requires a local search in the space of actions which have been planned to be executed before i
+                    //System.out.println("Looking for!:" + c );
+//                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
+
                     if (c instanceof Comparison) {
                         boolean supported = false;
                         double best = -10000000000000.0;
@@ -1115,7 +1045,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                             indexBest = z;
                                         }
                                     }
-                                    emptySS = false; //the search space has not been emptied still
+                                    emptySS = false; //the search space has not been emptied yet
                                     chain.remove(z);//remove the temporary selection
                                     if (supported) {
                                         //System.out.println(c);
@@ -1147,6 +1077,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             po.addVertex(i);
                             po.addEdge(-1, i);
                             validationStructure.put(c, chain);
+                            //System.out.println("Action: "+a);
                             System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
                         }
                     } else {
@@ -2137,5 +2068,36 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         return temp;    
     }
+
+    public List generateMacrosFromBlocks(List blocks) throws Exception {
+        List result = new ArrayList();
+
+        for (List s : (List<List>)blocks) {
+            TreeSet<Integer> ordered = new TreeSet(s);
+            //System.out.println("Trying to Merge"+ordered);
+            GroundAction macro = null;
+//            System.out.println("Building Macro");
+            if (s.size()<=1)
+                continue;
+            for (Integer v : (Collection<Integer>)s) {
+                //if it is the first action or it is a splittingpoint (consequence of the step above
+//                System.out.print(" "+v);
+                if (macro == null) {
+                    macro = (GroundAction) this.get(v-1);
+                    macro.setIsMacro(true);
+                    macro.getPrimitives().add(this.get(v-1));
+                    //macro.getPrimitivesWithInteger().add(v-1);
+                } else {
+                    //append to previous computed action
+                    macro = macro.buildMacroInProgression(this.get(v-1), this.pd, this.pp, false);
+                }
+            }
+//            System.out.println("");
+
+            result.add(macro);
+        }
+        return result;
+    }
+
 
 }

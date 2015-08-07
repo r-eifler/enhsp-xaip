@@ -117,7 +117,7 @@ public class deordering {
         
         
         DomainEnhancer dEnh = new DomainEnhancer();
-        //po = plan.removeInitGoal(po);        
+        po = plan.removeInitGoal(po);        
 
 
         

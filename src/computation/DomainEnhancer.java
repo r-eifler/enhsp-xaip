@@ -164,6 +164,7 @@ public class DomainEnhancer {
 
         f = new BufferedWriter(new FileWriter(domain.getPddlFilRef() + "enh"));
         ParametersAsTerms constants = new ParametersAsTerms();
+        constants.addAll(domain.getConstants());
         String actions = "\n";
         int i = 0;
         for (Object o : macroOps) {
