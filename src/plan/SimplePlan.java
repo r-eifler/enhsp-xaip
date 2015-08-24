@@ -2050,7 +2050,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
                 if (debug >1){
                     System.out.println(gr.getName()+" action has been applied");
-                    //System.out.println(temp.pddlPrint());
+                    System.out.println(temp.pddlPrint());
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
