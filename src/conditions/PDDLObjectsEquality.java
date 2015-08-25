@@ -260,7 +260,11 @@ public class PDDLObjectsEquality extends Conditions {
 
     @Override
     public String toSmtVariableString(int i) {
-        return "true";
+        if (this.left.equals(right)){
+            return "true";
+        }
+        else
+            return "false";
     }
 
     @Override
