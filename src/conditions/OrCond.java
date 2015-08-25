@@ -134,7 +134,7 @@ public class OrCond extends Conditions {
     public boolean isSatisfied(State s) {
         for (Object o : sons) {
             Conditions c = (Conditions) o;
-            if (c.eval(s)) {
+            if (c.isSatisfied(s)) {
                 return true;
             }
         }

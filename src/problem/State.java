@@ -274,6 +274,7 @@ public class State extends Object {
 
     public boolean satisfy(Conditions input) {
 
+        
         return input.isSatisfied(this);
 
     }

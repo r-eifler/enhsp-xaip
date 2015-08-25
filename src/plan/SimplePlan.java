@@ -2039,7 +2039,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
             for (GlobalConstraint constr: (Collection<GlobalConstraint>)globalConstraintSet){
                     if (!temp.satisfy(constr.condition)){
-                        System.out.println("Global Constraint is not satisfied:"+constr.name);
+                        System.out.println("Global Constraint is not satisfied:"+constr);
                         return temp;
                     }
                     // MRJ: Meant for debugging
@@ -2070,6 +2070,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 return temp;
             }
         }
+        System.out.println("Plan is executed correctly");
         return temp;    
     }
 
