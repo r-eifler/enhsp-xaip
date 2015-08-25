@@ -2042,10 +2042,14 @@ public class SimplePlan extends ArrayList<GroundAction> {
                         System.out.println("Global Constraint is not satisfied:"+constr.name);
                         return temp;
                     }
-                        
+                    // MRJ: Meant for debugging
+                    //System.out.println(constr.condition.pddlPrint(false));
+                      
             } 
             if (gr.isApplicable(temp)) {
                 i++;
+                // MRJ: Prints the state, meant for debugging
+                //System.out.println(temp.pddlPrint());
                 temp = gr.apply(temp);
 
                 if (debug >1){
