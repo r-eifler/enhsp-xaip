@@ -89,7 +89,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug = 0;
+    private int debug = 1;
+    private boolean newMethod = true;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -1017,53 +1018,20 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     //System.out.println("Looking for!:" + c );
 //                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
 
-                    if (c instanceof Comparison) {
+                    if (c instanceof Comparison){
                         boolean supported = false;
-                        double best = -10000000000000.0;
-                        boolean emptySS = false;
-                        //System.out.println(c);
                         long startingTimeChainSearch = System.currentTimeMillis();
-                        while (!supported && !emptySS) {
-                            int indexBest = -1;
-                            emptySS = true;
-                            for (Integer z = 0; z < i; z++) {//find the element that satisfies the comparison. In case such element does not exist, take the ones maximizing the satisfaction of c
-                                //System.out.println(z);
-                                if (!chain.contains(z)) {//if it has not been selected previously
-                                    chain.add(z);//add temporarly for evaluation reason
-                                    long startingTimeChainSearchEvaluate = System.currentTimeMillis();
-                                    double temp = evaluate(chain, z, i, (Comparison) c);//heuristic measuring how distant the comparison is
-                                    totalStartingTimeChainSearchEvaluate += (System.currentTimeMillis() - startingTimeChainSearchEvaluate);
-                                    //System.out.println("Temp:"+temp);
-                                    if (temp >= 0) {//meaning that it is satisfied
-                                        supported = true;
-                                        indexBest = z;
-                                    } else {//it is not satisfied but let us see if it has improved or not the previous chain set
-                                        //System.out.println("Temp:"+temp+" Best:"+best);
-                                        if (temp > best || indexBest == -1) {
-                                            //System.out.println(temp);
-                                            best = temp;
-                                            indexBest = z;
-                                        }
-                                    }
-                                    emptySS = false; //the search space has not been emptied yet
-                                    chain.remove(z);//remove the temporary selection
-                                    if (supported) {
-                                        //System.out.println(c);
-                                        //System.out.println(chain+" "+indexBest+"-->"+i);
-                                        break;//exit in case when c is satisfied by chain
-                                    }
+                        double temp;
+                        while(true){
+                            temp = take_max(chain,i,(Comparison)c);
+//                            System.out.println(temp);
+                            if (temp > 0){    
+                                supported = true;
+                                break;
+                            }else{
+                                if (chain.size()>=i){
+                                    break;
                                 }
-                            }
-                            if (!emptySS && indexBest != -1) {//if no improvment have been found then break the loop
-                                if (indexBest != -1) {
-                                //System.out.println("Selected"+indexBest);
-
-                                    chain.add(indexBest);
-                                }
-                                //System.out.print("["+chain.size()+"],");
-                            } else {
-                                //System.out.println(c);
-                                //System.out.println("this shouldn't happen");
                             }
                         }
                         totalTimeSpentForChainSearch += (System.currentTimeMillis() - startingTimeChainSearch);
@@ -1072,14 +1040,17 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             validationStructure.put(c, chain);
                             //System.out.println(chain+"-->"+i);
                         } else {
-
                             chain.add(-1);
                             po.addVertex(i);
                             po.addEdge(-1, i);
                             validationStructure.put(c, chain);
-                            //System.out.println("Action: "+a);
+//                            System.out.println(chain);
+//                            System.out.println("Level:"+i);
+//                            System.out.println("Action: "+a);
                             System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
                         }
+                        
+                                      
                     } else {
                         //for the propositional case the search is much simpler...
                         boolean supported = false;
@@ -1156,6 +1127,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             }
                         } else if (c instanceof NotCond) {
 
+                        } else{
+                            System.out.println("Only Conjunctive Preconditions/Conditions are supported");
+                            System.exit(-1);
                         }
 
                     }
@@ -1167,13 +1141,16 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //achieveGoal = goalAchievers(po);
         System.out.println("\nTIME FOR CHAIN SEARCH: " + totalTimeSpentForChainSearch);
         //System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
-
+        
         return po;
     }
 
     public DirectedAcyclicGraph deorder(State init, Conditions g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
+        if (debug >0){
+            System.out.println(po);
+        }
         if (computeGoalAchievers) {
             setGoalAchiever(this.goalAchievers(this.getValidationStructures()));
         }
@@ -2102,6 +2079,39 @@ public class SimplePlan extends ArrayList<GroundAction> {
             result.add(macro);
         }
         return result;
+    }
+
+    private double take_max(TreeSet<Integer> chain, int i,Comparison c) {
+        
+        Float best = Float.NEGATIVE_INFINITY;
+        Integer bestIndex = -1;
+        for (int k=0;k<i;k++){
+            if (!chain.contains(k)){
+                chain.add(k);
+                State tempInit = new State();
+                for (Integer index : chain) {
+//                    System.out.println("Applicando:"+index);
+                    tempInit = this.get(index).apply(tempInit);
+                }
+                if (c.is_evaluable(tempInit)){
+                    Float current = tempInit.distance2(c);
+                    if (current > best){
+//                        System.out.println(current);
+//                        System.out.println(tempInit);
+//                        System.out.println(chain);
+                        best = current;
+                        bestIndex = k;
+                    }
+                }else{
+                    if (bestIndex == -1){
+                        bestIndex = k;
+                    }
+                }
+                chain.remove(k);
+            }
+        }
+        chain.add(bestIndex);
+        return best;
     }
 
 

@@ -65,6 +65,7 @@ public class deordering {
     private static String problemFile;
     private static String planFile;
     private static Boolean graphic=false;
+    private static Boolean get_macro_and_save=false;
     
 
     public static void parseInput(String[] args) {
@@ -82,6 +83,7 @@ public class deordering {
             problemFile = searchParameterValue(args, "-f");
             planFile = searchParameterValue(args,"-p");
             graphic = searchParameter(args,"-v");
+            get_macro_and_save = searchParameter(args,"-macro");
             if (domainFile == null || problemFile == null) {
                 System.err.println(usage);
                 System.exit(-1);
@@ -134,11 +136,22 @@ public class deordering {
         
         //System.out.println(plan.generateMacrosFromPop(po));
         
+        if (get_macro_and_save){
+            System.out.println("Saving Macros from Deordering");
+            DomainEnhancer dEnh = new DomainEnhancer();
+            //DomainEnhancer dEnh = new DomainEnhancer();
+            po = plan.removeInitGoal(po); 
+            
+            List c;
+            c = plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,false,false);
+            System.out.println(c);
+            Map m = dEnh.addMacroActions(dom,c,plan);
+        }
+        
         if (!graphic)
             return;
         //po = plan.removeInitGoal(po);        
         po.removeVertex(-1);
-
         DirectedAcyclicGraph totalOrder = new DirectedAcyclicGraph(DefaultEdge.class);
         
         for(int i=0;i<plan.size();i++){

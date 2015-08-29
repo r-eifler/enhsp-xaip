@@ -190,10 +190,12 @@ public class DomainEnhancer {
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
         }
-        if (!domain.getPredicates().isEmpty()) {
+        if (!constants.isEmpty()) {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
-        f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
+        if (domain.getPredicates() != null){
+            f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
+        }
         if (!domain.getFunctions().isEmpty()) {
             f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
         }

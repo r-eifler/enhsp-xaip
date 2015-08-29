@@ -868,4 +868,13 @@ public class Comparison extends Conditions {
         NormExpression exp = (NormExpression) this.getLeft();
         return exp.eval_affected(s_0, aThis);
     }
+
+    public boolean is_evaluable(State tempInit) {
+        Collection<NumFluent> set = this.getInvolvedFluents();
+        for (NumFluent f:set){
+            if (tempInit.functionValue(f)==null)
+                return false;
+        }
+        return true;
+    }
 }
