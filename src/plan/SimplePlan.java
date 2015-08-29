@@ -996,7 +996,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //create init action from the initial state.
         GroundAction start = init.transformInAction();
         this.add(0, start);
-        System.out.print("Building Validation Structure for : ");
+        //System.out.print("Building Validation Structure for : ");
         for (int i = 0; i < this.size(); i++) {
             GroundAction a = this.get(i);
             //System.out.println(a);
@@ -1166,7 +1166,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         //achieveGoal = goalAchievers(po);
         System.out.println("\nTIME FOR CHAIN SEARCH: " + totalTimeSpentForChainSearch);
-        System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
+        //System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
 
         return po;
     }
@@ -1179,7 +1179,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         //this provides information on the missing constraint and/or prediction services
 
-        System.out.println("\nValidation Structure Built. Now let us see which are the constraints that can be removed");
+        System.out.println("\nValidation Structure has been built. Now let us see which are the constraints that can be removed");
 
         //having found out the validation structure for an action, let us see now which are the ordering constraint that are really necessary
         //these two for emulate the total order inside the plan. 

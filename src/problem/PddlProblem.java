@@ -979,7 +979,7 @@ public class PddlProblem {
     public HashMap getInvariantFluents() throws Exception {
         if (invariantFluents == null){
             invariantFluents = new HashMap();
-            if (this.getActions() == null)
+            if (this.getActions() == null || this.getActions().isEmpty())
                 this.generateActions();
             for (GroundAction gr : (Collection<GroundAction>)this.getActions()){
                 for (NumFluent nf :gr.getNumericFluentAffected().keySet()){

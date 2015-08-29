@@ -1,6 +1,9 @@
 
 import computation.DomainEnhancer;
 import domain.PddlDomain;
+import extraUtils.Utils;
+import static extraUtils.Utils.searchParameter;
+import static extraUtils.Utils.searchParameterValue;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,16 +64,32 @@ public class deordering {
     private static String domainFile;
     private static String problemFile;
     private static String planFile;
+    private static Boolean graphic=false;
+    
 
     public static void parseInput(String[] args) {
+        //Eseguibile -o domain -f problem -s solution -r tipo-repair 
+        String usage = "usage:\n executable-name(java -jar...) "
+                + "\n-o domain -f problem "
+                + "\n-p<optional> (in case the plan is not specified, metric-ff is used to compute it) "
+                + "\n-v<optional,default=false> (if selected, the deorder plan is graphically represented using jgraph";
+        if (args.length < 2) {
+            System.err.println("Number of parameters is low (" + args.length + ")");
+            System.err.println(usage);
+            System.exit(-1);
+        } else {
+            domainFile = searchParameterValue(args, "-o");
+            problemFile = searchParameterValue(args, "-f");
+            planFile = searchParameterValue(args,"-p");
+            graphic = searchParameter(args,"-v");
+            if (domainFile == null || problemFile == null) {
+                System.err.println(usage);
+                System.exit(-1);
+            }
 
-        domainFile = args[0];
-        problemFile = args[1];
-        if (args.length > 2) {
-            planFile = args[2];
         }
-
     }
+
 
     /**
      * @param args the command line arguments
@@ -86,12 +105,11 @@ public class deordering {
         PddlProblem prob = new PddlProblem();
         prob.parseProblem(problemFile);
 
-        SimplePlan plan = new SimplePlan(dom, prob);
+        dom.validate(prob);
+        SimplePlan plan = new SimplePlan(dom, prob,true);
         
         metricFFWrapper p = new metricFFWrapper();
 
-        
-        
         if (planFile == null) {
             p.setTimeout(50000);
             plan.parseSolution(p.plan(domainFile, problemFile));
@@ -101,6 +119,7 @@ public class deordering {
 
         System.out.println(plan.toStringWithIndex());
 
+        
         //HashSet a = new HashSet();
 //        if (!plan.execute(prob.getInit()).satisfy(prob.getGoals())) {
 //            System.out.println("Piano non valido!!");
@@ -115,26 +134,11 @@ public class deordering {
         
         //System.out.println(plan.generateMacrosFromPop(po));
         
-        
-        DomainEnhancer dEnh = new DomainEnhancer();
-        po = plan.removeInitGoal(po);        
+        if (!graphic)
+            return;
+        //po = plan.removeInitGoal(po);        
+        po.removeVertex(-1);
 
-
-        
-        List c =plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,false,false);
-        System.out.println(c);
-        Map m = dEnh.addMacroActions(dom,c,plan);
-        //decompose2(po,plan.size()-2);
-       
-        
-        //decompose(po,plan.size());
-
-        //TransitiveClosure prova = (TransitiveClosure) new Object();
-        //TransitiveClosure.INSTANCE.closeSimpleDirectedGraph(po);
-
-        //System.exit(0);
-
-        
         DirectedAcyclicGraph totalOrder = new DirectedAcyclicGraph(DefaultEdge.class);
         
         for(int i=0;i<plan.size();i++){
