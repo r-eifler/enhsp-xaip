@@ -644,10 +644,10 @@ public class Comparison extends Conditions {
 
     public boolean couldBePrevented(HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) {
 
-        if (!get.mayInfluence(this)) {
-            //System.out.println("Action does not affect");
-            return false;
-        }
+//        if (!get.mayInfluence(this)) {
+//            //System.out.println("Action does not affect");
+//            return false;
+//        }
 
         //If the action affects one of the fluent the comparison depends on, then the comparison can be prevented
         if (get.influence(dependsOn)) {

@@ -1037,6 +1037,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
                         if (supported) {
                             validationStructure.put(c, chain);
+//                            for (Integer l1: chain){
+//                                for (Integer l2: chain){
+//                                    if (l1!=l2){
+//                                        po.addVertex(l1);
+//                                        po.addVertex(l2);
+//                                        po.addEdge(l1, l2);//this add an implicit order. This is due to the fact that we are committing to a specific chain of actions
+//                                    }
+//                                }
+//                            }
                             //System.out.println(chain+"-->"+i);
                         } else {
                             chain.add(-1);
@@ -1157,6 +1166,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 //Motivation += o.toString()+" (nelle giustificazioni)";
                                 break;
                             }
+                            
                         }
                     }
                 }
@@ -1206,7 +1216,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     }
                 }
                 if (!preserveOrderConstraint) {
-                    AndCond conds = (AndCond) this.get(i).getPreconditions();
+                    AndCond conds;
                     for (int k = j + 1; k < this.size(); k++) {
                         IdentityHashMap validationStructure = (IdentityHashMap) getValidationStructures().get(this.get(k));
                         conds = (AndCond) this.get(k).getPreconditions();
@@ -1261,6 +1271,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
             }
         }
+        add_ordering_because_of_within_chain(po);
+
 
 //        for (Object v1 : po.vertexSet()) {
 //            for (Object v2 : po.vertexSet()) {
@@ -2082,6 +2094,21 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         chain.add(bestIndex);
         return best;
+    }
+
+
+
+    private void add_ordering_because_of_within_chain(DirectedAcyclicGraph po) {
+        for (IdentityHashMap ihm:(Collection<IdentityHashMap>)this.getValidationStructures().values()){
+            for (TreeSet<Integer> chain : (Collection<TreeSet<Integer>>)ihm.values()){
+                for (Integer l1:chain)
+                    for (Integer l2:chain){
+                        if (l1<l2)
+                            po.addEdge(l1, l2);
+                    }
+            }
+            
+        }
     }
 
 
