@@ -993,7 +993,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
         goal.normalize();
         this.add(goal);
         long totalTimeSpentForChainSearch = 0;
-        long totalStartingTimeChainSearchEvaluate = 0;
         //create init action from the initial state.
         GroundAction start = init.transformInAction();
         this.add(0, start);
@@ -1083,35 +1082,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
                                 }
 
-                            }
-                            //if (!supported){
-                            if (false) {
-                                for (Integer z = 0; z < 1; z++) {
-
-                                    if (this.get(z).achieve(p)) {
-                                        //System.out.println("Candidate:" + z);
-                                        boolean threat = false;
-                                        for (int k = z + 1; k < i; k++) {
-                                            //System.out.println(this.get(k));
-                                            //System.out.println("checking for"+p);
-                                            if (this.get(k).delete(p)) {
-                                                //System.out.println("Threat:" + this.get(k));
-                                                threat = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!threat) {
-                                            //System.out.println("Candidate ok");
-                                            chain.add(z);
-                                            supported = true;
-                                            break;
-                                        } else {
-                                            //System.out.println("Candidate ko");
-                                        }
-
-                                    }
-
-                                }
                             }
 
                             if (supported) {
@@ -1206,7 +1176,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 if (chain.contains(j)) {
                                     preserveOrderConstraint = true;
                                     orderingByStrangeness++;
-                                    System.out.println("Strange Situations!!");
+                                    System.out.println("Strange Situation!!");
                                     break;
                                 }
                             }
@@ -1215,7 +1185,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 if (this.get(j).delete(p)) {
                                     preserveOrderConstraint = true;
                                     orderingByPropositionalThreatBack++;
-                                    Motivation += o.toString() + " (minaccia Predicate)";
+                                    Motivation += o.toString() + "Back Propositional Threat";
                                     break;
                                 }
 
@@ -1227,7 +1197,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                     if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
                                         preserveOrderConstraint = true;
                                         orderingByNumericThreatBack++;
-                                        Motivation += o.toString() + " (i minaccia la condizione numerico per cui j esiste)";
+                                        Motivation += o.toString() + "Back Numeric Threat";
                                         break;
                                     }
                                 }
@@ -1251,7 +1221,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                             if (this.get(i).delete(p)) {
                                                 preserveOrderConstraint = true;
                                                 orderingByThreatPropositionForward++;
-                                                Motivation += o.toString() + " (i minaccia la condizione proposizionale per cui j esiste)";
+                                                Motivation += o.toString() + " (forward prop threat)";
                                             }
                                             break;
                                         }
@@ -1269,7 +1239,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                                 if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
                                                     preserveOrderConstraint = true;
                                                     orderingByThreatNumericForward++;
-                                                    Motivation += o.toString() + " (i minaccia la condizione numerica per cui j esiste)";
+                                                    Motivation += o.toString() + " (forward numeric threat)";
                                                 }
                                                 break;
                                             }

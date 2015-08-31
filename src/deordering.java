@@ -141,10 +141,9 @@ public class deordering {
             DomainEnhancer dEnh = new DomainEnhancer();
             //DomainEnhancer dEnh = new DomainEnhancer();
             po = plan.removeInitGoal(po); 
-            
             List c;
             c = plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,false,false);
-            System.out.println(c);
+            //System.out.println(c);
             Map m = dEnh.addMacroActions(dom,c,plan);
         }
         
