@@ -213,7 +213,9 @@ public class SearchStrategies {
     
     public LinkedList greedy_best_first_search(PddlProblem problem) throws Exception{
         long start_global =System.currentTimeMillis();
-        PriorityQueue<SearchNode> pw = new PriorityQueue();
+        
+        //Frontier
+        PriorityQueue<SearchNode> frontier = new PriorityQueue();
         State current = (State)problem.getInit();
         heuristic.setup(current);
         System.out.println("|A| (After Relevance Analysis):"+heuristic.reachable.size());
@@ -231,13 +233,13 @@ public class SearchStrategies {
             return null;
         }
         SearchNode init = new SearchNode((State)problem.getInit(),null,null,0,current_value);
-        pw.add(init);
+        frontier.add(init);
         HashMap<State,Boolean> visited = new HashMap();
 //        HashMap<State,Integer> cost = new HashMap();
         heuristic_time = 0;
-        while (!pw.isEmpty()){
-            SearchNode current_node = pw.poll();
-            priority_queue_size = pw.size();
+        while (!frontier.isEmpty()){
+            SearchNode current_node = frontier.poll();
+            priority_queue_size = frontier.size();
             if (current_value > current_node.goal_distance){
                 System.out.println("Current Distance:"+current_node.goal_distance);
                 current_value = current_node.goal_distance;
@@ -260,7 +262,7 @@ public class SearchStrategies {
                         //System.out.print("Exploration:"+d);
                         if (d!=Integer.MAX_VALUE){
                             SearchNode new_node = new SearchNode(temp,act,current_node,(current_node.action_cost_to_get_here+act.getAction_cost())*getGw(),d*getHw());
-                            pw.add(new_node);      
+                            frontier.add(new_node);      
                         }
                     }
                 }

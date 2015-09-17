@@ -546,24 +546,33 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public void printLastPredictedState(int i, State s) throws CloneNotSupportedException {
-
+    public String last_relevant_fluents_last_state(int i, State s) throws CloneNotSupportedException {
+        String ret = "";
         State temp = s.clone();
         for (int j = i; j < this.size(); j++) {
             GroundAction action = (GroundAction) this.get(j);
-
             action.apply(temp);
         }
-        System.out.print("S[plan(" + i + ")] ");
-        //System.out.println(getPlan().getInvariantFluents());
+        ret +="S[plan(" + i + ")] \n";
+        //System.out.println(this.getInvariantFluents());
 
+        
         for (Object o : temp.getNumericFluents()) {
             NumFluentAssigner ass = (NumFluentAssigner) o;
-            if (!(Boolean) this.getInvariantFluents().get(ass.getNFluent())) {
-                System.out.print(o);
+            Object o1 = this.getInvariantFluents().get(ass.getNFluent());
+            if (o1!=null){
+                //System.out.println(o1);
+                if (o1 instanceof Boolean){
+                    Boolean b = (Boolean)o1;
+                    if (!b){
+                        ret += o.toString()+"\n";
+                    }
+;
+                }       
             }
+            
         }
-        System.out.println("");
+        return ret;
     }
 
     public GroundAction generateMacro(int firstActionIndex, int lastActionIndex) throws CloneNotSupportedException, Exception {

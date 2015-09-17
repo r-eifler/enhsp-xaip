@@ -853,7 +853,7 @@ public class Comparison extends Conditions {
 
     public float eval_not_affected(State s_0, GroundAction aThis) {
         if (!this.normalized) {
-            System.err.println("At the moment support just for normalized comparison");
+            System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
         }
         NormExpression exp = (NormExpression) this.getLeft();
@@ -862,7 +862,7 @@ public class Comparison extends Conditions {
 
     public float eval_affected(State s_0, GroundAction aThis) {
         if (!this.normalized) {
-            System.err.println("At the moment support just for normalized comparison");
+            System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
         }
         NormExpression exp = (NormExpression) this.getLeft();

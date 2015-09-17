@@ -212,7 +212,7 @@ public class bottom_up_action_cost extends Heuristics {
 
     private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) throws Exception {
         
-        return node.action.getSatEffort(s_0,(Comparison)c_1);
+        return node.action.getNumberOfExecution(s_0,(Comparison)c_1);
     }
 
 

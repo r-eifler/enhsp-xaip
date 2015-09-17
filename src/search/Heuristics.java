@@ -58,7 +58,7 @@ public abstract class Heuristics {
     boolean additive_h = true;
     protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
     public int max_depth;
-    private int debug = 1;
+    int debug = 0;
     protected boolean internal_update;
     public LinkedHashSet<Predicate> reacheable_predicates;
 
@@ -86,9 +86,10 @@ public abstract class Heuristics {
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
     }
-
+    
+    //this initializer is mandatory for being executed before each invocation of the heuristic
     public void setup(State s_0) {
-
+        
         this.build_integer_representation();//for each proposition and comparison there is a unique integer representation
         influenced_by = computeInflueced_by();
         influence_graph = create_influence_graph();
@@ -102,19 +103,21 @@ public abstract class Heuristics {
         ArrayList conditions = new ArrayList();
         for (GroundAction a : A) {
             LinkedHashSet temp = new LinkedHashSet();
-            for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
-                int index = conditions.indexOf(c_1);
-                if (index != -1) {
-                    c_1 = (Conditions) conditions.get(index);
-                } else {
-                    counter2++;
-                    c_1.setCounter(counter2);
-                    //System.out.println(c_1+"->"+counter2);
-                    conditions.add(c_1);
+            if (a.getPreconditions()!=null){
+                for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
+                    int index = conditions.indexOf(c_1);
+                    if (index != -1) {
+                        c_1 = (Conditions) conditions.get(index);
+                    } else {
+                        counter2++;
+                        c_1.setCounter(counter2);
+                        //System.out.println(c_1+"->"+counter2);
+                        conditions.add(c_1);
+                    }
+                    temp.add(c_1);
                 }
-                temp.add(c_1);
+                a.getPreconditions().sons = temp;
             }
-            a.getPreconditions().sons = temp;
         }
 
         //System.out.println("Now action effects:");
@@ -295,6 +298,10 @@ public abstract class Heuristics {
     private HashMap<GroundAction, HashSet<Conditions>> computeInflueced_by() {
         HashMap<GroundAction, HashSet<Conditions>> ret = new HashMap();
 
+        if (debug >=1){
+            System.out.println("all conditions:"+all_conditions);
+        }
+        
         for (Conditions c_1 : all_conditions) {
             if (c_1 instanceof Comparison) {
                 Comparison comp = (Comparison) c_1;
@@ -313,6 +320,9 @@ public abstract class Heuristics {
                     }
                 }
             }
+        }
+        if (debug >= 1){
+            System.out.println("Influence by graph:"+ret);
         }
         return ret;
     }
@@ -457,26 +467,28 @@ public abstract class Heuristics {
     protected int compute_precondition_cost(State s_0, Map<Conditions, Integer> h, GroundAction gr) {
 
         int cost = 0;
-        for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
-            Integer temp = h.get(t);
-            if (temp != null && temp != Integer.MAX_VALUE) {
-                if (additive_h) {
-                    cost += temp;
+        if (gr.getPreconditions()!=null){
+            for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
+                Integer temp = h.get(t);
+                if (temp != null && temp != Integer.MAX_VALUE) {
+                    if (additive_h) {
+                        cost += temp;
+                    } else {
+                        cost = Math.max(cost, temp);
+                    }
+                } else if (s_0.satisfy(t)) {
+                    h.put(t, 0);
+                    if (additive_h) {
+                        cost += 0;
+                    } else {
+                        cost = Math.max(cost, 0);
+                    }
+
                 } else {
-                    cost = Math.max(cost, temp);
-                }
-            } else if (s_0.satisfy(t)) {
-                h.put(t, 0);
-                if (additive_h) {
-                    cost += 0;
-                } else {
-                    cost = Math.max(cost, 0);
+                    return Integer.MAX_VALUE;
                 }
 
-            } else {
-                return Integer.MAX_VALUE;
             }
-
         }
         return cost;
     }
@@ -593,7 +605,9 @@ public abstract class Heuristics {
 
         for (GroundAction gr : this.reachable) {
             //action precondition
-            getDef_num_fluents().addAll(gr.getPreconditions().getInvolvedFluents());
+            if (gr.getPreconditions()!=null){   
+                getDef_num_fluents().addAll(gr.getPreconditions().getInvolvedFluents());
+            }
             //action effects
             if (gr.getNumericEffects() != null) {
                 getDef_num_fluents().addAll(gr.getNumericEffects().getInvolvedFluents());

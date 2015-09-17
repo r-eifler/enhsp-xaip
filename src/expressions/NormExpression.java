@@ -645,6 +645,7 @@ public class NormExpression extends Expression {
             } else if (aThis.getNumericFluentAffected().get(ad.f) == null) {
                 current += ad.n.getNumber() * ad.f.eval(s_0).getNumber();
             } else if (aThis.getCoefficientAffected(ad.f) != null) {
+                //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 current += ad.n.getNumber() * aThis.getCoefficientAffected(ad.f) * ad.f.eval(s_0).getNumber();
             }
         }

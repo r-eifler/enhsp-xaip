@@ -300,9 +300,11 @@ public class GroundAction extends GenericActionType implements Comparable {
             return;
         }
 
-        this.getPreconditions().normalize();
-        if (this.getPreconditions().isUnsatisfiable()) {
-            this.setReacheable(true);
+        if (this.getPreconditions() != null){
+            this.getPreconditions().normalize();
+            if (this.getPreconditions().isUnsatisfiable()) {
+                this.setReacheable(true);
+            }
         }
 
         AndCond num = (AndCond) this.getNumericEffects();
@@ -687,14 +689,17 @@ public class GroundAction extends GenericActionType implements Comparable {
         GroundAction a = this;
 
         Conditions con = a.getPreconditions();
-
-        con = con.weakEval(problem.getInit(), invariantFluents);
- 
-        if (con == null){
-            //System.out.println("A precondition is never satisfiable");
-            return false;
-        }
         
+        if (con != null){
+
+            con = con.weakEval(problem.getInit(), invariantFluents);
+
+            if (con == null){
+                //System.out.println("A precondition is never satisfiable");
+                return false;
+            }
+        }
+
 
         Conditions eff = a.getNumericEffects();
 
@@ -1831,7 +1836,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
-//    public void getSatEffort(State s_0,Comparison comp) {
+//    public void getNumberOfExecution(State s_0,Comparison comp) {
 //        float a1;
 //        float a2;
 //        float b;
@@ -1840,7 +1845,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //        a1 = comp.eval_not_affected(s_0,this);
 //    }
 
-    public int getSatEffort(State s_0, Comparison comp) {
+    public int getNumberOfExecution(State s_0, Comparison comp) {
         float a1;
         float b;
       
@@ -1848,14 +1853,14 @@ public class GroundAction extends GenericActionType implements Comparable {
         b = comp.eval_affected(s_0,this);
 //        System.out.println(a1);
 //        System.out.println(b);
-        //Assumption: comparison are normalized!
+        //Assumption: comparisons are normalized!
         if (comp.getComparator().equals("=")){
             int m1 = (int)(-a1/b);
             if (m1 < 0 || a1%b !=0)
                 return Integer.MAX_VALUE;
             else
                 return m1;
-        }else{//it is >=
+        }else{//it is >= or >
             float m1 = -a1/b;
             if (m1 >= 0){
                 if (comp.getComparator().equals(">"))
@@ -1894,6 +1899,12 @@ public class GroundAction extends GenericActionType implements Comparable {
             NumEffect nEff = (NumEffect)c;
             if (nEff.getFluentAffected().equals(f)){
                 NormExpression right = (NormExpression)nEff.getRight();
+                if (nEff.getOperator().equals("increase")){
+                    return right.eval_apart_from_f(f,s_0);
+                }else if (nEff.getOperator().equals("decrease")){
+                    return right.eval_apart_from_f(f,s_0)*-1.0f;
+
+                }
                 return right.eval_apart_from_f(f,s_0);
             }
             
@@ -1963,6 +1974,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         return grTemp.regressComparison(comparison);
         
     }
+
+
 
  
 
