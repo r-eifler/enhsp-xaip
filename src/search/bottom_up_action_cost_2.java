@@ -29,6 +29,7 @@ package search;
 
 import conditions.Comparison;
 import conditions.Conditions;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,57 +64,26 @@ public  class bottom_up_action_cost_2 extends Heuristics {
     
     @Override
     public int compute_estimate(State s_0){
-        
         this.achievers = new HashMap();
         if (s_0.satisfy(G)) {
             return 0;
         }
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
-
         A1.addAll(this.reachable);
         
-        //ArrayList<Integer> h = new HashMap();
-        
         ArrayList<Integer> h = new ArrayList<Integer>(Collections.nCopies(number_of_actual_atoms, Integer.MAX_VALUE));
-
-        
-        for (Conditions c_1 : this.all_conditions) {
-            if (c_1.isSatisfied(s_0)) {
-                h.set(c_1.getCounter(), 0);
-            }
-            if (debug >= 2){
-                System.out.println("Condition counter mapping:"+c_1+" ,"+c_1.getCounter());
-            }
-        }
-
         PriorityQueue<HeuristicSearchNode> frontier = new PriorityQueue();
-
+        init_h(h,this.all_conditions,s_0);
         init_frontier(frontier, A1, s_0);
-        while (true) {
-
-            if (debug >= 2) System.out.println("Current h"+h);
-            int current = check_goal_conditions(s_0, G, h);
-            if (current != Integer.MAX_VALUE) {
-                return current;
-            }
-            
-            HeuristicSearchNode node = frontier.poll();
-            update_prop_h(node, h);
-            
-            try {
-                update_num_h_and_add_pseudo_numeric_action(frontier, node, h,s_0);
-            } catch (Exception ex) {
-                Logger.getLogger(bottom_up_action_cost_2.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            update_frontier(frontier, A1, h,s_0);
-            current = check_goal_conditions(s_0, G, h);
-            if (current != Integer.MAX_VALUE) {
-                return current;
-            }
+        while (check_goal_conditions(s_0, G, h)== Integer.MAX_VALUE) {
             if (frontier.isEmpty())
                 break;
+            HeuristicSearchNode node = frontier.poll();
+            update_prop_h(node, h); //updating the distance to the propositional atoms
+            update_num_h_and_add_pseudo_numeric_action(frontier, node, h,s_0); //updating the distance to the numeric conditions
+            update_frontier(frontier, A1, h,s_0); //updating the frontier according to the action that can now be executed
         }
-        return Integer.MAX_VALUE;
+        return check_goal_conditions(s_0, G, h);
     }
     
    
@@ -186,6 +156,7 @@ public  class bottom_up_action_cost_2 extends Heuristics {
     
     protected boolean update_prop_h(HeuristicSearchNode node,ArrayList<Integer> h) {
         boolean new_condition = false;
+
         if (node.action.getAddList() == null)
             return new_condition;
         for (Conditions eff : (LinkedHashSet<Conditions>) node.action.getAddList().sons) {
@@ -216,7 +187,7 @@ public  class bottom_up_action_cost_2 extends Heuristics {
 
 
 
-    private void update_num_h_and_add_pseudo_numeric_action(Queue frontier, HeuristicSearchNode node, ArrayList<Integer> h, State s_0) throws Exception {
+    private void update_num_h_and_add_pseudo_numeric_action(Queue frontier, HeuristicSearchNode node, ArrayList<Integer> h, State s_0){
         
 
         GroundAction gr = node.action;
@@ -237,7 +208,7 @@ public  class bottom_up_action_cost_2 extends Heuristics {
             if (this.debug >= 1){
                 System.out.println("State:"+s_0.pddlPrint());
                 System.out.println("D("+gr.toEcoString()+","+ c_1 +"):"+cost_c_1);
-                //System.out.println("ACtion Cost: "+gr.toEcoString()+":"+node.action_cost_to_get_here);
+                System.out.println("h: "+h);
             }
             if (cost_c_1!= Integer.MAX_VALUE && cost_c_1 != -1){
                 counter++;
@@ -249,12 +220,16 @@ public  class bottom_up_action_cost_2 extends Heuristics {
                 frontier.add(new HeuristicSearchNode(gr_new,null, (int) (cost_c_1+node.action_cost_to_get_here),0));
 //                frontier.add(new HeuristicSearchNode(gr_new,null, (int) (cost_c_1+node.action_cost_to_get_here),0));                
                 //it.remove();//greedy version
-            }else if (cost_c_1 == -1){//meaning that it can be improved but not just with this action (not used for this version)
+            }else if (cost_c_1 == -1){//meaning that its positive/negative influence may depend on some other actions (State dependent influence)
             }else if (cost_c_1 == Integer.MAX_VALUE){
                 //it.remove();
             }
             if (this.debug >=2)
-                System.in.read();
+                try {
+                    System.in.read();
+            } catch (IOException ex) {
+                Logger.getLogger(bottom_up_action_cost_2.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
@@ -268,9 +243,20 @@ public  class bottom_up_action_cost_2 extends Heuristics {
     }
 
 
-    private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) throws Exception {
+    private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) {
         
         return node.action.getNumberOfExecution(s_0,(Comparison)c_1);
+    }
+
+    private void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
+        for (Conditions c_1 : this.all_conditions) {
+            if (c_1.isSatisfied(s_0)) {
+                h.set(c_1.getCounter(), 0);
+            }
+            if (debug >= 2){
+                System.out.println("Condition counter mapping:"+c_1+" ,"+c_1.getCounter());
+            }
+        }
     }
 
 }

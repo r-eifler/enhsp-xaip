@@ -663,7 +663,7 @@ public class PddlProblem {
         }
         Iterator it = getActions().iterator();
         //System.out.println("prova");
-        System.out.println("|A| just after grounding:"+getActions().size());
+        System.out.println("|A| just after grounding:" + getActions().size());
         while (it.hasNext()) {//iteration of the action for pruning the trivial unreacheable ones (because of the grounding and weak evaluation)
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
@@ -675,7 +675,7 @@ public class PddlProblem {
                 it.remove();
             }
         }
-        System.out.println("|A| just after simplification:"+getActions().size());
+        System.out.println("|A| just after simplification:" + getActions().size());
 
         setPropositionalTime(System.currentTimeMillis() - start);
         this.setGroundedActions(true);
@@ -977,16 +977,71 @@ public class PddlProblem {
     }
 
     public HashMap getInvariantFluents() throws Exception {
-        if (invariantFluents == null){
+        if (invariantFluents == null) {
             invariantFluents = new HashMap();
-            if (this.getActions() == null || this.getActions().isEmpty())
+            if (this.getActions() == null || this.getActions().isEmpty()) {
                 this.generateActions();
-            for (GroundAction gr : (Collection<GroundAction>)this.getActions()){
-                for (NumFluent nf :gr.getNumericFluentAffected().keySet()){
-                    invariantFluents.put(nf,Boolean.FALSE);
+            }
+            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
+                for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
+                    invariantFluents.put(nf, Boolean.FALSE);
                 }
             }
         }
         return invariantFluents;
+    }
+
+    public void transform_numeric_condition() throws Exception {
+
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+            if (gr.getPreconditions() != null) {
+                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
+            }
+        }
+        this.goals = generate_inequalities(goals);
+    }
+
+    private AndCond generate_inequalities(Conditions con) {
+        AndCond temp = new AndCond();
+        if (con instanceof AndCond) {
+            AndCond c = (AndCond) con;
+            for (Conditions c1 : (Collection<Conditions>) c.sons) {
+                if (c1 instanceof Comparison) {
+                    Comparison comp = (Comparison) c1;
+                    if (comp.getComparator().equals("=")) {
+                        Comparison dual = (Comparison) comp.clone();
+                        dual.setComparator("<=");
+                        comp.setComparator(">=");
+                        temp.addConditions(dual);
+                        temp.addConditions(comp);
+                    }else
+                        temp.addConditions(c1);
+                } else {
+                    temp.addConditions(c1);
+                }
+            }
+
+        } else {
+            if (con instanceof Comparison) {
+                Comparison comp = (Comparison) con;
+                if (comp.getComparator().equals("=")) {
+                    Comparison dual = (Comparison) comp.clone();
+                    dual.setComparator("<=");
+                    comp.setComparator(">=");
+                    temp.addConditions(dual);
+                    temp.addConditions(comp);
+                }
+            } else
+                temp.addConditions(con);
+        }
+        return temp;
+    }
+
+    public boolean print_actions() {
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+            System.out.println(gr.toFileCompliant());
+        }
+
+        return true;
     }
 }
