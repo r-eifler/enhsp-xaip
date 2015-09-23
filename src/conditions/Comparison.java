@@ -191,6 +191,16 @@ public class Comparison extends Conditions {
         return ret;
     }
 
+    
+    public boolean eval_to_null(State s){
+        PDDLNumber first = left.eval(s);
+        PDDLNumber second = right.eval(s);
+        if ((first == null) || (second == null)) {
+            return true;
+        }
+        return false;
+    }
+    
     @Override
     public boolean eval(State s) {
         PDDLNumber first = left.eval(s);

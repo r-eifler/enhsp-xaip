@@ -64,6 +64,7 @@ public abstract class Heuristics {
 
     Collection<Conditions> all_conditions;
     HashMap<GroundAction, HashSet<Conditions>> influenced_by;
+    HashMap<GroundAction, GroundAction> depends_on;
 
     public HashMap<Conditions, GroundAction> achievers;
     public HashMap<Comparison, Comparison> add_achievers;
@@ -295,7 +296,7 @@ public abstract class Heuristics {
         return ret;
     }
 
-    private HashMap<GroundAction, HashSet<Conditions>> computeInflueced_by() {
+    protected HashMap<GroundAction, HashSet<Conditions>> computeInflueced_by() {
         HashMap<GroundAction, HashSet<Conditions>> ret = new HashMap();
 
         if (debug >=1){
@@ -387,7 +388,7 @@ public abstract class Heuristics {
         }
     }
 
-    private HashMap<GroundAction, HashSet<GroundAction>> create_influence_graph() {
+    protected HashMap<GroundAction, HashSet<GroundAction>> create_influence_graph() {
         if (this.influence_graph != null) {
             return this.influence_graph;
         }
@@ -396,7 +397,7 @@ public abstract class Heuristics {
         for (GroundAction a : A) {
             for (GroundAction b : A) {
                 if (!a.equals(b)) {
-                    if (b.is_influenced_by(a)) {
+                    if (b.is_complexly_influenced_by(a)) {
                         if (ret.get(b) == null) {
                             HashSet toadd = new HashSet();
                             toadd.add(a);

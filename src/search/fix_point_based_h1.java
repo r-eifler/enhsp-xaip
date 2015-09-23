@@ -29,6 +29,7 @@ package search;
 
 import conditions.Comparison;
 import conditions.Conditions;
+import conditions.Predicate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
@@ -49,20 +50,32 @@ import problem.State;
  *
  * @author enrico
  */
-public class bottom_up_action_cost_2 extends Heuristics {
+public class fix_point_based_h1 extends Heuristics {
 
-    private HashMap<GroundAction, HashSet<Conditions>> impr_conditions = new HashMap();
     private Integer counter;
+    private HashMap<Conditions,LinkedHashSet<GroundAction>> poss_contributors;
 
-    public bottom_up_action_cost_2(Conditions G, Set<GroundAction> A) {
+    public fix_point_based_h1(Conditions G, Set<GroundAction> A) {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
         //build_integer_representation();
     }
 
+    public void setup(State s_0) {
+        this.build_integer_representation();//for each proposition and comparison there is a unique integer representation
+        influenced_by = computeInflueced_by();
+        influence_graph = create_influence_graph();
+        this.compute_relevant_actions(s_0);
+        A = this.reachable;
+        //poss_contributors = create_poss_contributors();
+        //this.build_integer_representation();//this could reduce the number of predicate/comparison but it has been considered useless overhead
+    }
+    
+    
     @Override
     public int compute_estimate(State s_0) {
+        //System.out.println("fix point based heuristic");
         this.achievers = new HashMap();
         if (s_0.satisfy(G)) {
             return 0;
@@ -70,19 +83,24 @@ public class bottom_up_action_cost_2 extends Heuristics {
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
         A1.addAll(this.reachable);
         ArrayList<Integer> h = new ArrayList<Integer>(Collections.nCopies(number_of_actual_atoms, Integer.MAX_VALUE));
-        PriorityQueue<HeuristicSearchNode> frontier = new PriorityQueue();
         init_h(h, this.all_conditions, s_0);
-        init_frontier(frontier, A1, s_0);
-        while (check_goal_conditions(s_0, G, h) == Integer.MAX_VALUE) {
-            if (frontier.isEmpty()) {
-               return Integer.MAX_VALUE;
+        HashSet<HeuristicSearchNode> pool = new HashSet();
+        init_pool(pool, A1, s_0); 
+        
+        boolean update;
+        do{
+            update = false;
+            update = update_conditions_values(pool,s_0,this.all_conditions,h);
+            if (update){
+                update_pool(pool,A1,s_0,h);
+                int distance_to_goal = this.check_goal_conditions(s_0, G, h);
+                if (distance_to_goal != Integer.MAX_VALUE)
+                    return distance_to_goal;
             }
-            HeuristicSearchNode node = frontier.poll();
-            update_prop_h(node, h); //updating the distance to the propositional atoms
-            update_num_h_and_add_pseudo_numeric_action(frontier, node, h, s_0); //updating the distance to the numeric conditions
-            update_frontier(frontier, A1, h, s_0); //updating the frontier according to the action that can now be executed
-        }
-        return check_goal_conditions(s_0, G, h);
+          
+        }while(update);
+
+        return Integer.MAX_VALUE;
     }
 
     protected int check_goal_conditions(State s_0, Conditions G, ArrayList<Integer> h) {
@@ -121,7 +139,7 @@ public class bottom_up_action_cost_2 extends Heuristics {
                 it.remove();
             }
         }
-            
+        
     }
 
     protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
@@ -170,19 +188,7 @@ public class bottom_up_action_cost_2 extends Heuristics {
         return new_condition;
     }
 
-    private void init_frontier(Queue frontier, LinkedHashSet<GroundAction> A1, State s_0) {
-        counter = 0;
-        Iterator it = A1.iterator();
-        while (it.hasNext()) {
-            GroundAction gr = (GroundAction) it.next();
-            if (gr.isApplicable(s_0)) {
-                gr.setAction_cost(s_0);
-                frontier.add(new HeuristicSearchNode(gr, null, 0, 0));
-                //frontier.add(new HeuristicSearchNode(gr, null, 1, 0));
-                it.remove();
-            }
-        }
-    }
+
 
     private void update_num_h_and_add_pseudo_numeric_action(Queue frontier, HeuristicSearchNode node, ArrayList<Integer> h, State s_0) {
 
@@ -224,7 +230,7 @@ public class bottom_up_action_cost_2 extends Heuristics {
                 try {
                     System.in.read();
                 } catch (IOException ex) {
-                    Logger.getLogger(bottom_up_action_cost_2.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(fix_point_based_h1.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -279,6 +285,134 @@ public class bottom_up_action_cost_2 extends Heuristics {
         //else return the cost of achieving that action+the cost of executing the action under analysis and plus 2 which is the number
         //of times for executing those two actions
         return minimum+node.action_cost_to_get_here+2;
+    }
+
+    private void init_pool(HashSet pool, LinkedHashSet<GroundAction> A1, State s_0) {
+        counter = 0;
+        Iterator it = A1.iterator();
+        while (it.hasNext()) {
+            GroundAction gr = (GroundAction) it.next();
+            if (gr.isApplicable(s_0)) {
+                gr.setAction_cost(s_0);
+                pool.add(new HeuristicSearchNode(gr, null, 0, 0));
+                //frontier.add(new HeuristicSearchNode(gr, null, 1, 0));
+                it.remove();
+            }
+        }
+    }
+
+    private boolean update_value(ArrayList<Integer> h, Conditions c, int cost) {
+        if (h.get(c.getCounter()) != null && h.get(c.getCounter())<= cost)
+            return false;
+        h.set(c.getCounter(),cost);
+        return true;
+    }
+
+    private void update_pool(HashSet<HeuristicSearchNode> pool, LinkedHashSet<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+                    //update action precondition
+        for (HeuristicSearchNode gr : pool){
+                gr.action_cost_to_get_here = compute_precondition_cost(s_0,h,gr.action);
+        }
+        Iterator it = A1.iterator();
+        while (it.hasNext()){
+            GroundAction gr = (GroundAction)it.next();
+            int cost = compute_precondition_cost(s_0,h,gr);
+            if (cost != Integer.MAX_VALUE){
+                gr.setAction_cost(s_0);
+                pool.add(new HeuristicSearchNode(gr, null, cost, 0));
+                it.remove();
+            }
+        }
+    }
+
+    private boolean update_conditions_values(HashSet<HeuristicSearchNode> pool, State s_0, Collection<Conditions> all_conditions, ArrayList<Integer> h) {
+        boolean update = false;    
+        for (Conditions c: this.all_conditions){
+                if (c instanceof Predicate){
+                    for (HeuristicSearchNode gr : pool){
+                        if (gr.action.achieve((Predicate)c)){
+                            if (update_value(h,c,gr.action_cost_to_get_here+1))
+                                update = true;
+                        }
+                    }
+                }else if (c instanceof Comparison){
+                    for (HeuristicSearchNode gr : pool){
+                        int number_of_repetition = gr.action.getNumberOfExecution(s_0,(Comparison)c);
+                        if (number_of_repetition != Integer.MAX_VALUE){
+                            if (update_value(h,c,gr.action_cost_to_get_here+number_of_repetition))
+                                update = true;
+                        }
+                    }
+                }
+                
+            }
+        return update;
+    }
+
+    private HashMap<Conditions, LinkedHashSet<GroundAction>> create_poss_contributors() {
+        HashMap<Conditions, LinkedHashSet<GroundAction>> ret = new HashMap();
+        
+        for (Conditions c: this.all_conditions){
+            if (c instanceof Predicate){
+                for (GroundAction gr: this.A){
+                    if (gr.achieve((Predicate)c)){
+                        add_achiever((Predicate)c,gr,ret);
+                    }
+                }
+            }else if (c instanceof Comparison){
+                for (GroundAction gr: this.A){
+                    Comparison comp = (Comparison)c;
+                    if (comp.involve(gr.getNumericFluentAffected())){
+                        add_numeric_contributors(comp,gr,ret);
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    private void add_achiever(Predicate predicate, GroundAction gr, HashMap<Conditions, LinkedHashSet<GroundAction>> ret) {
+        if (ret.get(predicate)==null){
+            LinkedHashSet set = new LinkedHashSet();
+            set.add(gr);
+            ret.put(predicate, set);
+        }else{
+            LinkedHashSet set = ret.get(predicate);
+            set.add(gr);
+            ret.put(predicate,set);
+        }
+    }
+
+    private void add_numeric_contributors(Comparison comp, GroundAction gr, HashMap<Conditions, LinkedHashSet<GroundAction>> ret) {
+        
+        if (ret.get(comp)==null){
+            LinkedHashSet set = new LinkedHashSet();
+            set.add(gr);
+            ret.put(comp, set);
+        }else{
+            LinkedHashSet set = ret.get(comp);
+            set.add(gr);
+            ret.put(comp,set);
+        }
+        
+        HashMap visited = new HashMap();
+        Queue<GroundAction> queue = new LinkedList();
+        queue.add(gr);
+        while(!queue.isEmpty()){
+            GroundAction temp = queue.remove();
+            visited.put(temp, true);
+            for (GroundAction ele:this.A){
+                if (visited.get(ele) != null){
+                    if (temp.is_influenced_by(ele)){
+                        Set s = ret.get(comp);
+                        s.add(ele);
+                        ret.put(comp, (LinkedHashSet<GroundAction>) s);
+                        queue.add(ele);
+                    }
+                    visited.put(ele, true);
+                }
+            }
+        }
     }
 
 }

@@ -1765,8 +1765,8 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         return false;
     }
-
-    public boolean is_influenced_by(GroundAction a) {
+    //this type of influence is on the rhs, that is it reasons on just complex dependencies
+    public boolean is_complexly_influenced_by(GroundAction a) {
         for (Object o : this.getNumericEffects().sons) {
             NumEffect nf = (NumEffect) o;
             //System.out.println(nf);
@@ -1848,6 +1848,15 @@ public class GroundAction extends GenericActionType implements Comparable {
     public int getNumberOfExecution(State s_0, Comparison comp) {
         float a1;
         float b;
+        
+        if (!comp.involve(this.getNumericFluentAffected()))
+            return Integer.MAX_VALUE;
+//        if (comp.eval_to_null(s_0)){
+//            Comparison reg = this.regressComparison(comp);
+//            if (s_0.satisfy(comp)){
+//                return 1;
+//            }
+//        }
       
         a1 = comp.eval_not_affected(s_0,this);
         b = comp.eval_affected(s_0,this);
@@ -1973,6 +1982,20 @@ public class GroundAction extends GenericActionType implements Comparable {
         grTemp.setNumericEffects(temp);
         return grTemp.regressComparison(comparison);
         
+    }
+
+    public boolean is_influenced_by(GroundAction ele) {
+        if (this.getNumericEffects()==null)
+            return false;
+        for (NumEffect ne : (Collection<NumEffect>)this.getNumericEffects().sons){
+            if (ne.getOperator().equals("increase") || (ne.getOperator().equals("decrease"))){
+                if (ne.getFluentAffected().involve(ele.numericFluentAffected))
+                    return true;
+            }
+            if (ne.getRight().involve(ele.numericFluentAffected))
+                return true;   
+        }
+        return false;
     }
 
 
