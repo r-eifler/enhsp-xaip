@@ -407,7 +407,8 @@ public class NumericPlanningGraph {
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
-                if (gr.getPreconditions().isSatisfied(current)) {
+                
+                if (gr.getPreconditions()== null || gr.getPreconditions().isSatisfied(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -417,9 +418,11 @@ public class NumericPlanningGraph {
             //System.out.println("Here:"+action_level.size());
             //System.out.println(level.size());
             this.action_level.add(level.clone());
+            
+            //THIS IS A BUG: IT SHOULD CONSIDER THE FACT THAT THE SATISFACTION OF AT LEAST A CONDITION IS SATISFIED!
             if (!newActions) {
                 System.out.println("No new actions applicable and goal is not reacheable...");
-                break;//it means that the goal is unreacheable!
+               break;//it means that the goal is unreacheable!
             }
             long start2 = System.currentTimeMillis();
             

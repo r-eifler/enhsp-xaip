@@ -27,13 +27,16 @@
  */
 package search;
 
+import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.NumEffect;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,6 +47,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.RelState;
 import problem.State;
 
 /**
@@ -54,6 +58,7 @@ public class fix_point_based_h1 extends Heuristics {
 
     private Integer counter;
     private HashMap<Conditions,LinkedHashSet<GroundAction>> poss_contributors;
+    private HashMap<Conditions,Boolean> is_complex;
 
     public fix_point_based_h1(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -68,8 +73,9 @@ public class fix_point_based_h1 extends Heuristics {
         influence_graph = create_influence_graph();
         this.compute_relevant_actions(s_0);
         A = this.reachable;
-        //poss_contributors = create_poss_contributors();
-        //this.build_integer_representation();//this could reduce the number of predicate/comparison but it has been considered useless overhead
+        is_complex = identify_complex_conditions();
+        System.out.println("Easy Conditions: "+(this.all_conditions.size()-is_complex.keySet().size()));
+        System.out.println("Hard Conditions: "+is_complex.keySet().size());
     }
     
     
@@ -86,10 +92,8 @@ public class fix_point_based_h1 extends Heuristics {
         init_h(h, this.all_conditions, s_0);
         HashSet<HeuristicSearchNode> pool = new HashSet();
         init_pool(pool, A1, s_0); 
-        
         boolean update;
         do{
-            update = false;
             update = update_conditions_values(pool,s_0,this.all_conditions,h);
             if (update){
                 update_pool(pool,A1,s_0,h);
@@ -124,24 +128,6 @@ public class fix_point_based_h1 extends Heuristics {
         return cost;
     }
 
-    protected void update_frontier(Collection frontier, LinkedHashSet<GroundAction> A1, ArrayList<Integer> h, State s_0) {
-        Iterator it = A1.iterator();
-        while (it.hasNext()) {
-            GroundAction gr = (GroundAction) it.next();
-            int cost = 0;
-            cost = this.compute_precondition_cost(s_0, h, gr);
-            if (cost != Integer.MAX_VALUE) {
-                this.reachable.add(gr);
-                gr.setAction_cost(s_0);
-                if (!frontier.add(new HeuristicSearchNode(gr, null, cost, 0))) {
-                    System.out.println("Adding an already existing element");
-                }
-                it.remove();
-            }
-        }
-        
-    }
-
     protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
 
         int cost = 0;
@@ -170,90 +156,6 @@ public class fix_point_based_h1 extends Heuristics {
         return cost;
     }
 
-    protected boolean update_prop_h(HeuristicSearchNode node, ArrayList<Integer> h) {
-        boolean new_condition = false;
-
-        if (node.action.getAddList() == null) {
-            return new_condition;
-        }
-        for (Conditions eff : (LinkedHashSet<Conditions>) node.action.getAddList().sons) {
-            //System.out.println("Instantiating..:"+eff.getCounter());
-            int temp = h.get(eff.getCounter());
-            if (temp > (node.action_cost_to_get_here + 1)) {
-                h.set(eff.getCounter(), node.action_cost_to_get_here + 1);
-                //h.put(eff, node.action_cost_to_get_here);
-                new_condition = true;
-            }
-        }
-        return new_condition;
-    }
-
-
-
-    private void update_num_h_and_add_pseudo_numeric_action(Queue frontier, HeuristicSearchNode node, ArrayList<Integer> h, State s_0) {
-
-        GroundAction gr = node.action;
-        if (gr.achievedComparisons != null) {
-            for (Conditions c_1 : gr.achievedComparisons) {
-                update_cost(c_1, h, node.action_cost_to_get_here);
-            }
-        }
-        if (this.influenced_by.get(node.action) == null) {
-            return;
-        }
-
-        for (Conditions c_1 : influenced_by.get(gr)) {
-            if (h.get(c_1.getCounter()) != null && h.get(c_1.getCounter()) == 0) {
-                continue;
-            }
-            int cost_via_action = compute_estimated_cost(node, this.max_depth, s_0, c_1);
-            int cost_via_indirect_effects = compute_indirect_effects_cost(s_0, h, node);
-            if (this.debug >= 1) {
-                System.out.println("State:" + s_0.pddlPrint());
-                System.out.println("D(" + gr.toEcoString() + "," + c_1 + "):" + cost_via_action);
-                System.out.println("D1(" + gr.toEcoString() + "," + c_1 + "):" + cost_via_indirect_effects);
-                System.out.println("h: " + h);
-            }
-            int minimum = Math.min(cost_via_action, cost_via_indirect_effects);
-            if (minimum != Integer.MAX_VALUE) {
-                counter++;
-                GroundAction gr_new = new GroundAction(counter.toString());
-                //gr_new.setName(c_1.pddlPrint(false));
-                gr_new.addAchievedComparison(c_1);
-                gr.setAction_cost(s_0);
-
-                frontier.add(new HeuristicSearchNode(gr_new, null, (int) (minimum), 0));
-//                frontier.add(new HeuristicSearchNode(gr_new,null, (int) (cost_c_1+node.action_cost_to_get_here),0));                
-                //it.remove();//greedy version
-            }
-            if (this.debug >= 2) {
-                try {
-                    System.in.read();
-                } catch (IOException ex) {
-                    Logger.getLogger(fix_point_based_h1.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
-    }
-
-    private void update_cost(Conditions c_1, ArrayList<Integer> h, int cost_c_1) {
-        int temp = h.get(c_1.getCounter());
-        if (temp > cost_c_1) {
-            h.set(c_1.getCounter(), cost_c_1);
-        }
-    }
-
-    private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) {
-
-        int ret =  node.action.getNumberOfExecution(s_0, (Comparison) c_1);
-        if (ret == Integer.MAX_VALUE)
-            return ret;
-        return ret + node.action_cost_to_get_here;
-        
-        
-    }
-
     private void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
         for (Conditions c_1 : this.all_conditions) {
             if (c_1.isSatisfied(s_0)) {
@@ -264,28 +166,7 @@ public class fix_point_based_h1 extends Heuristics {
             }
         }
     }
-
-    private int compute_indirect_effects_cost(State s_0, ArrayList<Integer> h, HeuristicSearchNode node) {
-        if (this.influence_graph.get(node.action) == null) {
-            return Integer.MAX_VALUE;
-        }
-        if (this.influence_graph.get(node.action).isEmpty()) {
-            return Integer.MAX_VALUE;
-        }
-        int minimum = Integer.MAX_VALUE;
-        for (GroundAction gr : this.influence_graph.get(node.action)) {
-            int temp = this.compute_precondition_cost(s_0, h, gr);
-            if (temp < minimum) {
-                minimum = temp;
-            }
-        }
-        if (minimum == Integer.MAX_VALUE)
-            return Integer.MAX_VALUE;
-        
-        //else return the cost of achieving that action+the cost of executing the action under analysis and plus 2 which is the number
-        //of times for executing those two actions
-        return minimum+node.action_cost_to_get_here+2;
-    }
+//
 
     private void init_pool(HashSet pool, LinkedHashSet<GroundAction> A1, State s_0) {
         counter = 0;
@@ -336,12 +217,21 @@ public class fix_point_based_h1 extends Heuristics {
                         }
                     }
                 }else if (c instanceof Comparison){
-                    for (HeuristicSearchNode gr : pool){
-                        int number_of_repetition = gr.action.getNumberOfExecution(s_0,(Comparison)c);
-                        if (number_of_repetition != Integer.MAX_VALUE){
-                            if (update_value(h,c,gr.action_cost_to_get_here+number_of_repetition))
+                    if (this.is_complex.get(c)==null){
+                        for (HeuristicSearchNode gr : pool){
+                            int number_of_repetition = gr.action.getNumberOfExecution(s_0,(Comparison)c);
+                            if (number_of_repetition != Integer.MAX_VALUE){
+                                if (update_value(h,c,gr.action_cost_to_get_here+number_of_repetition))
+                                    update = true;
+                            }
+                        }
+                    }else{
+                        int cost = approximate_reacheability(s_0,c,pool);
+                        if (cost != Integer.MAX_VALUE){
+                            if (update_value(h,c,cost))
                                 update = true;
                         }
+//                        approximate_reacheability(s_0,c,pool);
                     }
                 }
                 
@@ -349,70 +239,78 @@ public class fix_point_based_h1 extends Heuristics {
         return update;
     }
 
-    private HashMap<Conditions, LinkedHashSet<GroundAction>> create_poss_contributors() {
-        HashMap<Conditions, LinkedHashSet<GroundAction>> ret = new HashMap();
-        
+
+
+
+    private HashMap<Conditions, Boolean> identify_complex_conditions() {
+        //For each condition, identify whether there is at least an action whose effects are not simple. This condition
+        // will be considered complex in that checking its satisfaction is hard
+        HashMap<Conditions, Boolean> ret = new HashMap();
         for (Conditions c: this.all_conditions){
-            if (c instanceof Predicate){
+            if (c instanceof Comparison){
+                Comparison comp = (Comparison)c;
                 for (GroundAction gr: this.A){
-                    if (gr.achieve((Predicate)c)){
-                        add_achiever((Predicate)c,gr,ret);
-                    }
-                }
-            }else if (c instanceof Comparison){
-                for (GroundAction gr: this.A){
-                    Comparison comp = (Comparison)c;
-                    if (comp.involve(gr.getNumericFluentAffected())){
-                        add_numeric_contributors(comp,gr,ret);
+                    if (gr.getNumericEffects() != null){
+                        AndCond effects = (AndCond)gr.getNumericEffects();
+                        for (NumEffect ne : (Collection<NumEffect>)effects.sons){
+                            if (comp.getInvolvedFluents().contains(ne.getFluentAffected())){
+                                if (!ne.fluentsInvolved().isEmpty()){
+                                    ret.put(comp,true);
+                                    //System.out.println("Complex condition:"+comp);
+                                }
+                            }
+                            
+                        }
                     }
                 }
             }
         }
+        
         return ret;
     }
 
-    private void add_achiever(Predicate predicate, GroundAction gr, HashMap<Conditions, LinkedHashSet<GroundAction>> ret) {
-        if (ret.get(predicate)==null){
-            LinkedHashSet set = new LinkedHashSet();
-            set.add(gr);
-            ret.put(predicate, set);
-        }else{
-            LinkedHashSet set = ret.get(predicate);
-            set.add(gr);
-            ret.put(predicate,set);
-        }
+    private LinkedList sort_actions_pool_according_to_cost(HashSet<HeuristicSearchNode> pool){
+        LinkedList temp = new LinkedList(pool);
+        Collections.sort(temp, new Comparator<HeuristicSearchNode>() {
+            @Override
+            public int compare(HeuristicSearchNode o1, HeuristicSearchNode o2) {
+                Integer i1 = o1.action_cost_to_get_here;
+                Integer i2 = o2.action_cost_to_get_here;
+                if (i1 == i2){
+                    return o1.action.getName().compareTo(o2.action.getName());
+                }
+            return (i1 > i2 ? -1 : (i1 == i2 ? 0 : 1));
+            }
+        });
+        return temp;
     }
-
-    private void add_numeric_contributors(Comparison comp, GroundAction gr, HashMap<Conditions, LinkedHashSet<GroundAction>> ret) {
-        
-        if (ret.get(comp)==null){
-            LinkedHashSet set = new LinkedHashSet();
-            set.add(gr);
-            ret.put(comp, set);
-        }else{
-            LinkedHashSet set = ret.get(comp);
-            set.add(gr);
-            ret.put(comp,set);
-        }
-        
-        HashMap visited = new HashMap();
-        Queue<GroundAction> queue = new LinkedList();
-        queue.add(gr);
-        while(!queue.isEmpty()){
-            GroundAction temp = queue.remove();
-            visited.put(temp, true);
-            for (GroundAction ele:this.A){
-                if (visited.get(ele) != null){
-                    if (temp.is_influenced_by(ele)){
-                        Set s = ret.get(comp);
-                        s.add(ele);
-                        ret.put(comp, (LinkedHashSet<GroundAction>) s);
-                        queue.add(ele);
-                    }
-                    visited.put(ele, true);
+    
+    
+    private int approximate_reacheability(State s_0, Conditions c, HashSet<HeuristicSearchNode> pool) {
+        RelState rel_state = s_0.relaxState();
+        LinkedList temp = sort_actions_pool_according_to_cost(pool);
+        int cost = 0;
+        float current_distance = rel_state.satisfaction_distance((Comparison)c);
+        while(true){
+            boolean stop=true;
+            for (int i=0;i<temp.size();i++){
+                HeuristicSearchNode gr = (HeuristicSearchNode)temp.get(i);
+                rel_state = gr.action.apply(rel_state);
+                float new_dist = rel_state.satisfaction_distance((Comparison)c);
+                if (current_distance > new_dist){
+                    cost+=gr.action_cost_to_get_here+1;
+                    current_distance = new_dist;
+                    stop=false;
+                }
+                if (rel_state.satisfy((Comparison)c)){
+                    return cost;
                 }
             }
+            if (stop)
+                return Integer.MAX_VALUE;
         }
+        
+        
     }
 
 }

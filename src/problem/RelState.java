@@ -26,15 +26,16 @@
 
 package problem;
 
+import conditions.Comparison;
 import conditions.NumFluentAssigner;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.Expression;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.PDDLNumbers;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  *
@@ -265,5 +266,44 @@ public class RelState extends Object {
                 a.setNFlunetValueUpperBound(after.sup);
             }
         }
+    }
+
+    public float satisfaction_distance(Comparison comparison) {
+        RelState s = this;
+        Expression left = comparison.getLeft();
+        Expression right = comparison.getRight();
+        PDDLNumbers lv = left.eval(s);
+        PDDLNumbers rv = right.eval(s);
+        if ((lv == null) || (rv == null)) {
+            return Float.MAX_VALUE;
+        }
+        if ((lv.inf == null) || (lv.sup == null) || (rv.inf == null) || (rv.sup == null)) {
+            return Float.MAX_VALUE;//negation by failure.
+        }
+        if (comparison.getComparator().equals("<")) {
+            return lv.inf.getNumber() - rv.sup.getNumber()+ Float.MIN_VALUE;
+        } else if (comparison.getComparator().equals("<=")) {
+            return lv.inf.getNumber() - rv.sup.getNumber();
+        } else if (comparison.getComparator().equals(">")) {
+            return  rv.inf.getNumber() - lv.sup.getNumber()+ Float.MIN_VALUE;
+        } else if (comparison.getComparator().equals(">=")) {
+            return rv.inf.getNumber() - lv.sup.getNumber();
+        } else if (comparison.getComparator().equals("=")) {
+            if (!((lv.inf.getNumber() > rv.sup.getNumber()) || (rv.inf.getNumber() > lv.sup.getNumber()))) {
+                return Float.MIN_VALUE;
+            } else {
+                if (lv.inf.getNumber() > lv.inf.getNumber()){
+                    return lv.inf.getNumber() - lv.inf.getNumber();
+                } else{
+                    return rv.inf.getNumber() -lv.sup.getNumber();
+                }
+                
+
+            }
+        } else {
+            System.out.println(comparison.getComparator() + "  is not supported");
+        }
+
+        return Float.MAX_VALUE;
     }
 }
