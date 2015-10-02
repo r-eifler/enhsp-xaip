@@ -124,7 +124,7 @@ public abstract class Heuristics {
         //System.out.println("Now action effects:");
         for (GroundAction a : A) {
             LinkedHashSet temp = new LinkedHashSet();
-
+            
             for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
                 int index = conditions.indexOf(c_1);
                 if (index != -1) {

@@ -670,6 +670,7 @@ public class AndCond extends Conditions {
                     if (ne == null)
                         return null;
                 }else{
+                    System.out.println(o2);
                     System.out.println("Unsupported operation for :"+o2.getClass());
                 }
             }

@@ -887,4 +887,19 @@ public class Comparison extends Conditions {
         }
         return true;
     }
+
+    public String regress_repeatedely(GroundAction action, int number_of_repetition,State s_0) {
+        float a1;
+        float b;
+        
+        if (!this.involve(action.getNumericFluentAffected()))
+            return this.getLeft().eval(s_0)+this.comparator+this.getRight().eval(s_0);
+
+        a1 = this.eval_not_affected(s_0,action);
+        b = this.eval_affected(s_0,action);
+        Float lhs = (b*number_of_repetition +a1);
+        
+        return lhs.toString() +">="+0; 
+        
+    }
 }

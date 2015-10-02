@@ -51,30 +51,31 @@ public class SearchStrategies {
     public static int priority_queue_size;
     private boolean checking_visited=true;
     private Heuristics heuristic;
+    private boolean decreasing_heuristic_pruning;
     private int gw;
     
     public void setup_heuristic(Heuristics input){
-        this.heuristic = input;
+        this.setHeuristic(input);
         setGw(0);
         setHw(1);
-        
+        setDecreasing_heuristic_pruning(false);
     }
     
     public LinkedList enforced_hill_climbing(PddlProblem problem) throws Exception{
         long start_global =System.currentTimeMillis();
         LinkedHashSet rel_actions =  new LinkedHashSet(problem.getActions());
         
-        heuristic.setup(problem.getInit());
+        getHeuristic().setup(problem.getInit());
 
         State current = problem.getInit();
         LinkedList plan = new LinkedList();
         //a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit(), problem.getActions()));
         //System.out.println("Goals:"+problem.getGoals());
-        rel_actions = heuristic.reachable;
+        rel_actions = getHeuristic().reachable;
         System.out.println("All Actions:"+rel_actions.size());
 
         while (!current.satisfy(problem.getGoals())){
-            SearchNode succ = breadth_first_search(current,problem.getGoals(),rel_actions,heuristic);
+            SearchNode succ = breadth_first_search(current,problem.getGoals(),rel_actions, getHeuristic());
             if (succ == null){
                 System.out.println("No plan exists with EHC");
                 return null;
@@ -149,9 +150,9 @@ public class SearchStrategies {
         //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
         System.out.println("After Reacheability Actions:"+rel_actions.size());
 
-        heuristic.setup(current);
+        getHeuristic().setup(current);
         
-        int current_value = heuristic.compute_estimate(current)*getHw();
+        int current_value = getHeuristic().compute_estimate(current)*getHw();
         
         //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
         System.out.println("H(s_0,G)=:"+current_value);
@@ -190,7 +191,7 @@ public class SearchStrategies {
                             System.out.println("Node re-opening");
                         }
                         long start = System.currentTimeMillis();
-                        int d = heuristic.compute_estimate(temp);
+                        int d = getHeuristic().compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
                         //System.out.print(d+" ");
                         if (d!=Integer.MAX_VALUE && ( !helpful_actions ||d <= current_value ) ){
@@ -217,13 +218,13 @@ public class SearchStrategies {
         //Frontier
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
         State current = (State)problem.getInit();
-        heuristic.setup(current);
-        System.out.println("|A| (After Relevance Analysis):"+heuristic.reachable.size());
+        getHeuristic().setup(current);
+        System.out.println("|A| (After Relevance Analysis):"+getHeuristic().reachable.size());
 //        rel_actions = (LinkedHashSet) heuristic.compute_relevant_actions(current, problem.getGoals(), rel_actions);
         //heuristic.build_integer_representation(rel_actions, problem.getGoals());
         System.out.println("Computing H1...");
         long start = System.currentTimeMillis();
-        int current_value = heuristic.compute_estimate(current);
+        int current_value = getHeuristic().compute_estimate(current);
         
         System.out.println("Initial h1 cost:"+ (System.currentTimeMillis()-start));
         System.out.println("H(s_0,G)=:"+current_value);
@@ -251,16 +252,16 @@ public class SearchStrategies {
             nodes_expanded++;
             if (checking_visited)
                 visited.put(current_node.s, Boolean.TRUE);
-            for (GroundAction act: heuristic.reachable){
+            for (GroundAction act: getHeuristic().reachable){
                 if (act.isApplicable(current_node.s)){
                     State temp = act.apply(current_node.s.clone());
                     //if (!checking_visited || visited.get(temp) == null){
                     if (visited.get(temp) == null){
                         start = System.currentTimeMillis();
-                        int d = heuristic.compute_estimate(temp);
+                        int d = getHeuristic().compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
                         //System.out.print("Exploration:"+d);
-                        if (d!=Integer.MAX_VALUE){
+                        if (d!=Integer.MAX_VALUE && ( !this.isDecreasing_heuristic_pruning() ||d <= current_value ) ){
                             SearchNode new_node = new SearchNode(temp,act,current_node,(current_node.action_cost_to_get_here+act.getAction_cost())*getGw(),d*getHw());
                             frontier.add(new_node);      
                         }
@@ -339,6 +340,34 @@ public class SearchStrategies {
      */
     public void setHw(int hw) {
         this.hw = hw;
+    }
+
+    /**
+     * @return the decreasing_heuristic_pruning
+     */
+    public boolean isDecreasing_heuristic_pruning() {
+        return decreasing_heuristic_pruning;
+    }
+
+    /**
+     * @param decreasing_heuristic_pruning the decreasing_heuristic_pruning to set
+     */
+    public void setDecreasing_heuristic_pruning(boolean decreasing_heuristic_pruning) {
+        this.decreasing_heuristic_pruning = decreasing_heuristic_pruning;
+    }
+
+    /**
+     * @return the heuristic
+     */
+    public Heuristics getHeuristic() {
+        return heuristic;
+    }
+
+    /**
+     * @param heuristic the heuristic to set
+     */
+    public void setHeuristic(Heuristics heuristic) {
+        this.heuristic = heuristic;
     }
     
 }

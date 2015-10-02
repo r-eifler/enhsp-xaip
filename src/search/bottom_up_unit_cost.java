@@ -34,6 +34,7 @@ public class bottom_up_unit_cost extends Heuristics {
 
 
     
+    @Override
     public int compute_estimate(State s_0){
         //An accuracy parameter constraining the number of indirect dependencies.
         //strong_relaxation = true;

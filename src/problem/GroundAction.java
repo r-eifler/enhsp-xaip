@@ -1857,7 +1857,6 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                return 1;
 //            }
 //        }
-      
         a1 = comp.eval_not_affected(s_0,this);
         b = comp.eval_affected(s_0,this);
 //        System.out.println(a1);
@@ -1879,6 +1878,42 @@ public class GroundAction extends GenericActionType implements Comparable {
                 return Integer.MAX_VALUE;
         }
     }
+    
+    public int getBoundOnTheNumberOfExecution(State s_0, Comparison comp) {
+        float a1;
+        float b;
+        
+        if (!comp.involve(this.getNumericFluentAffected()))
+            return Integer.MAX_VALUE;
+//        if (comp.eval_to_null(s_0)){
+//            Comparison reg = this.regressComparison(comp);
+//            if (s_0.satisfy(comp)){
+//                return 1;
+//            }
+//        }
+        a1 = comp.eval_not_affected(s_0,this);
+        b = comp.eval_affected(s_0,this);
+//        System.out.println(a1);
+//        System.out.println(b);
+        //Assumption: comparisons are normalized!
+        if (comp.getComparator().equals("=")){
+            int m1 = (int)(-a1/b);
+            if (m1 < 0 || a1%b !=0)
+                return Integer.MAX_VALUE;
+            else
+                return m1;
+        }else{//it is >= or >
+            float m1 = -a1/b;
+            if (m1 >= 0){
+                if (comp.getComparator().equals(">"))
+                    m1 += 1;
+                return (int)Math.ceil(m1);
+            }else
+                return Integer.MAX_VALUE;
+        }
+    }
+    
+    
 
     public Float getCoefficientAffected(NumFluent f) {
         this.generateCoefficeintAffected();
@@ -1984,19 +2019,21 @@ public class GroundAction extends GenericActionType implements Comparable {
         
     }
 
-    public boolean is_influenced_by(GroundAction ele) {
+    public boolean depends_on(GroundAction ele) {
         if (this.getNumericEffects()==null)
             return false;
         for (NumEffect ne : (Collection<NumEffect>)this.getNumericEffects().sons){
-            if (ne.getOperator().equals("increase") || (ne.getOperator().equals("decrease"))){
-                if (ne.getFluentAffected().involve(ele.numericFluentAffected))
-                    return true;
-            }
+//            if (ne.getOperator().equals("increase") || (ne.getOperator().equals("decrease"))){
+//                if (ne.getFluentAffected().involve(ele.numericFluentAffected))
+//                    return true;
+//            }
             if (ne.getRight().involve(ele.numericFluentAffected))
                 return true;   
         }
         return false;
     }
+
+
 
 
 
