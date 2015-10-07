@@ -53,6 +53,7 @@ public class SearchStrategies {
     private Heuristics heuristic;
     private boolean decreasing_heuristic_pruning;
     private int gw;
+    public static int states_evaluated;
     
     public void setup_heuristic(Heuristics input){
         this.setHeuristic(input);
@@ -225,7 +226,7 @@ public class SearchStrategies {
         System.out.println("Computing H1...");
         long start = System.currentTimeMillis();
         int current_value = getHeuristic().compute_estimate(current);
-        
+        setStates_evaluated(0);
         System.out.println("Initial h1 cost:"+ (System.currentTimeMillis()-start));
         System.out.println("H(s_0,G)=:"+current_value);
 
@@ -257,6 +258,7 @@ public class SearchStrategies {
                     State temp = act.apply(current_node.s.clone());
                     //if (!checking_visited || visited.get(temp) == null){
                     if (visited.get(temp) == null){
+                        setStates_evaluated(getStates_evaluated() + 1);
                         start = System.currentTimeMillis();
                         int d = getHeuristic().compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
@@ -368,6 +370,20 @@ public class SearchStrategies {
      */
     public void setHeuristic(Heuristics heuristic) {
         this.heuristic = heuristic;
+    }
+
+    /**
+     * @return the states_evaluated
+     */
+    public int getStates_evaluated() {
+        return states_evaluated;
+    }
+
+    /**
+     * @param states_evaluated the states_evaluated to set
+     */
+    public void setStates_evaluated(int states_evaluated) {
+        this.states_evaluated = states_evaluated;
     }
     
 }

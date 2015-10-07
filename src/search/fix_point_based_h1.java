@@ -230,7 +230,9 @@ public class fix_point_based_h1 extends Heuristics {
                     if (this.is_complex.get(c) == null) {
                         for (HeuristicSearchNode gr : pool) {
                             int number_of_repetition = gr.action.getNumberOfExecution(s_0, (Comparison) c);
-
+//                            if (number_of_repetition > 10 && number_of_repetition != Integer.MAX_VALUE){
+//                                System.out.println("Action:"+gr.action);
+//                            }
                             if (number_of_repetition != Integer.MAX_VALUE) {
                                 if (update_value(h, c, gr.action_cost_to_get_here+number_of_repetition)) {
                                     update = true;
