@@ -692,4 +692,35 @@ public class NormExpression extends Expression {
         }
         return ret;
     }
+
+    public NormExpression sum_copy(NormExpression right) {
+        NormExpression ret = (NormExpression)this.clone();
+        NormExpression temp = (NormExpression)right.clone();
+        Iterator it2 = ret.summations.iterator();
+        while (it2.hasNext()){
+            Addendum a = (Addendum) it2.next();
+            Iterator it = temp.summations.iterator();
+            while (it.hasNext()) {
+                Addendum a1 = (Addendum) it.next();
+                if ((a1.f == null) && (a.f == null)) {
+                    a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
+                    it.remove();
+                } else if (a1.f != null && a.f != null) {
+                    if (a1.f.equals(a.f)) {
+                        a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
+                        if (a.n.getNumber() == 0.0) {
+                            a.f = null;
+                            it2.remove();
+                        }
+                        it.remove();
+                    }
+                }
+            }
+        }
+        
+        for (Addendum o1 : temp.summations) {
+            ret.summations.add(o1);
+        }
+        return ret;
+    }
 }

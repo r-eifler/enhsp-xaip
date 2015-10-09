@@ -1857,10 +1857,17 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                return 1;
 //            }
 //        }
+        
         a1 = comp.eval_not_affected(s_0,this);
         b = comp.eval_affected(s_0,this);
-//        System.out.println(a1);
-//        System.out.println(b);
+        if (b<0.0){
+//            System.out.println(a1);
+//            System.out.println(b);
+//            //System.out.println("DEBUG:"+s_0);
+//            System.out.println("DEBUG: "+this.toEcoString()+" is considered negative for:"+comp);
+            return Integer.MAX_VALUE;//the action contributes negatively
+        }
+
         //Assumption: comparisons are normalized!
         if (comp.getComparator().equals("=")){
             int m1 = (int)(-a1/b);
@@ -2027,6 +2034,8 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                if (ne.getFluentAffected().involve(ele.numericFluentAffected))
 //                    return true;
 //            }
+            
+            ele.generateAffectedNumFluents();
             if (ne.getRight().involve(ele.numericFluentAffected))
                 return true;   
         }

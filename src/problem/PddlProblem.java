@@ -48,6 +48,7 @@ import expressions.Expression;
 import expressions.NumFluent;
 import expressions.MinusUnary;
 import expressions.MultiOp;
+import expressions.NormExpression;
 import expressions.PDDLNumber;
 
 import java.io.BufferedWriter;
@@ -1011,6 +1012,7 @@ public class PddlProblem {
                     if (comp.getComparator().equals("=")) {
                         Comparison dual = (Comparison) comp.clone();
                         dual.setComparator("<=");
+                        dual.setNormalized(false);
                         comp.setComparator(">=");
                         temp.addConditions(dual);
                         temp.addConditions(comp);
@@ -1027,6 +1029,7 @@ public class PddlProblem {
                 if (comp.getComparator().equals("=")) {
                     Comparison dual = (Comparison) comp.clone();
                     dual.setComparator("<=");
+                    dual.setNormalized(false);
                     comp.setComparator(">=");
                     temp.addConditions(dual);
                     temp.addConditions(comp);
@@ -1034,6 +1037,7 @@ public class PddlProblem {
             } else
                 temp.addConditions(con);
         }
+        temp.normalize();
         return temp;
     }
 

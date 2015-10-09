@@ -140,7 +140,6 @@ public class SearchStrategies {
     public static long overall_search_time;
     
     public LinkedList wa_star(PddlProblem problem) throws Exception{
-        boolean helpful_actions = true;
         
         long start_global =System.currentTimeMillis();
         PriorityQueue<SearchNode> pw = new PriorityQueue();
@@ -189,13 +188,13 @@ public class SearchStrategies {
                     //act.normalize();
                     if (visited.get(temp) == null || (visited.get(temp)==true) && (cost.get(temp)>current_node.action_cost_to_get_here)){
                         if (visited.get(temp)!=null){
-                            System.out.println("Node re-opening");
+                            //System.out.println("Node re-opening");
                         }
                         long start = System.currentTimeMillis();
                         int d = getHeuristic().compute_estimate(temp);
                         heuristic_time+=System.currentTimeMillis()-start;
                         //System.out.print(d+" ");
-                        if (d!=Integer.MAX_VALUE && ( !helpful_actions ||d <= current_value ) ){
+                        if (d!=Integer.MAX_VALUE && ( !this.isDecreasing_heuristic_pruning() ||d <= current_value ) ){
 //                        if (d!=Integer.MAX_VALUE && ( d <= current_value ) ){
 
                             act.setAction_cost(temp);

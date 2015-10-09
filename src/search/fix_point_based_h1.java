@@ -32,6 +32,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.NumEffect;
+import extraUtils.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,9 +46,7 @@ import java.util.Set;
 import problem.GroundAction;
 import problem.RelState;
 import problem.State;
-import gurobi.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import gurobi.*;
 
 /**
  *
@@ -64,15 +63,19 @@ public class fix_point_based_h1 extends Heuristics {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
+        //System.out.println(this.orderings);
         //build_integer_representation();
     }
 
     public void setup(State s_0) {
+
         this.build_integer_representation();//for each proposition and comparison there is a unique integer representation
         influenced_by = computeInflueced_by();
         influence_graph = create_influence_graph();
         this.compute_relevant_actions(s_0);
         A = this.reachable;
+        cyclic_task = this.compute_transitive_closure(A);
+        System.out.println("Acyclity test:"+cyclic_task);
         is_complex = identify_complex_conditions();
         System.out.println("Easy Conditions: " + (this.all_conditions.size() - is_complex.keySet().size()));
         System.out.println("Hard Conditions: " + is_complex.keySet().size());
@@ -163,7 +166,7 @@ public class fix_point_based_h1 extends Heuristics {
         return cost;
     }
 
-    private void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
+    protected void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
         for (Conditions c_1 : this.all_conditions) {
             if (c_1.isSatisfied(s_0)) {
                 h.set(c_1.getCounter(), 0);
@@ -175,7 +178,7 @@ public class fix_point_based_h1 extends Heuristics {
     }
 //
 
-    private void init_pool(HashSet pool, LinkedHashSet<GroundAction> A1, State s_0) {
+    protected void init_pool(HashSet pool, LinkedHashSet<GroundAction> A1, State s_0) {
         counter = 0;
         Iterator it = A1.iterator();
         while (it.hasNext()) {
@@ -189,7 +192,7 @@ public class fix_point_based_h1 extends Heuristics {
         }
     }
 
-    private boolean update_value(ArrayList<Integer> h, Conditions c, int cost) {
+    protected boolean update_value(ArrayList<Integer> h, Conditions c, int cost) {
         if (h.get(c.getCounter()) != null && h.get(c.getCounter()) <= cost) {
             return false;
         }
@@ -197,7 +200,7 @@ public class fix_point_based_h1 extends Heuristics {
         return true;
     }
 
-    private void update_pool(HashSet<HeuristicSearchNode> pool, LinkedHashSet<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+    protected void update_pool(HashSet<HeuristicSearchNode> pool, LinkedHashSet<GroundAction> A1, State s_0, ArrayList<Integer> h) {
         //update action precondition
         for (HeuristicSearchNode gr : pool) {
             gr.action_cost_to_get_here = compute_precondition_cost(s_0, h, gr.action);
@@ -214,7 +217,7 @@ public class fix_point_based_h1 extends Heuristics {
         }
     }
 
-    private boolean update_conditions_values(HashSet<HeuristicSearchNode> pool, State s_0, Collection<Conditions> all_conditions, ArrayList<Integer> h) {
+    protected boolean update_conditions_values(HashSet<HeuristicSearchNode> pool, State s_0, Collection<Conditions> all_conditions, ArrayList<Integer> h) {
         boolean update = false;
         for (Conditions c : this.all_conditions) {
             if (h.get(c.getCounter()) != 0) {
@@ -254,7 +257,7 @@ public class fix_point_based_h1 extends Heuristics {
         return update;
     }
 
-    private HashMap<Conditions, Boolean> identify_complex_conditions() {
+    protected HashMap<Conditions, Boolean> identify_complex_conditions() {
         //For each condition, identify whether there is at least an action whose effects are not simple. This condition
         // will be considered complex in that checking its satisfaction is hard
         HashMap<Conditions, Boolean> ret = new HashMap();
@@ -283,19 +286,8 @@ public class fix_point_based_h1 extends Heuristics {
         return ret;
     }
 
-    private LinkedList sort_actions_pool_according_to_cost(HashSet<HeuristicSearchNode> pool) {
-        LinkedList temp = new LinkedList(pool);
-        Collections.sort(temp, new Comparator<HeuristicSearchNode>() {
-            @Override
-            public int compare(HeuristicSearchNode o1, HeuristicSearchNode o2) {
-                //order according to the dependency of the actions, otherwise use lexicographic ordering
-                return (o2.action.depends_on(o1.action) ? -1 : (o1.action.depends_on(o2.action) ? 1 : o1.action.getName().compareTo(o2.action.getName())));
-            }
-        });
-        return temp;
-    }
 
-    private int accumulated_value_reacheability(State s_0, Conditions c, HashSet<HeuristicSearchNode> pool) {
+    protected int accumulated_value_reacheability(State s_0, Conditions c, HashSet<HeuristicSearchNode> pool) {
         RelState rel_state = s_0.relaxState();
         LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
@@ -337,7 +329,31 @@ public class fix_point_based_h1 extends Heuristics {
         this.greedy = greedy;
     }
 
-
+    protected LinkedList sort_actions_pool_according_to_cost(HashSet<HeuristicSearchNode> pool) {
+        LinkedList temp = new LinkedList(pool);
+        
+        if (cyclic_task)
+            return temp;
+        
+        for (HeuristicSearchNode o: pool){
+            o.orderings = this.orderings;
+        }
+       
+        Collections.sort(temp, new Comparator<HeuristicSearchNode>() {
+            @Override
+            public int compare(HeuristicSearchNode o1, HeuristicSearchNode o2) {
+                if (o1.action.equals(o2.action))
+                    return 0;
+                
+                if (o1.orderings.contains(new Pair(o1.action,o2.action))){
+                    //System.out.println("found");
+                    return -1;
+                }else
+                    return 1; 
+            }
+        });
+        return temp;
+    }
  
 
 }
