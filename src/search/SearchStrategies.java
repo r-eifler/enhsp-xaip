@@ -54,6 +54,7 @@ public class SearchStrategies {
     private boolean decreasing_heuristic_pruning;
     private int gw;
     public static int states_evaluated;
+    private boolean interactive_search_debug = false;
     
     public void setup_heuristic(Heuristics input){
         this.setHeuristic(input);
@@ -103,7 +104,7 @@ public class SearchStrategies {
         boolean strong_relaxation = false;
         //int current_value = Heuristics.h1_recursion_memoization(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);
         int current_value = heuristic.compute_estimate(current);
-        System.out.println("Current Distance:"+current_value);
+        //System.out.println("Current Distance:"+current_value);
         SearchNode init = new SearchNode(current,null,null,0,current_value);
         frontier.add(init);
         
@@ -173,12 +174,13 @@ public class SearchStrategies {
                 System.out.println("Current Distance:"+current_node.goal_distance);
                 current_value = current_node.goal_distance;
             }
-            //if (current_node.action!= null)
-                //System.out.println("Action:"+current_node.action);
+//            if (current_node.action!= null)
+//                System.out.println("Action:"+current_node.action);
             if (current_node.s.satisfy(problem.getGoals())){
                 overall_search_time = System.currentTimeMillis()-start_global;
                 return extract_plan(current_node);
             }
+
             visited.put(current_node.s, Boolean.TRUE);
             for (GroundAction act: (LinkedHashSet<GroundAction>)problem.getActions()){
                 if (act.isApplicable(current_node.s)){
@@ -240,7 +242,17 @@ public class SearchStrategies {
         heuristic_time = 0;
         while (!frontier.isEmpty()){
             SearchNode current_node = frontier.poll();
+            nodes_expanded++;
             priority_queue_size = frontier.size();
+            if (current_node.action!= null && interactive_search_debug){
+                System.out.println("Action:"+current_node.action);
+                System.out.println("Current Distance:"+current_node.goal_distance);
+                System.out.println("Current Frontier:");
+                for (SearchNode sn:frontier){
+                    System.out.println("Node:"+sn.action+" Distance to Goal:"+sn.goal_distance);
+                }
+                System.in.read();
+            }
             if (current_value > current_node.goal_distance){
                 System.out.println("Current Distance:"+current_node.goal_distance);
                 current_value = current_node.goal_distance;
@@ -249,7 +261,10 @@ public class SearchStrategies {
                 overall_search_time = System.currentTimeMillis()-start_global;
                 return extract_plan(current_node);
             }
-            nodes_expanded++;
+            
+            if (nodes_expanded % 100 == 0){
+                System.out.println("Stats so far. Expanded nodes:"+nodes_expanded+" States Evaluated:"+this.getStates_evaluated());
+            }
             if (checking_visited)
                 visited.put(current_node.s, Boolean.TRUE);
             for (GroundAction act: getHeuristic().reachable){

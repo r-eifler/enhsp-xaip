@@ -75,7 +75,9 @@ public class fix_point_based_h1_5 extends fix_point_based_h1 {
             if (a.getPreconditions() != null) {
                 compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
             }
+            //System.out.println(a.toPDDL());
         }
+        
         compute_redundant_constraint((Set<Conditions>) G.sons);
     }
 
@@ -83,12 +85,13 @@ public class fix_point_based_h1_5 extends fix_point_based_h1 {
         LinkedHashSet temp = new LinkedHashSet();
 
         ArrayList<Conditions> set_as_array = new ArrayList(set);
-
+        int counter = 0;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
                 Conditions c_1 = set_as_array.get(i);
                 Conditions c_2 = set_as_array.get(j);
                 if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
+                    counter++;
                     Comparison a1 = (Comparison) c_1;
                     Comparison a2 = (Comparison) c_2;
                     NormExpression lhs_a1 = (NormExpression) a1.getLeft();
@@ -101,11 +104,15 @@ public class fix_point_based_h1_5 extends fix_point_based_h1 {
                     Comparison newC = new Comparison(new_comparator);
                     newC.setLeft(expr);
                     newC.setRight(new NormExpression(new Float(0.0)));
+                    newC.normalize();
                     temp.add(newC);
                 }
             }
         }
-
+//        System.out.println("New conditions now:"+counter);
+//        System.out.println("Set before:"+set.size());
         set.addAll(temp);
+//        System.out.println("Set after:"+set.size());
     }
 }
+

@@ -669,7 +669,10 @@ public class PddlProblem {
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
+//                System.out.println(act.toPDDL());
                 keep = act.simplifyModel(linkedDomain, this);
+//                System.out.println(act.toPDDL());
+
             }
             if (!keep) {
                 //System.out.println("Action removed:" + act.toEcoString());

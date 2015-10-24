@@ -73,6 +73,9 @@ public class GroundAction extends GenericActionType implements Comparable {
     private HashMap<NumFluent,Float> coefficientAffected;
     private float action_cost;
     public int counter;
+    public HashMap<Integer,Boolean> interact_with;
+    private HashMap<Predicate,Boolean> achieve;
+
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -93,6 +96,9 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
         if (this.preconditions != null) {
             ret.preconditions = this.preconditions.clone();
+        }
+        if (this.interact_with!= null){
+            ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();
         }
         return ret;
 
@@ -137,6 +143,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.parameters = new ParametersAsTerms();
         //numericFluentAffected = new HashMap();
         action_cost = 0;
+        interact_with = new HashMap();
+        achieve = new HashMap();
     }
 
     public GroundAction(String name) {
@@ -147,6 +155,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.preconditions = new AndCond();
         //numericFluentAffected = new HashMap();
         action_cost = 0;
+        interact_with = new HashMap();
+        achieve = new HashMap();
     }
 
 //    @Override
@@ -1148,19 +1158,27 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public boolean achieve(Predicate p) {
-        AndCond add = (AndCond) this.getAddList();
+        
+        if (this.achieve.get(p) == null){
+            AndCond add = (AndCond) this.getAddList();
 
-        if (add == null) {
+            if (add == null) {
+                this.achieve.put(p, false);
+                return false;
+            }
+            if (add.sons == null) {
+                this.achieve.put(p, false);
+                return false;
+            }
+            if (add.sons.contains(p)) {
+                this.achieve.put(p, true);
+                return true;
+            }
+            this.achieve.put(p, false);
             return false;
         }
-        if (add.sons == null) {
-            return false;
-        }
-        if (add.sons.contains(p)) {
-            return true;
-        }
 
-        return false;
+        return this.achieve.get(p);
     }
 
     public boolean delete(Predicate p) {
@@ -1849,8 +1867,61 @@ public class GroundAction extends GenericActionType implements Comparable {
         float a1;
         float b;
         
-        if (!comp.involve(this.getNumericFluentAffected()))
+//        if (!this.interact_with(comp)){
+//            return Integer.MAX_VALUE;
+//        }
+        if (!comp.involve(this.getNumericFluentAffected())){
             return Integer.MAX_VALUE;
+        }
+        
+
+//        if (comp.eval_to_null(s_0)){
+//            Comparison reg = this.regressComparison(comp);
+//            if (s_0.satisfy(comp)){
+//                return 1;
+//            }
+//        }
+        
+        a1 = comp.eval_not_affected(s_0,this);
+        b = comp.eval_affected(s_0,this);
+        if (b<0.0){
+//            System.out.println(a1);
+//            System.out.println(b);
+//            //System.out.println("DEBUG:"+s_0);
+//            System.out.println("DEBUG: "+this.toEcoString()+" is considered negative for:"+comp);
+            return Integer.MAX_VALUE;//the action contributes negatively
+        }
+
+        //Assumption: comparisons are normalized!
+        if (comp.getComparator().equals("=")){
+            int m1 = (int)(-a1/b);
+            if (m1 < 0 || a1%b !=0)
+                return Integer.MAX_VALUE;
+            else
+                return m1;
+        }else{//it is >= or >
+            float m1 = -a1/b;
+            if (m1 >= 0){
+                if (comp.getComparator().equals(">"))
+                    m1 += 1;
+                return (int)Math.ceil(m1);
+            }else
+                return Integer.MAX_VALUE;
+        }
+    }
+    
+    public int getNumberOfExecutionWithoutCache(State s_0, Comparison comp) {
+        float a1;
+        float b;
+        
+//        if (!this.interact_with(comp)){
+//            return Integer.MAX_VALUE;
+//        }
+        if (!comp.involve(this.getNumericFluentAffected())){
+            return Integer.MAX_VALUE;
+        }
+        
+
 //        if (comp.eval_to_null(s_0)){
 //            Comparison reg = this.regressComparison(comp);
 //            if (s_0.satisfy(comp)){
@@ -1929,10 +2000,11 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     private void generateCoefficeintAffected() {
         
-        if (this.getNumericEffects()==null)
-            return;
         if (coefficientAffected!=null)
             return;
+        if (this.getNumericEffects()==null)
+            return;
+
         coefficientAffected = new HashMap();
         for (Object c : this.getNumericEffects().sons){
             NumEffect nEff = (NumEffect)c;
@@ -2042,10 +2114,18 @@ public class GroundAction extends GenericActionType implements Comparable {
         return false;
     }
 
-
-
-
-
- 
+    private boolean interact_with(Comparison comp) {
+        Boolean ret = interact_with.get(comp.getCounter());
+        if (ret==null){
+            if (comp.involve(this.getNumericFluentAffected())){
+                interact_with.put(comp.getCounter(),Boolean.TRUE);
+                return true;
+            }else{
+                interact_with.put(comp.getCounter(),Boolean.FALSE);
+                return false;
+            }
+        }
+        return ret;
+    } 
 
 }

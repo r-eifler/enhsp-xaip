@@ -705,6 +705,7 @@ public class NormExpression extends Expression {
                 if ((a1.f == null) && (a.f == null)) {
                     a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
                     it.remove();
+                    break;
                 } else if (a1.f != null && a.f != null) {
                     if (a1.f.equals(a.f)) {
                         a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
@@ -713,7 +714,9 @@ public class NormExpression extends Expression {
                             it2.remove();
                         }
                         it.remove();
+                        break;
                     }
+                    
                 }
             }
         }

@@ -71,7 +71,7 @@ public abstract class Heuristics {
 
     public HashMap<Conditions, GroundAction> achievers;
     public HashMap<Comparison, Comparison> add_achievers;
-    protected int number_of_actual_atoms;
+    protected int index_of_last_static_atom;
     public LinkedHashSet<GroundAction> A;
     public Conditions G;
     private Set<NumFluent> def_num_fluents;
@@ -164,7 +164,7 @@ public abstract class Heuristics {
         }
         G.sons = temp;
         //System.out.println(conditions);
-        number_of_actual_atoms = counter2 + 1;
+        index_of_last_static_atom = counter2;//index of the last atom
         this.all_conditions.addAll(conditions);
 
     }
@@ -219,7 +219,7 @@ public abstract class Heuristics {
         return;
     }
 
-    private void update_reacheable_predicates(HashMap<Conditions, Integer> h, State s_0) {
+    protected void update_reacheable_predicates(HashMap<Conditions, Integer> h, State s_0) {
         for (Conditions c : h.keySet()) {
             if (c instanceof Predicate) {
                 this.reacheable_predicates.add((Predicate) c);
@@ -607,7 +607,7 @@ public abstract class Heuristics {
         return ret;
     }
 
-    private void update_definable_fluents() {
+    protected void update_definable_fluents() {
 
         for (GroundAction gr : this.reachable) {
             //action precondition
