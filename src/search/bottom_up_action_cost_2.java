@@ -248,16 +248,7 @@ public class bottom_up_action_cost_2 extends Heuristics {
         
     }
 
-    private void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
-        for (Conditions c_1 : this.all_conditions) {
-            if (c_1.isSatisfied(s_0)) {
-                h.set(c_1.getCounter(), 0);
-            }
-            if (debug >= 2) {
-                System.out.println("Condition counter mapping:" + c_1 + " ," + c_1.getCounter());
-            }
-        }
-    }
+
 
     private int compute_indirect_effects_cost(State s_0, ArrayList<Integer> h, HeuristicSearchNode node) {
         if (this.influence_graph.get(node.action) == null) {

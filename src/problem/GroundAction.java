@@ -1854,14 +1854,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
-//    public void getNumberOfExecution(State s_0,Comparison comp) {
-//        float a1;
-//        float a2;
-//        float b;
-//
-//                
-//        a1 = comp.eval_not_affected(s_0,this);
-//    }
 
     public int getNumberOfExecution(State s_0, Comparison comp) {
         float a1;

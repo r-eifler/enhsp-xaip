@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.RelState;
 import problem.State;
 
 /**
@@ -77,6 +78,7 @@ public abstract class Heuristics {
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
+    protected HashMap<Conditions, Boolean> is_complex;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -94,13 +96,14 @@ public abstract class Heuristics {
     }
 
     //this initializer is mandatory for being executed before each invocation of the heuristic
-    public void setup(State s_0) {
+    public int setup(State s_0) {
 
         this.build_integer_representation();//for each proposition and comparison there is a unique integer representation
         influenced_by = computeInflueced_by();
         influence_graph = create_influence_graph();
         this.compute_relevant_actions(s_0);
         A = this.reachable;
+        return 0;
         //this.build_integer_representation();//this could reduce the number of predicate/comparison but it has been considered useless overhead
     }
 
@@ -690,6 +693,297 @@ public abstract class Heuristics {
             }
         }
         return ret;
+    }
+
+    protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
+        int cost = 0;
+        if (gr.getPreconditions() != null && gr.getPreconditions().sons != null) {
+            for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
+                int temp = h.get(t.getCounter());
+                if (temp != Integer.MAX_VALUE) {
+                    if (additive_h) {
+                        cost += temp;
+                    } else {
+                        cost = Math.max(cost, temp);
+                    }
+                } else if (s_0.satisfy(t)) {
+                    h.set(t.getCounter(), 0);
+                    if (additive_h) {
+                        cost += 0;
+                    } else {
+                        cost = Math.max(cost, 0);
+                    }
+                } else {
+                    return Integer.MAX_VALUE;
+                }
+            }
+        }
+        return cost;
+    }
+
+    protected void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
+        for (Conditions c_1 : this.all_conditions) {
+            if (c_1.isSatisfied(s_0)) {
+                h.set(c_1.getCounter(), 0);
+            }
+            if (debug >= 2) {
+                System.out.println("Condition counter mapping:" + c_1 + " ," + c_1.getCounter());
+            }
+        }
+    }
+    //
+
+    protected int check_goal_conditions(State s_0, Conditions G, ArrayList<Integer> h) {
+        int cost = 0;
+        for (Conditions g : (LinkedHashSet<Conditions>) G.sons) {
+            int temp = h.get(g.getCounter());
+            if (temp != Integer.MAX_VALUE || s_0.satisfy(g)) {
+                if (s_0.satisfy(g)) {
+                    h.set(g.getCounter(), 0);
+                } else {
+                    if (additive_h) {
+                        cost += temp;
+                    } else {
+                        cost = Math.max(cost, temp);
+                    }
+                }
+            } else {
+                return Integer.MAX_VALUE;
+            }
+        }
+        return cost;
+    }
+
+    protected boolean update_value(ArrayList<Integer> h, Conditions c, int cost) {
+        if (h.get(c.getCounter()) != null && h.get(c.getCounter()) <= cost) {
+            return false;
+        }
+        h.set(c.getCounter(), cost);
+        return true;
+    }
+
+    protected int accumulated_value_reacheability(State s_0, Conditions c, Collection<HeuristicSearchNode> pool) {
+        RelState rel_state = s_0.relaxState();
+        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
+        int cost = 0;
+        float current_distance = rel_state.satisfaction_distance((Comparison) c);
+        //this terminates correctly whenever the numeric dependency graph is acyclic
+        LinkedList q = new LinkedList();
+        while (true) {
+            boolean stop = true;
+            q = order_according_to_dependencies(pool, c);
+            while (!q.isEmpty()) {
+                HeuristicSearchNode gr = (HeuristicSearchNode) q.pollFirst();
+                rel_state = gr.action.apply(rel_state);
+                float new_dist = rel_state.satisfaction_distance((Comparison) c);
+                //cost += gr.action_cost_to_get_here + 1;
+                if (current_distance >= new_dist) {
+                    cost += gr.action_cost_to_get_here + 1;
+                    current_distance = new_dist;
+                    stop = false;
+                }
+                if (rel_state.satisfy((Comparison) c)) {
+                    return cost;
+                }
+            }
+            if (stop) {
+                return Integer.MAX_VALUE;
+            }
+        }
+    }
+
+    protected int accumulated_value_reacheability_first(State s_0, Conditions c, Collection<GroundAction> pool) {
+        RelState rel_state = s_0.relaxState();
+        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
+        int cost = 0;
+        float current_distance = rel_state.satisfaction_distance((Comparison) c);
+        //this terminates correctly whenever the numeric dependency graph is acyclic
+        while (true) {
+            boolean stop = true;
+            LinkedList q = order_according_to_dependencies_actions(pool, c);
+            while (!q.isEmpty()) {
+                GroundAction gr = (GroundAction) q.pollFirst();
+                rel_state = gr.apply(rel_state);
+                float new_dist = rel_state.satisfaction_distance((Comparison) c);
+                cost +=  1;
+                if (current_distance > new_dist) {
+                    //cost += gr.action_cost_to_get_here + 1;
+                    current_distance = new_dist;
+                    stop = false;
+                }
+                if (rel_state.satisfy((Comparison) c)) {
+                    return cost;
+                }
+            }
+            if (stop) {
+                return Integer.MAX_VALUE;
+            }
+        }
+    }
+
+        protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+
+        Iterator it = A1.iterator();
+        while (it.hasNext()) {
+            GroundAction gr = (GroundAction) it.next();
+            if (this.compute_precondition_cost(s_0, h, gr) != Integer.MAX_VALUE) {
+                gr.setAction_cost(s_0);
+                pool.add(new HeuristicSearchNode(gr, null, 0, 0));
+                it.remove();
+            }
+        }
+    }
+
+    protected LinkedList order_according_to_dependencies_actions(Collection<GroundAction> pool, Conditions c) {
+        Comparison comp = (Comparison) c;
+        LinkedList<GroundAction> pq = new LinkedList();
+        LinkedList<GroundAction> ret = new LinkedList();
+        for (GroundAction gr : pool) {
+            for (NumFluent nf : comp.getInvolvedFluents()) {
+                if (gr.influence(nf)) {
+                    pq.add(gr);
+                    //ret.addLast(node);
+                }
+            }
+        }
+        HashMap<GroundAction, Boolean> visited = new HashMap();
+        while (!pq.isEmpty()) {
+            GroundAction gr = pq.poll();
+            ret.addFirst(gr);
+            visited.put(gr, true);
+            for (GroundAction node : pool) {
+                GroundAction gr2 = node;
+                if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
+                    pq.addLast(gr2);
+                }
+            }
+        }
+        return ret;
+    }
+
+    protected LinkedList sort_actions_pool_according_to_cost(HashSet<HeuristicSearchNode> pool) {
+        LinkedList temp = new LinkedList(pool);
+        if (cyclic_task) {
+            return temp;
+        }
+        for (HeuristicSearchNode o : pool) {
+            o.orderings = this.orderings;
+        }
+        Collections.sort(temp, new Comparator<HeuristicSearchNode>() {
+            @Override
+            public int compare(HeuristicSearchNode o1, HeuristicSearchNode o2) {
+                if (o1.action.equals(o2.action)) {
+                    return 0;
+                }
+                if (o1.orderings.contains(new Pair(o1.action, o2.action))) {
+                    //System.out.println("found");
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        return temp;
+    }
+
+    protected boolean update_h(LinkedHashSet<GroundAction> pool, Collection<Conditions> conds, ArrayList<Integer> h, State s_0) {
+        boolean update = false;
+        for (Conditions c : conds) {
+            if (h.get(c.getCounter()) != 0) {
+                if (c instanceof Predicate) {
+                    for (GroundAction gr : pool) {
+                        if (gr.achieve((Predicate) c)) {
+                            if (update_value(h, c, 1)) {
+                                update = true;
+                            }
+                        }
+                    }
+                } else if (c instanceof Comparison) {
+                    if (this.is_complex.get(c) == null) {
+                        for (GroundAction gr : pool) {
+                            if (gr.getNumberOfExecution(s_0, (Comparison) c) != Integer.MAX_VALUE) {
+                                if (update_value(h, c, 1)) {
+                                    update = true;
+                                }
+                            }
+                        }
+                    } else {
+                        if (accumulated_value_reacheability_first(s_0, c, pool) != Integer.MAX_VALUE) {
+                            if (update_value(h, c, 1)) {
+                                update = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return update;
+    }
+
+    protected void update_pool(Collection<GroundAction> pool, LinkedHashSet<GroundAction> A, State s_0, ArrayList<Integer> h) {
+        for (GroundAction gr : A) {
+            if (this.compute_precondition_cost(s_0, h, gr) != Integer.MAX_VALUE) {
+                pool.add(gr);
+            }
+        }
+    }
+
+    protected LinkedList order_according_to_dependencies(Collection<HeuristicSearchNode> pool, Conditions c) {
+        Comparison comp = (Comparison) c;
+        LinkedList<HeuristicSearchNode> pq = new LinkedList();
+        LinkedList<HeuristicSearchNode> ret = new LinkedList();
+        for (HeuristicSearchNode node : pool) {
+            for (NumFluent nf : comp.getInvolvedFluents()) {
+                if (node.action.influence(nf)) {
+                    pq.add(node);
+                    //ret.addLast(node);
+                }
+            }
+        }
+        HashMap<HeuristicSearchNode, Boolean> visited = new HashMap();
+        while (!pq.isEmpty()) {
+            HeuristicSearchNode gr = pq.poll();
+            ret.addFirst(gr);
+            visited.put(gr, true);
+            for (HeuristicSearchNode node : pool) {
+                HeuristicSearchNode gr2 = node;
+                if (visited.get(gr2) == null && gr.action.depends_on(gr2.action) && !gr.action.equals(gr2.action)) {
+                    pq.addLast(gr2);
+                }
+            }
+        }
+        return ret;
+    }
+
+    protected void update_pool(Collection<HeuristicSearchNode> pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+        //update action precondition
+        for (HeuristicSearchNode gr : pool) {
+            gr.action_cost_to_get_here = compute_precondition_cost(s_0, h, gr.action);
+        }
+        Iterator it = A1.iterator();
+        while (it.hasNext()) {
+            GroundAction gr = (GroundAction) it.next();
+            int cost = compute_precondition_cost(s_0, h, gr);
+            if (cost != Integer.MAX_VALUE) {
+                gr.setAction_cost(s_0);
+                pool.add(new HeuristicSearchNode(gr, null, cost, 0));
+                it.remove();
+            }
+        }
+    }
+
+    protected void update_pool_reacheability(HashSet<HeuristicSearchNode> pool, LinkedHashSet<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+        Iterator it = A1.iterator();
+        while (it.hasNext()) {
+            GroundAction gr = (GroundAction) it.next();
+            int cost = compute_precondition_cost(s_0, h, gr);
+            if (cost != Integer.MAX_VALUE) {
+                gr.setAction_cost(s_0);
+                pool.add(new HeuristicSearchNode(gr, null, cost, 0));
+                it.remove();
+                this.reachable.add(gr);
+            }
+        }
     }
 
 }
