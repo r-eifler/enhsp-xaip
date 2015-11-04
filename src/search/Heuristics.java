@@ -27,9 +27,11 @@
  */
 package search;
 
+import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.NumEffect;
 import expressions.NumFluent;
 import extraUtils.Pair;
 import java.util.ArrayDeque;
@@ -59,7 +61,7 @@ public abstract class Heuristics {
     static public LinkedHashSet usefulActions = new LinkedHashSet();
 
     public LinkedHashSet<GroundAction> reachable;
-    boolean additive_h = true;
+    public boolean additive_h = true;
     protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
     public int max_depth;
     int debug = 0;
@@ -79,6 +81,9 @@ public abstract class Heuristics {
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
     protected HashMap<Conditions, Boolean> is_complex;
+    protected HashMap<Conditions, Boolean> new_condition;
+    protected int complex_conditions;
+    
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -696,9 +701,16 @@ public abstract class Heuristics {
     }
 
     protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
+        return this.compute_cost(s_0, h, gr.getPreconditions());
+    }
+    
+    protected int compute_cost(State s_0,ArrayList<Integer> h, Conditions con){
         int cost = 0;
-        if (gr.getPreconditions() != null && gr.getPreconditions().sons != null) {
-            for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
+        
+        if (con == null)
+            return 0;
+        
+        for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
                 int temp = h.get(t.getCounter());
                 if (temp != Integer.MAX_VALUE) {
                     if (additive_h) {
@@ -717,12 +729,11 @@ public abstract class Heuristics {
                     return Integer.MAX_VALUE;
                 }
             }
-        }
         return cost;
     }
 
     protected void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
-        for (Conditions c_1 : this.all_conditions) {
+        for (Conditions c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
                 h.set(c_1.getCounter(), 0);
             }
@@ -734,24 +745,7 @@ public abstract class Heuristics {
     //
 
     protected int check_goal_conditions(State s_0, Conditions G, ArrayList<Integer> h) {
-        int cost = 0;
-        for (Conditions g : (LinkedHashSet<Conditions>) G.sons) {
-            int temp = h.get(g.getCounter());
-            if (temp != Integer.MAX_VALUE || s_0.satisfy(g)) {
-                if (s_0.satisfy(g)) {
-                    h.set(g.getCounter(), 0);
-                } else {
-                    if (additive_h) {
-                        cost += temp;
-                    } else {
-                        cost = Math.max(cost, temp);
-                    }
-                }
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-        return cost;
+        return this.compute_cost(s_0, h, G);
     }
 
     protected boolean update_value(ArrayList<Integer> h, Conditions c, int cost) {
@@ -762,7 +756,7 @@ public abstract class Heuristics {
         return true;
     }
 
-    protected int accumulated_value_reacheability(State s_0, Conditions c, Collection<HeuristicSearchNode> pool) {
+    protected int interval_based_relaxation(State s_0, Conditions c, Collection<HeuristicSearchNode> pool) {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
@@ -777,6 +771,7 @@ public abstract class Heuristics {
                 rel_state = gr.action.apply(rel_state);
                 float new_dist = rel_state.satisfaction_distance((Comparison) c);
                 //cost += gr.action_cost_to_get_here + 1;
+                
                 if (current_distance >= new_dist) {
                     cost += gr.action_cost_to_get_here + 1;
                     current_distance = new_dist;
@@ -791,8 +786,38 @@ public abstract class Heuristics {
             }
         }
     }
+    
+//    protected float interval_based_relaxation_actions(State s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Float> action_to_cost) {
+//        RelState rel_state = s_0.relaxState();
+//        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
+//        float cost = 0;
+//        float current_distance = rel_state.satisfaction_distance((Comparison) c);
+//        //this terminates correctly whenever the numeric dependency graph is acyclic
+//        LinkedList<GroundAction> q = new LinkedList();
+//        while (true) {
+//            boolean stop = true;
+//            q = order_according_to_dependencies(pool, c);
+//            while (!q.isEmpty()) {
+//                GroundAction gr = q.pollFirst();
+//                rel_state = gr.apply(rel_state);
+//                float new_dist = rel_state.satisfaction_distance((Comparison) c);
+//                //cost += gr.action_cost_to_get_here + 1;
+//                if (current_distance >= new_dist) {
+//                    cost += action_to_cost.get(gr) + 1;
+//                    current_distance = new_dist;
+//                    stop = false;
+//                }
+//                if (rel_state.satisfy((Comparison) c)) {
+//                    return cost;
+//                }
+//            }
+//            if (stop) {
+//                return Float.POSITIVE_INFINITY;
+//            }
+//        }
+//    }
 
-    protected int accumulated_value_reacheability_first(State s_0, Conditions c, Collection<GroundAction> pool) {
+    protected int interval_based_relaxation_actions(State s_0, Conditions c, Collection<GroundAction> pool) {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
@@ -808,6 +833,36 @@ public abstract class Heuristics {
                 cost +=  1;
                 if (current_distance > new_dist) {
                     //cost += gr.action_cost_to_get_here + 1;
+                    current_distance = new_dist;
+                    stop = false;
+                }
+                if (rel_state.satisfy((Comparison) c)) {
+                    return cost;
+                }
+            }
+            if (stop) {
+                return Integer.MAX_VALUE;
+            }
+        }
+    }
+    
+    protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Integer> action_to_cost) {
+        RelState rel_state = s_0.relaxState();
+        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
+        int cost = 0;
+        float current_distance = rel_state.satisfaction_distance((Comparison) c);
+        //this terminates correctly whenever the numeric dependency graph is acyclic
+        while (true) {
+            boolean stop = true;
+            LinkedList q = order_according_to_dependencies_actions(pool, c);
+            while (!q.isEmpty()) {
+                GroundAction gr = (GroundAction) q.pollFirst();
+                rel_state = gr.apply(rel_state);
+                float new_dist = rel_state.satisfaction_distance((Comparison) c);
+                cost += action_to_cost.get(gr)+1;
+                if (current_distance > new_dist) {
+//                    cost += 1;
+//                    cost += action_to_cost.get(gr);
                     current_distance = new_dist;
                     stop = false;
                 }
@@ -899,7 +954,7 @@ public abstract class Heuristics {
                         }
                     }
                 } else if (c instanceof Comparison) {
-                    if (this.is_complex.get(c) == null) {
+                    if (!this.is_complex.get(c)) {
                         for (GroundAction gr : pool) {
                             if (gr.getNumberOfExecution(s_0, (Comparison) c) != Integer.MAX_VALUE) {
                                 if (update_value(h, c, 1)) {
@@ -908,7 +963,7 @@ public abstract class Heuristics {
                             }
                         }
                     } else {
-                        if (accumulated_value_reacheability_first(s_0, c, pool) != Integer.MAX_VALUE) {
+                        if (interval_based_relaxation_actions(s_0, c, pool) != Integer.MAX_VALUE) {
                             if (update_value(h, c, 1)) {
                                 update = true;
                             }
@@ -954,6 +1009,8 @@ public abstract class Heuristics {
         }
         return ret;
     }
+    
+
 
     protected void update_pool(Collection<HeuristicSearchNode> pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
         //update action precondition
@@ -982,6 +1039,34 @@ public abstract class Heuristics {
                 pool.add(new HeuristicSearchNode(gr, null, cost, 0));
                 it.remove();
                 this.reachable.add(gr);
+            }
+        }
+    }
+
+    protected void identify_complex_conditions(Collection<Conditions> conds, Collection<GroundAction> A) {
+        //For each condition, identify whether there is at least an action whose effects are not simple. This condition
+        // will be considered complex in that checking its satisfaction is hard
+        is_complex = new HashMap();
+        new_condition = new HashMap();
+        for (Conditions c : conds) {
+            if (c instanceof Comparison) {
+                Comparison comp = (Comparison) c;
+                new_condition.put(comp, false);
+                is_complex.put(comp, false);
+                for (GroundAction gr : A) {
+                    if (gr.getNumericEffects() != null) {
+                        AndCond effects = (AndCond) gr.getNumericEffects();
+                        for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
+                            if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
+                                if (!ne.fluentsInvolved().isEmpty()) {
+                                    is_complex.put(comp, true);
+                                    complex_conditions++;
+                                    //System.out.println("Complex condition:"+comp);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

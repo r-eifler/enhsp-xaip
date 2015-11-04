@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import org.json.simple.JSONObject;
 import problem.GroundAction;
 import problem.PddlProblem;
 import problem.PddlSCProblem;
@@ -55,6 +56,8 @@ public class SearchStrategies {
     private int gw;
     public static int states_evaluated;
     private boolean interactive_search_debug = false;
+    public boolean json_rep_saving = false;
+    public SearchNode search_space_handle;
     
     public void setup_heuristic(Heuristics input){
         this.setHeuristic(input);
@@ -70,6 +73,7 @@ public class SearchStrategies {
         getHeuristic().setup(problem.getInit());
 
         State current = problem.getInit();
+        
         LinkedList plan = new LinkedList();
         //a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit(), problem.getActions()));
         //System.out.println("Goals:"+problem.getGoals());
@@ -159,13 +163,16 @@ public class SearchStrategies {
         System.out.println("H(s_0,G)=:"+current_value);
         if (current_value == Integer.MAX_VALUE)
             return null;
-        SearchNode init = new SearchNode((State)problem.getInit().clone(),null,null,0,current_value);
+        SearchNode init = new SearchNode((State)problem.getInit().clone(),null,null,0,current_value,this.json_rep_saving);
+        if (json_rep_saving){ search_space_handle = init;}
         pw.add(init);
         HashMap<State,Boolean> visited = new HashMap();
         HashMap<State,Float> cost = new HashMap();
         heuristic_time = 0;
         while (!pw.isEmpty()){
             SearchNode current_node = pw.poll();
+            if (json_rep_saving){ current_node.set_visited(nodes_expanded);}
+
             nodes_expanded++;
             priority_queue_size = pw.size();
             //System.out.println("Current Distance:"+current_node.action_cost_to_get_here);
@@ -200,8 +207,9 @@ public class SearchStrategies {
 //                        if (d!=Integer.MAX_VALUE && ( d <= current_value ) ){
 
                             act.setAction_cost(temp);
-                            SearchNode new_node = new SearchNode(temp,act,current_node,current_node.action_cost_to_get_here+(int)act.getAction_cost(),d*getHw());
+                            SearchNode new_node = new SearchNode(temp,act,current_node,current_node.action_cost_to_get_here+(int)act.getAction_cost(),d*getHw(),this.json_rep_saving);
                             //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
+                            if (json_rep_saving){ current_node.add_descendant(new_node);}
                             pw.add(new_node);
 //                            if (new_node.s.satisfy(problem.getGoals()))
 //                              return extract_plan(new_node);
@@ -235,13 +243,16 @@ public class SearchStrategies {
             overall_search_time = System.currentTimeMillis()-start_global;
             return null;
         }
-        SearchNode init = new SearchNode((State)problem.getInit(),null,null,0,current_value);
+        SearchNode init = new SearchNode((State)problem.getInit(),null,null,0,current_value,json_rep_saving);
+        if (json_rep_saving){ search_space_handle = init;}
         frontier.add(init);
         HashMap<State,Boolean> visited = new HashMap();
 //        HashMap<State,Integer> cost = new HashMap();
         heuristic_time = 0;
         while (!frontier.isEmpty()){
             SearchNode current_node = frontier.poll();
+            if (json_rep_saving){ current_node.set_visited(nodes_expanded);}
+
             nodes_expanded++;
             priority_queue_size = frontier.size();
             if (current_node.action!= null && interactive_search_debug){
@@ -278,8 +289,10 @@ public class SearchStrategies {
                         heuristic_time+=System.currentTimeMillis()-start;
                         //System.out.print("Exploration:"+d);
                         if (d!=Integer.MAX_VALUE && ( !this.isDecreasing_heuristic_pruning() ||d <= current_value ) ){
-                            SearchNode new_node = new SearchNode(temp,act,current_node,(current_node.action_cost_to_get_here+act.getAction_cost())*getGw(),d*getHw());
-                            frontier.add(new_node);      
+                            SearchNode new_node = new SearchNode(temp,act,current_node,(current_node.action_cost_to_get_here+act.getAction_cost())*getGw(),d*getHw(),json_rep_saving);
+                            frontier.add(new_node);   
+                             if (json_rep_saving){ current_node.add_descendant(new_node);}
+
                         }
                     }
                 }

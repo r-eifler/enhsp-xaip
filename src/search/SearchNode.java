@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -28,7 +27,12 @@
  */
 package search;
 
-import java.util.Comparator;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import problem.GroundAction;
 import problem.State;
 
@@ -36,21 +40,75 @@ import problem.State;
  *
  * @author enrico
  */
-public class SearchNode implements Comparable{
+public class SearchNode implements Comparable {
+
     public State s;
     public GroundAction action;
     public int goal_distance;
     public SearchNode father;
     public float action_cost_to_get_here;
-    public SearchNode(State s1, GroundAction action,SearchNode father,float action_cost_to_get_here,int goal_distance){
+    public JSONObject json_rep;
+
+    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance) {
         s = s1;
         this.action = action;
         this.goal_distance = goal_distance;
         this.father = father;
-        this.action_cost_to_get_here= action_cost_to_get_here;
+        this.action_cost_to_get_here = action_cost_to_get_here;
+        json_rep = null;
     }
 
+    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json) {
+        s = s1;
+        this.action = action;
+        this.goal_distance = goal_distance;
+        this.father = father;
+        this.action_cost_to_get_here = action_cost_to_get_here;
+        if (saving_json) {
+            json_rep = new JSONObject();
+            if (action == null) {
+                json_rep.put("action", "init_state");
+            } else {
+                json_rep.put("action", action.toEcoString());
+            }
+            json_rep.put("distance", goal_distance);
+            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
+            if (father == null) {
+                json_rep.put("ancestor", "init_state");
+            } else {
+                json_rep.put("ancestor", father.json_rep.get("visited_step"));
+            }
+            json_rep.put("visited", false);
+            json_rep.put("visit_step", -1);
+            json_rep.put("descendants", new JSONArray());
+        } else {
+            json_rep = null;
+        }
 
+    }
+
+    public void add_descendant(SearchNode desc) {
+        JSONArray descendants = (JSONArray) json_rep.get("descendants");
+        descendants.add(desc.json_rep);
+    }
+
+    public void set_visited(int visit_step) {
+        json_rep.put("visited", true);
+        json_rep.put("visit_step", visit_step);
+    }
+
+    public void print_json(String file_name) {
+        FileWriter file = null;
+        try {
+            file = new FileWriter(file_name);
+            //System.out.println(this.json_rep.toJSONString());
+            file.write(this.json_rep.toJSONString());
+            file.close();
+        } catch (IOException ex) {
+            Logger.getLogger(SearchNode.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("Successfully Copied JSON Object to File...");
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -61,7 +119,7 @@ public class SearchNode implements Comparable{
             return false;
         }
         final SearchNode other = (SearchNode) obj;
-        
+
         if (!this.s.equals(other.s)) {
             return false;
         }
@@ -75,7 +133,7 @@ public class SearchNode implements Comparable{
         hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
         hash = 29 * hash + this.goal_distance;
         hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-        hash = 29 * hash + (int)this.action_cost_to_get_here;
+        hash = 29 * hash + (int) this.action_cost_to_get_here;
         return hash;
     }
 
@@ -89,17 +147,17 @@ public class SearchNode implements Comparable{
 //        hash = 43 * hash + this.action_cost_to_get_here;
 //        return hash;
 //    }
-
     @Override
     public int compareTo(Object o) {
         final SearchNode other = (SearchNode) o;
-        if ((this.goal_distance+this.action_cost_to_get_here) == (other.goal_distance+other.action_cost_to_get_here))
-            return 0;
-        if ((this.goal_distance+this.action_cost_to_get_here) < (other.goal_distance+other.action_cost_to_get_here))
+        if ((this.goal_distance + this.action_cost_to_get_here) == (other.goal_distance + other.action_cost_to_get_here)) {
+            return 0;//this.action.getName().compareTo(other.action.getName());
+        }
+        if ((this.goal_distance + this.action_cost_to_get_here) < (other.goal_distance + other.action_cost_to_get_here)) {
             return -1;
-        else
+        } else {
             return +1;
+        }
     }
-    
-    
+
 }

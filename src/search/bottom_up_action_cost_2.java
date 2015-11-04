@@ -69,7 +69,7 @@ public class bottom_up_action_cost_2 extends Heuristics {
         }
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
         A1.addAll(this.reachable);
-        ArrayList<Integer> h = new ArrayList<Integer>(Collections.nCopies(index_of_last_static_atom, Integer.MAX_VALUE));
+        ArrayList<Integer> h = new ArrayList<Integer>(Collections.nCopies(index_of_last_static_atom+1, Integer.MAX_VALUE));
         PriorityQueue<HeuristicSearchNode> frontier = new PriorityQueue();
         init_h(h, this.all_conditions, s_0);
         init_frontier(frontier, A1, s_0);

@@ -31,6 +31,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.NormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import extraUtils.Pair;
@@ -54,16 +55,18 @@ import problem.State;
  *
  * @author enrico
  */
-public class fix_point_based_h1 extends Heuristics {
+public class Bellman_Ford_H1 extends Heuristics {
 
-    private HashMap<Conditions, LinkedHashSet<GroundAction>> poss_contributors;
     private boolean greedy;
     protected boolean full_regression = false;
-
-    public fix_point_based_h1(Conditions G, Set<GroundAction> A) {
+    protected HashMap<Conditions,Boolean> redundant_constraints;
+    protected HashMap<GroundAction,HashSet<Predicate>> precondition_deleted;
+    protected HashMap<Pair<GroundAction,Comparison>,Boolean> num_achiever;
+    public Bellman_Ford_H1(Conditions G, Set<GroundAction> A) {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
+        complex_conditions = 0;
         //System.out.println(this.orderings);
         //build_integer_representation();
     }
@@ -72,11 +75,12 @@ public class fix_point_based_h1 extends Heuristics {
     public int setup(State s_0) {
         this.build_integer_representation();
         this.identify_complex_conditions(all_conditions, A);
-
+        
         int d = reacheability(s_0);
-
-        System.out.println("Easy Conditions: " + (this.all_conditions.size() - is_complex.keySet().size()));
-        System.out.println("Hard Conditions: " + is_complex.keySet().size());
+        generate_self_precondition_delete_sets();
+        generate_numeric_achievers(s_0);
+        System.out.println("Easy Conditions: " + (this.all_conditions.size() - complex_conditions));
+        System.out.println("Hard Conditions: " + complex_conditions);
         setGreedy(false);
         return d;
     }
@@ -138,7 +142,7 @@ public class fix_point_based_h1 extends Heuristics {
                         }
                     }
                 } else if (c instanceof Comparison) {
-                    if (this.is_complex.get(c) == null) {
+                    if (!this.is_complex.get(c)) {
                         for (HeuristicSearchNode gr : pool) {
                             int number_of_repetition = gr.action.getNumberOfExecution(s_0, (Comparison) c);
                             if (number_of_repetition != Integer.MAX_VALUE) {
@@ -154,7 +158,7 @@ public class fix_point_based_h1 extends Heuristics {
                             }
                         }
                     } else {
-                        int cost = accumulated_value_reacheability(s_0, c, pool);
+                        int cost = interval_based_relaxation(s_0, c, pool);
                         if (cost != Integer.MAX_VALUE) {
                             if (update_value(h, c, cost)) {
                                 update = true;
@@ -168,30 +172,6 @@ public class fix_point_based_h1 extends Heuristics {
         return update;
     }
 
-    protected void identify_complex_conditions(Collection<Conditions> conds, Collection<GroundAction> A) {
-        //For each condition, identify whether there is at least an action whose effects are not simple. This condition
-        // will be considered complex in that checking its satisfaction is hard
-        is_complex = new HashMap();
-        for (Conditions c : conds) {
-            if (c instanceof Comparison) {
-                Comparison comp = (Comparison) c;
-                for (GroundAction gr : A) {
-                    if (gr.getNumericEffects() != null) {
-                        AndCond effects = (AndCond) gr.getNumericEffects();
-                        for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
-                            if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
-                                if (!ne.fluentsInvolved().isEmpty()) {
-                                    is_complex.put(comp, true);
-                                    //System.out.println("Complex condition:"+comp);
-                                }
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 
 
@@ -209,7 +189,96 @@ public class fix_point_based_h1 extends Heuristics {
         this.greedy = greedy;
     }
 
+    protected void add_redundant_constraints() throws Exception {
+        redundant_constraints = new HashMap();
 
+        for (GroundAction a : A) {
+            if (a.getPreconditions() != null) {
+                compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
+            }
+            //System.out.println(a.toPDDL());
+        }
+        
+        compute_redundant_constraint((Set<Conditions>) G.sons);
+    }
+
+    protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
+        LinkedHashSet temp = new LinkedHashSet();
+        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        int counter = 0;
+        for (int i = 0; i < set_as_array.size(); i++) {
+            for (int j = i + 1; j < set_as_array.size(); j++) {
+                Conditions c_1 = set_as_array.get(i);
+                Conditions c_2 = set_as_array.get(j);
+                if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
+                    counter++;
+                    Comparison a1 = (Comparison) c_1;
+                    Comparison a2 = (Comparison) c_2;
+                    NormExpression lhs_a1 = (NormExpression) a1.getLeft();
+                    NormExpression lhs_a2 = (NormExpression) a2.getLeft();
+                    NormExpression expr = lhs_a1.sum_copy(lhs_a2);
+                    String new_comparator = ">=";
+                    if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
+                        new_comparator = ">";
+                    }
+                    Comparison newC = new Comparison(new_comparator);
+                    newC.setLeft(expr);
+                    newC.setRight(new NormExpression(new Float(0.0)));
+                    newC.normalize();
+                    
+                    NormExpression tempLeft = (NormExpression)newC.getLeft();
+
+                    if (tempLeft.summations.size()<2){
+                        continue;
+                    }
+                    redundant_constraints.put(newC, true);
+                    temp.add(newC);
+                }
+            }
+        }
+//        System.out.println("New conditions now:"+counter);
+//        System.out.println("Set before:"+set.size());
+        set.addAll(temp);
+//        System.out.println("Set after:"+set.size());
+    }
+
+    private void generate_self_precondition_delete_sets() {
+        precondition_deleted = new HashMap();
+        for (GroundAction gr: this.reachable){
+            HashSet precondition = new HashSet();
+            
+            if (gr.getPreconditions()==null || gr.getPreconditions().sons == null)
+                continue;
+            for (Conditions c: (Collection<Conditions>)gr.getPreconditions().sons){
+                if (c instanceof Predicate){
+                    if (gr.delete((Predicate)c)){
+                        precondition.add(c);
+                        break;
+                    }
+                      
+                }      
+            }
+            precondition_deleted.put(gr,precondition);
+                   
+        }
+
+    }
+
+    private void generate_numeric_achievers(State s_0) {
+        this.num_achiever = new HashMap();
+        for (Conditions c: this.all_conditions){
+            for (GroundAction gr: this.reachable){
+                if (c instanceof Comparison){
+                    Comparison comp = (Comparison)c;
+                    if (comp.eval_affected(s_0, gr)>=0){
+                        this.num_achiever.put(new Pair(gr, comp),true);
+                    }else
+                        this.num_achiever.put(new Pair(gr, comp),false);
+
+                }
+            }
+        }
+    }
 
     
 

@@ -38,6 +38,7 @@ import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
 import domain.Variable;
+import expressions.Addendum;
 import expressions.Expression;
 import expressions.NormExpression;
 import expressions.NumEffect;
@@ -54,6 +55,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import plan.SimplePlan;
 import search.RegressedSearchNode;
 
@@ -303,6 +306,22 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
 
     }
+    
+    public Collection<NumEffect> getNumericEffectsAsCollection(){
+        AndCond num = (AndCond) this.getNumericEffects();
+        Collection<NumEffect> ret = new LinkedHashSet();
+        if (num != null) {
+            for (Object o : num.sons) {
+                if (o instanceof NumEffect) {
+                    NumEffect e = (NumEffect) o;
+                    this.numericFluentAffected.put(e.getFluentAffected(),Boolean.TRUE);
+                    ret.add(e);
+                }
+            }
+        }
+        return ret;
+    }
+    
 
     public void normalize() throws Exception {
 
@@ -2119,5 +2138,55 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
         return ret;
     } 
+
+    public boolean is_possible_achiever_of(Comparison comp) {
+        float positiveness = 0;
+        if (this.getNumericEffectsAsCollection().isEmpty())
+            return false;
+        if (comp.getLeft() instanceof NormExpression){
+            NormExpression left = (NormExpression)comp.getLeft();
+            for (Addendum ad: left.summations){
+                if (ad.f != null){
+                    for (NumEffect ne : this.getNumericEffectsAsCollection()){
+                        if (!ne.getFluentAffected().equals(ad.f))
+                            continue;
+                        if (ne.fluentsInvolved().isEmpty()){
+                            NormExpression number = (NormExpression)ne.getRight();
+                            if (ne.getOperator().equals("increase")){
+                                try {
+                                    positiveness += number.getNumber().getNumber()*ad.n.getNumber();
+                                } catch (Exception ex) {
+                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }else if (ne.getOperator().equals("decrease")){
+                                try {
+                                    positiveness += (-1)*number.getNumber().getNumber()*ad.n.getNumber();
+                                } catch (Exception ex) {
+                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }else if (ne.getOperator().equals("assign")){
+                                try {
+                                    positiveness += number.getNumber().getNumber()*ad.n.getNumber();
+                                } catch (Exception ex) {
+                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                            
+                        }else{
+                            return false;
+                        }
+                    
+                    }
+                }
+            }
+            if (positiveness > 0)
+                return true;
+            
+        }else{
+            System.out.println("At the moment only normalized expressions are considered");
+            System.exit(-1);
+        }
+        return false;
+    }
 
 }
