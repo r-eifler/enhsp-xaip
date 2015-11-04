@@ -83,6 +83,7 @@ public abstract class Heuristics {
     protected HashMap<Conditions, Boolean> is_complex;
     protected HashMap<Conditions, Boolean> new_condition;
     protected int complex_conditions;
+    protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
     
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
@@ -1068,6 +1069,25 @@ public abstract class Heuristics {
                     }
                 }
             }
+        }
+    }
+
+    protected void generate_self_precondition_delete_sets() {
+        precondition_deleted = new HashMap();
+        for (GroundAction gr : this.A) {
+            HashSet precondition = new HashSet();
+            if (gr.getPreconditions() == null || gr.getPreconditions().sons == null) {
+                continue;
+            }
+            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+                if (c instanceof Predicate) {
+                    if (gr.delete((Predicate) c)) {
+                        precondition.add(c);
+                        break;
+                    }
+                }
+            }
+            precondition_deleted.put(gr, precondition);
         }
     }
 
