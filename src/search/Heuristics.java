@@ -84,7 +84,8 @@ public abstract class Heuristics {
     protected HashMap<Conditions, Boolean> new_condition;
     protected int complex_conditions;
     protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
-    
+    protected boolean sat_test_within_cost = true;
+    protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -663,15 +664,16 @@ public abstract class Heuristics {
         boolean ret = false;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = 0; j < set_as_array.size(); j++) {
-                if (i==j)
+                if (i == j) {
                     continue;
+                }
                 for (int k = 0; k < set_as_array.size(); k++) {
                     if (k != j) {
                         if (set_as_array.get(j).depends_on(set_as_array.get(i))) {
                             Pair element = new Pair(set_as_array.get(i), set_as_array.get(j));
                             orderings.add(element);
                             if (set_as_array.get(k).depends_on(set_as_array.get(j))) {
-                                if (k==i){
+                                if (k == i) {
                                     ret = true;
                                     //System.exit(-1);
                                 }
@@ -683,11 +685,11 @@ public abstract class Heuristics {
                             Pair element = new Pair(set_as_array.get(j), set_as_array.get(i));
                             orderings.add(element);
                             if (set_as_array.get(j).depends_on(set_as_array.get(k))) {
-                                if (k==i){
+                                if (k == i) {
                                     ret = true;
                                     //System.exit(-1);
                                 }
-                                    
+
                                 Pair element2 = new Pair(set_as_array.get(k), set_as_array.get(i));
                                 orderings.add(element2);
                             }
@@ -704,32 +706,26 @@ public abstract class Heuristics {
     protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
         return this.compute_cost(s_0, h, gr.getPreconditions());
     }
-    
-    protected int compute_cost(State s_0,ArrayList<Integer> h, Conditions con){
+
+    protected int compute_cost(State s_0, ArrayList<Integer> h, Conditions con) {
         int cost = 0;
-        
-        if (con == null)
+
+        if (con == null) {
             return 0;
-        
+        }
+
         for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
-                int temp = h.get(t.getCounter());
-                if (temp != Integer.MAX_VALUE) {
-                    if (additive_h) {
-                        cost += temp;
-                    } else {
-                        cost = Math.max(cost, temp);
-                    }
-                } else if (s_0.satisfy(t)) {
-                    h.set(t.getCounter(), 0);
-                    if (additive_h) {
-                        cost += 0;
-                    } else {
-                        cost = Math.max(cost, 0);
-                    }
+            int temp = h.get(t.getCounter());
+            if (temp != Integer.MAX_VALUE) {
+                if (additive_h) {
+                    cost += temp;
                 } else {
-                    return Integer.MAX_VALUE;
+                    cost = Math.max(cost, temp);
                 }
+            } else {
+                return Integer.MAX_VALUE;
             }
+        }
         return cost;
     }
 
@@ -772,7 +768,7 @@ public abstract class Heuristics {
                 rel_state = gr.action.apply(rel_state);
                 float new_dist = rel_state.satisfaction_distance((Comparison) c);
                 //cost += gr.action_cost_to_get_here + 1;
-                
+
                 if (current_distance >= new_dist) {
                     cost += gr.action_cost_to_get_here + 1;
                     current_distance = new_dist;
@@ -787,7 +783,7 @@ public abstract class Heuristics {
             }
         }
     }
-    
+
 //    protected float interval_based_relaxation_actions(State s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Float> action_to_cost) {
 //        RelState rel_state = s_0.relaxState();
 //        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -817,7 +813,6 @@ public abstract class Heuristics {
 //            }
 //        }
 //    }
-
     protected int interval_based_relaxation_actions(State s_0, Conditions c, Collection<GroundAction> pool) {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -826,12 +821,12 @@ public abstract class Heuristics {
         //this terminates correctly whenever the numeric dependency graph is acyclic
         while (true) {
             boolean stop = true;
-            LinkedList q = order_according_to_dependencies_actions(pool, c);
+            LinkedList q = order_according_to_dependencies_actions(pool, c, null);
             while (!q.isEmpty()) {
                 GroundAction gr = (GroundAction) q.pollFirst();
                 rel_state = gr.apply(rel_state);
                 float new_dist = rel_state.satisfaction_distance((Comparison) c);
-                cost +=  1;
+                cost += 1;
                 if (current_distance > new_dist) {
                     //cost += gr.action_cost_to_get_here + 1;
                     current_distance = new_dist;
@@ -846,30 +841,55 @@ public abstract class Heuristics {
             }
         }
     }
-    
-    protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Integer> action_to_cost) {
+
+    protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Integer> action_to_cost) {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
         float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic
+        LinkedList initial = order_according_to_dependencies_actions(pool, c, action_to_cost);
+        HashMap<Integer, Boolean> visited = new HashMap();
+        for (int i=0;i<initial.size();i++){
+            visited.put(i,false);
+        }
         while (true) {
             boolean stop = true;
-            LinkedList q = order_according_to_dependencies_actions(pool, c);
+            LinkedList q = new LinkedList(initial);
+            int i=0;
             while (!q.isEmpty()) {
                 GroundAction gr = (GroundAction) q.pollFirst();
                 rel_state = gr.apply(rel_state);
                 float new_dist = rel_state.satisfaction_distance((Comparison) c);
-                cost += action_to_cost.get(gr)+1;
+
+
+                boolean already_addedd = false;
+                if (visited.get(i) == false) {
+                    cost++;
+                    cost += action_to_cost.get(gr);
+                    already_addedd = true;
+                            
+                }
+
+
+                //cost++;
                 if (current_distance > new_dist) {
-//                    cost += 1;
-//                    cost += action_to_cost.get(gr);
+                        if (!already_addedd){
+                            cost++;
+                            if (visited.get(i) == false) {
+                                cost += action_to_cost.get(gr);
+                            }
+                        }
+
                     current_distance = new_dist;
                     stop = false;
                 }
+                visited.put(i, true);
+
                 if (rel_state.satisfy((Comparison) c)) {
                     return cost;
                 }
+                i++;
             }
             if (stop) {
                 return Integer.MAX_VALUE;
@@ -877,7 +897,7 @@ public abstract class Heuristics {
         }
     }
 
-        protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+    protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
 
         Iterator it = A1.iterator();
         while (it.hasNext()) {
@@ -890,7 +910,7 @@ public abstract class Heuristics {
         }
     }
 
-    protected LinkedList order_according_to_dependencies_actions(Collection<GroundAction> pool, Conditions c) {
+    protected LinkedList order_according_to_dependencies_actions(Collection<GroundAction> pool, Conditions c, HashMap<GroundAction, Integer> action_to_cost) {
         Comparison comp = (Comparison) c;
         LinkedList<GroundAction> pq = new LinkedList();
         LinkedList<GroundAction> ret = new LinkedList();
@@ -909,8 +929,14 @@ public abstract class Heuristics {
             visited.put(gr, true);
             for (GroundAction node : pool) {
                 GroundAction gr2 = node;
-                if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
-                    pq.addLast(gr2);
+                if (action_to_cost != null && false) {
+                    if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2) && action_to_cost.get(gr2) <= action_to_cost.get(gr)) {
+                        pq.addLast(gr2);
+                    }
+                } else {
+                    if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
+                        pq.addLast(gr2);
+                    }
                 }
             }
         }
@@ -1010,8 +1036,6 @@ public abstract class Heuristics {
         }
         return ret;
     }
-    
-
 
     protected void update_pool(Collection<HeuristicSearchNode> pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
         //update action precondition
@@ -1089,6 +1113,37 @@ public abstract class Heuristics {
             }
             precondition_deleted.put(gr, precondition);
         }
+    }
+
+    protected int compute_additional_cost(int number_of_repetition, GroundAction gr, ArrayList<Integer> h) {
+        int additional_cost = 0;
+        if (this.rep_costs.get(gr) != null && number_of_repetition > 1) {
+            LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr);
+            for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
+                int rpc = h.get(p.getFirst().getFirst().getCounter());
+                //System.out.println("Counter here:"+p.getFirst().getCounter());
+                if (number_of_repetition > p.getSecond()) {
+                    if (rpc == Integer.MAX_VALUE) {
+                        return Integer.MAX_VALUE;
+                    } else {
+                        additional_cost += (number_of_repetition - p.getSecond() - 1) * (rpc);
+                        //additional_cost = Math.max((number_of_repetition - p.getSecond() - 1) * (rpc),additional_cost);
+                    }
+                }
+            }
+        }
+        if (number_of_repetition > 1) {
+            //add precondition cost violation
+            for (Predicate p_del : precondition_deleted.get(gr)) {
+                if (h.get(p_del.getCounter()) == Integer.MAX_VALUE) {
+                    return Integer.MAX_VALUE;
+                }
+                additional_cost += h.get(p_del.getCounter()) * (number_of_repetition - 1);
+
+                //additional_cost = Math.max(h.get(p_del.getCounter()) * (number_of_repetition - 1),additional_cost);
+            }
+        }
+        return additional_cost;
     }
 
 }

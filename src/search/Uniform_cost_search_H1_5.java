@@ -28,21 +28,11 @@
  */
 package search;
 
-import conditions.Comparison;
 import conditions.Conditions;
-import conditions.Predicate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
-import problem.State;
 
 /**
  *

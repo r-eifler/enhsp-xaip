@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -41,25 +40,30 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
+import search.HomeMadeFibonacciHeap.Entry;
 
 /**
  *
  * @author enrico
  */
-public class Uniform_cost_search_H1 extends Bellman_Ford_H1{
+public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
 
-    protected HashMap<GroundAction,LinkedHashSet<Predicate>> achieve;
-    protected HashMap<GroundAction,LinkedHashSet<Comparison>> interact_with;
-    protected HashMap<GroundAction,LinkedHashSet<Comparison>> possible_achievers;
+    protected HashMap<GroundAction, LinkedHashSet<Predicate>> achieve;
+    protected HashMap<GroundAction, LinkedHashSet<Comparison>> interact_with;
+    protected HashMap<GroundAction, LinkedHashSet<Comparison>> possible_achievers;
+    protected HashMap<Comparison, LinkedHashSet<GroundAction>> possible_achievers_inverted;
     private boolean reacheability_setting;
+
     public Uniform_cost_search_H1(Conditions G, Set<GroundAction> A) {
         super(G, A);
     }
-    
+
     @Override
-    public int setup(State s){
+    public int setup(State s) {
         try {
             //this.add_redundant_constraints();
         } catch (Exception ex) {
@@ -71,97 +75,160 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1{
         reacheability_setting = true;
         int ret = compute_estimate(s);
         reacheability_setting = false;
+        sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         return ret;
     }
 
     @Override
     public int compute_estimate(State s) {
-        PriorityQueue<ConditionsNode> q = new PriorityQueue();
+        //PriorityQueue<ConditionsNode> q = new PriorityQueue();
+        FibonacciHeap<Conditions> q = new FibonacciHeap();
+ 
         ArrayList<Boolean> closed = new ArrayList<Boolean>(Collections.nCopies(all_conditions.size() + 1, false));
         ArrayList<Integer> dist = new ArrayList<Integer>(Collections.nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
-        for (Conditions c: all_conditions){
-            if (s.satisfy(c)){
-                ConditionsNode node = new ConditionsNode(c,0);
-                q.add(node);
-            }
+        ArrayList<Boolean> open_list = new ArrayList<Boolean>(Collections.nCopies(all_conditions.size() + 1, false));
+        HashMap<Integer,FibonacciHeapNode> cond_to_entry = new HashMap();
+        for (Conditions c : all_conditions) {
+            if (s.satisfy(c)) {
+                FibonacciHeapNode node = new FibonacciHeapNode(c);
+                q.insert(node, 0);
+                cond_to_entry.put(c.getCounter(), node);
+                dist.set(c.getCounter(), 0);
+                open_list.set(c.getCounter(), true);
+                closed.set(c.getCounter(),true);
+             }
         }
         LinkedHashSet<GroundAction> temp_a;
-        if (reacheability_setting)
+        if (reacheability_setting) {
             temp_a = new LinkedHashSet(A);
-        else
+        } else {
             temp_a = new LinkedHashSet(this.reachable);
-        
+        }
+
         Collection<GroundAction> achievers_of_complex_conditions = new LinkedHashSet();
-        HashMap<GroundAction,Integer> action_to_cost= new HashMap();
+        HashMap<GroundAction, Integer> action_to_cost = new HashMap();
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
-        while(!q.isEmpty()){
-            ConditionsNode cn = q.poll();
-            dist.set(cn.c.getCounter(), cn.cost);
-            
+        while (!q.isEmpty()) {
+            Conditions cn = q.removeMin().getData();
+
             int goal_dist = this.check_goal_conditions(s, G, dist);
-            if (goal_dist != Integer.MAX_VALUE && !reacheability_setting)
-                return (int)goal_dist;   
+            if (goal_dist != Integer.MAX_VALUE && !reacheability_setting) {
+                return (int) goal_dist;
+            }
             //trigger actions
             Iterator<GroundAction> it = temp_a.iterator();
             LinkedHashSet<GroundAction> edges = new LinkedHashSet();
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 GroundAction gr = it.next();
                 int action_cost = this.compute_precondition_cost(s, dist, gr);
-                if (action_cost != Integer.MAX_VALUE){
+                if (action_cost != Integer.MAX_VALUE) {
                     edges.add(gr);
-                    if (reacheability_setting)
+                    if (reacheability_setting) {
                         this.reachable.add(gr);
+                    }
                     action_to_cost.put(gr, action_cost);
                     it.remove();
                 }
             }
             //update_reacheable_conditions
-            
-            for (GroundAction gr: edges){
-                Collection<Predicate> predicates  = this.achieve.get(gr);
+
+            for (GroundAction gr : edges) {
+                Collection<Predicate> predicates = this.achieve.get(gr);
                 Collection<Comparison> comparisons = this.possible_achievers.get(gr);
-                for (Predicate p: predicates){
-                    int current_cost = action_to_cost.get(gr)+1;
-                    if (closed.get(p.getCounter()))
+                for (Predicate p : predicates) {
+                    int current_cost = action_to_cost.get(gr) + 1;
+                    if (closed.get(p.getCounter()))  {
                         continue;
-                    if (delete_if_worse_present(q,(Conditions)p,current_cost))
-                        q.add(new ConditionsNode(p,current_cost));
+                    }
+                    
+                    if (open_list.get(p.getCounter())) {
+                        if (dist.get(p.getCounter()) > current_cost) {
+                            q.decreaseKey(cond_to_entry.get(p.getCounter()), current_cost);
+                            dist.set(p.getCounter(), current_cost);
+                        }
+                    } else {
+                        dist.set(p.getCounter(), current_cost);
+                        open_list.set(p.getCounter(),true);
+                        FibonacciHeapNode node = new FibonacciHeapNode(p);
+                        q.insert(node, current_cost);
+                        cond_to_entry.put(p.getCounter(), node);
+                        
+                    }
                 }
-                for (Comparison comp: comparisons){
-                    if (closed.get(comp.getCounter()))
+                for (Comparison comp : comparisons) {
+                    if (closed.get(comp.getCounter())) {
                         continue;
-                    if (!this.is_complex.get(comp)){
+                    }
+                    if (!this.is_complex.get(comp)) {
                         int number_of_execution = gr.getNumberOfExecution(s, comp);
                         int action_cost = action_to_cost.get(gr);
-                        int current_cost = action_cost+number_of_execution;
-                        if (delete_if_worse_present(q,(Conditions)comp,current_cost))
-                            q.add(new ConditionsNode(comp,current_cost));
-                    }else{
+                        if (!this.additive_h){
+                            Collection<GroundAction> all_achiever = this.possible_achievers_inverted.get(comp);
+                            //System.out.println(comp);
+                            //System.out.println(all_achiever.size());
+                            int minimum = action_cost;
+                            for (GroundAction ach: all_achiever){ 
+                               if (action_to_cost.get(ach)!=null){
+                                   int ach_cost = action_to_cost.get(ach);
+                                   if (ach_cost<minimum){
+                                       minimum = ach_cost;
+                                   }
+                               }
+                            }
+                            action_cost=minimum;
+                        }
+                        //action_cost = 0;
+                        
+                        int current_cost = action_cost + number_of_execution;
+                        if (open_list.get(comp.getCounter())) {
+                            if (dist.get(comp.getCounter()) > current_cost) {
+                                q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
+                                dist.set(comp.getCounter(), current_cost);
+                            }
+                        } else {
+                            dist.set(comp.getCounter(), current_cost);
+                            open_list.set(comp.getCounter(),true);
+                            FibonacciHeapNode node = new FibonacciHeapNode(comp);
+                            q.insert(node, current_cost);
+                            cond_to_entry.put(comp.getCounter(),node);
+                        }
+                    } else {
                         temp_complex_conditions.add(comp);
                         achievers_of_complex_conditions.add(gr);
                     }
                 }
             }
-            
+
             Iterator<Comparison> it2 = temp_complex_conditions.iterator();
-            while(it2.hasNext()){
+            while (it2.hasNext()) {
                 Comparison comp = it2.next();
-                if (closed.get(comp.getCounter())){
+                if (closed.get(comp.getCounter())) {
                     it2.remove();
                     continue;
                 }
                 int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
-                if (current_cost != Integer.MAX_VALUE){
-                    if (delete_if_worse_present(q,(Conditions)comp,current_cost))
-                        q.add(new ConditionsNode(comp,current_cost));
+                if (current_cost != Integer.MAX_VALUE) {
+                    if (open_list.get(comp.getCounter())) {
+                        if (dist.get(comp.getCounter()) > current_cost) {
+
+                            q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
+                            dist.set(comp.getCounter(), current_cost);
+                        }
+                    } else {
+                            dist.set(comp.getCounter(), current_cost);
+                            open_list.set(comp.getCounter(),true);
+                            FibonacciHeapNode node = new FibonacciHeapNode(comp);
+                            q.insert(node, current_cost);
+                            cond_to_entry.put(comp.getCounter(),node);
+                    }
                 }
             }
-            closed.set(cn.c.getCounter(), true);
-  
+
+            closed.set(cn.getCounter(), true);
+
         }
-        
+
         //System.out.println("Current Estimate to the goal:"+this.compute_float_cost(s, G, dist));
-        
         return this.check_goal_conditions(s, G, dist);
     }
 
@@ -169,29 +236,41 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1{
         interact_with = new HashMap();
         achieve = new HashMap();
         possible_achievers = new HashMap();
-        for (GroundAction gr: this.A){
+        this.possible_achievers_inverted = new HashMap();
+        
+        for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Predicate> predicates = new LinkedHashSet();
-            for (Conditions c : this.all_conditions){
-                if (c instanceof Comparison){
-                    Comparison comp = (Comparison)c;
-                    if (comp.involve(gr.getNumericFluentAffected())){
+            for (Conditions c : this.all_conditions) {
+                LinkedHashSet<GroundAction> achievable_via = new LinkedHashSet();
+                if (c instanceof Comparison) {
+                    Comparison comp = (Comparison) c;
+                    if (comp.involve(gr.getNumericFluentAffected())) {
                         comparisons.add(comp);
-                        if (gr.is_possible_achiever_of(comp) ){
+                        if (gr.is_possible_achiever_of(comp)) {
+                            reacheable_comparisons.add(comp);
+                            achievable_via.add(gr);
+                        }
+                        if (this.is_complex.get(comp)) {
                             reacheable_comparisons.add(comp);
                         }
-                        if (this.is_complex.get(comp)){
-                            reacheable_comparisons.add(comp);
-                        }
-                    }                    
-                }else if (c instanceof Predicate){
-                    Predicate p = (Predicate)c;
-                    if (gr.achieve(p)){
+                    }
+                    if (this.possible_achievers_inverted.get(comp)==null){
+                        this.possible_achievers_inverted.put(comp, achievable_via);
+                    }else{
+                        LinkedHashSet<GroundAction> temp= this.possible_achievers_inverted.get(comp);
+                        temp.addAll(achievable_via);
+                        this.possible_achievers_inverted.put(comp, temp);
+                    }
+                } else if (c instanceof Predicate) {
+                    Predicate p = (Predicate) c;
+                    if (gr.achieve(p)) {
                         predicates.add(p);
                     }
-                    
+
                 }
+
             }
             achieve.put(gr, predicates);
             interact_with.put(gr, comparisons);
@@ -199,17 +278,14 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1{
         }
     }
 
-    
-
-
-    private boolean delete_if_worse_present(PriorityQueue<ConditionsNode> q, Conditions con,float current_cost) {
+    private boolean delete_if_worse_present(PriorityQueue<ConditionsNode> q, Conditions con, float current_cost) {
         Iterator<ConditionsNode> it = q.iterator();
-        while (it.hasNext()){
-            ConditionsNode c = (ConditionsNode)it.next();
-            if (c.c.equals(con)){
-                if (c.cost < current_cost){
+        while (it.hasNext()) {
+            ConditionsNode c = (ConditionsNode) it.next();
+            if (c.c.equals(con)) {
+                if (c.cost < current_cost) {
                     return false;
-                }else{
+                } else {
                     it.remove();
                     return true;
                 }
@@ -218,38 +294,21 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1{
         return true;
     }
 
-    private float compute_float_cost(State s, Conditions con, ArrayList<Integer> h) {
-        int cost = 0;
-        for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
-                int temp = h.get(t.getCounter());
-                if (temp != Integer.MAX_VALUE) {
-                    if (additive_h) {
-                        cost += temp;
-                    } else {
-                        cost = Math.max(cost, temp);
-                    }
-                } else {
-                    return Integer.MAX_VALUE;
-                }
-            }
-        return cost;
-    }
+    private static class ConditionsNode implements Comparable {
 
-
-    private static class ConditionsNode implements Comparable{
         Conditions c;
         int cost;
-        public ConditionsNode(Conditions c1,int cost1) {
+
+        public ConditionsNode(Conditions c1, int cost1) {
             c = c1;
             cost = cost1;
         }
 
         @Override
         public int compareTo(Object o) {
-            ConditionsNode to_compare_with = (ConditionsNode)o;
+            ConditionsNode to_compare_with = (ConditionsNode) o;
             return (this.cost < to_compare_with.cost ? -1 : this.cost == to_compare_with.cost ? 0 : 1);
         }
     }
 
-    
 }

@@ -43,6 +43,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 
@@ -50,16 +52,15 @@ import problem.State;
  *
  * @author enrico
  */
-public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
+public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
 
     protected HashMap<GroundAction, LinkedHashSet<Predicate>> achieve;
     protected HashMap<GroundAction, LinkedHashSet<Comparison>> interact_with;
     protected HashMap<GroundAction, LinkedHashSet<Comparison>> possible_achievers;
-    private boolean reacheability_setting;
-    protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
+    protected boolean reacheability_setting;
     protected HashMap<GroundAction, Boolean> limited_rep_action;
     protected HashMap<GroundAction, LinkedHashSet<Comparison>> temporary_achievers;
-    private boolean super_greedy = true;
+    private boolean super_greedy = false;
 
     public Uniform_cost_search_H1_Rep(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -175,7 +176,7 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
 
     @Override
     public int compute_estimate(State s) {
-        PriorityQueue<ConditionsNode> q = new PriorityQueue();
+        FibonacciHeap<Conditions> q = new FibonacciHeap();
 
         LinkedHashSet<GroundAction> temp_a;
         if (reacheability_setting) {
@@ -190,10 +191,16 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
 
         ArrayList<Boolean> closed = new ArrayList<Boolean>(Collections.nCopies(temp_conditions.size() + 1, false));
         ArrayList<Integer> dist = new ArrayList<Integer>(Collections.nCopies(temp_conditions.size() + 1, Integer.MAX_VALUE));
+        ArrayList<Boolean> open_list = new ArrayList<Boolean>(Collections.nCopies(temp_conditions.size() + 1, false));
+        HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
         for (Conditions c : temp_conditions) {
             if (c.isSatisfied(s)) {
-                ConditionsNode node = new ConditionsNode(c, 0);
-                q.add(node);
+                FibonacciHeapNode node = new FibonacciHeapNode(c);
+                q.insert(node, 0);
+                cond_to_entry.put(c.getCounter(), node);
+                dist.set(c.getCounter(), 0);
+                open_list.set(c.getCounter(), true);
+                closed.set(c.getCounter(), true);
             }
         }
 
@@ -201,8 +208,8 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
         HashMap<GroundAction, Integer> action_to_cost = new HashMap();
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
         while (!q.isEmpty()) {
-            ConditionsNode cn = q.poll();
-            dist.set(cn.c.getCounter(), cn.cost);
+            Conditions cn = q.removeMin().getData();
+            //d/ist.set(cn.c.getCounter(), cn.cost);
 
             int goal_dist = this.check_goal_conditions(s, G, dist);
             if (goal_dist != Integer.MAX_VALUE && !reacheability_setting) {
@@ -235,13 +242,22 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
                     if (closed.get(p.getCounter())) {
                         continue;
                     }
-                    if (delete_if_worse_present(q, (Conditions) p, current_cost)) {
-                        q.add(new ConditionsNode(p, current_cost));
+                    if (open_list.get(p.getCounter())) {
+                        if (dist.get(p.getCounter()) > current_cost) {
+                            q.decreaseKey(cond_to_entry.get(p.getCounter()), current_cost);
+                            dist.set(p.getCounter(), current_cost);
+                        }
+                    } else {
+                        dist.set(p.getCounter(), current_cost);
+                        open_list.set(p.getCounter(),true);
+                        FibonacciHeapNode node = new FibonacciHeapNode(p);
+                        q.insert(node, current_cost);
+                        cond_to_entry.put(p.getCounter(), node);
                     }
                 }
                 Collection<Comparison> temp = new LinkedHashSet(comparisons);
                 temp.addAll(this.temporary_achievers.get(gr));
-                for (Comparison comp: temp) {
+                for (Comparison comp : temp) {
                     if (closed.get(comp.getCounter()) || dist.get(comp.getCounter()) == 0) {
                         continue;
                     }
@@ -258,15 +274,21 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
                             }
 
                         }
-                        if (applicable){
+                        if (applicable) {
                             int action_cost = action_to_cost.get(gr);
                             int current_cost = action_cost + number_of_execution;
-                            if (additional_cost>0 && super_greedy){
-                                dist.set(comp.getCounter(), current_cost);
-                            }
-                            
-                            if (delete_if_worse_present(q, (Conditions) comp, current_cost)) {
-                                q.add(new ConditionsNode(comp, current_cost));
+                            if (open_list.get(comp.getCounter())) {
+                                if (dist.get(comp.getCounter()) > current_cost) {
+
+                                    q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
+                                    dist.set(comp.getCounter(), current_cost);
+                                }
+                            } else {
+                             dist.set(comp.getCounter(), current_cost);
+                            open_list.set(comp.getCounter(),true);
+                            FibonacciHeapNode node = new FibonacciHeapNode(comp);
+                            q.insert(node, current_cost);
+                            cond_to_entry.put(comp.getCounter(),node);
                             }
                         }
                     } else {
@@ -285,12 +307,22 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
                 }
                 int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
                 if (current_cost != Integer.MAX_VALUE) {
-                    if (delete_if_worse_present(q, (Conditions) comp, current_cost)) {
-                        q.add(new ConditionsNode(comp, current_cost));
+                    if (open_list.get(comp.getCounter())) {
+                        if (dist.get(comp.getCounter()) > current_cost) {
+
+                            q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
+                            dist.set(comp.getCounter(), current_cost);
+                        }
+                    } else {
+                            dist.set(comp.getCounter(), current_cost);
+                            open_list.set(comp.getCounter(),true);
+                            FibonacciHeapNode node = new FibonacciHeapNode(comp);
+                            q.insert(node, current_cost);
+                            cond_to_entry.put(comp.getCounter(),node);
                     }
                 }
             }
-            closed.set(cn.c.getCounter(), true);
+            closed.set(cn.getCounter(), true);
 
         }
 
@@ -366,26 +398,6 @@ public class Uniform_cost_search_H1_Rep extends Bellman_Ford_H1 {
             }
         }
         return true;
-    }
-
-    private int compute_additional_cost(int number_of_repetition, GroundAction gr, ArrayList<Integer> h) {
-
-        int additional_cost = 0;
-        if (this.rep_costs.get(gr) != null && number_of_repetition > 1) {
-            LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr);
-            for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
-                int rpc = h.get(p.getFirst().getFirst().getCounter());
-                //System.out.println("Counter here:"+p.getFirst().getCounter());
-                if (number_of_repetition > p.getSecond()) {
-                    if (rpc == Integer.MAX_VALUE) {
-                        return Integer.MAX_VALUE;
-                    } else {
-                        additional_cost += (number_of_repetition - p.getSecond() - 1) * (rpc);
-                    }
-                }
-            }
-        }
-        return additional_cost;
     }
 
     private static class ConditionsNode implements Comparable {

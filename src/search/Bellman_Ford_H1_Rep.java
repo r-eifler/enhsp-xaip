@@ -58,7 +58,6 @@ import problem.State;
  */
 public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
 
-    protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
     protected HashMap<Conditions, Conditions> generator;
     private boolean ignore_reduntant_constraints;
     private boolean max_redundant_constraints;
