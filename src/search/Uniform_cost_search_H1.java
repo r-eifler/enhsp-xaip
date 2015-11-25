@@ -84,6 +84,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
         FibonacciHeap<Conditions> q = new FibonacciHeap();
  
+        relaxed_plan_actions = new LinkedHashSet();
         ArrayList<Boolean> closed = new ArrayList<Boolean>(Collections.nCopies(all_conditions.size() + 1, false));
         ArrayList<Integer> dist = new ArrayList<Integer>(Collections.nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
         ArrayList<Boolean> open_list = new ArrayList<Boolean>(Collections.nCopies(all_conditions.size() + 1, false));
@@ -104,15 +105,20 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
         } else {
             temp_a = new LinkedHashSet(this.reachable);
         }
+        final_achiever = new HashMap();
 
         Collection<GroundAction> achievers_of_complex_conditions = new LinkedHashSet();
         HashMap<GroundAction, Integer> action_to_cost = new HashMap();
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
         while (!q.isEmpty()) {
             Conditions cn = q.removeMin().getData();
-
+            
+            
             int goal_dist = this.check_goal_conditions(s, G, dist);
             if (goal_dist != Integer.MAX_VALUE && !reacheability_setting) {
+                if (preferred_operators){
+                    this.relaxed_plan_actions.addAll(this.final_achiever.values());
+                }
                 return (int) goal_dist;
             }
             //trigger actions
@@ -145,6 +151,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                         if (dist.get(p.getCounter()) > current_cost) {
                             q.decreaseKey(cond_to_entry.get(p.getCounter()), current_cost);
                             dist.set(p.getCounter(), current_cost);
+                            if (preferred_operators) this.final_achiever.put(p.getCounter(),gr);
                         }
                     } else {
                         dist.set(p.getCounter(), current_cost);
@@ -152,8 +159,9 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                         FibonacciHeapNode node = new FibonacciHeapNode(p);
                         q.insert(node, current_cost);
                         cond_to_entry.put(p.getCounter(), node);
-                        
+                        if (preferred_operators) this.final_achiever.put(p.getCounter(),gr);
                     }
+                    
                 }
                 for (Comparison comp : comparisons) {
                     if (closed.get(comp.getCounter())) {
@@ -184,6 +192,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                             if (dist.get(comp.getCounter()) > current_cost) {
                                 q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
                                 dist.set(comp.getCounter(), current_cost);
+                                if (preferred_operators) this.final_achiever.put(comp.getCounter(),gr);
                             }
                         } else {
                             dist.set(comp.getCounter(), current_cost);
@@ -191,6 +200,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                             FibonacciHeapNode node = new FibonacciHeapNode(comp);
                             q.insert(node, current_cost);
                             cond_to_entry.put(comp.getCounter(),node);
+                            if (preferred_operators) this.final_achiever.put(comp.getCounter(),gr);
                         }
                     } else {
                         temp_complex_conditions.add(comp);
@@ -210,9 +220,9 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                 if (current_cost != Integer.MAX_VALUE) {
                     if (open_list.get(comp.getCounter())) {
                         if (dist.get(comp.getCounter()) > current_cost) {
-
                             q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
                             dist.set(comp.getCounter(), current_cost);
+                            if (preferred_operators) this.relaxed_plan_actions.addAll(temp_preferred_operators_ibr);
                         }
                     } else {
                             dist.set(comp.getCounter(), current_cost);

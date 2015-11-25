@@ -86,6 +86,11 @@ public abstract class Heuristics {
     protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
     protected boolean sat_test_within_cost = true;
     protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
+    
+    public LinkedHashSet<GroundAction> relaxed_plan_actions;
+    public HashMap<Integer,GroundAction> final_achiever;
+    protected boolean preferred_operators;
+    protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -853,6 +858,7 @@ public abstract class Heuristics {
         for (int i=0;i<initial.size();i++){
             visited.put(i,false);
         }
+        temp_preferred_operators_ibr = new LinkedHashSet();
         while (true) {
             boolean stop = true;
             LinkedList q = new LinkedList(initial);
@@ -861,21 +867,18 @@ public abstract class Heuristics {
                 GroundAction gr = (GroundAction) q.pollFirst();
                 rel_state = gr.apply(rel_state);
                 float new_dist = rel_state.satisfaction_distance((Comparison) c);
-
-
                 boolean already_addedd = false;
                 if (visited.get(i) == false) {
                     cost++;
                     cost += action_to_cost.get(gr);
-                    already_addedd = true;
-                            
+                    already_addedd = true;        
+                    temp_preferred_operators_ibr.add(gr);
                 }
-
-
                 //cost++;
                 if (current_distance > new_dist) {
                         if (!already_addedd){
                             cost++;
+                            temp_preferred_operators_ibr.add(gr);
                             if (visited.get(i) == false) {
                                 cost += action_to_cost.get(gr);
                             }

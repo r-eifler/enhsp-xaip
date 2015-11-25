@@ -59,6 +59,7 @@ public class SearchStrategies {
     public boolean json_rep_saving = false;
     public SearchNode search_space_handle;
     private boolean high_verbosity=false;
+    public boolean preferred_operators_active = false;
 
     public void setup_heuristic(Heuristics input) {
         this.setHeuristic(input);
@@ -69,9 +70,10 @@ public class SearchStrategies {
 
     public LinkedList enforced_hill_climbing(PddlProblem problem) throws Exception {
         long start_global = System.currentTimeMillis();
-        LinkedHashSet rel_actions = new LinkedHashSet(problem.getActions());
+        LinkedHashSet rel_actions;
 
         getHeuristic().setup(problem.getInit());
+        getHeuristic().preferred_operators = this.preferred_operators_active;
 
         State current = problem.getInit();
 
@@ -82,9 +84,7 @@ public class SearchStrategies {
         System.out.println("All Actions:" + rel_actions.size());
         states_evaluated=0;
         while (!current.satisfy(problem.getGoals())) {
-            
             SearchNode succ = breadth_first_search(current, problem.getGoals(), rel_actions, getHeuristic());
-            
             if (succ == null) {
                 System.out.println("No plan exists with EHC");
                 return null;
@@ -113,9 +113,16 @@ public class SearchStrategies {
         boolean strong_relaxation = false;
         //int current_value = Heuristics.h1_recursion_memoization(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);
         int current_value = heuristic.compute_estimate(current);
+        
+        LinkedHashSet<GroundAction> branching_actions;
+        if (this.preferred_operators_active){
+            branching_actions = heuristic.relaxed_plan_actions;
+        }else{
+            branching_actions = (LinkedHashSet<GroundAction>) actions;
+        }
+        
         setStates_evaluated(getStates_evaluated() + 1);
 
-        //System.out.println("Current Distance:"+current_value);
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
         frontier.add(init);
                         
@@ -124,7 +131,7 @@ public class SearchStrategies {
             SearchNode node = frontier.poll();
             nodes_expanded++;
             visited.put(node.s, true);
-            for (GroundAction act : (LinkedHashSet<GroundAction>) actions) {
+            for (GroundAction act : (LinkedHashSet<GroundAction>) branching_actions) {
                 if (act.isApplicable(node.s)) {
                     State temp = act.apply(node.s.clone());
                     //act.normalize();
