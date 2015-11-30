@@ -282,7 +282,8 @@ public class PddlDomain extends Object {
         PddlParser.pddlDoc_return root = parser.pddlDoc();
 
         if (parser.invalidGrammar()) {
-            System.out.println("Errore di qualche genere");
+            System.out.println("Some Syntax Error");
+            System.exit(-1);
         }
 
         CommonTree t = (CommonTree) root.getTree();
@@ -489,7 +490,8 @@ public class PddlDomain extends Object {
                         and.addConditions(con);
                         a.setPreconditions(and);
                     } else {
-                        a.setPreconditions(con);
+                        if (con != null)
+                            a.setPreconditions(con);
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -499,7 +501,6 @@ public class PddlDomain extends Object {
                     Type t = new Type(infoAction.getChild(0).getText());
                     boolean found = false;
                     for (Object o : this.getTypes()) {
-                        Type temp = (Type) o;
                         if (t.equals(o)) {
                             t = (Type) o;
                             found = true;
@@ -507,7 +508,7 @@ public class PddlDomain extends Object {
                         }
                     }
                     if (!found) {
-                        System.out.println("Type: " + t + " is not specified. Please revise the model");
+                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
                         System.exit(-1);
                     } else {
                         a.addParameter(new Variable(infoAction.getText(), t));
@@ -527,9 +528,12 @@ public class PddlDomain extends Object {
                     }
                     //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
                     //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
-                    a.setAddList(add);
-                    a.setDelList(del);
-                    a.setNumericEffects(numericEffect);
+                    if (add != null)
+                        a.setAddList(add);
+                    if (del != null)
+                        a.setDelList(del);
+                    if (o != null)
+                        a.setNumericEffects(numericEffect);
                     break;
             }
 
@@ -613,7 +617,6 @@ public class PddlDomain extends Object {
     }
 
     private Conditions createAddEffect(SchemaParameters parTable, Tree infoAction) {
-        Conditions ret = null;
         if (infoAction == null) {
             return new Predicate();
         }

@@ -57,6 +57,11 @@ public class ActionSchema extends GenericActionType {
         super();
         parameters = new SchemaParameters();
         numericFluentAffected = new HashSet();
+        this.addList = new AndCond();
+        this.delList = new AndCond();
+        this.numericEffects = new AndCond();
+        this.preconditions = new AndCond();
+        
     }
 
 //

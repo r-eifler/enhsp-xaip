@@ -91,6 +91,7 @@ public abstract class Heuristics {
     public HashMap<Integer,GroundAction> final_achiever;
     protected boolean preferred_operators;
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
+    public int reacheable_conditions;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -863,14 +864,26 @@ public abstract class Heuristics {
             boolean stop = true;
             LinkedList q = new LinkedList(initial);
             int i=0;
-            while (!q.isEmpty()) {
+            while (!q.isEmpty()) {                
                 GroundAction gr = (GroundAction) q.pollFirst();
+                {
+                
                 rel_state = gr.apply(rel_state);
+                int n = gr.internal_dependencies_length();
+                
+                for (int k=0;k<n;k++){
+//                    System.out.println(gr.getName()+ " has internal dependency, where max lenght is:"+n);
+                    cost++;
+                    rel_state = gr.apply(rel_state);
+                }
                 float new_dist = rel_state.satisfaction_distance((Comparison) c);
                 boolean already_addedd = false;
                 if (visited.get(i) == false) {
                     cost++;
-                    cost += action_to_cost.get(gr);
+                    if (action_to_cost.get(gr) != null){
+                        cost += action_to_cost.get(gr);
+                    }
+                    
                     already_addedd = true;        
                     temp_preferred_operators_ibr.add(gr);
                 }
@@ -892,7 +905,8 @@ public abstract class Heuristics {
                 if (rel_state.satisfy((Comparison) c)) {
                     return cost;
                 }
-                i++;
+                }
+ 
             }
             if (stop) {
                 return Integer.MAX_VALUE;
@@ -945,6 +959,8 @@ public abstract class Heuristics {
         }
         return ret;
     }
+    
+
 
     protected LinkedList sort_actions_pool_according_to_cost(HashSet<HeuristicSearchNode> pool) {
         LinkedList temp = new LinkedList(pool);

@@ -405,7 +405,7 @@ public class SearchStrategies {
                         start = System.currentTimeMillis();
                         int d = getHeuristic().compute_estimate(temp);
                         heuristic_time += System.currentTimeMillis() - start;
-                        //System.out.print("Exploration:"+d);
+                        //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                         act.setAction_cost(temp);
                         if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
                             SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.action_cost_to_get_here + (int) act.getAction_cost())*this.getGw() , d * getHw(), json_rep_saving);

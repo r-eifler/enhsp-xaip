@@ -57,6 +57,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
     protected HashMap<GroundAction, LinkedHashSet<Comparison>> possible_achievers;
     protected HashMap<Comparison, LinkedHashSet<GroundAction>> possible_achievers_inverted;
     private boolean reacheability_setting;
+    private boolean all_paths = false;
 
     public Uniform_cost_search_H1(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -99,6 +100,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                 closed.set(c.getCounter(),true);
              }
         }
+        reacheable_conditions = 0;
         LinkedHashSet<GroundAction> temp_a;
         if (reacheability_setting) {
             temp_a = new LinkedHashSet(A);
@@ -112,14 +114,16 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
         while (!q.isEmpty()) {
             Conditions cn = q.removeMin().getData();
-            
-            
-            int goal_dist = this.check_goal_conditions(s, G, dist);
-            if (goal_dist != Integer.MAX_VALUE && !reacheability_setting) {
-                if (preferred_operators){
-                    this.relaxed_plan_actions.addAll(this.final_achiever.values());
+            if (!all_paths){
+                int goal_dist = this.check_goal_conditions(s, G, dist);
+
+
+                if (goal_dist != Integer.MAX_VALUE && !reacheability_setting) {
+                    if (preferred_operators){
+                        this.relaxed_plan_actions.addAll(this.final_achiever.values());
+                    }
+                    return (int) goal_dist;
                 }
-                return (int) goal_dist;
             }
             //trigger actions
             Iterator<GroundAction> it = temp_a.iterator();
@@ -127,6 +131,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
             while (it.hasNext()) {
                 GroundAction gr = it.next();
                 int action_cost = this.compute_precondition_cost(s, dist, gr);
+                achievers_of_complex_conditions.add(gr);
                 if (action_cost != Integer.MAX_VALUE) {
                     edges.add(gr);
                     if (reacheability_setting) {
@@ -160,6 +165,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                         q.insert(node, current_cost);
                         cond_to_entry.put(p.getCounter(), node);
                         if (preferred_operators) this.final_achiever.put(p.getCounter(),gr);
+                        reacheable_conditions++;
                     }
                     
                 }
@@ -201,10 +207,12 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                             q.insert(node, current_cost);
                             cond_to_entry.put(comp.getCounter(),node);
                             if (preferred_operators) this.final_achiever.put(comp.getCounter(),gr);
+                            reacheable_conditions++;
+
                         }
                     } else {
                         temp_complex_conditions.add(comp);
-                        achievers_of_complex_conditions.add(gr);
+                        
                     }
                 }
             }
@@ -230,6 +238,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                             FibonacciHeapNode node = new FibonacciHeapNode(comp);
                             q.insert(node, current_cost);
                             cond_to_entry.put(comp.getCounter(),node);
+                            reacheable_conditions++;
                     }
                 }
             }
