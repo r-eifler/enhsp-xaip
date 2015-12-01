@@ -34,8 +34,8 @@ import conditions.NotCond;
 import conditions.NumFluentAssigner;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import domain.ActionParametersAsTerms;
 import domain.ActionSchema;
+import domain.ParametersAsTerms;
 import domain.PddlDomain;
 import domain.Variable;
 import expressions.Expression;
@@ -62,6 +62,7 @@ import java.util.logging.Logger;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
+import problem.GlobalConstraint;
 import problem.GroundAction;
 import problem.PddlProblem;
 import problem.State;
@@ -88,7 +89,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug = 0;
+    private int debug = 1;
+    private boolean newMethod = true;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -102,7 +104,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         super();
         pd = dom;
         pp = prob;
-        invariantAnalysis = true;
+        invariantAnalysis = false;
         employedMacro = 0;
     }
 
@@ -159,12 +161,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     //it will be handled as a mmaction
-    public void putAction(String actionName, ActionParametersAsTerms par) {
+    public void putAction(String actionName, ParametersAsTerms par){
 
         ActionSchema action = pd.getActionByName(actionName);
         if (action == null) {
             System.out.println("Action not found in the domain theory!!" + actionName);
         }
+        //System.out.println(par);
         GroundAction grAction = action.ground(par);
         grAction.generateAffectedNumFluents();
         //grAction.normalizeAndCopy();
@@ -195,7 +198,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                    ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -238,15 +241,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public void addActionsFromString(String s1) {
         String nameOperator, s2;
-        ActionParametersAsTerms pars = new ActionParametersAsTerms();
-        s2 = s1.substring(s1.indexOf(":")+1, s1.length());
-        
+        ParametersAsTerms pars = new ParametersAsTerms();
+        s2 = s1.substring(s1.indexOf(":")+1, s1.length());        
         s1 = s2.trim().toLowerCase();
         //System.out.println(s1);
         //this.add(s1);
         int nameEndIndex = s1.indexOf(" ");
         if (nameEndIndex == -1) {
             nameOperator = s1.substring(1, s1.indexOf(")"));
+            //System.out.println(nameOperator);
         } else {
             nameOperator = s1.substring(1, nameEndIndex);
             //System.out.println(nameOperator);
@@ -265,7 +268,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
                 //System.out.println(par);
                 PDDLObject obj = new PDDLObject(par);
-//                System.out.println(nameOperator);
+                //System.out.println(nameOperator);
                 ActionSchema a = this.pd.getActionByName(nameOperator);
 //                System.out.println(a);
 //               System.out.println(a.getParameters().size());
@@ -304,7 +307,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -335,23 +338,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
 
-        if (invariantAnalysis) {
-            this.invariantFluents = new HashMap();
-            for (Object anAction : this) {
-                GroundAction a = (GroundAction) anAction;
-                for (Object o2 : a.getNumericFluentAffected().keySet()) {
-                    invariantFluents.put(o2, false);
-                }
-            }
-
-            //invariantFluents.put(pp.getFunctions(), true);
-            for (Object o3 : pp.getInit().getNumericFluents()) {
-                NumFluentAssigner ass = (NumFluentAssigner) o3;
-                if (invariantFluents.get(ass.getNFluent()) == null) {
-                    invariantFluents.put(ass.getNFluent(), true);
-
-                }
-            }
+        if (this.invariantAnalysis){
+            setInvariantFluents(this.pd.generateAbstractInvariantFluents());
             this.simplifyActions();
         }
     }
@@ -487,69 +475,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //i valori nello stato iniziale
         //dopo aver fatto cio' semplifico le variabili nelle azioni del piano
         for (Object o : this) {
+            
             GroundAction a = (GroundAction) o;
             //a.normalizeAndCopy();
-
-            Conditions con = a.getPreconditions();
-            Conditions eff = a.getNumericEffects();
-//                    System.out.println(con);
-//                    System.out.println(eff);
-            if (con != null) {
-                if (con instanceof AndCond) {
-                    for (Object o2 : con.sons) {
-                        if (o2 instanceof Comparison) {
-                            Comparison comp = (Comparison) o2;
-                            Expression lValue = comp.getLeft();
-                            Expression rValue = comp.getRight();
-                            //System.out.println("before" + lValue + rValue);
-                            lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                            rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                            comp.setLeft(lValue);
-                            comp.setRight(rValue);
-                            //System.out.println("after" + lValue + rValue);
-                        }
-                    }
-                } else {
-                    if (con instanceof Predicate) {
-                    } else {
-
-                        if (con instanceof Comparison) {
-                            Comparison comp = (Comparison) con;
-                            Expression lValue = comp.getLeft();
-                            Expression rValue = comp.getRight();
-                            //System.out.println("before" + lValue + rValue);
-                            lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                            rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                            comp.setLeft(lValue);
-                            comp.setRight(rValue);
-                        } else {
-                            System.err.println("Conditions of the type: " + con.getClass());
-                            throw new UnsupportedOperationException("Not supported yet.");
-                        }
-                    }
-                }
-            }
-
-            if (eff != null) {
-                if (eff instanceof AndCond) {
-                    for (Object o2 : eff.sons) {
-                        NumEffect nEff = (NumEffect) o2;
-                        //System.out.println(nEff.getRight().getClass());
-                        Expression rValue = nEff.getRight();
-                        //System.out.println("before" + rValue);
-                        rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                        nEff.setRight(rValue);
-                        //System.out.println("after" + rValue);
-
-                    }
-                } else {
-                    System.err.println("Effects of the type: " + eff.getClass());
-
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
-
-            }
-            a.normalize();
+            a.simplifyModel(pd, pp);
+          
         }
 
     }
@@ -616,24 +546,33 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public void printLastPredictedState(int i, State s) throws CloneNotSupportedException {
-
+    public String last_relevant_fluents_last_state(int i, State s) throws CloneNotSupportedException {
+        String ret = "";
         State temp = s.clone();
         for (int j = i; j < this.size(); j++) {
             GroundAction action = (GroundAction) this.get(j);
-
             action.apply(temp);
         }
-        System.out.print("S[plan(" + i + ")] ");
-        //System.out.println(getPlan().getInvariantFluents());
+        ret +="S[plan(" + i + ")] \n";
+        //System.out.println(this.getInvariantFluents());
 
+        
         for (Object o : temp.getNumericFluents()) {
             NumFluentAssigner ass = (NumFluentAssigner) o;
-            if (!(Boolean) this.getInvariantFluents().get(ass.getNFluent())) {
-                System.out.print(o);
+            Object o1 = this.getInvariantFluents().get(ass.getNFluent());
+            if (o1!=null){
+                //System.out.println(o1);
+                if (o1 instanceof Boolean){
+                    Boolean b = (Boolean)o1;
+                    if (!b){
+                        ret += o.toString()+"\n";
+                    }
+;
+                }       
             }
+            
         }
-        System.out.println("");
+        return ret;
     }
 
     public GroundAction generateMacro(int firstActionIndex, int lastActionIndex) throws CloneNotSupportedException, Exception {
@@ -662,13 +601,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr.isApplicable(temp)) {
                 i++;
                 temp = gr.apply(temp);
-                if (debug == 1){
+                if (debug >1){
                     System.out.println(gr.getName()+" action has been applied");
                     //System.out.println(temp.pddlPrint());
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
-                if (debug == 0){
+                if (debug > 1){
                     System.out.println(gr.toEcoString() + "is not applicable");
                     System.out.println("Step:"+i);
                     
@@ -787,7 +726,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                    ActionParametersAsTerms pars = new ActionParametersAsTerms();
+                    ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -817,7 +756,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
                         ArrayList primitives = (ArrayList) macroToPrimitives.get(nameOperator);
                         this.addAll(primitives);
                         setEmployedMacro(getEmployedMacro() + 1);
-
                     } else {
                         this.putAction(nameOperator, pars);
                     }
@@ -1040,8 +978,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         if (problem.getMetric() != null) {
             if (problem.getMetric().getMetExpr() != null) {
-                //System.out.println(problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())));
-
+                //System.out.println(problem.getMetric().getMetExpr());
+                if (problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())) == null)
+                    return new Float(this.size());
                 return problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())).getNumber();
             } else {
                 return new Float(this.size());
@@ -1063,11 +1002,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
         goal.normalize();
         this.add(goal);
         long totalTimeSpentForChainSearch = 0;
-        long totalStartingTimeChainSearchEvaluate = 0;
         //create init action from the initial state.
         GroundAction start = init.transformInAction();
         this.add(0, start);
-        System.out.print("Building Validation Structure for : ");
+        //System.out.print("Building Validation Structure for : ");
         for (int i = 0; i < this.size(); i++) {
             GroundAction a = this.get(i);
             //System.out.println(a);
@@ -1085,68 +1023,51 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     TreeSet<Integer> chain = new TreeSet();
                     Conditions c = (Conditions) o;
                     //Finding the numeric justification. This requires a local search in the space of actions which have been planned to be executed before i
-                    if (c instanceof Comparison) {
-                        boolean supported = false;
-                        double best = -10000000000000.0;
-                        boolean emptySS = false;
-                        //System.out.println(c);
-                        long startingTimeChainSearch = System.currentTimeMillis();
-                        while (!supported && !emptySS) {
-                            int indexBest = -1;
-                            emptySS = true;
-                            for (Integer z = 0; z < i; z++) {//find the element that satisfies the comparison. In case such element does not exist, take the ones maximizing the satisfaction of c
-                                //System.out.println(z);
-                                if (!chain.contains(z)) {//if it has not been selected previously
-                                    chain.add(z);//add temporarly for evaluation reason
-                                    long startingTimeChainSearchEvaluate = System.currentTimeMillis();
-                                    double temp = evaluate(chain, z, i, (Comparison) c);//heuristic measuring how distant the comparison is
-                                    totalStartingTimeChainSearchEvaluate += (System.currentTimeMillis() - startingTimeChainSearchEvaluate);
-                                    //System.out.println("Temp:"+temp);
-                                    if (temp >= 0) {//meaning that it is satisfied
-                                        supported = true;
-                                        indexBest = z;
-                                    } else {//it is not satisfied but let us see if it has improved or not the previous chain set
-                                        //System.out.println("Temp:"+temp+" Best:"+best);
-                                        if (temp > best || indexBest == -1) {
-                                            //System.out.println(temp);
-                                            best = temp;
-                                            indexBest = z;
-                                        }
-                                    }
-                                    emptySS = false; //the search space has not been emptied still
-                                    chain.remove(z);//remove the temporary selection
-                                    if (supported) {
-                                        //System.out.println(c);
-                                        //System.out.println(chain+" "+indexBest+"-->"+i);
-                                        break;//exit in case when c is satisfied by chain
-                                    }
-                                }
-                            }
-                            if (!emptySS && indexBest != -1) {//if no improvment have been found then break the loop
-                                if (indexBest != -1) {
-                                //System.out.println("Selected"+indexBest);
+                    //System.out.println("Looking for!:" + c );
+//                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
 
-                                    chain.add(indexBest);
+                    if (c instanceof Comparison){
+                        boolean supported = false;
+                        long startingTimeChainSearch = System.currentTimeMillis();
+                        double temp;
+                        while(true){
+                            temp = take_max(chain,i,(Comparison)c);
+//                            System.out.println(temp);
+                            if (temp > 0){    
+                                supported = true;
+                                break;
+                            }else{
+                                if (chain.size()>=i){
+                                    break;
                                 }
-                                //System.out.print("["+chain.size()+"],");
-                            } else {
-                                //System.out.println(c);
-                                //System.out.println("this shouldn't happen");
                             }
                         }
                         totalTimeSpentForChainSearch += (System.currentTimeMillis() - startingTimeChainSearch);
 
                         if (supported) {
                             validationStructure.put(c, chain);
+//                            for (Integer l1: chain){
+//                                for (Integer l2: chain){
+//                                    if (l1!=l2){
+//                                        po.addVertex(l1);
+//                                        po.addVertex(l2);
+//                                        po.addEdge(l1, l2);//this add an implicit order. This is due to the fact that we are committing to a specific chain of actions
+//                                    }
+//                                }
+//                            }
                             //System.out.println(chain+"-->"+i);
                         } else {
-
                             chain.add(-1);
                             po.addVertex(i);
                             po.addEdge(-1, i);
                             validationStructure.put(c, chain);
+//                            System.out.println(chain);
+//                            System.out.println("Level:"+i);
+//                            System.out.println("Action: "+a);
                             System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
                         }
+                        
+                                      
                     } else {
                         //for the propositional case the search is much simpler...
                         boolean supported = false;
@@ -1180,35 +1101,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 }
 
                             }
-                            //if (!supported){
-                            if (false) {
-                                for (Integer z = 0; z < 1; z++) {
-
-                                    if (this.get(z).achieve(p)) {
-                                        //System.out.println("Candidate:" + z);
-                                        boolean threat = false;
-                                        for (int k = z + 1; k < i; k++) {
-                                            //System.out.println(this.get(k));
-                                            //System.out.println("checking for"+p);
-                                            if (this.get(k).delete(p)) {
-                                                //System.out.println("Threat:" + this.get(k));
-                                                threat = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!threat) {
-                                            //System.out.println("Candidate ok");
-                                            chain.add(z);
-                                            supported = true;
-                                            break;
-                                        } else {
-                                            //System.out.println("Candidate ko");
-                                        }
-
-                                    }
-
-                                }
-                            }
 
                             if (supported) {
                                 validationStructure.put(c, chain);
@@ -1223,6 +1115,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             }
                         } else if (c instanceof NotCond) {
 
+                        } else{
+                            System.out.println("Only Conjunctive Preconditions/Conditions are supported");
+                            System.exit(-1);
                         }
 
                     }
@@ -1233,20 +1128,23 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         //achieveGoal = goalAchievers(po);
         System.out.println("\nTIME FOR CHAIN SEARCH: " + totalTimeSpentForChainSearch);
-        System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
-
+        //System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
+        
         return po;
     }
 
     public DirectedAcyclicGraph deorder(State init, Conditions g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
+        if (debug >0){
+            System.out.println(po);
+        }
         if (computeGoalAchievers) {
             setGoalAchiever(this.goalAchievers(this.getValidationStructures()));
         }
         //this provides information on the missing constraint and/or prediction services
 
-        System.out.println("\nValidation Structure Built. Now let us see which are the constraints that can be removed");
+        System.out.println("\nValidation Structure has been built. Now let us see which are the constraints that can be removed");
 
         //having found out the validation structure for an action, let us see now which are the ordering constraint that are really necessary
         //these two for emulate the total order inside the plan. 
@@ -1277,6 +1175,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 //Motivation += o.toString()+" (nelle giustificazioni)";
                                 break;
                             }
+                            
                         }
                     }
                 }
@@ -1296,7 +1195,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 if (chain.contains(j)) {
                                     preserveOrderConstraint = true;
                                     orderingByStrangeness++;
-                                    System.out.println("Strange Situations!!");
+                                    System.out.println("Strange Situation!!");
                                     break;
                                 }
                             }
@@ -1305,7 +1204,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 if (this.get(j).delete(p)) {
                                     preserveOrderConstraint = true;
                                     orderingByPropositionalThreatBack++;
-                                    Motivation += o.toString() + " (minaccia Predicate)";
+                                    Motivation += o.toString() + "Back Propositional Threat";
                                     break;
                                 }
 
@@ -1317,7 +1216,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                     if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
                                         preserveOrderConstraint = true;
                                         orderingByNumericThreatBack++;
-                                        Motivation += o.toString() + " (i minaccia la condizione numerico per cui j esiste)";
+                                        Motivation += o.toString() + "Back Numeric Threat";
                                         break;
                                     }
                                 }
@@ -1326,7 +1225,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     }
                 }
                 if (!preserveOrderConstraint) {
-                    AndCond conds = (AndCond) this.get(i).getPreconditions();
+                    AndCond conds;
                     for (int k = j + 1; k < this.size(); k++) {
                         IdentityHashMap validationStructure = (IdentityHashMap) getValidationStructures().get(this.get(k));
                         conds = (AndCond) this.get(k).getPreconditions();
@@ -1341,7 +1240,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                             if (this.get(i).delete(p)) {
                                                 preserveOrderConstraint = true;
                                                 orderingByThreatPropositionForward++;
-                                                Motivation += o.toString() + " (i minaccia la condizione proposizionale per cui j esiste)";
+                                                Motivation += o.toString() + " (forward prop threat)";
                                             }
                                             break;
                                         }
@@ -1359,7 +1258,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                                 if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
                                                     preserveOrderConstraint = true;
                                                     orderingByThreatNumericForward++;
-                                                    Motivation += o.toString() + " (i minaccia la condizione numerica per cui j esiste)";
+                                                    Motivation += o.toString() + " (forward numeric threat)";
                                                 }
                                                 break;
                                             }
@@ -1381,6 +1280,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
             }
         }
+        add_ordering_because_of_within_chain(po);
+
 
 //        for (Object v1 : po.vertexSet()) {
 //            for (Object v2 : po.vertexSet()) {
@@ -2099,5 +2000,125 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public void addActionsFromPartialOrder(Set actionsOfThePlan) {
 
     }
+
+    public State execute(State init, HashSet globalConstraintSet) throws CloneNotSupportedException {
+        State temp = init.clone();
+        int i=0;
+        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+            for (GlobalConstraint constr: (Collection<GlobalConstraint>)globalConstraintSet){
+                    if (!temp.satisfy(constr.condition)){
+                        System.out.println("Global Constraint is not satisfied:"+constr);
+                        return temp;
+                    }
+                    // MRJ: Meant for debugging
+                    //System.out.println(constr.condition.pddlPrint(false));
+                      
+            } 
+            if (gr.isApplicable(temp)) {
+                i++;
+                // MRJ: Prints the state, meant for debugging
+                //System.out.println(temp.pddlPrint());
+                temp = gr.apply(temp);
+
+                if (debug >1){
+                    System.out.println(gr.getName()+" action has been applied");
+                    System.out.println(temp.pddlPrint());
+                }
+                //System.out.println("in-at"+ temp.printFluentByName("in-at"));
+            } else {
+                if (debug > 1){
+                    System.out.println(gr.toEcoString() + "is not applicable");
+                    System.out.println("Step:"+i);
+                    
+                    //AndCond c= (AndCond)gr.getPreconditions();
+                    System.out.println(temp.pddlPrint());
+
+                    System.out.println(temp.whatIsNotsatisfied((AndCond)gr.getPreconditions()));
+                }
+                return temp;
+            }
+        }
+        System.out.println("Plan is executed correctly");
+        return temp;    
+    }
+
+    public List generateMacrosFromBlocks(List blocks) throws Exception {
+        List result = new ArrayList();
+
+        for (List s : (List<List>)blocks) {
+            TreeSet<Integer> ordered = new TreeSet(s);
+            //System.out.println("Trying to Merge"+ordered);
+            GroundAction macro = null;
+//            System.out.println("Building Macro");
+            if (s.size()<=1)
+                continue;
+            for (Integer v : (Collection<Integer>)s) {
+                //if it is the first action or it is a splittingpoint (consequence of the step above
+//                System.out.print(" "+v);
+                if (macro == null) {
+                    macro = (GroundAction) this.get(v-1);
+                    macro.setIsMacro(true);
+                    macro.getPrimitives().add(this.get(v-1));
+                    //macro.getPrimitivesWithInteger().add(v-1);
+                } else {
+                    //append to previous computed action
+                    macro = macro.buildMacroInProgression(this.get(v-1), this.pd, this.pp, false);
+                }
+            }
+//            System.out.println("");
+
+            result.add(macro);
+        }
+        return result;
+    }
+
+    private double take_max(TreeSet<Integer> chain, int i,Comparison c) {
+        
+        Float best = Float.NEGATIVE_INFINITY;
+        Integer bestIndex = -1;
+        for (int k=0;k<i;k++){
+            if (!chain.contains(k)){
+                chain.add(k);
+                State tempInit = new State();
+                for (Integer index : chain) {
+//                    System.out.println("Applicando:"+index);
+                    tempInit = this.get(index).apply(tempInit);
+                }
+                if (c.is_evaluable(tempInit)){
+                    Float current = tempInit.distance2(c);
+                    if (current > best){
+//                        System.out.println(current);
+//                        System.out.println(tempInit);
+//                        System.out.println(chain);
+                        best = current;
+                        bestIndex = k;
+                    }
+                }else{
+                    if (bestIndex == -1){
+                        bestIndex = k;
+                    }
+                }
+                chain.remove(k);
+            }
+        }
+        chain.add(bestIndex);
+        return best;
+    }
+
+
+
+    private void add_ordering_because_of_within_chain(DirectedAcyclicGraph po) {
+        for (IdentityHashMap ihm:(Collection<IdentityHashMap>)this.getValidationStructures().values()){
+            for (TreeSet<Integer> chain : (Collection<TreeSet<Integer>>)ihm.values()){
+                for (Integer l1:chain)
+                    for (Integer l2:chain){
+                        if (l1<l2)
+                            po.addEdge(l1, l2);
+                    }
+            }
+            
+        }
+    }
+
 
 }

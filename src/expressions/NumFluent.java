@@ -266,28 +266,27 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
-//
-
-        if (invF.get(this.getName()) == null) {
-
-                if (s.functionValue(this)!=null){
-
-                    return s.functionValue(this);
-                }
-            
-            
-            //System.out.println(this + ": is not present in the Invariant Mapping!!! Why?!"+" Free Var activated:"+freeVarSemantic);
-            return null;
-        }
-        if ((Boolean) invF.get(this.getName())) {
-            //s.functionValue(this)
-//            System.out.println("Variable to Substitute:"+this);
-//            System.out.println("Evaluation in s:"+s.functionValue(this));
+        if ((invF.get(this) == null) && (invF.get(this.getName())==null)){//this means that the fluent can be 
             return s.functionValue(this);
-        } else {
-            //System.out.println("Itself");
-            return this;
         }
+        if (invF.get(this)!= null){
+            if ((Boolean)invF.get(this)){
+                if (invF.get(this.getName()) == null)
+                    return s.functionValue(this);
+                if ((Boolean)invF.get(this.getName()))
+                    return s.functionValue(this);
+                else
+                    return this;
+            }else
+                return this;
+        }
+        if (invF.get(this.getName())!= null){
+            if ((Boolean)invF.get(this.getName()))
+               return s.functionValue(this);
+            else
+               return this;
+        }
+        return this;
     }
 
     @Override

@@ -94,8 +94,8 @@ public class bottom_up_action_cost extends Heuristics {
         
         //ArrayList<Integer> h = new HashMap();
 //        int[] h;
-//        h = new int[number_of_actual_atoms];
-//        for (int i=0;i<this.number_of_actual_atoms;i++){
+//        h = new int[index_of_last_static_atom];
+//        for (int i=0;i<this.index_of_last_static_atom;i++){
 //            h[i] = Integer.MAX_VALUE;
 //        }
       
@@ -212,7 +212,7 @@ public class bottom_up_action_cost extends Heuristics {
 
     private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) throws Exception {
         
-        return node.action.getSatEffort(s_0,(Comparison)c_1);
+        return node.action.getNumberOfExecution(s_0,(Comparison)c_1);
     }
 
 

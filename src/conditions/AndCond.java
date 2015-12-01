@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
@@ -664,10 +665,12 @@ public class AndCond extends Conditions {
                 }else if(o2 instanceof NumEffect){
                     NumEffect ne = (NumEffect)o2;
                     ne.setFreeVarSemantic(freeVarSemantic);
+//                    System.out.println(ne);
                     ne = (NumEffect)ne.weakEval(s, invF);
                     if (ne == null)
                         return null;
                 }else{
+                    System.out.println(o2);
                     System.out.println("Unsupported operation for :"+o2.getClass());
                 }
             }
@@ -685,6 +688,37 @@ public class AndCond extends Conditions {
         Conditions ret = this.ground(substitution);
         ret.setCounter(c);
         return ret;
+    }
+
+    @Override
+    public String toSmtVariableString(int i, GroundAction gr, String var) {
+        String ret = "";
+        if (this.sons != null) {
+            if (this.sons.size() > 1) {
+                ret += "(and";
+            }
+
+            for (Object o : this.sons) {
+                if (o instanceof Predicate) {
+                    Predicate p = (Predicate) o;
+                    ret += " " + p.toSmtVariableString(i, gr, var);
+                } else if (o instanceof NotCond) {
+                    NotCond nc = (NotCond) o;
+                    ret += " " + nc.toSmtVariableString(i, gr, var);
+                } else if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    if (c.toSmtVariableString(i, gr, var)!=null)
+                        ret += c.toSmtVariableString(i, gr, var);
+                    
+                } else
+                    throw new UnsupportedOperationException("Num effect not supported for repetition.."+this);
+            }
+            if (this.sons.size() > 1) {
+                ret += ")";
+            }
+        }
+        return ret;
+    
     }
 
 

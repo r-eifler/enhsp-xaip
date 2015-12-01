@@ -37,7 +37,7 @@ import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
 import conditions.PDDLObject;
-import domain.ActionParametersAsTerms;
+import domain.ParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
 
@@ -48,6 +48,7 @@ import expressions.Expression;
 import expressions.NumFluent;
 import expressions.MinusUnary;
 import expressions.MultiOp;
+import expressions.NormExpression;
 import expressions.PDDLNumber;
 
 import java.io.BufferedWriter;
@@ -57,6 +58,7 @@ import java.io.IOException;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,7 +76,7 @@ import org.antlr.runtime.tree.Tree;
 
 import parser.PddlLexer;
 import parser.PddlParser;
-import propositionalFactory.ActionFactory;
+import propositionalFactory.Instantiator;
 
 /**
  *
@@ -100,6 +102,7 @@ public class PddlProblem {
     private RelState possStates;
     public int counterNumericFluents = 0;
     private boolean simplifyActions;
+    private HashMap invariantFluents;
 
     /**
      * Get the value of groundedActions
@@ -259,7 +262,7 @@ public class PddlProblem {
         PddlParser.pddlDoc_return root = parser.pddlDoc();
 
         if (parser.invalidGrammar()) {
-            System.out.println("General Problem Parsing");
+            System.out.println("Grammar is violated");
         }
         CommonTree t = (CommonTree) root.getTree();
 //        System.out.println("tree:" + t.toStringTree());
@@ -645,15 +648,13 @@ public class PddlProblem {
     public void generateActions() throws Exception {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            ActionFactory af = new ActionFactory();
+            Instantiator af = new Instantiator();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
-//                af.Propositionalize(act, objects);
                 if (act.getParameters().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
                     GroundAction gr = act.ground();
                     getActions().add(gr);
-
                 }
             }
             //pruneActions();
@@ -663,19 +664,22 @@ public class PddlProblem {
         }
         Iterator it = getActions().iterator();
         //System.out.println("prova");
-        System.out.println("|A| just after grounding:"+getActions().size());
+        System.out.println("|A| just after grounding:" + getActions().size());
         while (it.hasNext()) {//iteration of the action for pruning the trivial unreacheable ones (because of the grounding and weak evaluation)
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
+//                System.out.println(act.toPDDL());
                 keep = act.simplifyModel(linkedDomain, this);
+//                System.out.println(act.toPDDL());
+
             }
             if (!keep) {
                 //System.out.println("Action removed:" + act.toEcoString());
                 it.remove();
             }
         }
-        System.out.println("|A| just after simplification:"+getActions().size());
+        System.out.println("|A| just after simplification:" + getActions().size());
 
         setPropositionalTime(System.currentTimeMillis() - start);
         this.setGroundedActions(true);
@@ -942,7 +946,7 @@ public class PddlProblem {
         this.possStates = possStates;
     }
 
-    public void removeObjects(ActionParametersAsTerms constantsFound) {
+    public void removeObjects(ParametersAsTerms constantsFound) {
         for (Object c : constantsFound) {
             this.getObjects().remove(c);
         }
@@ -974,5 +978,77 @@ public class PddlProblem {
      */
     public void setSimplifyActions(boolean simplifyActions) {
         this.simplifyActions = simplifyActions;
+    }
+
+    public HashMap getInvariantFluents() throws Exception {
+        if (invariantFluents == null) {
+            invariantFluents = new HashMap();
+            if (this.getActions() == null || this.getActions().isEmpty()) {
+                this.generateActions();
+            }
+            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
+                for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
+                    invariantFluents.put(nf, Boolean.FALSE);
+                }
+            }
+        }
+        return invariantFluents;
+    }
+
+    public void transform_numeric_condition() throws Exception {
+
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+            if (gr.getPreconditions() != null) {
+                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
+            }
+        }
+        this.goals = generate_inequalities(goals);
+    }
+
+    private AndCond generate_inequalities(Conditions con) {
+        AndCond temp = new AndCond();
+        if (con instanceof AndCond) {
+            AndCond c = (AndCond) con;
+            for (Conditions c1 : (Collection<Conditions>) c.sons) {
+                if (c1 instanceof Comparison) {
+                    Comparison comp = (Comparison) c1;
+                    if (comp.getComparator().equals("=")) {
+                        Comparison dual = (Comparison) comp.clone();
+                        dual.setComparator("<=");
+                        dual.setNormalized(false);
+                        comp.setComparator(">=");
+                        temp.addConditions(dual);
+                        temp.addConditions(comp);
+                    }else
+                        temp.addConditions(c1);
+                } else {
+                    temp.addConditions(c1);
+                }
+            }
+
+        } else {
+            if (con instanceof Comparison) {
+                Comparison comp = (Comparison) con;
+                if (comp.getComparator().equals("=")) {
+                    Comparison dual = (Comparison) comp.clone();
+                    dual.setComparator("<=");
+                    dual.setNormalized(false);
+                    comp.setComparator(">=");
+                    temp.addConditions(dual);
+                    temp.addConditions(comp);
+                }
+            } else
+                temp.addConditions(con);
+        }
+        temp.normalize();
+        return temp;
+    }
+
+    public boolean print_actions() {
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+            System.out.println(gr.toFileCompliant());
+        }
+
+        return true;
     }
 }

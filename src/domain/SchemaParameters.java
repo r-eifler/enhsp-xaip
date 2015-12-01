@@ -34,7 +34,7 @@ import java.util.Iterator;
  *
  * @author enrico
  */
-public class ActionParameters extends ArrayList {
+public class SchemaParameters extends ArrayList {
 
     public Variable containsVariable(Variable o) {
         Integer ret_val = -1;
@@ -61,7 +61,7 @@ public class ActionParameters extends ArrayList {
     
     }
 
-    void mergeParameters(ActionParameters a) {
+    void mergeParameters(SchemaParameters a) {
         int counter =0;
         for (Object o : a) {
             Variable obj = (Variable) o;

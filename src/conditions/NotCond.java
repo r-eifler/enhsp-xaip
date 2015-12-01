@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
@@ -143,13 +144,16 @@ public class NotCond extends Conditions {
             if (o instanceof Comparison){
                 Comparison comp = (Comparison)o;
                 try {
-                    comp = comp.normalizeAndCopy();
+                    comp.normalize();
                 } catch (Exception ex) {
                     Logger.getLogger(NotCond.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 if (comp==null) {
                     it.remove();
                 }
+            }else{
+                Conditions c = (Conditions)o;
+                c.normalize();
             }
         }
         
@@ -303,6 +307,12 @@ public class NotCond extends Conditions {
         
         
         return this;
+    }
+
+    @Override
+    public String toSmtVariableString(int i, GroundAction gr, String var) {
+        Conditions p = (Conditions)this.son.iterator().next();
+        return "(not "+p.toSmtVariableString(i,gr,var)+")";
     }
 
 

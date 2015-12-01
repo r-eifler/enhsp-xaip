@@ -66,20 +66,20 @@ import problem.State;
 public class PlanAdapter {
 
     //wrapper for external planning tool
-    private planningTool planner;
+    protected planningTool planner;
     
     //statistics informations
     private long kernelConstructionTime;
-    private int plannerTime;
+    protected int plannerTime;
     private long adaptationTime;
     private long heuristicComputationTime;
-    private long macroActionsConstructionTime;
+    protected long macroActionsConstructionTime;
     
     //if true, use kernel heuristic repair instead of greedy repair. See AIXIA 2013, Enrico Scala article
     private boolean kernelHeuristicRepair;
     
     //The solution container
-    private SimplePlan solution;
+    protected SimplePlan solution;
     //public boolean debuggingMacrioActionConstructionBench;
     
     //number of macro actions exploited for performing the repair
@@ -1032,9 +1032,6 @@ public class PlanAdapter {
             Utils.deleteFile("temp");
         }
         
-    
-        
-        
         if (solutionString == null) {
             return null;
         }
@@ -1132,7 +1129,7 @@ public class PlanAdapter {
         this.uselessActionPruning = uselessActionPruning;
     }
 
-    private TreeSet pruneSmallMacros(List c, int i) {
+    protected TreeSet pruneSmallMacros(List c, int i) {
         
         TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
         ret.addAll(c);
@@ -1142,6 +1139,25 @@ public class PlanAdapter {
         return ret;
         
     }
+
+    public void adaptViaBlockDeordering(SimplePlan sp, PddlProblem problem, PddlDomain domain, String planFile) {
+        
+        //Block deordering invocation
+           
+        //Build Macro Action
+        
+        //Write domain extended
+        
+        //Planning with off-the shelf planner on the extended domain representation
+        
+        
+        
+    }
+
+
+
+
+
     public class GroundActionComparator implements Comparator<GroundAction> {
     @Override
     public int compare(GroundAction x, GroundAction y) {
@@ -1151,7 +1167,8 @@ public class PlanAdapter {
             return 0;
         return 1;  // do your comparison
     }
-}
+    }
+
     
 
 }

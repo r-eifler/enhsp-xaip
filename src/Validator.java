@@ -1,17 +1,18 @@
 
-import conditions.AndCond;
 import conditions.Conditions;
-import conditions.Predicate;
 import domain.ActionSchema;
 import domain.PddlDomain;
+import static extraUtils.Utils.searchParameterValue;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
 import planners.metricFFWrapper;
-import problem.GroundAction;
 import problem.PddlProblem;
 
 /**
@@ -45,22 +46,25 @@ import problem.PddlProblem;
  *
  * @author enrico
  */
-public class printLastState {
+public class Validator {
 
     private static String domainFile;
     private static String problemFile;
     private static String planFile;
     private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_init;
     private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_goal;
+    private static String last_state_file;
 
     public static void parseInput(String[] args) {
 
-        domainFile = args[0];
-        problemFile = args[1];
-        if (args.length > 2) {
-            planFile = args[2];
+        if (args.length <2){
+            System.out.println("Usage: executable-name -o domain_name -f problem_name (-p plan_name)  (-s last_state_file)");
+            System.exit(-1);
         }
-
+        domainFile = searchParameterValue(args, "-o");
+        problemFile = searchParameterValue(args, "-f");
+        planFile = searchParameterValue(args,"-p");
+        last_state_file = searchParameterValue(args,"-s");
     }
 
     /**
@@ -84,17 +88,31 @@ public class printLastState {
         
         if (planFile == null){
             sp.parseSolution(p.plan(domainFile, problemFile));
-            sp.savePlan(problemFile+".sol");
-
+            //sp.savePlan(problemFile+".sol");
         }else{
             sp.parseSolution(planFile);
         }
         
-        sp.printLastPredictedState(0, prob.getInit().clone());
-        System.out.println(sp.execute(prob.getInit()).satisfy(prob.getGoals()));
+        sp.setInvariantFluents(prob.getInvariantFluents());
+        System.out.println(sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
+        if (last_state_file != null)
+            save_last_state_to_a_file(last_state_file,sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
+            
+        System.out.println("Is the plan valid? "+sp.execute(prob.getInit()).satisfy(prob.getGoals()));
    
         //System.out.println(action_to_entaglement_by_init);
 
+    }
+
+    private static void save_last_state_to_a_file(String last_state_file, String last_relevant_fluents_last_state) {
+        try {
+            PrintWriter out = new PrintWriter(last_state_file);
+            out.println(last_relevant_fluents_last_state);
+            out.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Validator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 
 }

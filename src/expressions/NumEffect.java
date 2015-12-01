@@ -27,7 +27,6 @@
 package expressions;
 
 import conditions.Conditions;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -246,10 +245,13 @@ public class NumEffect extends Expression {
      */
     @Override
     public Expression weakEval(State s, HashMap invF) {
-        this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
+        //System.out.println(this.fluentAffected);
+        //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.setRight(this.right.weakEval(s, invF));
-        if (this.right == null)
+        if (this.right == null){
+            //System.out.println(this);
             return null;
+        }
         return this;
     }
 
@@ -422,6 +424,17 @@ public class NumEffect extends Expression {
         Set<NumFluent> ret = new LinkedHashSet();
         ret.add(this.getFluentAffected());
         ret.addAll(this.getRight().fluentsInvolved());
+        return ret;
+    }
+
+
+    public NumEffect generate_m_times_extension(NumFluent m) {
+        NumEffect ret = new NumEffect(this.operator);
+        ret.setFluentAffected(fluentAffected);
+        NormExpression temp = (NormExpression)this.getRight().clone();
+        
+        //this applies for the case in which the effects of the action are increase decrease or assign without cycles.
+        ret.setRight(temp.mult(m.normalize()));
         return ret;
     }
 }

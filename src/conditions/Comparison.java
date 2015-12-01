@@ -63,10 +63,14 @@ public class Comparison extends Conditions {
             return false;
         }
         final Comparison other = (Comparison) obj;
+        
+        other.normalize();
+        this.normalize();
+        
         //System.out.println("Testing equality");
-        if (!other.normalized || !this.normalized) {
-            return false;
-        }
+//        if (!other.normalized || !this.normalized) {
+//            return false;
+//        }
         if ((this.comparator == null) ? (other.comparator != null) : !this.comparator.equals(other.comparator)) {
             return false;
         }
@@ -76,6 +80,8 @@ public class Comparison extends Conditions {
         if (this.right != other.right && (this.right == null || !this.right.equals(other.right))) {
             return false;
         }
+        
+        
         NormExpression left_expr = (NormExpression) left;
         NormExpression left_expr2 = (NormExpression) other.left;
         if (!left_expr.equals(left_expr2)) {
@@ -185,6 +191,16 @@ public class Comparison extends Conditions {
         return ret;
     }
 
+    
+    public boolean eval_to_null(State s){
+        PDDLNumber first = left.eval(s);
+        PDDLNumber second = right.eval(s);
+        if ((first == null) || (second == null)) {
+            return true;
+        }
+        return false;
+    }
+    
     @Override
     public boolean eval(State s) {
         PDDLNumber first = left.eval(s);
@@ -638,10 +654,10 @@ public class Comparison extends Conditions {
 
     public boolean couldBePrevented(HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) {
 
-        if (!get.mayInfluence(this)) {
-            //System.out.println("Action does not affect");
-            return false;
-        }
+//        if (!get.mayInfluence(this)) {
+//            //System.out.println("Action does not affect");
+//            return false;
+//        }
 
         //If the action affects one of the fluent the comparison depends on, then the comparison can be prevented
         if (get.influence(dependsOn)) {
@@ -751,6 +767,9 @@ public class Comparison extends Conditions {
     }
 
     public String toSmtVariableString(int k, GroundAction gr, String var) {
+        if (!gr.mayInfluence(this)){
+            return " true ";
+        }
         NormExpression norm = (NormExpression) this.getLeft();
         String ret_val = "";
 
@@ -844,7 +863,7 @@ public class Comparison extends Conditions {
 
     public float eval_not_affected(State s_0, GroundAction aThis) {
         if (!this.normalized) {
-            System.err.println("At the moment support just for normalized comparison");
+            System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
         }
         NormExpression exp = (NormExpression) this.getLeft();
@@ -853,10 +872,34 @@ public class Comparison extends Conditions {
 
     public float eval_affected(State s_0, GroundAction aThis) {
         if (!this.normalized) {
-            System.err.println("At the moment support just for normalized comparison");
+            System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
         }
         NormExpression exp = (NormExpression) this.getLeft();
         return exp.eval_affected(s_0, aThis);
+    }
+
+    public boolean is_evaluable(State tempInit) {
+        Collection<NumFluent> set = this.getInvolvedFluents();
+        for (NumFluent f:set){
+            if (tempInit.functionValue(f)==null)
+                return false;
+        }
+        return true;
+    }
+
+    public String regress_repeatedely(GroundAction action, int number_of_repetition,State s_0) {
+        float a1;
+        float b;
+        
+        if (!this.involve(action.getNumericFluentAffected()))
+            return this.getLeft().eval(s_0)+this.comparator+this.getRight().eval(s_0);
+
+        a1 = this.eval_not_affected(s_0,action);
+        b = this.eval_affected(s_0,action);
+        Float lhs = (b*number_of_repetition +a1);
+        
+        return lhs.toString() +">="+0; 
+        
     }
 }

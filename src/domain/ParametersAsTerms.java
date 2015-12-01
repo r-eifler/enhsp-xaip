@@ -34,7 +34,7 @@ import java.util.Iterator;
  *
  * @author enrico
  */
-public class ActionParametersAsTerms extends ArrayList {
+public class ParametersAsTerms extends ArrayList {
 
     public PDDLObject containsTerm(PDDLObject o) {
         Integer ret_val = -1;
@@ -48,7 +48,7 @@ public class ActionParametersAsTerms extends ArrayList {
         return null;
     }
 
-    public void addALLNewObjects(ActionParametersAsTerms a) {
+    public void addALLNewObjects(ParametersAsTerms a) {
         for (Object o : a) {
             PDDLObject obj = (PDDLObject) o;
             if (this.containsTerm(obj) == null) {

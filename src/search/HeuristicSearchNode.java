@@ -28,8 +28,8 @@
  */
 package search;
 
+import java.util.Set;
 import problem.GroundAction;
-import problem.State;
 
 /**
  *
@@ -41,7 +41,8 @@ class HeuristicSearchNode implements Comparable{
     public int goal_distance;
     public HeuristicSearchNode father;
     public int action_cost_to_get_here;
-
+    public Set orderings;
+    
     public HeuristicSearchNode(GroundAction action,HeuristicSearchNode father,int action_cost_to_get_here,int goal_distance){
 
         this.action = action;
@@ -57,7 +58,7 @@ class HeuristicSearchNode implements Comparable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SearchNode other = (SearchNode) obj;
+        final HeuristicSearchNode other = (HeuristicSearchNode) obj;
         
         if (!this.action.equals(other.action) || this.action_cost_to_get_here != other.action_cost_to_get_here ) {
             return false;

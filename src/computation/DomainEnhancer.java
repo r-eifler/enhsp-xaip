@@ -31,7 +31,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import domain.ActionParametersAsTerms;
+import domain.ParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
 import expressions.NumFluent;
@@ -56,7 +56,7 @@ import problem.GroundAction;
 public class DomainEnhancer {
 
     private String domainEnhancedFileName;
-    private ActionParametersAsTerms constantsFound;
+    private ParametersAsTerms constantsFound;
     private HashSet<String> condition_to_reformulation;
     private HashSet<String> goalCondition_Reformulation;
     private int j;
@@ -117,7 +117,7 @@ public class DomainEnhancer {
         setEnhancedDomainFileName(domain.getPddlFilRef() + "enh");
 
         f = new BufferedWriter(new FileWriter(domain.getPddlFilRef() + "enh"));
-        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        ParametersAsTerms constants = new ParametersAsTerms();
         String actions = "\n";
         int i = 0;
         for (Object o : macroOps) {
@@ -131,7 +131,7 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
@@ -163,7 +163,8 @@ public class DomainEnhancer {
         setEnhancedDomainFileName(domain.getPddlFilRef() + "enh");
 
         f = new BufferedWriter(new FileWriter(domain.getPddlFilRef() + "enh"));
-        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        ParametersAsTerms constants = new ParametersAsTerms();
+        constants.addAll(domain.getConstants());
         String actions = "\n";
         int i = 0;
         for (Object o : macroOps) {
@@ -183,16 +184,18 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
         }
-        if (!domain.getPredicates().isEmpty()) {
+        if (!constants.isEmpty()) {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
-        f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
+        if (domain.getPredicates() != null){
+            f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
+        }
         if (!domain.getFunctions().isEmpty()) {
             f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
         }
@@ -215,7 +218,7 @@ public class DomainEnhancer {
         setEnhancedDomainFileName(domain.getPddlFilRef() + "enh");
 
         f = new BufferedWriter(new FileWriter(domain.getPddlFilRef() + "enh"));
-        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        ParametersAsTerms constants = new ParametersAsTerms();
         String actions = "\n";
         int i = 0;
         for (Object o : macroOps) {
@@ -239,7 +242,7 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
@@ -279,7 +282,7 @@ public class DomainEnhancer {
         setEnhancedDomainFileName(domain.getPddlFilRef() + "enh");
 
         f = new BufferedWriter(new FileWriter(domain.getPddlFilRef() + "enh"));
-        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        ParametersAsTerms constants = new ParametersAsTerms();
         String actions = "\n";
         int i = 0;
         for (Object o : macroOps) {
@@ -373,7 +376,7 @@ public class DomainEnhancer {
         setEnhancedDomainFileName(domain.getPddlFilRef() + "enh");
 
         f = new BufferedWriter(new FileWriter(domain.getPddlFilRef() + "enh"));
-        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        ParametersAsTerms constants = new ParametersAsTerms();
         String actions = "\n";
         int i = 0;
         for (Object o : macroOps) {
@@ -427,14 +430,14 @@ public class DomainEnhancer {
     /**
      * @return the constantsFound
      */
-    public ActionParametersAsTerms getConstantsFound() {
+    public ParametersAsTerms getConstantsFound() {
         return constantsFound;
     }
 
     /**
      * @param constantsFound the constantsFound to set
      */
-    public void setConstantsFound(ActionParametersAsTerms constantsFound) {
+    public void setConstantsFound(ParametersAsTerms constantsFound) {
         this.constantsFound = constantsFound;
     }
 

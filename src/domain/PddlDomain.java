@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -85,6 +86,7 @@ public class PddlDomain extends Object {
     private List Requirements;
     private String pddlReferenceFile;
     private HashMap abstractInvariantFluents;
+    private LinkedHashSet SchemaGlobalConstraints;
 
     private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List types, List Functions, List DurativeActions, List Requirements) {
         this.ActionsSchema = ActionsSchema;
@@ -93,6 +95,7 @@ public class PddlDomain extends Object {
         this.functions = Functions;
         this.DurativeActions = DurativeActions;
         this.Requirements = Requirements;
+        SchemaGlobalConstraints = new LinkedHashSet();
     }
 
     /**
@@ -106,11 +109,15 @@ public class PddlDomain extends Object {
         free_functions = new ArrayList();
         Requirements = new ArrayList();
         constants = new PDDLObjects();
+        SchemaGlobalConstraints = new LinkedHashSet();
+
     }
 
     public PddlDomain(String domainFile) {
         super();
         try {
+            SchemaGlobalConstraints = new LinkedHashSet();
+
             types = new ArrayList();
             ActionsSchema = new TreeSet(new ActionComparator());
             functions = new ArrayList();
@@ -275,7 +282,8 @@ public class PddlDomain extends Object {
         PddlParser.pddlDoc_return root = parser.pddlDoc();
 
         if (parser.invalidGrammar()) {
-            System.out.println("Errore di qualche genere");
+            System.out.println("Some Syntax Error");
+            System.exit(-1);
         }
 
         CommonTree t = (CommonTree) root.getTree();
@@ -310,6 +318,9 @@ public class PddlDomain extends Object {
                 case PddlParser.FREE_FUNCTIONS:
                     addFree_Functions(c);
                     break; 
+                case PddlParser.GLOBAL_CONSTRAINT:
+                    addGlobal_constraint(c);
+                    break;
 //                case PddlParser.DOM_CONSTRAINTS:
 //                    addGlobalConstraints(c);
 //                    break; 
@@ -326,6 +337,8 @@ public class PddlDomain extends Object {
         System.out.println("Actions Domain: " + this.ActionsSchema);
         System.out.println("Predicates: " + this.predicates);
         System.out.println("Functions: " + this.functions);
+        System.out.println("Global Constraints: " + this.getSchemaGlobalConstraints());
+
 
     }
 
@@ -477,7 +490,8 @@ public class PddlDomain extends Object {
                         and.addConditions(con);
                         a.setPreconditions(and);
                     } else {
-                        a.setPreconditions(con);
+                        if (con != null)
+                            a.setPreconditions(con);
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -487,7 +501,6 @@ public class PddlDomain extends Object {
                     Type t = new Type(infoAction.getChild(0).getText());
                     boolean found = false;
                     for (Object o : this.getTypes()) {
-                        Type temp = (Type) o;
                         if (t.equals(o)) {
                             t = (Type) o;
                             found = true;
@@ -495,7 +508,7 @@ public class PddlDomain extends Object {
                         }
                     }
                     if (!found) {
-                        System.out.println("Type: " + t + " is not specified. Please revise the model");
+                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
                         System.exit(-1);
                     } else {
                         a.addParameter(new Variable(infoAction.getText(), t));
@@ -515,16 +528,19 @@ public class PddlDomain extends Object {
                     }
                     //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
                     //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
-                    a.setAddList(add);
-                    a.setDelList(del);
-                    a.setNumericEffects(numericEffect);
+                    if (add != null)
+                        a.setAddList(add);
+                    if (del != null)
+                        a.setDelList(del);
+                    if (o != null)
+                        a.setNumericEffects(numericEffect);
                     break;
             }
 
         }
     }
 
-    private Conditions createPreconditions(Tree infoAction, ActionParameters parTable) {
+    private Conditions createPreconditions(Tree infoAction, SchemaParameters parTable) {
         Conditions ret = null;
         if (infoAction == null) {
             return null;
@@ -600,8 +616,7 @@ public class PddlDomain extends Object {
         return null;
     }
 
-    private Conditions createAddEffect(ActionParameters parTable, Tree infoAction) {
-        Conditions ret = null;
+    private Conditions createAddEffect(SchemaParameters parTable, Tree infoAction) {
         if (infoAction == null) {
             return new Predicate();
         }
@@ -623,7 +638,7 @@ public class PddlDomain extends Object {
         return null;
     }
 
-    private Predicate buildPredicate(Tree t, ActionParameters parTable) {
+    private Predicate buildPredicate(Tree t, SchemaParameters parTable) {
         Predicate a = new Predicate();
         a.setPredicateName(t.getChild(0).getText());
         //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
@@ -657,7 +672,7 @@ public class PddlDomain extends Object {
         return a;
     }
 
-    private Variable buildVariable(Tree t, ActionParameters parTable) {
+    private Variable buildVariable(Tree t, SchemaParameters parTable) {
         Variable a = null;
         //a.setName(t.getChild(0).getText());
         //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
@@ -679,7 +694,7 @@ public class PddlDomain extends Object {
         return a;
     }
 
-    private Conditions createDelEffect(ActionParameters parTable, Tree infoAction) {
+    private Conditions createDelEffect(SchemaParameters parTable, Tree infoAction) {
         if (infoAction == null) {
             return null;
         }
@@ -777,7 +792,7 @@ public class PddlDomain extends Object {
         return;
     }
 
-    private Object createNumericEffect(ActionParameters parameters, Tree child) {
+    private Object createNumericEffect(SchemaParameters parameters, Tree child) {
 
         if (child== null)
             return new AndCond();
@@ -859,7 +874,7 @@ public class PddlDomain extends Object {
         return ret;
     }
 
-    private Expression createExpression(Tree t, ActionParameters parTable) {
+    private Expression createExpression(Tree t, SchemaParameters parTable) {
 
         if (t.getType() == PddlParser.BINARY_OP) {
             BinaryOp ret = new BinaryOp();
@@ -959,7 +974,7 @@ public class PddlDomain extends Object {
         Writer f;
 
         f = new BufferedWriter(new FileWriter(file));
-        ActionParametersAsTerms constants = new ActionParametersAsTerms();
+        ParametersAsTerms constants = new ParametersAsTerms();
         String actions = "\n";
 
         f.write("(define (domain " + domain.getName() + ")\n");
@@ -1004,7 +1019,7 @@ public class PddlDomain extends Object {
     public HashMap generateAbstractInvariantFluents() {
         if (getAbstractInvariantFluents() != null)
             return getAbstractInvariantFluents();
-        HashMap abstractInvariantFluents = new HashMap();
+        abstractInvariantFluents = new HashMap();
         for (ActionSchema as : (Set<ActionSchema>) this.ActionsSchema) {
             Set s = as.getAbstractNumericFluentAffected();
             for (NumFluent nf : (Set<NumFluent>) s) {
@@ -1125,5 +1140,67 @@ public class PddlDomain extends Object {
     public void setAbstractInvariantFluents(HashMap abstractInvariantFluents) {
         this.abstractInvariantFluents = abstractInvariantFluents;
     }
+
+    private void addGlobal_constraint(Tree c) {
+        SchemaGlobalConstraint con = new SchemaGlobalConstraint(c.getChild(0).getText());
+        //System.out.println("Adding:"+a.getName());
+        this.getSchemaGlobalConstraints().add(con);
+
+        for (int i = 1; i < c.getChildCount(); i++) {
+            Tree infoConstraint = (Tree) c.getChild(i);
+            int type = infoConstraint.getType();
+
+            switch (type) {
+                case (PddlParser.PRECONDITION):
+                    Conditions condition = createPreconditions(infoConstraint.getChild(0), con.parameters);
+                    if ((condition instanceof Comparison) || (condition instanceof Predicate)) {
+                        AndCond and = new AndCond();
+                        and.addConditions(condition);
+                        con.condition = condition;
+                    } else {
+                        con.condition = condition;;
+                    }
+                    break;
+                case (PddlParser.VARIABLE):
+                    if (infoConstraint.getChild(0) == null) {
+                        break;
+                    }
+                    Type t = new Type(infoConstraint.getChild(0).getText());
+                    boolean found = false;
+                    for (Object o : this.getTypes()) {
+                        if (t.equals(o)) {
+                            t = (Type) o;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Type: " + t + " is not specified. Please revise the model");
+                        System.exit(-1);
+                    } else {
+                        con.parameters.add(new Variable(infoConstraint.getText(), t));
+                    }
+                    break;
+                
+            }
+
+        }
+    }
+
+    /**
+     * @return the SchemaGlobalConstraints
+     */
+    public LinkedHashSet getSchemaGlobalConstraints() {
+        return SchemaGlobalConstraints;
+    }
+
+    /**
+     * @param SchemaGlobalConstraints the SchemaGlobalConstraints to set
+     */
+    public void setSchemaGlobalConstraints(LinkedHashSet SchemaGlobalConstraints) {
+        this.SchemaGlobalConstraints = SchemaGlobalConstraints;
+    }
+
+    
 
 }

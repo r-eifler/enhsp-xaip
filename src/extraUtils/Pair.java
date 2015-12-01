@@ -36,6 +36,9 @@ public class Pair<A, B> {
     private A first;
     private B second;
 
+    public Pair(){
+        super();
+    }
     public Pair(A first, B second) {
     	super();
     	this.first = first;

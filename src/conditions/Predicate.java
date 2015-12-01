@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
@@ -439,6 +440,11 @@ public class  Predicate extends Conditions {
     @Override
     public Conditions weakEval(State s, HashMap invF) {
         return this;
+    }
+
+    @Override
+    public String toSmtVariableString(int k, GroundAction gr, String var) {
+        return " true ";
     }
 
   

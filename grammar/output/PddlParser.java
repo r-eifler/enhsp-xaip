@@ -210,7 +210,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "pddlDoc"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:94:1: pddlDoc : ( domain | problem );
-	public final PddlParser.pddlDoc_return pddlDoc() throws RecognitionException {
+	public final PddlParser.pddlDoc_return pddlDoc() throws  {
 		PddlParser.pddlDoc_return retval = new PddlParser.pddlDoc_return();
 		retval.start = input.LT(1);
 
@@ -353,7 +353,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "domain"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:98:1: domain : '(' 'define' domainName ( requireDef )? ( typesDef )? ( constantsDef )? ( predicatesDef )? ( functionsDef )? ( free_functionsDef )? ( constraints )? ( structureDef )* ')' -> ^( DOMAIN domainName ( requireDef )? ( typesDef )? ( constantsDef )? ( predicatesDef )? ( functionsDef )? ( free_functionsDef )? ( constraints )? ( structureDef )* ) ;
-	public final PddlParser.domain_return domain() throws RecognitionException {
+	public final PddlParser.domain_return domain() throws  {
 		PddlParser.domain_return retval = new PddlParser.domain_return();
 		retval.start = input.LT(1);
 
@@ -700,7 +700,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "free_functionsDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:114:1: free_functionsDef : '(' ':free_functions' functionList ')' -> ^( FREE_FUNCTIONS functionList ) ;
-	public final PddlParser.free_functionsDef_return free_functionsDef() throws RecognitionException {
+	public final PddlParser.free_functionsDef_return free_functionsDef() throws  {
 		PddlParser.free_functionsDef_return retval = new PddlParser.free_functionsDef_return();
 		retval.start = input.LT(1);
 
@@ -796,7 +796,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "domainName"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:119:1: domainName : '(' 'domain' NAME ')' -> ^( DOMAIN_NAME NAME ) ;
-	public final PddlParser.domainName_return domainName() throws RecognitionException {
+	public final PddlParser.domainName_return domainName() throws  {
 		PddlParser.domainName_return retval = new PddlParser.domainName_return();
 		retval.start = input.LT(1);
 
@@ -891,7 +891,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "requireDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:124:1: requireDef : '(' ':requirements' ( REQUIRE_KEY )+ ')' -> ^( REQUIREMENTS ( REQUIRE_KEY )+ ) ;
-	public final PddlParser.requireDef_return requireDef() throws RecognitionException {
+	public final PddlParser.requireDef_return requireDef() throws  {
 		PddlParser.requireDef_return retval = new PddlParser.requireDef_return();
 		retval.start = input.LT(1);
 
@@ -1019,7 +1019,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "typesDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:129:1: typesDef : '(' ':types' typedNameList ')' -> ^( TYPES typedNameList ) ;
-	public final PddlParser.typesDef_return typesDef() throws RecognitionException {
+	public final PddlParser.typesDef_return typesDef() throws  {
 		PddlParser.typesDef_return retval = new PddlParser.typesDef_return();
 		retval.start = input.LT(1);
 
@@ -1115,7 +1115,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "typedNameList"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:135:1: typedNameList : ( ( NAME )* | ( singleTypeNameList )+ ( NAME )* ) ;
-	public final PddlParser.typedNameList_return typedNameList() throws RecognitionException {
+	public final PddlParser.typedNameList_return typedNameList() throws  {
 		PddlParser.typedNameList_return retval = new PddlParser.typedNameList_return();
 		retval.start = input.LT(1);
 
@@ -1265,7 +1265,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "singleTypeNameList"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:139:1: singleTypeNameList : ( ( NAME )+ '-' t= type ) -> ( ^( NAME $t) )+ ;
-	public final PddlParser.singleTypeNameList_return singleTypeNameList() throws RecognitionException {
+	public final PddlParser.singleTypeNameList_return singleTypeNameList() throws  {
 		PddlParser.singleTypeNameList_return retval = new PddlParser.singleTypeNameList_return();
 		retval.start = input.LT(1);
 
@@ -1395,7 +1395,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "type"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:144:1: type : ( ( '(' 'either' ( primType )+ ')' ) -> ^( EITHER_TYPE ( primType )+ ) | primType );
-	public final PddlParser.type_return type() throws RecognitionException {
+	public final PddlParser.type_return type() throws  {
 		PddlParser.type_return retval = new PddlParser.type_return();
 		retval.start = input.LT(1);
 
@@ -1565,7 +1565,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "primType"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:150:1: primType : NAME ;
-	public final PddlParser.primType_return primType() throws RecognitionException {
+	public final PddlParser.primType_return primType() throws  {
 		PddlParser.primType_return retval = new PddlParser.primType_return();
 		retval.start = input.LT(1);
 
@@ -1619,7 +1619,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "functionsDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:152:1: functionsDef : '(' ':functions' functionList ')' -> ^( FUNCTIONS functionList ) ;
-	public final PddlParser.functionsDef_return functionsDef() throws RecognitionException {
+	public final PddlParser.functionsDef_return functionsDef() throws  {
 		PddlParser.functionsDef_return retval = new PddlParser.functionsDef_return();
 		retval.start = input.LT(1);
 
@@ -1715,7 +1715,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "functionList"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:157:1: functionList : ( ( atomicFunctionSkeleton )+ ( '-' functionType )? )* ;
-	public final PddlParser.functionList_return functionList() throws RecognitionException {
+	public final PddlParser.functionList_return functionList() throws  {
 		PddlParser.functionList_return retval = new PddlParser.functionList_return();
 		retval.start = input.LT(1);
 
@@ -1849,7 +1849,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "atomicFunctionSkeleton"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:161:1: atomicFunctionSkeleton : '(' ! functionSymbol ^ typedVariableList ')' !;
-	public final PddlParser.atomicFunctionSkeleton_return atomicFunctionSkeleton() throws RecognitionException {
+	public final PddlParser.atomicFunctionSkeleton_return atomicFunctionSkeleton() throws  {
 		PddlParser.atomicFunctionSkeleton_return retval = new PddlParser.atomicFunctionSkeleton_return();
 		retval.start = input.LT(1);
 
@@ -1914,7 +1914,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "functionSymbol"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:165:1: functionSymbol : NAME ;
-	public final PddlParser.functionSymbol_return functionSymbol() throws RecognitionException {
+	public final PddlParser.functionSymbol_return functionSymbol() throws  {
 		PddlParser.functionSymbol_return retval = new PddlParser.functionSymbol_return();
 		retval.start = input.LT(1);
 
@@ -1968,7 +1968,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "functionType"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:167:1: functionType : 'number' ;
-	public final PddlParser.functionType_return functionType() throws RecognitionException {
+	public final PddlParser.functionType_return functionType() throws  {
 		PddlParser.functionType_return retval = new PddlParser.functionType_return();
 		retval.start = input.LT(1);
 
@@ -2022,7 +2022,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "constantsDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:169:1: constantsDef : '(' ':constants' typedNameList ')' -> ^( CONSTANTS typedNameList ) ;
-	public final PddlParser.constantsDef_return constantsDef() throws RecognitionException {
+	public final PddlParser.constantsDef_return constantsDef() throws  {
 		PddlParser.constantsDef_return retval = new PddlParser.constantsDef_return();
 		retval.start = input.LT(1);
 
@@ -2118,7 +2118,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "predicatesDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:174:1: predicatesDef : '(' ':predicates' ( atomicFormulaSkeleton )+ ')' -> ^( PREDICATES ( atomicFormulaSkeleton )+ ) ;
-	public final PddlParser.predicatesDef_return predicatesDef() throws RecognitionException {
+	public final PddlParser.predicatesDef_return predicatesDef() throws  {
 		PddlParser.predicatesDef_return retval = new PddlParser.predicatesDef_return();
 		retval.start = input.LT(1);
 
@@ -2247,7 +2247,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "atomicFormulaSkeleton"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:179:1: atomicFormulaSkeleton : '(' ! predicate ^ typedVariableList ')' !;
-	public final PddlParser.atomicFormulaSkeleton_return atomicFormulaSkeleton() throws RecognitionException {
+	public final PddlParser.atomicFormulaSkeleton_return atomicFormulaSkeleton() throws  {
 		PddlParser.atomicFormulaSkeleton_return retval = new PddlParser.atomicFormulaSkeleton_return();
 		retval.start = input.LT(1);
 
@@ -2312,7 +2312,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "predicate"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:183:1: predicate : NAME ;
-	public final PddlParser.predicate_return predicate() throws RecognitionException {
+	public final PddlParser.predicate_return predicate() throws  {
 		PddlParser.predicate_return retval = new PddlParser.predicate_return();
 		retval.start = input.LT(1);
 
@@ -2366,7 +2366,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "typedVariableList"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:186:1: typedVariableList : ( ( VARIABLE )* | ( singleTypeVarList )+ ( VARIABLE )* ) ;
-	public final PddlParser.typedVariableList_return typedVariableList() throws RecognitionException {
+	public final PddlParser.typedVariableList_return typedVariableList() throws  {
 		PddlParser.typedVariableList_return retval = new PddlParser.typedVariableList_return();
 		retval.start = input.LT(1);
 
@@ -2516,7 +2516,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "singleTypeVarList"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:190:1: singleTypeVarList : ( ( VARIABLE )+ '-' t= type ) -> ( ^( VARIABLE $t) )+ ;
-	public final PddlParser.singleTypeVarList_return singleTypeVarList() throws RecognitionException {
+	public final PddlParser.singleTypeVarList_return singleTypeVarList() throws  {
 		PddlParser.singleTypeVarList_return retval = new PddlParser.singleTypeVarList_return();
 		retval.start = input.LT(1);
 
@@ -2646,7 +2646,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "constraints"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:195:1: constraints : '(' ! ':constraints' ^ conGD ')' !;
-	public final PddlParser.constraints_return constraints() throws RecognitionException {
+	public final PddlParser.constraints_return constraints() throws  {
 		PddlParser.constraints_return retval = new PddlParser.constraints_return();
 		retval.start = input.LT(1);
 
@@ -2713,7 +2713,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "structureDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:199:1: structureDef : ( actionDef | durativeActionDef | derivedDef | constraintDef );
-	public final PddlParser.structureDef_return structureDef() throws RecognitionException {
+	public final PddlParser.structureDef_return structureDef() throws  {
 		PddlParser.structureDef_return retval = new PddlParser.structureDef_return();
 		retval.start = input.LT(1);
 
@@ -2860,7 +2860,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "actionDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:209:1: actionDef : '(' ':action' actionSymbol ':parameters' '(' typedVariableList ')' actionDefBody ')' -> ^( ACTION actionSymbol ( typedVariableList )? actionDefBody ) ;
-	public final PddlParser.actionDef_return actionDef() throws RecognitionException {
+	public final PddlParser.actionDef_return actionDef() throws  {
 		PddlParser.actionDef_return retval = new PddlParser.actionDef_return();
 		retval.start = input.LT(1);
 
@@ -2993,7 +2993,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "constraintDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:216:1: constraintDef : '(' ':constraint' constraintSymbol ':parameters' '(' typedVariableList ')' constraintDefBody ')' -> ^( GLOBAL_CONSTRAINT constraintSymbol ( typedVariableList )? constraintDefBody ) ;
-	public final PddlParser.constraintDef_return constraintDef() throws RecognitionException {
+	public final PddlParser.constraintDef_return constraintDef() throws  {
 		PddlParser.constraintDef_return retval = new PddlParser.constraintDef_return();
 		retval.start = input.LT(1);
 
@@ -3126,7 +3126,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "actionSymbol"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:224:1: actionSymbol : NAME ;
-	public final PddlParser.actionSymbol_return actionSymbol() throws RecognitionException {
+	public final PddlParser.actionSymbol_return actionSymbol() throws  {
 		PddlParser.actionSymbol_return retval = new PddlParser.actionSymbol_return();
 		retval.start = input.LT(1);
 
@@ -3180,7 +3180,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "constraintSymbol"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:226:1: constraintSymbol : NAME ;
-	public final PddlParser.constraintSymbol_return constraintSymbol() throws RecognitionException {
+	public final PddlParser.constraintSymbol_return constraintSymbol() throws  {
 		PddlParser.constraintSymbol_return retval = new PddlParser.constraintSymbol_return();
 		retval.start = input.LT(1);
 
@@ -3234,7 +3234,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "actionDefBody"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:231:1: actionDefBody : ( ':precondition' ( ( '(' ')' ) | goalDesc ) )? ( ':effect' ( ( '(' ')' ) | effect ) )? -> ^( PRECONDITION ( goalDesc )? ) ^( EFFECT ( effect )? ) ;
-	public final PddlParser.actionDefBody_return actionDefBody() throws RecognitionException {
+	public final PddlParser.actionDefBody_return actionDefBody() throws  {
 		PddlParser.actionDefBody_return retval = new PddlParser.actionDefBody_return();
 		retval.start = input.LT(1);
 
@@ -3507,7 +3507,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "constraintDefBody"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:237:1: constraintDefBody : ( ':condition' ( ( '(' ')' ) | goalDesc ) )? -> ^( PRECONDITION ( goalDesc )? ) ;
-	public final PddlParser.constraintDefBody_return constraintDefBody() throws RecognitionException {
+	public final PddlParser.constraintDefBody_return constraintDefBody() throws  {
 		PddlParser.constraintDefBody_return retval = new PddlParser.constraintDefBody_return();
 		retval.start = input.LT(1);
 
@@ -3676,7 +3676,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "goalDesc"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:254:1: goalDesc : ( atomicTermFormula | '(' 'and' ( goalDesc )* ')' -> ^( AND_GD ( goalDesc )* ) | '(' 'or' ( goalDesc )* ')' -> ^( OR_GD ( goalDesc )* ) | '(' 'not' goalDesc ')' -> ^( NOT_GD goalDesc ) | '(' 'imply' goalDesc goalDesc ')' -> ^( IMPLY_GD goalDesc goalDesc ) | '(' 'exists' '(' typedVariableList ')' goalDesc ')' -> ^( EXISTS_GD typedVariableList goalDesc ) | '(' 'forall' '(' typedVariableList ')' goalDesc ')' -> ^( FORALL_GD typedVariableList goalDesc ) | fComp -> ^( COMPARISON_GD fComp ) | equality -> ^( EQUALITY_CON equality ) );
-	public final PddlParser.goalDesc_return goalDesc() throws RecognitionException {
+	public final PddlParser.goalDesc_return goalDesc() throws  {
 		PddlParser.goalDesc_return retval = new PddlParser.goalDesc_return();
 		retval.start = input.LT(1);
 
@@ -4399,7 +4399,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "equality"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:274:1: equality : '(' ! '=' term term ')' !;
-	public final PddlParser.equality_return equality() throws RecognitionException {
+	public final PddlParser.equality_return equality() throws  {
 		PddlParser.equality_return retval = new PddlParser.equality_return();
 		retval.start = input.LT(1);
 
@@ -4473,7 +4473,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "fComp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:277:1: fComp : '(' ! binaryComp fExp fExp ')' !;
-	public final PddlParser.fComp_return fComp() throws RecognitionException {
+	public final PddlParser.fComp_return fComp() throws  {
 		PddlParser.fComp_return retval = new PddlParser.fComp_return();
 		retval.start = input.LT(1);
 
@@ -4546,7 +4546,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "atomicTermFormula"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:281:1: atomicTermFormula : '(' predicate ( term )* ')' -> ^( PRED_HEAD predicate ( term )* ) ;
-	public final PddlParser.atomicTermFormula_return atomicTermFormula() throws RecognitionException {
+	public final PddlParser.atomicTermFormula_return atomicTermFormula() throws  {
 		PddlParser.atomicTermFormula_return retval = new PddlParser.atomicTermFormula_return();
 		retval.start = input.LT(1);
 
@@ -4670,7 +4670,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "term"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:285:1: term : ( NAME | VARIABLE );
-	public final PddlParser.term_return term() throws RecognitionException {
+	public final PddlParser.term_return term() throws  {
 		PddlParser.term_return retval = new PddlParser.term_return();
 		retval.start = input.LT(1);
 
@@ -4730,7 +4730,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "durativeActionDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:289:1: durativeActionDef : '(' ':durative-action' actionSymbol ':parameters' '(' ( typedVariableList )? ')' daDefBody ')' -> ^( DURATIVE_ACTION actionSymbol typedVariableList daDefBody ) ;
-	public final PddlParser.durativeActionDef_return durativeActionDef() throws RecognitionException {
+	public final PddlParser.durativeActionDef_return durativeActionDef() throws  {
 		PddlParser.durativeActionDef_return retval = new PddlParser.durativeActionDef_return();
 		retval.start = input.LT(1);
 
@@ -4879,7 +4879,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "daDefBody"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:296:1: daDefBody : ( ':duration' durationConstraint | ':condition' ( ( '(' ')' ) | daGD ) | ':effect' ( ( '(' ')' ) | daEffect ) );
-	public final PddlParser.daDefBody_return daDefBody() throws RecognitionException {
+	public final PddlParser.daDefBody_return daDefBody() throws  {
 		PddlParser.daDefBody_return retval = new PddlParser.daDefBody_return();
 		retval.start = input.LT(1);
 
@@ -5151,7 +5151,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "daGD"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:302:1: daGD : ( prefTimedGD | '(' 'and' ( daGD )* ')' | '(' 'forall' '(' typedVariableList ')' daGD ')' );
-	public final PddlParser.daGD_return daGD() throws RecognitionException {
+	public final PddlParser.daGD_return daGD() throws  {
 		PddlParser.daGD_return retval = new PddlParser.daGD_return();
 		retval.start = input.LT(1);
 
@@ -5372,7 +5372,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "prefTimedGD"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:308:1: prefTimedGD : ( timedGD | '(' 'preference' ( NAME )? timedGD ')' );
-	public final PddlParser.prefTimedGD_return prefTimedGD() throws RecognitionException {
+	public final PddlParser.prefTimedGD_return prefTimedGD() throws  {
 		PddlParser.prefTimedGD_return retval = new PddlParser.prefTimedGD_return();
 		retval.start = input.LT(1);
 
@@ -5524,7 +5524,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "timedGD"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:313:1: timedGD : ( '(' 'at' timeSpecifier goalDesc ')' | '(' 'over' interval goalDesc ')' );
-	public final PddlParser.timedGD_return timedGD() throws RecognitionException {
+	public final PddlParser.timedGD_return timedGD() throws  {
 		PddlParser.timedGD_return retval = new PddlParser.timedGD_return();
 		retval.start = input.LT(1);
 
@@ -5691,7 +5691,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "timeSpecifier"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:318:1: timeSpecifier : ( 'start' | 'end' );
-	public final PddlParser.timeSpecifier_return timeSpecifier() throws RecognitionException {
+	public final PddlParser.timeSpecifier_return timeSpecifier() throws  {
 		PddlParser.timeSpecifier_return retval = new PddlParser.timeSpecifier_return();
 		retval.start = input.LT(1);
 
@@ -5751,7 +5751,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "interval"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:319:1: interval : 'all' ;
-	public final PddlParser.interval_return interval() throws RecognitionException {
+	public final PddlParser.interval_return interval() throws  {
 		PddlParser.interval_return retval = new PddlParser.interval_return();
 		retval.start = input.LT(1);
 
@@ -5805,7 +5805,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "derivedDef"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:323:1: derivedDef : '(' ! ':derived' ^ typedVariableList goalDesc ')' !;
-	public final PddlParser.derivedDef_return derivedDef() throws RecognitionException {
+	public final PddlParser.derivedDef_return derivedDef() throws  {
 		PddlParser.derivedDef_return retval = new PddlParser.derivedDef_return();
 		retval.start = input.LT(1);
 
@@ -5879,7 +5879,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "fExp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:329:1: fExp : ( NUMBER | '(' binaryOp fExp fExp2 ')' -> ^( BINARY_OP binaryOp fExp fExp2 ) | '(' '-' fExp ')' -> ^( UNARY_MINUS fExp ) | fHead );
-	public final PddlParser.fExp_return fExp() throws RecognitionException {
+	public final PddlParser.fExp_return fExp() throws  {
 		PddlParser.fExp_return retval = new PddlParser.fExp_return();
 		retval.start = input.LT(1);
 
@@ -6108,7 +6108,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "fExp2"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:338:1: fExp2 : fExp ;
-	public final PddlParser.fExp2_return fExp2() throws RecognitionException {
+	public final PddlParser.fExp2_return fExp2() throws  {
 		PddlParser.fExp2_return retval = new PddlParser.fExp2_return();
 		retval.start = input.LT(1);
 
@@ -6161,7 +6161,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "fHead"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:340:1: fHead : ( '(' functionSymbol ( term )* ')' -> ^( FUNC_HEAD functionSymbol ( term )* ) | functionSymbol -> ^( FUNC_HEAD functionSymbol ) );
-	public final PddlParser.fHead_return fHead() throws RecognitionException {
+	public final PddlParser.fHead_return fHead() throws  {
 		PddlParser.fHead_return retval = new PddlParser.fHead_return();
 		retval.start = input.LT(1);
 
@@ -6344,7 +6344,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "effect"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:345:1: effect : ( '(' 'and' ( cEffect )* ')' -> ^( AND_EFFECT ( cEffect )* ) | cEffect );
-	public final PddlParser.effect_return effect() throws RecognitionException {
+	public final PddlParser.effect_return effect() throws  {
 		PddlParser.effect_return retval = new PddlParser.effect_return();
 		retval.start = input.LT(1);
 
@@ -6518,7 +6518,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "cEffect"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:350:1: cEffect : ( '(' 'forall' '(' typedVariableList ')' effect ')' -> ^( FORALL_EFFECT typedVariableList effect ) | '(' 'when' goalDesc condEffect ')' -> ^( WHEN_EFFECT goalDesc condEffect ) | pEffect );
-	public final PddlParser.cEffect_return cEffect() throws RecognitionException {
+	public final PddlParser.cEffect_return cEffect() throws  {
 		PddlParser.cEffect_return retval = new PddlParser.cEffect_return();
 		retval.start = input.LT(1);
 
@@ -6761,7 +6761,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "pEffect"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:358:1: pEffect : ( '(' assignOp fHead fExp ')' -> ^( ASSIGN_EFFECT assignOp fHead fExp ) | '(' 'not' atomicTermFormula ')' -> ^( NOT_EFFECT atomicTermFormula ) | atomicTermFormula );
-	public final PddlParser.pEffect_return pEffect() throws RecognitionException {
+	public final PddlParser.pEffect_return pEffect() throws  {
 		PddlParser.pEffect_return retval = new PddlParser.pEffect_return();
 		retval.start = input.LT(1);
 
@@ -6986,7 +6986,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "condEffect"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:368:1: condEffect : ( '(' 'and' ( pEffect )* ')' -> ^( AND_EFFECT ( pEffect )* ) | pEffect );
-	public final PddlParser.condEffect_return condEffect() throws RecognitionException {
+	public final PddlParser.condEffect_return condEffect() throws  {
 		PddlParser.condEffect_return retval = new PddlParser.condEffect_return();
 		retval.start = input.LT(1);
 
@@ -7160,7 +7160,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "binaryOp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:374:1: binaryOp : ( '*' | '+' | '-' | '/' );
-	public final PddlParser.binaryOp_return binaryOp() throws RecognitionException {
+	public final PddlParser.binaryOp_return binaryOp() throws  {
 		PddlParser.binaryOp_return retval = new PddlParser.binaryOp_return();
 		retval.start = input.LT(1);
 
@@ -7220,7 +7220,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "multiOp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:376:1: multiOp : ( '*' | '+' );
-	public final PddlParser.multiOp_return multiOp() throws RecognitionException {
+	public final PddlParser.multiOp_return multiOp() throws  {
 		PddlParser.multiOp_return retval = new PddlParser.multiOp_return();
 		retval.start = input.LT(1);
 
@@ -7280,7 +7280,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "binaryComp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:378:1: binaryComp : ( '>' | '<' | '=' | '>=' | '<=' );
-	public final PddlParser.binaryComp_return binaryComp() throws RecognitionException {
+	public final PddlParser.binaryComp_return binaryComp() throws  {
 		PddlParser.binaryComp_return retval = new PddlParser.binaryComp_return();
 		retval.start = input.LT(1);
 
@@ -7340,7 +7340,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "assignOp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:380:1: assignOp : ( 'assign' | 'scale-up' | 'scale-down' | 'increase' | 'decrease' );
-	public final PddlParser.assignOp_return assignOp() throws RecognitionException {
+	public final PddlParser.assignOp_return assignOp() throws  {
 		PddlParser.assignOp_return retval = new PddlParser.assignOp_return();
 		retval.start = input.LT(1);
 
@@ -7400,7 +7400,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "durationConstraint"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:385:1: durationConstraint : ( '(' 'and' ( simpleDurationConstraint )+ ')' | '(' ')' | simpleDurationConstraint );
-	public final PddlParser.durationConstraint_return durationConstraint() throws RecognitionException {
+	public final PddlParser.durationConstraint_return durationConstraint() throws  {
 		PddlParser.durationConstraint_return retval = new PddlParser.durationConstraint_return();
 		retval.start = input.LT(1);
 
@@ -7589,7 +7589,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "simpleDurationConstraint"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:391:1: simpleDurationConstraint : ( '(' durOp '?duration' durValue ')' | '(' 'at' timeSpecifier simpleDurationConstraint ')' );
-	public final PddlParser.simpleDurationConstraint_return simpleDurationConstraint() throws RecognitionException {
+	public final PddlParser.simpleDurationConstraint_return simpleDurationConstraint() throws  {
 		PddlParser.simpleDurationConstraint_return retval = new PddlParser.simpleDurationConstraint_return();
 		retval.start = input.LT(1);
 
@@ -7756,7 +7756,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "durOp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:396:1: durOp : ( '<=' | '>=' | '=' );
-	public final PddlParser.durOp_return durOp() throws RecognitionException {
+	public final PddlParser.durOp_return durOp() throws  {
 		PddlParser.durOp_return retval = new PddlParser.durOp_return();
 		retval.start = input.LT(1);
 
@@ -7816,7 +7816,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "durValue"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:398:1: durValue : ( NUMBER | fExp );
-	public final PddlParser.durValue_return durValue() throws RecognitionException {
+	public final PddlParser.durValue_return durValue() throws  {
 		PddlParser.durValue_return retval = new PddlParser.durValue_return();
 		retval.start = input.LT(1);
 
@@ -7912,7 +7912,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "daEffect"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:400:1: daEffect : ( '(' 'and' ( daEffect )* ')' | timedEffect | '(' 'forall' '(' typedVariableList ')' daEffect ')' | '(' 'when' daGD timedEffect ')' | '(' assignOp fHead fExpDA ')' );
-	public final PddlParser.daEffect_return daEffect() throws RecognitionException {
+	public final PddlParser.daEffect_return daEffect() throws  {
 		PddlParser.daEffect_return retval = new PddlParser.daEffect_return();
 		retval.start = input.LT(1);
 
@@ -8211,7 +8211,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "timedEffect"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:408:1: timedEffect : ( '(' 'at' timeSpecifier daEffect ')' | '(' 'at' timeSpecifier fAssignDA ')' | '(' assignOp fHead fExp ')' );
-	public final PddlParser.timedEffect_return timedEffect() throws RecognitionException {
+	public final PddlParser.timedEffect_return timedEffect() throws  {
 		PddlParser.timedEffect_return retval = new PddlParser.timedEffect_return();
 		retval.start = input.LT(1);
 
@@ -8413,7 +8413,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "fAssignDA"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:414:1: fAssignDA : '(' assignOp fHead fExpDA ')' ;
-	public final PddlParser.fAssignDA_return fAssignDA() throws RecognitionException {
+	public final PddlParser.fAssignDA_return fAssignDA() throws  {
 		PddlParser.fAssignDA_return retval = new PddlParser.fAssignDA_return();
 		retval.start = input.LT(1);
 
@@ -8496,7 +8496,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "fExpDA"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:418:1: fExpDA : ( '(' ( ( binaryOp fExpDA fExpDA ) | ( '-' fExpDA ) ) ')' | '?duration' | fExp );
-	public final PddlParser.fExpDA_return fExpDA() throws RecognitionException {
+	public final PddlParser.fExpDA_return fExpDA() throws  {
 		PddlParser.fExpDA_return retval = new PddlParser.fExpDA_return();
 		retval.start = input.LT(1);
 
@@ -8708,7 +8708,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "problem"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:426:1: problem : '(' 'define' problemDecl problemDomain ( requireDef )? ( objectDecl )? init goal ( probConstraints )? ( metricSpec )? ')' -> ^( PROBLEM problemDecl problemDomain ( requireDef )? ( objectDecl )? init goal ( probConstraints )? ( metricSpec )? ) ;
-	public final PddlParser.problem_return problem() throws RecognitionException {
+	public final PddlParser.problem_return problem() throws  {
 		PddlParser.problem_return retval = new PddlParser.problem_return();
 		retval.start = input.LT(1);
 
@@ -8949,7 +8949,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "problemDecl"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:441:1: problemDecl : '(' 'problem' NAME ')' -> ^( PROBLEM_NAME NAME ) ;
-	public final PddlParser.problemDecl_return problemDecl() throws RecognitionException {
+	public final PddlParser.problemDecl_return problemDecl() throws  {
 		PddlParser.problemDecl_return retval = new PddlParser.problemDecl_return();
 		retval.start = input.LT(1);
 
@@ -9044,7 +9044,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "problemDomain"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:446:1: problemDomain : '(' ':domain' NAME ')' -> ^( PROBLEM_DOMAIN NAME ) ;
-	public final PddlParser.problemDomain_return problemDomain() throws RecognitionException {
+	public final PddlParser.problemDomain_return problemDomain() throws  {
 		PddlParser.problemDomain_return retval = new PddlParser.problemDomain_return();
 		retval.start = input.LT(1);
 
@@ -9139,7 +9139,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "objectDecl"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:451:1: objectDecl : '(' ':objects' typedNameList ')' -> ^( OBJECTS typedNameList ) ;
-	public final PddlParser.objectDecl_return objectDecl() throws RecognitionException {
+	public final PddlParser.objectDecl_return objectDecl() throws  {
 		PddlParser.objectDecl_return retval = new PddlParser.objectDecl_return();
 		retval.start = input.LT(1);
 
@@ -9235,7 +9235,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "init"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:456:1: init : '(' ':init' ( initEl )* ')' -> ^( INIT ( initEl )* ) ;
-	public final PddlParser.init_return init() throws RecognitionException {
+	public final PddlParser.init_return init() throws  {
 		PddlParser.init_return retval = new PddlParser.init_return();
 		retval.start = input.LT(1);
 
@@ -9357,7 +9357,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "initEl"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:461:1: initEl : ( nameLiteral | '(' '=' fHead NUMBER ')' -> ^( INIT_EQ fHead NUMBER ) | '(' 'at' NUMBER nameLiteral ')' -> ^( INIT_AT NUMBER nameLiteral ) );
-	public final PddlParser.initEl_return initEl() throws RecognitionException {
+	public final PddlParser.initEl_return initEl() throws  {
 		PddlParser.initEl_return retval = new PddlParser.initEl_return();
 		retval.start = input.LT(1);
 
@@ -9582,7 +9582,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "nameLiteral"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:467:1: nameLiteral : ( atomicNameFormula | '(' 'not' atomicNameFormula ')' -> ^( NOT_PRED_INIT atomicNameFormula ) );
-	public final PddlParser.nameLiteral_return nameLiteral() throws RecognitionException {
+	public final PddlParser.nameLiteral_return nameLiteral() throws  {
 		PddlParser.nameLiteral_return retval = new PddlParser.nameLiteral_return();
 		retval.start = input.LT(1);
 
@@ -9730,7 +9730,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "atomicNameFormula"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:472:1: atomicNameFormula : '(' predicate ( NAME )* ')' -> ^( PRED_INST predicate ( NAME )* ) ;
-	public final PddlParser.atomicNameFormula_return atomicNameFormula() throws RecognitionException {
+	public final PddlParser.atomicNameFormula_return atomicNameFormula() throws  {
 		PddlParser.atomicNameFormula_return retval = new PddlParser.atomicNameFormula_return();
 		retval.start = input.LT(1);
 
@@ -9853,7 +9853,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "goal"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:480:1: goal : '(' ':goal' goalDesc ')' -> ^( GOAL goalDesc ) ;
-	public final PddlParser.goal_return goal() throws RecognitionException {
+	public final PddlParser.goal_return goal() throws  {
 		PddlParser.goal_return retval = new PddlParser.goal_return();
 		retval.start = input.LT(1);
 
@@ -9949,7 +9949,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "probConstraints"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:482:1: probConstraints : '(' ':constraints' prefConGD ')' -> ^( PROBLEM_CONSTRAINT prefConGD ) ;
-	public final PddlParser.probConstraints_return probConstraints() throws RecognitionException {
+	public final PddlParser.probConstraints_return probConstraints() throws  {
 		PddlParser.probConstraints_return retval = new PddlParser.probConstraints_return();
 		retval.start = input.LT(1);
 
@@ -10045,7 +10045,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "prefConGD"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:487:1: prefConGD : ( '(' 'and' ( prefConGD )* ')' | '(' 'forall' '(' typedVariableList ')' prefConGD ')' | '(' 'preference' ( NAME )? conGD ')' | conGD );
-	public final PddlParser.prefConGD_return prefConGD() throws RecognitionException {
+	public final PddlParser.prefConGD_return prefConGD() throws  {
 		PddlParser.prefConGD_return retval = new PddlParser.prefConGD_return();
 		retval.start = input.LT(1);
 
@@ -10312,7 +10312,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "metricSpec"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:494:1: metricSpec : '(' ':metric' optimization metricFExp ')' -> ^( PROBLEM_METRIC optimization metricFExp ) ;
-	public final PddlParser.metricSpec_return metricSpec() throws RecognitionException {
+	public final PddlParser.metricSpec_return metricSpec() throws  {
 		PddlParser.metricSpec_return retval = new PddlParser.metricSpec_return();
 		retval.start = input.LT(1);
 
@@ -10416,7 +10416,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "optimization"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:499:1: optimization : ( 'minimize' | 'maximize' );
-	public final PddlParser.optimization_return optimization() throws RecognitionException {
+	public final PddlParser.optimization_return optimization() throws  {
 		PddlParser.optimization_return retval = new PddlParser.optimization_return();
 		retval.start = input.LT(1);
 
@@ -10476,7 +10476,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "metricFExp"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:501:1: metricFExp : ( '(' binaryOp metricFExp metricFExp ')' -> ^( BINARY_OP binaryOp metricFExp metricFExp ) | '(' multiOp metricFExp ( metricFExp )+ ')' -> ^( MULTI_OP multiOp metricFExp ( metricFExp )+ ) | '(' '-' metricFExp ')' -> ^( MINUS_OP metricFExp ) | NUMBER | fHead | '(' 'is-violated' NAME ')' );
-	public final PddlParser.metricFExp_return metricFExp() throws RecognitionException {
+	public final PddlParser.metricFExp_return metricFExp() throws  {
 		PddlParser.metricFExp_return retval = new PddlParser.metricFExp_return();
 		retval.start = input.LT(1);
 
@@ -10847,7 +10847,7 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start "conGD"
 	// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:516:1: conGD : ( '(' 'and' ( conGD )* ')' | '(' 'forall' '(' typedVariableList ')' conGD ')' | '(' 'at' 'end' goalDesc ')' | '(' 'always' goalDesc ')' | '(' 'sometime' goalDesc ')' | '(' 'within' NUMBER goalDesc ')' | '(' 'at-most-once' goalDesc ')' | '(' 'sometime-after' goalDesc goalDesc ')' | '(' 'sometime-before' goalDesc goalDesc ')' | '(' 'always-within' NUMBER goalDesc goalDesc ')' | '(' 'hold-during' NUMBER NUMBER goalDesc ')' | '(' 'hold-after' NUMBER goalDesc ')' );
-	public final PddlParser.conGD_return conGD() throws RecognitionException {
+	public final PddlParser.conGD_return conGD() throws  {
 		PddlParser.conGD_return retval = new PddlParser.conGD_return();
 		retval.start = input.LT(1);
 
@@ -11546,7 +11546,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end "conGD"
 
 	// $ANTLR start synpred18_Pddl
-	public final void synpred18_Pddl_fragment() throws RecognitionException {
+	public final void synpred18_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:158:5: ( atomicFunctionSkeleton )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:158:5: atomicFunctionSkeleton
 		{
@@ -11560,7 +11560,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred18_Pddl
 
 	// $ANTLR start synpred45_Pddl
-	public final void synpred45_Pddl_fragment() throws RecognitionException {
+	public final void synpred45_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:268:7: ( fComp )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:268:7: fComp
 		{
@@ -11574,7 +11574,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred45_Pddl
 
 	// $ANTLR start synpred48_Pddl
-	public final void synpred48_Pddl_fragment() throws RecognitionException {
+	public final void synpred48_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:291:28: ( typedVariableList )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:291:28: typedVariableList
 		{
@@ -11588,7 +11588,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred48_Pddl
 
 	// $ANTLR start synpred61_Pddl
-	public final void synpred61_Pddl_fragment() throws RecognitionException {
+	public final void synpred61_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:331:4: ( '(' binaryOp fExp fExp2 ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:331:4: '(' binaryOp fExp fExp2 ')'
 		{
@@ -11612,7 +11612,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred61_Pddl
 
 	// $ANTLR start synpred62_Pddl
-	public final void synpred62_Pddl_fragment() throws RecognitionException {
+	public final void synpred62_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:332:4: ( '(' '-' fExp ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:332:4: '(' '-' fExp ')'
 		{
@@ -11629,7 +11629,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred62_Pddl
 
 	// $ANTLR start synpred91_Pddl
-	public final void synpred91_Pddl_fragment() throws RecognitionException {
+	public final void synpred91_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:398:12: ( NUMBER )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:398:12: NUMBER
 		{
@@ -11640,7 +11640,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred91_Pddl
 
 	// $ANTLR start synpred93_Pddl
-	public final void synpred93_Pddl_fragment() throws RecognitionException {
+	public final void synpred93_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:401:4: ( '(' 'and' ( daEffect )* ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:401:4: '(' 'and' ( daEffect )* ')'
 		{
@@ -11678,7 +11678,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred93_Pddl
 
 	// $ANTLR start synpred94_Pddl
-	public final void synpred94_Pddl_fragment() throws RecognitionException {
+	public final void synpred94_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:402:4: ( timedEffect )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:402:4: timedEffect
 		{
@@ -11692,7 +11692,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred94_Pddl
 
 	// $ANTLR start synpred95_Pddl
-	public final void synpred95_Pddl_fragment() throws RecognitionException {
+	public final void synpred95_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:403:4: ( '(' 'forall' '(' typedVariableList ')' daEffect ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:403:4: '(' 'forall' '(' typedVariableList ')' daEffect ')'
 		{
@@ -11715,7 +11715,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred95_Pddl
 
 	// $ANTLR start synpred96_Pddl
-	public final void synpred96_Pddl_fragment() throws RecognitionException {
+	public final void synpred96_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:404:4: ( '(' 'when' daGD timedEffect ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:404:4: '(' 'when' daGD timedEffect ')'
 		{
@@ -11736,7 +11736,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred96_Pddl
 
 	// $ANTLR start synpred97_Pddl
-	public final void synpred97_Pddl_fragment() throws RecognitionException {
+	public final void synpred97_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:409:4: ( '(' 'at' timeSpecifier daEffect ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:409:4: '(' 'at' timeSpecifier daEffect ')'
 		{
@@ -11757,7 +11757,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred97_Pddl
 
 	// $ANTLR start synpred98_Pddl
-	public final void synpred98_Pddl_fragment() throws RecognitionException {
+	public final void synpred98_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:410:4: ( '(' 'at' timeSpecifier fAssignDA ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:410:4: '(' 'at' timeSpecifier fAssignDA ')'
 		{
@@ -11778,7 +11778,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred98_Pddl
 
 	// $ANTLR start synpred99_Pddl
-	public final void synpred99_Pddl_fragment() throws RecognitionException {
+	public final void synpred99_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:419:9: ( ( binaryOp fExpDA fExpDA ) )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:419:9: ( binaryOp fExpDA fExpDA )
 		{
@@ -11805,7 +11805,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred99_Pddl
 
 	// $ANTLR start synpred100_Pddl
-	public final void synpred100_Pddl_fragment() throws RecognitionException {
+	public final void synpred100_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:419:4: ( '(' ( ( binaryOp fExpDA fExpDA ) | ( '-' fExpDA ) ) ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:419:4: '(' ( ( binaryOp fExpDA fExpDA ) | ( '-' fExpDA ) ) ')'
 		{
@@ -11882,7 +11882,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred100_Pddl
 
 	// $ANTLR start synpred112_Pddl
-	public final void synpred112_Pddl_fragment() throws RecognitionException {
+	public final void synpred112_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:488:4: ( '(' 'and' ( prefConGD )* ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:488:4: '(' 'and' ( prefConGD )* ')'
 		{
@@ -11920,7 +11920,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred112_Pddl
 
 	// $ANTLR start synpred113_Pddl
-	public final void synpred113_Pddl_fragment() throws RecognitionException {
+	public final void synpred113_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:489:4: ( '(' 'forall' '(' typedVariableList ')' prefConGD ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:489:4: '(' 'forall' '(' typedVariableList ')' prefConGD ')'
 		{
@@ -11943,7 +11943,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred113_Pddl
 
 	// $ANTLR start synpred115_Pddl
-	public final void synpred115_Pddl_fragment() throws RecognitionException {
+	public final void synpred115_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:490:4: ( '(' 'preference' ( NAME )? conGD ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:490:4: '(' 'preference' ( NAME )? conGD ')'
 		{
@@ -11976,7 +11976,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred115_Pddl
 
 	// $ANTLR start synpred117_Pddl
-	public final void synpred117_Pddl_fragment() throws RecognitionException {
+	public final void synpred117_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:502:4: ( '(' binaryOp metricFExp metricFExp ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:502:4: '(' binaryOp metricFExp metricFExp ')'
 		{
@@ -12000,7 +12000,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred117_Pddl
 
 	// $ANTLR start synpred119_Pddl
-	public final void synpred119_Pddl_fragment() throws RecognitionException {
+	public final void synpred119_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:504:4: ( '(' multiOp metricFExp ( metricFExp )+ ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:504:4: '(' multiOp metricFExp ( metricFExp )+ ')'
 		{
@@ -12050,7 +12050,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred119_Pddl
 
 	// $ANTLR start synpred120_Pddl
-	public final void synpred120_Pddl_fragment() throws RecognitionException {
+	public final void synpred120_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:506:4: ( '(' '-' metricFExp ')' )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:506:4: '(' '-' metricFExp ')'
 		{
@@ -12067,7 +12067,7 @@ public class PddlParser extends Parser {
 	// $ANTLR end synpred120_Pddl
 
 	// $ANTLR start synpred122_Pddl
-	public final void synpred122_Pddl_fragment() throws RecognitionException {
+	public final void synpred122_Pddl_fragment() throws  {
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:509:4: ( fHead )
 		// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/PPMajal/grammar/Pddl.g:509:4: fHead
 		{

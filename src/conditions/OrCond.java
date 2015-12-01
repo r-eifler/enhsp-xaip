@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 
@@ -133,7 +134,7 @@ public class OrCond extends Conditions {
     public boolean isSatisfied(State s) {
         for (Object o : sons) {
             Conditions c = (Conditions) o;
-            if (c.eval(s)) {
+            if (c.isSatisfied(s)) {
                 return true;
             }
         }
@@ -367,5 +368,36 @@ public class OrCond extends Conditions {
             }
         }
         return this;
+    }
+
+    @Override
+    public String toSmtVariableString(int k, GroundAction gr, String var) {
+        String ret = "";
+
+        //System.out.println(this);
+        if (this.sons != null) {
+            if (this.sons.size() > 1) {
+                ret += "(or";
+            }
+            for (Object o : this.sons) {
+                if (o instanceof Predicate) {
+                    Predicate p = (Predicate) o;
+                    ret += " " + p.toSmtVariableString(k,gr,var);
+                } else if (o instanceof NotCond) {
+                    NotCond nc = (NotCond) o;
+                    ret += " " + nc.toSmtVariableString(k,gr,var);
+                } else if (o instanceof Conditions) {
+                    //System.out.println(o.getClass());
+                    Conditions c = (Conditions) o;
+                    ret += " " + c.toSmtVariableString(k,gr,var);
+                } else {
+                    System.err.println("Not Supported" + o.getClass());
+                }
+            }
+            if (this.sons.size() > 1) {
+                ret += ")";
+            }
+        }
+        return ret;
     }
 }

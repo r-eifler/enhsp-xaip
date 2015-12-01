@@ -258,7 +258,10 @@ public class NormExpression extends Expression {
         for (Object o : this.summations) {
             Addendum a = (Addendum) o;
             Addendum newA = new Addendum();
-            newA.f = (NumFluent) a.f.ground(substitution);
+//            System.out.println(substitution);
+//            System.out.println(a);
+            if (a.f != null)
+                newA.f = (NumFluent) a.f.ground(substitution);
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
         }
@@ -308,7 +311,12 @@ public class NormExpression extends Expression {
         PDDLNumber c = new PDDLNumber(0);
         for (Addendum a : this.summations) {
             if (a.f != null) {
-                if ((Boolean) invFluents.get(a.f)) {
+//                System.out.println(a.f);
+//                //System.out.println(invFluents);
+//                if (invFluents.get(a.f)==null){
+//                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
+//                }
+                if (invFluents.get(a.f)!= null && (Boolean) invFluents.get(a.f)) {
                     c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber() * a.n.getNumber());
                 } else {
                     ret.summations.add(a);
@@ -422,58 +430,58 @@ public class NormExpression extends Expression {
         return this;
     }
 
-    public NormExpression subst(Conditions numeric, String var) {
-        ArrayList toAdd = new ArrayList();
-        ArrayList toRemove = new ArrayList();
-        Iterator it = summations.iterator();
-        try{
-        while (it.hasNext()) {
-            Addendum ad = (Addendum) it.next();
-            if (ad.f != null) {
-                //System.out.println(numeric);
-                if (numeric != null) {
-                    for (Object o1 : numeric.sons) {
-                        NumEffect ef = (NumEffect) o1;
-                        NumEffect eff = (NumEffect) ef.clone();
-                        //eff.setRight(eff.getRight().normalize());
-//                    System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
-                        if (eff.getFluentAffected().equals(ad.f)) {
-                            if ((eff.getOperator().equals("increase"))) {
-                                NormExpression res = new NormExpression();
-                                res.sum((NormExpression) eff.getRight());
-                                res.mult(ad.n);
-                                toAdd.add(res);
-                            } else if (eff.getOperator().equals("decrease")) {
-                                NormExpression res = new NormExpression();
-                                //System.out.println(eff);
-                                //eff.setRight(eff.getRight().normalize());
-                                res.sum((NormExpression) eff.getRight());
-                                res.mult(ad.n);
-                                toRemove.add(res);
-                            } else if (eff.getOperator().equals("assign")) {
-                                NormExpression res = new NormExpression();
-                                res.sum((NormExpression) eff.getRight());
-                                res.mult(ad.n);
-                                toAdd.add(res);
-                                it.remove();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for (Object o : toAdd) {
-            this.sum((NormExpression) o);
-        }
-        for (Object o : toRemove) {
-            this.minus((NormExpression) o);
-        }
-                                            } catch (Exception ex) {
-                                Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-        return this;
-    }
+//    public NormExpression subst(Conditions numeric, String var) {
+//        ArrayList toAdd = new ArrayList();
+//        ArrayList toRemove = new ArrayList();
+//        Iterator it = summations.iterator();
+//        try{
+//        while (it.hasNext()) {
+//            Addendum ad = (Addendum) it.next();
+//            if (ad.f != null) {
+//                //System.out.println(numeric);
+//                if (numeric != null) {
+//                    for (Object o1 : numeric.sons) {
+//                        NumEffect ef = (NumEffect) o1;
+//                        NumEffect eff = (NumEffect) ef.clone();
+//                        //eff.setRight(eff.getRight().normalize());
+////                    System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
+//                        if (eff.getFluentAffected().equals(ad.f)) {
+//                            if ((eff.getOperator().equals("increase"))) {
+//                                NormExpression res = new NormExpression();
+//                                res.sum((NormExpression) eff.getRight());
+//                                res.mult(ad.n);
+//                                toAdd.add(res);
+//                            } else if (eff.getOperator().equals("decrease")) {
+//                                NormExpression res = new NormExpression();
+//                                //System.out.println(eff);
+//                                //eff.setRight(eff.getRight().normalize());
+//                                res.sum((NormExpression) eff.getRight());
+//                                res.mult(ad.n);
+//                                toRemove.add(res);
+//                            } else if (eff.getOperator().equals("assign")) {
+//                                NormExpression res = new NormExpression();
+//                                res.sum((NormExpression) eff.getRight());
+//                                res.mult(ad.n);
+//                                toAdd.add(res);
+//                                it.remove();
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        for (Object o : toAdd) {
+//            this.sum((NormExpression) o);
+//        }
+//        for (Object o : toRemove) {
+//            this.minus((NormExpression) o);
+//        }
+//                                            } catch (Exception ex) {
+//                                Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
+//        return this;
+//    }
 
     private void mult(PDDLNumber n) {
         for (Object o : summations) {
@@ -637,6 +645,7 @@ public class NormExpression extends Expression {
             } else if (aThis.getNumericFluentAffected().get(ad.f) == null) {
                 current += ad.n.getNumber() * ad.f.eval(s_0).getNumber();
             } else if (aThis.getCoefficientAffected(ad.f) != null) {
+                //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 current += ad.n.getNumber() * aThis.getCoefficientAffected(ad.f) * ad.f.eval(s_0).getNumber();
             }
         }
@@ -680,6 +689,40 @@ public class NormExpression extends Expression {
 
                 ret += a.n.getNumber();
             }
+        }
+        return ret;
+    }
+
+    public NormExpression sum_copy(NormExpression right) {
+        NormExpression ret = (NormExpression)this.clone();
+        NormExpression temp = (NormExpression)right.clone();
+        Iterator it2 = ret.summations.iterator();
+        while (it2.hasNext()){
+            Addendum a = (Addendum) it2.next();
+            Iterator it = temp.summations.iterator();
+            while (it.hasNext()) {
+                Addendum a1 = (Addendum) it.next();
+                if ((a1.f == null) && (a.f == null)) {
+                    a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
+                    it.remove();
+                    break;
+                } else if (a1.f != null && a.f != null) {
+                    if (a1.f.equals(a.f)) {
+                        a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
+                        if (a.n.getNumber() == 0.0) {
+                            a.f = null;
+                            it2.remove();
+                        }
+                        it.remove();
+                        break;
+                    }
+                    
+                }
+            }
+        }
+        
+        for (Addendum o1 : temp.summations) {
+            ret.summations.add(o1);
         }
         return ret;
     }
