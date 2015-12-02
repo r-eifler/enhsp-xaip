@@ -146,19 +146,21 @@ public abstract class Heuristics {
         for (GroundAction a : A) {
             LinkedHashSet temp = new LinkedHashSet();
 
-            for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
-                int index = conditions.indexOf(c_1);
-                if (index != -1) {
-                    c_1 = (Conditions) conditions.get(index);
-                    //System.out.println(c_1+"->"+c_1.getCounter());
-                } else {
-                    counter2++;
-                    c_1.setCounter(counter2);
-                    //System.out.println(c_1+"->"+counter);
-                    conditions.add(c_1);
-                }
-                temp.add(c_1);
+            if (a.getAddList().sons != null){
+                for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
+                    int index = conditions.indexOf(c_1);
+                    if (index != -1) {
+                        c_1 = (Conditions) conditions.get(index);
+                        //System.out.println(c_1+"->"+c_1.getCounter());
+                    } else {
+                        counter2++;
+                        c_1.setCounter(counter2);
+                        //System.out.println(c_1+"->"+counter);
+                        conditions.add(c_1);
+                    }
+                    temp.add(c_1);
 
+                }
             }
             a.getAddList().sons = temp;
 

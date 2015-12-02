@@ -20,6 +20,7 @@ tokens {
     FREE_FUNCTIONS;
     PREDICATES;
     ACTION;
+    PROCESS;
     CONSTRAINT;
     GLOBAL_CONSTRAINT;
     DURATIVE_ACTION;
@@ -162,7 +163,7 @@ atomicFunctionSkeleton
 	: '('! functionSymbol^ typedVariableList ')'!
 	;
 
-functionSymbol : NAME ;
+functionSymbol : NAME | '#t';
 
 functionType : 'number' ; // Currently in PDDL only numeric functions are allowed
 
@@ -201,6 +202,7 @@ structureDef
 	| durativeActionDef
 	| derivedDef
 	| constraintDef
+	| processDef
 	;
 
 
@@ -211,6 +213,12 @@ actionDef
 	      ':parameters'  '(' typedVariableList ')'
            actionDefBody ')'
        -> ^(ACTION actionSymbol typedVariableList? actionDefBody)
+    ;
+processDef
+	: '(' ':process' actionSymbol
+	      ':parameters'  '(' typedVariableList ')'
+           actionDefBody ')'
+       -> ^(PROCESS actionSymbol typedVariableList? actionDefBody)
     ;
 
 constraintDef
@@ -282,7 +290,7 @@ atomicTermFormula
 	: '(' predicate term* ')' -> ^(PRED_HEAD predicate term*)
 	;
 
-term : NAME | VARIABLE ;
+term : NAME | VARIABLE;
 
 /************* DURATIVE ACTIONS ****************************/
 

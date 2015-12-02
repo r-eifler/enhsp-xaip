@@ -34,7 +34,6 @@ import conditions.Conditions;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.Addendum;
-import expressions.Expression;
 import expressions.NormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -231,27 +230,7 @@ public class State extends Object {
     }
 
     public boolean satisfy(AndCond con) {
-
-        for (Object o : con.sons) {
-
-            if (o instanceof Comparison) {
-                Comparison c = (Comparison) o;
-                if (!c.isSatisfied(this)) {
-                    //System.out.println(c + "is not satisfied in " +this);
-                    return false;
-                }
-
-            } else if (o instanceof Predicate) {
-                if (!this.containProposition((Predicate) o)) {
-                    //System.out.println(o + "is not contained in " +this); 
-                    return false;
-                }
-
-            }
-
-        }
-        return true;
-
+        return con.isSatisfied(this);
     }
 
     public boolean satisfyNumerically(AndCond con) {

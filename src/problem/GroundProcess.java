@@ -60,7 +60,7 @@ import java.util.logging.Logger;
 import plan.SimplePlan;
 import search.RegressedSearchNode;
 
-public class GroundAction extends GenericActionType implements Comparable {
+public class GroundProcess extends GenericActionType implements Comparable {
 
     protected ParametersAsTerms parameters;
     public boolean normalized;
@@ -70,7 +70,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public int hiddenParametersNumber;
     private Float prevDistanceFromProblem;
     public Comparison achievedComparison = null;
-    public GroundAction generator;
+    public GroundProcess generator;
     public HashSet<Conditions> achievedComparisons;
     private boolean reacheable = false;
     private HashMap<NumFluent, Float> coefficientAffected;
@@ -82,7 +82,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        GroundAction ret = new GroundAction(name);
+        GroundProcess ret = new GroundProcess(name);
         if (this.addList != null) {
             ret.addList = this.addList.clone();
         }
@@ -114,7 +114,7 @@ public class GroundAction extends GenericActionType implements Comparable {
      */
     @Override
     public boolean equals(Object obj) {
-        GroundAction gr = (GroundAction) obj;
+        GroundProcess gr = (GroundProcess) obj;
 
         return (gr.getName().equalsIgnoreCase(this.getName())) && gr.getParameters().equals(this.getParameters());
     }
@@ -139,7 +139,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //        hash = 37 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
 //        return hash;
 //    }
-    public GroundAction() {
+    public GroundProcess() {
         super();
         this.name = null;
         numericFluentAffected = null;
@@ -150,7 +150,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         achieve = new HashMap();
     }
 
-    public GroundAction(String name) {
+    public GroundProcess(String name) {
         super();
         this.name = name;
         numericFluentAffected = null;
@@ -452,13 +452,13 @@ public class GroundAction extends GenericActionType implements Comparable {
         return this.getPreconditions().isSatisfied(current);
     }
 
-    public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd) throws CloneNotSupportedException, Exception {
+    public GroundProcess buildMacroInProgression(GroundProcess b, PddlDomain pd) throws CloneNotSupportedException, Exception {
         if (this.name == null) {
-            return (GroundAction) b.clone();
+            return (GroundProcess) b.clone();
         }
-        GroundAction a = this;
+        GroundProcess a = this;
 
-        GroundAction ab = new GroundAction(a.name + "_" + b.name);
+        GroundProcess ab = new GroundProcess(a.name + "_" + b.name);
         if (a.getPrimitives().isEmpty()) {
             a.getPrimitives().add(a);
         }
@@ -484,14 +484,14 @@ public class GroundAction extends GenericActionType implements Comparable {
         return ab;
     }
 
-    public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
+    public GroundProcess buildMacroInProgression(GroundProcess b, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
         if (this.name == null) {
 
-            return (GroundAction) b.clone();
+            return (GroundProcess) b.clone();
         }
-        GroundAction a = this;
+        GroundProcess a = this;
 
-        GroundAction ab = new GroundAction(a.name + "_" + b.name);
+        GroundProcess ab = new GroundProcess(a.name + "_" + b.name);
         if (a.getPrimitives().isEmpty()) {
             a.getPrimitives().add(a);
         }
@@ -521,7 +521,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return ab;
     }
 
-    public Conditions regress(GroundAction b, GroundAction a) {
+    public Conditions regress(GroundProcess b, GroundProcess a) {
 
         /*Propositional Part first*/
         AndCond result = (AndCond) b.getPreconditions().clone();
@@ -605,7 +605,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return result;
     }
 
-    private void progress(GroundAction a, GroundAction b, GroundAction ab) {
+    private void progress(GroundProcess a, GroundProcess b, GroundProcess ab) {
 
         /*Starting from what action a achieve*/
         AndCond localAddList = (AndCond) a.addList.clone();
@@ -716,7 +716,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 
-        GroundAction a = this;
+        GroundProcess a = this;
 
         Conditions con = a.getPreconditions();
 
@@ -868,7 +868,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         hiddenParametersNumber = 0;
         if (this.isMacro) {
 
-            for (GroundAction gr : (ArrayList<GroundAction>) this.primitives) {
+            for (GroundProcess gr : (ArrayList<GroundProcess>) this.primitives) {
                 hiddenParametersNumber += gr.getParameters().size();
 
             }
@@ -876,13 +876,13 @@ public class GroundAction extends GenericActionType implements Comparable {
         return hiddenParametersNumber - this.getParameters().size();
     }
 
-    public GroundAction buildMacroInRegression(GroundAction a, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
+    public GroundProcess buildMacroInRegression(GroundProcess a, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
         if (this.name == null) {
-            return (GroundAction) a.clone();
+            return (GroundProcess) a.clone();
         }
-        GroundAction b = (GroundAction) this;
+        GroundProcess b = (GroundProcess) this;
 
-        GroundAction ba = new GroundAction(a.name + "_" + b.name);
+        GroundProcess ba = new GroundProcess(a.name + "_" + b.name);
         if (b.getPrimitives().isEmpty()) {
             b.getPrimitives().add(b);
         }
@@ -907,7 +907,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     @Override
     public int compareTo(Object t) {
-        GroundAction gr = (GroundAction) t;
+        GroundProcess gr = (GroundProcess) t;
         if (this.getPrevDistanceFromProblem().equals(gr.getPrevDistanceFromProblem())) {
             return -1;
         }
@@ -919,7 +919,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         HashSet counter = new HashSet();
         for (Object o : this.primitives) {
-            GroundAction a = (GroundAction) o;
+            GroundProcess a = (GroundProcess) o;
             counter.add(a.getName());
         }
         //System.out.println(ret);
@@ -1180,26 +1180,21 @@ public class GroundAction extends GenericActionType implements Comparable {
     public boolean achieve(Predicate p) {
 
         if (this.achieve.get(p) == null) {
-            if (this.getAddList() == null) {
+            AndCond add = (AndCond) this.getAddList();
+
+            if (add == null) {
                 this.achieve.put(p, false);
                 return false;
             }
-            if (this.getAddList() instanceof AndCond){
-                AndCond add = (AndCond) this.getAddList();
-                if (add.sons == null) {
-                    this.achieve.put(p, false);
-                    return false;
-                }
-                if (add.sons.contains(p)) {
-                    this.achieve.put(p, true);
-                    return true;
-                }
+            if (add.sons == null) {
                 this.achieve.put(p, false);
-            }else if (this.getAddList() instanceof Predicate){
-                Predicate pre = (Predicate)this.getAddList();
-                if (pre.equals(p))
-                    return true;
+                return false;
             }
+            if (add.sons.contains(p)) {
+                this.achieve.put(p, true);
+                return true;
+            }
+            this.achieve.put(p, false);
             return false;
         }
 
@@ -1244,114 +1239,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-    @Deprecated
-    public Pair<Boolean, Integer> improve_k_old(State s_0, Comparison c, int k, HashMap<GroundAction, HashSet<GroundAction>> influence_graph, HashMap<GroundAction, Boolean> visited) throws Exception {
-        Pair<Boolean, Integer> ret = new Pair(Boolean.FALSE, 0);
-        int res = this.improve_new(s_0, c);
-        if (res == 1) {
-            ret.setFirst(Boolean.TRUE);
-            return ret;
-        }
-        if (res == -1) {//when it does not influence
-            return ret;
-        }
-        if (!this.effects_might_be_influenced()) {//when it cannot be influenced (the right side is a number)
-            return ret;
-        }
 
-        //System.out.println("gr:"+this.pddlEffects());
-        if (k == 0) {
-            ret.setSecond(1);
-            return ret;
-        }
-        if (visited == null) {
-            visited = new HashMap();
-        }
-        visited.put(this, Boolean.TRUE);
-        //System.out.println(this);
-        for (GroundAction gr : influence_graph.get(this)) {
-            if (visited.get(gr) != null) {
-                continue;
-            }
-            Pair<Boolean, Integer> temp = gr.improve_k(s_0, this.regressComparison((Comparison) c.clone()), k - 1, influence_graph, visited);
-            if (temp.getFirst()) {
-                ret.setFirst(Boolean.TRUE);
-                return ret;
-            } else {
-                if (temp.getSecond() > 0) {
-                    ret.setSecond(temp.getSecond() + 1);
-                }
-            }
-
-        }
-        return ret;
-
-    }
-
-    public Pair<Boolean, Integer> improve_k(State s_0, Comparison c, int k, HashMap<GroundAction, HashSet<GroundAction>> influence_graph, HashMap<GroundAction, Boolean> visited) throws Exception {
-        Pair<Boolean, Integer> ret = new Pair(Boolean.FALSE, 0);
-        ret.setSecond(0);
-        int res = this.improve_new(s_0, c);
-        if (res == 1) {
-            ret.setFirst(Boolean.TRUE);
-            return ret;
-        }
-        if (res == -1) {//when it does not influence
-            return ret;
-        }
-//        if (!this.effects_might_be_influenced()) {//when it cannot be influenced (the right side is a number)
-//            return ret;
-//        }
-
-        if (res == 2) {
-            //check for invariant to be put;
-            //System.out.println("To Undefined State");
-            ret.setSecond(1);
-            return ret;
-        }
-
-        //System.out.println("gr:"+this.pddlEffects());
-        if (k == 0) {
-            ret.setSecond(1);
-            return ret;
-        }
-
-        visited = new HashMap();
-
-        //System.out.println(this);
-        Queue<RegressedSearchNode> q = new ArrayDeque();
-
-        q.add(new RegressedSearchNode(this, 0));
-
-        Comparison current = (Comparison) c.clone();
-        while (!q.isEmpty()) {
-            RegressedSearchNode node = q.poll();
-            if (node.action_cost_to_get_here >= k) {
-                ret.setSecond(node.action_cost_to_get_here);
-                //System.out.println("limit reached:"+node.action_cost_to_get_here);
-                return ret;
-            }
-            if (visited.get(node.action) == null) {
-                visited.put(node.action, Boolean.TRUE);
-                if (!this.equals(node.action)) {
-                    if (node.action.improve_new(s_0, current) == 1) {
-                        ret.setSecond(node.action_cost_to_get_here);
-                        //System.out.println("Indirect influence found at cost:"+node.action_cost_to_get_here);
-                        return ret;
-                    }
-                }
-                current = node.action.regressComparison((Comparison) current);
-                //System.out.println(node.action);
-                if (influence_graph.get(node.action) != null) {
-                    for (GroundAction gr : influence_graph.get(node.action)) {
-                        q.add(new RegressedSearchNode(gr, node.action_cost_to_get_here + 1));
-                    }
-                }
-            }
-        }
-        return ret;
-
-    }
 
     public boolean influence(HashMap<NumFluent, HashSet<NumFluent>> dependsOn) {
 
@@ -1463,7 +1351,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //        for (Object o : getParameters()) {
 //            parametri = parametri.concat(o.toString()).concat("");
 //        }
-//        return ("ACTION" + this.name + "" + parametri).replaceAll("\\s+", "");
+//        return ("PROCESS" + this.name + "" + parametri).replaceAll("\\s+", "");
 //    }
     public boolean threat(AndCond andCond) {
         if (this.delList == null) {
@@ -1526,7 +1414,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             parametri += "@" + po.getName();
             //parametri = parametri.concat(po.getName()).concat("_");
         }
-        return ("ACTION" + this.name + parametri + "@-" + i).replaceAll("\\s+", "");
+        return ("PROCESS" + this.name + parametri + "@-" + i).replaceAll("\\s+", "");
     }
 
     public String toVariableString() {
@@ -1536,7 +1424,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             parametri += "@" + po.getName();
             //parametri = parametri.concat(po.getName()).concat("_");
         }
-        return ("ACTION" + this.name + parametri + "@").replaceAll("\\s+", "");
+        return ("PROCESS" + this.name + parametri + "@").replaceAll("\\s+", "");
     }
 
     //This function regresses the cond passed as input according to the model of the action. The value of the parameter will be modified. So if you want to generate a new condition please clone before using the function
@@ -1697,7 +1585,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 
-        GroundAction a = this;
+        GroundProcess a = this;
         //a.normalizeAndCopy();
 
         Conditions con = a.getPreconditions();
@@ -1732,7 +1620,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     void simplifyModelWithControllableVariablesSem_old(PddlDomain domain, EPddlProblem problem) throws Exception {
         HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
 
-        GroundAction a = this;
+        GroundProcess a = this;
         //a.normalizeAndCopy();
 
         Conditions con = a.getPreconditions();
@@ -1809,7 +1697,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     //this type of influence is on the rhs, that is it reasons on just complex dependencies
 
-    public boolean is_complexly_influenced_by(GroundAction a) {
+    public boolean is_complexly_influenced_by(GroundProcess a) {
         for (Object o : this.getNumericEffects().sons) {
             NumEffect nf = (NumEffect) o;
             //System.out.println(nf);
@@ -1879,139 +1767,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
-    public int getNumberOfExecution(State s_0, Comparison comp) {
-        float a1;
-        float b;
 
-//        if (!this.interact_with(comp)){
-//            return Integer.MAX_VALUE;
-//        }
-        if (!comp.involve(this.getNumericFluentAffected())) {
-            return Integer.MAX_VALUE;
-        }
-
-//        if (comp.eval_to_null(s_0)){
-//            Comparison reg = this.regressComparison(comp);
-//            if (s_0.satisfy(comp)){
-//                return 1;
-//            }
-//        }
-        a1 = comp.eval_not_affected(s_0, this);
-        b = comp.eval_affected(s_0, this);
-        if (b < 0.0) {
-//            System.out.println(a1);
-//            System.out.println(b);
-//            //System.out.println("DEBUG:"+s_0);
-//            System.out.println("DEBUG: "+this.toEcoString()+" is considered negative for:"+comp);
-            return Integer.MAX_VALUE;//the action contributes negatively
-        }
-
-        //Assumption: comparisons are normalized!
-        if (comp.getComparator().equals("=")) {
-            int m1 = (int) (-a1 / b);
-            if (m1 < 0 || a1 % b != 0) {
-                return Integer.MAX_VALUE;
-            } else {
-                return m1;
-            }
-        } else {//it is >= or >
-            float m1 = -a1 / b;
-            if (m1 >= 0) {
-                if (comp.getComparator().equals(">")) {
-                    m1 += 1;
-                }
-                return (int) Math.ceil(m1);
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-    }
-
-    public int getNumberOfExecutionWithoutCache(State s_0, Comparison comp) {
-        float a1;
-        float b;
-
-//        if (!this.interact_with(comp)){
-//            return Integer.MAX_VALUE;
-//        }
-        if (!comp.involve(this.getNumericFluentAffected())) {
-            return Integer.MAX_VALUE;
-        }
-
-//        if (comp.eval_to_null(s_0)){
-//            Comparison reg = this.regressComparison(comp);
-//            if (s_0.satisfy(comp)){
-//                return 1;
-//            }
-//        }
-        a1 = comp.eval_not_affected(s_0, this);
-        b = comp.eval_affected(s_0, this);
-        if (b < 0.0) {
-//            System.out.println(a1);
-//            System.out.println(b);
-//            //System.out.println("DEBUG:"+s_0);
-//            System.out.println("DEBUG: "+this.toEcoString()+" is considered negative for:"+comp);
-            return Integer.MAX_VALUE;//the action contributes negatively
-        }
-
-        //Assumption: comparisons are normalized!
-        if (comp.getComparator().equals("=")) {
-            int m1 = (int) (-a1 / b);
-            if (m1 < 0 || a1 % b != 0) {
-                return Integer.MAX_VALUE;
-            } else {
-                return m1;
-            }
-        } else {//it is >= or >
-            float m1 = -a1 / b;
-            if (m1 >= 0) {
-                if (comp.getComparator().equals(">")) {
-                    m1 += 1;
-                }
-                return (int) Math.ceil(m1);
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-    }
-
-    public int getBoundOnTheNumberOfExecution(State s_0, Comparison comp) {
-        float a1;
-        float b;
-
-        if (!comp.involve(this.getNumericFluentAffected())) {
-            return Integer.MAX_VALUE;
-        }
-//        if (comp.eval_to_null(s_0)){
-//            Comparison reg = this.regressComparison(comp);
-//            if (s_0.satisfy(comp)){
-//                return 1;
-//            }
-//        }
-        a1 = comp.eval_not_affected(s_0, this);
-        b = comp.eval_affected(s_0, this);
-//        System.out.println(a1);
-//        System.out.println(b);
-        //Assumption: comparisons are normalized!
-        if (comp.getComparator().equals("=")) {
-            int m1 = (int) (-a1 / b);
-            if (m1 < 0 || a1 % b != 0) {
-                return Integer.MAX_VALUE;
-            } else {
-                return m1;
-            }
-        } else {//it is >= or >
-            float m1 = -a1 / b;
-            if (m1 >= 0) {
-                if (comp.getComparator().equals(">")) {
-                    m1 += 1;
-                }
-                return (int) Math.ceil(m1);
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-    }
 
     public Float getCoefficientAffected(NumFluent f) {
         this.generateCoefficeintAffected();
@@ -2115,13 +1871,13 @@ public class GroundAction extends GenericActionType implements Comparable {
                 temp.sons.add(ne.generate_m_times_extension(m));//assuming that m is an integer
             }
         }
-        GroundAction grTemp = new GroundAction();
+        GroundProcess grTemp = new GroundProcess();
         grTemp.setNumericEffects(temp);
         return grTemp.regressComparison(comparison);
 
     }
 
-    public boolean depends_on(GroundAction ele) {
+    public boolean depends_on(GroundProcess ele) {
         if (this.getNumericEffects() == null) {
             return false;
         }
@@ -2172,19 +1928,19 @@ public class GroundAction extends GenericActionType implements Comparable {
                                 try {
                                     positiveness += number.getNumber().getNumber() * ad.n.getNumber();
                                 } catch (Exception ex) {
-                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {
                                     positiveness += (-1) * number.getNumber().getNumber() * ad.n.getNumber();
                                 } catch (Exception ex) {
-                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             } else if (ne.getOperator().equals("assign")) {
                                 try {
                                     positiveness += number.getNumber().getNumber() * ad.n.getNumber();
                                 } catch (Exception ex) {
-                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
 

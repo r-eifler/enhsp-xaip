@@ -73,10 +73,11 @@ import problem.PddlProblem;
  *
  * @author enrico
  */
-public class PddlDomain extends Object {
+public final class PddlDomain extends Object {
 
     private String name;
     protected Set ActionsSchema;
+    private Set ProcessesSchema;
     private PredicateSet predicates;
     private List types;
     private PDDLObjects constants;
@@ -110,6 +111,8 @@ public class PddlDomain extends Object {
         Requirements = new ArrayList();
         constants = new PDDLObjects();
         SchemaGlobalConstraints = new LinkedHashSet();
+        ProcessesSchema = new LinkedHashSet();
+
 
     }
 
@@ -124,10 +127,9 @@ public class PddlDomain extends Object {
             free_functions = new ArrayList();
             Requirements = new ArrayList();
             constants = new PDDLObjects();
+            ProcessesSchema = new LinkedHashSet();
             this.parseDomain(domainFile);
-        } catch (IOException ex) {
-            Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RecognitionException ex) {
+        } catch (IOException | RecognitionException ex) {
             Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -240,16 +242,18 @@ public class PddlDomain extends Object {
                 }
             }
         }
-        for (Object o : p.getGoals().sons) {
+        if (p.getGoals().sons !=null){
+            for (Object o : p.getGoals().sons) {
 
-            if (o instanceof Predicate) {
+                if (o instanceof Predicate) {
 
-                Predicate t = (Predicate) o;
-//                if (!predicates.validateInst(t)) {
-//                    System.out.println("Predicato: " + t + " non valido");
-//                    System.exit(-1);
-//
-//                }
+                    Predicate t = (Predicate) o;
+    //                if (!predicates.validateInst(t)) {
+    //                    System.out.println("Predicato: " + t + " non valido");
+    //                    System.exit(-1);
+    //
+    //                }
+                }
             }
         }
         for (Object o: this.getConstants()){
@@ -320,6 +324,9 @@ public class PddlDomain extends Object {
                     break; 
                 case PddlParser.GLOBAL_CONSTRAINT:
                     addGlobal_constraint(c);
+                    break;
+                case PddlParser.PROCESS:
+                    addProcess(c);
                     break;
 //                case PddlParser.DOM_CONSTRAINTS:
 //                    addGlobalConstraints(c);
@@ -528,13 +535,32 @@ public class PddlDomain extends Object {
                     }
                     //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
                     //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
-                    if (add != null)
-                        a.setAddList(add);
-                    if (del != null)
-                        a.setDelList(del);
-                    if (o != null)
-                        a.setNumericEffects(numericEffect);
-                    break;
+                    AndCond add_list = new AndCond();
+                    if (add instanceof Predicate){
+                        add_list.addConditions(add);
+                    }else{
+                        add_list = (AndCond) add;
+                    }
+                    
+                    AndCond del_list = new AndCond();
+                    if (del instanceof Predicate){
+                        del_list.addConditions(add);
+                    }else{
+                        del_list = (AndCond) del;
+                    }
+                    
+                    AndCond num_effect = new AndCond();
+                    if (! (o instanceof AndCond)){
+                        num_effect.addConditions(add);
+                    }else{
+                        num_effect = (AndCond) o;
+                    }
+
+                    a.setAddList(add_list);
+
+                    a.setDelList(del_list);
+                    a.setNumericEffects(num_effect);
+
             }
 
         }
@@ -1199,6 +1225,89 @@ public class PddlDomain extends Object {
      */
     public void setSchemaGlobalConstraints(LinkedHashSet SchemaGlobalConstraints) {
         this.SchemaGlobalConstraints = SchemaGlobalConstraints;
+    }
+
+    private void addProcess(Tree c) {
+        ProcessSchema a = new ProcessSchema();
+        Tree process = (Tree) c.getChild(0);
+        a.setName(process.getText());
+        //System.out.println("Adding:"+a.getName());
+        this.ProcessesSchema.add(a);
+
+        for (int i = 1; i < c.getChildCount(); i++) {
+            Tree infoAction = (Tree) c.getChild(i);
+            int type = infoAction.getType();
+
+            switch (type) {
+                case (PddlParser.PRECONDITION):
+                    Conditions con = createPreconditions(infoAction.getChild(0), a.getParameters());
+                    if ((con instanceof Comparison) || (con instanceof Predicate)) {
+                        AndCond and = new AndCond();
+                        and.addConditions(con);
+                        a.setPreconditions(and);
+                    } else {
+                        if (con != null)
+                            a.setPreconditions(con);
+                    }
+                    break;
+                case (PddlParser.VARIABLE):
+                    if (infoAction.getChild(0) == null) {
+                        break;
+                    }
+                    Type t = new Type(infoAction.getChild(0).getText());
+                    boolean found = false;
+                    for (Object o : this.getTypes()) {
+                        if (t.equals(o)) {
+                            t = (Type) o;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                        System.exit(-1);
+                    } else {
+                        a.addParameter(new Variable(infoAction.getText(), t));
+                    }
+                    break;
+                case (PddlParser.EFFECT):
+                    Conditions add = createAddEffect(a.getParameters(), infoAction.getChild(0));
+                    Conditions del = createDelEffect(a.getParameters(), infoAction.getChild(0));
+                    Object o = createNumericEffect(a.getParameters(), infoAction.getChild(0));
+
+                    Conditions numericEffect;
+                    if (o instanceof Conditions) {
+                        numericEffect = (Conditions) o;
+                    } else {
+                        numericEffect = new AndCond();
+                        numericEffect.sons.add(o);
+                    }
+                    //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
+                    //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
+                    if (add != null)
+                        a.setAddList(add);
+                    if (del != null)
+                        a.setDelList(del);
+                    if (o != null)
+                        a.setNumericEffects(numericEffect);
+                    break;
+            }
+
+        }
+    }
+
+    /**
+     * @return the ProcessesSchema
+     */
+    public Set getProcessesSchema() {
+        return ProcessesSchema;
+    }
+
+    /**
+     * @param ProcessesSchema the ProcessesSchema to set
+     */
+    public void setProcessesSchema(Set ProcessesSchema) {
+        this.ProcessesSchema = ProcessesSchema;
     }
 
     

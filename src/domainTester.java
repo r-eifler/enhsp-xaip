@@ -28,7 +28,7 @@
  ********************************************************************
  */
 import domain.PddlDomain;
-import problem.PddlSCProblem;
+import problem.EPddlProblem;
 
 public class domainTester {
 
@@ -48,7 +48,7 @@ public class domainTester {
             PddlDomain domain = new PddlDomain();
             domain.parseDomain(args[0]);
             domain.prettyPrint();
-            PddlSCProblem problem = new PddlSCProblem(args[1], domain.getConstants());
+            EPddlProblem problem = new EPddlProblem(args[1], domain.getConstants());
 
             domain.validate(problem);
             problem.grounding();

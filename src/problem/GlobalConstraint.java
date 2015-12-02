@@ -52,7 +52,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         super(name);
     }
 
-    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, PddlSCProblem problem) throws Exception {
+    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
         
       
         HashMap invariantFluents = problem.getInvariantFluents();

@@ -30,16 +30,14 @@ package search;
 import computation.NumericPlanningGraph;
 import conditions.Conditions;
 import conditions.Predicate;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
-import org.json.simple.JSONObject;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PddlProblem;
-import problem.PddlSCProblem;
 import problem.State;
 
 /**
@@ -334,7 +332,7 @@ public class SearchStrategies {
         return null;
     }
 
-    public LinkedList greedy_best_first_search(PddlProblem problem) throws Exception {
+    public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
         long start_global = System.currentTimeMillis();
 
         //Frontier
@@ -398,9 +396,10 @@ public class SearchStrategies {
             }
             for (GroundAction act : getHeuristic().reachable) {
                 if (act.isApplicable(current_node.s)) {
+                   
                     State temp = act.apply(current_node.s.clone());
                     //if (!checking_visited || visited.get(temp) == null){
-                    if (visited.get(temp) == null) {
+                    if (visited.get(temp) == null && temp.satisfy(problem.globalConstraints)) {
                         setStates_evaluated(getStates_evaluated() + 1);
                         start = System.currentTimeMillis();
                         int d = getHeuristic().compute_estimate(temp);

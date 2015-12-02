@@ -27,7 +27,9 @@
  */
 package problem;
 
+import conditions.AndCond;
 import domain.ActionSchema;
+import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,21 +43,27 @@ import propositionalFactory.Instantiator;
  *
  * @author enrico
  */
-public class PddlSCProblem extends PddlProblem {
+public class EPddlProblem extends PddlProblem {
 
     public HashSet globalConstraintSet;
+    public HashSet processesSet;
     private boolean globalConstraintGrounded;
+    private boolean processesGround;
+    public AndCond globalConstraints;
+    
     private boolean grounding;
 
-    public PddlSCProblem(String problemFile) {
+    public EPddlProblem(String problemFile) {
         super(problemFile);
         globalConstraintSet = new LinkedHashSet();
+        processesSet = new LinkedHashSet();
         globalConstraintGrounded = false;
+        processesGround = false;
         grounding = false;
 
     }
 
-    public PddlSCProblem(String problemFile, PDDLObjects po) {
+    public EPddlProblem(String problemFile, PDDLObjects po) {
         super(problemFile, po);
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
@@ -70,7 +78,7 @@ public class PddlSCProblem extends PddlProblem {
             this.generateConstraints();
             grounding = true;
         } catch (Exception ex) {
-            Logger.getLogger(PddlSCProblem.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -121,6 +129,7 @@ public class PddlSCProblem extends PddlProblem {
             Instantiator af = new Instantiator();
             for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
+                
                 if (constr.parameters.size() != 0) {
                     globalConstraintSet.addAll(af.Propositionalize(constr, getObjects()));
                 } else {
@@ -136,6 +145,7 @@ public class PddlSCProblem extends PddlProblem {
         
      
         Iterator it = this.globalConstraintSet.iterator();
+        globalConstraints = new AndCond();
 
         while (it.hasNext()) {
             GlobalConstraint constr = (GlobalConstraint) it.next();
@@ -146,12 +156,54 @@ public class PddlSCProblem extends PddlProblem {
             if (!keep) {
                 //System.out.println("Pruning action:"+act.getName());
                 it.remove();
+            }else{
+                globalConstraints.addConditions(constr.condition);
             }
+                
         }
         
         
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.globalConstraintGrounded = true;
+
+    }
+    
+    public void generateProcesses() throws Exception {
+        long start = System.currentTimeMillis();
+        if (this.isValidatedAgainstDomain()) {
+            Instantiator af = new Instantiator();
+            for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
+//                af.Propositionalize(act, objects);
+                if (process.getParameters().size() != 0) {
+                    processesSet.addAll(af.Propositionalize(process, getObjects()));
+                } else {
+                    GroundProcess gr = process.ground();
+                    processesSet.add(gr);
+                }
+            }
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+        
+     
+        Iterator it = this.processesSet.iterator();
+        while (it.hasNext()) {
+            GroundProcess process = (GroundProcess) it.next();
+            boolean keep = true;
+
+                keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            
+            if (!keep) {
+                //System.out.println("Pruning action:"+act.getName());
+                it.remove();
+            }
+        }
+        
+        
+        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
+        this.processesGround = true;
 
     }
 }

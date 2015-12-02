@@ -25,30 +25,25 @@
  *********************************************************************/ 
 package propositionalFactory;
 
-import problem.GlobalConstraint;
 import conditions.PDDLObject;
-
-import domain.SchemaParameters;
-import domain.ParametersAsTerms;
 import domain.ActionSchema;
+import domain.ParametersAsTerms;
+import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
-
-
+import domain.SchemaParameters;
 import domain.Variable;
-
-import java.util.HashSet;
 
 import java.lang.Exception;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-
 import java.util.List;
 import java.util.Set;
+import problem.GlobalConstraint;
 import problem.GroundAction;
-
+import problem.GroundProcess;
 import problem.PDDLObjects;
 
 public class Instantiator {
@@ -58,6 +53,15 @@ public class Instantiator {
     }
 
     public Set Substitutions(ActionSchema a, PDDLObjects po) throws Exception {
+        HashSet ret = new HashSet();
+        Set combo = new HashSet();
+        SchemaParameters param = a.getParameters();
+        int n_parametri = a.getParameters().size();
+        return sub(param,n_parametri,po);
+
+    }
+    
+    public Set Substitutions(ProcessSchema a, PDDLObjects po) throws Exception {
         HashSet ret = new HashSet();
         Set combo = new HashSet();
         SchemaParameters param = a.getParameters();
@@ -125,6 +129,22 @@ public class Instantiator {
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms){
                 GroundAction toAdd =a.ground((ParametersAsTerms) o);
+                toAdd.generateAffectedNumFluents();
+                ret.add(toAdd);
+            }
+        }
+
+        return ret;
+
+    }
+    
+    public Set Propositionalize(ProcessSchema a, PDDLObjects po) throws Exception {
+        Set ret = new LinkedHashSet();
+
+        Set combo = Substitutions(a, po);
+        for (Object o : combo) {
+            if (o instanceof ParametersAsTerms){
+                GroundProcess toAdd =a.ground((ParametersAsTerms) o);
                 toAdd.generateAffectedNumFluents();
                 ret.add(toAdd);
             }

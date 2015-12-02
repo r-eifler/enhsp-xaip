@@ -17,8 +17,12 @@ tokens {
     EITHER_TYPE;
     CONSTANTS;
     FUNCTIONS;
+    FREE_FUNCTIONS;
     PREDICATES;
     ACTION;
+    PROCESS;
+    CONSTRAINT;
+    GLOBAL_CONSTRAINT;
     DURATIVE_ACTION;
     PROBLEM;
     PROBLEM_NAME;
@@ -43,7 +47,7 @@ tokens {
 	PRED_HEAD;
 	GOAL;
 	BINARY_OP;
-	BINARY_OP2;
+	EQUALITY_CON;
 	MULTI_OP;
 	MINUS_OP;
 	UNARY_MINUS;
@@ -59,6 +63,8 @@ tokens {
 @header {
 package parser;
 }
+@lexer::header { package parser; }
+
 
 @parser::members {
 private boolean wasError = false;
@@ -97,13 +103,19 @@ domain
       constantsDef?
       predicatesDef?
       functionsDef?
+      free_functionsDef?
       constraints?
       structureDef*
       ')'
       -> ^(DOMAIN domainName requireDef? typesDef?
-                constantsDef? predicatesDef? functionsDef?
+                constantsDef? predicatesDef? functionsDef? free_functionsDef?
                 constraints? structureDef*)
     ;
+
+free_functionsDef
+	: '(' ':free_functions' functionList ')'
+	-> ^(FREE_FUNCTIONS functionList)
+	;
 
 domainName
     : '(' 'domain' NAME ')'
@@ -132,7 +144,7 @@ singleTypeNameList
 
 type
 	: ( '(' 'either' primType+ ')' )
-	  -> ^(EITHER_TYPE primType+) {new String("cazzonelculo");}
+	  -> ^(EITHER_TYPE primType+) {new String("debug")}
 	| primType
 	;
 
@@ -151,7 +163,7 @@ atomicFunctionSkeleton
 	: '('! functionSymbol^ typedVariableList ')'!
 	;
 
-functionSymbol : NAME ;
+functionSymbol : NAME | '#t';
 
 functionType : 'number' ; // Currently in PDDL only numeric functions are allowed
 
@@ -189,6 +201,8 @@ structureDef
 	: actionDef
 	| durativeActionDef
 	| derivedDef
+	| constraintDef
+	| processDef
 	;
 
 
@@ -196,13 +210,28 @@ structureDef
 
 actionDef
 	: '(' ':action' actionSymbol
-	      ':parameters' '(' typedVariableList ')'
+	      ':parameters'  '(' typedVariableList ')'
            actionDefBody ')'
-       -> ^(ACTION actionSymbol typedVariableList actionDefBody)
+       -> ^(ACTION actionSymbol typedVariableList? actionDefBody)
     ;
+processDef
+	: '(' ':process' actionSymbol
+	      ':parameters'  '(' typedVariableList ')'
+           actionDefBody ')'
+       -> ^(PROCESS actionSymbol typedVariableList? actionDefBody)
+    ;
+
+constraintDef
+	: '(' ':constraint' constraintSymbol
+	      ':parameters'  '(' typedVariableList ')'
+           constraintDefBody ')'
+       -> ^(GLOBAL_CONSTRAINT constraintSymbol typedVariableList? constraintDefBody)
+    ;
+
 
 actionSymbol : NAME ;
 
+constraintSymbol : NAME ;
 
 // Should allow preGD instead of goalDesc for preconditions -
 // but I can't get the LL(*) parsing to work
@@ -212,6 +241,12 @@ actionDefBody
 	  ( ':effect' (('(' ')') | effect))?
 	  -> ^(PRECONDITION goalDesc?) ^(EFFECT effect?)
 	;
+
+constraintDefBody
+	: ( ':condition' (('(' ')') | goalDesc))?
+	  -> ^(PRECONDITION goalDesc?)
+	;
+
 
 //preGD
 //	: prefGD
@@ -240,8 +275,13 @@ goalDesc
 	          -> ^(FORALL_GD typedVariableList goalDesc)
     | fComp
               -> ^(COMPARISON_GD fComp)
+	| equality 
+			  -> ^(EQUALITY_CON equality)
     ;
 
+equality
+	: '('! '=' term term ')'!
+	;
 fComp
 	: '('! binaryComp fExp fExp ')'!
 	;
@@ -250,13 +290,13 @@ atomicTermFormula
 	: '(' predicate term* ')' -> ^(PRED_HEAD predicate term*)
 	;
 
-term : NAME | VARIABLE ;
+term : NAME | VARIABLE;
 
 /************* DURATIVE ACTIONS ****************************/
 
 durativeActionDef
 	: '(' ':durative-action' actionSymbol
-	      ':parameters' '(' typedVariableList ')'
+	      ':parameters'  '(' (typedVariableList)? ')'
            daDefBody ')'
        -> ^(DURATIVE_ACTION actionSymbol typedVariableList daDefBody)
     ;
@@ -485,7 +525,7 @@ conGD
 	: '(' 'and' conGD* ')'
 	| '(' 'forall' '(' typedVariableList ')' conGD ')'
 	| '(' 'at' 'end' goalDesc ')'
-    | '(' 'always' goalDesc ')'
+                      | '(' 'always' goalDesc ')'
 	| '(' 'sometime' goalDesc ')'
  	| '(' 'within' NUMBER goalDesc ')'
 	| '(' 'at-most-once' goalDesc ')'
@@ -527,9 +567,9 @@ fragment LETTER:	'a'..'z' | 'A'..'Z';
 
 fragment ANY_CHAR: LETTER | '0'..'9' | '-' | '_';
 
-VARIABLE : '?' LETTER ANY_CHAR* ;
+VARIABLE : '?' LETTER ANY_CHAR*  ;
 
-NUMBER : DIGIT+ ('.' DIGIT+)? ;
+NUMBER : ('-')? DIGIT+ ('.' DIGIT+)? ;
 
 fragment DIGIT: '0'..'9';
 
@@ -545,3 +585,6 @@ WHITESPACE
         )+
         { $channel = HIDDEN; }
     ;
+
+
+
