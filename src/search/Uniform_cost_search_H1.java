@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
@@ -61,6 +62,16 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
 
     public Uniform_cost_search_H1(Conditions G, Set<GroundAction> A) {
         super(G, A);
+    }
+
+    /**
+     *
+     * @param goals
+     * @param actions
+     * @param processesSet
+     */
+    public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet) {
+        super(G,A,processesSet);
     }
 
     @Override

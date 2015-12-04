@@ -74,6 +74,17 @@ public class Bellman_Ford_H1 extends Heuristics {
         //System.out.println(this.orderings);
         //build_integer_representation();
     }
+    
+    public Bellman_Ford_H1(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+        super(G, A);
+        this.G = G;
+        this.A = (LinkedHashSet<GroundAction>) A;
+        this.A.addAll(P);
+        complex_conditions = 0;
+        
+        //System.out.println(this.orderings);
+        //build_integer_representation();
+    }
 
     @Override
     public int setup(State s_0) {

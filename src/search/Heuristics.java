@@ -109,6 +109,21 @@ public abstract class Heuristics {
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
     }
+    public Heuristics(Conditions G, Set<GroundAction> A,Set<GroundAction> P) {
+        super();
+        achievers = new HashMap();
+        add_achievers = new HashMap();
+        this.G = G;
+        this.A = new LinkedHashSet();
+        this.A.addAll(A);
+        this.A.addAll(P);
+        reacheable_predicates = new LinkedHashSet();
+        reachable = new LinkedHashSet();
+        max_depth = 10;
+        all_conditions = new LinkedHashSet();
+        def_num_fluents = new LinkedHashSet();
+        //build_integer_representation(A,G);
+    }
 
     //this initializer is mandatory for being executed before each invocation of the heuristic
     public int setup(State s_0) {
@@ -904,7 +919,7 @@ public abstract class Heuristics {
                     stop = false;
                 }
                 if (iteration>100 ){
-//                    System.out.println("Cut-off");
+                    //System.out.println("Cut-off");
 //                    System.out.println("Caccamo2");
 //                    return 0;
                     relaxed_plan.add(action_for_phase);
@@ -1272,6 +1287,7 @@ public abstract class Heuristics {
 
         RelState temp = rel_state.clone();
         for (NumEffect nf : sorted_nodes) {
+            //System.out.println(nf.getRight());
             PDDLNumbers res = nf.getRight().eval(temp);
             switch (nf.getOperator()) {
                 case "increase":

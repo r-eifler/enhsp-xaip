@@ -28,11 +28,13 @@
 package problem;
 
 import conditions.AndCond;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,6 +113,54 @@ public class GroundProcess extends GroundAction implements Comparable {
         }
         return s;
 
+    }
+
+    public void add_numeric_effect(NumEffect eff) {
+
+        Iterator<NumEffect> it =  this.numericEffects.sons.iterator();
+        while(it.hasNext()){
+            NumEffect int_eff = it.next();
+            if (int_eff.getFluentAffected().equals(eff.getFluentAffected())){
+                if (eff.getOperator().equals(int_eff.getOperator())){
+                    try {
+                        ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
+                        expr.sum((ExtendedNormExpression) eff.getRight());
+                    } catch (Exception ex) {
+                        Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }else{
+                    if (int_eff.getOperator().equals("increase")){
+                        try {
+                            ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
+                            expr.minus((ExtendedNormExpression) eff.getRight());
+                        } catch (Exception ex) {
+                            Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }else{
+                        try {
+                            ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
+                            expr.minus((ExtendedNormExpression) eff.getRight());
+                            int_eff.setOperator("increase");
+                            //expr.mult(new PDDLNumber(-1));
+                        } catch (Exception ex) {
+                            Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+                return;
+            }
+        }
+        this.numericEffects.sons.add(eff);
+        
+    
+    }
+
+    public void add_time_effects(float delta) {
+        NumEffect time = new NumEffect("increase");
+        time.setFluentAffected(new NumFluent("time_elapsed"));
+        time.setRight(new PDDLNumber(delta));
+        time.getRight().normalize();
+        this.numericEffects.sons.add(time);
     }
 
 

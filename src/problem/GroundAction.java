@@ -79,7 +79,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public HashMap<Integer, Boolean> interact_with;
     private HashMap<Predicate, Boolean> achieve;
     private Integer int_depencies;
-
+    public Float time =null;
     @Override
     public Object clone() throws CloneNotSupportedException {
         GroundAction ret = new GroundAction(name);
@@ -190,7 +190,10 @@ public class GroundAction extends GenericActionType implements Comparable {
                 parametri = parametri.concat(o.toString()).concat(" ");
             }
         }
-        return "Action Name:" + this.name + " Parameters: " + parametri;
+        if (this.time==null)
+            return "Action Name:" + this.name + " Parameters: " + parametri;
+        else
+            return "("+time+" )Action Name:" + this.name + " Parameters: " + parametri;
 
     }
 

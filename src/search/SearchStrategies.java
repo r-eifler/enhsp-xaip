@@ -28,15 +28,21 @@
 package search;
 
 import computation.NumericPlanningGraph;
+import conditions.AndCond;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.NumEffect;
+import expressions.NumFluent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.PddlProblem;
 import problem.State;
 
@@ -58,6 +64,8 @@ public class SearchStrategies {
     public SearchNode search_space_handle;
     private boolean high_verbosity=false;
     public boolean preferred_operators_active = false;
+    public boolean processes = true;
+    public float delta;
 
     public void setup_heuristic(Heuristics input) {
         this.setHeuristic(input);
@@ -251,7 +259,7 @@ public class SearchStrategies {
         return null;
     }
 
-    public LinkedList blindSearch(PddlProblem problem) throws Exception {
+    public LinkedList blindSearch(EPddlProblem problem) throws Exception {
 
         long start_global = System.currentTimeMillis();
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
@@ -295,7 +303,12 @@ public class SearchStrategies {
             }
 
             visited.put(current_node.s, Boolean.TRUE);
+            if (processes){
+                advance_time(getHeuristic(),frontier,current_node,problem);
+            }
             for (GroundAction act : getHeuristic().reachable) {
+                if (act instanceof GroundProcess)
+                    continue;
                 if (act.isApplicable(current_node.s)) {
                     State temp = act.apply(current_node.s.clone());
                     //act.normalize();
@@ -340,6 +353,7 @@ public class SearchStrategies {
         State current = (State) problem.getInit();
         getHeuristic().setup(current);
         System.out.println("|A| (After Relevance Analysis):" + getHeuristic().reachable.size());
+        
 //        rel_actions = (LinkedHashSet) heuristic.compute_relevant_actions(current, problem.getGoals(), rel_actions);
         //heuristic.build_integer_representation(rel_actions, problem.getGoals());
         System.out.println("Computing H1...");
@@ -362,6 +376,7 @@ public class SearchStrategies {
         HashMap<State, Boolean> visited = new HashMap();
 //        HashMap<State,Integer> cost = new HashMap();
         heuristic_time = 0;
+        int time = 0;
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
             if (json_rep_saving) {
@@ -394,9 +409,13 @@ public class SearchStrategies {
             if (checking_visited) {
                 visited.put(current_node.s, Boolean.TRUE);
             }
+            if (processes){
+                advance_time(getHeuristic(),frontier,current_node,problem);
+            }
             for (GroundAction act : getHeuristic().reachable) {
-                if (act.isApplicable(current_node.s)) {
-                   
+                if (act instanceof GroundProcess)
+                    continue;
+                if (act.isApplicable(current_node.s)) {                   
                     State temp = act.apply(current_node.s.clone());
                     //if (!checking_visited || visited.get(temp) == null){
                     if (visited.get(temp) == null && temp.satisfy(problem.globalConstraints)) {
@@ -455,6 +474,7 @@ public class SearchStrategies {
     private static LinkedList extract_plan(SearchNode c) {
         LinkedList plan = new LinkedList();
         while (c.action != null) {
+            c.action.time = c.s.functionValue(new NumFluent("time_elapsed")).getNumber();
             plan.addFirst(c.action);
             c = c.father;
         }
@@ -530,6 +550,55 @@ public class SearchStrategies {
      */
     public void setStates_evaluated(int states_evaluated) {
         this.states_evaluated = states_evaluated;
+    }
+
+    private void advance_time(Heuristics heuristic, PriorityQueue<SearchNode> frontier, SearchNode current_node,EPddlProblem problem) throws Exception {
+        try {
+            GroundProcess waiting = new GroundProcess("waiting");
+            waiting.setNumericEffects(new AndCond());
+            waiting.setPreconditions(new AndCond());
+            waiting.add_time_effects(delta);
+            for (GroundAction act: getHeuristic().reachable){
+                
+                if (act instanceof GroundProcess){
+                    GroundProcess gp = (GroundProcess)act;
+                    
+                    if (gp.isActive(current_node.s)){
+                        AndCond precondition = (AndCond)waiting.getPreconditions();
+                        precondition.addConditions(gp.getPreconditions());
+                        for (NumEffect eff: gp.getNumericEffectsAsCollection()){
+                            waiting.add_numeric_effect(eff);
+                        }
+                        waiting.setPreconditions(precondition);
+                    }
+                }
+            }
+            
+            
+            State temp = waiting.apply(current_node.s.clone());
+            if (temp.satisfy(problem.globalConstraints)) {
+                setStates_evaluated(getStates_evaluated() + 1);
+                long start = System.currentTimeMillis();
+                int d = 0;
+                if (this.getHw()!=0)
+                        d = getHeuristic().compute_estimate(temp);
+                heuristic_time += System.currentTimeMillis() - start;
+                //System.out.print("Reacheable Conditions:"+reacheable_conditions);
+                if (d != Integer.MAX_VALUE) {
+                    waiting.setAction_cost(temp);
+                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.action_cost_to_get_here + (int) waiting.getAction_cost())*0, d * getHw(), this.json_rep_saving);
+
+                    frontier.add(new_node);
+                    //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
+                    if (json_rep_saving) {
+                        current_node.add_descendant(new_node);
+                    }
+                    
+                }
+            }
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(SearchStrategies.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

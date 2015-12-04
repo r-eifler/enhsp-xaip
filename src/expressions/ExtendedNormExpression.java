@@ -539,7 +539,7 @@ public class ExtendedNormExpression extends Expression {
 //        return this;
 //    }
 
-    private void mult(PDDLNumber n) {
+    public void mult(PDDLNumber n) {
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
             ad.n = new PDDLNumber(ad.n.getNumber() * n.getNumber());

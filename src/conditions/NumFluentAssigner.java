@@ -53,6 +53,15 @@ public class NumFluentAssigner extends Conditions {
         this.operator = operator;
         this.nFlunetValueUpperBound = null;
     }
+    
+    public NumFluentAssigner(String fluent,float value) {
+        super();
+        this.operator = "=";
+        this.nFlunetValueUpperBound = null;
+        nFluent = new NumFluent(fluent);
+        
+        this.setTwo(new PDDLNumber(value));
+    }
 
     public String toString() {
 

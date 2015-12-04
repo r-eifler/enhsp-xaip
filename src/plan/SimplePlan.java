@@ -351,6 +351,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (Object o : this) {
             if (o instanceof GroundAction) {
                 GroundAction a = (GroundAction) o;
+                
                 ret_val = ret_val.concat(a.toEcoString() + "\n");
 
             }

@@ -184,21 +184,21 @@ public class NumEffect extends Expression {
      * @return
      * @throws CloneNotSupportedException
      */
-    public State applyAndCreateNew(State s) throws CloneNotSupportedException {
+    public State applyAndCreateNew(State state) throws CloneNotSupportedException {
         PDDLNumber after = null;
         if (this.operator.equals("increase")) {
-            PDDLNumber current = s.functionValue(fluentAffected);
-            PDDLNumber eval = this.getRight().eval(s);
+            PDDLNumber current = state.functionValue(fluentAffected);
+            PDDLNumber eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() + eval.getNumber());
         } else if (this.operator.equals("decrease")) {
-            PDDLNumber current = s.functionValue(fluentAffected);
-            PDDLNumber eval = this.getRight().eval(s);
+            PDDLNumber current = state.functionValue(fluentAffected);
+            PDDLNumber eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() - eval.getNumber());
         } else if (this.operator.equals("assign")) {
-            PDDLNumber eval = this.getRight().eval(s);
+            PDDLNumber eval = this.getRight().eval(state);
             after = eval;
         }
-        State ret = s.clone();
+        State ret = state.clone();
 
         if (after != null) {
             ret.setFunctionValue(fluentAffected, after);
