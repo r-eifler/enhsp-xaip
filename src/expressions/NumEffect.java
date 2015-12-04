@@ -213,7 +213,7 @@ public class NumEffect extends Expression {
      *
      * @return
      */
-    public NormExpression normalize() {
+    public ExtendedNormExpression normalize() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -284,28 +284,31 @@ public class NumEffect extends Expression {
      */
     public void apply(RelState s) {
 
-        PDDLNumbers after = null;
+        PDDLNumbers after = new PDDLNumbers();
         PDDLNumbers current = s.functionValues(fluentAffected);
         PDDLNumbers eval = this.getRight().eval(s);
 
-        if (this.operator.equals("increase")) {
-            after.inf.setNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
-            after.sup.setNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
+        if (getOperator().equals("increase")) {
+            //System.out.println(current);
+            //System.out.println(current.sum(eval).inf);
+             after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
+            after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
+//                    System.out.println(current.sum(eval).inf.getNumber());
+        } else if (getOperator().equals("decrease")) {
+            after.inf = new PDDLNumber(Math.min(current.subtract(eval).inf.getNumber(), current.inf.getNumber()));
+            after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
 
-        } else if (this.operator.equals("decrease")) {
-            after.inf.setNumber(Math.min(current.subtract(eval).inf.getNumber(), current.inf.getNumber()));
-            after.sup.setNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
-
-        } else if (this.operator.equals("assign")) {
-            after.inf.setNumber(Math.min(eval.inf.getNumber(), current.inf.getNumber()));
-            after.sup.setNumber(Math.max(eval.sup.getNumber(), current.sup.getNumber()));
+        } else if (getOperator().equals("assign")) {
+            if (current == null) {
+                after.inf = new PDDLNumber(eval.inf.getNumber());
+                after.sup = new PDDLNumber(eval.sup.getNumber());
+            } else {
+                after.inf = new PDDLNumber(Math.min(eval.inf.getNumber(), current.inf.getNumber()));
+                after.sup = new PDDLNumber(Math.max(eval.sup.getNumber(), current.sup.getNumber()));
+            }
         }
-
-        if (after != null) {
-            s.setFunctionValues(fluentAffected, after);
-        }
-
-        return;
+        
+        s.setFunctionValues(fluentAffected, after);
 
     }
 
@@ -431,10 +434,33 @@ public class NumEffect extends Expression {
     public NumEffect generate_m_times_extension(NumFluent m) {
         NumEffect ret = new NumEffect(this.operator);
         ret.setFluentAffected(fluentAffected);
-        NormExpression temp = (NormExpression)this.getRight().clone();
+        ExtendedNormExpression temp = (ExtendedNormExpression)this.getRight().clone();
         
         //this applies for the case in which the effects of the action are increase decrease or assign without cycles.
         ret.setRight(temp.mult(m.normalize()));
         return ret;
     }
+
+    @Override
+    public boolean involve(NumFluent a) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public boolean internal_cycle() {
+//        boolean ret = false;
+//        switch (this.getOperator()) {
+//            case "increase":
+//                ret = this.getRight().involve(this.fluentAffected);
+//                break;
+//            case "decrease":
+//                ret = this.getRight().involve(this.fluentAffected);
+//                break;
+//            case "assign":
+//                ret = this.getRight().involve(this.fluentAffected);
+//                break;
+//        }
+        return this.getRight().involve(this.fluentAffected);
+    }
+
+
 }

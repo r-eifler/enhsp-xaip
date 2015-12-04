@@ -33,8 +33,8 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import expressions.Addendum;
-import expressions.NormExpression;
+import expressions.ExtendedAddendum;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
@@ -441,11 +441,11 @@ public class State extends Object {
         for (Object o : firstKernelCondition.sons) {
             if (o instanceof Comparison) {
                 Comparison comp = (Comparison) o;
-                if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-                    NormExpression lExpr = (NormExpression) comp.getLeft();
+                if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+                    ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
                     Float num = new Float(0.0);
                     Float den = new Float(0.0);
-                    for (Addendum a : lExpr.summations) {
+                    for (ExtendedAddendum a : lExpr.summations) {
                         if (a.f == null) {
                             num += a.n.getNumber();
                         } else {
@@ -484,14 +484,14 @@ public class State extends Object {
                 if (o instanceof Comparison) {
                     Comparison comp = (Comparison) o;
 
-                    if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-                        NormExpression lExpr = (NormExpression) comp.getLeft();
+                    if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+                        ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
                         Float num = new Float(0.0);
                         Float den = new Float(0.0);
                         //Float den = new Float(0.0);
                         //checking for collapsed constraints (6>4)
                         boolean collapsed = true;
-                        for (Addendum a : lExpr.summations) {
+                        for (ExtendedAddendum a : lExpr.summations) {
                             if (a.f == null) {
                                 num += a.n.getNumber();
                             } else {
@@ -515,7 +515,7 @@ public class State extends Object {
                         Float maxDist = new Float(0.0);
 
                         if (comp.maxDist == null) {
-                            for (Addendum a : lExpr.summations) {
+                            for (ExtendedAddendum a : lExpr.summations) {
                                 if (a.f == null) {
                                     num += Math.abs(a.n.getNumber());
                                 } else {
@@ -616,14 +616,14 @@ public class State extends Object {
                 if (o instanceof Comparison) {
                     Comparison comp = (Comparison) o;
 
-                    if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-                        NormExpression lExpr = (NormExpression) comp.getLeft();
+                    if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+                        ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
                         Float num = new Float(0.0);
                         Float den = new Float(0.0);
                         //Float den = new Float(0.0);
                         //checking for collapsed constraints (6>4)
                         boolean collapsed = true;
-                        for (Addendum a : lExpr.summations) {
+                        for (ExtendedAddendum a : lExpr.summations) {
                             if (a.f == null) {
                                 num += a.n.getNumber();
                             } else {
@@ -685,11 +685,11 @@ public class State extends Object {
 
     public Float distance(Conditions c) {
         Comparison comp = (Comparison) c;
-        if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-            NormExpression lExpr = (NormExpression) comp.getLeft();
+        if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+            ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
             Float num = new Float(0.0);
             Float den = new Float(0.0);
-            for (Addendum a : lExpr.summations) {
+            for (ExtendedAddendum a : lExpr.summations) {
                 if (a.f == null) {
                     num += a.n.getNumber();
                 } else {
@@ -740,11 +740,11 @@ public class State extends Object {
 
     public Float distance2(Conditions c) {
         Comparison comp = (Comparison) c;
-        if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-            NormExpression lExpr = (NormExpression) comp.getLeft();
+        if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+            ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
             Float num = new Float(0.0);
             Float den = new Float(1.0);
-            for (Addendum a : lExpr.summations) {
+            for (ExtendedAddendum a : lExpr.summations) {
                 if (a.f == null) {
                     num += a.n.getNumber();
                 } else {

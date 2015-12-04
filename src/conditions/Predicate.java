@@ -447,6 +447,11 @@ public class  Predicate extends Conditions {
         return " true ";
     }
 
+    @Override
+    public Conditions transform_equality() {
+        return this;
+    }
+
   
     
 }

@@ -49,16 +49,24 @@ public class PDDLNumbers {
 //        System.out.println(b);
 //        System.out.println("Summing ("+this.inf+","+this.sup+")"+" with ("+b.inf+","+b.sup+")");
 //        System.out.println("Before ("+this.inf+","+this.sup+")");
-        ret_val.inf = new PDDLNumber(new Float(inf.getNumber()) + new Float(b.inf.getNumber()));
-        ret_val.sup = new PDDLNumber(new Float(sup.getNumber()) + new Float(b.sup.getNumber()));
+        if (b.inf.getNumber()==-Float.MIN_VALUE || b.inf.getNumber() == Float.MAX_VALUE){
+            ret_val.inf =new PDDLNumber(b.inf.getNumber());
+        }else{
+            ret_val.inf = new PDDLNumber(inf.getNumber() + b.inf.getNumber());
+        }
+        if (b.sup.getNumber()==-Float.MIN_VALUE || b.sup.getNumber() == Float.MAX_VALUE){
+            ret_val.sup =new PDDLNumber(b.sup.getNumber());
+        }else{
+            ret_val.sup = new PDDLNumber(sup.getNumber() + b.sup.getNumber());
+        }
 //        System.out.println("After ("+ret_val.inf+","+ret_val.sup+")");
         return ret_val;
     }
 
     public PDDLNumbers subtract(PDDLNumbers b) {
         PDDLNumbers ret_val = new PDDLNumbers();
-        ret_val.inf = new PDDLNumber(new Float(inf.getNumber()) - new Float(b.sup.getNumber()));
-        ret_val.sup = new PDDLNumber(new Float(sup.getNumber()) - new Float(b.inf.getNumber()));
+        ret_val.inf = new PDDLNumber(inf.getNumber() - b.sup.getNumber());
+        ret_val.sup = new PDDLNumber(sup.getNumber() - b.inf.getNumber());
 
         return ret_val;
     }
@@ -117,5 +125,13 @@ public class PDDLNumbers {
         ret_val.inf = new PDDLNumber(this.inf.getNumber() + number);
         ret_val.sup = new PDDLNumber(this.sup.getNumber() + number);
         return ret_val;
+    }
+
+    public boolean can_be_negative() {
+        return this.inf.less(0) || this.sup.less(0);//the second case should not happen
+    }
+    
+    public boolean can_be_positive() {
+        return this.inf.greater(0) || this.sup.greater(0);
     }
 }

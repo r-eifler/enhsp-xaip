@@ -33,6 +33,8 @@ import conditions.Conditions;
 import conditions.Predicate;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import expressions.PDDLNumber;
+import expressions.PDDLNumbers;
 import extraUtils.Pair;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -59,7 +61,7 @@ import problem.State;
 public abstract class Heuristics {
 
     static public LinkedHashSet usefulActions = new LinkedHashSet();
-
+    private LinkedList<NumEffect> sorted_nodes;
     public LinkedHashSet<GroundAction> reachable;
     public boolean additive_h = true;
     protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
@@ -850,70 +852,132 @@ public abstract class Heuristics {
         }
     }
 
-    protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Integer> action_to_cost) {
+    protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Integer> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
-        float current_distance = rel_state.satisfaction_distance((Comparison) c);
+        //float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic
-        LinkedList initial = order_according_to_dependencies_actions(pool, c, action_to_cost);
-        HashMap<Integer, Boolean> visited = new HashMap();
-        for (int i=0;i<initial.size();i++){
-            visited.put(i,false);
+        Boolean reacheable = null;
+        try {
+            reacheable = compute_enclosure(pool,rel_state,(Comparison)c);
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
         }
-        temp_preferred_operators_ibr = new LinkedHashSet();
-        while (true) {
+        if (reacheable!=null && reacheable==false)
+            return Integer.MAX_VALUE;
+        HashMap<NumEffect,GroundAction> effects_to_actions = new HashMap();
+        for (GroundAction gr: pool){
+            for (NumEffect nf : gr.getNumericEffectsAsCollection()){
+                effects_to_actions.put(nf,gr);    
+            }
+            if (action_to_cost.get(gr)==null){
+                action_to_cost.put(gr,0);
+            }
+        }
+        
+        Collection<NumFluent> interesting_fluents = c.getInvolvedFluents();
+        int iteration = 0;
+        ArrayList<HashSet<GroundAction>> relaxed_plan = new ArrayList();
+//        System.out.println("h start");
+        while (true){
+            LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
+            RelState rel_state_before = rel_state.clone();
             boolean stop = true;
-            LinkedList q = new LinkedList(initial);
-            int i=0;
-            while (!q.isEmpty()) {                
-                GroundAction gr = (GroundAction) q.pollFirst();
-                {
-                
-                rel_state = gr.apply(rel_state);
-                int n = gr.internal_dependencies_length();
-                
-                for (int k=0;k<n;k++){
-//                    System.out.println(gr.getName()+ " has internal dependency, where max lenght is:"+n);
-                    cost++;
-                    rel_state = gr.apply(rel_state);
+            HashSet<GroundAction> action_for_phase = new LinkedHashSet();
+            while (!q.isEmpty()){
+                NumEffect a = q.pollFirst();
+                if (effects_to_actions.get(a) != null){
+                    GroundAction gr = effects_to_actions.get(a);
+                    action_for_phase.add(gr);
                 }
-                float new_dist = rel_state.satisfaction_distance((Comparison) c);
-                boolean already_addedd = false;
-                if (visited.get(i) == false) {
-                    cost++;
-                    if (action_to_cost.get(gr) != null){
-                        cost += action_to_cost.get(gr);
-                    }
-                    
-                    already_addedd = true;        
-                    temp_preferred_operators_ibr.add(gr);
+                a.apply(rel_state);
+                if (a.internal_cycle()){
+                    a.apply(rel_state);
                 }
-                //cost++;
-                if (current_distance > new_dist) {
-                        if (!already_addedd){
-                            cost++;
-                            temp_preferred_operators_ibr.add(gr);
-                            if (visited.get(i) == false) {
-                                cost += action_to_cost.get(gr);
-                            }
-                        }
-
-                    current_distance = new_dist;
+                if (rel_state.satisfy((Comparison) c)) {
+//                    System.out.println("Caccamo");
+                    relaxed_plan.add(action_for_phase);
+                    return compute_plan_cost(relaxed_plan,action_to_cost);
+                }
+                if (any_change(rel_state_before,rel_state,interesting_fluents)) {
                     stop = false;
                 }
-                visited.put(i, true);
-
-                if (rel_state.satisfy((Comparison) c)) {
-                    return cost;
+                if (iteration>100 ){
+//                    System.out.println("Cut-off");
+//                    System.out.println("Caccamo2");
+//                    return 0;
+                    relaxed_plan.add(action_for_phase);
+                    return compute_plan_cost(relaxed_plan,action_to_cost);
                 }
-                }
- 
+                iteration++;
+//                System.out.println(iteration);
             }
-            if (stop) {
+            relaxed_plan.add(action_for_phase);
+            if (stop)
                 return Integer.MAX_VALUE;
-            }
         }
+        
+//        
+//        LinkedList initial = order_according_to_dependencies_actions(pool, c, action_to_cost);
+//        Collection<NumFluent> interesting_fluents = c.getInvolvedFluents();
+//        HashMap<Integer, Boolean> visited = new HashMap();
+//        for (int i=0;i<initial.size();i++){
+//            visited.put(i,false);
+//        }
+//        int iteration=0;
+//        temp_preferred_operators_ibr = new LinkedHashSet();
+//        while (true) {
+//            boolean stop = true;
+//            LinkedList q = new LinkedList(initial);
+//            int i=0;
+//            RelState rel_state_before = null;
+//            try {
+//                rel_state_before = rel_state.clone();
+//            } catch (CloneNotSupportedException ex) {
+//                Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//            while (!q.isEmpty()) {        
+//                
+//                GroundAction gr = (GroundAction) q.pollFirst();
+//                
+//                
+//                rel_state = gr.apply(rel_state);
+//                int n = gr.internal_dependencies_length();
+//                
+//                for (int k=0;k<n;k++){
+//                    //System.out.println(gr.getName()+ " has internal dependency, where max lenght is:"+n);
+//                    cost++;
+//                    rel_state = gr.apply(rel_state);
+//                    
+//                }
+//                if (visited.get(i) == false) {
+//                    cost++;
+//                    if (action_to_cost.get(gr) != null){
+//                        cost += action_to_cost.get(gr);
+//                    }
+//                    temp_preferred_operators_ibr.add(gr);
+//                }
+//                //cost++;
+//                if (any_change(rel_state_before,rel_state,interesting_fluents)) {
+//                    stop = false;
+//                }
+//                visited.put(i, true);
+//
+//                if (rel_state.satisfy((Comparison) c)) {
+//                    return cost;
+//                }
+//                
+//                if (iteration>100000 && reacheable==null){
+//                    //System.out.println("Cut-off");
+//                    return cost;
+//                }
+//            }
+//            iteration++;
+//            if (stop) {
+//                return Integer.MAX_VALUE;
+//            }
+//        }
     }
 
     protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
@@ -1165,6 +1229,140 @@ public abstract class Heuristics {
             }
         }
         return additional_cost;
+    }
+
+    private boolean any_change(RelState rel_state_before, RelState rel_state, Collection<NumFluent> interesting_fluents) {
+        
+        for (NumFluent nf : interesting_fluents){
+            if ((rel_state.functionInfValue(nf) != rel_state_before.functionInfValue(nf))||
+                (rel_state.functionSupValue(nf) != rel_state_before.functionSupValue(nf)))
+                return true;
+                
+        }
+        return false;
+        
+    }
+
+    private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
+        Boolean ret = null;
+        boolean cyclic = false;
+        
+        HashSet<NumEffect> num_effects = new LinkedHashSet();
+        HashMap<NumEffect,Boolean> temp_mark = new HashMap();
+        HashMap<NumEffect,Boolean> per_mark = new HashMap();
+        for (GroundAction gr : pool){
+            for (NumEffect nf : gr.getNumericEffectsAsCollection()){
+                temp_mark.put(nf, false);
+                per_mark.put(nf, false);
+                num_effects.add(nf);
+            }
+        }
+        //Tarjan Algorithm 
+//        System.out.println("start transitive_closure");
+
+        sorted_nodes = new LinkedList();
+        for (NumEffect a:num_effects) {
+            if (!per_mark.get(a)){
+                if (c.getLeft().involve(a.getFluentAffected())){
+                    if (visit(a,num_effects,temp_mark,per_mark,sorted_nodes))
+                        cyclic = true;
+                }
+            }
+        }
+
+        RelState temp = rel_state.clone();
+        for (NumEffect nf : sorted_nodes) {
+            PDDLNumbers res = nf.getRight().eval(temp);
+            switch (nf.getOperator()) {
+                case "increase":
+                    if (res.can_be_negative()){
+                        temp.setFunctionInfValue(nf.getFluentAffected(), new PDDLNumber(-Float.MAX_VALUE));
+                    }
+                    if (res.can_be_positive()){
+                        temp.setFunctionSupValue(nf.getFluentAffected(), new PDDLNumber(Float.MAX_VALUE));
+                    }   break;
+                case "decrease":
+                    if (res.can_be_negative()){
+                        temp.setFunctionSupValue(nf.getFluentAffected(), new PDDLNumber(Float.MAX_VALUE));
+                    }
+                    if (res.can_be_positive()){
+                        temp.setFunctionInfValue(nf.getFluentAffected(), new PDDLNumber(-Float.MAX_VALUE));
+                    }   break;
+                case "assign":
+                    nf.apply(temp);
+                    break;
+            }
+        }
+        
+//        if (cyclic){
+//            sorted_nodes.addAll(num_effects);
+//        }
+        
+        boolean try_anyway = c.isSatisfied(temp);
+        if (!try_anyway && cyclic){
+            return null;
+        }
+        
+//        System.out.println("transitive_closure");
+        return try_anyway;
+           
+
+    }
+
+    public boolean visit(NumEffect nf,Collection<NumEffect> col,HashMap<NumEffect,Boolean> temp_mark,HashMap<NumEffect,Boolean> per_mark,LinkedList<NumEffect> list){
+        
+        if (temp_mark.get(nf))  
+            return true;
+        if (per_mark.get(nf))
+            return false;
+        temp_mark.put(nf, true);
+        boolean cyclic = false;
+        for (NumEffect b: col){
+            if (!b.equals(nf)){
+                if (nf.getRight().involve(b.getFluentAffected())){
+                    if (visit(b,col,temp_mark,per_mark,list)){
+                        return true;
+                       //cyclic = true;
+                    }
+                }
+            }
+        }
+        per_mark.put(nf, true); 
+        temp_mark.put(nf, false);
+        list.addLast(nf);
+        return cyclic;
+    }
+    
+//
+//  Tarjan Algorithm    
+//    L← Empty list that will contain the sorted nodes
+//while there are unmarked nodes do
+//    select an unmarked node n
+//    visit(n) 
+//function visit(node n)
+//    if n has a temporary mark then stop (not a DAG)
+//    if n is not marked (i.e. has not been visited yet) then
+//        mark n temporarily
+//        for each node m with an edge from n to m do
+//            visit(m)
+//        mark n permanently
+//        unmark n temporarily
+//        add n to head of L
+
+    private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost) {
+        int cost = 0;
+        HashMap<GroundAction,Boolean> already_considered = new HashMap();
+        
+        for (HashSet<GroundAction> action_for_phase :relaxed_plan){
+            for (GroundAction gr: action_for_phase){
+                if (already_considered.get(gr)== null){
+                    already_considered.put(gr, true);
+                    cost += action_to_cost.get(gr)+1;
+                }
+                cost++;
+            }
+        }
+        return cost;  
     }
 
 }

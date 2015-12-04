@@ -400,4 +400,15 @@ public class OrCond extends Conditions {
         }
         return ret;
     }
+
+    @Override
+    public Conditions transform_equality() {
+        if (this.sons == null)
+            return this;
+        OrCond ret = new OrCond();
+        for (Conditions c1 : (Collection<Conditions>) this.sons) {
+            ret.addConditions(c1.transform_equality());
+        }
+        return ret;
+    }
 }

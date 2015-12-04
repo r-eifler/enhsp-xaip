@@ -38,9 +38,9 @@ import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
 import domain.Variable;
-import expressions.Addendum;
+import expressions.ExtendedAddendum;
 import expressions.Expression;
-import expressions.NormExpression;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
@@ -395,7 +395,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (all.getOperator().equals("increase")) {
                     //System.out.println(current);
                     //System.out.println(current.sum(eval).inf);
-                    after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
+                     after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
                     after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
 //                    System.out.println(current.sum(eval).inf.getNumber());
                 } else if (all.getOperator().equals("decrease")) {
@@ -1605,7 +1605,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         Float currentD = init.distance2(t1);
         if (currentD.isNaN()) {
             //System.out.println("The value of the current distance is not defined");
-            currentD = Float.MIN_VALUE;
+            currentD = -Float.MIN_VALUE;
         }
         Comparison regr = this.regressComparison((Comparison) t1.clone());
         regr.normalize();
@@ -1669,7 +1669,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         Float currentD = init.distance2(t1);
         if (currentD.isNaN()) {
             //System.out.println("The value of the current distance is not defined");
-            currentD = Float.MIN_VALUE;
+            currentD = -Float.MIN_VALUE;
         }
         Comparison regr = this.regressComparison((Comparison) t1.clone());
         regr.normalize();
@@ -1688,8 +1688,10 @@ public class GroundAction extends GenericActionType implements Comparable {
     private boolean numericEffectUndefined(RelState current) {
         return false;//to do!!!
     }
+    
+    
 
-    public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, PddlProblem problem) throws Exception {
+    public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
 
         HashMap invariantFluents = problem.getInvariantFluents();
         //add invariantFluents because free variable
@@ -1790,8 +1792,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (Object o : this.getNumericEffects().sons) {
             NumEffect nf = (NumEffect) o;
             //System.out.println("nf:"+nf.getRight().getClass());
-            if (nf.getRight() instanceof NormExpression) {
-                NormExpression ne = (NormExpression) nf.getRight();
+            if (nf.getRight() instanceof ExtendedNormExpression) {
+                ExtendedNormExpression ne = (ExtendedNormExpression) nf.getRight();
                 //System.out.println(ne);
                 if (!ne.isNumber()) {
                     return true;
@@ -2030,7 +2032,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         coefficientAffected = new HashMap();
         for (Object c : this.getNumericEffects().sons) {
             NumEffect nEff = (NumEffect) c;
-            NormExpression right = (NormExpression) nEff.getRight();
+            ExtendedNormExpression right = (ExtendedNormExpression) nEff.getRight();
             if (nEff.getOperator().equals("increase") || nEff.getOperator().equals("decrease")) {
                 coefficientAffected.put(nEff.getFluentAffected(), 1 + right.getCoefficient(nEff.getFluentAffected()));
             } else {
@@ -2044,7 +2046,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (Object c : this.getNumericEffects().sons) {
             NumEffect nEff = (NumEffect) c;
             if (nEff.getFluentAffected().equals(f)) {
-                NormExpression right = (NormExpression) nEff.getRight();
+                ExtendedNormExpression right = (ExtendedNormExpression) nEff.getRight();
                 if (nEff.getOperator().equals("increase")) {
                     return right.eval_apart_from_f(f, s_0);
                 } else if (nEff.getOperator().equals("decrease")) {
@@ -2158,31 +2160,36 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getNumericEffectsAsCollection().isEmpty()) {
             return false;
         }
-        if (comp.getLeft() instanceof NormExpression) {
-            NormExpression left = (NormExpression) comp.getLeft();
-            for (Addendum ad : left.summations) {
+        
+        
+        if (comp.getLeft() instanceof ExtendedNormExpression) {
+            ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
+            for (ExtendedAddendum ad : left.summations) {
                 if (ad.f != null) {
                     for (NumEffect ne : this.getNumericEffectsAsCollection()) {
                         if (!ne.getFluentAffected().equals(ad.f)) {
                             continue;
                         }
                         if (ne.fluentsInvolved().isEmpty()) {
-                            NormExpression number = (NormExpression) ne.getRight();
+                            ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
+                            if (!rhs.linear){
+                                return false;
+                            }
                             if (ne.getOperator().equals("increase")) {
                                 try {
-                                    positiveness += number.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {
-                                    positiveness += (-1) * number.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += (-1) * rhs.getNumber().getNumber() * ad.n.getNumber();
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             } else if (ne.getOperator().equals("assign")) {
                                 try {
-                                    positiveness += number.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }

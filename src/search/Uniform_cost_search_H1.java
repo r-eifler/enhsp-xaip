@@ -112,8 +112,15 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
         Collection<GroundAction> achievers_of_complex_conditions = new LinkedHashSet();
         HashMap<GroundAction, Integer> action_to_cost = new HashMap();
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
-        while (!q.isEmpty()) {
-            Conditions cn = q.removeMin().getData();
+        boolean first_round = true;
+        while (!q.isEmpty() || first_round) {
+            
+            
+            Conditions cn = null;
+            if (!q.isEmpty())
+                cn = q.removeMin().getData();
+            
+            first_round = false;
             if (!all_paths){
                 int goal_dist = this.check_goal_conditions(s, G, dist);
 
@@ -219,31 +226,35 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
 
             Iterator<Comparison> it2 = temp_complex_conditions.iterator();
             while (it2.hasNext()) {
-                Comparison comp = it2.next();
-                if (closed.get(comp.getCounter())) {
-                    it2.remove();
-                    continue;
-                }
-                int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
-                if (current_cost != Integer.MAX_VALUE) {
-                    if (open_list.get(comp.getCounter())) {
-                        if (dist.get(comp.getCounter()) > current_cost) {
-                            q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
-                            dist.set(comp.getCounter(), current_cost);
-                            if (preferred_operators) this.relaxed_plan_actions.addAll(temp_preferred_operators_ibr);
-                        }
-                    } else {
+                try {
+                    Comparison comp = it2.next();
+                    if (closed.get(comp.getCounter())) {
+                        it2.remove();
+                        continue;
+                    }
+                    int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
+                    if (current_cost != Integer.MAX_VALUE) {
+                        if (open_list.get(comp.getCounter())) {
+                            if (dist.get(comp.getCounter()) > current_cost) {
+                                q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
+                                dist.set(comp.getCounter(), current_cost);
+                                if (preferred_operators) this.relaxed_plan_actions.addAll(temp_preferred_operators_ibr);
+                            }
+                        } else {
                             dist.set(comp.getCounter(), current_cost);
                             open_list.set(comp.getCounter(),true);
                             FibonacciHeapNode node = new FibonacciHeapNode(comp);
                             q.insert(node, current_cost);
                             cond_to_entry.put(comp.getCounter(),node);
                             reacheable_conditions++;
+                        }
                     }
+                } catch (CloneNotSupportedException ex) {
+                    Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
-            closed.set(cn.getCounter(), true);
+            if (cn!=null)
+                closed.set(cn.getCounter(), true);
 
         }
 

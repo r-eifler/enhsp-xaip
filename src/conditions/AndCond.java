@@ -30,6 +30,7 @@ package conditions;
 import expressions.NumEffect;
 import expressions.Expression;
 import expressions.NumFluent;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -465,11 +466,12 @@ public class AndCond extends Conditions {
                     Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 if (comp == null) {
-                    
+
                     it.remove();
-                }else{
-                    if (comp.isUnsatisfiable())
+                } else {
+                    if (comp.isUnsatisfiable()) {
                         this.setUnsatisfiable(true);
+                    }
                 }
             } else if (o instanceof AndCond) {
                 AndCond temp = (AndCond) o;
@@ -600,9 +602,10 @@ public class AndCond extends Conditions {
                     ret += " " + nc.toSmtVariableString(i);
                 } else if (o instanceof Conditions) {
                     Conditions c = (Conditions) o;
-                    if (c.toSmtVariableString(i)!=null)
+                    if (c.toSmtVariableString(i) != null) {
                         ret += c.toSmtVariableString(i);
-                    
+                    }
+
                 } else if (o instanceof NumEffect) {
                     NumEffect neff = (NumEffect) o;
                     ret += neff.toSmtVariableString(i);
@@ -634,7 +637,7 @@ public class AndCond extends Conditions {
                         if (c.getInvolvedFluents() != null) {
                             ret.addAll(c.getInvolvedFluents());
                         }
-                    } else{
+                    } else {
                         System.out.println("Error in getting involved fluents");
                     }
                 }
@@ -647,7 +650,7 @@ public class AndCond extends Conditions {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
-        Map<Conditions,Boolean> toRemove = new HashMap();
+        Map<Conditions, Boolean> toRemove = new HashMap();
         if (this.sons != null) {
             for (Object o2 : this.sons) {
                 if (o2 instanceof Conditions) {
@@ -657,27 +660,31 @@ public class AndCond extends Conditions {
                     if (c == null) {
                         return null;
                     }
-                    if (c.isValid())
-                        toRemove.put(c,Boolean.TRUE);
-                    if (c.isUnsatisfiable())
+                    if (c.isValid()) {
+                        toRemove.put(c, Boolean.TRUE);
+                    }
+                    if (c.isUnsatisfiable()) {
                         this.isUnsatisfiable();
-                        
-                }else if(o2 instanceof NumEffect){
-                    NumEffect ne = (NumEffect)o2;
+                    }
+
+                } else if (o2 instanceof NumEffect) {
+                    NumEffect ne = (NumEffect) o2;
                     ne.setFreeVarSemantic(freeVarSemantic);
 //                    System.out.println(ne);
-                    ne = (NumEffect)ne.weakEval(s, invF);
-                    if (ne == null)
+                    ne = (NumEffect) ne.weakEval(s, invF);
+                    if (ne == null) {
                         return null;
-                }else{
+                    }
+                } else {
                     System.out.println(o2);
-                    System.out.println("Unsupported operation for :"+o2.getClass());
+                    System.out.println("Unsupported operation for :" + o2.getClass());
                 }
             }
             Iterator it = this.sons.iterator();
-            while(it.hasNext()){
-                if (toRemove.get(it.next())!=null)
+            while (it.hasNext()) {
+                if (toRemove.get(it.next()) != null) {
                     it.remove();
+                }
             }
         }
         return this;
@@ -707,19 +714,37 @@ public class AndCond extends Conditions {
                     ret += " " + nc.toSmtVariableString(i, gr, var);
                 } else if (o instanceof Conditions) {
                     Conditions c = (Conditions) o;
-                    if (c.toSmtVariableString(i, gr, var)!=null)
+                    if (c.toSmtVariableString(i, gr, var) != null) {
                         ret += c.toSmtVariableString(i, gr, var);
-                    
-                } else
-                    throw new UnsupportedOperationException("Num effect not supported for repetition.."+this);
+                    }
+
+                } else {
+                    throw new UnsupportedOperationException("Num effect not supported for repetition.." + this);
+                }
             }
             if (this.sons.size() > 1) {
                 ret += ")";
             }
         }
         return ret;
-    
+
     }
 
+    @Override
+    public Conditions transform_equality() {
+        if (this.sons == null)
+            return this;
+        AndCond ret = new AndCond();
+        for (Conditions c1 : (Collection<Conditions>) this.sons) {
+            Conditions res = c1.transform_equality();
+            if (res instanceof AndCond){
+                AndCond temp = (AndCond)res;
+                ret.sons.addAll(temp.sons);
+            }else{
+                ret.addConditions(res);
+            }
+        }
+        return ret;
+    }
 
 }

@@ -48,7 +48,7 @@ import expressions.Expression;
 import expressions.NumFluent;
 import expressions.MinusUnary;
 import expressions.MultiOp;
-import expressions.NormExpression;
+import expressions.ExtendedNormExpression;
 import expressions.PDDLNumber;
 
 import java.io.BufferedWriter;
@@ -84,25 +84,25 @@ import propositionalFactory.Instantiator;
  */
 public class PddlProblem {
 
-    private PDDLObjects objects;
-    private State init;
-    private Conditions goals;
-    private String name;
-    private Integer indexObject;
-    private Integer indexInit;
-    private Integer indexGoals;
-    private Metric metric;
+    protected PDDLObjects objects;
+    protected State init;
+    protected Conditions goals;
+    protected String name;
+    protected Integer indexObject;
+    protected Integer indexInit;
+    protected Integer indexGoals;
+    protected Metric metric;
     protected String pddlFilRef;
     protected String domainName;
     PddlDomain linkedDomain;
-    private boolean validatedAgainstDomain;
-    private Set actions;
-    private long propositionalTime;
-    private boolean groundActions;
-    private RelState possStates;
+    protected boolean validatedAgainstDomain;
+    protected Set actions;
+    protected long propositionalTime;
+    protected boolean groundActions;
+    protected RelState possStates;
     public int counterNumericFluents = 0;
-    private boolean simplifyActions;
-    private HashMap invariantFluents;
+    protected boolean simplifyActions;
+    protected HashMap invariantFluents;
 
     /**
      * Get the value of groundedActions
@@ -295,7 +295,7 @@ public class PddlProblem {
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
-    private void addObjects(Tree c) {
+    protected void addObjects(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
             if (this.linkedDomain != null) {
                 Type t = linkedDomain.getTypeByName(c.getChild(i).getChild(0).getText());
@@ -314,7 +314,7 @@ public class PddlProblem {
     }
 
     //Aggiungere controllo su dominio...in qualche modo!
-    private Predicate buildInstPredicate(Tree t) {
+    protected Predicate buildInstPredicate(Tree t) {
 
         //if (t.getType() == PddlParser.PRED_INST) {
         Predicate a = new Predicate(true);
@@ -338,7 +338,7 @@ public class PddlProblem {
         //return null;
     }
 
-    private Conditions createGoals(Tree infoAction) {
+    protected Conditions createGoals(Tree infoAction) {
         if (infoAction == null) {
             return null;
         }
@@ -392,7 +392,7 @@ public class PddlProblem {
         return null;
     }
 
-    private Expression createExpression(Tree t) {
+    protected Expression createExpression(Tree t) {
 
         int test = t.getType();
         if (t.getType() == PddlParser.BINARY_OP) {
@@ -430,7 +430,7 @@ public class PddlProblem {
 
     }
 
-    private void addInitFacts(Tree child) {
+    protected void addInitFacts(Tree child) {
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
             if (c.getType() == PddlParser.PRED_INST) {
@@ -466,7 +466,7 @@ public class PddlProblem {
 
     }
 
-    private void exploreTree(Tree t) {
+    protected void exploreTree(Tree t) {
         if (t == null) {
             return;
         }
@@ -509,7 +509,7 @@ public class PddlProblem {
         return name;
     }
 
-    private void addMetric(Tree t) {
+    protected void addMetric(Tree t) {
 
         //System.out.println(t.toStringTree());
         metric = new Metric(t.getChild(0).getText());
@@ -521,7 +521,7 @@ public class PddlProblem {
         this.metric = m;
     }
 
-    private void setObject(PDDLObjects object) {
+    protected void setObject(PDDLObjects object) {
         this.setObjects(object);
     }
 
@@ -536,46 +536,46 @@ public class PddlProblem {
     /**
      * @param name the name to set
      */
-    private void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
-    private Integer getIndexObject() {
+    protected Integer getIndexObject() {
         return indexObject;
     }
 
     /**
      * @param indexObject the indexObject to set
      */
-    private void setIndexObject(Integer indexObject) {
+    protected void setIndexObject(Integer indexObject) {
         this.indexObject = indexObject;
     }
 
     /**
      * @return the indexInit
      */
-    private Integer getIndexInit() {
+    protected Integer getIndexInit() {
         return indexInit;
     }
 
     /**
      * @param indexInit the indexInit to set
      */
-    private void setIndexInit(Integer indexInit) {
+    protected void setIndexInit(Integer indexInit) {
         this.indexInit = indexInit;
     }
 
     /**
      * @return the indexGoals
      */
-    private Integer getIndexGoals() {
+    protected Integer getIndexGoals() {
         return indexGoals;
     }
 
     /**
      * @param indexGoals the indexGoals to set
      */
-    private void setIndexGoals(Integer indexGoals) {
+    protected void setIndexGoals(Integer indexGoals) {
         this.indexGoals = indexGoals;
     }
 
@@ -756,7 +756,7 @@ public class PddlProblem {
         }
     }
 
-    private void pruneActions() {
+    protected void pruneActions() {
         boolean finished = false;
         boolean goalReached = false;
         Set level;
@@ -795,7 +795,7 @@ public class PddlProblem {
 
     }
 
-    private void pruneActions_old() {
+    protected void pruneActions_old() {
         boolean finished = false;
         boolean goalReached = false;
         int distance = 0;
@@ -983,7 +983,7 @@ public class PddlProblem {
     public HashMap getInvariantFluents() throws Exception {
         if (invariantFluents == null) {
             invariantFluents = new HashMap();
-            if (this.getActions() == null || this.getActions().isEmpty()) {
+            if (this.getActions() == null || this.getActions().isEmpty() ) {
                 this.generateActions();
             }
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
@@ -1005,43 +1005,8 @@ public class PddlProblem {
         this.goals = generate_inequalities(goals);
     }
 
-    private AndCond generate_inequalities(Conditions con) {
-        AndCond temp = new AndCond();
-        if (con instanceof AndCond) {
-            AndCond c = (AndCond) con;
-            for (Conditions c1 : (Collection<Conditions>) c.sons) {
-                if (c1 instanceof Comparison) {
-                    Comparison comp = (Comparison) c1;
-                    if (comp.getComparator().equals("=")) {
-                        Comparison dual = (Comparison) comp.clone();
-                        dual.setComparator("<=");
-                        dual.setNormalized(false);
-                        comp.setComparator(">=");
-                        temp.addConditions(dual);
-                        temp.addConditions(comp);
-                    }else
-                        temp.addConditions(c1);
-                } else {
-                    temp.addConditions(c1);
-                }
-            }
-
-        } else {
-            if (con instanceof Comparison) {
-                Comparison comp = (Comparison) con;
-                if (comp.getComparator().equals("=")) {
-                    Comparison dual = (Comparison) comp.clone();
-                    dual.setComparator("<=");
-                    dual.setNormalized(false);
-                    comp.setComparator(">=");
-                    temp.addConditions(dual);
-                    temp.addConditions(comp);
-                }
-            } else
-                temp.addConditions(con);
-        }
-        temp.normalize();
-        return temp;
+    protected Conditions generate_inequalities(Conditions con) {
+        return con.transform_equality();
     }
 
     public boolean print_actions() {

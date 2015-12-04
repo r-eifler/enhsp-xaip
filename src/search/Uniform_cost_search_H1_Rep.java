@@ -300,26 +300,30 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
 
             Iterator<Comparison> it2 = temp_complex_conditions.iterator();
             while (it2.hasNext()) {
-                Comparison comp = it2.next();
-                if (closed.get(comp.getCounter())) {
-                    it2.remove();
-                    continue;
-                }
-                int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
-                if (current_cost != Integer.MAX_VALUE) {
-                    if (open_list.get(comp.getCounter())) {
-                        if (dist.get(comp.getCounter()) > current_cost) {
-
-                            q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
-                            dist.set(comp.getCounter(), current_cost);
-                        }
-                    } else {
+                try {
+                    Comparison comp = it2.next();
+                    if (closed.get(comp.getCounter())) {
+                        it2.remove();
+                        continue;
+                    }
+                    int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
+                    if (current_cost != Integer.MAX_VALUE) {
+                        if (open_list.get(comp.getCounter())) {
+                            if (dist.get(comp.getCounter()) > current_cost) {
+                                
+                                q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
+                                dist.set(comp.getCounter(), current_cost);
+                            }
+                        } else {
                             dist.set(comp.getCounter(), current_cost);
                             open_list.set(comp.getCounter(),true);
                             FibonacciHeapNode node = new FibonacciHeapNode(comp);
                             q.insert(node, current_cost);
                             cond_to_entry.put(comp.getCounter(),node);
+                        }
                     }
+                } catch (CloneNotSupportedException ex) {
+                    Logger.getLogger(Uniform_cost_search_H1_Rep.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             closed.set(cn.getCounter(), true);

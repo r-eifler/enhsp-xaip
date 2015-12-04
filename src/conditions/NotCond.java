@@ -27,6 +27,7 @@
 package conditions;
 
 import expressions.NumFluent;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -313,6 +314,17 @@ public class NotCond extends Conditions {
     public String toSmtVariableString(int i, GroundAction gr, String var) {
         Conditions p = (Conditions)this.son.iterator().next();
         return "(not "+p.toSmtVariableString(i,gr,var)+")";
+    }
+
+    @Override
+    public Conditions transform_equality() {
+        if (this.son == null)
+            return this;
+        NotCond ret = new NotCond();
+        for (Conditions c1 : (Collection<Conditions>) this.son) {
+            ret.addConditions(c1.transform_equality());
+        }
+        return ret;
     }
 
 

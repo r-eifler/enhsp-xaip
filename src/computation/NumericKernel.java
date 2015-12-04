@@ -30,8 +30,8 @@ package computation;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
-import expressions.Addendum;
-import expressions.NormExpression;
+import expressions.ExtendedAddendum;
+import expressions.ExtendedNormExpression;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,8 +110,8 @@ public class NumericKernel extends HashMap {
                     if (o instanceof Comparison) {
                         Comparison comp = (Comparison) o;
 
-                        if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-                            NormExpression lExpr = (NormExpression) comp.getLeft();
+                        if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+                            ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
 
                             Float num = new Float(0.0);
                             Float den = new Float(0.0);
@@ -122,7 +122,7 @@ public class NumericKernel extends HashMap {
 //                                System.out.println(comp);
 //                                System.out.println(comp.maxDist);
 //
-//                                for (Addendum a : lExpr.summations) {
+//                                for (ExtendedAddendum a : lExpr.summations) {
 //                                    if (a.f == null) {
 //                                        num += Math.abs(a.n.getNumber());
 //                                    } else {
@@ -218,8 +218,8 @@ public class NumericKernel extends HashMap {
                     Comparison c = (Comparison) o;
                     c = c.normalizeAndCopy();
                     if (c != null) {
-                        NormExpression left = (NormExpression) c.getLeft();
-                        NormExpression right = (NormExpression) c.getRight();
+                        ExtendedNormExpression left = (ExtendedNormExpression) c.getLeft();
+                        ExtendedNormExpression right = (ExtendedNormExpression) c.getRight();
                         c.setLeft(left.subst(a.getNumericEffects()));
                         c.setRight(right.subst(a.getNumericEffects()));
                         toAdd.add(c);
@@ -243,12 +243,12 @@ public class NumericKernel extends HashMap {
         return con;
     }
 
-    protected Float maximizationBound(NormExpression lExpr,RelState numericFleuntsBoundaries) {
+    protected Float maximizationBound(ExtendedNormExpression lExpr,RelState numericFleuntsBoundaries) {
 
         Float b = new Float(0.0);
-        ArrayList<Addendum> variables = new ArrayList();
+        ArrayList<ExtendedAddendum> variables = new ArrayList();
         for(Object o: lExpr.summations){
-            Addendum add = (Addendum)o;
+            ExtendedAddendum add = (ExtendedAddendum)o;
             if (add.f == null)
                 b=add.n.getNumber();
             else
@@ -259,7 +259,7 @@ public class NumericKernel extends HashMap {
             return (float)0.000000000000000000000001;
         
         
-        Float max = Float.MIN_VALUE;
+        Float max = -Float.MIN_VALUE;
         int i=0;
         while (i < Math.pow(2, variables.size() )){
             Float temp = new Float(0.0);
@@ -313,8 +313,8 @@ public class NumericKernel extends HashMap {
                     if (o instanceof Comparison) {
                         Comparison comp = (Comparison) o;
 
-                        if ((comp.getRight() instanceof NormExpression) && (comp.getLeft() instanceof NormExpression)) {
-                            NormExpression lExpr = (NormExpression) comp.getLeft();
+                        if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
+                            ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
 
                             Float num = new Float(0.0);
                             Float den = new Float(0.0);
@@ -325,7 +325,7 @@ public class NumericKernel extends HashMap {
 //                                System.out.println(comp);
 //                                System.out.println(comp.maxDist);
 //
-//                                for (Addendum a : lExpr.summations) {
+//                                for (ExtendedAddendum a : lExpr.summations) {
 //                                    if (a.f == null) {
 //                                        num += Math.abs(a.n.getNumber());
 //                                    } else {
@@ -366,11 +366,11 @@ public class NumericKernel extends HashMap {
         }
     }
 
-    protected Float maximizationBoundViaPlanBounds(NormExpression lExpr, HashMap higherNFValues, HashMap lowerNFValues) {
+    protected Float maximizationBoundViaPlanBounds(ExtendedNormExpression lExpr, HashMap higherNFValues, HashMap lowerNFValues) {
          Float b = new Float(0.0);
-        ArrayList<Addendum> variables = new ArrayList();
+        ArrayList<ExtendedAddendum> variables = new ArrayList();
         for(Object o: lExpr.summations){
-            Addendum add = (Addendum)o;
+            ExtendedAddendum add = (ExtendedAddendum)o;
             if (add.f == null)
                 b=add.n.getNumber();
             else
@@ -381,7 +381,7 @@ public class NumericKernel extends HashMap {
             return (float)0.000000000000000000000001;
         
         
-        Float max = Float.MIN_VALUE;
+        Float max = -Float.MIN_VALUE;
         int i=0;
         while (i < Math.pow(2, variables.size() )){
             Float temp = new Float(0.0);

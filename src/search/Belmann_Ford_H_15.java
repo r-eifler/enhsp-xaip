@@ -31,7 +31,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import expressions.NormExpression;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import java.util.ArrayList;
 import java.util.Collection;

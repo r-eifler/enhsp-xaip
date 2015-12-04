@@ -147,29 +147,46 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public NormExpression normalize() {
-        NormExpression ret = new NormExpression();
-        NormExpression left = this.getOne().normalize();
-        NormExpression right = this.getRight().normalize();
+    public ExtendedNormExpression normalize() {
+        ExtendedNormExpression ret = new ExtendedNormExpression();
+        ExtendedNormExpression l = this.getOne().normalize();
+        ExtendedNormExpression r = this.getRight().normalize();
 
         try {
-            if (this.getOperator().equals("+")) {
-                ret = left.sum(right);
-            } else if (this.getOperator().equals("-")) {
-                ret = left.minus(right);
-            } else if (this.getOperator().equals("*")) {
-//            System.out.println("DEBUG: left:"+left+" right:"+right);
-                ret = left.mult(right);
-
-            } else if (this.getOperator().equals("/")) {
-                ret = left.div(right);
-
-            } else {
-                System.out.println(this.operator + " not supported");
+            if (!l.isNumber() && !r.isNumber() && (this.getOperator().equals("*") || this.getOperator().equals("/")) ){
+                BinaryOp bin = new BinaryOp();
+                bin.setOperator(this.getOperator());
+                bin.setOne(l);
+                bin.setRight(r);
+                ret = new ExtendedNormExpression(bin);
+                //System.out.println(ret);
+            }else{
+                try {
+                    switch (this.getOperator()) {
+                        case "+":
+                            ret = l.sum(r);
+                            break;
+                        case "-":
+                            ret = l.minus(r);
+                            break;
+                        case "*":
+                            //            System.out.println("DEBUG: left:"+left+" right:"+right);
+                            ret = l.mult(r);
+                            break;
+                        case "/":
+                            ret = l.div(r);
+                            break;
+                        default:
+                            System.out.println(this.operator + " not supported");
+                            break;
+                    }
+                    
+                } catch (Exception ex) {
+                    Logger.getLogger(ExtendedNormExpression.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-
         } catch (Exception ex) {
-            Logger.getLogger(NormExpression.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BinaryOp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return ret;
@@ -223,7 +240,7 @@ public class BinaryOp extends Expression {
 
     @Override
     public PDDLNumbers eval(RelState s) {
-        PDDLNumbers ret_val = null;
+            PDDLNumbers ret_val = null;
         PDDLNumbers first = this.left.eval(s);
         PDDLNumbers second = this.right.eval(s);
 
@@ -334,5 +351,14 @@ public class BinaryOp extends Expression {
     @Override
     public String toSmtVariableString(int i) {
         return "(" + this.operator + " " + this.getOne().toSmtVariableString(i) + " " + this.getRight().toSmtVariableString(i) + ")";
+    }
+
+    @Override
+    public boolean involve(NumFluent a) {
+        if (this.left.involve(a)) {
+            return true;
+        } else {
+            return this.right.involve(a);
+        }
     }
 }

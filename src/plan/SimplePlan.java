@@ -89,7 +89,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug = 1;
+    private int debug = 5;
     private boolean newMethod = true;
 
     public SimplePlan(PddlDomain dom) {

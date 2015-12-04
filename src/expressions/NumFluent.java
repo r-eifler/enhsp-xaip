@@ -212,11 +212,11 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public NormExpression normalize() {
-        Addendum a = new Addendum();
+    public ExtendedNormExpression normalize() {
+        ExtendedAddendum a = new ExtendedAddendum();
         a.n = new PDDLNumber(1);
         a.f = this;
-        NormExpression ret = new NormExpression();
+        ExtendedNormExpression ret = new ExtendedNormExpression();
         ret.summations.add(a);
         return ret;
 
@@ -266,6 +266,11 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
+        
+        if (this.name.equals("#t")){
+            return this;
+        }
+        
         if ((invF.get(this) == null) && (invF.get(this.getName())==null)){//this means that the fluent can be 
             return s.functionValue(this);
         }
@@ -302,6 +307,11 @@ public class NumFluent extends Expression {
     @Override
     public boolean involve(HashMap<NumFluent,Boolean> map) {
         return map.get(this)!=null;
+    }
+    
+    @Override
+    public boolean involve(NumFluent nf) {
+        return nf.equals(this);
     }
 
     @Override

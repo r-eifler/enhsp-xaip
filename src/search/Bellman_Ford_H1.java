@@ -31,7 +31,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import expressions.NormExpression;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import extraUtils.Pair;
@@ -221,19 +221,19 @@ public class Bellman_Ford_H1 extends Heuristics {
                     counter++;
                     Comparison a1 = (Comparison) c_1;
                     Comparison a2 = (Comparison) c_2;
-                    NormExpression lhs_a1 = (NormExpression) a1.getLeft();
-                    NormExpression lhs_a2 = (NormExpression) a2.getLeft();
-                    NormExpression expr = lhs_a1.sum_copy(lhs_a2);
+                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+                    ExtendedNormExpression expr = lhs_a1.sum_copy(lhs_a2);
                     String new_comparator = ">=";
                     if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
                         new_comparator = ">";
                     }
                     Comparison newC = new Comparison(new_comparator);
                     newC.setLeft(expr);
-                    newC.setRight(new NormExpression(new Float(0.0)));
+                    newC.setRight(new ExtendedNormExpression(new Float(0.0)));
                     newC.normalize();
 
-                    NormExpression tempLeft = (NormExpression) newC.getLeft();
+                    ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
 
                     if (tempLeft.summations.size() < 2) {
                         continue;

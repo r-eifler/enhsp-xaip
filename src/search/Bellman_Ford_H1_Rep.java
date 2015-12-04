@@ -32,7 +32,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.BinaryOp;
-import expressions.NormExpression;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;

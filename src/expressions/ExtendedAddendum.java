@@ -30,29 +30,44 @@ package expressions;
  *
  * @author enrico
  */
-public class Addendum {
+public class ExtendedAddendum {
 
     public PDDLNumber n;
     public NumFluent f;
+    public BinaryOp bin;
+    public boolean linear;
 
-    public Addendum() {
+    public ExtendedAddendum() {
+        linear = true;
+
     }
 
-    public Addendum(NumFluent f, PDDLNumber n) {
+    public ExtendedAddendum(NumFluent f, PDDLNumber n) {
 
         this.f = f;
         this.n = n;
+        linear = true;
+        
+    }
+    public ExtendedAddendum(BinaryOp bin) {
+        this.bin = bin;
+        linear = false;
     }
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        Addendum ret = new Addendum();
-        if (this.f != null) {
-            ret.f = (NumFluent) this.f.clone();
-        } else {
-            ret.f = null;
+        ExtendedAddendum ret = new ExtendedAddendum();
+        if (!this.linear){
+            ret.bin = (BinaryOp) this.bin.clone();
+            ret.linear = false;
+        }else{
+            if (this.f != null) {
+                ret.f = (NumFluent) this.f.clone();
+            } else {
+                ret.f = null;
+            }
+            ret.n = (PDDLNumber) this.n.clone();
         }
-        ret.n = (PDDLNumber) this.n.clone();
         return ret;
     }
 
@@ -66,7 +81,7 @@ public class Addendum {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Addendum other = (Addendum) obj;
+        final ExtendedAddendum other = (ExtendedAddendum) obj;
         if (!other.n.equals(this.n))
             return false;
         if (other.f == null && this.f!= null)
@@ -89,7 +104,7 @@ public class Addendum {
         return hash;
     }
     
-    public Float scale(Addendum obj){
+    public Float scale(ExtendedAddendum obj){
         if (this.f != obj.f)
             return null;
         Float a = this.n.getNumber();
@@ -99,7 +114,7 @@ public class Addendum {
 
     @Override
     public String toString() {
-        return "Addendum{" + "n=" + n + ", f=" + f + '}';
+        return "Addendum{" + "n=" + n + ", f=" + f + "bin = " + bin.toString() + '}';
     }
     
     

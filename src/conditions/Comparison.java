@@ -27,9 +27,9 @@
  */
 package conditions;
 
-import expressions.Addendum;
+import expressions.ExtendedAddendum;
 import expressions.Expression;
-import expressions.NormExpression;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import java.util.Map;
@@ -82,8 +82,8 @@ public class Comparison extends Conditions {
         }
         
         
-        NormExpression left_expr = (NormExpression) left;
-        NormExpression left_expr2 = (NormExpression) other.left;
+        ExtendedNormExpression left_expr = (ExtendedNormExpression) left;
+        ExtendedNormExpression left_expr2 = (ExtendedNormExpression) other.left;
         if (!left_expr.equals(left_expr2)) {
             return false;
         }
@@ -108,7 +108,7 @@ public class Comparison extends Conditions {
     private String comparator;
     private Expression left;
     private Expression right;
-    private boolean normalized;
+    public boolean normalized;
     public Comparison fatherFromRegression = null;
     public Float maxDist;
 
@@ -342,9 +342,9 @@ public class Comparison extends Conditions {
         this.setRight(this.right.normalize());
 
         //System.out.println("Instanceof left: "+ret.left.getClass());
-        NormExpression leftExpr = (NormExpression) this.left;
+        ExtendedNormExpression leftExpr = (ExtendedNormExpression) this.left;
         //System.out.println(leftExpr);
-        NormExpression rightExpr = (NormExpression) this.right;
+        ExtendedNormExpression rightExpr = (ExtendedNormExpression) this.right;
         if (leftExpr.isNumber() && rightExpr.isNumber()) {
             PDDLNumber first;
             first = leftExpr.getNumber();
@@ -380,11 +380,11 @@ public class Comparison extends Conditions {
             //System.out.println("DEBUG");
             if (this.comparator.equals("<") || this.comparator.equals("<=") || this.comparator.equals("=")) {
                 setLeft(rightExpr.minus(leftExpr));
-                setRight(new NormExpression(new Float(0.0)));
+                setRight(new ExtendedNormExpression(new Float(0.0)));
 
             } else {
                 setLeft(leftExpr.minus(rightExpr));
-                setRight(new NormExpression(new Float(0.0)));
+                setRight(new ExtendedNormExpression(new Float(0.0)));
             }
 
             if (!this.comparator.equals("=")) {
@@ -438,13 +438,14 @@ public class Comparison extends Conditions {
         //System.out.println(this);
         setLeft(this.left.normalize());
         setRight(this.right.normalize());
-        NormExpression left = (NormExpression) this.left;
-        NormExpression right = (NormExpression) this.right;
+        ExtendedNormExpression l = (ExtendedNormExpression) this.left;
+        ExtendedNormExpression r = (ExtendedNormExpression) this.right;
+        //System.out.println(l);
         try {
-            if (left.isNumber() && right.isNumber()) {
+            if (l.isNumber() && r.isNumber()) {
                 PDDLNumber first;
-                first = left.getNumber();
-                PDDLNumber second = right.getNumber();
+                first = l.getNumber();
+                PDDLNumber second = r.getNumber();
                 if (this.getComparator().equals("<")) {
                     if ((first.getNumber() < second.getNumber())) {
                         return;
@@ -475,13 +476,14 @@ public class Comparison extends Conditions {
             System.out.println("Expression malformed:"+this);
             Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
 
         if ("<".equals(this.comparator) || "<=".equals(this.comparator) || "=".equals(this.comparator)) {
-            setLeft(right.minus(left));
-            setRight(new NormExpression(new Float(0.0)));
+            setLeft(r.minus(l));
+            setRight(new ExtendedNormExpression(new Float(0.0)));
         } else {
-            setLeft(left.minus(right));
-            setRight(new NormExpression((float) 0.0));
+            setLeft(l.minus(r));
+            setRight(new ExtendedNormExpression((float) 0.0));
 
         }
 
@@ -494,10 +496,10 @@ public class Comparison extends Conditions {
         }
         //System.out.println(this);
 
-//       NormExpression lexp = (NormExpression)this.left;
-//       NormExpression rexp = (NormExpression)this.right;
+//       ExtendedNormExpression lexp = (ExtendedNormExpression)this.left;
+//       ExtendedNormExpression rexp = (ExtendedNormExpression)this.right;
 //       lexp = lexp.minus(rexp);
-//       this.right = new NormExpression(new Float(0.0));
+//       this.right = new ExtendedNormExpression(new Float(0.0));
         setNormalized(true);
 
     }
@@ -554,11 +556,11 @@ public class Comparison extends Conditions {
         Float ret = new Float(0);
         if (!init.satisfy(this)) {
 
-            if ((this.getRight() instanceof NormExpression) && (this.getLeft() instanceof NormExpression)) {
-                NormExpression lExpr = (NormExpression) this.getLeft();
+            if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
+                ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
                 Float num = new Float(0.0);
                 //Float den = new Float(0.0);
-                for (Addendum a : lExpr.summations) {
+                for (ExtendedAddendum a : lExpr.summations) {
                     if (a.f == null) {
                         num += a.n.getNumber();
                     } else {
@@ -581,7 +583,7 @@ public class Comparison extends Conditions {
                 if (rel_state == null) {
                     num = new Float(1);
                 } else {
-                    for (Addendum a : lExpr.summations) {
+                    for (ExtendedAddendum a : lExpr.summations) {
                         if (a.f == null) {
                             num += a.n.getNumber();
                         } else {
@@ -605,12 +607,12 @@ public class Comparison extends Conditions {
 
     public void computeMaxDist(RelState numericFleuntsBoundaries) {
 
-        if ((this.getRight() instanceof NormExpression) && (this.getLeft() instanceof NormExpression)) {
-            NormExpression lExpr = (NormExpression) this.getLeft();
+        if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
+            ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
 
             Float num = new Float(0.0);
 
-            for (Addendum a : lExpr.summations) {
+            for (ExtendedAddendum a : lExpr.summations) {
                 if (a.f == null) {
                     num += Math.abs(a.n.getNumber());
                 } else {
@@ -668,16 +670,16 @@ public class Comparison extends Conditions {
         //if the action does not threaten the dependant fluents, then let see if it is a proper threat for c.
         Comparison c = (Comparison) get.regress((Comparison) this.clone());
 
-        if ((this.getRight() instanceof NormExpression) && (this.getLeft() instanceof NormExpression)) {
-            NormExpression lExpr = (NormExpression) this.getLeft();
-            NormExpression lExprNew = (NormExpression) c.getLeft();
+        if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
+            ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
+            ExtendedNormExpression lExprNew = (ExtendedNormExpression) c.getLeft();
 //            System.out.println(lExpr);
 //            System.out.println(lExprNew);
 //            System.out.println(this.getRight());
 
-            NormExpression toTest = lExprNew.minus((NormExpression) lExpr.clone());
+            ExtendedNormExpression toTest = lExprNew.minus((ExtendedNormExpression) lExpr.clone());
             Float total = (float) 0.0;
-            for (Addendum add : toTest.summations) {
+            for (ExtendedAddendum add : toTest.summations) {
                 if (add.f != null) {
                     return true;
                 } else {
@@ -770,7 +772,7 @@ public class Comparison extends Conditions {
         if (!gr.mayInfluence(this)){
             return " true ";
         }
-        NormExpression norm = (NormExpression) this.getLeft();
+        ExtendedNormExpression norm = (ExtendedNormExpression) this.getLeft();
         String ret_val = "";
 
         HashMap<NumFluent, NumEffect> affector = new HashMap();
@@ -781,7 +783,7 @@ public class Comparison extends Conditions {
         }
         {
             //System.out.println(summations);
-            Addendum ad = (Addendum) norm.summations.get(0);
+            ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(0);
             if (ad.f == null) {
 
                 ret_val = " " + ad.n.pddlPrint(false) + " ";
@@ -803,7 +805,7 @@ public class Comparison extends Conditions {
         }
         {
             for (int i = 1; i < norm.summations.size(); i++) {
-                Addendum ad = (Addendum) norm.summations.get(i);
+                ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(i);
                 if (ad.f == null) {
                     ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(false) + " )";
                 } else {
@@ -866,7 +868,7 @@ public class Comparison extends Conditions {
             System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
         }
-        NormExpression exp = (NormExpression) this.getLeft();
+        ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
         return exp.eval_not_affected(s_0, aThis);
     }
 
@@ -875,7 +877,7 @@ public class Comparison extends Conditions {
             System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
         }
-        NormExpression exp = (NormExpression) this.getLeft();
+        ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
         return exp.eval_affected(s_0, aThis);
     }
 
@@ -901,5 +903,21 @@ public class Comparison extends Conditions {
         
         return lhs.toString() +">="+0; 
         
+    }
+
+    @Override
+    public Conditions transform_equality() {
+        AndCond ret = new AndCond();
+        Comparison comp = (Comparison) this;
+        if (comp.getComparator().equals("=")) {
+            Comparison dual = (Comparison) comp.clone();
+            dual.setComparator("<=");
+            dual.setNormalized(false);
+            comp.setComparator(">=");
+            ret.addConditions(dual);
+            ret.addConditions(comp);
+        }else
+            return this;
+        return ret;
     }
 }

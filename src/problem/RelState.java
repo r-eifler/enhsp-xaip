@@ -269,6 +269,8 @@ public class RelState extends Object {
     }
 
     public float satisfaction_distance(Comparison comparison) {
+        if (this.satisfy(comparison))
+            return 0;
         RelState s = this;
         Expression left = comparison.getLeft();
         Expression right = comparison.getRight();
@@ -290,7 +292,7 @@ public class RelState extends Object {
             return rv.inf.getNumber() - lv.sup.getNumber();
         } else if (comparison.getComparator().equals("=")) {
             if (!((lv.inf.getNumber() > rv.sup.getNumber()) || (rv.inf.getNumber() > lv.sup.getNumber()))) {
-                return Float.MIN_VALUE;
+                return -Float.MIN_VALUE;
             } else {
                 if (lv.inf.getNumber() > lv.inf.getNumber()){
                     return lv.inf.getNumber() - lv.inf.getNumber();

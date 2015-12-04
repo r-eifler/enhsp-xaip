@@ -55,7 +55,7 @@ public abstract class Expression extends Object {
     public abstract PDDLNumber eval(State s);
 
     //public abstract State apply(State s);
-    public abstract NormExpression normalize();
+    public abstract ExtendedNormExpression normalize();
 
     public abstract void changeVar(Map substitution);
 
@@ -96,6 +96,8 @@ public abstract class Expression extends Object {
     public void setFreeVarSemantic(boolean freeVarSemantic) {
         this.freeVarSemantic = freeVarSemantic;
     }
+
+    public abstract boolean involve(NumFluent a);
         
 
   

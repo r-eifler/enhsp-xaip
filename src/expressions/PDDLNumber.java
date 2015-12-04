@@ -49,7 +49,12 @@ public class PDDLNumber extends Expression {
         number = n;
 
     }
+    public PDDLNumber(float number) {
 
+        grounded = true;
+        this.number = number;
+
+    }
     public PDDLNumber(int number) {
 
         grounded = true;
@@ -92,11 +97,11 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public NormExpression normalize() {
-        Addendum a = new Addendum();
+    public ExtendedNormExpression normalize() {
+        ExtendedAddendum a = new ExtendedAddendum();
         a.n = this;
         a.f = null;
-        NormExpression ret = new NormExpression();
+        ExtendedNormExpression ret = new ExtendedNormExpression();
         ret.summations.add(a);
         return ret;
 
@@ -188,5 +193,18 @@ public class PDDLNumber extends Expression {
     @Override
     public String toSmtVariableString(int i) {
         return toString();
+    }
+
+    @Override
+    public boolean involve(NumFluent a) {
+        return false;
+    }
+
+    public boolean less(int i) {
+        return this.number<i;
+    }
+
+    public boolean greater(int i) {
+        return this.number>i;
     }
 }

@@ -77,7 +77,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public NormExpression normalize() {
+    public ExtendedNormExpression normalize() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -138,6 +138,11 @@ public class MinusUnary extends Expression {
 
     @Override
     public String toSmtVariableString(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean involve(NumFluent a) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

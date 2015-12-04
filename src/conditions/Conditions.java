@@ -140,6 +140,8 @@ public abstract class Conditions extends Object {
     public void setValid(boolean valid) {
         this.valid = valid;
     }
+
+    public abstract Conditions transform_equality();
         
 
 

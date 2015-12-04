@@ -31,6 +31,9 @@ import conditions.AndCond;
 import domain.ActionSchema;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
+import expressions.NumFluent;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -122,6 +125,103 @@ public class EPddlProblem extends PddlProblem {
         this.setGroundedActions(true);
 
     }
+    
+    
+    public void generateActionsAndProcesses() throws Exception {
+        long start = System.currentTimeMillis();
+        if (this.isValidatedAgainstDomain()) {
+            Instantiator af = new Instantiator();
+            for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
+//                af.Propositionalize(act, objects);
+                if (act.getParameters().size() != 0) {
+                    getActions().addAll(af.Propositionalize(act, getObjects()));
+                } else {
+                    GroundAction gr = act.ground();
+                    getActions().add(gr);
+
+                }
+            }
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+        processesSet = new LinkedHashSet();
+        if (this.isValidatedAgainstDomain()) {
+            Instantiator af = new Instantiator();
+            for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
+//                af.Propositionalize(act, objects);
+                if (process.getParameters().size() != 0) {
+                    processesSet.addAll(af.Propositionalize(process, getObjects()));
+                } else {
+                    GroundProcess gr = process.ground();
+                    processesSet.add(gr);
+                }
+            }
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+        
+        
+        Iterator it = getActions().iterator();
+        //System.out.println("prova");
+        System.out.println(getActions().size());
+        while (it.hasNext()) {
+            GroundAction act = (GroundAction) it.next();
+            boolean keep = true;
+            if (isSimplifyActions()) {
+                keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            }
+            if (!keep) {
+                //System.out.println("Pruning action:"+act.getName());
+                it.remove();
+            }
+        }
+        System.out.println(getActions().size());
+
+        
+        it = this.processesSet.iterator();
+        while (it.hasNext()) {
+            GroundProcess process = (GroundProcess) it.next();
+            boolean keep = true;
+
+                keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            
+            if (!keep) {
+                //System.out.println("Pruning action:"+act.getName());
+                it.remove();
+            }
+        }
+        
+        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
+        this.processesGround = true;
+        this.setGroundedActions(true);
+
+
+    }
+    
+    @Override
+    public HashMap getInvariantFluents() throws Exception {
+        if (invariantFluents == null) {
+            invariantFluents = new HashMap();
+            if (this.getActions() == null || this.getActions().isEmpty()) {
+                this.generateActionsAndProcesses();
+            }
+            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
+                for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
+                    invariantFluents.put(nf, Boolean.FALSE);
+                }
+            }
+            for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+                for (NumFluent nf : pr.getNumericFluentAffected().keySet()) {
+                    invariantFluents.put(nf, Boolean.FALSE);
+                }
+            }
+        }
+        return invariantFluents;
+    }
 
     public void generateConstraints() throws Exception {
         long start = System.currentTimeMillis();
@@ -163,6 +263,7 @@ public class EPddlProblem extends PddlProblem {
         }
         
         
+        
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.globalConstraintGrounded = true;
 
@@ -170,6 +271,7 @@ public class EPddlProblem extends PddlProblem {
     
     public void generateProcesses() throws Exception {
         long start = System.currentTimeMillis();
+        processesSet = new LinkedHashSet();
         if (this.isValidatedAgainstDomain()) {
             Instantiator af = new Instantiator();
             for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
@@ -205,5 +307,29 @@ public class EPddlProblem extends PddlProblem {
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.processesGround = true;
 
+    }
+    
+    @Override
+    public void transform_numeric_condition() throws Exception {
+
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+            if (gr.getPreconditions() != null) {
+                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
+            }
+        }
+        
+        for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+            if (pr.getPreconditions() != null) {
+                pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
+            }
+        }
+        for (GlobalConstraint constr: (Collection<GlobalConstraint>) this.globalConstraintSet){
+            if (constr.condition != null){
+                constr.condition = (constr.condition.transform_equality());
+            }
+        }
+        
+        goals.normalize();
+        this.goals = generate_inequalities(goals);
     }
 }
