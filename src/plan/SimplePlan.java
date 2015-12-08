@@ -89,7 +89,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug = 5;
+    private int debug = 1;
     private boolean newMethod = true;
 
     public SimplePlan(PddlDomain dom) {
@@ -2039,10 +2039,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 return temp;
             }
         }
+        if (debug == 1){
+            System.out.println("Last State:");
+            System.out.println(temp.pddlPrint());
+        }
         System.out.println("Plan is executed correctly");
         return temp;    
     }
-
     public List generateMacrosFromBlocks(List blocks) throws Exception {
         List result = new ArrayList();
 

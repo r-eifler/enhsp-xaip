@@ -66,11 +66,13 @@ public class SearchStrategies {
     public boolean preferred_operators_active = false;
     public boolean processes = true;
     public float delta;
+    public int horizon;
 
     public void setup_heuristic(Heuristics input) {
         this.setHeuristic(input);
         setGw(0);
         setHw(1);
+        //horizon = Integer.MAX_VALUE;
         setDecreasing_heuristic_pruning(false);
     }
 
@@ -301,6 +303,13 @@ public class SearchStrategies {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 return extract_plan(current_node);
             }
+            
+            
+            if (current_node.action_cost_to_get_here >= horizon){
+                overall_search_time = System.currentTimeMillis() - start_global;
+                continue;
+            }
+            
 
             visited.put(current_node.s, Boolean.TRUE);
             if (processes){
@@ -402,6 +411,11 @@ public class SearchStrategies {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 return extract_plan(current_node);
             }
+            
+            if (current_node.action_cost_to_get_here >= horizon){
+                overall_search_time = System.currentTimeMillis() - start_global;
+                continue;
+            }
 
             if (nodes_expanded % 10000 == 0) {
                 System.out.println("Stats so far. Expanded nodes:" + nodes_expanded + " States Evaluated:" + this.getStates_evaluated());
@@ -426,7 +440,7 @@ public class SearchStrategies {
                         //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                         act.setAction_cost(temp);
                         if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
-                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.action_cost_to_get_here + (int) act.getAction_cost())*this.getGw() , d * getHw(), json_rep_saving);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.action_cost_to_get_here + (int) act.getAction_cost())*this.getGw() , d*getHw(), json_rep_saving);
                             frontier.add(new_node);
                             //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
                             if (json_rep_saving) {
@@ -474,9 +488,17 @@ public class SearchStrategies {
     private static LinkedList extract_plan(SearchNode c) {
         LinkedList plan = new LinkedList();
         while (c.action != null) {
-            c.action.time = c.s.functionValue(new NumFluent("time_elapsed")).getNumber();
-            plan.addFirst(c.action);
-            c = c.father;
+            try {
+                GroundAction gr = (GroundAction) c.action.clone();
+                gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+                if (c.action instanceof GroundProcess){
+                    gr.setName("--------->waiting");
+                }
+                plan.addFirst(gr);
+                c = c.father;
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(SearchStrategies.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return plan;
     }
@@ -586,7 +608,7 @@ public class SearchStrategies {
                 //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                 if (d != Integer.MAX_VALUE) {
                     waiting.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.action_cost_to_get_here + (int) waiting.getAction_cost())*0, d * getHw(), this.json_rep_saving);
+                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.action_cost_to_get_here + (int) waiting.getAction_cost()), d * getHw(), this.json_rep_saving);
 
                     frontier.add(new_node);
                     //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated

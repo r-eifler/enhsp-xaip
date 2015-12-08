@@ -93,7 +93,9 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.numericEffects != null) {
             ret.numericEffects = this.numericEffects.clone();
         }
-        ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+        
+        if (this.numericFluentAffected!=null)
+            ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
         if (this.parameters != null) {
             ret.parameters = (ParametersAsTerms) this.parameters.clone();
         }
@@ -310,6 +312,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public Collection<NumEffect> getNumericEffectsAsCollection() {
         AndCond num = (AndCond) this.getNumericEffects();
         Collection<NumEffect> ret = new LinkedHashSet();
+        this.numericFluentAffected = new HashMap();
         if (num != null) {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {

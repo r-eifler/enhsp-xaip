@@ -549,17 +549,11 @@ public final class PddlDomain extends Object {
                         del_list = (AndCond) del;
                     }
                     
-                    AndCond num_effect = new AndCond();
-                    if (! (o instanceof AndCond)){
-                        num_effect.addConditions(add);
-                    }else{
-                        num_effect = (AndCond) o;
-                    }
 
                     a.setAddList(add_list);
 
                     a.setDelList(del_list);
-                    a.setNumericEffects(num_effect);
+                    a.setNumericEffects(numericEffect);
 
             }
 

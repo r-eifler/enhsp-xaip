@@ -50,6 +50,8 @@ public class SearchNode implements Comparable {
     public JSONObject json_rep;
     public int reacheable_condition;
     private boolean break_ties_on_reacheable_conditions;
+    public float wg;
+    public float wh;
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance) {
         s = s1;
@@ -59,6 +61,8 @@ public class SearchNode implements Comparable {
         this.action_cost_to_get_here = action_cost_to_get_here;
         json_rep = null;
         reacheable_condition = 0;
+        wh = 1f;
+        wg = 1f;
     }
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json) {

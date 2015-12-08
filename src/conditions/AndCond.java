@@ -112,6 +112,7 @@ public class AndCond extends Conditions {
     public Conditions ground(Map substitution) {
         AndCond ret = new AndCond();
 
+        //System.out.println(this.toString());
         for (Object o : sons) {
 
             if (o instanceof NumEffect) {

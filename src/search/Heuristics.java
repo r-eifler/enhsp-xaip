@@ -88,12 +88,14 @@ public abstract class Heuristics {
     protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
     protected boolean sat_test_within_cost = true;
     protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
-    
+
     public LinkedHashSet<GroundAction> relaxed_plan_actions;
-    public HashMap<Integer,GroundAction> final_achiever;
+    public HashMap<Integer, GroundAction> final_achiever;
     protected boolean preferred_operators;
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
+    private boolean no_plan_extraction = true;
+    public int horizon = 100000;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -109,7 +111,8 @@ public abstract class Heuristics {
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
     }
-    public Heuristics(Conditions G, Set<GroundAction> A,Set<GroundAction> P) {
+
+    public Heuristics(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -163,7 +166,7 @@ public abstract class Heuristics {
         for (GroundAction a : A) {
             LinkedHashSet temp = new LinkedHashSet();
 
-            if (a.getAddList().sons != null){
+            if (a.getAddList() != null && a.getAddList().sons != null) {
                 for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
                     int index = conditions.indexOf(c_1);
                     if (index != -1) {
@@ -178,8 +181,8 @@ public abstract class Heuristics {
                     temp.add(c_1);
 
                 }
+                a.getAddList().sons = temp;
             }
-            a.getAddList().sons = temp;
 
         }
 
@@ -869,70 +872,90 @@ public abstract class Heuristics {
 
     protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Integer> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
+//        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
-        //float current_distance = rel_state.satisfaction_distance((Comparison) c);
+        float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic
         Boolean reacheable = null;
         try {
-            reacheable = compute_enclosure(pool,rel_state,(Comparison)c);
+            reacheable = compute_enclosure(pool, rel_state, (Comparison) c);
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (reacheable!=null && reacheable==false)
+        if (reacheable != null && reacheable == false) {
             return Integer.MAX_VALUE;
-        HashMap<NumEffect,GroundAction> effects_to_actions = new HashMap();
-        for (GroundAction gr: pool){
-            for (NumEffect nf : gr.getNumericEffectsAsCollection()){
-                effects_to_actions.put(nf,gr);    
+        }
+        HashMap<NumEffect, GroundAction> effects_to_actions = new HashMap();
+        for (GroundAction gr : pool) {
+            for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
+                effects_to_actions.put(nf, gr);
             }
-            if (action_to_cost.get(gr)==null){
-                action_to_cost.put(gr,0);
+            if (action_to_cost.get(gr) == null) {
+                action_to_cost.put(gr, 0);
             }
         }
-        
+
         Collection<NumFluent> interesting_fluents = c.getInvolvedFluents();
         int iteration = 0;
         ArrayList<HashSet<GroundAction>> relaxed_plan = new ArrayList();
 //        System.out.println("h start");
-        while (true){
+        while (true) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
             RelState rel_state_before = rel_state.clone();
             boolean stop = true;
             HashSet<GroundAction> action_for_phase = new LinkedHashSet();
-            while (!q.isEmpty()){
+            while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
-                if (effects_to_actions.get(a) != null){
+                if (effects_to_actions.get(a) != null) {
                     GroundAction gr = effects_to_actions.get(a);
                     action_for_phase.add(gr);
                 }
                 a.apply(rel_state);
-                if (a.internal_cycle()){
+                if (a.internal_cycle()) {
                     a.apply(rel_state);
+                    action_for_phase.add(effects_to_actions.get(a));
                 }
+//                float temp = rel_state.satisfaction_distance((Comparison) c);
+//                while (temp < current_distance){
+//                    current_distance = temp;
+//                    a.apply(rel_state);
+//                    action_for_phase.add(effects_to_actions.get(a));
+//                    temp = rel_state.satisfaction_distance((Comparison) c);
+//                }
+                
                 if (rel_state.satisfy((Comparison) c)) {
 //                    System.out.println("Caccamo");
                     relaxed_plan.add(action_for_phase);
-                    return compute_plan_cost(relaxed_plan,action_to_cost);
+                    //int ret = compute_plan_cost(relaxed_plan, action_to_cost, s_0,(Comparison)c);
+                    int ret = this.compute_plan_cost(relaxed_plan, action_to_cost);
+                    if (ret == Integer.MAX_VALUE){
+                        System.out.println("Something went wrong");
+                    }
+                    return ret;
                 }
-                if (any_change(rel_state_before,rel_state,interesting_fluents)) {
+                if (any_change(rel_state_before, rel_state, interesting_fluents)) {
                     stop = false;
                 }
-                if (iteration>100 ){
+                if (iteration > horizon) {
                     //System.out.println("Cut-off");
 //                    System.out.println("Caccamo2");
 //                    return 0;
-                    relaxed_plan.add(action_for_phase);
-                    return compute_plan_cost(relaxed_plan,action_to_cost);
+                    return horizon;
+//                    relaxed_plan.add(action_for_phase);
+//                    return compute_plan_cost(relaxed_plan, action_to_cost, s_0,(Comparison)c);
                 }
-                iteration++;
 //                System.out.println(iteration);
             }
+            iteration++;
+
             relaxed_plan.add(action_for_phase);
-            if (stop)
+            if (stop) {
+                System.out.println("STOPPP!");
                 return Integer.MAX_VALUE;
+            }
         }
-        
+
 //        
 //        LinkedList initial = order_according_to_dependencies_actions(pool, c, action_to_cost);
 //        Collection<NumFluent> interesting_fluents = c.getInvolvedFluents();
@@ -1040,8 +1063,6 @@ public abstract class Heuristics {
         }
         return ret;
     }
-    
-
 
     protected LinkedList sort_actions_pool_according_to_cost(HashSet<HeuristicSearchNode> pool) {
         LinkedList temp = new LinkedList(pool);
@@ -1247,26 +1268,27 @@ public abstract class Heuristics {
     }
 
     private boolean any_change(RelState rel_state_before, RelState rel_state, Collection<NumFluent> interesting_fluents) {
-        
-        for (NumFluent nf : interesting_fluents){
-            if ((rel_state.functionInfValue(nf) != rel_state_before.functionInfValue(nf))||
-                (rel_state.functionSupValue(nf) != rel_state_before.functionSupValue(nf)))
+
+        for (NumFluent nf : interesting_fluents) {
+            if ((rel_state.functionInfValue(nf) != rel_state_before.functionInfValue(nf))
+                    || (rel_state.functionSupValue(nf) != rel_state_before.functionSupValue(nf))) {
                 return true;
-                
+            }
+
         }
         return false;
-        
+
     }
 
     private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
         Boolean ret = null;
         boolean cyclic = false;
-        
+
         HashSet<NumEffect> num_effects = new LinkedHashSet();
-        HashMap<NumEffect,Boolean> temp_mark = new HashMap();
-        HashMap<NumEffect,Boolean> per_mark = new HashMap();
-        for (GroundAction gr : pool){
-            for (NumEffect nf : gr.getNumericEffectsAsCollection()){
+        HashMap<NumEffect, Boolean> temp_mark = new HashMap();
+        HashMap<NumEffect, Boolean> per_mark = new HashMap();
+        for (GroundAction gr : pool) {
+            for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
                 temp_mark.put(nf, false);
                 per_mark.put(nf, false);
                 num_effects.add(nf);
@@ -1276,11 +1298,12 @@ public abstract class Heuristics {
 //        System.out.println("start transitive_closure");
 
         sorted_nodes = new LinkedList();
-        for (NumEffect a:num_effects) {
-            if (!per_mark.get(a)){
-                if (c.getLeft().involve(a.getFluentAffected())){
-                    if (visit(a,num_effects,temp_mark,per_mark,sorted_nodes))
+        for (NumEffect a : num_effects) {
+            if (!per_mark.get(a)) {
+                if (c.getLeft().involve(a.getFluentAffected())) {
+                    if (visit(a, num_effects, temp_mark, per_mark, sorted_nodes)) {
                         cyclic = true;
+                    }
                 }
             }
         }
@@ -1291,64 +1314,66 @@ public abstract class Heuristics {
             PDDLNumbers res = nf.getRight().eval(temp);
             switch (nf.getOperator()) {
                 case "increase":
-                    if (res.can_be_negative()){
+                    if (res.can_be_negative()) {
                         temp.setFunctionInfValue(nf.getFluentAffected(), new PDDLNumber(-Float.MAX_VALUE));
                     }
-                    if (res.can_be_positive()){
+                    if (res.can_be_positive()) {
                         temp.setFunctionSupValue(nf.getFluentAffected(), new PDDLNumber(Float.MAX_VALUE));
-                    }   break;
+                    }
+                    break;
                 case "decrease":
-                    if (res.can_be_negative()){
+                    if (res.can_be_negative()) {
                         temp.setFunctionSupValue(nf.getFluentAffected(), new PDDLNumber(Float.MAX_VALUE));
                     }
-                    if (res.can_be_positive()){
+                    if (res.can_be_positive()) {
                         temp.setFunctionInfValue(nf.getFluentAffected(), new PDDLNumber(-Float.MAX_VALUE));
-                    }   break;
+                    }
+                    break;
                 case "assign":
                     nf.apply(temp);
                     break;
             }
         }
-        
+
 //        if (cyclic){
 //            sorted_nodes.addAll(num_effects);
 //        }
-        
         boolean try_anyway = c.isSatisfied(temp);
-        if (!try_anyway && cyclic){
+        if (!try_anyway && cyclic) {
             return null;
         }
-        
+
 //        System.out.println("transitive_closure");
         return try_anyway;
-           
 
     }
 
-    public boolean visit(NumEffect nf,Collection<NumEffect> col,HashMap<NumEffect,Boolean> temp_mark,HashMap<NumEffect,Boolean> per_mark,LinkedList<NumEffect> list){
-        
-        if (temp_mark.get(nf))  
+    public boolean visit(NumEffect nf, Collection<NumEffect> col, HashMap<NumEffect, Boolean> temp_mark, HashMap<NumEffect, Boolean> per_mark, LinkedList<NumEffect> list) {
+
+        if (temp_mark.get(nf)) {
             return true;
-        if (per_mark.get(nf))
+        }
+        if (per_mark.get(nf)) {
             return false;
+        }
         temp_mark.put(nf, true);
         boolean cyclic = false;
-        for (NumEffect b: col){
-            if (!b.equals(nf)){
-                if (nf.getRight().involve(b.getFluentAffected())){
-                    if (visit(b,col,temp_mark,per_mark,list)){
+        for (NumEffect b : col) {
+            if (!b.equals(nf)) {
+                if (nf.getRight().involve(b.getFluentAffected())) {
+                    if (visit(b, col, temp_mark, per_mark, list)) {
                         return true;
-                       //cyclic = true;
+                        //cyclic = true;
                     }
                 }
             }
         }
-        per_mark.put(nf, true); 
+        per_mark.put(nf, true);
         temp_mark.put(nf, false);
         list.addLast(nf);
         return cyclic;
     }
-    
+
 //
 //  Tarjan Algorithm    
 //    L← Empty list that will contain the sorted nodes
@@ -1364,21 +1389,96 @@ public abstract class Heuristics {
 //        mark n permanently
 //        unmark n temporarily
 //        add n to head of L
-
     private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost) {
         int cost = 0;
-        HashMap<GroundAction,Boolean> already_considered = new HashMap();
-        
-        for (HashSet<GroundAction> action_for_phase :relaxed_plan){
-            for (GroundAction gr: action_for_phase){
-                if (already_considered.get(gr)== null){
-                    already_considered.put(gr, true);
-                    cost += action_to_cost.get(gr)+1;
-                }
-                cost++;
+        HashMap<GroundAction, Boolean> already_considered = new HashMap();
+
+//        while(true){
+        for (HashSet<GroundAction> action_for_phase : relaxed_plan) {
+            for (GroundAction gr : action_for_phase) {
+//                if (already_considered.get(gr) == null) {
+//                    already_considered.put(gr, true);
+//                    cost += action_to_cost.get(gr) + 1;
+//                }
+                cost += action_to_cost.get(gr) + 1;
+                //cost++;
             }
         }
-        return cost;  
+//        }
+        return cost;
+    }
+
+    private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost, State s_0,Comparison goal) {
+        try {
+            int cost = 0;
+            
+
+            RelState rel_state = s_0.relaxState();
+            
+            ArrayList<GroundAction> plan = new ArrayList();
+            
+            for (HashSet<GroundAction> action_for_phase : relaxed_plan) {
+                for (GroundAction gr : action_for_phase) {
+                    plan.add(gr);
+                }
+            }
+            
+            ArrayList<Boolean> removed = new ArrayList<Boolean>(Collections.nCopies(plan.size(), false));
+            
+            int min = execute(plan, rel_state, removed,action_to_cost,goal,-1);
+            if (no_plan_extraction)
+                return min;
+//            System.out.println(min);
+
+            while (true) {
+                int to_remove = -1;
+                for (int i = 0; i < plan.size(); i++) {
+                    int temp = execute(plan, rel_state, removed,action_to_cost,goal,i);
+                    if (temp < min){
+                        min = temp;
+                        to_remove = i;
+//                        System.out.println(min);
+                    }
+                }
+                if (to_remove != -1){
+                    removed.set(to_remove, true);
+                }else{
+                    return min;
+                }
+                
+            }
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+
+    }
+
+    private int execute(ArrayList<GroundAction> plan, RelState rel_state, ArrayList<Boolean> removed,HashMap<GroundAction, Integer> action_to_cost,Comparison goal,int cand) throws CloneNotSupportedException {
+        int cost = 0;
+        RelState temp = rel_state.clone();
+//        System.out.println(rel_state);
+        for (int i = 0; i < plan.size(); i++) {
+            
+//            if (removed.get(i) == false && i != cand) {
+                temp = plan.get(i).apply(temp);
+                cost+=action_to_cost.get(plan.get(i));
+                cost++;
+//                System.out.println("Applying:"+plan.get(i));
+//            }
+
+        }
+//        System.out.println(rel_state);
+//        System.out.println(goal);
+        if (!temp.satisfy(goal)){
+            //System.out.println("Unsatisfiable?!?!?!");
+            return Integer.MAX_VALUE;
+            
+        }else{
+            //System.out.println("OKKKK");
+        }
+        
+        return cost;
     }
 
 }
