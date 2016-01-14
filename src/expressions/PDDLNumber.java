@@ -114,7 +114,8 @@ public class PDDLNumber extends Expression {
 
     @Override
     public String pddlPrint(boolean typeInformation) {
-        return " " + String.format(Locale.US,"%.4f",this.getNumber()) + " ";
+        //return String.
+        return " " + String.format("%.10f",this.getNumber()) + " ";
     }
 
     @Override

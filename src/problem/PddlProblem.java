@@ -395,35 +395,47 @@ public class PddlProblem {
     protected Expression createExpression(Tree t) {
 
         int test = t.getType();
-        if (t.getType() == PddlParser.BINARY_OP) {
-            BinaryOp ret = new BinaryOp();
-            ret.setOperator(t.getChild(0).getText());
-            ret.setOne(createExpression(t.getChild(1)));
-            ret.setRight(createExpression(t.getChild(2)));
-            ret.grounded = true;
-            return ret;
-        } else if (t.getType() == PddlParser.NUMBER) {
-            PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
-            return ret;
-        } else if (t.getType() == PddlParser.FUNC_HEAD) {
-            NumFluent ret = new NumFluent(t.getChild(0).getText());
-
-            for (int i = 1; i < t.getChildCount(); i++) {
-                ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
+        switch (t.getType()) {
+            case PddlParser.BINARY_OP:
+            {
+                BinaryOp ret = new BinaryOp();
+                ret.setOperator(t.getChild(0).getText());
+                ret.setOne(createExpression(t.getChild(1)));
+                ret.setRight(createExpression(t.getChild(2)));
+                ret.grounded = true;
+                return ret;
             }
-
-            ret.grounded = true;
-            return ret;
-        } else if (t.getType() == PddlParser.UNARY_MINUS) {
-            return new MinusUnary(createExpression(t.getChild(0)));
-        } else if (t.getType() == PddlParser.MULTI_OP) {
-            MultiOp ret = new MultiOp(t.getChild(0).getText());
-            for (int i = 1; i < t.getChildCount(); i++) {
-                //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
-                ret.addExpression(createExpression(t.getChild(i)));
+            case PddlParser.NUMBER:
+            {
+                //Float.
+                PDDLNumber ret = new PDDLNumber(Float.valueOf(t.getText()));
+                return ret;
             }
-            ret.grounded = true;
-            return ret;
+            case PddlParser.FUNC_HEAD:
+            {
+                NumFluent ret = new NumFluent(t.getChild(0).getText());
+                
+                for (int i = 1; i < t.getChildCount(); i++) {
+                    ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
+                }
+                
+                ret.grounded = true;
+                return ret;
+            }
+            case PddlParser.UNARY_MINUS:
+                return new MinusUnary(createExpression(t.getChild(0)));
+            case PddlParser.MULTI_OP:
+            {
+                MultiOp ret = new MultiOp(t.getChild(0).getText());
+                for (int i = 1; i < t.getChildCount(); i++) {
+                    //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
+                    ret.addExpression(createExpression(t.getChild(i)));
+                }
+                ret.grounded = true;
+                return ret;
+            }
+            default:
+                break;
         }
 
         return null;
@@ -433,19 +445,23 @@ public class PddlProblem {
     protected void addInitFacts(Tree child) {
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
-            if (c.getType() == PddlParser.PRED_INST) {
-                init.addProposition(buildInstPredicate(c));
-
-            } else if (c.getType() == PddlParser.INIT_EQ) {
-                counterNumericFluents++;
-                NumFluentAssigner a = new NumFluentAssigner("=");
-                a.setNFluent((NumFluent) createExpression(c.getChild(0)));
-                a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
-                //System.out.println(a);
-                init.addNumericFluent(a);
-            } else if (c.getType() == PddlParser.INIT_AT) {
-                init.addTimedLiteral(buildInstPredicate(c));
-
+            switch (c.getType()) {
+                case PddlParser.PRED_INST:
+                    init.addProposition(buildInstPredicate(c));
+                    break;
+                case PddlParser.INIT_EQ:
+                    counterNumericFluents++;
+                    NumFluentAssigner a = new NumFluentAssigner("=");
+                    a.setNFluent((NumFluent) createExpression(c.getChild(0)));
+                    a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
+                    //System.out.println(a);
+                    init.addNumericFluent(a);
+                    break;
+                case PddlParser.INIT_AT:
+                    init.addTimedLiteral(buildInstPredicate(c));
+                    break;
+                default:
+                    break;
             }
 
         }

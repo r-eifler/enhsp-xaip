@@ -64,7 +64,7 @@ public class SearchStrategies {
     public SearchNode search_space_handle;
     private boolean high_verbosity=false;
     public boolean preferred_operators_active = false;
-    public boolean processes = true;
+    public boolean processes = false;
     public float delta;
     public int horizon;
 
@@ -360,6 +360,9 @@ public class SearchStrategies {
         //Frontier
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
         State current = (State) problem.getInit();
+        if (!current.satisfy(problem.globalConstraints)){
+            return null;
+        }
         getHeuristic().setup(current);
         System.out.println("|A| (After Relevance Analysis):" + getHeuristic().reachable.size());
         
@@ -489,12 +492,25 @@ public class SearchStrategies {
         LinkedList plan = new LinkedList();
         while (c.action != null) {
             try {
-                GroundAction gr = (GroundAction) c.action.clone();
-                gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+                
+                GroundAction gr = null;
+                
+                if (c.action instanceof GroundProcess){
+                    gr = (GroundProcess)c.action.clone();
+                }else{
+                    gr = (GroundAction) c.action.clone();
+                }
+
+                if (c.father.s.functionValue(new NumFluent("time_elapsed"))!=null){
+                    gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+                }else{
+                    gr.time = 0f;
+                }
                 if (c.action instanceof GroundProcess){
                     gr.setName("--------->waiting");
-                }
-                plan.addFirst(gr);
+                }//else{
+                    plan.addFirst(gr);
+                //}
                 c = c.father;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(SearchStrategies.class.getName()).log(Level.SEVERE, null, ex);

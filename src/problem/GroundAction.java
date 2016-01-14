@@ -64,7 +64,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     protected ParametersAsTerms parameters;
     public boolean normalized;
-    private HashMap<NumFluent, Boolean> numericFluentAffected;
+    protected HashMap<NumFluent, Boolean> numericFluentAffected;
     private ArrayList primitives;
     private boolean isMacro;
     public int hiddenParametersNumber;

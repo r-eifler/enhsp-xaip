@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
@@ -45,7 +44,6 @@ import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
-import search.HomeMadeFibonacciHeap.Entry;
 
 /**
  *
@@ -86,6 +84,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
         generate_achievers();
         reacheability_setting = true;
         int ret = compute_estimate(s);
+        
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         return ret;
@@ -149,13 +148,14 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
             while (it.hasNext()) {
                 GroundAction gr = it.next();
                 int action_cost = this.compute_precondition_cost(s, dist, gr);
-                achievers_of_complex_conditions.add(gr);
                 if (action_cost != Integer.MAX_VALUE) {
                     edges.add(gr);
                     if (reacheability_setting) {
                         this.reachable.add(gr);
                     }
                     action_to_cost.put(gr, action_cost);
+                    achievers_of_complex_conditions.add(gr);
+
                     it.remove();
                 }
             }
@@ -230,7 +230,7 @@ public class Uniform_cost_search_H1 extends Bellman_Ford_H1 {
                         }
                     } else {
                         temp_complex_conditions.add(comp);
-                        
+
                     }
                 }
             }

@@ -186,7 +186,7 @@ public class State extends Object {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
             }
-            ret = ret.concat(") " + a.getTwo().getNumber() + ")\n");
+            ret = ret.concat(") " + a.getTwo().pddlPrint(false) + ")\n");
         }
 
         ret = ret.concat(")");

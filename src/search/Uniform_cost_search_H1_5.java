@@ -29,6 +29,7 @@
 package search;
 
 import conditions.Conditions;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +43,15 @@ public class Uniform_cost_search_H1_5 extends Uniform_cost_search_H1{
 
     public Uniform_cost_search_H1_5(Conditions G, Set<GroundAction> A) {
         super(G, A);
+        try {
+            this.add_redundant_constraints();
+        } catch (Exception ex) {
+            Logger.getLogger(Uniform_cost_search_H1_5.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Uniform_cost_search_H1_5(Conditions goals, Set actions, HashSet processesSet) {
+        super(goals, actions,processesSet);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {

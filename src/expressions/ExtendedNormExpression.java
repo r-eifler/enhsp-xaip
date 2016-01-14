@@ -208,7 +208,7 @@ public class ExtendedNormExpression extends Expression {
             while (it.hasNext()) {
                 ExtendedAddendum a1 = (ExtendedAddendum) it.next();
                 if (!a1.linear)
-                    break;
+                    continue;
                 if ((a1.f == null) && (a.f == null)) {
                     a.n = new PDDLNumber(a.n.getNumber() - a1.n.getNumber());
                     it.remove();
@@ -232,7 +232,6 @@ public class ExtendedNormExpression extends Expression {
                 t.setRight(new PDDLNumber(-1));
                 a1.bin = t;
                 this.linear = false;
-
             }else{
                 a1.n = new PDDLNumber(a1.n.getNumber() * (-1));
             }
@@ -242,14 +241,17 @@ public class ExtendedNormExpression extends Expression {
     }
 
     ExtendedNormExpression mult(ExtendedNormExpression right) {
-//        System.out.println("DEBUG:"+summations);
-//        System.out.println("DEBUG:"+right.summations);
-        
         
         if (!right.linear || !this.linear){
-            System.out.println("Error!");
+            //System.out.println("Error!");
             this.linear = false;
-            return this;
+            BinaryOp bin = new BinaryOp();
+            bin.setOperator("*");
+            bin.setOne(right);
+            bin.setRight(this);
+            ExtendedNormExpression ret = new ExtendedNormExpression(bin);
+            
+            return ret;
         }      
         ArrayList<ExtendedAddendum> ret = new ArrayList();
         for (Object o : this.summations) {
@@ -280,9 +282,14 @@ public class ExtendedNormExpression extends Expression {
         
         
         if (!right.linear || !this.linear){
-            System.out.println("Error!");
             this.linear = false;
-            return this;
+            BinaryOp bin = new BinaryOp();
+            bin.setOperator("/");
+            bin.setOne(right);
+            bin.setRight(this);
+            ExtendedNormExpression ret = new ExtendedNormExpression(bin);
+            
+            return ret;
         }      
         
         if (right.summations.size() > 1) {

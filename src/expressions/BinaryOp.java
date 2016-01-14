@@ -159,6 +159,7 @@ public class BinaryOp extends Expression {
                 bin.setOne(l);
                 bin.setRight(r);
                 ret = new ExtendedNormExpression(bin);
+                ret.linear = false;
                 //System.out.println(ret);
             }else{
                 try {

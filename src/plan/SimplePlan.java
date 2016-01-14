@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -64,6 +65,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import problem.GlobalConstraint;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.PddlProblem;
 import problem.State;
 
@@ -161,7 +163,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     //it will be handled as a mmaction
-    public void putAction(String actionName, ParametersAsTerms par){
+    public void putAction(String actionName, ParametersAsTerms par) {
 
         ActionSchema action = pd.getActionByName(actionName);
         if (action == null) {
@@ -242,7 +244,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public void addActionsFromString(String s1) {
         String nameOperator, s2;
         ParametersAsTerms pars = new ParametersAsTerms();
-        s2 = s1.substring(s1.indexOf(":")+1, s1.length());        
+        s2 = s1.substring(s1.indexOf(":") + 1, s1.length());
         s1 = s2.trim().toLowerCase();
         //System.out.println(s1);
         //this.add(s1);
@@ -307,7 +309,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if (!(sc.next().charAt(0) == ';')) &&{
                 //System.out.println("Primo carattere:" + );
                 if (s1 != null) {
-                ParametersAsTerms pars = new ParametersAsTerms();
+                    ParametersAsTerms pars = new ParametersAsTerms();
                     s2 = s1.substring(1, s1.length() - 1);
                     s1 = "(" + s2.trim().toLowerCase() + ")";
                     //this.add(s1);
@@ -338,7 +340,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
 
-        if (this.invariantAnalysis){
+        if (this.invariantAnalysis) {
             setInvariantFluents(this.pd.generateAbstractInvariantFluents());
             this.simplifyActions();
         }
@@ -351,7 +353,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (Object o : this) {
             if (o instanceof GroundAction) {
                 GroundAction a = (GroundAction) o;
-                
+
                 ret_val = ret_val.concat(a.toEcoString() + "\n");
 
             }
@@ -429,23 +431,19 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             //System.out.println("after" + lValue + rValue);
                         }
                     }
+                } else if (con instanceof Predicate) {
+                } else if (con instanceof Comparison) {
+                    Comparison comp = (Comparison) con;
+                    Expression lValue = comp.getLeft();
+                    Expression rValue = comp.getRight();
+                    //System.out.println("before" + lValue + rValue);
+                    lValue = lValue.weakEval(pp.getInit(), invariantFluents);
+                    rValue = rValue.weakEval(pp.getInit(), invariantFluents);
+                    comp.setLeft(lValue);
+                    comp.setRight(rValue);
                 } else {
-                    if (con instanceof Predicate) {
-                    } else {
-                        if (con instanceof Comparison) {
-                            Comparison comp = (Comparison) con;
-                            Expression lValue = comp.getLeft();
-                            Expression rValue = comp.getRight();
-                            //System.out.println("before" + lValue + rValue);
-                            lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                            rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                            comp.setLeft(lValue);
-                            comp.setRight(rValue);
-                        } else {
-                            System.err.println("Conditions of the type: " + con.getClass());
-                            throw new UnsupportedOperationException("Not supported yet.");
-                        }
-                    }
+                    System.err.println("Conditions of the type: " + con.getClass());
+                    throw new UnsupportedOperationException("Not supported yet.");
                 }
             }
 
@@ -476,11 +474,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //i valori nello stato iniziale
         //dopo aver fatto cio' semplifico le variabili nelle azioni del piano
         for (Object o : this) {
-            
+
             GroundAction a = (GroundAction) o;
             //a.normalizeAndCopy();
             a.simplifyModel(pd, pp);
-          
+
         }
 
     }
@@ -554,24 +552,23 @@ public class SimplePlan extends ArrayList<GroundAction> {
             GroundAction action = (GroundAction) this.get(j);
             action.apply(temp);
         }
-        ret +="S[plan(" + i + ")] \n";
+        ret += "S[plan(" + i + ")] \n";
         //System.out.println(this.getInvariantFluents());
 
-        
         for (Object o : temp.getNumericFluents()) {
             NumFluentAssigner ass = (NumFluentAssigner) o;
             Object o1 = this.getInvariantFluents().get(ass.getNFluent());
-            if (o1!=null){
+            if (o1 != null) {
                 //System.out.println(o1);
-                if (o1 instanceof Boolean){
-                    Boolean b = (Boolean)o1;
-                    if (!b){
-                        ret += o.toString()+"\n";
+                if (o1 instanceof Boolean) {
+                    Boolean b = (Boolean) o1;
+                    if (!b) {
+                        ret += o.toString() + "\n";
                     }
-;
-                }       
+                    ;
+                }
             }
-            
+
         }
         return ret;
     }
@@ -597,25 +594,25 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public State execute(State init) throws CloneNotSupportedException {
         State temp = init.clone();
-        int i=0;
+        int i = 0;
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
             if (gr.isApplicable(temp)) {
                 i++;
                 temp = gr.apply(temp);
-                if (debug >1){
-                    System.out.println(gr.getName()+" action has been applied");
+                if (debug > 1) {
+                    System.out.println(gr.getName() + " action has been applied");
                     //System.out.println(temp.pddlPrint());
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
-                if (debug > 1){
+                if (debug > 1) {
                     System.out.println(gr.toEcoString() + "is not applicable");
-                    System.out.println("Step:"+i);
-                    
+                    System.out.println("Step:" + i);
+
                     //AndCond c= (AndCond)gr.getPreconditions();
                     System.out.println(temp.pddlPrint());
 
-                    System.out.println(temp.whatIsNotsatisfied((AndCond)gr.getPreconditions()));
+                    System.out.println(temp.whatIsNotsatisfied((AndCond) gr.getPreconditions()));
                 }
                 return temp;
             }
@@ -980,8 +977,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
         if (problem.getMetric() != null) {
             if (problem.getMetric().getMetExpr() != null) {
                 //System.out.println(problem.getMetric().getMetExpr());
-                if (problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())) == null)
+                if (problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())) == null) {
                     return new Float(this.size());
+                }
                 return problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())).getNumber();
             } else {
                 return new Float(this.size());
@@ -1027,20 +1025,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     //System.out.println("Looking for!:" + c );
 //                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
 
-                    if (c instanceof Comparison){
+                    if (c instanceof Comparison) {
                         boolean supported = false;
                         long startingTimeChainSearch = System.currentTimeMillis();
                         double temp;
-                        while(true){
-                            temp = take_max(chain,i,(Comparison)c);
+                        while (true) {
+                            temp = take_max(chain, i, (Comparison) c);
 //                            System.out.println(temp);
-                            if (temp > 0){    
+                            if (temp > 0) {
                                 supported = true;
                                 break;
-                            }else{
-                                if (chain.size()>=i){
-                                    break;
-                                }
+                            } else if (chain.size() >= i) {
+                                break;
                             }
                         }
                         totalTimeSpentForChainSearch += (System.currentTimeMillis() - startingTimeChainSearch);
@@ -1067,8 +1063,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                            System.out.println("Action: "+a);
                             System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
                         }
-                        
-                                      
+
                     } else {
                         //for the propositional case the search is much simpler...
                         boolean supported = false;
@@ -1116,7 +1111,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             }
                         } else if (c instanceof NotCond) {
 
-                        } else{
+                        } else {
                             System.out.println("Only Conjunctive Preconditions/Conditions are supported");
                             System.exit(-1);
                         }
@@ -1130,14 +1125,14 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //achieveGoal = goalAchievers(po);
         System.out.println("\nTIME FOR CHAIN SEARCH: " + totalTimeSpentForChainSearch);
         //System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
-        
+
         return po;
     }
 
     public DirectedAcyclicGraph deorder(State init, Conditions g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
-        if (debug >0){
+        if (debug > 0) {
             System.out.println(po);
         }
         if (computeGoalAchievers) {
@@ -1176,7 +1171,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 //Motivation += o.toString()+" (nelle giustificazioni)";
                                 break;
                             }
-                            
+
                         }
                     }
                 }
@@ -1209,17 +1204,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                     break;
                                 }
 
-                            } else {
-                                if (o instanceof Comparison) {
-                                    Comparison c = (Comparison) o;
-                                    HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
-                                    toTest.addAll(c.getRight().fluentsInvolved());
-                                    if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
-                                        preserveOrderConstraint = true;
-                                        orderingByNumericThreatBack++;
-                                        Motivation += o.toString() + "Back Numeric Threat";
-                                        break;
-                                    }
+                            } else if (o instanceof Comparison) {
+                                Comparison c = (Comparison) o;
+                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
+                                toTest.addAll(c.getRight().fluentsInvolved());
+                                if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
+                                    preserveOrderConstraint = true;
+                                    orderingByNumericThreatBack++;
+                                    Motivation += o.toString() + "Back Numeric Threat";
+                                    break;
                                 }
                             }
                         }
@@ -1248,24 +1241,22 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                     } else {
                                         //System.out.println("Add some actions for:"+p);
                                     }
-                                } else {
-                                    if (o instanceof Comparison) {
-                                        Comparison c = (Comparison) o;
-                                        TreeSet<Integer> chain = (TreeSet) validationStructure.get(c);
-                                        if (chain != null) {
-                                            if (chain.contains(j)) {
-                                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
-                                                toTest.addAll(c.getRight().fluentsInvolved());
-                                                if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
-                                                    preserveOrderConstraint = true;
-                                                    orderingByThreatNumericForward++;
-                                                    Motivation += o.toString() + " (forward numeric threat)";
-                                                }
-                                                break;
+                                } else if (o instanceof Comparison) {
+                                    Comparison c = (Comparison) o;
+                                    TreeSet<Integer> chain = (TreeSet) validationStructure.get(c);
+                                    if (chain != null) {
+                                        if (chain.contains(j)) {
+                                            HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
+                                            toTest.addAll(c.getRight().fluentsInvolved());
+                                            if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
+                                                preserveOrderConstraint = true;
+                                                orderingByThreatNumericForward++;
+                                                Motivation += o.toString() + " (forward numeric threat)";
                                             }
-                                        } else {
-                                            //System.out.println("Add some actions for:"+c);
+                                            break;
                                         }
+                                    } else {
+                                        //System.out.println("Add some actions for:"+c);
                                     }
                                 }
                             }
@@ -1282,7 +1273,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         add_ordering_because_of_within_chain(po);
-
 
 //        for (Object v1 : po.vertexSet()) {
 //            for (Object v2 : po.vertexSet()) {
@@ -1334,7 +1324,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 this.get(j).apply(tempInit);
 
                 d = tempInit.distance(c);
-                    //System.out.println("");
+                //System.out.println("");
 
             } //
             else {
@@ -1342,10 +1332,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 toTest.addAll(c.getRight().fluentsInvolved());
                 if (c.isDirectlyOrIndirectlyAffected(computeFluentDependencePlanDependant(toTest), this.get(j))) {
 
-                        //State temp = (State) tempInit.clone();
+                    //State temp = (State) tempInit.clone();
                     //get(j).apply(temp);
                     State temp = get(j).partialApply(tempInit, toTest);
-                        //State temp = tempInit;
+                    //State temp = tempInit;
                     //get(j).apply(temp);
                     Float t = temp.distance(c);
                     //System.out.println(t);
@@ -1542,7 +1532,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                         //System.out.println("Goal Achiever:"+v);
                         if (macro != null) {
                             if (macro.getName() != null) {
-                             //System.out.println("Goal Achiever Splitting:"+v);
+                                //System.out.println("Goal Achiever Splitting:"+v);
                                 //System.out.println(macro);
                                 if (macro.getPrimitives().size() >= 2) {
                                     result.add(macro);
@@ -1658,15 +1648,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     private GroundAction appendMacro(GroundAction macro, GroundAction get) throws Exception {
-                //GroundAction firstAct = (GroundAction) this.get(firstActionIndex);
+        //GroundAction firstAct = (GroundAction) this.get(firstActionIndex);
 
-            //get.normalize();
+        //get.normalize();
         if (macro == null) {
             macro = new GroundAction();
         }
 
         macro = macro.buildMacroInProgression(get, this.pd, this.pp, false);
-            //System.out.println(macro);
+        //System.out.println(macro);
 
         return macro;
     }
@@ -1831,9 +1821,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 } else {
                     macro = macro.buildMacroInProgression(this.get(v), this.pd, this.pp, false);
                 }
-                    //System.out.println("#primitives: " + macro.getPrimitives().size());
+                //System.out.println("#primitives: " + macro.getPrimitives().size());
 
-                    //macro = macro.buildMacroInProgression(this.get(v), pd);
+                //macro = macro.buildMacroInProgression(this.get(v), pd);
                 //macro.normalize();
                 if (achieveGoal != null) {
                     if (achieveGoal.get(v) != null) {
@@ -2004,69 +1994,71 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public State execute(State init, HashSet globalConstraintSet) throws CloneNotSupportedException {
         State temp = init.clone();
-        int i=0;
+        int i = 0;
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-            for (GlobalConstraint constr: (Collection<GlobalConstraint>)globalConstraintSet){
-                    if (!temp.satisfy(constr.condition)){
-                        System.out.println("Global Constraint is not satisfied:"+constr);
-                        return temp;
-                    }
-                    // MRJ: Meant for debugging
-                    //System.out.println(constr.condition.pddlPrint(false));
-                      
-            } 
+            for (GlobalConstraint constr : (Collection<GlobalConstraint>) globalConstraintSet) {
+                if (!temp.satisfy(constr.condition)) {
+                    System.out.println("Global Constraint is not satisfied:" + constr);
+                    return temp;
+                }
+                // MRJ: Meant for debugging
+                //System.out.println(constr.condition.pddlPrint(false));
+
+            }
             if (gr.isApplicable(temp)) {
                 i++;
                 // MRJ: Prints the state, meant for debugging
                 //System.out.println(temp.pddlPrint());
                 temp = gr.apply(temp);
 
-                if (debug >1){
-                    System.out.println(gr.getName()+" action has been applied");
+                if (debug > 1) {
+                    System.out.println(gr.getName() + " action has been applied");
                     System.out.println(temp.pddlPrint());
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
-                if (debug > 1){
+                if (debug > 1) {
                     System.out.println(gr.toEcoString() + "is not applicable");
-                    System.out.println("Step:"+i);
-                    
+                    System.out.println("Step:" + i);
+
                     //AndCond c= (AndCond)gr.getPreconditions();
                     System.out.println(temp.pddlPrint());
 
-                    System.out.println(temp.whatIsNotsatisfied((AndCond)gr.getPreconditions()));
+                    System.out.println(temp.whatIsNotsatisfied((AndCond) gr.getPreconditions()));
                 }
                 return temp;
             }
         }
-        if (debug == 1){
+        if (debug == 1) {
             System.out.println("Last State:");
             System.out.println(temp.pddlPrint());
         }
         System.out.println("Plan is executed correctly");
-        return temp;    
+        return temp;
     }
+
     public List generateMacrosFromBlocks(List blocks) throws Exception {
         List result = new ArrayList();
 
-        for (List s : (List<List>)blocks) {
+        for (List s : (List<List>) blocks) {
             TreeSet<Integer> ordered = new TreeSet(s);
             //System.out.println("Trying to Merge"+ordered);
             GroundAction macro = null;
 //            System.out.println("Building Macro");
-            if (s.size()<=1)
+            if (s.size() <= 1) {
                 continue;
-            for (Integer v : (Collection<Integer>)s) {
+            }
+            for (Integer v : (Collection<Integer>) s) {
                 //if it is the first action or it is a splittingpoint (consequence of the step above
 //                System.out.print(" "+v);
                 if (macro == null) {
-                    macro = (GroundAction) this.get(v-1);
+                    macro = (GroundAction) this.get(v - 1);
                     macro.setIsMacro(true);
-                    macro.getPrimitives().add(this.get(v-1));
+                    macro.getPrimitives().add(this.get(v - 1));
                     //macro.getPrimitivesWithInteger().add(v-1);
                 } else {
                     //append to previous computed action
-                    macro = macro.buildMacroInProgression(this.get(v-1), this.pd, this.pp, false);
+                    macro = macro.buildMacroInProgression(this.get(v - 1), this.pd, this.pp, false);
                 }
             }
 //            System.out.println("");
@@ -2076,31 +2068,29 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return result;
     }
 
-    private double take_max(TreeSet<Integer> chain, int i,Comparison c) {
-        
+    private double take_max(TreeSet<Integer> chain, int i, Comparison c) {
+
         Float best = Float.NEGATIVE_INFINITY;
         Integer bestIndex = -1;
-        for (int k=0;k<i;k++){
-            if (!chain.contains(k)){
+        for (int k = 0; k < i; k++) {
+            if (!chain.contains(k)) {
                 chain.add(k);
                 State tempInit = new State();
                 for (Integer index : chain) {
 //                    System.out.println("Applicando:"+index);
                     tempInit = this.get(index).apply(tempInit);
                 }
-                if (c.is_evaluable(tempInit)){
+                if (c.is_evaluable(tempInit)) {
                     Float current = tempInit.distance2(c);
-                    if (current > best){
+                    if (current > best) {
 //                        System.out.println(current);
 //                        System.out.println(tempInit);
 //                        System.out.println(chain);
                         best = current;
                         bestIndex = k;
                     }
-                }else{
-                    if (bestIndex == -1){
-                        bestIndex = k;
-                    }
+                } else if (bestIndex == -1) {
+                    bestIndex = k;
                 }
                 chain.remove(k);
             }
@@ -2109,20 +2099,96 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return best;
     }
 
-
-
     private void add_ordering_because_of_within_chain(DirectedAcyclicGraph po) {
-        for (IdentityHashMap ihm:(Collection<IdentityHashMap>)this.getValidationStructures().values()){
-            for (TreeSet<Integer> chain : (Collection<TreeSet<Integer>>)ihm.values()){
-                for (Integer l1:chain)
-                    for (Integer l2:chain){
-                        if (l1<l2)
+        for (IdentityHashMap ihm : (Collection<IdentityHashMap>) this.getValidationStructures().values()) {
+            for (TreeSet<Integer> chain : (Collection<TreeSet<Integer>>) ihm.values()) {
+                for (Integer l1 : chain) {
+                    for (Integer l2 : chain) {
+                        if (l1 < l2) {
                             po.addEdge(l1, l2);
+                        }
                     }
+                }
             }
-            
+
         }
     }
 
+    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan) {
+
+        for (GroundAction gr : raw_plan) {
+            if (gr instanceof GroundProcess) {
+                this.add(gr);
+            } else {
+                this.add(gr);
+            }
+        }
+
+    }
+
+    public State execute(State init, HashSet<GlobalConstraint> globalConstraintSet, HashSet<GroundProcess> processesSet, float delta, float resolution) throws CloneNotSupportedException {
+
+        int steps_number = (int) (delta/resolution);
+        System.out.println("Resolution for validation:"+ resolution);
+        State current = init.clone();
+
+        current.addNumericFluent(new NumFluentAssigner("#t", resolution));
+        for (GroundAction gr : this) {
+            //System.out.println(gr.getClass());
+            if (!(gr instanceof GroundProcess)) {
+                //current = advance_time(current, processesSet, current_time, gr.time, resolution);
+                if (gr.isApplicable(current)) {
+                    current = gr.apply(current);
+                    //current_time = gr.time;
+                } else {
+                    return current;
+                }
+            } else {
+                current = advance_time(current, processesSet, steps_number,resolution);
+            }
+            for (GlobalConstraint constr : (Collection<GlobalConstraint>) globalConstraintSet) {
+                if (!current.satisfy(constr.condition)) {
+                    System.out.println("Global Constraint is not satisfied:" + constr);
+                    
+                    return current;
+                }
+                // MRJ: Meant for debugging
+                //System.out.println(constr.condition.pddlPrint(false));
+
+            }
+            //System.out.println(current.pddlPrint());
+
+        }
+        System.out.println(current.pddlPrint());
+        return current;
+
+    }
+
+    private State advance_time(State current, HashSet<GroundProcess> processesSet, int steps_number,float delta) {
+
+        //System.out.println("Advance time!");
+        
+        
+        GroundProcess waiting = new GroundProcess("waiting");
+        for(int i=0;i<steps_number;i++){
+            
+            waiting.setNumericEffects(new AndCond());
+            waiting.add_time_effects(delta);
+            for (GroundProcess act : processesSet) {
+                GroundProcess gp = (GroundProcess) act;
+                if (gp.isActive(current)) {
+
+                    for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
+                        waiting.add_numeric_effect(eff);
+                    }
+                }
+
+            }
+            current = waiting.apply(current);
+            //System.out.println(current.pddlPrint());
+            //temp+=delta;
+        }
+        return current;
+    }
 
 }

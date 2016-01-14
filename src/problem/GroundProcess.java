@@ -28,6 +28,7 @@
 package problem;
 
 import conditions.AndCond;
+import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -47,6 +48,35 @@ public class GroundProcess extends GroundAction implements Comparable {
 
     public boolean isActive(State s){
         return this.isApplicable(s);
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        GroundProcess ret = new GroundProcess(name);
+        if (this.addList != null) {
+            ret.addList = this.addList.clone();
+        }
+        if (this.delList != null) {
+            ret.delList = this.delList.clone();
+        }
+        ret.normalized = this.normalized;
+        if (this.numericEffects != null) {
+            ret.numericEffects = this.numericEffects.clone();
+        }
+        
+        if (this.numericFluentAffected!=null)
+            ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+        if (this.parameters != null) {
+            ret.parameters = (ParametersAsTerms) this.parameters.clone();
+        }
+        if (this.preconditions != null) {
+            ret.preconditions = this.preconditions.clone();
+        }
+        if (this.interact_with != null) {
+            ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();
+        }
+        return ret;
+
     }
     
     public State apply(State s_in, int time){
