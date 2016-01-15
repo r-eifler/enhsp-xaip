@@ -569,7 +569,7 @@ fragment ANY_CHAR: LETTER | '0'..'9' | '-' | '_';
 
 VARIABLE : '?' LETTER ANY_CHAR*  ;
 
-NUMBER : ('-')? DIGIT+ ('.' DIGIT+)? ;
+NUMBER : ('-')? DIGIT+ ('.' DIGIT+)? | '#t' ;
 
 fragment DIGIT: '0'..'9';
 

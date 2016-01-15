@@ -506,6 +506,33 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return false;
 
     }
+    
+    public boolean savePlan(String nFile,boolean processes) {
+        Writer output = null;
+        try {
+            output = new BufferedWriter(new FileWriter(nFile));
+            for (Object o : this) {
+                if (o instanceof GroundProcess)
+                    continue;
+                
+                GroundAction a = (GroundAction) o;
+                output.write(a.toFileCompliant() + "\n");
+            }
+            output.close();
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                output.close();
+            } catch (IOException ex) {
+                Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        return false;
+
+    }
 
     /**
      * @return the invariantFluents
@@ -2114,14 +2141,20 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan) {
+    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan,float delta,float epsilon) {
 
+        float time = 0;
         for (GroundAction gr : raw_plan) {
             if (gr instanceof GroundProcess) {
+                gr.time = time;
                 this.add(gr);
+                time += delta;
             } else {
+                gr.time = time;
                 this.add(gr);
+                time += epsilon;
             }
+           // System.out.println(time);
         }
 
     }

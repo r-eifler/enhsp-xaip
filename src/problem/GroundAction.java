@@ -206,7 +206,10 @@ public class GroundAction extends GenericActionType implements Comparable {
             PDDLObject obj = (PDDLObject) o;
             parametri = parametri.concat(obj.getName().concat(" "));
         }
-        return "(" + this.name + " " + parametri + ")";
+        if (time== null)
+            return "(" + this.name + " " + parametri + ")";
+        else
+            return time + ": (" + this.name + " " + parametri + ")";
 
     }
 
@@ -276,7 +279,12 @@ public class GroundAction extends GenericActionType implements Comparable {
                 temporaryMod.add(f);
                 fun2numb.put(f, newN);
             }
-
+//            PDDLNumber time =  s.functionValue(new NumFluent("time_elapsed"));
+//            if (time != null){
+//                float next_time = time.getNumber()+0.01f;
+//                s.setFunctionValue(new NumFluent("time_elapsed"),new PDDLNumber(next_time));
+//            }
+              
             for (Object o : temporaryMod) {
                 NumFluent f = (NumFluent) o;
                 PDDLNumber n = (PDDLNumber) fun2numb.get(f);

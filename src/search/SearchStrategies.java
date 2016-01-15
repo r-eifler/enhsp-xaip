@@ -364,16 +364,16 @@ public class SearchStrategies {
             return null;
         }
         getHeuristic().setup(current);
-        System.out.println("|A| (After Relevance Analysis):" + getHeuristic().reachable.size());
+        System.out.println("|A U P| (After Relevance Analysis):" + getHeuristic().reachable.size());
         
 //        rel_actions = (LinkedHashSet) heuristic.compute_relevant_actions(current, problem.getGoals(), rel_actions);
         //heuristic.build_integer_representation(rel_actions, problem.getGoals());
-        System.out.println("Computing H1...");
+        System.out.println("Computing Heuristic...");
         long start = System.currentTimeMillis();
         int current_value = getHeuristic().compute_estimate(current);
         setStates_evaluated(0);
-        System.out.println("Initial h1 cost:" + (System.currentTimeMillis() - start));
-        System.out.println("H(s_0,G)=:" + current_value);
+        System.out.println("Time(H):" + (System.currentTimeMillis() - start)+" ms");
+        System.out.println("H(s_0,G):" + current_value);
 
         if (current_value == Integer.MAX_VALUE) {
             overall_search_time = System.currentTimeMillis() - start_global;

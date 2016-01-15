@@ -61,6 +61,7 @@ public class State extends Object {
     HashMap propositions;
     HashMap numericFs;
     HashSet timedLiterals;
+    private NumFluentAssigner time;
 
     public State() {
         super();
@@ -89,6 +90,7 @@ public class State extends Object {
             ret_val.addNumericFluent(newA);
         }
 
+        
         for (Object o : this.propositions.keySet()) {
             Predicate ele = (Predicate) o;
             //ret_val.addProposition((Predicate) ele.clone());
@@ -828,6 +830,29 @@ public class State extends Object {
         for (NumFluent n : toUpdate) {
             this.setFunctionValue(n, temp.functionValue(n));
         }
+    }
+
+    public void addTimeFluent() {
+        setTime(new NumFluentAssigner("time_elapsed", 0));
+        numericFs.put(getTime().getNFluent(), getTime());
+    }
+
+    /**
+     * @return the time
+     */
+    public NumFluentAssigner getTime() {
+        return time;
+    }
+
+    /**
+     * @param time the time to set
+     */
+    public void setTime(NumFluentAssigner time) {
+        this.time = time;
+    }
+
+    void increase_time_by_epsilon() {
+        this.time.setTwo(new PDDLNumber(time.getTwo().getNumber()+0.1f));
     }
 
 }
