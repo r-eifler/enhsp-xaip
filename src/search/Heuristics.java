@@ -95,7 +95,7 @@ public abstract class Heuristics {
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
-    public int horizon = 10000;
+    public int horizon = 1000;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();

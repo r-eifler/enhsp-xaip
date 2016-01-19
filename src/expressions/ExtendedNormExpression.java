@@ -204,7 +204,7 @@ public class ExtendedNormExpression extends Expression {
             ExtendedAddendum a = (ExtendedAddendum) o;
             Iterator it = right.summations.iterator();
             if (!a.linear)
-                break;
+                continue;
             while (it.hasNext()) {
                 ExtendedAddendum a1 = (ExtendedAddendum) it.next();
                 if (!a1.linear)

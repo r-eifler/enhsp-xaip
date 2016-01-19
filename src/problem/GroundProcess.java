@@ -177,6 +177,7 @@ public class GroundProcess extends GroundAction implements Comparable {
                         }
                     }
                 }
+//                System.out.println("Combination of the effect:"+int_eff);
                 return;
             }
         }
