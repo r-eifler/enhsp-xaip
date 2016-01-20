@@ -2122,7 +2122,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.numericFluentAffected.put(fluentAffected, Boolean.TRUE);
     }
 
-    public Comparison regressComparisonMtimes(Comparison comparison) {
+    public Comparison regressComparisonMtimes(Comparison comparison) throws CloneNotSupportedException {
 
         AndCond temp = new AndCond();
         if (this.getNumericEffects() != null) {

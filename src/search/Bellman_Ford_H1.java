@@ -234,7 +234,7 @@ public class Bellman_Ford_H1 extends Heuristics {
                     Comparison a2 = (Comparison) c_2;
                     ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
                     ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
-                    ExtendedNormExpression expr = lhs_a1.sum_copy(lhs_a2);
+                    ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
                     String new_comparator = ">=";
                     if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
                         new_comparator = ">";

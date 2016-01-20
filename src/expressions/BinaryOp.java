@@ -190,6 +190,11 @@ public class BinaryOp extends Expression {
             Logger.getLogger(BinaryOp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+//        System.out.println(this);
+//        System.out.println("Left: "+l);
+//        System.out.println("Right: "+r);
+//        System.out.println("Result: "+ ret);
+//        
         return ret;
 
     }

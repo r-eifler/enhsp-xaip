@@ -81,7 +81,13 @@ public class ExtendedAddendum {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        
         final ExtendedAddendum other = (ExtendedAddendum) obj;
+        if (other.bin != null || this.bin != null){
+            return false;
+        }
+//        System.out.println("Left of the comparison:"+this);
+//        System.out.println("Right of the comparison:"+obj);
         if (!other.n.equals(this.n))
             return false;
         if (other.f == null && this.f!= null)
@@ -114,7 +120,8 @@ public class ExtendedAddendum {
 
     @Override
     public String toString() {
-        return "Addendum{" + "n=" + n + ", f=" + f + "bin = " + bin.toString() + '}';
+        System.out.println("Linear:"+this.linear);
+        return "Addendum{" + "n=" + n + ", f=" + f + "bin = " + bin + '}';
     }
     
     

@@ -268,8 +268,8 @@ public class NumFluent extends Expression {
     public Expression weakEval(State s, HashMap invF) {
         
         if (this.name.equals("#t")){
-            return this;
-            //return s.functionValue(this);
+            //return this;
+            return s.functionValue(this);
         }
         
         if ((invF.get(this) == null) && (invF.get(this.getName())==null)){//this means that the fluent can be 

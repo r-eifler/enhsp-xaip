@@ -479,10 +479,18 @@ public class Comparison extends Conditions {
         
 
         if ("<".equals(this.comparator) || "<=".equals(this.comparator) || "=".equals(this.comparator)) {
-            setLeft(r.minus(l));
-            setRight(new ExtendedNormExpression(new Float(0.0)));
+            try {
+                setLeft(r.minus(l));
+                setRight(new ExtendedNormExpression(new Float(0.0)));
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } else {
-            setLeft(l.minus(r));
+            try {
+                setLeft(l.minus(r));
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
+            }
             setRight(new ExtendedNormExpression((float) 0.0));
 
         }
@@ -654,7 +662,7 @@ public class Comparison extends Conditions {
 
     }
 
-    public boolean couldBePrevented(HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) {
+    public boolean couldBePrevented(HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) throws CloneNotSupportedException {
 
 //        if (!get.mayInfluence(this)) {
 //            //System.out.println("Action does not affect");

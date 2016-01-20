@@ -34,8 +34,10 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -148,36 +150,50 @@ public class GroundProcess extends GroundAction implements Comparable {
     public void add_numeric_effect(NumEffect eff) {
 
         Iterator<NumEffect> it =  this.numericEffects.sons.iterator();
+        Collection<NumEffect> to_add = new LinkedHashSet();
         while(it.hasNext()){
             NumEffect int_eff = it.next();
             if (int_eff.getFluentAffected().equals(eff.getFluentAffected())){
                 if (eff.getOperator().equals(int_eff.getOperator())){
                     try {
                         ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
-                        expr.sum((ExtendedNormExpression) eff.getRight());
+                        ExtendedNormExpression res = expr.sum((ExtendedNormExpression) eff.getRight());
+                        NumEffect n_effect = new NumEffect(eff.getOperator());
+                        n_effect.setFluentAffected(int_eff.getFluentAffected());
+                        n_effect.setRight(res);
+                        to_add.add(n_effect);
+                        it.remove();
                     } catch (Exception ex) {
                         Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }else{
                     if (int_eff.getOperator().equals("increase")){
                         try {
-                            ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
-                            expr.minus((ExtendedNormExpression) eff.getRight());
+                            ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight(); 
+                            ExtendedNormExpression res = expr.minus((ExtendedNormExpression) eff.getRight());
+                            NumEffect n_effect = new NumEffect(eff.getOperator());
+                            n_effect.setFluentAffected(int_eff.getFluentAffected());
+                            n_effect.setRight(res);
+                            to_add.add(n_effect);
+                            it.remove();
                         } catch (Exception ex) {
                             Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }else{
                         try {
                             ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
-                            expr.minus((ExtendedNormExpression) eff.getRight());
-                            int_eff.setOperator("increase");
-                            //expr.mult(new PDDLNumber(-1));
+                            ExtendedNormExpression res = expr.minus((ExtendedNormExpression) eff.getRight());
+                            NumEffect n_effect = new NumEffect("increase");
+                            n_effect.setFluentAffected(int_eff.getFluentAffected());
+                            n_effect.setRight(res);
+                            to_add.add(n_effect);
+                            it.remove();
                         } catch (Exception ex) {
                             Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
-//                System.out.println("Combination of the effect:"+int_eff);
+                this.numericEffects.sons.addAll(to_add);
                 return;
             }
         }

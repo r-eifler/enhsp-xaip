@@ -48,6 +48,7 @@ public class ExtendedNormExpression extends Expression {
 
     public ArrayList<ExtendedAddendum> summations;
     public boolean linear;
+
     public ExtendedNormExpression() {
         this.summations = new ArrayList();
         linear = true;
@@ -61,6 +62,7 @@ public class ExtendedNormExpression extends Expression {
         linear = true;
 
     }
+
     public ExtendedNormExpression(BinaryOp bin) {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum(bin);
@@ -90,7 +92,7 @@ public class ExtendedNormExpression extends Expression {
             ExtendedAddendum ad = this.summations.get(i);
             ExtendedAddendum ad1 = other.summations.get(i);
             //System.out.println("Comparing:"+ad+ad1);
-            if (!ad.equals(ad1)) {
+            if (!ad.equals(ad1)) {//It's very strong, but easy. Could be improved
                 return false;
             }
         }
@@ -124,9 +126,9 @@ public class ExtendedNormExpression extends Expression {
 //                }else
 //                    ret = ret.concat("+" + a.n);
 //            }
-            if (!a.linear){
-                ret = ret.concat(a.bin.toString());
-            }else{
+            if (!a.linear) {
+                ret = ret.concat("+" + a.bin.toString());
+            } else {
 
                 if (a.f != null) {
                     ret = ret.concat("+" + a.n + "x" + a.f);
@@ -141,173 +143,204 @@ public class ExtendedNormExpression extends Expression {
 
     public ExtendedNormExpression sum(ExtendedNormExpression right) throws Exception {
 
-//        System.out.println("before sum: (this)"+this+" (right)"+right);
-        if (!right.linear || !this.linear){
-            this.summations.addAll(right.summations);
-            this.linear = false;
-            return this;
-        }
-            
-        
-        Iterator it2 = this.summations.iterator();
-        while (it2.hasNext()){
-            ExtendedAddendum a = (ExtendedAddendum) it2.next();
-            Iterator it = right.summations.iterator();
-            while (it.hasNext()) {
-                ExtendedAddendum a1 = (ExtendedAddendum) it.next();
-                if ((a1.f == null) && (a.f == null)) {
-                    a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
-                    it.remove();
-                } else if (a1.f != null && a.f != null) {
-                    if (a1.f.equals(a.f)) {
-                        a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
-                        if (a.n.getNumber() == 0.0) {
-                            a.f = null;
-                            it2.remove();
-                        }
-                        it.remove();
-                    }
-                }
-            }
-        }
-        
-        for (ExtendedAddendum o1 : right.summations) {
-            this.summations.add(o1);
-        }
-        
-//        Iterator it = this.summations.iterator();
-//            while (it.hasNext()) {
-//            
-//            }
-            
-        
-        
-//                for (ExtendedAddendum o1 : right.summations) {
-//            ExtendedAddendum a = (ExtendedAddendum) o1;
-//            for (ExtendedAddendum a1 : this.summations) {
-//                if ((a1.f == null) && (a.f == null)) {
-//                    a1.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
-//                    //it.remove();
-//                }
-//            }
-//        }
-//        System.out.println(Iterator it = right.summations.iterator();
-        return this;
-    }
-
-    public ExtendedNormExpression minus(ExtendedNormExpression right) {
-        //System.out.println("Sto facendo un meno!!");
-
-        
-
-        for (Object o : summations) {
-            ExtendedAddendum a = (ExtendedAddendum) o;
-            Iterator it = right.summations.iterator();
-            if (!a.linear)
-                continue;
-            while (it.hasNext()) {
-                ExtendedAddendum a1 = (ExtendedAddendum) it.next();
-                if (!a1.linear)
-                    continue;
-                if ((a1.f == null) && (a.f == null)) {
-                    a.n = new PDDLNumber(a.n.getNumber() - a1.n.getNumber());
-                    it.remove();
-                } else if (a1.f != null && a.f != null) {
-                    if (a1.f.equals(a.f)) {
-                        a.n = new PDDLNumber(a.n.getNumber() - a1.n.getNumber());
-                        if (a.n.getNumber() == 0.0) {
-                            a.f = null;
-                        }
-                        it.remove();
-                    }
-                }
-            }
-        }
-        for (ExtendedAddendum o1 : right.summations) {
-            ExtendedAddendum a1 = (ExtendedAddendum) o1;
-            if (!a1.linear){
-                BinaryOp t = new BinaryOp();
-                t.setOperator("*");
-                t.setOne(a1.bin);
-                t.setRight(new PDDLNumber(-1));
-                a1.bin = t;
-                this.linear = false;
-            }else{
-                a1.n = new PDDLNumber(a1.n.getNumber() * (-1));
-            }
-            this.summations.add(o1);
-        }
-        return this;
-    }
-
-    ExtendedNormExpression mult(ExtendedNormExpression right) {
-        
-        if (!right.linear || !this.linear){
-            //System.out.println("Error!");
-            this.linear = false;
-            BinaryOp bin = new BinaryOp();
-            bin.setOperator("*");
-            bin.setOne(right);
-            bin.setRight(this);
-            ExtendedNormExpression ret = new ExtendedNormExpression(bin);
-            
-            return ret;
-        }      
-        ArrayList<ExtendedAddendum> ret = new ArrayList();
-        for (Object o : this.summations) {
-            ExtendedAddendum a = (ExtendedAddendum) o;
-            for (ExtendedAddendum a1 : right.summations) {
-//                System.out.println("DEBUG: (a.f)"+a.f+ "(a.f1)"+a1.f);
-                if ((a.f == null || a1.f == null)) {
-                    ExtendedAddendum t = new ExtendedAddendum();
-                    t.n = new PDDLNumber(a.n.getNumber() * a1.n.getNumber());
-                    if (a.f == null) {
-                        t.f = a1.f;
-                    } else {
-                        t.f = a.f;
-                    }
-                    ret.add(t);
+        ExtendedNormExpression result = new ExtendedNormExpression();
+        for (ExtendedAddendum a : this.summations) {
+            for (ExtendedAddendum b : right.summations) {
+                if (!b.linear || !a.linear) {
+                    result.summations.add((ExtendedAddendum) b.clone());
+                    result.summations.add((ExtendedAddendum) a.clone());
                 } else {
-                    System.out.println("Expression to multiply: " + this + " with: " + right);
-                    System.out.println("Error: only linear expression are supported");
-                    System.exit(-1);
+                    ExtendedAddendum ele_to_add = new ExtendedAddendum();
+                    boolean add_left = true;
+                    boolean add_right = true;
+                    if ((b.f == null) && (a.f == null)) {
+                        ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
+                        add_right = false;
+                        if (ele_to_add.n.getNumber() == 0.0) {
+                            add_left = false;
+                        }
+                    } else if (b.f != null && a.f != null) {
+                        if (b.f.equals(a.f)) {
+                            ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
+                            ele_to_add.f = (NumFluent) a.f.clone();
+                            if (ele_to_add.n.getNumber() == 0.0) {
+                                add_left = false;
+                            }
+                            add_right = false;
+                        }
+                    }else{
+                        ele_to_add = (ExtendedAddendum) a.clone();
+                    }
+                    if (add_left) {
+                        result.summations.add(ele_to_add);
+                    }
+                    if (add_right) {
+                        result.summations.add((ExtendedAddendum) b.clone());
+                    }
                 }
             }
         }
-        this.summations = ret;
-        return this;
+
+        return result;
+    }
+
+    public ExtendedNormExpression minus(ExtendedNormExpression right) throws CloneNotSupportedException {
+        ExtendedNormExpression result = new ExtendedNormExpression();
+        for (ExtendedAddendum a : this.summations) {
+            for (ExtendedAddendum b : right.summations) {
+                if (!b.linear || !a.linear) {
+                    result.summations.add((ExtendedAddendum) a.clone());
+                    if (b.linear) {
+                        result.summations.add((ExtendedAddendum) b.clone());
+                    } else {
+                        ExtendedAddendum to_add = new ExtendedAddendum();
+                        to_add.bin = new BinaryOp((BinaryOp) b.bin.clone(), "*", new PDDLNumber(-1), true);
+                        to_add.linear = false;
+                        result.summations.add(to_add);
+                        //result.summations.add((ExtendedAddendum) a.clone());
+                               
+                    }
+                } else {
+                    ExtendedAddendum ele_to_add = new ExtendedAddendum();
+                    boolean add_left = true;
+                    boolean add_right = true;
+                    if ((b.f == null) && (a.f == null)) {
+                        ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
+                        add_right = false;
+                        if (ele_to_add.n.getNumber() == 0.0) {
+                            add_left = false;
+                        }
+                    } else if (b.f != null && a.f != null) {
+                        if (b.f.equals(a.f)) {
+                            ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
+                            ele_to_add.f = (NumFluent) a.f.clone();
+                            if (ele_to_add.n.getNumber() == 0.0) {
+                                add_left = false;
+                            }
+                            add_right = false;
+                        }
+                    }else{
+                        ele_to_add = (ExtendedAddendum) a.clone();
+                    }
+                    if (add_left) {
+                        result.summations.add(ele_to_add);
+                    }
+                    if (add_right) {
+                        ExtendedAddendum to_add =(ExtendedAddendum) b.clone();
+                        to_add.n = new PDDLNumber(to_add.n.getNumber()*-1);
+                        result.summations.add(to_add);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    ExtendedNormExpression mult(ExtendedNormExpression right) throws CloneNotSupportedException {
+
+        ExtendedNormExpression result = new ExtendedNormExpression();
+        for (ExtendedAddendum a : this.summations) {
+            for (ExtendedAddendum b : right.summations) {
+
+                ExtendedAddendum ele_to_add = new ExtendedAddendum();
+//                System.out.println(a);
+//                System.out.println(b);
+                boolean adding = true;
+                if (a.linear && a.f == null &&  b.linear && b.f == null){
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() * b.n.getNumber());
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
+                }else if (a.linear &&  b.linear && b.f == null){
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() * b.n.getNumber());
+                    ele_to_add.f = (NumFluent) a.f.clone();
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
+                }else if (a.linear && a.f ==null && b.linear){
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() * b.n.getNumber());
+                    ele_to_add.f = (NumFluent) b.f.clone();
+                    
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
+                }else if (a.linear && a.f !=null && b.linear && b.f!=null){
+                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() * b.n.getNumber()),"*",new BinaryOp(a.f,"*",b.f,true),true);
+                    ele_to_add.linear = false;
+                }else if (!a.linear && b.linear && b.f==null){
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(),"*",b.n.clone(),true);
+                    ele_to_add.linear = false;
+                }else if (!a.linear && b.linear && b.f!=null){
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(),"*",new BinaryOp(b.n,"*",b.f,true),true);
+                    ele_to_add.linear = false;
+                }else if (a.linear && a.f == null && !b.linear){
+                    ele_to_add.bin = new BinaryOp(b.bin.clone(),"*",a.n.clone(),true);
+                    ele_to_add.linear = false;
+                }else if (a.linear && a.f != null && !b.linear){
+                    ele_to_add.bin = new BinaryOp(new BinaryOp(a.n,"*",a.f,true),"*",b.bin.clone(),true);
+                    ele_to_add.linear = false;
+                }else if (!a.linear && !b.linear){
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(),"*",b.bin.clone(),true);
+                    ele_to_add.linear = false;
+                }
+                //System.out.println(ele_to_add);
+                if (adding){
+                    result.summations.add(ele_to_add);
+                    if (!ele_to_add.linear)
+                        result.linear = false;
+                }
+
+            }
+        }
+        return result;
     }
 
     ExtendedNormExpression div(ExtendedNormExpression right) {
-        
-        
-        if (!right.linear || !this.linear){
-            this.linear = false;
-            BinaryOp bin = new BinaryOp();
-            bin.setOperator("/");
-            bin.setOne(right);
-            bin.setRight(this);
-            ExtendedNormExpression ret = new ExtendedNormExpression(bin);
-            
-            return ret;
-        }      
-        
-        if (right.summations.size() > 1) {
-            ExtendedAddendum a = (ExtendedAddendum) right.summations.get(0);
-            if (a.f != null) {
-                System.out.println("Denominator cannot be a non constant term");
-            } else {
-                System.out.println("Summations at denominator cannot be more than one element");
-            }
-            System.exit(-1);
-        } else {
-            ExtendedAddendum a1 = (ExtendedAddendum) right.summations.get(0);
-            for (Object o : this.summations) {
-                ExtendedAddendum a = (ExtendedAddendum) o;
-                a.n = new PDDLNumber(a.n.getNumber() / a1.n.getNumber());
+
+        ExtendedNormExpression result = new ExtendedNormExpression();
+        for (ExtendedAddendum a : this.summations) {
+            for (ExtendedAddendum b : right.summations) {
+
+                ExtendedAddendum ele_to_add = new ExtendedAddendum();
+                boolean adding = true;
+                if (a.linear && a.f == null &&  b.linear && b.f == null){
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
+                }else if (a.linear &&  b.linear && b.f == null){
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
+                    ele_to_add.f = (NumFluent) a.f.clone();
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
+                }else if (a.linear && a.f ==null && b.linear){
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
+                    ele_to_add.f = (NumFluent) b.f.clone();
+                    
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
+                }else if (a.linear && a.f !=null && b.linear && b.f!=null){
+                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()),"/",new BinaryOp(a.f,"*",b.f,true),true);
+                }else if (!a.linear && b.linear && b.f==null){
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(),"/",b.n.clone(),true);
+                }else if (!a.linear && b.linear && b.f!=null){
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(),"/",new BinaryOp(b.n,"*",b.f,true),true);
+                }else if (a.linear && a.f == null && !b.linear){
+                    ele_to_add.bin = new BinaryOp(b.bin.clone(),"/",a.n.clone(),true);
+                }else if (a.linear && a.f != null && !b.linear){
+                    ele_to_add.bin = new BinaryOp(new BinaryOp(a.n,"*",a.f,true),"/",b.bin.clone(),true);
+                }else if (!a.linear && !b.linear){
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(),"/",b.bin.clone(),true);
+                }
+                if (adding)
+                    result.summations.add(ele_to_add);
+
             }
         }
-        return this;
+        return result;
     }
 
     @Override
@@ -318,8 +351,9 @@ public class ExtendedNormExpression extends Expression {
             ExtendedAddendum newA = new ExtendedAddendum();
 //            System.out.println(substitution);
 //            System.out.println(a);
-            if (a.f != null)
+            if (a.f != null) {
                 newA.f = (NumFluent) a.f.ground(substitution);
+            }
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
         }
@@ -345,10 +379,10 @@ public class ExtendedNormExpression extends Expression {
         PDDLNumber ret = new PDDLNumber(0);
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
-            if (!a.linear){
+            if (!a.linear) {
                 //System.out.println(a.bin);
-                ret = new PDDLNumber(a.bin.eval(s).getNumber()+ret.getNumber());
-            }else{
+                ret = new PDDLNumber(a.bin.eval(s).getNumber() + ret.getNumber());
+            } else {
                 if (a.f != null) {
                     if (s.functionValue(a.f) == null) {
                         return null;
@@ -379,7 +413,7 @@ public class ExtendedNormExpression extends Expression {
 //                if (invFluents.get(a.f)==null){
 //                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
 //                }
-                if (invFluents.get(a.f)!= null && (Boolean) invFluents.get(a.f)) {
+                if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
                     c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber() * a.n.getNumber());
                 } else {
                     ret.summations.add(a);
@@ -443,6 +477,8 @@ public class ExtendedNormExpression extends Expression {
             return this;
         }
 
+        ExtendedNormExpression result = new ExtendedNormExpression();
+        result = (ExtendedNormExpression) this.clone();
         ArrayList toAdd = new ArrayList();
         ArrayList toRemove = new ArrayList();
         Iterator it = summations.iterator();
@@ -458,17 +494,17 @@ public class ExtendedNormExpression extends Expression {
                         if (eff.getFluentAffected().equals(ad.f)) {
                             if ((eff.getOperator().equals("increase"))) {
                                 ExtendedNormExpression res = new ExtendedNormExpression();
-                                res.sum((ExtendedNormExpression) eff.getRight());
+                                res = res.sum((ExtendedNormExpression) eff.getRight());
                                 res.mult(ad.n);
                                 toAdd.add(res);
                             } else if (eff.getOperator().equals("decrease")) {
                                 ExtendedNormExpression res = new ExtendedNormExpression();
-                                res.sum((ExtendedNormExpression) eff.getRight());
+                                res = res.sum((ExtendedNormExpression) eff.getRight());
                                 res.mult(ad.n);
                                 toRemove.add(res);
                             } else if (eff.getOperator().equals("assign")) {
                                 ExtendedNormExpression res = new ExtendedNormExpression();
-                                res.sum((ExtendedNormExpression) eff.getRight());
+                                res = res.sum((ExtendedNormExpression) eff.getRight());
                                 res.mult(ad.n);
                                 toAdd.add(res);
                                 it.remove();
@@ -480,17 +516,17 @@ public class ExtendedNormExpression extends Expression {
             }
 
             for (Object o : toAdd) {
-                this.sum((ExtendedNormExpression) o);
+                result = result.sum((ExtendedNormExpression) o);
             }
             for (Object o : toRemove) {
-                this.minus((ExtendedNormExpression) o);
+                result = result.minus((ExtendedNormExpression) o);
             }
         } catch (Exception ex) {
-            System.out.println("Problem in substitution:"+numeric+this);
+            System.out.println("Problem in substitution:" + numeric + this);
             Logger.getLogger(ExtendedNormExpression.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(-1);
         }
-        return this;
+        return result;
     }
 
 //    public ExtendedNormExpression subst(Conditions numeric, String var) {
@@ -545,11 +581,14 @@ public class ExtendedNormExpression extends Expression {
 //                            }
 //        return this;
 //    }
-
     public void mult(PDDLNumber n) {
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
-            ad.n = new PDDLNumber(ad.n.getNumber() * n.getNumber());
+            if (ad.linear){
+                ad.n = new PDDLNumber(ad.n.getNumber() * n.getNumber());
+            }else{
+                ad.bin = new BinaryOp(ad.bin,"*",n,true);
+            }
         }
     }
 
@@ -577,10 +616,10 @@ public class ExtendedNormExpression extends Expression {
         PDDLNumbers ret = new PDDLNumbers(0);
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
-
-            if (!a.linear){
+                
+            if (!a.linear) {
                 ret = ret.sum(a.bin.eval(s));
-            }else{
+            } else {
                 if (a.f != null) {
                     PDDLNumbers temp = s.functionValues(a.f);
                     //System.out.println(temp);
@@ -601,38 +640,40 @@ public class ExtendedNormExpression extends Expression {
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
-            
-            if (!a.linear){
-                if (a.bin.involve(map))
+
+            if (!a.linear) {
+                if (a.bin.involve(map)) {
                     return true;
-            }else{
+                }
+            } else {
                 if (a.f != null) {
                     if (map.get(a.f) != null) {
                         return true;
                     }
                 }
             }
-            
+
         }
         return false;
     }
-    
+
     public boolean involve(NumFluent nf) {
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
-            
-            if (!a.linear){
-                if (a.bin.involve(nf))
+
+            if (!a.linear) {
+                if (a.bin.involve(nf)) {
                     return true;
-            }else{
+                }
+            } else {
                 if (a.f != null) {
                     if (a.f.equals(nf)) {
                         return true;
                     }
                 }
             }
-            
+
         }
         return false;
     }
@@ -642,8 +683,9 @@ public class ExtendedNormExpression extends Expression {
         //System.out.println(this);
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
-            if (!ad.linear)
+            if (!ad.linear) {
                 return false;
+            }
             if (ad.f != null) {
                 return false;
             }
@@ -673,9 +715,9 @@ public class ExtendedNormExpression extends Expression {
         Set ret = new HashSet();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
-            if (!a.linear){
+            if (!a.linear) {
                 ret.addAll(a.bin.fluentsInvolved());
-            }else{
+            } else {
                 if (a.f != null) {
                     ret.add(a.f);
                 }
@@ -727,16 +769,16 @@ public class ExtendedNormExpression extends Expression {
         return ret_val;
     }
 
-    public float eval_not_affected(State s_0, GroundAction aThis) {
+    public float eval_not_affected(State s_0, GroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
                 current += ad.n.getNumber();
-            } else if (aThis.getNumericFluentAffected().get(ad.f) == null) {
+            } else if (action.getNumericFluentAffected().get(ad.f) == null) {
                 current += ad.n.getNumber() * ad.f.eval(s_0).getNumber();
-            } else if (aThis.getCoefficientAffected(ad.f) != null) {
+            } else if (action.getCoefficientAffected(ad.f) != null) {
                 //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
-                current += ad.n.getNumber() * aThis.getCoefficientAffected(ad.f) * ad.f.eval(s_0).getNumber();
+                current += ad.n.getNumber() * action.getCoefficientAffected(ad.f) * ad.f.eval(s_0).getNumber();
             }
         }
         return current;
@@ -751,7 +793,7 @@ public class ExtendedNormExpression extends Expression {
         return new Float(0);
     }
 
-    public float eval_affected(State s_0, GroundAction aThis) {
+    public float eval_affected(State s_0, GroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
@@ -763,7 +805,7 @@ public class ExtendedNormExpression extends Expression {
         return current;
     }
 
-    public float eval_apart_from_f(NumFluent f, State s) {
+    public float eval_apart_from_f(NumFluent f, State s) {//this applies only to linear expression. In the other cases the behavior is undefined
         float ret = 0;
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -783,37 +825,4 @@ public class ExtendedNormExpression extends Expression {
         return ret;
     }
 
-    public ExtendedNormExpression sum_copy(ExtendedNormExpression right) {
-        ExtendedNormExpression ret = (ExtendedNormExpression)this.clone();
-        ExtendedNormExpression temp = (ExtendedNormExpression)right.clone();
-        Iterator it2 = ret.summations.iterator();
-        while (it2.hasNext()){
-            ExtendedAddendum a = (ExtendedAddendum) it2.next();
-            Iterator it = temp.summations.iterator();
-            while (it.hasNext()) {
-                ExtendedAddendum a1 = (ExtendedAddendum) it.next();
-                if ((a1.f == null) && (a.f == null)) {
-                    a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
-                    it.remove();
-                    break;
-                } else if (a1.f != null && a.f != null) {
-                    if (a1.f.equals(a.f)) {
-                        a.n = new PDDLNumber(a.n.getNumber() + a1.n.getNumber());
-                        if (a.n.getNumber() == 0.0) {
-                            a.f = null;
-                            it2.remove();
-                        }
-                        it.remove();
-                        break;
-                    }
-                    
-                }
-            }
-        }
-        
-        for (ExtendedAddendum o1 : temp.summations) {
-            ret.summations.add(o1);
-        }
-        return ret;
-    }
 }

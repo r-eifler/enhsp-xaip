@@ -431,10 +431,10 @@ public class NumEffect extends Expression {
     }
 
 
-    public NumEffect generate_m_times_extension(NumFluent m) {
+    public NumEffect generate_m_times_extension(NumFluent m) throws CloneNotSupportedException {
         NumEffect ret = new NumEffect(this.operator);
         ret.setFluentAffected(fluentAffected);
-        ExtendedNormExpression temp = (ExtendedNormExpression)this.getRight().clone();
+        ExtendedNormExpression temp = (ExtendedNormExpression)this.getRight();
         
         //this applies for the case in which the effects of the action are increase decrease or assign without cycles.
         ret.setRight(temp.mult(m.normalize()));
