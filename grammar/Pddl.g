@@ -20,6 +20,7 @@ tokens {
     FREE_FUNCTIONS;
     PREDICATES;
     ACTION;
+    EVENT;
     PROCESS;
     CONSTRAINT;
     GLOBAL_CONSTRAINT;
@@ -203,6 +204,7 @@ structureDef
 	| derivedDef
 	| constraintDef
 	| processDef
+	| eventDef
 	;
 
 
@@ -213,6 +215,12 @@ actionDef
 	      ':parameters'  '(' typedVariableList ')'
            actionDefBody ')'
        -> ^(ACTION actionSymbol typedVariableList? actionDefBody)
+    ;
+eventDef
+	: '(' ':event' actionSymbol
+	      ':parameters'  '(' typedVariableList ')'
+           actionDefBody ')'
+       -> ^(EVENT actionSymbol typedVariableList? actionDefBody)
     ;
 processDef
 	: '(' ':process' actionSymbol
