@@ -875,7 +875,7 @@ public abstract class Heuristics {
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
-        float current_distance = rel_state.satisfaction_distance((Comparison) c);
+//        float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic
         Boolean reacheable = null;
         try {

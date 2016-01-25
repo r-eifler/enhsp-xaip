@@ -110,8 +110,10 @@ public class RelState extends Object {
             ret_val.inf = a.getTwo();
             ret_val.sup = a.getNFlunetValueUpperBound();
             return ret_val;
+        }else{
+            PDDLNumbers ret_val = new PDDLNumbers(Float.NaN);
+            return ret_val;
         }
-        return null;
     }
 
     public PDDLNumber functionSupValue(NumFluent f) {
@@ -265,6 +267,9 @@ public class RelState extends Object {
                 a.setTwo(after.inf);
                 a.setNFlunetValueUpperBound(after.sup);
             }
+        }else{
+            a = new NumFluentAssigner(f,after);
+            this.addNumericFluent(a);
         }
     }
 

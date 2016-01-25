@@ -299,7 +299,7 @@ public class NumEffect extends Expression {
             after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
 
         } else if (getOperator().equals("assign")) {
-            if (current == null) {
+            if (current == null || current.is_not_a_number || current.inf.getNumber() == Float.NaN || current.sup.getNumber() == Float.NaN ) {
                 after.inf = new PDDLNumber(eval.inf.getNumber());
                 after.sup = new PDDLNumber(eval.sup.getNumber());
             } else {

@@ -171,7 +171,7 @@ public class GroundProcess extends GroundAction implements Comparable {
                         try {
                             ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight(); 
                             ExtendedNormExpression res = expr.minus((ExtendedNormExpression) eff.getRight());
-                            NumEffect n_effect = new NumEffect(eff.getOperator());
+                            NumEffect n_effect = new NumEffect("increase");
                             n_effect.setFluentAffected(int_eff.getFluentAffected());
                             n_effect.setRight(res);
                             to_add.add(n_effect);
@@ -181,8 +181,8 @@ public class GroundProcess extends GroundAction implements Comparable {
                         }
                     }else{
                         try {
-                            ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
-                            ExtendedNormExpression res = expr.minus((ExtendedNormExpression) eff.getRight());
+                            ExtendedNormExpression expr = (ExtendedNormExpression) eff.getRight();
+                            ExtendedNormExpression res = expr.minus((ExtendedNormExpression) int_eff.getRight());
                             NumEffect n_effect = new NumEffect("increase");
                             n_effect.setFluentAffected(int_eff.getFluentAffected());
                             n_effect.setRight(res);

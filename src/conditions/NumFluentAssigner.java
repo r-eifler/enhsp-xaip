@@ -28,6 +28,7 @@ package conditions;
 
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import expressions.PDDLNumbers;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,6 +62,24 @@ public class NumFluentAssigner extends Conditions {
         nFluent = new NumFluent(fluent);
         
         this.setTwo(new PDDLNumber(value));
+    }
+    
+    public NumFluentAssigner(NumFluent fluent,float value) {
+        super();
+        this.operator = "=";
+        this.nFlunetValueUpperBound = null;
+        nFluent = fluent;
+        
+        this.setTwo(new PDDLNumber(value));
+    }
+    public NumFluentAssigner(NumFluent fluent,PDDLNumbers poss_values) {
+        super();
+        this.operator = "=";
+        this.nFlunetValueUpperBound = null;
+        nFluent = fluent;
+        this.nFluentValue = poss_values.inf;
+        this.nFlunetValueUpperBound = poss_values.sup;
+        
     }
 
     public String toString() {

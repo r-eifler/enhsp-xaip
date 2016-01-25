@@ -128,20 +128,31 @@ public class BinaryOp extends Expression {
         if ((first == null) || (second == null)) {
             return null;//negation by failure.
         }
-        if (this.getOperator().equals("+")) {
-            ret_val = new PDDLNumber(new Float(first.getNumber()) + new Float(second.getNumber()));
-        } else if (this.getOperator().equals("-")) {
-            ret_val = new PDDLNumber(new Float(first.getNumber()) - new Float(second.getNumber()));
-        } else if (this.getOperator().equals("*")) {
-            ret_val = new PDDLNumber(new Float(first.getNumber()) * new Float(second.getNumber()));
-        } else if (this.getOperator().equals("/")) {
-            //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
-            ret_val = new PDDLNumber(new Float(first.getNumber()) / new Float(second.getNumber()));
-        } else if (this.getOperator().equals("min")) {
-            //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
-            ret_val = new PDDLNumber(new Float(Math.min(first.getNumber(), second.getNumber())));
-        } else {
-            System.out.println(this.operator + " not supported");
+        switch (this.getOperator()) {
+            case "+":
+                ret_val = new PDDLNumber(first.getNumber() + second.getNumber());
+                break;
+            case "-":
+                ret_val = new PDDLNumber(first.getNumber() - second.getNumber());
+                break;
+            case "*":
+                ret_val = new PDDLNumber(first.getNumber() * second.getNumber());
+                break;
+            case "/":
+                //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
+                ret_val = new PDDLNumber(first.getNumber() / second.getNumber());
+                break;
+            case "min":
+                //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+                ret_val = new PDDLNumber(Math.min(first.getNumber(), second.getNumber()));
+                break;
+            case "^":
+                //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+                ret_val = new PDDLNumber((float) Math.pow(first.getNumber(), second.getNumber()));
+                break;
+            default:
+                System.out.println(this.operator + " not supported");
+                break;
         }
         return ret_val;
     }
@@ -149,19 +160,25 @@ public class BinaryOp extends Expression {
     @Override
     public ExtendedNormExpression normalize() {
         ExtendedNormExpression ret = new ExtendedNormExpression();
-        ExtendedNormExpression l = this.getOne().normalize();
-        ExtendedNormExpression r = this.getRight().normalize();
+        this.setOne(this.getOne().normalize());
+        this.setRight(this.getRight().normalize());
+        
+        
+        
+        ExtendedNormExpression l = (ExtendedNormExpression)this.getOne();
+        ExtendedNormExpression r = (ExtendedNormExpression)this.getRight();
 
         try {
-            if (!l.isNumber() && !r.isNumber() && (this.getOperator().equals("*") || this.getOperator().equals("/")) ){
+            if ((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && (this.getOperator().equals("*") || this.getOperator().equals("/")))) {
                 BinaryOp bin = new BinaryOp();
                 bin.setOperator(this.getOperator());
                 bin.setOne(l);
                 bin.setRight(r);
-                ret = new ExtendedNormExpression(bin);
+                
+                 ret = new ExtendedNormExpression(bin);
                 ret.linear = false;
-                //System.out.println(ret);
-            }else{
+                //System.out.println("Addendum:"+ret);
+            } else {
                 try {
                     switch (this.getOperator()) {
                         case "+":
@@ -177,11 +194,14 @@ public class BinaryOp extends Expression {
                         case "/":
                             ret = l.div(r);
                             break;
+                        case "^":
+                            ret = l.pow(r);
+                            break;
                         default:
                             System.out.println(this.operator + " not supported");
                             break;
                     }
-                    
+
                 } catch (Exception ex) {
                     Logger.getLogger(ExtendedNormExpression.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -246,11 +266,12 @@ public class BinaryOp extends Expression {
 
     @Override
     public PDDLNumbers eval(RelState s) {
-            PDDLNumbers ret_val = null;
+        PDDLNumbers ret_val = null;
         PDDLNumbers first = this.left.eval(s);
         PDDLNumbers second = this.right.eval(s);
 
-        if ((first == null) || (second == null)) {
+//        System.out.println(this);
+        if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return null;
         }
         if ((first.inf == null) || (first.sup == null) || (second.inf == null) || (second.sup == null)) {
@@ -282,8 +303,9 @@ public class BinaryOp extends Expression {
 //            ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc,bd))));
             //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
 //            ret_val = new PDDLNumber(new Float(first.getNumber()) / new Float(second.getNumber()));
-        } else {
-            System.out.println(this.operator + " not supported");
+        } else if (this.getOperator().equals("^")){
+            ret_val = first.pow(second);
+
         }
         return ret_val;
     }

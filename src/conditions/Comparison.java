@@ -254,7 +254,8 @@ public class Comparison extends Conditions {
 
         PDDLNumbers first = left.eval(s);
         PDDLNumbers second = right.eval(s);
-        if ((first == null) || (second == null)) {
+        
+        if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return false;
         }
         if ((first.inf == null) || (first.sup == null) || (second.inf == null) || (second.sup == null)) {

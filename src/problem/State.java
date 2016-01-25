@@ -293,6 +293,7 @@ public class State extends Object {
             NumFluentAssigner ele = (NumFluentAssigner) o;
             NumFluentAssigner newA = new NumFluentAssigner("=");
             newA.setNFluent(ele.getNFluent());
+//            System.out.println(ele);
             PDDLNumber newN = new PDDLNumber(ele.getTwo().getNumber());
             newA.setTwo(newN);
             if (ele.getNFlunetValueUpperBound() != null) {

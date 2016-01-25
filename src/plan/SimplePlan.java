@@ -2210,15 +2210,16 @@ public class SimplePlan extends ArrayList<GroundAction> {
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
                 if (gp.isActive(current)) {
-
+                    System.out.println("---Active Process:"+gp.toPDDL());
                     for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
+                        
                         waiting.add_numeric_effect(eff);
                     }
                 }
 
             }
             current = waiting.apply(current);
-            //System.out.println(current.pddlPrint());
+            System.out.println(waiting.toPDDL());
             //temp+=delta;
         }
         return current;

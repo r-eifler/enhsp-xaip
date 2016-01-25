@@ -44,6 +44,10 @@ public class PDDLNumber extends Expression {
 
     private Float number;
 
+    public PDDLNumber() {
+        super();
+        grounded = true;
+    }
     public PDDLNumber(Float n) {
         grounded = true;
         number = n;
