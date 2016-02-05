@@ -167,6 +167,8 @@ public class ExtendedNormExpression extends Expression {
                                 add_left = false;
                             }
                             add_right = false;
+                        }else {
+                            ele_to_add = (ExtendedAddendum) a.clone();
                         }
                     } else {
                         ele_to_add = (ExtendedAddendum) a.clone();
@@ -218,6 +220,8 @@ public class ExtendedNormExpression extends Expression {
                                 add_left = false;
                             }
                             add_right = false;
+                        }else {
+                            ele_to_add = (ExtendedAddendum) a.clone();
                         }
                     } else {
                         ele_to_add = (ExtendedAddendum) a.clone();

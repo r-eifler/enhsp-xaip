@@ -61,11 +61,19 @@ public class ExtendedAddendum {
             ret.bin = (BinaryOp) this.bin.clone();
             ret.linear = false;
         }else{
+            if (ret.bin != null){
+                System.out.println("There is a problem when cloning the following addendum:"+ret);
+                System.exit(-1);
+            }
             if (this.f != null) {
                 ret.f = (NumFluent) this.f.clone();
             } else {
                 ret.f = null;
             }
+//            if (this.n == null){
+//                System.out.println("There is a problem when cloning the following addendum:"+ret);
+//                System.exit(-1);
+//            }
             ret.n = (PDDLNumber) this.n.clone();
         }
         return ret;
