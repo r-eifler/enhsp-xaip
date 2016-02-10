@@ -112,7 +112,11 @@ public class GroundProcess extends GroundAction implements Comparable {
                     newN = null;
                 } else {
                     rValue = all.getRight().eval(s).getNumber();
-                    //System.out.println("Rvalue!!:" + rValue);
+                    if (rValue == null){
+                        System.out.println("Trying to applying an action with invalid effects!!");
+                        System.out.println(this);
+                        System.exit(-1);
+                    }
                     if (all.getOperator().equals("increase")) {
                         if (s.functionValue(f) == null) {
                             newN = null;

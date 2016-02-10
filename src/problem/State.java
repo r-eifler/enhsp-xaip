@@ -294,6 +294,9 @@ public class State extends Object {
             NumFluentAssigner newA = new NumFluentAssigner("=");
             newA.setNFluent(ele.getNFluent());
 //            System.out.println(ele);
+            if (ele.getTwo()== null){
+                System.out.println("State containing undefined variables:"+this);
+            }
             PDDLNumber newN = new PDDLNumber(ele.getTwo().getNumber());
             newA.setTwo(newN);
             if (ele.getNFlunetValueUpperBound() != null) {

@@ -143,9 +143,11 @@ public class GroundAction extends GenericActionType implements Comparable {
 //    }
     public GroundAction() {
         super();
-        this.name = null;
+        this.name = name;
         numericFluentAffected = null;
         this.parameters = new ParametersAsTerms();
+        this.preconditions = new AndCond();
+        this.numericEffects = new AndCond();
         //numericFluentAffected = new HashMap();
         action_cost = 0;
         interact_with = new HashMap();
@@ -158,6 +160,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         numericFluentAffected = null;
         this.parameters = new ParametersAsTerms();
         this.preconditions = new AndCond();
+        this.numericEffects = new AndCond();
         //numericFluentAffected = new HashMap();
         action_cost = 0;
         interact_with = new HashMap();
@@ -251,30 +254,47 @@ public class GroundAction extends GenericActionType implements Comparable {
                 NumFluent f = all.getFluentAffected();
                 PDDLNumber newN = null;
 
-                Float rValue;
+                Float rValue=null;
                 if (all.getRight().eval(s) == null) {
                     newN = null;
                 } else {
                     rValue = all.getRight().eval(s).getNumber();
-                    //System.out.println("Rvalue!!:" + rValue);
-                    if (all.getOperator().equals("increase")) {
-                        if (s.functionValue(f) == null) {
-                            newN = null;
-                        } else {
-                            newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
-                        }
-                    } else if (all.getOperator().equals("decrease")) {
-                        //                    System.out.print("Valore di " + f);
-                        //                    System.out.println(" :"+ s.functionValue(f).getNumber());
-                        if (s.functionValue(f) == null) {
-                            newN = null;
-                        } else {
-                            newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
-                        }
-                    } else if (all.getOperator().equals("assign")) {
-                        //System.out.println("================ASSIGN===========");
-                        newN = new PDDLNumber(rValue);
+                    if (rValue == null){
+                        System.out.println("Trying to applying an action with invalid effects!!");
+                        System.out.println(this);
+                        System.exit(-1);
                     }
+                    //System.out.println("Rvalue!!:" + rValue);
+                    switch (all.getOperator()) {
+                        case "increase":
+                            if (s.functionValue(f) == null) {
+                                newN = null;
+                            } else {
+                                newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
+                            }   break;
+                        case "decrease":
+                            //                    System.out.print("Valore di " + f);
+                            //                    System.out.println(" :"+ s.functionValue(f).getNumber());
+                            if (s.functionValue(f) == null) {
+                                newN = null;
+                            } else {
+                                newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
+                            }   break;
+                        case "assign":
+                            //System.out.println("================ASSIGN===========");
+                            newN = new PDDLNumber(rValue);
+                            break;
+                    }
+                }
+                if (newN == null){
+                    System.out.println(this);
+                    System.out.println(newN);
+                    System.out.println("Rvalue!:"+rValue);
+                    System.out.println("operation!:"+all.getOperator());
+                    System.out.println(f);
+                    System.out.println(all.getRight());
+                    System.out.println(s);
+                    System.exit(-1);
                 }
                 temporaryMod.add(f);
                 fun2numb.put(f, newN);

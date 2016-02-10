@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g 2016-01-25 17:47:53
+// $ANTLR 3.5.1 /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g 2016-02-10 15:04:25
  package parser; 
 
 import org.antlr.runtime.*;
@@ -1661,7 +1661,7 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = REQUIRE_KEY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:557:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:556:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
 			int alt1=16;
 			int LA1_0 = input.LA(1);
 			if ( (LA1_0==':') ) {
@@ -1869,112 +1869,112 @@ public class PddlLexer extends Lexer {
 
 			switch (alt1) {
 				case 1 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:557:7: ':strips'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:556:7: ':strips'
 					{
 					match(":strips"); 
 
 					}
 					break;
 				case 2 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:558:7: ':typing'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:557:7: ':typing'
 					{
 					match(":typing"); 
 
 					}
 					break;
 				case 3 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:559:7: ':negative-preconditions'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:558:7: ':negative-preconditions'
 					{
 					match(":negative-preconditions"); 
 
 					}
 					break;
 				case 4 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:560:7: ':disjunctive-preconditions'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:559:7: ':disjunctive-preconditions'
 					{
 					match(":disjunctive-preconditions"); 
 
 					}
 					break;
 				case 5 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:561:7: ':equality'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:560:7: ':equality'
 					{
 					match(":equality"); 
 
 					}
 					break;
 				case 6 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:562:7: ':existential-preconditions'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:561:7: ':existential-preconditions'
 					{
 					match(":existential-preconditions"); 
 
 					}
 					break;
 				case 7 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:563:7: ':universal-preconditions'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:562:7: ':universal-preconditions'
 					{
 					match(":universal-preconditions"); 
 
 					}
 					break;
 				case 8 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:564:7: ':quantified-preconditions'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:563:7: ':quantified-preconditions'
 					{
 					match(":quantified-preconditions"); 
 
 					}
 					break;
 				case 9 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:565:7: ':conditional-effects'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:564:7: ':conditional-effects'
 					{
 					match(":conditional-effects"); 
 
 					}
 					break;
 				case 10 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:566:7: ':fluents'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:565:7: ':fluents'
 					{
 					match(":fluents"); 
 
 					}
 					break;
 				case 11 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:567:7: ':adl'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:566:7: ':adl'
 					{
 					match(":adl"); 
 
 					}
 					break;
 				case 12 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:568:7: ':durative-actions'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:567:7: ':durative-actions'
 					{
 					match(":durative-actions"); 
 
 					}
 					break;
 				case 13 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:569:7: ':derived-predicates'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:568:7: ':derived-predicates'
 					{
 					match(":derived-predicates"); 
 
 					}
 					break;
 				case 14 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:570:7: ':timed-initial-literals'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:569:7: ':timed-initial-literals'
 					{
 					match(":timed-initial-literals"); 
 
 					}
 					break;
 				case 15 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:571:7: ':preferences'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:570:7: ':preferences'
 					{
 					match(":preferences"); 
 
 					}
 					break;
 				case 16 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:572:7: ':constraints'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:571:7: ':constraints'
 					{
 					match(":constraints"); 
 
@@ -1996,12 +1996,12 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NAME;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:573:5: ( LETTER ( ANY_CHAR )* )
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:573:10: LETTER ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:572:5: ( LETTER ( ANY_CHAR )* )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:572:10: LETTER ( ANY_CHAR )*
 			{
 			mLETTER(); 
 
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:573:17: ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:572:17: ( ANY_CHAR )*
 			loop2:
 			while (true) {
 				int alt2=2;
@@ -2044,7 +2044,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "LETTER"
 	public final void mLETTER() throws RecognitionException {
 		try {
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:575:16: ( 'a' .. 'z' | 'A' .. 'Z' )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:574:16: ( 'a' .. 'z' | 'A' .. 'Z' )
 			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:
 			{
 			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2067,7 +2067,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "ANY_CHAR"
 	public final void mANY_CHAR() throws RecognitionException {
 		try {
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:577:18: ( LETTER | '0' .. '9' | '-' | '_' )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:576:18: ( LETTER | '0' .. '9' | '-' | '_' )
 			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:
 			{
 			if ( input.LA(1)=='-'||(input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2092,13 +2092,13 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = VARIABLE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:579:10: ( '?' LETTER ( ANY_CHAR )* )
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:579:12: '?' LETTER ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:578:10: ( '?' LETTER ( ANY_CHAR )* )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:578:12: '?' LETTER ( ANY_CHAR )*
 			{
 			match('?'); 
 			mLETTER(); 
 
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:579:23: ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:578:23: ( ANY_CHAR )*
 			loop3:
 			while (true) {
 				int alt3=2;
@@ -2143,7 +2143,7 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NUMBER;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
 			int alt8=2;
 			int LA8_0 = input.LA(1);
 			if ( (LA8_0=='-'||(LA8_0 >= '0' && LA8_0 <= '9')) ) {
@@ -2161,9 +2161,9 @@ public class PddlLexer extends Lexer {
 
 			switch (alt8) {
 				case 1 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
 					{
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:10: ( '-' )?
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:10: ( '-' )?
 					int alt4=2;
 					int LA4_0 = input.LA(1);
 					if ( (LA4_0=='-') ) {
@@ -2171,7 +2171,7 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt4) {
 						case 1 :
-							// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:11: '-'
+							// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:11: '-'
 							{
 							match('-'); 
 							}
@@ -2179,7 +2179,7 @@ public class PddlLexer extends Lexer {
 
 					}
 
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:17: ( DIGIT )+
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:17: ( DIGIT )+
 					int cnt5=0;
 					loop5:
 					while (true) {
@@ -2212,7 +2212,7 @@ public class PddlLexer extends Lexer {
 						cnt5++;
 					}
 
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:24: ( '.' ( DIGIT )+ )?
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:24: ( '.' ( DIGIT )+ )?
 					int alt7=2;
 					int LA7_0 = input.LA(1);
 					if ( (LA7_0=='.') ) {
@@ -2220,10 +2220,10 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt7) {
 						case 1 :
-							// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:25: '.' ( DIGIT )+
+							// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:25: '.' ( DIGIT )+
 							{
 							match('.'); 
-							// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:29: ( DIGIT )+
+							// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:29: ( DIGIT )+
 							int cnt6=0;
 							loop6:
 							while (true) {
@@ -2264,7 +2264,7 @@ public class PddlLexer extends Lexer {
 					}
 					break;
 				case 2 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:581:40: '#t'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:580:40: '#t'
 					{
 					match("#t"); 
 
@@ -2284,7 +2284,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "DIGIT"
 	public final void mDIGIT() throws RecognitionException {
 		try {
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:583:15: ( '0' .. '9' )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:582:15: ( '0' .. '9' )
 			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:
 			{
 			if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2309,11 +2309,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = LINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:586:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:586:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:585:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:585:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
 			{
 			match(';'); 
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:586:11: (~ ( '\\n' | '\\r' ) )*
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:585:11: (~ ( '\\n' | '\\r' ) )*
 			loop9:
 			while (true) {
 				int alt9=2;
@@ -2342,7 +2342,7 @@ public class PddlLexer extends Lexer {
 				}
 			}
 
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:586:25: ( '\\r' )?
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:585:25: ( '\\r' )?
 			int alt10=2;
 			int LA10_0 = input.LA(1);
 			if ( (LA10_0=='\r') ) {
@@ -2350,7 +2350,7 @@ public class PddlLexer extends Lexer {
 			}
 			switch (alt10) {
 				case 1 :
-					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:586:25: '\\r'
+					// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:585:25: '\\r'
 					{
 					match('\r'); 
 					}
@@ -2376,10 +2376,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = WHITESPACE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:590:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:590:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:589:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:589:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			{
-			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:590:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// /home/enrico/Scrivania/Dropbox/Planning and execution v-2.0/ppmajal2/grammar/Pddl.g:589:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			int cnt11=0;
 			loop11:
 			while (true) {
