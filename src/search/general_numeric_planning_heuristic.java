@@ -43,9 +43,11 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
+import problem.RelState;
 import problem.State;
 
 /**
@@ -350,28 +352,33 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
-                        supporters.add(generate_constant_supporter(effect));
+                        supporters.add(generate_constant_supporter(effect,gr.getName()+effect.getFluentAffected()));
                     } else {
-                        supporters.add(generate_plus_inf_supporter(effect));
-                        supporters.add(generate_minus_inf_supporter(effect));
+                        supporters.add(generate_plus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));
+                        supporters.add(generate_minus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));
                     }
                 }
             }
 
         }
-        //START from here to conclude the heuristic estimate. Supporters have been created (need to be checked). From now perform reacheability
-        return Integer.MAX_VALUE;
+        boolean solvable = verify_ibr_solvability(s,goal,supporters);
+        if (solvable){
+            return number_of_actions_needed(s,goal,A);
+        }else{
+            return Integer.MAX_VALUE;
+        }
     }
 
-    private GroundAction generate_constant_supporter(NumEffect effect) {
-        GroundAction ret = new GroundAction();
+    private GroundAction generate_constant_supporter(NumEffect effect,String name) {
+        GroundAction ret = new GroundAction(name+"constantassign");
         NumEffect assign = new NumEffect("assign");
+        assign.setFluentAffected(effect.getFluentAffected());
         assign.setRight(effect.getRight());
         ret.getNumericEffects().sons.add(assign);
         return ret;
     }
 
-    private GroundAction generate_plus_inf_supporter(NumEffect effect) {
+    private GroundAction generate_plus_inf_supporter(NumEffect effect,String name) {
         String disequality = "";
         Float asymptote = Float.POSITIVE_INFINITY;
         switch (effect.getOperator()) {
@@ -385,11 +392,11 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
                 disequality = ">";
                 break;
         }
-        return generate_supporter(effect, disequality, asymptote);
+        return generate_supporter(effect, disequality, asymptote,name+"plusinf");
     }
 
-    private GroundAction generate_supporter(NumEffect effect, String disequality, Float asymptote) {
-        GroundAction ret = new GroundAction();
+    private GroundAction generate_supporter(NumEffect effect, String disequality, Float asymptote,String name) {
+        GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(disequality);
         if (effect.getOperator().equals("assign")){
             indirect_precondition.setLeft(new BinaryOp(effect.getRight(),"-",effect.getFluentAffected(),true));
@@ -405,9 +412,9 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         return ret;
     }
 
-    private GroundAction generate_minus_inf_supporter(NumEffect effect) {
+    private GroundAction generate_minus_inf_supporter(NumEffect effect,String name) {
         String disequality = "";
-        Float asymptote = Float.POSITIVE_INFINITY;
+        Float asymptote = Float.NEGATIVE_INFINITY;
         switch (effect.getOperator()) {
             case "increase":
                 disequality = "<";
@@ -420,7 +427,36 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
                 break;
             
         }
-        return generate_supporter(effect, disequality, asymptote);
+        return generate_supporter(effect, disequality, asymptote,name+"minusinf");
+    }
+
+    private boolean verify_ibr_solvability(State s, Comparison goal, Collection<GroundAction> supporters) {
+        
+        RelState rs = s.relaxState();
+        Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
+        while (!rs.satisfy(goal)){//until  the goal is not satisfied
+            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
+            if (S.isEmpty()){//if there are no applicable action then finish!
+                return false;
+            }
+            temp_supporters.removeIf(p -> p.isApplicable(rs));//Remove the action just taken
+            S.stream().forEach((GroundAction a) -> a.apply(rs));
+        }
+        return true;
+    }
+
+    private int number_of_actions_needed(State s, Comparison goal, Collection<GroundAction> actions) {
+        RelState rs = s.relaxState();
+        int counter = 0;
+        while (counter<=horizon){
+            for (GroundAction gr: actions){
+                gr.apply(rs);
+                counter++;
+                if (rs.satisfy(goal))
+                    return counter;
+            }
+        }
+        return counter;
     }
 
     private static class ConditionsNode implements Comparable {

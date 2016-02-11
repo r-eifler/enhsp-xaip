@@ -429,7 +429,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (all.getOperator().equals("increase")) {
                     //System.out.println(current);
                     //System.out.println(current.sum(eval).inf);
-                     after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
+                    after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
                     after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
 //                    System.out.println(current.sum(eval).inf.getNumber());
                 } else if (all.getOperator().equals("decrease")) {
@@ -437,7 +437,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
 
                 } else if (all.getOperator().equals("assign")) {
-                    if (current == null) {
+                    if (current == null || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN())) ) {
                         after.inf = new PDDLNumber(eval.inf.getNumber());
                         after.sup = new PDDLNumber(eval.sup.getNumber());
                     } else {
@@ -450,6 +450,11 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                    System.out.println("After ("+after.inf+","+after.sup+")");
 //                
 //                }
+                if (after == null || after.inf == null || after.sup == null){
+                    System.out.println("Something went really wrong when applying effect on "+f);
+                    System.exit(-1);
+                }
+                            
                 temporaryMod.add(f);
                 fun2numb.put(f, after);
             }
