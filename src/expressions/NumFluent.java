@@ -206,8 +206,11 @@ public class NumFluent extends Expression {
         ret.inf = s.functionInfValue(this);
         ret.sup = s.functionSupValue(this);
         if (ret.inf == null) {
-            return null;
+            ret.is_not_a_number = true;
+            
+            return ret;
         }
+        
         return ret;
     }
 

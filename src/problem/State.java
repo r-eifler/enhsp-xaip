@@ -120,10 +120,10 @@ public class State extends Object {
 
         if (a != null) {
             return a.getTwo();
+        }else{
+            return new PDDLNumber(Float.NaN);
         }
 
-        //System.out.println(f + " is not expressed in " + this);
-        return null;
     }
 
     public void addProposition(Predicate buildInstPredicate) {

@@ -353,7 +353,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
                         supporters.add(generate_constant_supporter(effect,gr.getName()+effect.getFluentAffected()));
-                    } else {
+                    } else  {
                         supporters.add(generate_plus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));
                         supporters.add(generate_minus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));
                     }
@@ -450,10 +450,12 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         int counter = 0;
         while (counter<=horizon){
             for (GroundAction gr: actions){
-                gr.apply(rs);
-                counter++;
-                if (rs.satisfy(goal))
-                    return counter;
+                //if (gr.isApplicable(rs)){
+                    gr.apply_with_generalized_interval_based_relaxation(rs);
+                    counter++;
+                    if (rs.satisfy(goal))
+                        return counter;
+                //}
             }
         }
         return counter;

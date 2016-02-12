@@ -631,7 +631,7 @@ public class ExtendedNormExpression extends Expression {
 
             if (!a.linear) {
                 PDDLNumbers temp = a.bin.eval(s);
-                if (temp.is_not_a_number) {
+                if (temp == null || temp.is_not_a_number) {
                     return new PDDLNumbers(Float.NaN);
                 }
                 ret = ret.sum(temp);

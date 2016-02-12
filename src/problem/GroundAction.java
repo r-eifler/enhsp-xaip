@@ -38,6 +38,7 @@ import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
 import domain.Variable;
+import expressions.BinaryOp;
 import expressions.ExtendedAddendum;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -79,7 +80,8 @@ public class GroundAction extends GenericActionType implements Comparable {
     public HashMap<Integer, Boolean> interact_with;
     private HashMap<Predicate, Boolean> achieve;
     private Integer int_depencies;
-    public Float time =null;
+    public Float time = null;
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         GroundAction ret = new GroundAction(name);
@@ -93,9 +95,10 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.numericEffects != null) {
             ret.numericEffects = this.numericEffects.clone();
         }
-        
-        if (this.numericFluentAffected!=null)
+
+        if (this.numericFluentAffected != null) {
             ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+        }
         if (this.parameters != null) {
             ret.parameters = (ParametersAsTerms) this.parameters.clone();
         }
@@ -195,10 +198,11 @@ public class GroundAction extends GenericActionType implements Comparable {
                 parametri = parametri.concat(o.toString()).concat(" ");
             }
         }
-        if (this.time==null)
+        if (this.time == null) {
             return "Action Name:" + this.name + " Parameters: " + parametri;
-        else
-            return "("+time+" )Action Name:" + this.name + " Parameters: " + parametri;
+        } else {
+            return "(" + time + " )Action Name:" + this.name + " Parameters: " + parametri;
+        }
 
     }
 
@@ -209,10 +213,11 @@ public class GroundAction extends GenericActionType implements Comparable {
             PDDLObject obj = (PDDLObject) o;
             parametri = parametri.concat(obj.getName().concat(" "));
         }
-        if (time== null)
+        if (time == null) {
             return "(" + this.name + " " + parametri + ")";
-        else
+        } else {
             return time + ": (" + this.name + " " + parametri + ")";
+        }
 
     }
 
@@ -254,12 +259,12 @@ public class GroundAction extends GenericActionType implements Comparable {
                 NumFluent f = all.getFluentAffected();
                 PDDLNumber newN = null;
 
-                Float rValue=null;
+                Float rValue = null;
                 if (all.getRight().eval(s) == null) {
                     newN = null;
                 } else {
                     rValue = all.getRight().eval(s).getNumber();
-                    if (rValue == null){
+                    if (rValue == null) {
                         System.out.println("Trying to applying an action with invalid effects!!");
                         System.out.println(this);
                         System.exit(-1);
@@ -271,7 +276,8 @@ public class GroundAction extends GenericActionType implements Comparable {
                                 newN = null;
                             } else {
                                 newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
-                            }   break;
+                            }
+                            break;
                         case "decrease":
                             //                    System.out.print("Valore di " + f);
                             //                    System.out.println(" :"+ s.functionValue(f).getNumber());
@@ -279,18 +285,19 @@ public class GroundAction extends GenericActionType implements Comparable {
                                 newN = null;
                             } else {
                                 newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
-                            }   break;
+                            }
+                            break;
                         case "assign":
                             //System.out.println("================ASSIGN===========");
                             newN = new PDDLNumber(rValue);
                             break;
                     }
                 }
-                if (newN == null){
+                if (newN == null) {
                     System.out.println(this);
                     System.out.println(newN);
-                    System.out.println("Rvalue!:"+rValue);
-                    System.out.println("operation!:"+all.getOperator());
+                    System.out.println("Rvalue!:" + rValue);
+                    System.out.println("operation!:" + all.getOperator());
                     System.out.println(f);
                     System.out.println(all.getRight());
                     System.out.println(s);
@@ -304,7 +311,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                float next_time = time.getNumber()+0.01f;
 //                s.setFunctionValue(new NumFluent("time_elapsed"),new PDDLNumber(next_time));
 //            }
-              
+
             for (Object o : temporaryMod) {
                 NumFluent f = (NumFluent) o;
                 PDDLNumber n = (PDDLNumber) fun2numb.get(f);
@@ -437,7 +444,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
 
                 } else if (all.getOperator().equals("assign")) {
-                    if (current == null || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN())) ) {
+                    if (current == null || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN()))) {
                         after.inf = new PDDLNumber(eval.inf.getNumber());
                         after.sup = new PDDLNumber(eval.sup.getNumber());
                     } else {
@@ -450,11 +457,11 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                    System.out.println("After ("+after.inf+","+after.sup+")");
 //                
 //                }
-                if (after == null || after.inf == null || after.sup == null){
-                    System.out.println("Something went really wrong when applying effect on "+f);
+                if (after == null || after.inf == null || after.sup == null) {
+                    System.out.println("Something went really wrong when applying effect on " + f);
                     System.exit(-1);
                 }
-                            
+
                 temporaryMod.add(f);
                 fun2numb.put(f, after);
             }
@@ -480,6 +487,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getPreconditions() == null) {
             return true;
         }
+        
+        
 
         return this.getPreconditions().isSatisfied(current);
     }
@@ -1223,7 +1232,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 this.achieve.put(p, false);
                 return false;
             }
-            if (this.getAddList() instanceof AndCond){
+            if (this.getAddList() instanceof AndCond) {
                 AndCond add = (AndCond) this.getAddList();
                 if (add.sons == null) {
                     this.achieve.put(p, false);
@@ -1234,10 +1243,11 @@ public class GroundAction extends GenericActionType implements Comparable {
                     return true;
                 }
                 this.achieve.put(p, false);
-            }else if (this.getAddList() instanceof Predicate){
-                Predicate pre = (Predicate)this.getAddList();
-                if (pre.equals(p))
+            } else if (this.getAddList() instanceof Predicate) {
+                Predicate pre = (Predicate) this.getAddList();
+                if (pre.equals(p)) {
                     return true;
+                }
             }
             return false;
         }
@@ -1725,10 +1735,21 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     private boolean numericEffectUndefined(RelState current) {
-        return false;//to do!!!
+        
+        if (this.numericEffects==null)
+            return false;
+        if (this.numericEffects.sons.isEmpty())
+            return false;
+        return this.numericEffects.sons.stream().anyMatch(new java.util.function.Predicate<NumEffect>() {
+            @Override
+            public boolean test(NumEffect e) {
+                return e.getRight().eval(current).inf.getNumber().isNaN();
+            }
+        });
+            
+        
+        
     }
-    
-    
 
     public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
 
@@ -1748,7 +1769,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             con = con.weakEval(problem.getInit(), invariantFluents);
 
             if (con == null || con.isUnsatisfiable()) {
-    //            if (con == null)
+                //            if (con == null)
                 //                System.out.println("A precondition is never satisfiable; pruning"+a.toEcoString());
                 return false;
             }
@@ -1849,7 +1870,6 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     //this type of influence is on the rhs, that is it reasons on just complex dependencies
-
     public boolean is_complexly_influenced_by(GroundAction a) {
         for (Object o : this.getNumericEffects().sons) {
             NumEffect nf = (NumEffect) o;
@@ -2199,8 +2219,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getNumericEffectsAsCollection().isEmpty()) {
             return false;
         }
-        
-        
+
         if (comp.getLeft() instanceof ExtendedNormExpression) {
             ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
             for (ExtendedAddendum ad : left.summations) {
@@ -2211,7 +2230,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                         }
                         if (ne.fluentsInvolved().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
-                            if (!rhs.linear){
+                            if (!rhs.linear) {
                                 return false;
                             }
                             if (ne.getOperator().equals("increase")) {
@@ -2262,7 +2281,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             Collection<NumEffect> col = this.getNumericEffects().sons;
             HashMap<NumEffect, Boolean> visited = new HashMap();
             for (NumEffect a : col) {
-                int_depencies = Math.max(int_depencies,dependency_length(a, col, visited));
+                int_depencies = Math.max(int_depencies, dependency_length(a, col, visited));
             }
         }
 
@@ -2277,7 +2296,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (NumEffect b : col) {
                 if (!a.equals(b)) {
                     if (a.getInvolvedFluents().contains(b.getFluentAffected())) {
-                        max_dependency_length = Math.max(max_dependency_length, dependency_length(b, col, (HashMap<NumEffect, Boolean>) visited.clone())+1);
+                        max_dependency_length = Math.max(max_dependency_length, dependency_length(b, col, (HashMap<NumEffect, Boolean>) visited.clone()) + 1);
                     }
                 }
             }
@@ -2285,6 +2304,96 @@ public class GroundAction extends GenericActionType implements Comparable {
         } else {
             return 0;
         }
+    }
+
+    public RelState apply_with_generalized_interval_based_relaxation(RelState s) {
+        RelState ret = s;
+        AndCond add = (AndCond) addList;
+        if (add != null) {
+            ret = add.apply(s);
+        }
+        AndCond c = (AndCond) this.getNumericEffects();
+
+        if (c != null) {
+            ArrayList temporaryMod = new ArrayList();
+            HashMap fun2numb = new HashMap();
+
+            ArrayList<NumEffect> queue = new ArrayList();
+
+            for (Object o : c.sons) {
+                NumEffect all = (NumEffect) o;
+                //all.apply(s);
+                NumFluent f = all.getFluentAffected();
+
+                PDDLNumbers after = new PDDLNumbers();
+//                if (f.getName().contains("fuel-used")){
+//                    System.out.println("Something affecting Fuel");
+//                }
+
+                PDDLNumbers current = s.functionValues(f);
+
+//                if ((current == null) && (!(all.getOperator().equals("assign")))) {
+//                    System.out.println(f + "  is not present in the current state");
+//                }
+                PDDLNumbers eval = all.getRight().eval(s);
+
+//                if (f.getName().contains("fuel-used")){
+//                    System.out.println("Before ("+current.inf+","+current.sup+")");
+//                
+//                }
+                if (all.getOperator().equals("increase")) {
+                    //System.out.println(current);
+                    //System.out.println(current.sum(eval).inf);
+                    after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
+                    after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
+//                    System.out.println(current.sum(eval).inf.getNumber());
+                } else if (all.getOperator().equals("decrease")) {
+                    after.inf = new PDDLNumber(Math.min(current.subtract(eval).inf.getNumber(), current.inf.getNumber()));
+                    after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
+
+                } else if (all.getOperator().equals("assign")) {
+
+                    if (all.getRight().fluentsInvolved().isEmpty() || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN()))) {
+                        if (current == null || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN()))) {
+                            after.inf = new PDDLNumber(eval.inf.getNumber());
+                            after.sup = new PDDLNumber(eval.sup.getNumber());
+                        } else {
+                            after.inf = new PDDLNumber(Math.min(eval.inf.getNumber(), current.inf.getNumber()));
+                            after.sup = new PDDLNumber(Math.max(eval.sup.getNumber(), current.sup.getNumber()));
+                        }
+                    } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
+                        //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
+                        //monotonicity. Look at the report on generalize interval based relaxation.
+                        BinaryOp bin = new BinaryOp(all.getRight(), "-", all.getFluentAffected(), true);
+                        PDDLNumbers monotonic_eval = bin.eval(s);
+                        after.inf = new PDDLNumber(Math.min(current.sum(monotonic_eval).inf.getNumber(), current.inf.getNumber()));
+                        after.sup = new PDDLNumber(Math.max(current.sum(monotonic_eval).sup.getNumber(), current.sup.getNumber()));
+                    }
+                }
+//                if (f.getName().contains("fuel-used")){
+//                    System.out.println("Azione:"+this);
+//                    System.out.println("After ("+after.inf+","+after.sup+")");
+//                
+//                }
+                if (after == null || after.inf == null || after.sup == null) {
+                    System.out.println("Something went really wrong when applying effect on " + f);
+                    System.exit(-1);
+                }
+
+                temporaryMod.add(f);
+                fun2numb.put(f, after);
+            }
+
+            for (Object o : temporaryMod) {
+                NumFluent f = (NumFluent) o;
+                PDDLNumbers n = (PDDLNumbers) fun2numb.get(f);
+
+                s.setFunctionValues(f, n);
+
+            }
+
+        }
+        return ret;
     }
 
 }

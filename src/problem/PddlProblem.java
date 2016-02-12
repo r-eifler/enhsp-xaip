@@ -344,7 +344,9 @@ public class PddlProblem {
         }
         if (infoAction.getType() == PddlParser.PRED_HEAD) {
             //estrapola tutti i predicati e ritornali come set di predicati
-            return buildInstPredicate(infoAction);
+            AndCond and = new AndCond();
+            and.addConditions(buildInstPredicate(infoAction));
+            return and;
         } else if (infoAction.getType() == PddlParser.AND_GD) {
             AndCond and = new AndCond();
             for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -379,12 +381,13 @@ public class PddlProblem {
             //gestendo il valore di ritorno come un attributo di not
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
             //System.out.println("Comparison:" + infoAction.getText());
-
+            AndCond ret = new AndCond();
             Comparison c = new Comparison(infoAction.getChild(0).getText());
 
             c.setLeft(createExpression(infoAction.getChild(1)));
             c.setRight(createExpression(infoAction.getChild(2)));
-            return c;
+            ret.addConditions(c);
+            return ret;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
         }
