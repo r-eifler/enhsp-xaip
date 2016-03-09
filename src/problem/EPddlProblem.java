@@ -28,6 +28,7 @@
 package problem;
 
 import conditions.AndCond;
+import conditions.Conditions;
 import domain.ActionSchema;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
@@ -323,11 +324,8 @@ public class EPddlProblem extends PddlProblem {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
         }
-        for (GlobalConstraint constr: (Collection<GlobalConstraint>) this.globalConstraintSet){
-            if (constr.condition != null){
-                constr.condition = (constr.condition.transform_equality());
-            }
-        }
+        //globalConstraints.normalize();
+        //globalConstraints = (AndCond)globalConstraints.transform_equality();
         
         goals.normalize();
         this.goals = generate_inequalities(goals);

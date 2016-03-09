@@ -182,7 +182,9 @@ public class ExtendedNormExpression extends Expression {
                 }
             }
         }
-
+        if (result.summations.isEmpty())
+            return new ExtendedNormExpression(0f);
+        
         return result;
     }
 
@@ -238,6 +240,9 @@ public class ExtendedNormExpression extends Expression {
             }
         }
 
+        if (result.summations.isEmpty())
+            return new ExtendedNormExpression(0f);
+        
         return result;
     }
 

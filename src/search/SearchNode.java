@@ -186,8 +186,7 @@ public class SearchNode implements Comparable {
 //        hash = 43 * hash + this.action_cost_to_get_here;
 //        return hash;
 //    }
-    @Override
-    public int compareTo(Object o) {
+    public int compareToOld(Object o) {
         final SearchNode other = (SearchNode) o;
         if ((this.goal_distance + this.action_cost_to_get_here) == (other.goal_distance + other.action_cost_to_get_here)) {
             if (this.reacheable_condition < other.reacheable_condition) {
@@ -199,6 +198,22 @@ public class SearchNode implements Comparable {
             } else {
                 return 0;
             }
+        }
+        if ((this.goal_distance + this.action_cost_to_get_here) < (other.goal_distance + other.action_cost_to_get_here)) {
+            return -1;
+        } else {
+            return +1;
+        }
+    }
+    public int compareTo(Object o) {
+        final SearchNode other = (SearchNode) o;
+        if ((this.goal_distance + this.action_cost_to_get_here) == (other.goal_distance + other.action_cost_to_get_here)) {
+            if (this.action_cost_to_get_here < other.action_cost_to_get_here)
+                return +1;
+            else if (this.action_cost_to_get_here > other.action_cost_to_get_here)
+                return -1;
+            else
+                return 0;
         }
         if ((this.goal_distance + this.action_cost_to_get_here) < (other.goal_distance + other.action_cost_to_get_here)) {
             return -1;

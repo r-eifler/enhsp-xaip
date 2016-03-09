@@ -93,6 +93,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
     private int debug = 1;
     private boolean newMethod = true;
+    public boolean print_trace;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -506,15 +507,16 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return false;
 
     }
-    
-    public boolean savePlan(String nFile,boolean processes) {
+
+    public boolean savePlan(String nFile, boolean processes) {
         Writer output = null;
         try {
             output = new BufferedWriter(new FileWriter(nFile));
             for (Object o : this) {
-                if (o instanceof GroundProcess)
+                if (o instanceof GroundProcess) {
                     continue;
-                
+                }
+
                 GroundAction a = (GroundAction) o;
                 output.write(a.toFileCompliant() + "\n");
             }
@@ -2019,19 +2021,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init, HashSet globalConstraintSet) throws CloneNotSupportedException {
+    public State execute(State init, Conditions globalConstraints) throws CloneNotSupportedException {
         State temp = init.clone();
         int i = 0;
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-            for (GlobalConstraint constr : (Collection<GlobalConstraint>) globalConstraintSet) {
-                if (!temp.satisfy(constr.condition)) {
-                    System.out.println("Global Constraint is not satisfied:" + constr);
+
+                if (!temp.satisfy(globalConstraints)) {
+                    System.out.println("Global Constraint is not satisfied:" + globalConstraints);
                     return temp;
                 }
                 // MRJ: Meant for debugging
                 //System.out.println(constr.condition.pddlPrint(false));
 
-            }
             if (gr.isApplicable(temp)) {
                 i++;
                 // MRJ: Prints the state, meant for debugging
@@ -2141,7 +2142,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan,float delta,float epsilon) {
+    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, float epsilon) {
 
         float time = 0;
         for (GroundAction gr : raw_plan) {
@@ -2154,15 +2155,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 this.add(gr);
                 time += epsilon;
             }
-           // System.out.println(time);
+            // System.out.println(time);
         }
 
     }
 
-    public State execute(State init, HashSet<GlobalConstraint> globalConstraintSet, HashSet<GroundProcess> processesSet, float delta, float resolution) throws CloneNotSupportedException {
+    public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, float delta, float resolution) throws CloneNotSupportedException {
 
-        int steps_number = (int) (delta/resolution);
-        System.out.println("Resolution for validation:"+ resolution);
+        int steps_number = (int) (delta / resolution);
+        System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
 
         current.addNumericFluent(new NumFluentAssigner("#t", resolution));
@@ -2177,19 +2178,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     return current;
                 }
             } else {
-                current = advance_time(current, processesSet, steps_number,resolution);
+                current = advance_time(current, processesSet, steps_number, resolution);
             }
-            for (GlobalConstraint constr : (Collection<GlobalConstraint>) globalConstraintSet) {
-                if (!current.satisfy(constr.condition)) {
-                    System.out.println("Global Constraint is not satisfied:" + constr);
-                    
-                    return current;
-                }
-                // MRJ: Meant for debugging
-                //System.out.println(constr.condition.pddlPrint(false));
 
+            if (!current.satisfy(GC)) {
+                System.out.println("Global Constraint is not satisfied:" + GC);
+
+                return current;
             }
-            //System.out.println(current.pddlPrint());
+                // MRJ: Meant for debugging
+            //System.out.println(constr.condition.pddlPrint(false));
+            if (print_trace)
+                System.out.println(current.pddlPrint());
 
         }
         System.out.println(current.pddlPrint());
@@ -2197,29 +2197,28 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private State advance_time(State current, HashSet<GroundProcess> processesSet, int steps_number,float delta) {
+    private State advance_time(State current, HashSet<GroundProcess> processesSet, int steps_number, float delta) {
 
         //System.out.println("Advance time!");
-        
-        
         GroundProcess waiting = new GroundProcess("waiting");
-        for(int i=0;i<steps_number;i++){
-            
+        for (int i = 0; i < steps_number; i++) {
+
             waiting.setNumericEffects(new AndCond());
             waiting.add_time_effects(delta);
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
                 if (gp.isActive(current)) {
-                    System.out.println("---Active Process:"+gp.toPDDL());
+                    //System.out.println("---Active Process:" + gp.toPDDL());
                     for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
-                        
+
                         waiting.add_numeric_effect(eff);
                     }
                 }
 
             }
             current = waiting.apply(current);
-            System.out.println(waiting.toPDDL());
+            if (print_trace)
+                System.out.println(waiting.toPDDL());
             //temp+=delta;
         }
         return current;

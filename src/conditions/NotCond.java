@@ -320,10 +320,11 @@ public class NotCond extends Conditions {
     public Conditions transform_equality() {
         if (this.son == null)
             return this;
-        NotCond ret = new NotCond();
+        NotCond ret = new NotCond();        
         for (Conditions c1 : (Collection<Conditions>) this.son) {
             ret.addConditions(c1.transform_equality());
         }
+        //System.out.println(ret);
         return ret;
     }
 
