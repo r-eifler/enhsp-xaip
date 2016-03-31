@@ -226,6 +226,7 @@ public class SearchNode implements Comparable {
                     return 0;
             }else
                 return 0;
+        } else {
         }
         if (f < other.f) {
             return -1;

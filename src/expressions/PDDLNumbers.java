@@ -139,10 +139,10 @@ public class PDDLNumbers {
         if (b.contain_zero()){
             ret_val.set_open_interval();
         }else{
-            Float ac = new Float(inf.getNumber()) / new Float(b.inf.getNumber());
-            Float ad = new Float(inf.getNumber()) / new Float(b.sup.getNumber());
-            Float bc = new Float(sup.getNumber()) / new Float(b.inf.getNumber());
-            Float bd = new Float(sup.getNumber()) / new Float(b.sup.getNumber());
+            Float ac = inf.getNumber() / new Float(b.inf.getNumber());
+            Float ad = inf.getNumber() / b.sup.getNumber();
+            Float bc = sup.getNumber() / b.inf.getNumber();
+            Float bd = sup.getNumber() / b.sup.getNumber();
             ret_val.inf = new PDDLNumber(Math.min(ac, Math.min(ad, Math.min(bc, bd))));
             ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc, bd))));
         }
