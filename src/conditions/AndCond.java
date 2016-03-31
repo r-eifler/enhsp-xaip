@@ -738,7 +738,10 @@ public class AndCond extends Conditions {
         AndCond ret = new AndCond();
         for (Conditions c1 : (Collection<Conditions>) this.sons) {
             Conditions res = c1.transform_equality();
-            ret.addConditions(res);
+            if (res instanceof AndCond)
+                ret.sons.addAll(res.sons);
+            else
+                ret.addConditions(res);
             
         }
         return ret;

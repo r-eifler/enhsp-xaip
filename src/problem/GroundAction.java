@@ -1740,13 +1740,23 @@ public class GroundAction extends GenericActionType implements Comparable {
             return false;
         if (this.numericEffects.sons.isEmpty())
             return false;
+        
+//        for (NumEffect e: (Collection<NumEffect>)this.numericEffects.sons){
+//            if (e.getRight().eval(current).inf.getNumber().isNaN()){
+//                return true;
+//            }
+//            
+//        }
+//        return false;
+        
+        
         return this.numericEffects.sons.stream().anyMatch(new java.util.function.Predicate<NumEffect>() {
             @Override
             public boolean test(NumEffect e) {
                 return e.getRight().eval(current).inf.getNumber().isNaN();
             }
         });
-            
+//            
         
         
     }

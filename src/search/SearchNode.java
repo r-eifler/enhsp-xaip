@@ -49,9 +49,10 @@ public class SearchNode implements Comparable {
     public float action_cost_to_get_here;
     public JSONObject json_rep;
     public int reacheable_condition;
-    private boolean break_ties_on_reacheable_conditions;
     public float wg;
     public float wh;
+    public float f;
+    private boolean breakties_on_g = true;
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance) {
         s = s1;
@@ -65,7 +66,7 @@ public class SearchNode implements Comparable {
         wg = 1f;
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json) {
+    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json,float wg, float wh) {
         s = s1;
         this.action = action;
         this.goal_distance = goal_distance;
@@ -73,12 +74,16 @@ public class SearchNode implements Comparable {
         this.action_cost_to_get_here = action_cost_to_get_here;
         reacheable_condition = 0;
 
+        this.wh = wh;
+        this.wg = wg;
+        f = this.goal_distance*this.wh + this.action_cost_to_get_here*this.wg;
+        //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
             if (action == null) {
                 json_rep.put("action", "init_state");
             } else {
-                json_rep.put("action", action.toEcoString());
+                json_rep.put("action", action.toString());
             }
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
@@ -90,6 +95,8 @@ public class SearchNode implements Comparable {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
+            json_rep.put("state", s1.pddlPrint());
+
         } else {
             json_rep = null;
         }
@@ -102,7 +109,8 @@ public class SearchNode implements Comparable {
         this.goal_distance = goal_distance;
         this.father = father;
         this.action_cost_to_get_here = action_cost_to_get_here;
-        this.reacheable_condition = reacheable_condition;
+
+        
         if (saving_json) {
             json_rep = new JSONObject();
             if (action == null) {
@@ -205,17 +213,21 @@ public class SearchNode implements Comparable {
             return +1;
         }
     }
+    @Override
     public int compareTo(Object o) {
         final SearchNode other = (SearchNode) o;
-        if ((this.goal_distance + this.action_cost_to_get_here) == (other.goal_distance + other.action_cost_to_get_here)) {
-            if (this.action_cost_to_get_here < other.action_cost_to_get_here)
-                return +1;
-            else if (this.action_cost_to_get_here > other.action_cost_to_get_here)
-                return -1;
-            else
+        if (f == other.f) {
+            if (breakties_on_g){
+                if (this.action_cost_to_get_here < other.action_cost_to_get_here)
+                    return +1;
+                else if (this.action_cost_to_get_here > other.action_cost_to_get_here)
+                    return -1;
+                else
+                    return 0;
+            }else
                 return 0;
         }
-        if ((this.goal_distance + this.action_cost_to_get_here) < (other.goal_distance + other.action_cost_to_get_here)) {
+        if (f < other.f) {
             return -1;
         } else {
             return +1;

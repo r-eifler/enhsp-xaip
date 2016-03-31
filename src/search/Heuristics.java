@@ -95,7 +95,7 @@ public abstract class Heuristics {
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
-    public int horizon = 10000;
+    public int horizon = 1000000;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -188,6 +188,8 @@ public abstract class Heuristics {
 
         LinkedHashSet temp = new LinkedHashSet();
 
+        
+        
         for (Conditions c_1 : (Set<Conditions>) G.sons) {
             int index = conditions.indexOf(c_1);
             if (index != -1) {

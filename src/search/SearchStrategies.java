@@ -62,7 +62,7 @@ public class SearchStrategies {
     private boolean interactive_search_debug = false;
     public boolean json_rep_saving = false;
     public SearchNode search_space_handle;
-    private boolean high_verbosity = false;
+    private boolean high_verbosity = true;
     public boolean preferred_operators_active = false;
     public boolean processes = false;
     public float delta;
@@ -190,7 +190,7 @@ public class SearchStrategies {
         if (current_value == Integer.MAX_VALUE) {
             return null;
         }
-        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving);
+        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving,this.gw,this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -244,7 +244,7 @@ public class SearchStrategies {
                         if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
 //                        if (d!=Integer.MAX_VALUE && ( d <= current_value ) ){
                             act.setAction_cost(temp);
-                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.action_cost_to_get_here + (int) act.getAction_cost(), d * getHw(), this.json_rep_saving);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.action_cost_to_get_here + (int) act.getAction_cost(), d, this.json_rep_saving,this.gw,this.hw);
                             //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                             if (json_rep_saving) {
                                 current_node.add_descendant(new_node);
@@ -274,7 +274,7 @@ public class SearchStrategies {
         getHeuristic().setup(current);
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
         int current_value = 0;
-        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving);
+        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving,this.gw,this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -335,7 +335,7 @@ public class SearchStrategies {
                     setStates_evaluated(getStates_evaluated() + 1);
 
                     act.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.action_cost_to_get_here + (int) act.getAction_cost(), 0, this.json_rep_saving);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.action_cost_to_get_here + (int) act.getAction_cost(), 0, this.json_rep_saving,this.gw,0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (json_rep_saving) {
                         current_node.add_descendant(new_node);
@@ -362,6 +362,8 @@ public class SearchStrategies {
         }
         getHeuristic().setup(current);
         System.out.println("|A U P| (After Relevance Analysis):" + getHeuristic().reachable.size());
+        if (this.high_verbosity)
+            System.out.println("Ground Actions:"+getHeuristic().reachable);
 
 //        rel_actions = (LinkedHashSet) heuristic.compute_relevant_actions(current, problem.getGoals(), rel_actions);
         //heuristic.build_integer_representation(rel_actions, problem.getGoals());
@@ -376,7 +378,7 @@ public class SearchStrategies {
             overall_search_time = System.currentTimeMillis() - start_global;
             return null;
         }
-        SearchNode init = new SearchNode((State) problem.getInit(), null, null, 0, current_value, json_rep_saving);
+        SearchNode init = new SearchNode((State) problem.getInit(), null, null, 0, current_value, json_rep_saving,this.gw,this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -441,7 +443,7 @@ public class SearchStrategies {
                         //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                         act.setAction_cost(temp);
                         if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
-                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.action_cost_to_get_here + (int) act.getAction_cost()) * this.getGw(), d * getHw(), json_rep_saving);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.action_cost_to_get_here + (int) act.getAction_cost()), d , json_rep_saving,this.gw,this.hw);
                             frontier.add(new_node);
                             //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
                             if (json_rep_saving) {
@@ -650,7 +652,8 @@ public class SearchStrategies {
                 //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                 if (d != Integer.MAX_VALUE) {
                     waiting.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.action_cost_to_get_here + (int) waiting.getAction_cost()), d * getHw(), this.json_rep_saving);
+                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.action_cost_to_get_here + (int) waiting.getAction_cost()), d , this.json_rep_saving,this.gw,this.hw);
+                    //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
 
                     frontier.add(new_node);
                     //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
