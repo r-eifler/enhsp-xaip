@@ -124,10 +124,7 @@ public class PDDLNumbers {
 
     
     public boolean contain_zero(){
-        if (inf.getNumber()<= 0 && sup.getNumber()>=0){
-            return true;
-        }
-        return false;
+        return inf.getNumber()<= 0 && sup.getNumber()>=0;
     }
     
     
@@ -139,7 +136,7 @@ public class PDDLNumbers {
         if (b.contain_zero()){
             ret_val.set_open_interval();
         }else{
-            Float ac = inf.getNumber() / new Float(b.inf.getNumber());
+            Float ac = inf.getNumber() / b.inf.getNumber();
             Float ad = inf.getNumber() / b.sup.getNumber();
             Float bc = sup.getNumber() / b.inf.getNumber();
             Float bd = sup.getNumber() / b.sup.getNumber();
