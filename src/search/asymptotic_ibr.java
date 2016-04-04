@@ -136,7 +136,7 @@ public class asymptotic_ibr extends Heuristics{
 
     private GroundAction generate_plus_inf_supporter(NumEffect effect,String name,AndCond precondition) {
         String disequality = "";
-        Float asymptote = Float.POSITIVE_INFINITY;
+        Float asymptote = Float.MAX_VALUE;
         switch (effect.getOperator()) {
             case "increase":
                 disequality = ">";
@@ -172,7 +172,7 @@ public class asymptotic_ibr extends Heuristics{
 
     private GroundAction generate_minus_inf_supporter(NumEffect effect,String name,AndCond precondition) {
         String disequality = "";
-        Float asymptote = Float.NEGATIVE_INFINITY;
+        Float asymptote = -Float.MAX_VALUE;
         switch (effect.getOperator()) {
             case "increase":
                 disequality = "<";

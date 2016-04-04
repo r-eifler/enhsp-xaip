@@ -53,14 +53,14 @@ public class PDDLNumbers {
         inf = new PDDLNumber(i);
         sup = new PDDLNumber(i);
     }
-    
-    public void set_open_interval(){
-    
-           inf.setNumber(Float.NEGATIVE_INFINITY);
-           sup.setNumber(Float.POSITIVE_INFINITY);
-    
-    
+
+    public void set_open_interval() {
+
+        inf.setNumber(-Float.MAX_VALUE);
+        sup.setNumber(Float.MAX_VALUE);
+
     }
+
     public PDDLNumbers sum(PDDLNumbers b) {
         PDDLNumbers ret_val = new PDDLNumbers();
         if (this.is_not_a_number || b.is_not_a_number) {
@@ -69,12 +69,12 @@ public class PDDLNumbers {
 //        System.out.println(b);
 //        System.out.println("Summing ("+this.inf+","+this.sup+")"+" with ("+b.inf+","+b.sup+")");
 //        System.out.println("Before ("+this.inf+","+this.sup+")");
-        if (b.inf.getNumber() == -Float.MIN_VALUE || b.inf.getNumber() == Float.MAX_VALUE) {
+        if (b.inf.getNumber() == -Float.MAX_VALUE || b.inf.getNumber() == Float.MAX_VALUE) {
             ret_val.inf = new PDDLNumber(b.inf.getNumber());
         } else {
             ret_val.inf = new PDDLNumber(inf.getNumber() + b.inf.getNumber());
         }
-        if (b.sup.getNumber() == -Float.MIN_VALUE || b.sup.getNumber() == Float.MAX_VALUE) {
+        if (b.sup.getNumber() == -Float.MAX_VALUE || b.sup.getNumber() == Float.MAX_VALUE) {
             ret_val.sup = new PDDLNumber(b.sup.getNumber());
         } else {
             ret_val.sup = new PDDLNumber(sup.getNumber() + b.sup.getNumber());
@@ -122,27 +122,22 @@ public class PDDLNumbers {
 
     }
 
-    
-    public boolean contain_zero(){
-        return inf.getNumber()<= 0 && sup.getNumber()>=0;
-    }
-    
-    
-    public PDDLNumbers div(PDDLNumbers b) {
-        
-
-        
-        PDDLNumbers ret_val = new PDDLNumbers();
-        if (b.contain_zero()){
-            ret_val.set_open_interval();
-        }else{
-            Float ac = inf.getNumber() / b.inf.getNumber();
-            Float ad = inf.getNumber() / b.sup.getNumber();
-            Float bc = sup.getNumber() / b.inf.getNumber();
-            Float bd = sup.getNumber() / b.sup.getNumber();
-            ret_val.inf = new PDDLNumber(Math.min(ac, Math.min(ad, Math.min(bc, bd))));
-            ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc, bd))));
+    public boolean contain_zero() {
+        if (inf.getNumber() <= 0 && sup.getNumber() >= 0) {
+            return true;
         }
+        return false;
+    }
+
+    public PDDLNumbers div(PDDLNumbers b) {
+        PDDLNumbers ret_val = new PDDLNumbers();
+        Float ac = new Float(inf.getNumber()) / new Float(b.inf.getNumber());
+        Float ad = new Float(inf.getNumber()) / new Float(b.sup.getNumber());
+        Float bc = new Float(sup.getNumber()) / new Float(b.inf.getNumber());
+        Float bd = new Float(sup.getNumber()) / new Float(b.sup.getNumber());
+        ret_val.inf = new PDDLNumber(Math.min(ac, Math.min(ad, Math.min(bc, bd))));
+        ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc, bd))));
+
         return ret_val;
     }
 
@@ -173,15 +168,15 @@ public class PDDLNumbers {
     PDDLNumbers pow(PDDLNumbers second) {
         PDDLNumbers ret = new PDDLNumbers();
 
-        if (second.inf.getNumber() == 0.5f){//sqrt treatment
+        if (second.inf.getNumber() == 0.5f) {//sqrt treatment
 //            System.out.println("Debug");
             //both negative
-            if (this.inf.getNumber() < 0 && this.sup.getNumber() < 0){
+            if (this.inf.getNumber() < 0 && this.sup.getNumber() < 0) {
                 ret.inf.setNumber(Float.NaN);
                 return ret;
             }
             //the inf is negative
-            if (this.inf.getNumber() < 0){
+            if (this.inf.getNumber() < 0) {
                 ret.inf.setNumber(0.0f);
                 ret.sup.setNumber(new Float(Math.pow(this.sup.getNumber(), second.inf.getNumber())));
                 return ret;
@@ -192,13 +187,13 @@ public class PDDLNumbers {
             return ret;
             
         }else{//higher integral powers
-            if (this.inf.getNumber() >= 0 || (second.inf.getNumber() % 2 == 0)) {
+            if (this.inf.getNumber() > 0 || (second.inf.getNumber() % 2 != 0)) {
 //            if (this.inf.getNumber() >= 0 ) {
 
 //                System.out.println("debug");
                 ret.inf.setNumber((float) Math.pow(this.inf.getNumber(), second.inf.getNumber()));
                 ret.sup.setNumber((float) Math.pow(this.sup.getNumber(), second.inf.getNumber()));
-            } else if (this.sup.getNumber() < 0 ) {
+            } else if (this.sup.getNumber() < 0) {
                 ret.inf.setNumber((float) Math.pow(this.sup.getNumber(), second.inf.getNumber()));
                 ret.sup.setNumber((float) Math.pow(this.inf.getNumber(), second.inf.getNumber()));
             } else {
@@ -207,29 +202,10 @@ public class PDDLNumbers {
             }
             return ret;
         }
-        //the rest down here is deprecated
-//        Float a = new Float(Math.pow(this.inf.getNumber(), second.inf.getNumber()));
-//        Float b =  new Float(Math.pow(this.sup.getNumber(), second.inf.getNumber()));
-//        
-//        //very conservative enclosure
-//        if (a.isNaN() || b.isNaN()){
-//            ret.set_open_interval();
-//            return ret;
-//        }
-//        
-//        if (a.isNaN()){
-//            a = this.inf.getNumber();
-//        }
-//        if (b.isNaN()){
-//            b = this.sup.getNumber();
-//        }
-//        ret.inf.setNumber(new Float(Math.min(a, b)));
-//        ret.sup.setNumber(new Float(Math.max(a, b)));
-//        return ret;
     }
-    
+
     @Override
-    public String toString(){
-        return "("+this.inf+","+this.sup+")";
+    public String toString() {
+        return "(" + this.inf + "," + this.sup + ")";
     }
 }
