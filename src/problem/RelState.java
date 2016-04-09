@@ -60,7 +60,7 @@ public class RelState extends Object {
     }
 
     @Override
-    public RelState clone() throws CloneNotSupportedException {
+    public RelState clone()  {
         RelState ret_val = new RelState();
 
         for (Object o : this.poss_numericFs.values()) {
