@@ -54,7 +54,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
+public class Ibr_h1_modality extends Bellman_Ford_H1 {
 
     protected HashMap<GroundAction, LinkedHashSet<Predicate>> achieve;
     protected HashMap<GroundAction, LinkedHashSet<Comparison>> interact_with;
@@ -63,7 +63,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
     private boolean reacheability_setting;
     private boolean all_paths = false;
 
-    public general_numeric_planning_heuristic(Conditions G, Set<GroundAction> A) {
+    public Ibr_h1_modality(Conditions G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -73,7 +73,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
      * @param actions
      * @param processesSet
      */
-    public general_numeric_planning_heuristic(Conditions G, Set A, Set processesSet) {
+    public Ibr_h1_modality(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
     }
 
@@ -82,7 +82,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         try {
             //this.add_redundant_constraints();
         } catch (Exception ex) {
-            Logger.getLogger(general_numeric_planning_heuristic.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Ibr_h1_modality.class.getName()).log(Level.SEVERE, null, ex);
         }
         build_integer_representation();
         identify_complex_conditions(all_conditions, A);

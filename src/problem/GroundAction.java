@@ -2319,11 +2319,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     
     public RelState apply_with_generalized_interval_based_relaxation_copy(RelState s){
         RelState s_copied = null;
-        try {
-            s_copied = s.clone();
-        } catch (CloneNotSupportedException ex) {
-            Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        s_copied = s.clone();
         return apply_with_generalized_interval_based_relaxation(s_copied);
     }
     public RelState apply_with_generalized_interval_based_relaxation(RelState s) {
