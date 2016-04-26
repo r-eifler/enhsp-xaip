@@ -155,26 +155,28 @@ public class ExtendedNormExpression extends Expression {
                 ExtendedAddendum ele_to_add = new ExtendedAddendum();
                 boolean add = true;
                 for (ExtendedAddendum b : copy_of_right) {
-                    if ((b.f == null) && (a.f == null)) {
-                        ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
-                        if (ele_to_add.n.getNumber() == 0.0) {
-                            add = false;
-                        }
-                        already_added.put(b, true);
-                        break;
-                    } else if (b.f != null && a.f != null) {
-                        if (b.f.equals(a.f)) {
+                    if (b.linear && b.bin == null) {
+                        if ((b.f == null) && (a.f == null)) {
                             ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
-                            ele_to_add.f = (NumFluent) a.f.clone();
                             if (ele_to_add.n.getNumber() == 0.0) {
                                 add = false;
                             }
                             already_added.put(b, true);
                             break;
+                        } else if (b.f != null && a.f != null) {
+                            if (b.f.equals(a.f)) {
+                                ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
+                                ele_to_add.f = (NumFluent) a.f.clone();
+                                if (ele_to_add.n.getNumber() == 0.0) {
+                                    add = false;
+                                }
+                                already_added.put(b, true);
+                                break;
+                            }
                         }
-                    } 
+                    }
                 }
-                if (ele_to_add.n == null){
+                if (ele_to_add.n == null) {
                     ele_to_add = (ExtendedAddendum) a.clone();
                 }
                 if (add) {
@@ -210,26 +212,28 @@ public class ExtendedNormExpression extends Expression {
                 ExtendedAddendum ele_to_add = new ExtendedAddendum();
                 boolean add = true;
                 for (ExtendedAddendum b : copy_of_right) {
-                    if ((b.f == null) && (a.f == null)) {
-                        ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
-                        if (ele_to_add.n.getNumber() == 0.0) {
-                            add = false;
-                        }
-                        already_added.put(b, true);
-                        break;
-                    } else if (b.f != null && a.f != null) {
-                        if (b.f.equals(a.f)) {
+                    if (b.linear && b.bin == null) {
+                        if ((b.f == null) && (a.f == null)) {
                             ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
-                            ele_to_add.f = (NumFluent) a.f.clone();
                             if (ele_to_add.n.getNumber() == 0.0) {
                                 add = false;
                             }
                             already_added.put(b, true);
                             break;
+                        } else if (b.f != null && a.f != null) {
+                            if (b.f.equals(a.f)) {
+                                ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
+                                ele_to_add.f = (NumFluent) a.f.clone();
+                                if (ele_to_add.n.getNumber() == 0.0) {
+                                    add = false;
+                                }
+                                already_added.put(b, true);
+                                break;
+                            }
                         }
-                    } 
+                    }
                 }
-                if (ele_to_add.n == null){
+                if (ele_to_add.n == null) {
                     ele_to_add = (ExtendedAddendum) a.clone();
                 }
                 if (add) {
@@ -239,7 +243,7 @@ public class ExtendedNormExpression extends Expression {
 
         }
         copy_of_right.stream().filter((b) -> (already_added.get(b) == null)).forEach((b) -> {
-            if (b.linear) {
+            if (b.linear && b.bin == null) {
                 ExtendedAddendum ele = new ExtendedAddendum();
                 ele.n = new PDDLNumber(-1f * b.n.getNumber());
                 if (b.f != null) {
@@ -248,9 +252,9 @@ public class ExtendedNormExpression extends Expression {
                 result.summations.add(ele);
             } else {
                 BinaryOp bin = new BinaryOp();
-                bin.setOne(new PDDLNumber(-1f));
+                bin.setRight(new PDDLNumber(-1));
                 bin.setOperator("*");
-                bin.setRight(b.bin.clone());
+                bin.setOne(b.bin.clone());
                 ExtendedAddendum ele = new ExtendedAddendum();
                 ele.linear = false;
                 ele.bin = bin;
