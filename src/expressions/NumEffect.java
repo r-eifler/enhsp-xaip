@@ -274,7 +274,7 @@ public class NumEffect extends Expression {
      * @return
      */
     @Override
-    public PDDLNumbers eval(RelState s) {
+    public Interval eval(RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -284,9 +284,9 @@ public class NumEffect extends Expression {
      */
     public void apply(RelState s) {
 
-        PDDLNumbers after = new PDDLNumbers();
-        PDDLNumbers current = s.functionValues(fluentAffected);
-        PDDLNumbers eval = this.getRight().eval(s);
+        Interval after = new Interval();
+        Interval current = s.functionValues(fluentAffected);
+        Interval eval = this.getRight().eval(s);
 
         if (getOperator().equals("increase")) {
             //System.out.println(current);

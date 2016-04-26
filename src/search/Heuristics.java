@@ -34,7 +34,7 @@ import conditions.Predicate;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-import expressions.PDDLNumbers;
+import expressions.Interval;
 import extraUtils.Pair;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -143,16 +143,19 @@ public abstract class Heuristics {
     public void build_integer_representation() {
         int counter2 = 0;
         ArrayList conditions = new ArrayList();
+        int repetition = 0;
         for (GroundAction a : A) {
             LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
                 for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
                     int index = conditions.indexOf(c_1);
                     if (index != -1) {
+                        repetition++;
                         c_1 = (Conditions) conditions.get(index);
                     } else {
                         counter2++;
                         c_1.setCounter(counter2);
+                        System.out.println(c_1.toString());
                         //System.out.println(c_1+"->"+counter2);
                         conditions.add(c_1);
                     }
@@ -161,6 +164,8 @@ public abstract class Heuristics {
                 a.getPreconditions().sons = temp;
             }
         }
+        System.out.println("Repetions:"+repetition);
+        System.out.println("Number of conditions given by the action:"+(repetition+counter2));
 
         //System.out.println("Now action effects:");
         for (GroundAction a : A) {
@@ -1313,7 +1318,7 @@ public abstract class Heuristics {
         RelState temp = rel_state.clone();
         for (NumEffect nf : sorted_nodes) {
             //System.out.println(nf.getRight());
-            PDDLNumbers res = nf.getRight().eval(temp);
+            Interval res = nf.getRight().eval(temp);
             switch (nf.getOperator()) {
                 case "increase":
                     if (res.can_be_negative()) {

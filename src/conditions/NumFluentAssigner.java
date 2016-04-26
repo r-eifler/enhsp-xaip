@@ -28,7 +28,7 @@ package conditions;
 
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-import expressions.PDDLNumbers;
+import expressions.Interval;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class NumFluentAssigner extends Conditions {
         
         this.setTwo(new PDDLNumber(value));
     }
-    public NumFluentAssigner(NumFluent fluent,PDDLNumbers poss_values) {
+    public NumFluentAssigner(NumFluent fluent,Interval poss_values) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;

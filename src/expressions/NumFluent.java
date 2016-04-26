@@ -201,8 +201,8 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public PDDLNumbers eval(RelState s) {
-        PDDLNumbers ret = new PDDLNumbers();
+    public Interval eval(RelState s) {
+        Interval ret = new Interval();
         ret.inf = s.functionInfValue(this);
         ret.sup = s.functionSupValue(this);
         if (ret.inf == null) {

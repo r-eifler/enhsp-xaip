@@ -33,7 +33,7 @@ import conditions.Predicate;
 import expressions.Expression;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-import expressions.PDDLNumbers;
+import expressions.Interval;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -102,16 +102,16 @@ public class RelState extends Object {
         return null;
     }
 
-    public PDDLNumbers functionValues(NumFluent f) {
+    public Interval functionValues(NumFluent f) {
 
         NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
         if (a != null) {
-            PDDLNumbers ret_val = new PDDLNumbers();
+            Interval ret_val = new Interval();
             ret_val.inf = a.getTwo();
             ret_val.sup = a.getNFlunetValueUpperBound();
             return ret_val;
         }else{
-            PDDLNumbers ret_val = new PDDLNumbers(Float.NaN);
+            Interval ret_val = new Interval(Float.NaN);
             return ret_val;
         }
     }
@@ -260,7 +260,7 @@ public class RelState extends Object {
 
     }
 
-    public void setFunctionValues(NumFluent f, PDDLNumbers after) {
+    public void setFunctionValues(NumFluent f, Interval after) {
         NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
         if (a != null) {
             if (a.getNFluent().equals(f)) {
@@ -279,8 +279,8 @@ public class RelState extends Object {
         RelState s = this;
         Expression left = comparison.getLeft();
         Expression right = comparison.getRight();
-        PDDLNumbers lv = left.eval(s);
-        PDDLNumbers rv = right.eval(s);
+        Interval lv = left.eval(s);
+        Interval rv = right.eval(s);
         if ((lv == null) || (rv == null)) {
             return Float.MAX_VALUE;
         }

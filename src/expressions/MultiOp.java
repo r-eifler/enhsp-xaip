@@ -178,7 +178,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public PDDLNumbers eval(RelState s) {
+    public Interval eval(RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

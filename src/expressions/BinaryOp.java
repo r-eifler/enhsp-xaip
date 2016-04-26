@@ -210,7 +210,7 @@ public class BinaryOp extends Expression {
             Logger.getLogger(BinaryOp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        System.out.println(this);
+        System.out.println(this);
 //        System.out.println("Left: "+l);
 //        System.out.println("Right: "+r);
 //        System.out.println("Result: "+ ret);
@@ -265,10 +265,10 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public PDDLNumbers eval(RelState s) {
-        PDDLNumbers ret_val = null;
-        PDDLNumbers first = this.left.eval(s);
-        PDDLNumbers second = this.right.eval(s);
+    public Interval eval(RelState s) {
+        Interval ret_val = null;
+        Interval first = this.left.eval(s);
+        Interval second = this.right.eval(s);
 
 //        System.out.println(this);
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {

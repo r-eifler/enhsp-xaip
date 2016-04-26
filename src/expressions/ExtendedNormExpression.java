@@ -83,6 +83,8 @@ public class ExtendedNormExpression extends Expression {
 
         //if (other == obj)
         //    return true;
+//        if (other.summations != this.summations)
+//            return false;
         if (other.summations.size() != this.summations.size()) {
             return false;//maybe a little bit strong but if the normalization is well done it should work
         }
@@ -128,121 +130,137 @@ public class ExtendedNormExpression extends Expression {
 //            }
             if (!a.linear) {
                 ret = ret.concat("+" + a.bin.toString());
+            } else if (a.f != null) {
+                ret = ret.concat("+" + a.n + "x" + a.f);
             } else {
-
-                if (a.f != null) {
-                    ret = ret.concat("+" + a.n + "x" + a.f);
-                } else {
-                    ret = ret.concat("+" + a.n);
-                }
+                ret = ret.concat("+" + a.n);
             }
         }
         ret = ret.concat("");
         return ret;
     }
 
+    //TO BE FIXed!!!!
     public ExtendedNormExpression sum(ExtendedNormExpression right) throws Exception {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
-        for (ExtendedAddendum a : this.summations) {
-            for (ExtendedAddendum b : right.summations) {
-                if (!b.linear || !a.linear) {
-                    result.summations.add((ExtendedAddendum) b.clone());
-                    result.summations.add((ExtendedAddendum) a.clone());
-                } else {
-                    ExtendedAddendum ele_to_add = new ExtendedAddendum();
-                    boolean add_left = true;
-                    boolean add_right = true;
+
+        ArrayList<ExtendedAddendum> copy_of_this = new ArrayList(this.summations);
+        ArrayList<ExtendedAddendum> copy_of_right = new ArrayList(right.summations);
+        HashMap<ExtendedAddendum, Boolean> already_added = new HashMap();
+        for (ExtendedAddendum a : copy_of_this) {
+            if (!a.linear) {
+                result.summations.add((ExtendedAddendum) a.clone());
+            } else {
+                ExtendedAddendum ele_to_add = new ExtendedAddendum();
+                boolean add = true;
+                for (ExtendedAddendum b : copy_of_right) {
                     if ((b.f == null) && (a.f == null)) {
                         ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
-                        add_right = false;
                         if (ele_to_add.n.getNumber() == 0.0) {
-                            add_left = false;
+                            add = false;
                         }
+                        already_added.put(b, true);
+                        break;
                     } else if (b.f != null && a.f != null) {
                         if (b.f.equals(a.f)) {
                             ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
                             ele_to_add.f = (NumFluent) a.f.clone();
                             if (ele_to_add.n.getNumber() == 0.0) {
-                                add_left = false;
+                                add = false;
                             }
-                            add_right = false;
-                        }else {
-                            ele_to_add = (ExtendedAddendum) a.clone();
+                            already_added.put(b, true);
+                            break;
                         }
-                    } else {
-                        ele_to_add = (ExtendedAddendum) a.clone();
-                    }
-                    if (add_left) {
-                        result.summations.add(ele_to_add);
-                    }
-                    if (add_right) {
-                        result.summations.add((ExtendedAddendum) b.clone());
-                    }
+                    } 
+                }
+                if (ele_to_add.n == null){
+                    ele_to_add = (ExtendedAddendum) a.clone();
+                }
+                if (add) {
+                    result.summations.add(ele_to_add);
                 }
             }
+
         }
-        if (result.summations.isEmpty())
+        for (ExtendedAddendum b : copy_of_right) {
+            if (already_added.get(b) == null) {
+                result.summations.add((ExtendedAddendum) b.clone());
+            }
+        }
+        if (result.summations.isEmpty()) {
             return new ExtendedNormExpression(0f);
-        
+        }
+
         return result;
     }
 
+    //TO BE FIXed!!!!
     public ExtendedNormExpression minus(ExtendedNormExpression right) throws CloneNotSupportedException {
-        ExtendedNormExpression result = new ExtendedNormExpression();
-        for (ExtendedAddendum a : this.summations) {
-            for (ExtendedAddendum b : right.summations) {
-                if (!b.linear || !a.linear) {
-                    result.summations.add((ExtendedAddendum) a.clone());
-                    if (b.linear) {
-                        result.summations.add((ExtendedAddendum) b.clone());
-                    } else {
-                        ExtendedAddendum to_add = new ExtendedAddendum();
-                        to_add.bin = new BinaryOp((BinaryOp) b.bin.clone(), "*", new PDDLNumber(-1), true);
-                        to_add.linear = false;
-                        result.summations.add(to_add);
-                        //result.summations.add((ExtendedAddendum) a.clone());
 
-                    }
-                } else {
-                    ExtendedAddendum ele_to_add = new ExtendedAddendum();
-                    boolean add_left = true;
-                    boolean add_right = true;
+        ExtendedNormExpression result = new ExtendedNormExpression();
+
+        ArrayList<ExtendedAddendum> copy_of_this = new ArrayList(this.summations);
+        ArrayList<ExtendedAddendum> copy_of_right = new ArrayList(right.summations);
+        HashMap<ExtendedAddendum, Boolean> already_added = new HashMap();
+        for (ExtendedAddendum a : copy_of_this) {
+            if (!a.linear) {
+                result.summations.add((ExtendedAddendum) a.clone());
+            } else {
+                ExtendedAddendum ele_to_add = new ExtendedAddendum();
+                boolean add = true;
+                for (ExtendedAddendum b : copy_of_right) {
                     if ((b.f == null) && (a.f == null)) {
                         ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
-                        add_right = false;
                         if (ele_to_add.n.getNumber() == 0.0) {
-                            add_left = false;
+                            add = false;
                         }
+                        already_added.put(b, true);
+                        break;
                     } else if (b.f != null && a.f != null) {
                         if (b.f.equals(a.f)) {
                             ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
                             ele_to_add.f = (NumFluent) a.f.clone();
                             if (ele_to_add.n.getNumber() == 0.0) {
-                                add_left = false;
+                                add = false;
                             }
-                            add_right = false;
-                        }else {
-                            ele_to_add = (ExtendedAddendum) a.clone();
+                            already_added.put(b, true);
+                            break;
                         }
-                    } else {
-                        ele_to_add = (ExtendedAddendum) a.clone();
-                    }
-                    if (add_left) {
-                        result.summations.add(ele_to_add);
-                    }
-                    if (add_right) {
-                        ExtendedAddendum to_add = (ExtendedAddendum) b.clone();
-                        to_add.n = new PDDLNumber(to_add.n.getNumber() * -1);
-                        result.summations.add(to_add);
-                    }
+                    } 
+                }
+                if (ele_to_add.n == null){
+                    ele_to_add = (ExtendedAddendum) a.clone();
+                }
+                if (add) {
+                    result.summations.add(ele_to_add);
                 }
             }
+
+        }
+        copy_of_right.stream().filter((b) -> (already_added.get(b) == null)).forEach((b) -> {
+            if (b.linear) {
+                ExtendedAddendum ele = new ExtendedAddendum();
+                ele.n = new PDDLNumber(-1f * b.n.getNumber());
+                if (b.f != null) {
+                    ele.f = b.f;
+                }
+                result.summations.add(ele);
+            } else {
+                BinaryOp bin = new BinaryOp();
+                bin.setOne(new PDDLNumber(-1f));
+                bin.setOperator("*");
+                bin.setRight(b.bin.clone());
+                ExtendedAddendum ele = new ExtendedAddendum();
+                ele.linear = false;
+                ele.bin = bin;
+                result.summations.add(ele);
+            }
+        });
+        if (result.summations.isEmpty()) {
+            return new ExtendedNormExpression(0f);
         }
 
-        if (result.summations.isEmpty())
-            return new ExtendedNormExpression(0f);
-        
         return result;
     }
 
@@ -393,15 +411,13 @@ public class ExtendedNormExpression extends Expression {
             if (!a.linear) {
                 //System.out.println(a.bin);
                 ret = new PDDLNumber(a.bin.eval(s).getNumber() + ret.getNumber());
-            } else {
-                if (a.f != null) {
-                    if (s.functionValue(a.f) == null) {
-                        return null;
-                    }
-                    ret = new PDDLNumber(ret.getNumber() + s.functionValue(a.f).getNumber() * a.n.getNumber());
-                } else {
-                    ret = new PDDLNumber(ret.getNumber() + a.n.getNumber());
+            } else if (a.f != null) {
+                if (s.functionValue(a.f) == null) {
+                    return null;
                 }
+                ret = new PDDLNumber(ret.getNumber() + s.functionValue(a.f).getNumber() * a.n.getNumber());
+            } else {
+                ret = new PDDLNumber(ret.getNumber() + a.n.getNumber());
             }
         }
         return ret;
@@ -463,12 +479,10 @@ public class ExtendedNormExpression extends Expression {
             ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
             if (!ad.linear) {
                 ret_val = ad.bin.toString();
+            } else if (ad.f == null) {
+                ret_val = " " + ad.n.pddlPrint(typeInformation) + " ";
             } else {
-                if (ad.f == null) {
-                    ret_val = " " + ad.n.pddlPrint(typeInformation) + " ";
-                } else {
-                    ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + ")";
-                }
+                ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + ")";
             }
         }
         {
@@ -476,12 +490,10 @@ public class ExtendedNormExpression extends Expression {
                 ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
                 if (!ad.linear) {
                     ret_val = ad.bin.toString();
+                } else if (ad.f == null) {
+                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(typeInformation) + " )";
                 } else {
-                    if (ad.f == null) {
-                        ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(typeInformation) + " )";
-                    } else {
-                        ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + "))";
-                    }
+                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + "))";
                 }
             }
         }
@@ -629,32 +641,30 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public PDDLNumbers eval(RelState s) {
-        PDDLNumbers ret = new PDDLNumbers(0f);
+    public Interval eval(RelState s) {
+        Interval ret = new Interval(0f);
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
 
             if (!a.linear) {
-                PDDLNumbers temp = a.bin.eval(s);
+                Interval temp = a.bin.eval(s);
                 if (temp == null || temp.is_not_a_number) {
-                    return new PDDLNumbers(Float.NaN);
+                    return new Interval(Float.NaN);
                 }
                 ret = ret.sum(temp);
-            } else {
-                if (a.f != null) {
-                    PDDLNumbers temp = s.functionValues(a.f);
-                    if (temp.is_not_a_number) {
-                        return new PDDLNumbers(Float.NaN);
-                    }
-                    //System.out.println(temp);
-
-                    temp = temp.mult(a.n.getNumber());
-                    ret = ret.sum(temp);
-                    //ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
-                    //ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
-                } else {
-                    ret = ret.sum(a.n.getNumber());
+            } else if (a.f != null) {
+                Interval temp = s.functionValues(a.f);
+                if (temp.is_not_a_number) {
+                    return new Interval(Float.NaN);
                 }
+                //System.out.println(temp);
+
+                temp = temp.mult(a.n.getNumber());
+                ret = ret.sum(temp);
+                //ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
+                //ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
+            } else {
+                ret = ret.sum(a.n.getNumber());
             }
         }
         return ret;
@@ -670,11 +680,9 @@ public class ExtendedNormExpression extends Expression {
                 if (a.bin.involve(map)) {
                     return true;
                 }
-            } else {
-                if (a.f != null) {
-                    if (map.get(a.f) != null) {
-                        return true;
-                    }
+            } else if (a.f != null) {
+                if (map.get(a.f) != null) {
+                    return true;
                 }
             }
 
@@ -691,11 +699,9 @@ public class ExtendedNormExpression extends Expression {
                 if (a.bin.involve(nf)) {
                     return true;
                 }
-            } else {
-                if (a.f != null) {
-                    if (a.f.equals(nf)) {
-                        return true;
-                    }
+            } else if (a.f != null) {
+                if (a.f.equals(nf)) {
+                    return true;
                 }
             }
 
@@ -742,10 +748,8 @@ public class ExtendedNormExpression extends Expression {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
                 ret.addAll(a.bin.fluentsInvolved());
-            } else {
-                if (a.f != null) {
-                    ret.add(a.f);
-                }
+            } else if (a.f != null) {
+                ret.add(a.f);
             }
         }
         return ret;

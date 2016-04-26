@@ -134,8 +134,8 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public PDDLNumbers eval(RelState s) {
-        return new PDDLNumbers(this.getNumber());
+    public Interval eval(RelState s) {
+        return new Interval(this.getNumber());
     }
 
     @Override

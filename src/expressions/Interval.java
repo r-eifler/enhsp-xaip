@@ -31,20 +31,20 @@ package expressions;
  *
  * @author Enrico Scala
  */
-public class PDDLNumbers {
+public class Interval {
 
     public PDDLNumber inf;
     public PDDLNumber sup;
     public boolean is_not_a_number;
 
-    public PDDLNumbers() {
+    public Interval() {
         super();
         is_not_a_number = false;
         inf = new PDDLNumber();
         sup = new PDDLNumber();
     }
 
-    public PDDLNumbers(Float i) {
+    public Interval(Float i) {
         if (i.isNaN()) {
             is_not_a_number = true;
             inf = new PDDLNumber(Float.NaN);
@@ -61,10 +61,10 @@ public class PDDLNumbers {
 
     }
 
-    public PDDLNumbers sum(PDDLNumbers b) {
-        PDDLNumbers ret_val = new PDDLNumbers();
+    public Interval sum(Interval b) {
+        Interval ret_val = new Interval();
         if (this.is_not_a_number || b.is_not_a_number) {
-            return new PDDLNumbers(Float.NaN);
+            return new Interval(Float.NaN);
         }
 //        System.out.println(b);
 //        System.out.println("Summing ("+this.inf+","+this.sup+")"+" with ("+b.inf+","+b.sup+")");
@@ -83,19 +83,19 @@ public class PDDLNumbers {
         return ret_val;
     }
 
-    public PDDLNumbers subtract(PDDLNumbers b) {
-        PDDLNumbers ret_val = new PDDLNumbers();
+    public Interval subtract(Interval b) {
+        Interval ret_val = new Interval();
         ret_val.inf = new PDDLNumber(inf.getNumber() - b.sup.getNumber());
         ret_val.sup = new PDDLNumber(sup.getNumber() - b.inf.getNumber());
 
         return ret_val;
     }
 
-    public PDDLNumbers mult(Float a) {
+    public Interval mult(Float a) {
         if (this.is_not_a_number) {
-            return new PDDLNumbers(Float.NaN);
+            return new Interval(Float.NaN);
         }
-        PDDLNumbers ret_val = new PDDLNumbers();
+        Interval ret_val = new Interval();
 
         if (a < 0) {
             ret_val.inf = new PDDLNumber(sup.getNumber() * a);
@@ -109,8 +109,8 @@ public class PDDLNumbers {
         return ret_val;
     }
 
-    public PDDLNumbers mult(PDDLNumbers b) {
-        PDDLNumbers ret_val = new PDDLNumbers();
+    public Interval mult(Interval b) {
+        Interval ret_val = new Interval();
         //System.out.println("Moltiplicazione: " + this.inf +" * "+b.inf);
         Float ac = inf.getNumber() * b.inf.getNumber();
         Float ad = inf.getNumber() * b.sup.getNumber();
@@ -129,8 +129,8 @@ public class PDDLNumbers {
         return false;
     }
 
-    public PDDLNumbers div(PDDLNumbers b) {
-        PDDLNumbers ret_val = new PDDLNumbers();
+    public Interval div(Interval b) {
+        Interval ret_val = new Interval();
         Float ac = new Float(inf.getNumber()) / new Float(b.inf.getNumber());
         Float ad = new Float(inf.getNumber()) / new Float(b.sup.getNumber());
         Float bc = new Float(sup.getNumber()) / new Float(b.inf.getNumber());
@@ -141,8 +141,8 @@ public class PDDLNumbers {
         return ret_val;
     }
 
-    public PDDLNumbers clone() {
-        PDDLNumbers ret_val = new PDDLNumbers();
+    public Interval clone() {
+        Interval ret_val = new Interval();
 
         ret_val.inf = new PDDLNumber(this.inf.getNumber());
         ret_val.sup = new PDDLNumber(this.sup.getNumber());
@@ -150,8 +150,8 @@ public class PDDLNumbers {
 
     }
 
-    public PDDLNumbers sum(Float number) {
-        PDDLNumbers ret_val = new PDDLNumbers();
+    public Interval sum(Float number) {
+        Interval ret_val = new Interval();
         ret_val.inf = new PDDLNumber(this.inf.getNumber() + number);
         ret_val.sup = new PDDLNumber(this.sup.getNumber() + number);
         return ret_val;
@@ -165,8 +165,8 @@ public class PDDLNumbers {
         return this.inf.greater(0) || this.sup.greater(0);
     }
 
-    PDDLNumbers pow(PDDLNumbers second) {
-        PDDLNumbers ret = new PDDLNumbers();
+    Interval pow(Interval second) {
+        Interval ret = new Interval();
 
         if (second.inf.getNumber() == 0.5f) {//sqrt treatment
 //            System.out.println("Debug");

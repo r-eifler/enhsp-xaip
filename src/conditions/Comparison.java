@@ -35,7 +35,7 @@ import expressions.NumFluent;
 import java.util.Map;
 import problem.State;
 import expressions.PDDLNumber;
-import expressions.PDDLNumbers;
+import expressions.Interval;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -252,8 +252,8 @@ public class Comparison extends Conditions {
     @Override
     public boolean isSatisfied(RelState s) {
 
-        PDDLNumbers first = left.eval(s);
-        PDDLNumbers second = right.eval(s);
+        Interval first = left.eval(s);
+        Interval second = right.eval(s);
         
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return false;
@@ -291,8 +291,8 @@ public class Comparison extends Conditions {
     public Float satisfactionDistance(RelState s) {
         Float ret = new Float(0);
 
-        PDDLNumbers first = left.eval(s);
-        PDDLNumbers second = right.eval(s);
+        Interval first = left.eval(s);
+        Interval second = right.eval(s);
         if ((first == null) || (second == null)) {
             return Float.MAX_VALUE;
         }

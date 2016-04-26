@@ -65,7 +65,7 @@ public abstract class Expression extends Object {
     @Override
     public abstract Expression clone();
 
-    public abstract PDDLNumbers eval(RelState s);
+    public abstract Interval eval(RelState s);
 
     public abstract boolean involve(HashMap<NumFluent,Boolean> arrayList);
 

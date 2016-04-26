@@ -45,7 +45,7 @@ import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-import expressions.PDDLNumbers;
+import expressions.Interval;
 import extraUtils.Pair;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -417,17 +417,17 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //all.apply(s);
                 NumFluent f = all.getFluentAffected();
 
-                PDDLNumbers after = new PDDLNumbers();
+                Interval after = new Interval();
 //                if (f.getName().contains("fuel-used")){
 //                    System.out.println("Something affecting Fuel");
 //                }
 
-                PDDLNumbers current = s.functionValues(f);
+                Interval current = s.functionValues(f);
 
 //                if ((current == null) && (!(all.getOperator().equals("assign")))) {
 //                    System.out.println(f + "  is not present in the current state");
 //                }
-                PDDLNumbers eval = all.getRight().eval(s);
+                Interval eval = all.getRight().eval(s);
 
 //                if (f.getName().contains("fuel-used")){
 //                    System.out.println("Before ("+current.inf+","+current.sup+")");
@@ -468,7 +468,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
             for (Object o : temporaryMod) {
                 NumFluent f = (NumFluent) o;
-                PDDLNumbers n = (PDDLNumbers) fun2numb.get(f);
+                Interval n = (Interval) fun2numb.get(f);
 
                 s.setFunctionValues(f, n);
 
@@ -2341,17 +2341,17 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //all.apply(s);
                 NumFluent f = all.getFluentAffected();
 
-                PDDLNumbers after = new PDDLNumbers();
+                Interval after = new Interval();
 //                if (f.getName().contains("fuel-used")){
 //                    System.out.println("Something affecting Fuel");
 //                }
 
-                PDDLNumbers current = s.functionValues(f);
+                Interval current = s.functionValues(f);
 
 //                if ((current == null) && (!(all.getOperator().equals("assign")))) {
 //                    System.out.println(f + "  is not present in the current state");
 //                }
-                PDDLNumbers eval = all.getRight().eval(s);
+                Interval eval = all.getRight().eval(s);
 
 //                if (f.getName().contains("fuel-used")){
 //                    System.out.println("Before ("+current.inf+","+current.sup+")");
@@ -2381,7 +2381,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                         //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                         //monotonicity. Look at the report on generalize interval based relaxation.
                         BinaryOp bin = new BinaryOp(all.getRight(), "-", all.getFluentAffected(), true);
-                        PDDLNumbers monotonic_eval = bin.eval(s);
+                        Interval monotonic_eval = bin.eval(s);
                         after.inf = new PDDLNumber(Math.min(current.sum(monotonic_eval).inf.getNumber(), current.inf.getNumber()));
                         after.sup = new PDDLNumber(Math.max(current.sum(monotonic_eval).sup.getNumber(), current.sup.getNumber()));
                     }
@@ -2402,7 +2402,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
             for (Object o : temporaryMod) {
                 NumFluent f = (NumFluent) o;
-                PDDLNumbers n = (PDDLNumbers) fun2numb.get(f);
+                Interval n = (Interval) fun2numb.get(f);
 
                 s.setFunctionValues(f, n);
 
