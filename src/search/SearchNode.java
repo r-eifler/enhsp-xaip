@@ -44,9 +44,9 @@ public class SearchNode implements Comparable {
 
     public State s;
     public GroundAction action;
-    public int goal_distance;
+    public int h_n;
     public SearchNode father;
-    public float action_cost_to_get_here;
+    public float g_n;
     public JSONObject json_rep;
     public int reacheable_condition;
     public float wg;
@@ -57,9 +57,9 @@ public class SearchNode implements Comparable {
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance) {
         s = s1;
         this.action = action;
-        this.goal_distance = goal_distance;
+        this.h_n = goal_distance;
         this.father = father;
-        this.action_cost_to_get_here = action_cost_to_get_here;
+        this.g_n = action_cost_to_get_here;
         json_rep = null;
         reacheable_condition = 0;
         wh = 1f;
@@ -69,14 +69,14 @@ public class SearchNode implements Comparable {
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json,float wg, float wh) {
         s = s1;
         this.action = action;
-        this.goal_distance = goal_distance;
+        this.h_n = goal_distance;
         this.father = father;
-        this.action_cost_to_get_here = action_cost_to_get_here;
+        this.g_n = action_cost_to_get_here;
         reacheable_condition = 0;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.goal_distance*this.wh + this.action_cost_to_get_here*this.wg;
+        f = this.h_n*this.wh + this.g_n*this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -106,9 +106,9 @@ public class SearchNode implements Comparable {
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
         s = s1;
         this.action = action;
-        this.goal_distance = goal_distance;
+        this.h_n = goal_distance;
         this.father = father;
-        this.action_cost_to_get_here = action_cost_to_get_here;
+        this.g_n = action_cost_to_get_here;
 
         
         if (saving_json) {
@@ -178,9 +178,9 @@ public class SearchNode implements Comparable {
         int hash = 5;
         hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
         hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-        hash = 29 * hash + this.goal_distance;
+        hash = 29 * hash + this.h_n;
         hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-        hash = 29 * hash + (int) this.action_cost_to_get_here;
+        hash = 29 * hash + (int) this.g_n;
         return hash;
     }
 
@@ -189,14 +189,14 @@ public class SearchNode implements Comparable {
 //        int hash = 5;
 //        hash = 43 * hash + (this.s != null ? this.s.hashCode() : 0);
 //        hash = 43 * hash + (this.action != null ? this.action.hashCode() : 0);
-//        hash = 43 * hash + this.goal_distance;
+//        hash = 43 * hash + this.h_n;
 //        hash = 43 * hash + (this.father != null ? this.father.hashCode() : 0);
-//        hash = 43 * hash + this.action_cost_to_get_here;
+//        hash = 43 * hash + this.g_n;
 //        return hash;
 //    }
     public int compareToOld(Object o) {
         final SearchNode other = (SearchNode) o;
-        if ((this.goal_distance + this.action_cost_to_get_here) == (other.goal_distance + other.action_cost_to_get_here)) {
+        if ((this.h_n + this.g_n) == (other.h_n + other.g_n)) {
             if (this.reacheable_condition < other.reacheable_condition) {
                 System.out.println("then It can happen!");
                 return +1;
@@ -207,7 +207,7 @@ public class SearchNode implements Comparable {
                 return 0;
             }
         }
-        if ((this.goal_distance + this.action_cost_to_get_here) < (other.goal_distance + other.action_cost_to_get_here)) {
+        if ((this.h_n + this.g_n) < (other.h_n + other.g_n)) {
             return -1;
         } else {
             return +1;
@@ -218,9 +218,9 @@ public class SearchNode implements Comparable {
         final SearchNode other = (SearchNode) o;
         if (f == other.f) {
             if (breakties_on_g){
-                if (this.action_cost_to_get_here < other.action_cost_to_get_here)
+                if (this.g_n < other.g_n)
                     return +1;
-                else if (this.action_cost_to_get_here > other.action_cost_to_get_here)
+                else if (this.g_n > other.g_n)
                     return -1;
                 else
                     return 0;

@@ -67,6 +67,7 @@ public class SearchStrategies {
     public boolean processes = false;
     public float delta;
     public int horizon;
+    public static int num_dead_end_detected;
 
     public void setup_heuristic(Heuristics input) {
         this.setHeuristic(input);
@@ -150,7 +151,7 @@ public class SearchStrategies {
                         //System.out.println("try");
                         setStates_evaluated(getStates_evaluated() + 1);
                         if (d != Integer.MAX_VALUE) {// && d <= current_value) {
-                            SearchNode new_node = new SearchNode(temp, act, node, node.action_cost_to_get_here + 1, 0);
+                            SearchNode new_node = new SearchNode(temp, act, node, node.g_n + 1, 0);
                             frontier.add(new_node);
                             if (d < current_value) {
                                 nodes_expanded++;
@@ -158,6 +159,8 @@ public class SearchStrategies {
                                 System.out.println("Distance:" + d);
                                 return new_node;
                             }
+                        }else{
+                            num_dead_end_detected++;
                         }
                     }
                 }
@@ -171,6 +174,7 @@ public class SearchStrategies {
     public static long overall_search_time;
 
     public LinkedList wa_star(PddlProblem problem) throws Exception {
+        num_dead_end_detected =0;
 
         long start_global = System.currentTimeMillis();
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
@@ -188,6 +192,7 @@ public class SearchStrategies {
         //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
         System.out.println("H(s_0,G)=:" + current_value);
         if (current_value == Integer.MAX_VALUE) {
+            num_dead_end_detected++;
             return null;
         }
         SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving,this.gw,this.hw);
@@ -196,7 +201,7 @@ public class SearchStrategies {
         }
         frontier.add(init);
         HashMap<State, Boolean> visited = new HashMap();
-        HashMap<State, Float> cost = new HashMap();
+        HashMap<State, Float> g = new HashMap();
         heuristic_time = 0;
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
@@ -206,11 +211,11 @@ public class SearchStrategies {
 
             nodes_expanded++;
             priority_queue_size = frontier.size();
-            //System.out.println("Current Distance:"+current_node.action_cost_to_get_here);
-            //System.out.println("Current Cost:"+current_node.action_cost_to_get_here);
-            if (current_value > current_node.goal_distance) {
-                System.out.println("Current Distance:" + current_node.goal_distance);
-                current_value = current_node.goal_distance;
+            //System.out.println("Current Distance:"+current_node.g_n);
+            //System.out.println("Current Cost:"+current_node.g_n);
+            if (current_value > current_node.h_n) {
+                System.out.println("Current Distance:" + current_node.h_n);
+                current_value = current_node.h_n;
             }
 //            if (current_node.action!= null)
 //                System.out.println("Action:"+current_node.action);
@@ -226,15 +231,15 @@ public class SearchStrategies {
                     //act.normalize();
                     boolean to_visit = true;
                     if (visited.get(temp) != null) {
-                        if (cost.get(temp) != null) {
-                            if (!(cost.get(temp) > current_node.action_cost_to_get_here + 1)) {
+                        if (g.get(temp) != null) {
+                            if (g.get(temp) <= current_node.g_n + 1) {
                                 to_visit = false;
                             }
                         }
                     }
 
                     if (to_visit) {
-                        cost.put(temp, current_node.action_cost_to_get_here + 1);
+                        g.put(temp, current_node.g_n + 1);
                         setStates_evaluated(getStates_evaluated() + 1);
 
                         long start = System.currentTimeMillis();
@@ -244,7 +249,7 @@ public class SearchStrategies {
                         if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
 //                        if (d!=Integer.MAX_VALUE && ( d <= current_value ) ){
                             act.setAction_cost(temp);
-                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.action_cost_to_get_here + (int) act.getAction_cost(), d, this.json_rep_saving,this.gw,this.hw);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + (int) act.getAction_cost(), d, this.json_rep_saving,this.gw,this.hw);
                             //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                             if (json_rep_saving) {
                                 current_node.add_descendant(new_node);
@@ -252,6 +257,8 @@ public class SearchStrategies {
                             frontier.add(new_node);
 //                            if (new_node.s.satisfy(problem.getGoals()))
 //                              return extract_plan(new_node);
+                        }else{
+                            num_dead_end_detected++;
                         }
                     }
                 }
@@ -290,11 +297,11 @@ public class SearchStrategies {
 
             nodes_expanded++;
             priority_queue_size = frontier.size();
-            //System.out.println("Current Distance:"+current_node.action_cost_to_get_here);
-            //System.out.println("Current Cost:"+current_node.action_cost_to_get_here);
-            if (current_value > current_node.goal_distance) {
-                System.out.println("Current Distance:" + current_node.goal_distance);
-                current_value = current_node.goal_distance;
+            //System.out.println("Current Distance:"+current_node.g_n);
+            //System.out.println("Current Cost:"+current_node.g_n);
+            if (current_value > current_node.h_n) {
+                System.out.println("Current Distance:" + current_node.h_n);
+                current_value = current_node.h_n;
             }
 //            if (current_node.action!= null)
 //                System.out.println("Action:"+current_node.action);
@@ -303,7 +310,7 @@ public class SearchStrategies {
                 return extract_plan(current_node);
             }
 
-            if (current_node.action_cost_to_get_here >= horizon) {
+            if (current_node.g_n >= horizon) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
             }
@@ -325,17 +332,17 @@ public class SearchStrategies {
 
                     if (visited.get(temp) != null) {
                         if (cost.get(temp) != null) {
-                            if (!(cost.get(temp) > current_node.action_cost_to_get_here + 1)) {
+                            if (!(cost.get(temp) > current_node.g_n + 1)) {
                                 continue;
                             }
                         }
                     }
 
-                    cost.put(temp, current_node.action_cost_to_get_here + 1);
+                    cost.put(temp, current_node.g_n + 1);
                     setStates_evaluated(getStates_evaluated() + 1);
 
                     act.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.action_cost_to_get_here + (int) act.getAction_cost(), 0, this.json_rep_saving,this.gw,0);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + (int) act.getAction_cost(), 0, this.json_rep_saving,this.gw,0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (json_rep_saving) {
                         current_node.add_descendant(new_node);
@@ -354,6 +361,8 @@ public class SearchStrategies {
     public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
         long start_global = System.currentTimeMillis();
 
+        
+        num_dead_end_detected =0;
         //Frontier
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
         State current = (State) problem.getInit();
@@ -376,6 +385,7 @@ public class SearchStrategies {
 
         if (current_value == Integer.MAX_VALUE) {
             overall_search_time = System.currentTimeMillis() - start_global;
+            num_dead_end_detected++;
             return null;
         }
         SearchNode init = new SearchNode((State) problem.getInit(), null, null, 0, current_value, json_rep_saving,this.gw,this.hw);
@@ -398,23 +408,23 @@ public class SearchStrategies {
             priority_queue_size = frontier.size();
             if (current_node.action != null && interactive_search_debug) {
                 System.out.println("Action:" + current_node.action);
-                System.out.println("Current Distance:" + current_node.goal_distance);
+                System.out.println("Current Distance:" + current_node.h_n);
                 System.out.println("Current Frontier:");
 //                for (SearchNode sn : frontier) {
-//                    System.out.println("Node:" + sn.action + " Distance to Goal:" + sn.goal_distance);
+//                    System.out.println("Node:" + sn.action + " Distance to Goal:" + sn.h_n);
 //                }
                 System.in.read();
             }
-            if (current_value > current_node.goal_distance) {
-                System.out.println("Current Distance:" + current_node.goal_distance);
-                current_value = current_node.goal_distance;
+            if (current_value > current_node.h_n) {
+                System.out.println("Current Distance:" + current_node.h_n);
+                current_value = current_node.h_n;
             }
             if (current_node.s.satisfy(problem.getGoals())) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 return extract_plan(current_node);
             }
 
-            if (current_node.action_cost_to_get_here >= horizon) {
+            if (current_node.g_n >= horizon) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
             }
@@ -443,13 +453,15 @@ public class SearchStrategies {
                         //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                         act.setAction_cost(temp);
                         if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
-                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.action_cost_to_get_here + (int) act.getAction_cost()), d , json_rep_saving,this.gw,this.hw);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n + (int) act.getAction_cost()), d , json_rep_saving,this.gw,this.hw);
                             frontier.add(new_node);
                             //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
                             if (json_rep_saving) {
                                 current_node.add_descendant(new_node);
                             }
 
+                        }else{
+                            num_dead_end_detected++;
                         }
                     }
                 }
@@ -652,7 +664,7 @@ public class SearchStrategies {
                 //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                 if (d != Integer.MAX_VALUE) {
                     waiting.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.action_cost_to_get_here + (int) waiting.getAction_cost()), d , this.json_rep_saving,this.gw,this.hw);
+                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + (int) waiting.getAction_cost()), d , this.json_rep_saving,this.gw,this.hw);
                     //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
 
                     frontier.add(new_node);
@@ -661,6 +673,8 @@ public class SearchStrategies {
                         current_node.add_descendant(new_node);
                     }
 
+                }else{
+                    num_dead_end_detected++;
                 }
             }
         } catch (CloneNotSupportedException ex) {

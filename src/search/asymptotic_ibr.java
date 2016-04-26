@@ -12,10 +12,11 @@ import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
@@ -34,6 +35,7 @@ public class asymptotic_ibr extends Heuristics {
     private boolean counting_layers = true;
     private boolean greedy_relaxed_plan = false;
     public boolean extract_plan = false;
+    private boolean reversing = true;
 
     public asymptotic_ibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
@@ -84,6 +86,20 @@ public class asymptotic_ibr extends Heuristics {
 
         if (reacheability) {
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+            
+            //@TODO THIS IS FOR REVERSING
+            if (reversing){
+                LinkedList<GroundAction> temp = new LinkedList(this.reachable);
+                Iterator<GroundAction> itr = temp.descendingIterator();
+                LinkedHashSet<GroundAction> temp2 = new LinkedHashSet();
+                while(itr.hasNext()) {
+                    GroundAction item = itr.next();
+                    temp2.add(item);
+                    // do something
+                }
+                this.reachable = temp2;
+            }
+            //
         }
 
         if (conservative) {
