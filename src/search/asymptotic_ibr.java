@@ -35,7 +35,7 @@ public class asymptotic_ibr extends Heuristics {
     private boolean counting_layers = true;
     private boolean greedy_relaxed_plan = false;
     public boolean extract_plan = false;
-    private boolean reversing = true;
+    private boolean reversing = false;
 
     public asymptotic_ibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
