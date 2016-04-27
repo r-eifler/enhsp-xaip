@@ -155,7 +155,7 @@ public abstract class Heuristics {
                     } else {
                         counter2++;
                         c_1.setCounter(counter2);
-                        System.out.println(c_1.toString());
+//                        System.out.println(c_1.toString());
                         //System.out.println(c_1+"->"+counter2);
                         conditions.add(c_1);
                     }
@@ -164,8 +164,8 @@ public abstract class Heuristics {
                 a.getPreconditions().sons = temp;
             }
         }
-        System.out.println("Repetions:"+repetition);
-        System.out.println("Number of conditions given by the action:"+(repetition+counter2));
+//        System.out.println("Repetions:"+repetition);
+//        System.out.println("Number of conditions given by the action:"+(repetition+counter2));
 
         //System.out.println("Now action effects:");
         for (GroundAction a : A) {
