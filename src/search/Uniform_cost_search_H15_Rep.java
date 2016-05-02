@@ -31,6 +31,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.BinaryOp;
+import expressions.ExtendedNormExpression;
 import expressions.PDDLNumber;
 import extraUtils.Pair;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ import problem.State;
  */
 public class Uniform_cost_search_H15_Rep extends Uniform_cost_search_H1_Rep {
 
+    protected HashMap<Conditions, Boolean> redundant_constraints;
 
 
     public Uniform_cost_search_H15_Rep(Conditions G, Set<GroundAction> A) {
@@ -62,6 +64,60 @@ public class Uniform_cost_search_H15_Rep extends Uniform_cost_search_H1_Rep {
             Logger.getLogger(Uniform_cost_search_H1_5.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+        protected void add_redundant_constraints() throws Exception {
+        redundant_constraints = new HashMap();
+
+        for (GroundAction a : A) {
+            if (a.getPreconditions() != null) {
+                compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
+            }
+            //System.out.println(a.toPDDL());
+        }
+
+        compute_redundant_constraint((Set<Conditions>) G.sons);
+    }
+
+    protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
+        LinkedHashSet temp = new LinkedHashSet();
+        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        int counter = 0;
+        for (int i = 0; i < set_as_array.size(); i++) {
+            for (int j = i + 1; j < set_as_array.size(); j++) {
+                Conditions c_1 = set_as_array.get(i);
+                Conditions c_2 = set_as_array.get(j);
+                if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
+                    counter++;
+                    Comparison a1 = (Comparison) c_1;
+                    Comparison a2 = (Comparison) c_2;
+                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+                    ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
+                    String new_comparator = ">=";
+                    if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
+                        new_comparator = ">";
+                    }
+                    Comparison newC = new Comparison(new_comparator);
+                    newC.setLeft(expr);
+                    newC.setRight(new ExtendedNormExpression(new Float(0.0)));
+                    newC.normalize();
+
+                    ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
+
+                    if (tempLeft.summations.size() < 2) {
+                        continue;
+                    }
+                    redundant_constraints.put(newC, true);
+                    temp.add(newC);
+                }
+            }
+        }
+//        System.out.println("New conditions now:"+counter);
+//        System.out.println("Set before:"+set.size());
+        set.addAll(temp);
+//        System.out.println("Set after:"+set.size());
+    }
+
+
     
 
 

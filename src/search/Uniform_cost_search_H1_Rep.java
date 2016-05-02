@@ -67,7 +67,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
     }
 
     @Override
-    public int setup(State s) {
+    public Float setup(State s) {
         try {
             //this.add_redundant_constraints();
         } catch (Exception ex) {
@@ -78,7 +78,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         generate_self_precondition_delete_sets();
         generate_achievers();
         reacheability_setting = true;
-        int ret = compute_estimate(s);
+        Float ret = compute_estimate(s);
         reacheability_setting = false;
         //limited_rep_action = new HashMap();
         return ret;
@@ -175,7 +175,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
     }
 
     @Override
-    public int compute_estimate(State s) {
+    public Float compute_estimate(State s) {
         FibonacciHeap<Conditions> q = new FibonacciHeap();
 
         LinkedHashSet<GroundAction> temp_a;
@@ -190,7 +190,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         this.generate_repetition_constraints(s, temp_a, temp_conditions);
 
         ArrayList<Boolean> closed = new ArrayList<Boolean>(Collections.nCopies(temp_conditions.size() + 1, false));
-        ArrayList<Integer> dist = new ArrayList<Integer>(Collections.nCopies(temp_conditions.size() + 1, Integer.MAX_VALUE));
+        ArrayList<Float> dist = new ArrayList<Float>(Collections.nCopies(temp_conditions.size() + 1, Float.MAX_VALUE));
         ArrayList<Boolean> open_list = new ArrayList<Boolean>(Collections.nCopies(temp_conditions.size() + 1, false));
         HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
         for (Conditions c : temp_conditions) {
@@ -198,30 +198,31 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
                 cond_to_entry.put(c.getCounter(), node);
-                dist.set(c.getCounter(), 0);
+                dist.set(c.getCounter(), 0f);
                 open_list.set(c.getCounter(), true);
                 closed.set(c.getCounter(), true);
             }
         }
 
         Collection<GroundAction> achievers_of_complex_conditions = new LinkedHashSet();
-        HashMap<GroundAction, Integer> action_to_cost = new HashMap();
+        HashMap<GroundAction, Float> action_to_cost = new HashMap();
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
         while (!q.isEmpty()) {
             Conditions cn = q.removeMin().getData();
             //d/ist.set(cn.c.getCounter(), cn.cost);
+            closed.set(cn.getCounter(), true);
 
-            int goal_dist = this.check_goal_conditions(s, G, dist);
-            if (goal_dist != Integer.MAX_VALUE && !reacheability_setting) {
-                return (int) goal_dist;
+            Float goal_dist = this.check_goal_conditions(s, G, dist,closed);
+            if (goal_dist != Float.MAX_VALUE && !reacheability_setting) {
+                return goal_dist;
             }
             //trigger actions
             Iterator<GroundAction> it = temp_a.iterator();
             LinkedHashSet<GroundAction> edges = new LinkedHashSet();
             while (it.hasNext()) {
                 GroundAction gr = it.next();
-                int action_cost = this.compute_precondition_cost(s, dist, gr);
-                if (action_cost != Integer.MAX_VALUE) {
+                Float action_cost = this.compute_precondition_cost(s, dist, gr,closed);
+                if (action_cost != Float.MAX_VALUE) {
                     edges.add(gr);
                     if (reacheability_setting) {
                         this.reachable.add(gr);
@@ -238,7 +239,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                 Collection<Predicate> predicates = this.achieve.get(gr);
                 Collection<Comparison> comparisons = this.possible_achievers.get(gr);
                 for (Predicate p : predicates) {
-                    int current_cost = action_to_cost.get(gr) + 1;
+                    Float current_cost = action_to_cost.get(gr) + 1f;
                     if (closed.get(p.getCounter())) {
                         continue;
                     }
@@ -263,11 +264,11 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                     }
                     if (!this.is_complex.get(comp)) {
                         boolean applicable = true;
-                        int number_of_execution = gr.getNumberOfExecution(s, comp);
-                        int additional_cost = 0;
+                        Float number_of_execution = gr.getNumberOfExecution(s, comp);
+                        Float additional_cost = 0f;
                         if (this.limited_rep_action.get(gr)) {
                             additional_cost = compute_additional_cost(number_of_execution, gr, dist);
-                            if (additional_cost == Integer.MAX_VALUE) {
+                            if (additional_cost == Float.MAX_VALUE) {
                                 applicable = false;
                             } else {
                                 number_of_execution += additional_cost;
@@ -307,7 +308,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                         continue;
                     }
                     int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
-                    if (current_cost != Integer.MAX_VALUE) {
+                    if (current_cost != Float.MAX_VALUE) {
                         if (open_list.get(comp.getCounter())) {
                             if (dist.get(comp.getCounter()) > current_cost) {
                                 
@@ -326,7 +327,6 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                     Logger.getLogger(Uniform_cost_search_H1_Rep.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            closed.set(cn.getCounter(), true);
 
         }
 

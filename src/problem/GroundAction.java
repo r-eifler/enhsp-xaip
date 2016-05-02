@@ -1950,7 +1950,20 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
-    public int getNumberOfExecution(State s_0, Comparison comp) {
+    public boolean preconditioned_on(Conditions c) {
+        if (this.getPreconditions()==null)
+            return false;
+        if (this.getPreconditions().sons == null)//assuming action preconditions are given as set of atoms
+            return false;
+        for (Conditions cond: (Collection<Conditions>)this.getPreconditions().sons){
+            if (cond.getCounter() == c.getCounter())
+                return true;
+        }
+        return false;
+        
+    }
+    
+    public int getNumberOfExecutionInt(State s_0, Comparison comp) {
         float a1;
         float b;
 
@@ -1998,6 +2011,57 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
     }
 
+    public Float getNumberOfExecution(State s_0, Comparison comp) {
+        Float a1;
+        Float b;
+
+//        if (!this.interact_with(comp)){
+//            return Float.MAX_VALUE;
+//        }
+        if (!comp.involve(this.getNumericFluentAffected())) {
+            return Float.MAX_VALUE;
+        }
+
+//        if (comp.eval_to_null(s_0)){
+//            Comparison reg = this.regressComparison(comp);
+//            if (s_0.satisfy(comp)){
+//                return 1;
+//            }
+//        }
+        a1 = comp.eval_not_affected(s_0, this);
+        b = comp.eval_affected(s_0, this);
+        if (a1 == null || b == null)
+            return Float.MAX_VALUE;
+        if (b < 0.0) {
+//            System.out.println(a1);
+//            System.out.println(b);
+//            //System.out.println("DEBUG:"+s_0);
+//            System.out.println("DEBUG: "+this.toEcoString()+" is considered negative for:"+comp);
+            return Float.MAX_VALUE;//the action contributes negatively
+        }
+
+        //Assumption: comparisons are normalized!
+        if (comp.getComparator().equals("=")) {
+            Float m1 =  (-a1 / b);
+            if (m1 < 0 || a1 % b != 0) {
+                return Float.MAX_VALUE;
+            } else {
+                return m1;
+            }
+        } else {//it is >= or >
+            float m1 = -a1 / b;
+            if (m1 >= 0) {
+                if (comp.getComparator().equals(">")) {
+                    m1 += 1;
+                }
+                return m1;
+            } else {
+                return Float.MAX_VALUE;
+            }
+        }
+    }
+
+    
     public int getNumberOfExecutionWithoutCache(State s_0, Comparison comp) {
         float a1;
         float b;
