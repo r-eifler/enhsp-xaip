@@ -276,8 +276,8 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
 
                         }
                         if (applicable) {
-                            int action_cost = action_to_cost.get(gr);
-                            int current_cost = action_cost + number_of_execution;
+                            Float action_cost = action_to_cost.get(gr);
+                            Float current_cost = action_cost + number_of_execution;
                             if (open_list.get(comp.getCounter())) {
                                 if (dist.get(comp.getCounter()) > current_cost) {
 
@@ -307,7 +307,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                         it2.remove();
                         continue;
                     }
-                    int current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
+                    Float current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, achievers_of_complex_conditions, action_to_cost);
                     if (current_cost != Float.MAX_VALUE) {
                         if (open_list.get(comp.getCounter())) {
                             if (dist.get(comp.getCounter()) > current_cost) {
@@ -331,7 +331,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         }
 
         //System.out.println("Current Estimate to the goal:"+this.compute_float_cost(s, G, dist));
-        return this.check_goal_conditions(s, G, dist);
+        return this.check_goal_conditions(s, G, dist,closed);
     }
 
     protected void generate_achievers() {

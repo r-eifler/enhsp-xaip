@@ -83,10 +83,10 @@ public class bottom_up_action_cost extends Heuristics {
      * @throws Exception
      */
     @Override
-    public int compute_estimate(State s_0){
+    public Float compute_estimate(State s_0){
         
         if (s_0.satisfy(G)) {
-            return 0;
+            return 0f;
         }
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
 

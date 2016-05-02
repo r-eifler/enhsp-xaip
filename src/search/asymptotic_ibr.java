@@ -53,15 +53,15 @@ public class asymptotic_ibr extends Heuristics {
     }
 
     @Override
-    public int setup(State s_0) {
+    public Float setup(State s_0) {
         reacheability = true;
-        int ret = compute_estimate(s_0);
+        Float ret = compute_estimate(s_0);
         reacheability = false;
         return ret;
     }
 
     @Override
-    int compute_estimate(State s) {
+    Float compute_estimate(State s) {
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;
@@ -69,7 +69,7 @@ public class asymptotic_ibr extends Heuristics {
             Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
             if (S.isEmpty()) {//if there are no applicable action then finish!
                 if (!rs.satisfy(G)) {
-                    return Integer.MAX_VALUE;
+                    return Float.MAX_VALUE;
                 } else {
                     break;
                 }
@@ -103,10 +103,10 @@ public class asymptotic_ibr extends Heuristics {
         }
 
         if (conservative) {
-            return supporters_counter;
+            return (float)supporters_counter;
         }
         if (supporters_counter == 0) {
-            return 0;
+            return 0f;
         }
 
         RelState rs2 = s.relaxState();
@@ -215,9 +215,9 @@ public class asymptotic_ibr extends Heuristics {
         return ret;
     }
 
-    private int fix_point_computation(RelState rs2) {
-        int counter = 0;
-        int layer_counter = 0;
+    private Float fix_point_computation(RelState rs2) {
+        Float counter = 0f;
+        Float layer_counter = 0f;
         while (counter <= horizon) {
             boolean fix_point = true;
             layer_counter++;
@@ -257,8 +257,8 @@ public class asymptotic_ibr extends Heuristics {
 
     
     //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
-    private int extract_plan(RelState rs2) {
-        int counter = 0;
+    private Float extract_plan(RelState rs2) {
+        Float counter = 0f;
         Deque<Deque<GroundAction>> action_layers = new ArrayDeque();
         Deque<RelState> state_layers = new ArrayDeque();
         int layers_counter = 0;

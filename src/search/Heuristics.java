@@ -261,7 +261,7 @@ public abstract class Heuristics {
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
         A1.addAll(A);
         //assuming it is an and condition
-        int ret = Integer.MAX_VALUE;
+        Float ret = Float.MAX_VALUE;
         //System.out.println("Starting Relevance Analysis....");
         long start = System.currentTimeMillis();
 
@@ -510,7 +510,7 @@ public abstract class Heuristics {
             GroundAction gr = (GroundAction) it.next();
             int cost = 0;
             cost = compute_precondition_cost(s_0, h, gr);
-            if (cost != Integer.MAX_VALUE) {
+            if (cost != Float.MAX_VALUE) {
                 this.reachable.add(gr);
                 // System.out.println("Adding:"+gr);
                 frontier.add(new HeuristicSearchNode(gr, null, cost + 1, 0));
@@ -540,7 +540,7 @@ public abstract class Heuristics {
         if (gr.getPreconditions() != null) {
             for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
                 Integer temp = h.get(t);
-                if (temp != null && temp != Integer.MAX_VALUE) {
+                if (temp != null && temp != Float.MAX_VALUE) {
                     if (additive_h) {
                         cost += temp;
                     } else {
@@ -602,7 +602,7 @@ public abstract class Heuristics {
                             continue;
                         }
                     }
-                    if ((h.get(regr) != null && h.get(regr) != Integer.MAX_VALUE)) {
+                    if ((h.get(regr) != null && h.get(regr) != Float.MAX_VALUE)) {
                         int cost_for_this_condition;
                         cost_for_this_condition = h.get(regr) + node.action_cost_to_get_here;
 
@@ -770,7 +770,7 @@ public abstract class Heuristics {
 
         for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
             int temp = h.get(t.getCounter());
-            if (temp != Integer.MAX_VALUE) {
+            if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
                     cost += temp;
                 } else {
@@ -1062,7 +1062,7 @@ public abstract class Heuristics {
 //            }
 //            iteration++;
 //            if (stop) {
-//                return Integer.MAX_VALUE;
+//                return Float.MAX_VALUE;
 //            }
 //        }
     
@@ -1072,7 +1072,7 @@ public abstract class Heuristics {
         Iterator it = A1.iterator();
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
-            if (this.compute_precondition_cost(s_0, h, gr) != Integer.MAX_VALUE) {
+            if (this.compute_precondition_cost(s_0, h, gr) != Float.MAX_VALUE) {
                 gr.setAction_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, 0, 0));
                 it.remove();
@@ -1141,7 +1141,7 @@ public abstract class Heuristics {
     
     protected void update_pool(Collection<GroundAction> pool, LinkedHashSet<GroundAction> A, State s_0, ArrayList<Integer> h) {
         for (GroundAction gr : A) {
-            if (this.compute_precondition_cost(s_0, h, gr) != Integer.MAX_VALUE) {
+            if (this.compute_precondition_cost(s_0, h, gr) != Float.MAX_VALUE) {
                 pool.add(gr);
             }
         }
@@ -1183,7 +1183,7 @@ public abstract class Heuristics {
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
             int cost = compute_precondition_cost(s_0, h, gr);
-            if (cost != Integer.MAX_VALUE) {
+            if (cost != Float.MAX_VALUE) {
                 gr.setAction_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, cost, 0));
                 it.remove();
@@ -1196,7 +1196,7 @@ public abstract class Heuristics {
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
             int cost = compute_precondition_cost(s_0, h, gr);
-            if (cost != Integer.MAX_VALUE) {
+            if (cost != Float.MAX_VALUE) {
                 gr.setAction_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, cost, 0));
                 it.remove();
@@ -1252,16 +1252,16 @@ public abstract class Heuristics {
         }
     }
 
-    protected int compute_additional_cost(int number_of_repetition, GroundAction gr, ArrayList<Integer> h) {
-        int additional_cost = 0;
+    protected Float compute_additional_cost(Float number_of_repetition, GroundAction gr, ArrayList<Float> h) {
+        Float additional_cost = 0f;
         if (this.rep_costs.get(gr) != null && number_of_repetition > 1) {
             LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr);
             for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
-                int rpc = h.get(p.getFirst().getFirst().getCounter());
+                Float rpc = h.get(p.getFirst().getFirst().getCounter());
                 //System.out.println("Counter here:"+p.getFirst().getCounter());
                 if (number_of_repetition > p.getSecond()) {
-                    if (rpc == Integer.MAX_VALUE) {
-                        return Integer.MAX_VALUE;
+                    if (rpc == Float.MAX_VALUE) {
+                        return Float.MAX_VALUE;
                     } else {
                         additional_cost += (number_of_repetition - p.getSecond() - 1) * (rpc);
                         //additional_cost = Math.max((number_of_repetition - p.getSecond() - 1) * (rpc),additional_cost);
@@ -1272,8 +1272,8 @@ public abstract class Heuristics {
         if (number_of_repetition > 1) {
             //add precondition cost violation
             for (Predicate p_del : precondition_deleted.get(gr)) {
-                if (h.get(p_del.getCounter()) == Integer.MAX_VALUE) {
-                    return Integer.MAX_VALUE;
+                if (h.get(p_del.getCounter()) == Float.MAX_VALUE) {
+                    return Float.MAX_VALUE;
                 }
                 additional_cost += h.get(p_del.getCounter()) * (number_of_repetition - 1);
 
