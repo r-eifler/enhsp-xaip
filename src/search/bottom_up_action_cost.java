@@ -48,7 +48,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class bottom_up_action_cost extends Heuristics {
+public class bottom_up_action_cost extends IntegerHeuristic {
 
     public final Conditions G;
     public final LinkedHashSet<GroundAction> A;
@@ -83,10 +83,10 @@ public class bottom_up_action_cost extends Heuristics {
      * @throws Exception
      */
     @Override
-    public Float compute_estimate(State s_0){
+    public int compute_estimate(State s_0){
         
         if (s_0.satisfy(G)) {
-            return 0f;
+            return 0;
         }
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
 
@@ -212,7 +212,7 @@ public class bottom_up_action_cost extends Heuristics {
 
     private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) throws Exception {
         
-        return node.action.getNumberOfExecution(s_0,(Comparison)c_1);
+        return node.action.getNumberOfExecutionInt(s_0,(Comparison)c_1);
     }
 
 

@@ -26,7 +26,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class bottom_up_unit_cost extends Heuristics {
+public class bottom_up_unit_cost extends IntegerHeuristic {
 
     public bottom_up_unit_cost(Conditions G, Set<GroundAction> A) {
         super(G, A);

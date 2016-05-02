@@ -94,6 +94,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private int debug = 1;
     private boolean newMethod = true;
     public boolean print_trace;
+    public float cost;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -2165,10 +2166,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         int steps_number = (int) (delta / resolution);
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
-
+        this.cost=0f;
         current.addNumericFluent(new NumFluentAssigner("#t", resolution));
         for (GroundAction gr : this) {
             //System.out.println(gr.getClass());
+            this.cost+=gr.getAction_cost();
             if (!(gr instanceof GroundProcess)) {
                 //current = advance_time(current, processesSet, current_time, gr.time, resolution);
                 if (gr.isApplicable(current)) {

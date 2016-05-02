@@ -122,7 +122,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
 //                                if (!this.num_achiever.get(new Pair(gr,(Comparison)c)))
 //                                    continue;
 //                            }
-                            int number_of_repetition = gr.action.getNumberOfExecution(s_0, (Comparison) c);
+                            int number_of_repetition = gr.action.getNumberOfExecutionInt(s_0, (Comparison) c);
 
                             if (number_of_repetition != Integer.MAX_VALUE) {
                                 float additional_cost = 0;

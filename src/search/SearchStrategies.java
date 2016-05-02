@@ -73,7 +73,7 @@ public class SearchStrategies {
         this.setHeuristic(input);
         setGw(0);
         setHw(1);
-        //horizon = Integer.MAX_VALUE;
+        //horizon = Float.MAX_VALUE;
         setDecreasing_heuristic_pruning(false);
     }
 
@@ -116,7 +116,7 @@ public class SearchStrategies {
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
         boolean strong_relaxation = false;
         //int current_value = Heuristics.h1_recursion_memoization(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);
-        int current_value = heuristic.compute_estimate(current);
+        Float current_value = heuristic.compute_estimate(current);
 
         LinkedHashSet<GroundAction> branching_actions;
         if (this.preferred_operators_active) {
@@ -146,11 +146,11 @@ public class SearchStrategies {
                     }
                     if (visited.get(temp) == null) {
                         long start = System.currentTimeMillis();
-                        int d = heuristic.compute_estimate(temp);
+                        Float d = heuristic.compute_estimate(temp);
                         heuristic_time += System.currentTimeMillis() - start;
                         //System.out.println("try");
                         setStates_evaluated(getStates_evaluated() + 1);
-                        if (d != Integer.MAX_VALUE) {// && d <= current_value) {
+                        if (d != Float.MAX_VALUE) {// && d <= current_value) {
                             SearchNode new_node = new SearchNode(temp, act, node, node.g_n + 1, 0);
                             frontier.add(new_node);
                             if (d < current_value) {
@@ -187,11 +187,11 @@ public class SearchStrategies {
 
         getHeuristic().setup(current);
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
-        int current_value = getHeuristic().compute_estimate(current) * getHw();
+        Float current_value = getHeuristic().compute_estimate(current) * getHw();
 
         //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
         System.out.println("H(s_0,G)=:" + current_value);
-        if (current_value == Integer.MAX_VALUE) {
+        if (current_value == Float.MAX_VALUE) {
             num_dead_end_detected++;
             return null;
         }
@@ -243,13 +243,13 @@ public class SearchStrategies {
                         setStates_evaluated(getStates_evaluated() + 1);
 
                         long start = System.currentTimeMillis();
-                        int d = getHeuristic().compute_estimate(temp);
+                        Float d = getHeuristic().compute_estimate(temp);
                         heuristic_time += System.currentTimeMillis() - start;
                         //System.out.print(d+" ");
-                        if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
-//                        if (d!=Integer.MAX_VALUE && ( d <= current_value ) ){
+                        if (d != Float.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+//                        if (d!=Float.MAX_VALUE && ( d <= current_value ) ){
                             act.setAction_cost(temp);
-                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + (int) act.getAction_cost(), d, this.json_rep_saving,this.gw,this.hw);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving,this.gw,this.hw);
                             //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                             if (json_rep_saving) {
                                 current_node.add_descendant(new_node);
@@ -280,7 +280,7 @@ public class SearchStrategies {
 
         getHeuristic().setup(current);
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
-        int current_value = 0;
+        Float current_value = 0f;
         SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving,this.gw,this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
@@ -342,7 +342,7 @@ public class SearchStrategies {
                     setStates_evaluated(getStates_evaluated() + 1);
 
                     act.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + (int) act.getAction_cost(), 0, this.json_rep_saving,this.gw,0);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), 0, this.json_rep_saving,this.gw,0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (json_rep_saving) {
                         current_node.add_descendant(new_node);
@@ -378,12 +378,12 @@ public class SearchStrategies {
         //heuristic.build_integer_representation(rel_actions, problem.getGoals());
         System.out.println("Computing Heuristic...");
         long start = System.currentTimeMillis();
-        int current_value = getHeuristic().compute_estimate(current);
+        Float current_value = getHeuristic().compute_estimate(current);
         setStates_evaluated(0);
         System.out.println("Time(H):" + (System.currentTimeMillis() - start) + " ms");
         System.out.println("H(s_0,G):" + current_value);
 
-        if (current_value == Integer.MAX_VALUE) {
+        if (current_value == Float.MAX_VALUE) {
             overall_search_time = System.currentTimeMillis() - start_global;
             num_dead_end_detected++;
             return null;
@@ -448,12 +448,12 @@ public class SearchStrategies {
                     if (visited.get(temp) == null && temp.satisfy(problem.globalConstraints)) {
                         setStates_evaluated(getStates_evaluated() + 1);
                         start = System.currentTimeMillis();
-                        int d = getHeuristic().compute_estimate(temp);
+                        Float d = getHeuristic().compute_estimate(temp);
                         heuristic_time += System.currentTimeMillis() - start;
                         //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                         act.setAction_cost(temp);
-                        if (d != Integer.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
-                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n + (int) act.getAction_cost()), d , json_rep_saving,this.gw,this.hw);
+                        if (d != Float.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n +  act.getAction_cost()), d , json_rep_saving,this.gw,this.hw);
                             frontier.add(new_node);
                             //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
                             if (json_rep_saving) {
@@ -656,15 +656,15 @@ public class SearchStrategies {
             if (temp.satisfy(problem.globalConstraints)) {
                 setStates_evaluated(getStates_evaluated() + 1);
                 long start = System.currentTimeMillis();
-                int d = 0;
+                Float d = 0f;
                 if (this.getHw() != 0) {
                     d = getHeuristic().compute_estimate(temp);
                 }
                 heuristic_time += System.currentTimeMillis() - start;
                 //System.out.print("Reacheable Conditions:"+reacheable_conditions);
-                if (d != Integer.MAX_VALUE) {
+                if (d != Float.MAX_VALUE) {
                     waiting.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + (int) waiting.getAction_cost()), d , this.json_rep_saving,this.gw,this.hw);
+                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + waiting.getAction_cost()), d , this.json_rep_saving,this.gw,this.hw);
                     //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
 
                     frontier.add(new_node);

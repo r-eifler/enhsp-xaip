@@ -1950,6 +1950,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
+    
     public boolean preconditioned_on(Conditions c) {
         if (this.getPreconditions()==null)
             return false;
@@ -2203,17 +2204,12 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public void setAction_cost(State s_0) {
-        if (true) {
-            action_cost = 1;
-            return;
-        }
-
         if (action_cost == 0) {
             if (this.getNumericEffects() != null) {
                 AndCond temp = (AndCond) this.getNumericEffects();
                 for (NumEffect e : (LinkedHashSet<NumEffect>) temp.sons) {
                     if (e.getFluentAffected().getName().equals("total-cost")) {
-                        action_cost = Math.max(e.getRight().eval(s_0).getNumber(), 1);
+                        action_cost = e.getRight().eval(s_0).getNumber();
                         return;
                     }
                 }

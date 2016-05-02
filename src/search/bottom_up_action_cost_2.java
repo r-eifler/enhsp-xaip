@@ -49,7 +49,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class bottom_up_action_cost_2 extends Heuristics {
+public class bottom_up_action_cost_2 extends IntegerHeuristic {
 
     private HashMap<GroundAction, HashSet<Conditions>> impr_conditions = new HashMap();
     private Integer counter;
@@ -240,7 +240,7 @@ public class bottom_up_action_cost_2 extends Heuristics {
 
     private int compute_estimated_cost(HeuristicSearchNode node, int max_depth, State s_0, Conditions c_1) {
 
-        int ret =  node.action.getNumberOfExecution(s_0, (Comparison) c_1);
+        int ret =  node.action.getNumberOfExecutionInt(s_0, (Comparison) c_1);
         if (ret == Integer.MAX_VALUE)
             return ret;
         return ret + node.action_cost_to_get_here;

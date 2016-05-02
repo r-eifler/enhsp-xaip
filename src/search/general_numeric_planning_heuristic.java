@@ -200,7 +200,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
                         continue;
                     }
                     if (!this.is_complex.get(comp)) {
-                        int number_of_execution = gr.getNumberOfExecution(s, comp);
+                        int number_of_execution = gr.getNumberOfExecutionInt(s, comp);
                         int action_cost = action_to_cost.get(gr);
                         if (!this.additive_h) {
                             Collection<GroundAction> all_achiever = this.possible_achievers_inverted.get(comp);

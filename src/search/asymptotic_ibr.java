@@ -224,7 +224,7 @@ public class asymptotic_ibr extends Heuristics {
             for (GroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    counter++;
+                    counter++;//=gr.getAction_cost();
                     fix_point = false;
                     if (rs2.satisfy(G) && greedy_relaxed_plan) {
                         if (counting_layers) {

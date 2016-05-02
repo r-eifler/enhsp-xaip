@@ -25,7 +25,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class recursion_memoization extends Heuristics {
+public class recursion_memoization extends IntegerHeuristic {
 
     public recursion_memoization(Conditions G, Set<GroundAction> A) {
         super(G, A);

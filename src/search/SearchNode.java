@@ -44,7 +44,7 @@ public class SearchNode implements Comparable {
 
     public State s;
     public GroundAction action;
-    public int h_n;
+    public float h_n;
     public SearchNode father;
     public float g_n;
     public JSONObject json_rep;
@@ -54,7 +54,7 @@ public class SearchNode implements Comparable {
     public float f;
     private boolean breakties_on_g = false;
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance) {
+    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
         this.action = action;
         this.h_n = goal_distance;
@@ -66,7 +66,7 @@ public class SearchNode implements Comparable {
         wg = 1f;
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json,float wg, float wh) {
+    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
         s = s1;
         this.action = action;
         this.h_n = goal_distance;
@@ -178,7 +178,7 @@ public class SearchNode implements Comparable {
         int hash = 5;
         hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
         hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-        hash = 29 * hash + this.h_n;
+        hash = 29 * hash + (int)this.h_n;
         hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
         hash = 29 * hash + (int) this.g_n;
         return hash;
