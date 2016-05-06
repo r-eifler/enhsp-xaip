@@ -2025,8 +2025,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public State execute(State init, Conditions globalConstraints) throws CloneNotSupportedException {
         State temp = init.clone();
         int i = 0;
+        this.cost = 0f;
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-
+                this.cost+=gr.getAction_cost();
                 if (!temp.satisfy(globalConstraints)) {
                     System.out.println("Global Constraint is not satisfied:" + globalConstraints);
                     return temp;
