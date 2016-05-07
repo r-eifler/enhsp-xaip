@@ -11,16 +11,12 @@ import conditions.Conditions;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
-import static java.lang.Float.MAX_VALUE;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
@@ -33,7 +29,6 @@ import problem.State;
  */
 public class asymptotic_ibr_relaxed_plan extends Heuristics {
 
-    public Collection<GroundAction> supporters;
     boolean reacheability;
     private boolean conservative = false;
     private boolean counting_layers = true;
@@ -43,8 +38,9 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
     private HashMap<GroundAction, GroundAction> supp_to_action;
     private HashMap<Conditions, Integer> cond_level;
     private HashMap<GroundAction, Integer> supporter_level;
-    private ArrayList<Float> dist;
-    private HashMap<Integer,LinkedHashSet<GroundAction>> index_to_supporters;
+    private ArrayList<Integer> dist;
+    private HashMap<Integer, LinkedHashSet<GroundAction>> index_to_supporters;
+    private HashMap<Integer, LinkedHashSet<Conditions>> index_to_conditions;
 
     public asymptotic_ibr_relaxed_plan(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
@@ -54,6 +50,8 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
     public asymptotic_ibr_relaxed_plan(Conditions G, Set<GroundAction> actions, Set<GroundAction> processes) {
         super(G, actions, processes);
         generate_supporters(A);
+        //this.build_integer_representation();
+
     }
 
     public void set(boolean counting_layers_active, boolean greedy_relaxed_plan_active) {
@@ -64,8 +62,8 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
     @Override
     public Float setup(State s_0) {
         reacheability = true;
-        Float ret = compute_estimate(s_0);
         this.build_integer_representation();
+        Float ret = compute_estimate(s_0);
         reacheability = false;
         return ret;
     }
@@ -75,16 +73,18 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;
-        dist = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
-            this.index_to_supporters = new HashMap();
+        //dist = new HashMap();
+        dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
+        this.index_to_supporters = new HashMap();
 
-            this.cond_level = new HashMap();
-            this.supporter_level = new HashMap();
-
-        System.out.println("Supporter to action:"+this.supp_to_action);
+        this.cond_level = new HashMap();
+        this.supporter_level = new HashMap();
+        this.index_to_conditions = new HashMap();
+        //System.out.println("Supporter to action:"+this.supp_to_action);
         int i = 0;
         while (true) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
+            this.index_to_conditions.put(i, new LinkedHashSet());
             if (check_goal_condition(G, i, rs) && !reacheability) {
                 break;
             }
@@ -124,7 +124,7 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
         if (!extract_plan) {
             return fix_point_computation(rs2);
         } else {
-            return extract_plan(rs2,i);
+            return extract_plan(rs2, i);
         }
 
     }
@@ -276,67 +276,102 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
     private Float extract_plan(RelState rs2, int i) {
         ArrayList<GroundAction> relaxed_plan = new ArrayList();
         LinkedHashSet<Conditions> g1 = new LinkedHashSet();
-        
-        for(Conditions c: (Collection<Conditions>)G.sons){
-            if (dist.get(c.getCounter())==i)
-                g1.add(c);
-        }
-        HashMap<Integer,LinkedHashSet<GroundAction>> index_to_actual_actions = new HashMap();
-        int k = i;
-        LinkedHashSet<GroundAction> to_add = new LinkedHashSet();
+        HashMap<Integer, LinkedHashSet<GroundAction>> to_add = new HashMap();
 
-        System.out.println("i:"+i);
-        while (k>0){
+        for (int t = 0; t <= i; t++) {
+            to_add.put(t, new LinkedHashSet());
+            this.index_to_conditions.put(t, new LinkedHashSet());
+        }
+
+        for (Conditions c : (Collection<Conditions>) G.sons) {
+            this.index_to_conditions.get(dist.get(c.getCounter())).add(c);
+        }
+
+        HashMap<Integer, LinkedHashSet<GroundAction>> index_to_actual_actions = new HashMap();
+        int k = i;
+
+        //System.out.println("i:"+i);
+        while (k > 0) {
             LinkedHashSet<Conditions> g_new = new LinkedHashSet();
-            for(Conditions g: g1){
-                System.out.println("Open goals:"+g);
+            for (Conditions g : this.index_to_conditions.get(k)) {
+                //System.out.println("Open goals:"+g);
                 GroundAction candidate = null;
-                System.out.println("Debug: Checking for"+g);
-                for(GroundAction gr :this.index_to_supporters.get(i-1)){
-                    System.out.println("Debug: Trying action"+gr);
-                    if (achiever(gr,rs2,g)){
-                        if (gr.getPreconditions()!=null){
-                            for (Conditions c: (Collection<Conditions>)gr.getPreconditions().sons){
-                                if (this.dist.get(c.getCounter())==(i-1)){
-                                    g_new.add(c);
-                                }
+                //System.out.println("Debug: Checking for"+g);
+                for (GroundAction gr : this.index_to_supporters.get(k - 1)) {
+                    //System.out.println("Debug: Trying action"+gr);
+                    if (achiever(gr, rs2, g)) {
+                        if (gr.getPreconditions() != null) {
+                            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+                                //System.out.println("Precondition level:"+dist.get(c));
+                                this.index_to_conditions.get(this.dist.get(c.getCounter())).add(c);
                             }
-                            
+
                         }
-                        
-                        System.out.println("Debug: Good!");
+                        //System.out.println("Debug: Good!");
                         candidate = gr;
                         break;
                     }
                 }
-                if (candidate == null){
-                    System.out.println("Something wrong happened");
-                    System.exit(-1);
+                if (candidate == null) {
+                    //case in which multiple actions need
+                    RelState temp = rs2.clone();
+
+                    int t = k - 1;
+                    while (t >= 0) {
+                        for (GroundAction gr : this.index_to_supporters.get(t)) {
+                            gr.apply(temp);
+                            if (gr.getPreconditions() != null) {
+                                for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+                                    //System.out.println("Precondition level:"+dist.get(c));
+                                    this.index_to_conditions.get(this.dist.get(c.getCounter())).add(c);
+                                }
+                            }
+                            to_add.get(t).add(this.supp_to_action.get(gr));
+                            if (temp.satisfy(g)) {
+                                t = -1;
+                                break;
+                            }
+                        }
+                        t--;
+
+                    }
+
+                } else {
+                    //System.out.println("Supporter to action:"+ this.supp_to_action.get(candidate));
+                    to_add.get(k - 1).add(this.supp_to_action.get(candidate));
+                    //GroundAction actual_gr = this.supp_to_action.get(candidate);
+                    //relaxed_plan.addAll(count(rs2,actual_gr,g));
                 }
-                System.out.println("Supporter to action:"+ this.supp_to_action.get(candidate));
-                to_add.add(this.supp_to_action.get(candidate));
-                //GroundAction actual_gr = this.supp_to_action.get(candidate);
-                //relaxed_plan.addAll(count(rs2,actual_gr,g));
             }
-            index_to_actual_actions.put(i,to_add);
+            //index_to_actual_actions.put(i,to_add);
 
             g1 = g_new;
             k--;
         }
-        System.out.println("Action under analysis:"+to_add);
-        while(!G.isSatisfied(rs2)){
-            for (GroundAction gr: to_add){
-                System.out.println("analysing:"+gr);
-
-                if (gr.isApplicable(rs2)){
-                    rs2 = gr.apply(rs2);
-                    k++;
-                    System.out.println("Applying:"+gr);
+        // System.out.println("Action under analysis:"+to_add);
+        int counter = 0;
+        while (k < i) {
+            boolean go_ahead = true;
+            for (Conditions c : this.index_to_conditions.get(k + 1)) {
+                if (!c.isSatisfied(rs2)) {
+                    go_ahead = false;
                 }
             }
+            if (go_ahead) {
+                k++;
+            };
+            for (GroundAction gr : to_add.get(k)) {
+                //System.out.println("analysing:"+gr);
+
+                //if (gr.isApplicable(rs2)){
+                rs2 = gr.apply(rs2);
+                counter++;
+                //System.out.println("Applying:"+gr);
+                //}
+            }
         }
-        
-        return (float)k;
+
+        return (float) counter;
 
     }
 
@@ -351,8 +386,9 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
             boolean add_action = true;
             for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
                 if (c.isSatisfied(rs)) {
-                    if (this.dist.get(c.getCounter()) == Float.MAX_VALUE) {
-                        this.dist.set(c.getCounter(), (float) i);
+                    if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
+                        this.dist.set(c.getCounter(), i);
+                        this.index_to_conditions.get(i).add(c);
                     }
                 } else {
                     add_action = false;
@@ -371,8 +407,9 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
         boolean goal_satisfied = true;
         for (Conditions c : (Collection<Conditions>) G.sons) {
             if (c.isSatisfied(rs)) {
-                if (this.dist.get(c.getCounter()) == Float.MAX_VALUE) {
-                    this.dist.set(c.getCounter(), (float) i);
+                if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
+                    this.dist.set(c.getCounter(), i);
+                    this.index_to_conditions.get(i).add(c);
                 }
             } else {
                 goal_satisfied = false;
@@ -383,20 +420,11 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
 
     private boolean achiever(GroundAction gr, RelState rs2, Conditions g) {
         RelState temp = rs2.clone();
-        if (gr.apply(temp).satisfy(g))
+        if (gr.apply(temp).satisfy(g)) {
             return true;
-        return false;
-        
-    }
-
-    private ArrayList<GroundAction> count(RelState rs2, GroundAction actual_gr, Conditions g) {
-        RelState temp = rs2.clone();
-        ArrayList<GroundAction> ret = new ArrayList();
-        while(true){
-           ret.add(actual_gr);
-           if (actual_gr.apply(temp).satisfy(g))
-               return ret;
         }
+        return false;
+
     }
 
 }

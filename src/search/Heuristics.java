@@ -98,6 +98,7 @@ public abstract class Heuristics {
     public int horizon = 1000000;
         protected int hard_conditions;
             HashMap<NumEffect,GroundAction> num_eff_action;
+    public Collection<GroundAction> supporters;
 
 
 
@@ -149,7 +150,11 @@ public abstract class Heuristics {
 
         int counter_actions=0;
         ArrayList conditions = new ArrayList();
-        for (GroundAction a : A) {
+        ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
+        if (this.supporters != null){
+            actions_to_consider.addAll(this.supporters);
+        }
+        for (GroundAction a : actions_to_consider) {
             a.counter = counter_actions++;
             LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
@@ -172,7 +177,7 @@ public abstract class Heuristics {
 //        System.out.println("Number of conditions given by the action:"+(repetition+counter2));
 
         //System.out.println("Now action effects:");
-        for (GroundAction a : A) {
+        for (GroundAction a : actions_to_consider) {
             LinkedHashSet temp = new LinkedHashSet();
 
             if (a.getAddList() != null && a.getAddList().sons != null) {
