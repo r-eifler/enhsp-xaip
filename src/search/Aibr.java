@@ -27,7 +27,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class asymptotic_ibr_relaxed_plan extends Heuristics {
+public class Aibr extends Heuristics {
 
     boolean reacheability;
     private boolean conservative = false;
@@ -39,15 +39,15 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
     private HashMap<Conditions, Integer> cond_level;
     private HashMap<GroundAction, Integer> supporter_level;
     private ArrayList<Integer> dist;
-    private HashMap<Integer, LinkedHashSet<GroundAction>> index_to_supporters;
-    private HashMap<Integer, LinkedHashSet<Conditions>> index_to_conditions;
+    private HashMap<Integer, LinkedHashSet<GroundAction>> supporters_exec_at_time_index;
+    private HashMap<Integer, LinkedHashSet<Conditions>> conditions_sat_at_time_index;
 
-    public asymptotic_ibr_relaxed_plan(Conditions G, Set<GroundAction> actions) {
+    public Aibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
         generate_supporters(A);
     }
 
-    public asymptotic_ibr_relaxed_plan(Conditions G, Set<GroundAction> actions, Set<GroundAction> processes) {
+    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundAction> processes) {
         super(G, actions, processes);
         generate_supporters(A);
         //this.build_integer_representation();
@@ -74,17 +74,19 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;
         //dist = new HashMap();
-        dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
-        this.index_to_supporters = new HashMap();
+//        if (extract_plan){
+            dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
+            this.supporters_exec_at_time_index = new HashMap();
 
-        this.cond_level = new HashMap();
-        this.supporter_level = new HashMap();
-        this.index_to_conditions = new HashMap();
+            this.cond_level = new HashMap();
+            this.supporter_level = new HashMap();
+            this.conditions_sat_at_time_index = new HashMap();
+//        }
         //System.out.println("Supporter to action:"+this.supp_to_action);
         int i = 0;
         while (true) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-            this.index_to_conditions.put(i, new LinkedHashSet());
+            this.conditions_sat_at_time_index.put(i, new LinkedHashSet());
             if (check_goal_condition(G, i, rs) && !reacheability) {
                 break;
             }
@@ -97,7 +99,7 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
                     break;
                 }
             }
-            this.index_to_supporters.put(i, (LinkedHashSet<GroundAction>) S);
+            this.supporters_exec_at_time_index.put(i, (LinkedHashSet<GroundAction>) S);
 
             S.stream().forEach((GroundAction a) -> a.apply(rs));
             supporters_counter += S.size();
@@ -184,9 +186,9 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
         return generate_supporter(effect, disequality, asymptote, name + "plusinf", precondition, gr);
     }
 
-    private GroundAction generate_supporter(NumEffect effect, String disequality, Float asymptote, String name, AndCond precondition, GroundAction gr) {
+    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, AndCond precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
-        Comparison indirect_precondition = new Comparison(disequality);
+        Comparison indirect_precondition = new Comparison(inequality);
         if (effect.getOperator().equals("assign")) {
             indirect_precondition.setLeft(new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true));
         } else {
@@ -274,36 +276,39 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
 
     //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
     private Float extract_plan(RelState rs2, int i) {
-        ArrayList<GroundAction> relaxed_plan = new ArrayList();
-        LinkedHashSet<Conditions> g1 = new LinkedHashSet();
         HashMap<Integer, LinkedHashSet<GroundAction>> to_add = new HashMap();
 
         for (int t = 0; t <= i; t++) {
             to_add.put(t, new LinkedHashSet());
-            this.index_to_conditions.put(t, new LinkedHashSet());
+            this.conditions_sat_at_time_index.put(t, new LinkedHashSet());
         }
 
         for (Conditions c : (Collection<Conditions>) G.sons) {
-            this.index_to_conditions.get(dist.get(c.getCounter())).add(c);
+            dbg_print("["+dist.get(c.getCounter())+"]Goal atom:"+c+"\n");
+            this.conditions_sat_at_time_index.get(dist.get(c.getCounter())).add(c);
         }
 
         HashMap<Integer, LinkedHashSet<GroundAction>> index_to_actual_actions = new HashMap();
         int k = i;
 
-        //System.out.println("i:"+i);
+        dbg_print("Layer(goals):"+i);
         while (k > 0) {
             LinkedHashSet<Conditions> g_new = new LinkedHashSet();
-            for (Conditions g : this.index_to_conditions.get(k)) {
+            dbg_print("\nLayer "+k+":");
+
+            for (Conditions g : this.conditions_sat_at_time_index.get(k)) {
                 //System.out.println("Open goals:"+g);
                 GroundAction candidate = null;
                 //System.out.println("Debug: Checking for"+g);
-                for (GroundAction gr : this.index_to_supporters.get(k - 1)) {
-                    //System.out.println("Debug: Trying action"+gr);
+                for (GroundAction gr : this.supporters_exec_at_time_index.get(k - 1)) {
+
                     if (achiever(gr, rs2, g)) {
                         if (gr.getPreconditions() != null) {
                             for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
                                 //System.out.println("Precondition level:"+dist.get(c));
-                                this.index_to_conditions.get(this.dist.get(c.getCounter())).add(c);
+//                                dbg_print("instances of"+c.getClass());
+                                dbg_print("Candidate implications:["+this.dist.get(c.getCounter())+"]"+c);
+                                this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                             }
 
                         }
@@ -313,17 +318,18 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
                     }
                 }
                 if (candidate == null) {
+
                     //case in which multiple actions need
                     RelState temp = rs2.clone();
 
                     int t = k - 1;
                     while (t >= 0) {
-                        for (GroundAction gr : this.index_to_supporters.get(t)) {
+                        for (GroundAction gr : this.supporters_exec_at_time_index.get(t)) {
                             gr.apply(temp);
                             if (gr.getPreconditions() != null) {
                                 for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
                                     //System.out.println("Precondition level:"+dist.get(c));
-                                    this.index_to_conditions.get(this.dist.get(c.getCounter())).add(c);
+                                    this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                                 }
                             }
                             to_add.get(t).add(this.supp_to_action.get(gr));
@@ -335,24 +341,24 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
                         t--;
 
                     }
-
+                    dbg_print(" "+g.toString()+" ,Supporter (already in action) set:"+to_add.get(t));
                 } else {
                     //System.out.println("Supporter to action:"+ this.supp_to_action.get(candidate));
                     to_add.get(k - 1).add(this.supp_to_action.get(candidate));
                     //GroundAction actual_gr = this.supp_to_action.get(candidate);
                     //relaxed_plan.addAll(count(rs2,actual_gr,g));
+                    dbg_print(" "+g.toString()+" ,Supporter:"+candidate+"\n        ");
+
                 }
             }
             //index_to_actual_actions.put(i,to_add);
-
-            g1 = g_new;
             k--;
         }
-        // System.out.println("Action under analysis:"+to_add);
+        dbg_print("\nAction under analysis:"+to_add);
         int counter = 0;
         while (k < i) {
             boolean go_ahead = true;
-            for (Conditions c : this.index_to_conditions.get(k + 1)) {
+            for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
                 if (!c.isSatisfied(rs2)) {
                     go_ahead = false;
                 }
@@ -364,10 +370,13 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
                 //System.out.println("analysing:"+gr);
 
                 //if (gr.isApplicable(rs2)){
-                rs2 = gr.apply(rs2);
+                rs2 = gr.apply_with_generalized_interval_based_relaxation(rs2);
                 counter++;
                 //System.out.println("Applying:"+gr);
                 //}
+            }
+            if (counter > horizon){
+                return (float)counter;
             }
         }
 
@@ -388,7 +397,7 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
                 if (c.isSatisfied(rs)) {
                     if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
                         this.dist.set(c.getCounter(), i);
-                        this.index_to_conditions.get(i).add(c);
+                        this.conditions_sat_at_time_index.get(i).add(c);
                     }
                 } else {
                     add_action = false;
@@ -409,7 +418,7 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
             if (c.isSatisfied(rs)) {
                 if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
                     this.dist.set(c.getCounter(), i);
-                    this.index_to_conditions.get(i).add(c);
+                    this.conditions_sat_at_time_index.get(i).add(c);
                 }
             } else {
                 goal_satisfied = false;
@@ -425,6 +434,11 @@ public class asymptotic_ibr_relaxed_plan extends Heuristics {
         }
         return false;
 
+    }
+
+    private void dbg_print(String string) {
+        if (debug>0)
+            System.out.print(string);
     }
 
 }

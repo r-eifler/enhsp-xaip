@@ -27,6 +27,7 @@ import problem.State;
  *
  * @author enrico
  */
+@Deprecated
 public class asymptotic_ibr extends Heuristics {
 
     public Collection<GroundAction> supporters;

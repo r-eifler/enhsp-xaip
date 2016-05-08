@@ -62,7 +62,7 @@ public class SearchStrategies {
     private boolean interactive_search_debug = false;
     public boolean json_rep_saving = false;
     public SearchNode search_space_handle;
-    private boolean high_verbosity = true;
+    private boolean high_verbosity = false;
     public boolean preferred_operators_active = false;
     public boolean processes = false;
     public float delta;
@@ -370,6 +370,7 @@ public class SearchStrategies {
             return null;
         }
         getHeuristic().setup(current);
+        getHeuristic().horizon = this.horizon;
         System.out.println("|A U P| (After Relevance Analysis):" + getHeuristic().reachable.size());
         if (this.high_verbosity)
             System.out.println("Ground Actions:"+getHeuristic().reachable);
@@ -396,6 +397,7 @@ public class SearchStrategies {
 
         HashMap<State, Boolean> visited = new HashMap();
 //        HashMap<State,Integer> cost = new HashMap();
+        long previous_check=0;
         heuristic_time = 0;
         int time = 0;
         while (!frontier.isEmpty()) {
@@ -424,14 +426,15 @@ public class SearchStrategies {
                 return extract_plan(current_node);
             }
 
+            if (nodes_expanded % 10000 == 0 || ((System.currentTimeMillis() - start_global) - previous_check) > 10000) {
+                System.out.println("Stats so far. Expanded nodes:" + nodes_expanded + " States Evaluated:" + this.getStates_evaluated());
+                previous_check = (System.currentTimeMillis() - start_global);
+            }
             if (current_node.g_n >= horizon) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
             }
 
-            if (nodes_expanded % 10000 == 0) {
-                System.out.println("Stats so far. Expanded nodes:" + nodes_expanded + " States Evaluated:" + this.getStates_evaluated());
-            }
             if (checking_visited) {
                 visited.put(current_node.s, Boolean.TRUE);
             }
