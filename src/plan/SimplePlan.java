@@ -91,7 +91,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug = 1;
+    private int debug = 0;
     private boolean newMethod = true;
     public boolean print_trace;
     public float cost;
@@ -2028,7 +2028,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         this.cost = 0f;
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
                 this.cost+=gr.getAction_cost();
-                if (!temp.satisfy(globalConstraints)) {
+                if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                     System.out.println("Global Constraint is not satisfied:" + globalConstraints);
                     return temp;
                 }

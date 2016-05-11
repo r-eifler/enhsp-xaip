@@ -64,6 +64,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
     protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
     private boolean reacheability_setting;
     private boolean all_paths = false;
+    protected ArrayList<Integer> dist;
 
     public Uniform_cost_search_H1(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -90,7 +91,9 @@ public class Uniform_cost_search_H1 extends Heuristics {
         identify_complex_conditions(all_conditions, A);
         generate_achievers();
         reacheability_setting = true;
+        this.dbg_print("Reachability Analysis Started");
         Float ret = compute_estimate(s);
+        this.dbg_print("Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.hard_conditions);

@@ -132,5 +132,25 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
             
         return false;
     }
+    public boolean isTautology(RelState reacheableState) {
+        
+        //for now tautology is checked for disjunction in which one of the element is always true
+        if (this.condition instanceof OrCond){
+            OrCond or = (OrCond)this.condition;
+            for (Conditions c : (Collection<Conditions>)or.sons){
+                if (c instanceof NotCond){
+                    NotCond nc = (NotCond)c;
+                    Object o = nc.son.iterator().next();
+                    if (o instanceof Predicate){
+                        Predicate p = (Predicate)o;
+                        if (!p.isSatisfied(reacheableState))
+                            return true;
+                    }
+                }
+            }
+        }
+            
+        return false;
+    }
     
 }

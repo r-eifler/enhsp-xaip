@@ -43,8 +43,8 @@ import java.util.HashSet;
  */
 public class RelState extends Object {
 
-    HashMap poss_propositions;
-    HashMap poss_numericFs;
+    public HashMap poss_propositions;
+    public HashMap poss_numericFs;
     HashSet timedLiterals;///to do
 
     public RelState() {

@@ -2472,4 +2472,61 @@ public class GroundAction extends GenericActionType implements Comparable {
         return ret;
     }
 
+    public boolean has_complex_preconditions() {
+        
+        if (this.getPreconditions() == null || this.getPreconditions().sons.isEmpty())
+            return false;
+        
+        for (Conditions c: (Collection<Conditions>)this.getPreconditions().sons){
+            if (c instanceof Comparison){
+                Comparison comp = (Comparison)c;
+                if (comp.getLeft() instanceof ExtendedNormExpression){
+                    ExtendedNormExpression a  = (ExtendedNormExpression)comp.getLeft();
+                    for (ExtendedAddendum ad: a.summations){
+                        if (ad.bin != null)
+                            return true;
+                    }
+                    
+                }
+                if (comp.getRight() instanceof ExtendedNormExpression){
+                    ExtendedNormExpression a  = (ExtendedNormExpression)comp.getRight();
+                    for (ExtendedAddendum ad: a.summations){
+                        if (ad.bin != null)
+                            return true;
+                    }
+                    
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean has_exponential_or_nl_effects_asymptotic_effects() {
+        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty())
+            return false;
+        for (NumEffect neff: this.getNumericEffectsAsCollection()){
+            NumFluent nf = neff.getFluentAffected();
+
+            if (neff.getRight() instanceof ExtendedNormExpression){
+                ExtendedNormExpression right = (ExtendedNormExpression)neff.getRight();
+                for (ExtendedAddendum ad  : right.summations){
+                    if (ad.bin!=null)
+                        return true;
+                    if (ad.f !=null){
+                        if (ad.f.equals(nf)){
+                            if (ad.n.getNumber() != 1.0f || ad.n.getNumber() != .0f){
+                                return true;
+                            }
+                        }
+                    }
+                    
+                }
+            }
+            
+        }
+        return false;
+    }
+
+
+
 }

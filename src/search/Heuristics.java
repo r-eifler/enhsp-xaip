@@ -96,11 +96,10 @@ public abstract class Heuristics {
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
     public int horizon = 1000000;
-        protected int hard_conditions;
-            HashMap<NumEffect,GroundAction> num_eff_action;
+    protected int hard_conditions;
+    HashMap<NumEffect, GroundAction> num_eff_action;
     public Collection<GroundAction> supporters;
-
-
+    public RelState reacheable_state;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -148,29 +147,32 @@ public abstract class Heuristics {
     public void build_integer_representation() {
         int counter2 = 0;
 
-        int counter_actions=0;
+        int counter_actions = 0;
         ArrayList conditions = new ArrayList();
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
-        if (this.supporters != null){
+        if (this.supporters != null) {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
             a.counter = counter_actions++;
             LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
-                for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
-                    int index = conditions.indexOf(c_1);
-                    if (index != -1) {
-                        c_1 = (Conditions) conditions.get(index);
-                    } else {
-                        counter2++;
-                        c_1.setCounter(counter2);
-                        //System.out.println(c_1+"->"+counter2);
-                        conditions.add(c_1);
+
+                if (a.getPreconditions() != null && a.getPreconditions().sons != null) {
+                    for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
+                        int index = conditions.indexOf(c_1);
+                        if (index != -1) {
+                            c_1 = (Conditions) conditions.get(index);
+                        } else {
+                            counter2++;
+                            c_1.setCounter(counter2);
+                            //System.out.println(c_1+"->"+counter2);
+                            conditions.add(c_1);
+                        }
+                        temp.add(c_1);
                     }
-                    temp.add(c_1);
+                    a.getPreconditions().sons = temp;
                 }
-                a.getPreconditions().sons = temp;
             }
         }
 //        System.out.println("Repetions:"+repetition);
@@ -202,8 +204,6 @@ public abstract class Heuristics {
 
         LinkedHashSet temp = new LinkedHashSet();
 
-        
-        
         for (Conditions c_1 : (Set<Conditions>) G.sons) {
             int index = conditions.indexOf(c_1);
             if (index != -1) {
@@ -225,20 +225,21 @@ public abstract class Heuristics {
 
     abstract Float compute_estimate(State s_0);
 
-    protected Float compute_precondition_cost(State s_0, ArrayList<Float> h, GroundAction gr,ArrayList<Boolean> closed) {
-        return this.compute_cost(s_0, h, gr.getPreconditions(),closed);
+    protected Float compute_precondition_cost(State s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {
+        return this.compute_cost(s_0, h, gr.getPreconditions(), closed);
     }
 
-    protected Float compute_cost(State s_0, ArrayList<Float> h, Conditions con,ArrayList<Boolean> closed) {
+    protected Float compute_cost(State s_0, ArrayList<Float> h, Conditions con, ArrayList<Boolean> closed) {
         Float cost = 0f;
 
-        if (con == null) {
+        if (con == null || con.sons == null) {
             return 0f;
         }
 
         for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
-            if (!closed.get(t.getCounter()))
+            if (!closed.get(t.getCounter())) {
                 return Float.MAX_VALUE;
+            }
             Float temp = h.get(t.getCounter());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
@@ -255,8 +256,8 @@ public abstract class Heuristics {
         return cost;
     }
 
-    protected Float check_goal_conditions(State s_0, Conditions G, ArrayList<Float> h,ArrayList<Boolean> closed) {
-        return this.compute_cost(s_0, h, G,closed);
+    protected Float check_goal_conditions(State s_0, Conditions G, ArrayList<Float> h, ArrayList<Boolean> closed) {
+        return this.compute_cost(s_0, h, G, closed);
     }
 
     public void compute_relevant_actions(State s_0) {
@@ -508,7 +509,6 @@ public abstract class Heuristics {
         return ret;
     }
 
-  
     protected void update_frontier(Collection frontier, LinkedHashSet<GroundAction> A1, Map<Conditions, Integer> h, State s_0) {
         Iterator it = A1.iterator();
         while (it.hasNext()) {
@@ -872,7 +872,6 @@ public abstract class Heuristics {
 //            }
 //        }
 //    }
-   
     public boolean visit(NumEffect nf, Collection<NumEffect> col, HashMap<NumEffect, Boolean> temp_mark, HashMap<NumEffect, Boolean> per_mark, LinkedList<NumEffect> list) {
 
         if (temp_mark.get(nf)) {
@@ -899,8 +898,7 @@ public abstract class Heuristics {
         return cyclic;
     }
 
-    
-     private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
+    private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
         Boolean ret = null;
         boolean cyclic = false;
 
@@ -971,8 +969,7 @@ public abstract class Heuristics {
 
     }
 
-    
- protected Float interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
+    protected Float interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -989,7 +986,7 @@ public abstract class Heuristics {
             return Float.MAX_VALUE;
         }
 
-        HashMap<NumEffect,Boolean> visited = new HashMap();
+        HashMap<NumEffect, Boolean> visited = new HashMap();
         int iteration = 0;
         while (iteration < horizon) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
@@ -997,18 +994,19 @@ public abstract class Heuristics {
                 NumEffect a = q.pollFirst();
                 a.apply(rel_state);
                 cost += this.num_eff_action.get(a).getAction_cost();
-                if (visited.get(a)==null)
+                if (visited.get(a) == null) {
                     cost += action_to_cost.get(this.num_eff_action.get(a));
+                }
                 iteration++;
-                visited.put(a,true);
-                if (c.isSatisfied(rel_state))
+                visited.put(a, true);
+                if (c.isSatisfied(rel_state)) {
                     return cost;
+                }
             }
 
         }
         return cost;
     }
-
 
 //        
 //        LinkedList initial = order_according_to_dependencies_actions(pool, c, action_to_cost);
@@ -1070,8 +1068,6 @@ public abstract class Heuristics {
 //                return Float.MAX_VALUE;
 //            }
 //        }
-    
-
     protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
 
         Iterator it = A1.iterator();
@@ -1143,7 +1139,6 @@ public abstract class Heuristics {
         return temp;
     }
 
-    
     protected void update_pool(Collection<GroundAction> pool, LinkedHashSet<GroundAction> A, State s_0, ArrayList<Integer> h) {
         for (GroundAction gr : A) {
             if (this.compute_precondition_cost(s_0, h, gr) != Float.MAX_VALUE) {
@@ -1301,7 +1296,6 @@ public abstract class Heuristics {
 
     }
 
-   
 //
 //  Tarjan Algorithm    
 //    L← Empty list that will contain the sorted nodes
@@ -1336,44 +1330,44 @@ public abstract class Heuristics {
         return cost;
     }
 
-    private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost, State s_0,Comparison goal) {
+    private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost, State s_0, Comparison goal) {
         try {
             int cost = 0;
-            
 
             RelState rel_state = s_0.relaxState();
-            
+
             ArrayList<GroundAction> plan = new ArrayList();
-            
+
             for (HashSet<GroundAction> action_for_phase : relaxed_plan) {
                 for (GroundAction gr : action_for_phase) {
                     plan.add(gr);
                 }
             }
-            
+
             ArrayList<Boolean> removed = new ArrayList<Boolean>(Collections.nCopies(plan.size(), false));
-            
-            int min = execute(plan, rel_state, removed,action_to_cost,goal,-1);
-            if (no_plan_extraction)
+
+            int min = execute(plan, rel_state, removed, action_to_cost, goal, -1);
+            if (no_plan_extraction) {
                 return min;
+            }
 //            System.out.println(min);
 
             while (true) {
                 int to_remove = -1;
                 for (int i = 0; i < plan.size(); i++) {
-                    int temp = execute(plan, rel_state, removed,action_to_cost,goal,i);
-                    if (temp < min){
+                    int temp = execute(plan, rel_state, removed, action_to_cost, goal, i);
+                    if (temp < min) {
                         min = temp;
                         to_remove = i;
 //                        System.out.println(min);
                     }
                 }
-                if (to_remove != -1){
+                if (to_remove != -1) {
                     removed.set(to_remove, true);
-                }else{
+                } else {
                     return min;
                 }
-                
+
             }
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
@@ -1382,31 +1376,37 @@ public abstract class Heuristics {
 
     }
 
-    private int execute(ArrayList<GroundAction> plan, RelState rel_state, ArrayList<Boolean> removed,HashMap<GroundAction, Integer> action_to_cost,Comparison goal,int cand) throws CloneNotSupportedException {
+    private int execute(ArrayList<GroundAction> plan, RelState rel_state, ArrayList<Boolean> removed, HashMap<GroundAction, Integer> action_to_cost, Comparison goal, int cand) throws CloneNotSupportedException {
         int cost = 0;
         RelState temp = rel_state.clone();
 //        System.out.println(rel_state);
         for (int i = 0; i < plan.size(); i++) {
-            
+
 //            if (removed.get(i) == false && i != cand) {
-                temp = plan.get(i).apply(temp);
-                cost+=action_to_cost.get(plan.get(i));
-                cost++;
+            temp = plan.get(i).apply(temp);
+            cost += action_to_cost.get(plan.get(i));
+            cost++;
 //                System.out.println("Applying:"+plan.get(i));
 //            }
 
         }
 //        System.out.println(rel_state);
 //        System.out.println(goal);
-        if (!temp.satisfy(goal)){
+        if (!temp.satisfy(goal)) {
             //System.out.println("Unsatisfiable?!?!?!");
             return Integer.MAX_VALUE;
-            
-        }else{
+
+        } else {
             //System.out.println("OKKKK");
         }
-        
+
         return cost;
+    }
+
+    protected void dbg_print(String string) {
+        if (debug > 0) {
+            System.out.print(string);
+        }
     }
 
 }

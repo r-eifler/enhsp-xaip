@@ -793,6 +793,10 @@ public class Comparison extends Conditions {
         {
             //System.out.println(summations);
             ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(0);
+            if (ad.bin != null){
+                System.out.println("repetition cannot be activated for actions having non-linear constraints");
+                System.exit(-1);
+            }
             if (ad.f == null) {
 
                 ret_val = " " + ad.n.pddlPrint(false) + " ";

@@ -30,7 +30,7 @@ import problem.State;
 public class Aibr extends Heuristics {
 
     boolean reacheability;
-    private boolean conservative = false;
+    public boolean conservative = false;
     private boolean counting_layers = true;
     private boolean greedy_relaxed_plan = false;
     public boolean extract_plan = false;
@@ -38,18 +38,24 @@ public class Aibr extends Heuristics {
     private HashMap<GroundAction, GroundAction> supp_to_action;
     private HashMap<Conditions, Integer> cond_level;
     private HashMap<GroundAction, Integer> supporter_level;
-    private ArrayList<Integer> dist;
     private HashMap<Integer, LinkedHashSet<GroundAction>> supporters_exec_at_time_index;
     private HashMap<Integer, LinkedHashSet<Conditions>> conditions_sat_at_time_index;
+    protected ArrayList<Integer> dist;
+    public boolean layers_counter;
 
     public Aibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
+        this.dbg_print("Generate Supporters\n");
+
         generate_supporters(A);
     }
 
     public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundAction> processes) {
         super(G, actions, processes);
+        this.dbg_print("Generate Supporters\n");
         generate_supporters(A);
+        this.dbg_print("Supporters Generated\n");
+        
         //this.build_integer_representation();
 
     }
@@ -62,25 +68,27 @@ public class Aibr extends Heuristics {
     @Override
     public Float setup(State s_0) {
         reacheability = true;
+        this.dbg_print("Computing Internal Data Structure\n");
         this.build_integer_representation();
+        this.dbg_print("Computing Reachable Actions\n");
         Float ret = compute_estimate(s_0);
         reacheability = false;
         return ret;
     }
 
     @Override
-    Float compute_estimate(State s) {
+    public Float compute_estimate(State s) {
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;
         //dist = new HashMap();
 //        if (extract_plan){
-            dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
-            this.supporters_exec_at_time_index = new HashMap();
+        dist = new ArrayList<>(nCopies(all_conditions.size() + 15, Integer.MAX_VALUE));
+        this.supporters_exec_at_time_index = new HashMap();
 
-            this.cond_level = new HashMap();
-            this.supporter_level = new HashMap();
-            this.conditions_sat_at_time_index = new HashMap();
+        this.cond_level = new HashMap();
+        this.supporter_level = new HashMap();
+        this.conditions_sat_at_time_index = new HashMap();
 //        }
         //System.out.println("Supporter to action:"+this.supp_to_action);
         int i = 0;
@@ -94,6 +102,8 @@ public class Aibr extends Heuristics {
 
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
+                    reacheable_state = rs.clone();
+                    this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
                     return Float.MAX_VALUE;
                 } else {
                     break;
@@ -111,10 +121,15 @@ public class Aibr extends Heuristics {
             i++;
         }
 
+        
         if (reacheability) {
+            reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+            return (float)i;
         }
-
+        if (layers_counter) {
+            return (float) i;
+        }
         if (conservative) {
             return (float) supporters_counter;
         }
@@ -284,17 +299,17 @@ public class Aibr extends Heuristics {
         }
 
         for (Conditions c : (Collection<Conditions>) G.sons) {
-            dbg_print("["+dist.get(c.getCounter())+"]Goal atom:"+c+"\n");
+            dbg_print("[" + dist.get(c.getCounter()) + "]Goal atom:" + c + "\n");
             this.conditions_sat_at_time_index.get(dist.get(c.getCounter())).add(c);
         }
 
         HashMap<Integer, LinkedHashSet<GroundAction>> index_to_actual_actions = new HashMap();
         int k = i;
 
-        dbg_print("Layer(goals):"+i);
+        dbg_print("Layer(goals):" + i);
         while (k > 0) {
             LinkedHashSet<Conditions> g_new = new LinkedHashSet();
-            dbg_print("\nLayer "+k+":");
+            dbg_print("\nLayer " + k + ":");
 
             for (Conditions g : this.conditions_sat_at_time_index.get(k)) {
                 //System.out.println("Open goals:"+g);
@@ -307,7 +322,7 @@ public class Aibr extends Heuristics {
                             for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
                                 //System.out.println("Precondition level:"+dist.get(c));
 //                                dbg_print("instances of"+c.getClass());
-                                dbg_print("Candidate implications:["+this.dist.get(c.getCounter())+"]"+c);
+                                dbg_print("Candidate implications:[" + this.dist.get(c.getCounter()) + "]" + c);
                                 this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                             }
 
@@ -332,7 +347,7 @@ public class Aibr extends Heuristics {
                                     this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                                 }
                             }
-                            to_add.get(t).add(this.supp_to_action.get(gr));
+                            to_add.get(k-1).add(this.supp_to_action.get(gr));
                             if (temp.satisfy(g)) {
                                 t = -1;
                                 break;
@@ -341,43 +356,47 @@ public class Aibr extends Heuristics {
                         t--;
 
                     }
-                    dbg_print(" "+g.toString()+" ,Supporter (already in action) set:"+to_add.get(t));
+                    dbg_print(" " + g.toString() + " ,Supporter (already in action) set:" + to_add.get(t));
                 } else {
                     //System.out.println("Supporter to action:"+ this.supp_to_action.get(candidate));
                     to_add.get(k - 1).add(this.supp_to_action.get(candidate));
                     //GroundAction actual_gr = this.supp_to_action.get(candidate);
                     //relaxed_plan.addAll(count(rs2,actual_gr,g));
-                    dbg_print(" "+g.toString()+" ,Supporter:"+candidate+"\n        ");
+                    dbg_print(" " + g.toString() + " ,Supporter:" + candidate + "\n        ");
 
                 }
             }
             //index_to_actual_actions.put(i,to_add);
             k--;
         }
-        dbg_print("\nAction under analysis:"+to_add);
+        dbg_print("\nAction under analysis:" + to_add);
         int counter = 0;
         while (k < i) {
-            boolean go_ahead = true;
-            for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
-                if (!c.isSatisfied(rs2)) {
-                    go_ahead = false;
-                }
-            }
-            if (go_ahead) {
-                k++;
-            };
-            for (GroundAction gr : to_add.get(k)) {
-                //System.out.println("analysing:"+gr);
 
-                //if (gr.isApplicable(rs2)){
-                rs2 = gr.apply_with_generalized_interval_based_relaxation(rs2);
-                counter++;
+            for (GroundAction gr : to_add.get(k)) {
+                boolean go_ahead = true;
+
+                for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
+                    if (!c.isSatisfied(rs2)) {
+                        go_ahead = false;
+                    }
+                }
+                if (go_ahead) {
+                    k++;
+                }else{
+                    rs2 = gr.apply_with_generalized_interval_based_relaxation(rs2);
+                    counter++;
+                }
+                if (counter > horizon) {
+                    return (float) counter;
+                }
+                if (k==i)
+                    break;
                 //System.out.println("Applying:"+gr);
                 //}
+               
             }
-            if (counter > horizon){
-                return (float)counter;
-            }
+            
         }
 
         return (float) counter;
@@ -436,9 +455,5 @@ public class Aibr extends Heuristics {
 
     }
 
-    private void dbg_print(String string) {
-        if (debug>0)
-            System.out.print(string);
-    }
 
 }

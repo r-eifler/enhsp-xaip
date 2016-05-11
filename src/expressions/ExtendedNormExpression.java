@@ -781,21 +781,32 @@ public class ExtendedNormExpression extends Expression {
         {
             //System.out.println(summations);
             ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
-            if (ad.f == null) {
+            if (ad.bin == null){
+                if (ad.f == null) {
 
-                ret_val = " " + ad.n.pddlPrint(false) + " ";
-            } else {
-                ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.pddlPrint(false) + ")";
+                    ret_val = " " + ad.n.pddlPrint(false) + " ";
+                } else {
+                    ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.pddlPrint(false) + ")";
+                }
+            }else{
+//                System.out.println(ad);
+//                System.out.println(ad.bin);
+                ret_val = ad.bin.toSmtVariableString(j);
             }
         }
         {
             for (int i = 1; i < summations.size(); i++) {
                 ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
+                if (ad.bin == null){
 
-                if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(false) + " )";
-                } else {
-                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.pddlPrint(false) + "))";
+                    if (ad.f == null) {
+                        ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(false) + " )";
+                    } else {
+                        ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.pddlPrint(false) + "))";
+                    }
+                }else{
+                        ret_val = "(+ "+ret_val+" "+ad.bin.toSmtVariableString(j)+")";
+
                 }
             }
         }

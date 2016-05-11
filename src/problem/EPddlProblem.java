@@ -78,7 +78,7 @@ public class EPddlProblem extends PddlProblem {
         try {
             if (grounding)
                 return;
-            this.generateActions();
+            this.generateActionsAndProcesses();
             this.generateConstraints();
             grounding = true;
         } catch (Exception ex) {

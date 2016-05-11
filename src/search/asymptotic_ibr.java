@@ -12,6 +12,7 @@ import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ public class asymptotic_ibr extends Heuristics {
     private boolean greedy_relaxed_plan = false;
     public boolean extract_plan = false;
     private boolean reversing = false;
+    protected ArrayList<Integer> dist;
 
     public asymptotic_ibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
