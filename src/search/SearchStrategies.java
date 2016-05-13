@@ -159,7 +159,7 @@ public class SearchStrategies {
                                 System.out.println("Distance:" + d);
                                 return new_node;
                             }
-                        }else{
+                        } else {
                             num_dead_end_detected++;
                         }
                     }
@@ -173,8 +173,8 @@ public class SearchStrategies {
     public static long heuristic_time;
     public static long overall_search_time;
 
-    public LinkedList wa_star(PddlProblem problem) throws Exception {
-        num_dead_end_detected =0;
+    public LinkedList wa_star(EPddlProblem problem) throws Exception {
+        num_dead_end_detected = 0;
 
         long start_global = System.currentTimeMillis();
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
@@ -195,7 +195,7 @@ public class SearchStrategies {
             num_dead_end_detected++;
             return null;
         }
-        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving,this.gw,this.hw);
+        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -223,9 +223,15 @@ public class SearchStrategies {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 return extract_plan(current_node);
             }
+            if (processes) {
+                advance_time(frontier, current_node, problem);
+            }
 
             visited.put(current_node.s, Boolean.TRUE);
             for (GroundAction act : getHeuristic().reachable) {
+                if (act instanceof GroundProcess) {
+                    continue;
+                }
                 if (act.isApplicable(current_node.s)) {
                     State temp = act.apply(current_node.s.clone());
                     //act.normalize();
@@ -249,7 +255,7 @@ public class SearchStrategies {
                         if (d != Float.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
 //                        if (d!=Float.MAX_VALUE && ( d <= current_value ) ){
                             act.setAction_cost(temp);
-                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving,this.gw,this.hw);
+                            SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving, this.gw, this.hw);
                             //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                             if (json_rep_saving) {
                                 current_node.add_descendant(new_node);
@@ -257,7 +263,7 @@ public class SearchStrategies {
                             frontier.add(new_node);
 //                            if (new_node.s.satisfy(problem.getGoals()))
 //                              return extract_plan(new_node);
-                        }else{
+                        } else {
                             num_dead_end_detected++;
                         }
                     }
@@ -281,7 +287,7 @@ public class SearchStrategies {
         getHeuristic().setup(current);
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
         Float current_value = 0f;
-        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving,this.gw,this.hw);
+        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -321,9 +327,7 @@ public class SearchStrategies {
             }
             for (GroundAction act : getHeuristic().reachable) {
                 if (act instanceof GroundProcess) {
-                    continue;
-                }
-                if (act.isApplicable(current_node.s)) {
+                } else if (act.isApplicable(current_node.s)) {
                     State temp = act.apply(current_node.s.clone());
                     //act.normalize();
                     if (!temp.satisfy(problem.globalConstraints)) {
@@ -342,7 +346,7 @@ public class SearchStrategies {
                     setStates_evaluated(getStates_evaluated() + 1);
 
                     act.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), 0, this.json_rep_saving,this.gw,0);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), 0, this.json_rep_saving, this.gw, 0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (json_rep_saving) {
                         current_node.add_descendant(new_node);
@@ -361,8 +365,7 @@ public class SearchStrategies {
     public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
         long start_global = System.currentTimeMillis();
 
-        
-        num_dead_end_detected =0;
+        num_dead_end_detected = 0;
         //Frontier
         PriorityQueue<SearchNode> frontier = new PriorityQueue();
         State current = (State) problem.getInit();
@@ -372,8 +375,9 @@ public class SearchStrategies {
         getHeuristic().setup(current);
         getHeuristic().horizon = this.horizon;
         System.out.println("|A U P| (After Relevance Analysis):" + getHeuristic().reachable.size());
-        if (this.high_verbosity)
-            System.out.println("Ground Actions:"+getHeuristic().reachable);
+        if (this.high_verbosity) {
+            System.out.println("Ground Actions:" + getHeuristic().reachable);
+        }
 
 //        rel_actions = (LinkedHashSet) heuristic.compute_relevant_actions(current, problem.getGoals(), rel_actions);
         //heuristic.build_integer_representation(rel_actions, problem.getGoals());
@@ -389,7 +393,7 @@ public class SearchStrategies {
             num_dead_end_detected++;
             return null;
         }
-        SearchNode init = new SearchNode((State) problem.getInit(), null, null, 0, current_value, json_rep_saving,this.gw,this.hw);
+        SearchNode init = new SearchNode((State) problem.getInit(), null, null, 0, current_value, json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -397,9 +401,10 @@ public class SearchStrategies {
 
         HashMap<State, Boolean> visited = new HashMap();
 //        HashMap<State,Integer> cost = new HashMap();
-        long previous_check=0;
+        long previous_check = 0;
         heuristic_time = 0;
         int time = 0;
+        System.out.println("Starting GBFS");
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
             if (json_rep_saving) {
@@ -443,28 +448,28 @@ public class SearchStrategies {
             }
             for (GroundAction act : getHeuristic().reachable) {
                 if (act instanceof GroundProcess) {
-                    continue;
-                }
-                if (act.isApplicable(current_node.s)) {
-                    State temp = act.apply(current_node.s.clone());
-                    //if (!checking_visited || visited.get(temp) == null){
-                    if (visited.get(temp) == null && temp.satisfy(problem.globalConstraints)) {
-                        setStates_evaluated(getStates_evaluated() + 1);
-                        start = System.currentTimeMillis();
-                        Float d = getHeuristic().compute_estimate(temp);
-                        heuristic_time += System.currentTimeMillis() - start;
-                        //System.out.print("Reacheable Conditions:"+reacheable_conditions);
-                        act.setAction_cost(temp);
-                        if (d != Float.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
-                            SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n +  act.getAction_cost()), d , json_rep_saving,this.gw,this.hw);
-                            frontier.add(new_node);
-                            //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
-                            if (json_rep_saving) {
-                                current_node.add_descendant(new_node);
-                            }
+                } else {
+                    if (act.isApplicable(current_node.s)) {
+                        State temp = act.apply(current_node.s.clone());
+                        //if (!checking_visited || visited.get(temp) == null){
+                        if (visited.get(temp) == null && temp.satisfy(problem.globalConstraints)) {
+                            setStates_evaluated(getStates_evaluated() + 1);
+                            start = System.currentTimeMillis();
+                            Float d = getHeuristic().compute_estimate(temp);
+                            heuristic_time += System.currentTimeMillis() - start;
+                            //System.out.print("Reacheable Conditions:"+reacheable_conditions);
+                            act.setAction_cost(temp);
+                            if (d != Float.MAX_VALUE) {  // && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+                                SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n + act.getAction_cost()), d, json_rep_saving, this.gw, this.hw);
+                                frontier.add(new_node);
+                                //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
+                                if (json_rep_saving) {
+                                    current_node.add_descendant(new_node);
+                                }
 
-                        }else{
-                            num_dead_end_detected++;
+                            } else {
+                                num_dead_end_detected++;
+                            }
                         }
                     }
                 }
@@ -503,34 +508,32 @@ public class SearchStrategies {
         return predAchievers;
     }
 
-    
-    private static LinkedList add_actions(SearchNode c) throws CloneNotSupportedException{
-            LinkedList temp = new LinkedList();
-            while (c.father != null) {
-                GroundAction gr = null;
+    private static LinkedList add_actions(SearchNode c) throws CloneNotSupportedException {
+        LinkedList temp = new LinkedList();
+        while (c.father != null) {
+            GroundAction gr = null;
 
-                if (c.action instanceof GroundProcess) {
-                    gr = (GroundProcess) c.action.clone();
-                } else {
-                    gr = (GroundAction) c.action.clone();
-                }
-
-                if (c.father.s.functionValue(new NumFluent("time_elapsed")) != null) {
-                    gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
-                } else {
-                    gr.time = 0f;
-                }
-                if (c.action instanceof GroundProcess) {
-                    gr.setName("--------->waiting");
-                }//else{
-                temp.addFirst(gr);
-                //}
-                c = c.father;
+            if (c.action instanceof GroundProcess) {
+                gr = (GroundProcess) c.action.clone();
+            } else {
+                gr = (GroundAction) c.action.clone();
             }
-            return temp;
+
+            if (c.father.s.functionValue(new NumFluent("time_elapsed")) != null) {
+                gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+            } else {
+                gr.time = 0f;
+            }
+            if (c.action instanceof GroundProcess) {
+                gr.setName("--------->waiting");
+            }//else{
+            temp.addFirst(gr);
+            //}
+            c = c.father;
+        }
+        return temp;
     }
-    
-    
+
     private static LinkedList extract_plan(SearchNode c) {
         LinkedList plan = new LinkedList();
         while (c.action != null) {
@@ -667,7 +670,7 @@ public class SearchStrategies {
                 //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                 if (d != Float.MAX_VALUE) {
                     waiting.setAction_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + waiting.getAction_cost()), d , this.json_rep_saving,this.gw,this.hw);
+                    SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + waiting.getAction_cost()), d, this.json_rep_saving, this.gw, this.hw);
                     //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
 
                     frontier.add(new_node);
@@ -676,7 +679,7 @@ public class SearchStrategies {
                         current_node.add_descendant(new_node);
                     }
 
-                }else{
+                } else {
                     num_dead_end_detected++;
                 }
             }

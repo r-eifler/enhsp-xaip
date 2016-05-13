@@ -777,6 +777,7 @@ public class Comparison extends Conditions {
         return "(" + this.comparator + " " + this.getLeft().toSmtVariableString(i) + " " + this.getRight().toSmtVariableString(i) + ")";
     }
 
+    @Override
     public String toSmtVariableString(int k, GroundAction gr, String var) {
         if (!gr.mayInfluence(this)){
             return " true ";
@@ -798,18 +799,11 @@ public class Comparison extends Conditions {
                 System.exit(-1);
             }
             if (ad.f == null) {
-
                 ret_val = " " + ad.n.pddlPrint(false) + " ";
             } else {
                 NumEffect neff = (NumEffect) affector.get(ad.f);
                 if (neff != null) {
-                    if (neff.operator.equals("increase")) {
-                        ret_val = "(+ " + ad.f.toSmtVariableString(k) + " (* " + var + " " + neff.getRight().toSmtVariableString(k) + " ))";
-                    } else if (neff.operator.equals("decrease")) {
-                        ret_val = "(- " + ad.f.toSmtVariableString(k) + " (* " + var + " " + neff.getRight().toSmtVariableString(k) + " ))";
-                    } else if (neff.operator.equals("assign")) {
-                        ret_val = "(* " + var + " " + neff.getRight().toSmtVariableString(k) + " )";
-                    }
+                    ret_val = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
                 }else
                     ret_val = ad.f.toSmtVariableString(k);
 
@@ -825,16 +819,7 @@ public class Comparison extends Conditions {
                     NumEffect neff = (NumEffect) affector.get(ad.f);
                     String temp=null;
                     if (neff != null) {
-                        if (neff.operator.equals("increase")) {
-                            temp = "(+ " + ad.f.toSmtVariableString(k) + " (* " + var + " " + neff.getRight().toSmtVariableString(k) + " ))";
-                        } else if (neff.operator.equals("decrease")) {
-                            temp = "(- " + ad.f.toSmtVariableString(k) + " (* " + var + " " + neff.getRight().toSmtVariableString(k) + " ))";
-                        } else if (neff.operator.equals("assign")) {
-                            temp = "(* " + var + " " + neff.getRight().toSmtVariableString(k) + " )";
-                        } else{
-                            System.out.println("Operation "+neff.operator+" not supported");
-                            System.exit(-1);
-                        }
+                        temp = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
                     }else
                         temp = ad.f.toSmtVariableString(k);
                     ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n.pddlPrint(false) + "))";

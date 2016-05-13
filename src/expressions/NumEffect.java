@@ -407,15 +407,56 @@ public class NumEffect extends Expression {
         return null;
     }
     
-    public String toSmtVariableString(int i, String var) {
+    public String to_smtlib_with_repetition(int i, String var) {
         
         
+        //here there is the assumption that increase and decrease are internal cycle free, which makes a lot of sense. Formally
+        //rhs(e) \cap lhs(e) = \emptyset
+        return "(= "+ this.getFluentAffected().toSmtVariableString(i+1)+" "+ this.to_smtlib_with_repetition_for_the_right_part(i, var)+")";
+    }
+
+    public String to_smtlib_with_repetition_for_the_right_part(int i, String var) {
+        
+        
+        //here there is the assumption that increase and decrease are internal cycle free, which makes a lot of sense. Formally
+        //rhs(e) \cap lhs(e) = \emptyset
         if (this.operator.equals("increase")) {
-            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +"(+ "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" )))";
+            return "(+ "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" ))";
         } else if (this.operator.equals("decrease")) {
-            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +"(- "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" )))";
+            return "(- "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" ))";
         } else if (this.operator.equals("assign")) {
-            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ this.getRight().toSmtVariableString(i)+")";
+            ExtendedNormExpression r = (ExtendedNormExpression)this.getRight();
+            ExtendedNormExpression new_right= new ExtendedNormExpression(0f);
+            PDDLNumber alpha = null;
+            for (ExtendedAddendum ad: r.summations){
+                if (ad.bin != null){
+                    System.out.println("Error: Trying to roll up an unrollable action");
+                    System.exit(-1);
+                }
+                
+                if (ad.f != null && ad.f.equals(this.getFluentAffected())){
+                     if (ad.n.getNumber() > 0f || ad.n.getNumber() == -1f) {
+                        ///setting the alpha...
+                        alpha = ad.n;
+                     }else{
+                        System.out.println("Error: Trying to roll up an unrollable action");
+                        System.exit(-1);
+                     }
+                }else{
+                    new_right.summations.add(ad);
+                }
+            }
+            if (alpha == null){
+                return new_right.toSmtVariableString(i);
+            }else if (alpha.getNumber() == -1f){
+                return "(- "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ new_right.toSmtVariableString(i)+" ))";
+            }else if (alpha.getNumber() == 1f){
+                return "(+ "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ new_right.toSmtVariableString(i)+" ))";
+            }else{
+                String exp_variable = "(/ (^ "+alpha.getNumber()+" (+ "+var+" 1) )(- "+alpha.getNumber()+" 1) )";
+                return  "(+ (* (^ "+alpha.toSmtVariableString(i)+" "+var+" ) "+this.getFluentAffected().toSmtVariableString(i)+" )"+" "
+                        + "(* " +exp_variable+" "+ new_right.toSmtVariableString(i)+" ))";
+            }
         }
 
         return null;

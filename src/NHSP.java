@@ -205,20 +205,22 @@ public class NHSP {
 //            general_numeric_planning_heuristic h = (general_numeric_planning_heuristic) searchStrategies.getHeuristic();
 //            searchStrategies.setGw(1);
 //            searchStrategies.setHw(1);
-        }  else if (config.equals("12")) {
+        }  else if (config.equals("112")) {
             searchStrategies.setup_heuristic(new asymptotic_ibr(problem.getGoals(), problem.getActions(), problem.processesSet));
             asymptotic_ibr h = (asymptotic_ibr) searchStrategies.getHeuristic();
             h.set(false, true);
             searchStrategies.setGw(1);
             searchStrategies.setHw(1);
         } else if (config.equals("20")) {
+            System.out.println("20");
             searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet));
             Aibr h = (Aibr) searchStrategies.getHeuristic();
             h.set(false, true);
             h.extract_plan=true;
             searchStrategies.setGw(1);
             searchStrategies.setHw(1);
-        } else if (config.equals("12")) {
+        } else if (config.equals("12")) {            
+            System.out.println("PURE AIBR heuristic");
             searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet));
             Aibr h = (Aibr) searchStrategies.getHeuristic();
             h.set(false, true);

@@ -102,10 +102,14 @@ public class Aibr extends Heuristics {
 
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
-                    reacheable_state = rs.clone();
-                    this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+                    if (reacheability){
+                        reacheable_state = rs.clone();
+                        this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+                    }
                     return Float.MAX_VALUE;
                 } else {
+                    reacheable_state = rs.clone();
+                    this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
                     break;
                 }
             }
@@ -123,7 +127,7 @@ public class Aibr extends Heuristics {
 
         
         if (reacheability) {
-            reacheable_state = rs.clone();
+            //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             return (float)i;
         }
@@ -370,7 +374,7 @@ public class Aibr extends Heuristics {
             k--;
         }
         dbg_print("\nAction under analysis:" + to_add);
-        int counter = 0;
+        Float counter = 0f;
         while (k < i) {
 
             for (GroundAction gr : to_add.get(k)) {
@@ -388,7 +392,7 @@ public class Aibr extends Heuristics {
                     counter++;
                 }
                 if (counter > horizon) {
-                    return (float) counter;
+                    return counter;
                 }
                 if (k==i)
                     break;
@@ -399,7 +403,7 @@ public class Aibr extends Heuristics {
             
         }
 
-        return (float) counter;
+        return counter;
 
     }
 
@@ -408,18 +412,17 @@ public class Aibr extends Heuristics {
         Iterator<GroundAction> it = temp_supporters.iterator();
         while (it.hasNext()) {
             GroundAction gr = it.next();
-            if (gr.getPreconditions().sons == null) {
-                continue;
-            }
             boolean add_action = true;
-            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
-                if (c.isSatisfied(rs)) {
-                    if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
-                        this.dist.set(c.getCounter(), i);
-                        this.conditions_sat_at_time_index.get(i).add(c);
+            if (gr.getPreconditions().sons != null) {
+                for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+                    if (c.isSatisfied(rs)) {
+                        if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
+                            this.dist.set(c.getCounter(), i);
+                            this.conditions_sat_at_time_index.get(i).add(c);
+                        }
+                    } else {
+                        add_action = false;
                     }
-                } else {
-                    add_action = false;
                 }
             }
             if (add_action) {

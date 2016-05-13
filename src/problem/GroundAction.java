@@ -1507,7 +1507,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-//    public String toSmtVariableString() {
+//    public String to_smtlib_with_repetition() {
 //        String parametri = "";
 //        for (Object o : getParameters()) {
 //            parametri = parametri.concat(o.toString()).concat("");
