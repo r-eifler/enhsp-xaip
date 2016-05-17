@@ -19,6 +19,7 @@ import search.Uniform_cost_search_H1_5;
 import search.Uniform_cost_search_H1_Rep;
 import search.asymptotic_ibr;
 import search.Aibr;
+import search.Bellman_Ford_Hm;
 
 /**
  *
@@ -141,7 +142,10 @@ public class NHSP {
 
         problem.generateActionsAndProcesses();
         problem.generateConstraints();
-        problem.transform_numeric_condition();
+        //if (!config.equals("exp"))
+                problem.transform_numeric_condition();
+        //else
+         //   problem.normalize_conditions();
 
         System.out.println(problem.globalConstraints.pddlPrint(true));
         System.out.println("Grounding and Simplification finished");
@@ -164,24 +168,17 @@ public class NHSP {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1_5(problem.getGoals(), problem.getActions(), problem.processesSet));
             Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
             h.additive_h = true;
-        } else if (config.equals("3")) {
-            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_Rep(problem.getGoals(), problem.getActions()));
-            Uniform_cost_search_H1_Rep h = (Uniform_cost_search_H1_Rep) searchStrategies.getHeuristic();
-            h.additive_h = true;
         } else if (config.equals("4")) {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1_5(problem.getGoals(), problem.getActions()));
             Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
             h.additive_h = false;
             searchStrategies.setHw(1);
-        } else if (config.equals("5")) {
-            searchStrategies.setup_heuristic(new Uniform_cost_search_H15_Rep(problem.getGoals(), problem.getActions()));
-            Uniform_cost_search_H15_Rep h = (Uniform_cost_search_H15_Rep) searchStrategies.getHeuristic();
-            h.additive_h = true;
-//        } 
-//        else if (config.equals("6")) {
-//            searchStrategies.setup_heuristic(new Bellman_Ford_H1(problem.getGoals(), problem.getActions()));
-//            Bellman_Ford_H1 h = (Bellman_Ford_H1) searchStrategies.getHeuristic();
-//            h.setGreedy(greedy_bf);
+        } else if (config.equals("3")) {//optimal planning setting.. hmax as for the IJCAI-16 paper
+            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_5(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
+            h.additive_h = false;
+            searchStrategies.setHw(1f);
+            searchStrategies.setGw(1f);
 //        } else if (config.equals("7")) {
 //            searchStrategies.setup_heuristic(new Belmann_Ford_H_15(problem.getGoals(), problem.getActions()));
 //            Belmann_Ford_H_15 h = (Belmann_Ford_H_15) searchStrategies.getHeuristic();
@@ -250,6 +247,11 @@ public class NHSP {
             Aibr h = (Aibr) searchStrategies.getHeuristic();
             h.extract_plan = true;
             searchStrategies.setGw(1);
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp")) {
+            searchStrategies.setup_heuristic(new Bellman_Ford_Hm(problem.getGoals(), problem.getActions()));
+            Bellman_Ford_Hm h = (Bellman_Ford_Hm) searchStrategies.getHeuristic();
+            h.additive_h = false;
             searchStrategies.setHw(1);
         }else {
             System.out.println("Configuration Setting is not valid");

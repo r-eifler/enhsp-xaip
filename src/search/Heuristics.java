@@ -237,7 +237,7 @@ public abstract class Heuristics {
         }
 
         for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
-            if (!closed.get(t.getCounter())) {
+            if (closed!=null && !closed.get(t.getCounter())) {
                 return Float.MAX_VALUE;
             }
             Float temp = h.get(t.getCounter());
@@ -788,10 +788,10 @@ public abstract class Heuristics {
         return cost;
     }
 
-    protected void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
+    protected void init_h(ArrayList<Float> h, Collection<Conditions> all_conditions, State s_0) {
         for (Conditions c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
-                h.set(c_1.getCounter(), 0);
+                h.set(c_1.getCounter(), 0f);
             }
             if (debug >= 2) {
                 System.out.println("Condition counter mapping:" + c_1 + " ," + c_1.getCounter());
@@ -1068,15 +1068,16 @@ public abstract class Heuristics {
 //                return Float.MAX_VALUE;
 //            }
 //        }
-    protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+    protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
 
         Iterator it = A1.iterator();
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
-            if (this.compute_precondition_cost(s_0, h, gr) != Float.MAX_VALUE) {
+            if (this.compute_precondition_cost(s_0, h, gr,null) != Float.MAX_VALUE) {
                 gr.setAction_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, 0, 0));
                 it.remove();
+                this.reachable.add(gr);
             }
         }
     }
@@ -1174,19 +1175,15 @@ public abstract class Heuristics {
         return ret;
     }
 
-    protected void update_pool(Collection<HeuristicSearchNode> pool, Collection<GroundAction> A1, State s_0, ArrayList<Integer> h) {
+    protected void update_pool(Collection<GroundAction> pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
         //update action precondition
-        for (HeuristicSearchNode gr : pool) {
-            gr.action_cost_to_get_here = compute_precondition_cost(s_0, h, gr.action);
-        }
-        Iterator it = A1.iterator();
-        while (it.hasNext()) {
-            GroundAction gr = (GroundAction) it.next();
-            int cost = compute_precondition_cost(s_0, h, gr);
+        
+        for (GroundAction gr : A1) {
+            float cost = compute_precondition_cost(s_0, h, gr,null);
             if (cost != Float.MAX_VALUE) {
-                gr.setAction_cost(s_0);
-                pool.add(new HeuristicSearchNode(gr, null, cost, 0));
-                it.remove();
+                pool.add(gr);
+                this.reachable.add(gr);
+                //it.remove();
             }
         }
     }

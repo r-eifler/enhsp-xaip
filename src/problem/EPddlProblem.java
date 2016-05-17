@@ -330,4 +330,23 @@ public class EPddlProblem extends PddlProblem {
         goals.normalize();
         this.goals = generate_inequalities(goals);
     }
+    
+    public void normalize_conditions() throws Exception {
+
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+            if (gr.getPreconditions() != null) {
+                gr.getPreconditions().normalize();
+            }
+        }
+        
+        for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+            if (pr.getPreconditions() != null) {
+                pr.getPreconditions().normalize();
+            }
+        }
+        //globalConstraints.normalize();
+        //globalConstraints = (AndCond)globalConstraints.transform_equality();
+        
+        goals.normalize();
+    }
 }

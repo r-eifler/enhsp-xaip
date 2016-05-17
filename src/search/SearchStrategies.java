@@ -52,12 +52,12 @@ import problem.State;
  */
 public class SearchStrategies {
 
-    private int hw = 4;
+    private float hw = 4;
     public static int priority_queue_size;
     private boolean checking_visited = true;
     private Heuristics heuristic;
     private boolean decreasing_heuristic_pruning;
-    private int gw;
+    private float gw;
     public static int states_evaluated;
     private boolean interactive_search_debug = false;
     public boolean json_rep_saving = false;
@@ -568,28 +568,28 @@ public class SearchStrategies {
     /**
      * @return the gw
      */
-    public int getGw() {
+    public float getGw() {
         return gw;
     }
 
     /**
      * @param gw the gw to set
      */
-    public void setGw(int gw) {
+    public void setGw(float gw) {
         this.gw = gw;
     }
 
     /**
      * @return the hw
      */
-    public int getHw() {
+    public float getHw() {
         return hw;
     }
 
     /**
      * @param hw the hw to set
      */
-    public void setHw(int hw) {
+    public void setHw(float hw) {
         this.hw = hw;
     }
 
