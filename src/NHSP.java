@@ -336,6 +336,7 @@ public class NHSP {
 
         System.out.println("Priority Queue Size:" + SearchStrategies.priority_queue_size);
         System.out.println("Number of Dead-Ends detected:" + SearchStrategies.num_dead_end_detected);
+        System.out.println("Number of duplicates detected:" + SearchStrategies.number_duplicates);
 
         if (saving_json) {
             

@@ -133,18 +133,22 @@ public class Uniform_cost_search_H1 extends Heuristics {
 
         HashMap<GroundAction, Float> action_to_cost = new HashMap();
         ArrayList<GroundAction> actions_for_complex_condition = new ArrayList();
-        while (!q.isEmpty()) {
+        boolean first = true;
+        while (!q.isEmpty() || first) {
+            if (!first){
             Conditions cn = q.removeMin().getData();
             closed.set(cn.getCounter(), true);
-
+            }
             if (!all_paths) {
                 Float goal_dist = this.check_goal_conditions(s, G, dist, closed);
                 if (goal_dist != MAX_VALUE && !reacheability_setting) {
                     return goal_dist;
                 }
             }
+            
             //trigger actions
 //            Iterator<GroundAction> it = this.precondition_mapping.get(cn.getCounter()).iterator();
+            first = false;
             Iterator<GroundAction> it = temp_a.iterator();
 
 //            System.out.println("DEBUG: Actions investigated:"+this.precondition_mapping.get(cn.getCounter())+"\n starting from:"+cn);

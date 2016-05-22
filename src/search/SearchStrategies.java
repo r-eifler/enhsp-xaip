@@ -68,6 +68,7 @@ public class SearchStrategies {
     public float delta;
     public int horizon;
     public static int num_dead_end_detected;
+    public static int number_duplicates;
 
     public void setup_heuristic(Heuristics input) {
         this.setHeuristic(input);
@@ -203,6 +204,9 @@ public class SearchStrategies {
         HashMap<State, Boolean> visited = new HashMap();
         HashMap<State, Float> g = new HashMap();
         heuristic_time = 0;
+        number_duplicates = 0;
+        long previous_check = 0;
+
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
             if (json_rep_saving) {
@@ -216,6 +220,10 @@ public class SearchStrategies {
             if (current_value > current_node.h_n) {
                 System.out.println("Current Distance:" + current_node.h_n);
                 current_value = current_node.h_n;
+            }
+            if (nodes_expanded % 10000 == 0 || ((System.currentTimeMillis() - start_global) - previous_check) > 10000) {
+                System.out.println("Stats so far. Expanded nodes:" + nodes_expanded + " States Evaluated:" + this.getStates_evaluated());
+                previous_check = (System.currentTimeMillis() - start_global);
             }
 //            if (current_node.action!= null)
 //                System.out.println("Action:"+current_node.action);
@@ -266,6 +274,8 @@ public class SearchStrategies {
                         } else {
                             num_dead_end_detected++;
                         }
+                    }else{
+                        number_duplicates++;
                     }
                 }
             }
