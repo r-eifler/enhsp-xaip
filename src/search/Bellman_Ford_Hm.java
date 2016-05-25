@@ -104,9 +104,9 @@ public class Bellman_Ford_Hm extends Heuristics {
             if (update) {
                 this.update_pool(pool, A_temp, s_0, h);
             }
-            if (greedy && h.get(G.getCounter()) != Float.MAX_VALUE) {
-                break;
-            }
+//            if (greedy && h.get(G.getCounter()) != Float.MAX_VALUE) {
+//                break;
+//            }
         } while (update);
         return h.get(G.getCounter());
 
@@ -321,13 +321,12 @@ public class Bellman_Ford_Hm extends Heuristics {
 
 //        System.out.println(opt.getModel());
         Optimize.Handle mx = opt.MkMinimize(temp);
-//        System.out.println(opt.toString());
+        System.out.println(opt.toString());
 //        RealExpr ret = (RealExpr)mx.getValue();
 
         if (opt.Check() == Status.SATISFIABLE) {
 //            System.out.println(mx.getValue());
 //            System.out.println(opt.getModel());
-
             ArithExpr ret = mx.getValue();
             if (ret instanceof IntNum) {
                 return Float.parseFloat(ret.toString());

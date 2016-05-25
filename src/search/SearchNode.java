@@ -52,7 +52,8 @@ public class SearchNode implements Comparable {
     public float wg;
     public float wh;
     public float f;
-    private boolean breakties_on_g = true;
+    private boolean breakties_on_g = true; //this goes for larger g
+    private boolean go_for_smaller_g = true; //this goes for smaller g
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
@@ -225,7 +226,14 @@ public class SearchNode implements Comparable {
                     return -1;
                 else
                     return 0;
-            }else
+            }else if(this.go_for_smaller_g){
+                if (this.g_n < other.g_n)//goal is farer
+                    return -1;
+                else if (this.g_n > other.g_n) //goal is closer
+                    return +1;
+                else
+                    return 0;
+            }
                 return 0;
         } 
         if (f < other.f) {

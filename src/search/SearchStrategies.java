@@ -66,7 +66,7 @@ public class SearchStrategies {
     public boolean preferred_operators_active = false;
     public boolean processes = false;
     public float delta;
-    public int horizon;
+    public int horizon=10000000;
     public static int num_dead_end_detected;
     public static int number_duplicates;
 
@@ -469,7 +469,9 @@ public class SearchStrategies {
                             heuristic_time += System.currentTimeMillis() - start;
                             //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                             act.setAction_cost(temp);
-                            if (d != Float.MAX_VALUE) {  // && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+
+                            if (d != Float.MAX_VALUE && (current_node.g_n+act.getAction_cost()+d <= horizon) ) {  // && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+                                
                                 SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n + act.getAction_cost()), d, json_rep_saving, this.gw, this.hw);
                                 frontier.add(new_node);
                                 //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated

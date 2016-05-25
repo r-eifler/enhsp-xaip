@@ -784,9 +784,9 @@ public class ExtendedNormExpression extends Expression {
             if (ad.bin == null){
                 if (ad.f == null) {
 
-                    ret_val = " " + ad.n.pddlPrint(false) + " ";
+                    ret_val = " " + ad.n.toSmtVariableString(j) + " ";
                 } else {
-                    ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.pddlPrint(false) + ")";
+                    ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.toSmtVariableString(j) + ")";
                 }
             }else{
 //                System.out.println(ad);
@@ -800,9 +800,9 @@ public class ExtendedNormExpression extends Expression {
                 if (ad.bin == null){
 
                     if (ad.f == null) {
-                        ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(false) + " )";
+                        ret_val = "(+ " + ret_val + " " + ad.n.toSmtVariableString(i) + " )";
                     } else {
-                        ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.pddlPrint(false) + "))";
+                        ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.toSmtVariableString(j) + "))";
                     }
                 }else{
                         ret_val = "(+ "+ret_val+" "+ad.bin.toSmtVariableString(j)+")";

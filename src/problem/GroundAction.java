@@ -81,6 +81,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     private HashMap<Predicate, Boolean> achieve;
     private Integer int_depencies;
     public Float time = null;
+    private Boolean has_state_dependent_effects;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -2525,6 +2526,36 @@ public class GroundAction extends GenericActionType implements Comparable {
             
         }
         return false;
+    }
+
+    public boolean has_additive_effects() {
+        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty())
+            return false;
+        for (NumEffect neff: this.getNumericEffectsAsCollection()){
+            if (neff.getOperator().equals("increase") || neff.getOperator().equals("decrease"))
+                return true;
+        
+        }
+        return false;
+
+    }
+
+    public boolean has_state_dependent_effects() {
+        if (has_state_dependent_effects != null)
+            return has_state_dependent_effects;
+        
+        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty()){
+            has_state_dependent_effects = false;
+        }else{
+            for (NumEffect neff: this.getNumericEffectsAsCollection()){
+                if (!(neff.getRight() instanceof PDDLNumber)){
+                    has_state_dependent_effects = true;
+                    break;
+                }
+            }
+        }
+                    
+        return has_state_dependent_effects;
     }
 
 

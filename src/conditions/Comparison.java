@@ -799,7 +799,7 @@ public class Comparison extends Conditions {
                 System.exit(-1);
             }
             if (ad.f == null) {
-                ret_val = " " + ad.n.pddlPrint(false) + " ";
+                ret_val = " " + ad.n.toSmtVariableString(k) + " ";
             } else {
                 NumEffect neff = (NumEffect) affector.get(ad.f);
                 if (neff != null) {
@@ -807,14 +807,14 @@ public class Comparison extends Conditions {
                 }else
                     ret_val = ad.f.toSmtVariableString(k);
 
-                ret_val = "(* " + ret_val + " " + ad.n.pddlPrint(false) + ")";
+                ret_val = "(* " + ret_val + " " + ad.n.toSmtVariableString(k) + ")";
             }
         }
         {
             for (int i = 1; i < norm.summations.size(); i++) {
                 ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(i);
                 if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(false) + " )";
+                    ret_val = "(+ " + ret_val + " " + ad.n.toSmtVariableString(i) + " )";
                 } else {
                     NumEffect neff = (NumEffect) affector.get(ad.f);
                     String temp=null;
@@ -822,7 +822,7 @@ public class Comparison extends Conditions {
                         temp = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
                     }else
                         temp = ad.f.toSmtVariableString(k);
-                    ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n.pddlPrint(false) + "))";
+                    ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n.toSmtVariableString(i) + "))";
 
 //                    ret_val += "(* " + temp + " " + ad.n.pddlPrint(false) + ")";
                 }

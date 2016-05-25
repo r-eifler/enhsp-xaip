@@ -199,7 +199,13 @@ public class PDDLNumber extends Expression {
 
     @Override
     public String toSmtVariableString(int i) {
-        return toString();
+//        System.out.println("Variable sign:");
+        if (this.getNumber() < 0f){
+//            System.out.println("negative");
+            return "(- " + String.format("%.4f",this.getNumber()*-1f) + ") ";
+        }else
+            return " " + String.format("%.4f",this.getNumber()).replace("-", "") + " ";
+
     }
 
     @Override

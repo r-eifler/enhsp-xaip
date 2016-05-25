@@ -136,8 +136,8 @@ public class Uniform_cost_search_H1 extends Heuristics {
         boolean first = true;
         while (!q.isEmpty() || first) {
             if (!first){
-            Conditions cn = q.removeMin().getData();
-            closed.set(cn.getCounter(), true);
+                Conditions cn = q.removeMin().getData();
+                closed.set(cn.getCounter(), true);
             }
             if (!all_paths) {
                 Float goal_dist = this.check_goal_conditions(s, G, dist, closed);
@@ -163,7 +163,8 @@ public class Uniform_cost_search_H1 extends Heuristics {
                         gr.setAction_cost(s);
                     }
                     action_to_cost.put(gr, action_precondition_cost);
-                    it.remove();//this can be removed since we are already looking for the closest/cheapest preconditions set
+                    //if (!gr.has_state_dependent_effects())
+                        //it.remove();//this can be removed since we are already looking for the closest/cheapest preconditions set
                     actions_for_complex_condition.add(gr);
 
                     //for (GroundAction gr : edges) {//this can be optimized a lot
@@ -234,6 +235,8 @@ public class Uniform_cost_search_H1 extends Heuristics {
         achievers_inverted = new HashMap();
         precondition_mapping = new HashMap();
 
+        
+        //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();

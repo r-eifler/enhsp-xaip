@@ -44,6 +44,7 @@ public class NHSP {
     private static boolean save_plan;
     private static Boolean admissible;
     private static boolean print_trace;
+    private static boolean smaller_g;
 
     /**
      * @param args the command line arguments
@@ -84,6 +85,7 @@ public class NHSP {
             save_plan = Utils.searchParameter(args, "-sp"); //Save the plan
             admissible = Utils.searchParameter(args, "-adm"); //Save the plan
             print_trace = Utils.searchParameter(args, "-print_trace"); //print_trace
+            smaller_g = Utils.searchParameter(args, "-btsg"); //print_trace
             String res_validation = Utils.searchParameterValue(args, "-exec_res"); //Resolution for the validation
             if (res_validation != null) {
                 resolution_execution = Float.parseFloat(res_validation);
@@ -264,11 +266,11 @@ public class NHSP {
 //            searchStrategies.getHeuristic().horizon = Integer.parseInt(horizon);
 //        }
         if (hw != null) {
-            searchStrategies.setHw(Integer.parseInt(hw));
+            searchStrategies.setHw(Float.parseFloat(hw));
             System.out.println("w_h set to be " + hw);
         }
         if (gw != null) {
-            searchStrategies.setGw(Integer.parseInt(gw));
+            searchStrategies.setGw(Float.parseFloat(gw));
             System.out.println("g_h set to be " + gw);
         }
 
