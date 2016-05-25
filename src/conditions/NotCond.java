@@ -56,6 +56,7 @@ public class NotCond extends Conditions {
         son.add(c);
     }
 
+    @Override
     public String toString() {
         String ret_val = "Not(";
         for (Object o : son) {
@@ -169,6 +170,7 @@ public class NotCond extends Conditions {
         }
     }
 
+    @Override
     public String pddlPrint(boolean typeInformation) {
         String ret_val = "(not ";
         for (Object o : son) {

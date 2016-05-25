@@ -694,6 +694,7 @@ public class ExtendedNormExpression extends Expression {
         return false;
     }
 
+    @Override
     public boolean involve(NumFluent nf) {
 
         for (Object o : this.summations) {

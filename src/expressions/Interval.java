@@ -141,6 +141,7 @@ public class Interval {
         return ret_val;
     }
 
+    @Override
     public Interval clone() {
         Interval ret_val = new Interval();
 

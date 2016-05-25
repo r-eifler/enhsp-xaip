@@ -202,9 +202,9 @@ public class PDDLNumber extends Expression {
 //        System.out.println("Variable sign:");
         if (this.getNumber() < 0f){
 //            System.out.println("negative");
-            return "(- " + String.format("%.4f",this.getNumber()*-1f) + ") ";
+            return "(- " + String.format("%.2f",this.getNumber()*-1f) + ") ";
         }else
-            return " " + String.format("%.4f",this.getNumber()).replace("-", "") + " ";
+            return " " + String.format("%.2f",this.getNumber()).replace("-", "") + " ";
 
     }
 

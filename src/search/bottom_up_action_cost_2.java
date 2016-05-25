@@ -85,6 +85,7 @@ public class bottom_up_action_cost_2 extends IntegerHeuristic {
         return check_goal_conditions(s_0, G, h);
     }
 
+    @Override
     protected int check_goal_conditions(State s_0, Conditions G, ArrayList<Integer> h) {
         int cost = 0;
         for (Conditions g : (LinkedHashSet<Conditions>) G.sons) {
@@ -124,6 +125,7 @@ public class bottom_up_action_cost_2 extends IntegerHeuristic {
             
     }
 
+    @Override
     protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
 
         int cost = 0;

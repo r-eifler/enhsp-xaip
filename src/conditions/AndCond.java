@@ -93,6 +93,7 @@ public class AndCond extends Conditions {
      *
      * @return a string representation of the and tree
      */
+    @Override
     public String toString() {
         String ret_val = "And(";
         for (Object o : sons) {

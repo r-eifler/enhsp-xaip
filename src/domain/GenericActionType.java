@@ -104,5 +104,6 @@ public abstract class GenericActionType extends Object {
         this.preconditions = preconditions;
     }
 
+    @Override
     public abstract String toString();
 }

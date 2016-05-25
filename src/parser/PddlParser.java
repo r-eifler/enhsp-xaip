@@ -205,6 +205,7 @@ public class PddlParser extends Parser {
 
     private boolean wasError = false;
 
+    @Override
     public void reportError(RecognitionException e) {
         wasError = true;
         super.reportError(e);

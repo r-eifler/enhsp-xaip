@@ -58,6 +58,7 @@ public class OrCond extends Conditions {
         sons.add(c);
     }
 
+    @Override
     public String toString() {
         String ret_val = "Or(";
         for (Object o : sons) {
@@ -163,6 +164,7 @@ public class OrCond extends Conditions {
         }
     }
 
+    @Override
     public String pddlPrint(boolean typeInformation) {
         String ret_val = "(or ";
         for (Object o : sons) {

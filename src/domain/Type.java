@@ -91,6 +91,7 @@ public class Type extends Object {
         return hash;
     }
 
+    @Override
     public String toString() {
         return " -" + getName() + " ";
     }

@@ -57,6 +57,7 @@ public class NumEffect extends Expression {
      *
      * @return
      */
+    @Override
     public String toString() {
 
         return "(" + getOperator() + " " + getFluentAffected() + " " + getRight() + ")";
@@ -213,6 +214,7 @@ public class NumEffect extends Expression {
      *
      * @return
      */
+    @Override
     public ExtendedNormExpression normalize() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

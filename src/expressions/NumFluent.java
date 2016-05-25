@@ -433,6 +433,7 @@ public class NumFluent extends Expression {
         this.beforeReformulation = beforeReformulation;
     }
 
+    @Override
     public String toSmtVariableString(int i) {
         String ret = "";
         ret = ret.concat(this.getName());

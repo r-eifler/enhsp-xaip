@@ -61,6 +61,7 @@ public class BinaryOp extends Expression {
 
     }
 
+    @Override
     public String toString() {
         return "(" + getOperator() + " (" + getOne() + " " + getRight() + "))";
     }

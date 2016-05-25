@@ -48,6 +48,7 @@ public class lpgWrapper extends planningTool {
 
     }
 
+    @Override
     public String adapt(String domainFile, String problemFile, String planFile) {
         try {
             this.planningExec = "lpg-adapt";
