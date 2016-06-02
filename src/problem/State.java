@@ -358,7 +358,15 @@ public class State extends Object {
 
         for (Object o : this.getNumericFluents()) {
             NumFluentAssigner ass_init = (NumFluentAssigner) o;
-            if (!ass_init.getTwo().equals(other.functionValue(ass_init.getNFluent()))) {
+//            if (!ass_init.getTwo().equals(other.functionValue(ass_init.getNFluent()))) {
+//                return false;
+//            }
+//            if (Math.abs(ass_init.getTwo().getNumber() - other.functionValue(ass_init.getNFluent()).getNumber()) > 0.0001) 
+//            {
+//                return false;
+//            }
+            if (!ass_init.getTwo().getNumber().equals(other.functionValue(ass_init.getNFluent()).getNumber())) 
+            {
                 return false;
             }
         }

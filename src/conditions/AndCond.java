@@ -456,6 +456,7 @@ public class AndCond extends Conditions {
     public void normalize() {
 
         Iterator it = sons.iterator();
+        Collection<AndCond> to_add = new LinkedHashSet();
         while (it.hasNext()) {
             Object o = it.next();
             if (o instanceof Comparison) {
@@ -478,6 +479,8 @@ public class AndCond extends Conditions {
             } else if (o instanceof AndCond) {
                 AndCond temp = (AndCond) o;
                 temp.normalize();
+                to_add.add(temp);
+                it.remove();
             } else if (o instanceof NotCond) {
                 NotCond temp = (NotCond) o;
                 temp.normalize();
@@ -486,6 +489,9 @@ public class AndCond extends Conditions {
                 temp.normalize();
             }
         }
+        to_add.stream().forEach((ele) -> {
+            this.sons.addAll(ele.sons);
+        });
 
     }
 
@@ -623,7 +629,6 @@ public class AndCond extends Conditions {
     @Override
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new HashSet();
-
         if (this.sons != null) {
             for (Object o : this.sons) {
                 if (o instanceof NumFluent) {
@@ -654,7 +659,10 @@ public class AndCond extends Conditions {
     public Conditions weakEval(State s, HashMap invF) {
         Map<Conditions, Boolean> toRemove = new HashMap();
         if (this.sons != null) {
-            for (Object o2 : this.sons) {
+            Iterator it = this.sons.iterator();
+            while (it.hasNext()){
+                Object o2 = it.next();
+
                 if (o2 instanceof Conditions) {
                     Conditions c = (Conditions) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
@@ -663,10 +671,9 @@ public class AndCond extends Conditions {
                         return null;
                     }
                     if (c.isValid()) {
-                        toRemove.put(c, Boolean.TRUE);
-                    }
-                    if (c.isUnsatisfiable()) {
-                        this.isUnsatisfiable();
+                        it.remove();
+                    }else if (c.isUnsatisfiable()) {
+                        this.setUnsatisfiable(true);
                     }
 
                 } else if (o2 instanceof NumEffect) {
@@ -682,12 +689,12 @@ public class AndCond extends Conditions {
                     System.out.println("Unsupported operation for :" + o2.getClass());
                 }
             }
-            Iterator it = this.sons.iterator();
-            while (it.hasNext()) {
-                if (toRemove.get(it.next()) != null) {
-                    it.remove();
-                }
-            }
+//            Iterator it = this.sons.iterator();
+//            while (it.hasNext()) {
+//                if (toRemove.get(it.next()) != null) {
+//                    it.remove();
+//                }
+//            }
         }
         return this;
     }
@@ -746,6 +753,21 @@ public class AndCond extends Conditions {
             
         }
         return ret;
+    }
+
+    @Override
+    public boolean is_affected_by(GroundAction gr) {
+        
+        if (this.sons!= null && !this.sons.isEmpty()){
+            
+            for (Conditions c:(Collection<Conditions>) this.sons){
+                if (c.is_affected_by(gr))
+                    return true;
+            }
+            
+        }
+        
+        return false;
     }
 
 }

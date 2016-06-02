@@ -75,7 +75,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public HashSet<Conditions> achievedComparisons;
     private boolean reacheable = false;
     private HashMap<NumFluent, Float> coefficientAffected;
-    private float action_cost;
+    private Float action_cost;
     public int counter;
     public HashMap<Integer, Boolean> interact_with;
     private HashMap<Predicate, Boolean> achieve;
@@ -153,7 +153,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.preconditions = new AndCond();
         this.numericEffects = new AndCond();
         //numericFluentAffected = new HashMap();
-        action_cost = 0;
+        action_cost = null;
         interact_with = new HashMap();
         achieve = new HashMap();
     }
@@ -166,7 +166,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.preconditions = new AndCond();
         this.numericEffects = new AndCond();
         //numericFluentAffected = new HashMap();
-        action_cost = 0;
+        action_cost = null;
         interact_with = new HashMap();
         achieve = new HashMap();
     }
@@ -2205,7 +2205,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public void setAction_cost(State s_0) {
-        if (action_cost == 0) {
+        if (action_cost == null) {
             if (this.getNumericEffects() != null) {
                 AndCond temp = (AndCond) this.getNumericEffects();
                 for (NumEffect e : (LinkedHashSet<NumEffect>) temp.sons) {
@@ -2215,7 +2215,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     }
                 }
             }
-            action_cost = 1;
+            action_cost = 1f;
         }
 
     }

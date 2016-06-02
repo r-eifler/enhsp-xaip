@@ -27,10 +27,19 @@
  */
 package search;
 
+import com.microsoft.z3.ArithExpr;
+import com.microsoft.z3.Context;
+import com.microsoft.z3.IntNum;
+import com.microsoft.z3.Optimize;
+import com.microsoft.z3.RatNum;
+import com.microsoft.z3.RealExpr;
+import com.microsoft.z3.Status;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.ExtendedAddendum;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
@@ -50,9 +59,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ojalgo.OjAlgoUtils;
+import org.ojalgo.netio.BasicLogger;
+import org.ojalgo.optimisation.Expression;
+import org.ojalgo.optimisation.ExpressionsBasedModel;
+import org.ojalgo.optimisation.Optimisation;
 import problem.GroundAction;
 import problem.RelState;
 import problem.State;
+import org.ojalgo.optimisation.Variable;
 
 /**
  *
@@ -61,7 +76,7 @@ import problem.State;
 public abstract class Heuristics {
 
     static public LinkedHashSet usefulActions = new LinkedHashSet();
-    private LinkedList<NumEffect> sorted_nodes;
+    protected LinkedList<NumEffect> sorted_nodes;
     public LinkedHashSet<GroundAction> reachable;
     public boolean additive_h = true;
     protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
@@ -100,6 +115,11 @@ public abstract class Heuristics {
     HashMap<NumEffect, GroundAction> num_eff_action;
     public Collection<GroundAction> supporters;
     public RelState reacheable_state;
+    protected Collection<Comparison> complex_condition_set;
+    protected boolean check_mutex = false;
+    private int invocation;
+    public boolean integer_variables;
+    public boolean greedy;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -237,7 +257,7 @@ public abstract class Heuristics {
         }
 
         for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
-            if (closed!=null && !closed.get(t.getCounter())) {
+            if (closed != null && !closed.get(t.getCounter())) {
                 return Float.MAX_VALUE;
             }
             Float temp = h.get(t.getCounter());
@@ -595,17 +615,15 @@ public abstract class Heuristics {
                     if (regr.isSatisfied(s_0)) {
                         h.put(regr, 0);
                         new_relevant_condition = true;
-                    } else {
-                        if (!regr.isUnsatisfiable()) {
-                            new_relevant_condition = true;
-                            if (already_added.get(regr) == null) {
-                                toAdd.add(regr);
-                                already_added.put(regr, Boolean.TRUE);
-                            }
-                        } else {
-                            it2.remove();//the regression is unsatifiable using this operator!
-                            continue;
+                    } else if (!regr.isUnsatisfiable()) {
+                        new_relevant_condition = true;
+                        if (already_added.get(regr) == null) {
+                            toAdd.add(regr);
+                            already_added.put(regr, Boolean.TRUE);
                         }
+                    } else {
+                        it2.remove();//the regression is unsatifiable using this operator!
+                        continue;
                     }
                     if ((h.get(regr) != null && h.get(regr) != Float.MAX_VALUE)) {
                         int cost_for_this_condition;
@@ -1073,7 +1091,7 @@ public abstract class Heuristics {
         Iterator it = A1.iterator();
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
-            if (this.compute_precondition_cost(s_0, h, gr,null) != Float.MAX_VALUE) {
+            if (this.compute_precondition_cost(s_0, h, gr, null) != Float.MAX_VALUE) {
                 gr.setAction_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, 0, 0));
                 it.remove();
@@ -1105,10 +1123,8 @@ public abstract class Heuristics {
                     if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2) && action_to_cost.get(gr2) <= action_to_cost.get(gr)) {
                         pq.addLast(gr2);
                     }
-                } else {
-                    if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
-                        pq.addLast(gr2);
-                    }
+                } else if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
+                    pq.addLast(gr2);
                 }
             }
         }
@@ -1177,10 +1193,9 @@ public abstract class Heuristics {
 
     protected void update_pool(Collection<GroundAction> pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
         //update action precondition
-        
+
         for (GroundAction gr : A1) {
-            float cost = compute_precondition_cost(s_0, h, gr,null);
-            if (cost != Float.MAX_VALUE) {
+            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getCounter()) != Float.MAX_VALUE) {
                 pool.add(gr);
                 this.reachable.add(gr);
                 //it.remove();
@@ -1207,6 +1222,7 @@ public abstract class Heuristics {
         // will be considered complex in that checking its satisfaction is hard
         is_complex = new HashMap();
         new_condition = new HashMap();
+        complex_condition_set = new LinkedHashSet();
         for (Conditions c : conds) {
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
@@ -1220,6 +1236,7 @@ public abstract class Heuristics {
                                 if (!ne.fluentsInvolved().isEmpty()) {
                                     is_complex.put(comp, true);
                                     complex_conditions++;
+                                    complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
                                 }
                             }
@@ -1404,6 +1421,432 @@ public abstract class Heuristics {
         if (debug > 0) {
             System.out.print(string);
         }
+    }
+
+    protected float compute_current_cost(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h) {
+
+        invocation = invocation + 1;
+//        System.out.println(invocation);
+        if (c == null || c.sons == null || c.sons.isEmpty()) {
+            return 0.0F;
+        }
+        Float minimum_precondition_cost;
+        Context ctx = new Context();
+
+        Optimize opt = ctx.mkOptimize();
+        Collection<ArithExpr> action_used = new LinkedHashSet();
+        Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
+        Collection<Float> minimi = new LinkedHashSet();
+        for (Conditions cond : (Collection<Conditions>) c.sons) {
+            Float local_minimum = Float.MAX_VALUE;
+
+            if (cond instanceof Comparison) {
+                Comparison comp = (Comparison) cond;
+                ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
+                ArithExpr expr = ctx.mkAdd(ctx.mkReal(0));
+                boolean at_least_one = false;
+                for (ExtendedAddendum ad : left.summations) {
+                    if (ad.f != null) {
+
+                        Float num = s_0.functionValue(ad.f).getNumber() * 10.0F * ad.n.getNumber();
+                        expr = ctx.mkAdd(expr, ctx.mkReal(num.intValue(), 10));
+                        for (GroundAction gr : pool) {
+                            //                            System.out.println(gr);
+                            if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+                                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+                                    if (!neff.getFluentAffected().equals(ad.f)) {
+                                        continue;
+                                    }
+                                    //                                    System.out.println(neff);
+
+                                    gr.setAction_cost(s_0);
+                                    Float cost_action = gr.getAction_cost() * 10.0F;
+                                    if (cost_action.isNaN()) {
+                                        continue;
+                                    }
+                                    ArithExpr var = ctx.mkRealConst(gr.toString());
+                                    //ArithExpr prec_cost = ctx.mkRealConst(gr.toString() + "pre_cost");
+                                    ArithExpr action_plus_cost = ctx.mkMul(var, ctx.mkReal(cost_action.intValue(), 10));
+                                    //                                    System.out.println(action_plus_cost);
+                                    action_used.add(action_plus_cost);
+                                    //action_used.add(prec_cost);
+                                    opt.Add(ctx.mkGe(var, ctx.mkReal(0)));
+//                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
+                                    //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
+                                    //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
+                                    Float right = null;
+                                    if (neff.getOperator().equals("increase")) {
+                                        right = neff.getRight().eval(s_0).getNumber() * 10.0F * ad.n.getNumber();
+                                        expr = ctx.mkAdd(expr, ctx.mkMul(var, ctx.mkReal(right.intValue(), 10)));
+                                    } else if (neff.getOperator().equals("decrease")) {
+                                        right = neff.getRight().eval(s_0).getNumber() * 10.0F * ad.n.getNumber();
+                                        expr = ctx.mkSub(expr, ctx.mkMul(var, ctx.mkReal(right.intValue(), 10)));
+                                    } else {
+                                        System.out.println("not supported yet");
+                                        System.exit(-1);
+                                    }
+//                                                                        at_least_one = true;
+//                                    at_least_one = true;
+
+                                    if ((comp.getComparator().contains(">") && neff.getOperator().equals("increase") && right > 0)
+                                            || (comp.getComparator().contains("<") && neff.getOperator().equals("decrease") && right > 0)
+                                            || (comp.getComparator().contains(">") && neff.getOperator().equals("decrease") && right < 0)
+                                            || (comp.getComparator().contains("<") && neff.getOperator().equals("increase") && right < 0)) {
+                                        at_least_one = true;
+
+                                    }
+                                    local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                                }
+                            }
+                        }
+                    } else {
+                        Float num = ad.n.getNumber() * 10.0F;
+                        expr = ctx.mkAdd(expr, ctx.mkReal(num.intValue(), 10));
+                    }
+                }
+                if (!at_least_one && !cond.isSatisfied(s_0)) {
+                    return Float.MAX_VALUE;
+                }
+                if (cond.isSatisfied(s_0)) {
+                    local_minimum = 0f;
+//                   
+                }
+                switch (comp.getComparator()) {
+                    case ">":
+                        opt.Add(ctx.mkGt(expr, ctx.mkReal(0)));
+                        break;
+                    case ">=":
+                        opt.Add(ctx.mkGe(expr, ctx.mkReal(0)));
+                        break;
+                    case "<":
+                        opt.Add(ctx.mkLt(expr, ctx.mkReal(0)));
+                        break;
+                    case "<=":
+                        opt.Add(ctx.mkLe(expr, ctx.mkReal(0)));
+                        break;
+                    case "=":
+                        opt.Add(ctx.mkEq(expr, ctx.mkReal(0)));
+                        break;
+                }
+
+            } else if (cond instanceof Predicate) {
+                pred_to_satisfy.add((Predicate) cond);
+                if (!cond.isSatisfied(s_0)) {
+                    boolean at_least_one = false;
+                    Predicate p = (Predicate) cond;
+                    ArithExpr expr = ctx.mkAdd(ctx.mkReal(0));
+                    for (GroundAction gr : pool) {
+                        if (gr.achieve(p)) {
+                            gr.setAction_cost(s_0);
+                            Float cost_action = gr.getAction_cost() * 10.0F;
+                            if (cost_action.isNaN()) {
+                                continue;
+                            }
+                            at_least_one = true;
+                            ArithExpr var = ctx.mkRealConst(gr.toString());
+                            expr = ctx.mkAdd(expr, var);
+                            ArithExpr action_plus_cost = ctx.mkMul(var, ctx.mkReal(cost_action.intValue(), 10));
+                            action_used.add(action_plus_cost);
+                            //ArithExpr prec_cost = ctx.mkRealConst(gr.toString() + "pre_cost");
+                            //action_used.add(prec_cost);
+//                        Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
+                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                            opt.Add(ctx.mkGe(var, ctx.mkReal(0)));
+                            //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
+                            //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
+                        }
+                    }
+                    if (!at_least_one) {
+                        return Float.MAX_VALUE;
+                    }
+                    opt.Add(ctx.mkGe(expr, ctx.mkReal(1)));
+                } else {
+                    continue;
+                }
+            } else {
+
+            }
+            minimi.add(local_minimum);
+        }
+
+        if (check_mutex) {
+            ArithExpr expr = ctx.mkAdd(ctx.mkReal(0));
+            int i = 0;
+            for (Predicate p : pred_to_satisfy) {
+                if (p.isSatisfied(s_0)) {
+                    continue;
+                }
+                i++;
+                //expr = ctx.mkAdd(expr,ctx.mkRealConst(p.toString()));
+                for (GroundAction gr : pool) {
+                    if (gr.achieve(p)) {
+                        ArithExpr var = ctx.mkRealConst(gr.toString() + "prop");
+                        opt.Add(ctx.mkGe(var, ctx.mkReal(0)));
+                        expr = ctx.mkAdd(expr, var);
+                    } else if (gr.delete(p)) {
+                        ArithExpr var = ctx.mkRealConst(gr.toString() + "prop");
+                        opt.Add(ctx.mkGe(var, ctx.mkReal(0)));
+                        expr = ctx.mkSub(expr, var);
+                    }
+                }
+            }
+            opt.Add(ctx.mkGe(expr, ctx.mkReal(i)));
+        }
+
+        ArithExpr[] to_add = from_set_to_arithm_expr_array(action_used);
+        ArithExpr temp = ctx.mkAdd(ctx.mkReal(0));
+        if (to_add.length != 0) {
+            temp = ctx.mkAdd(to_add);
+        }
+        Optimize.Handle mx = opt.MkMinimize(temp);
+
+        if (opt.Check() == Status.SATISFIABLE) {
+            minimum_precondition_cost = 0f;
+            for (Float local_min : minimi) {
+                minimum_precondition_cost = Math.max(local_min, minimum_precondition_cost);
+            }
+
+            ArithExpr ret = mx.getValue();
+            if (ret instanceof IntNum) {
+                return Float.parseFloat(ret.toString()) + minimum_precondition_cost;
+            } else if (ret instanceof RatNum) {
+                RatNum rat = (RatNum) ret;
+                return (float) rat.getNumerator().getInt() / (float) rat.getDenominator().getInt() + minimum_precondition_cost;
+            } else if (ret instanceof RealExpr) {
+                RealExpr real_expr = (RealExpr) ret;
+                System.out.println(real_expr.getClass());
+                return 0;
+            }
+            System.out.println("Value not recognized");
+            if (mx.getValue().toString().equals("epsilon")) {
+                System.out.println("Numeric instability");
+                System.exit(-1);
+                return 0;
+            }
+            return Float.MAX_VALUE;
+        } else {
+            //            System.out.println(opt.toString());
+            return Float.MAX_VALUE;
+        }
+        //        System.out.println(opt.Check());
+    }
+
+    protected float compute_current_cost2(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h) {
+
+        invocation = invocation + 1;
+//        System.out.println(invocation);
+        if (c == null || c.sons == null || c.sons.isEmpty()) {
+            return 0.0F;
+        }
+        Float minimum_precondition_cost;
+
+//         BasicLogger.debug();
+//        BasicLogger.debug("Test for "+c.pddlPrint(false));
+//        BasicLogger.debug(OjAlgoUtils.getTitle());
+//        BasicLogger.debug(OjAlgoUtils.getDate());
+//        BasicLogger.debug();
+        final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
+
+        Collection<ArithExpr> action_used = new LinkedHashSet();
+        Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
+        Collection<Float> minimi = new LinkedHashSet();
+        HashMap<Integer, Variable> action_to_variable = new HashMap();
+        for (Conditions cond : (Collection<Conditions>) c.sons) {
+            Float local_minimum = Float.MAX_VALUE;
+
+            if (cond instanceof Comparison) {
+                Comparison comp = (Comparison) cond;
+                ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
+                boolean at_least_one = false;
+                Float num = comp.getLeft().eval(s_0).getNumber();
+                Expression condition = null;
+                switch (comp.getComparator()) {
+                    case ">":
+                        condition = tmpModel.addExpression(((Comparison) cond).toString()).upper(num);
+                        break;
+                    case ">=":
+                        condition = tmpModel.addExpression(((Comparison) cond).toString()).upper(num);
+                        break;
+                    case "<":
+                        condition = tmpModel.addExpression(((Comparison) cond).toString()).lower(num);
+                        break;
+                    case "<=":
+                        condition = tmpModel.addExpression(((Comparison) cond).toString()).lower(num);
+                        break;
+                    case "=":
+                        condition = tmpModel.addExpression(((Comparison) cond).toString()).upper(num).lower(num);
+                        break;
+                }
+                for (ExtendedAddendum ad : left.summations) {
+                    if (ad.f != null) {
+                        for (GroundAction gr : pool) {
+                            boolean condition_investigated = false;
+
+//                                                        System.out.println(gr);
+                            if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+                                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+                                    if (!neff.getFluentAffected().equals(ad.f)) {
+                                        continue;
+                                    }
+                                    //                                    System.out.println(neff);
+                                    gr.setAction_cost(s_0);
+                                    Float cost_action = gr.getAction_cost();
+                                    if (cost_action.isNaN()) {
+                                        continue;
+                                    }
+
+                                    final Variable action;
+                                    if (action_to_variable.get(gr.counter) != null) {
+                                        action = action_to_variable.get(gr.counter);
+                                        if (integer_variables) {
+                                            action.integer(true);
+                                        }
+                                    } else {
+                                        action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
+                                        tmpModel.addVariable(action);
+                                        action_to_variable.put(gr.counter, action);
+                                    }
+
+//                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
+                                    //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
+                                    //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
+                                    Float right = null;
+                                    switch (neff.getOperator()) {
+                                        case "increase":
+                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                            right = condition.get(action).floatValue() - right;
+                                            condition = condition.set(action, right);
+                                            break;
+                                        case "decrease":
+                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                            right = condition.get(action).floatValue() + right;
+                                            condition = condition.set(action, right);
+                                            break;
+                                        case "assign":
+                                            //this is an assign
+                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                            right = condition.get(action).floatValue() - right;
+                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
+                                            action.upper(1);
+                                            break;
+                                    }
+
+                                    if ((comp.getComparator().contains(">") && right < 0)
+                                            || (comp.getComparator().contains("<") && right > 0)) {
+                                        at_least_one = true;
+                                        local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+
+                                    }
+//                                    if (local_minimum == Float.MAX_VALUE){
+//                                        System.out.println("Problem with:"+gr);
+//                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!at_least_one && !cond.isSatisfied(s_0)) {
+                    return Float.MAX_VALUE;
+                }
+                if (cond.isSatisfied(s_0)) {
+                    local_minimum = 0f;
+//                   
+                }
+                minimi.add(local_minimum);
+
+//                System.out.println(condition);
+            } else if (cond instanceof Predicate) {
+                pred_to_satisfy.add((Predicate) cond);
+                if (!cond.isSatisfied(s_0)) {
+                    boolean at_least_one = false;
+                    Predicate p = (Predicate) cond;
+                    Expression condition = tmpModel.addExpression(((Predicate) cond).toString()).lower(1);
+
+                    for (GroundAction gr : pool) {
+                        if (gr.achieve(p)) {
+                            gr.setAction_cost(s_0);
+                            Float cost_action = gr.getAction_cost();
+                            if (cost_action.isNaN()) {
+                                continue;
+                            }
+                            at_least_one = true;
+                            final Variable action;
+                            if (action_to_variable.get(gr.counter) != null) {
+                                action = action_to_variable.get(gr.counter);
+                            } else {
+                                action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
+                                tmpModel.addVariable(action);
+                                action_to_variable.put(gr.counter, action);
+                                if (integer_variables) {
+                                    action.integer(true);
+                                }
+                            }
+
+                            //ArithExpr prec_cost = ctx.mkRealConst(gr.toString() + "pre_cost");
+                            //action_used.add(prec_cost);
+//                        Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
+                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                            //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
+                            //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
+                            condition = condition.set(action, 1);
+                            if (local_minimum == Float.MAX_VALUE) {//should not be true: debugging
+                                System.out.println("Problem with:" + gr);
+                            }
+                        }
+                    }
+                    if (!at_least_one) {
+                        return Float.MAX_VALUE;
+                    }
+                    minimi.add(local_minimum);
+                }
+
+            } else {
+
+            }
+
+        }
+
+        Optimisation.Result tmpResult = tmpModel.minimise();
+
+        if (tmpResult.getState().isFeasible()) {
+
+//             BasicLogger.debug();
+//            BasicLogger.debug(tmpResult);
+//                        BasicLogger.debug(tmpModel);
+//
+//            BasicLogger.debug();
+            minimum_precondition_cost = 0f;
+
+            if (this.additive_h) {
+                for (Float local_min : minimi) {
+                    minimum_precondition_cost += local_min;
+                }
+            } else {
+                for (Float local_min : minimi) {
+                    minimum_precondition_cost = Math.max(local_min, minimum_precondition_cost);
+                }
+            }
+//            if (minimum_precondition_cost == Float.MAX_VALUE){
+//                System.out.println("Error in using some of the action..");
+//            }
+            return (float) (tmpResult.getValue() + minimum_precondition_cost);
+        } else {
+            //            System.out.println(opt.toString());
+            return Float.MAX_VALUE;
+        }
+        //        System.out.println(opt.Check());
+    }
+
+    protected ArithExpr[] from_set_to_arithm_expr_array(Collection<ArithExpr> action_used) {
+        ArithExpr[] to_add = new ArithExpr[action_used.size()];
+        Iterator<ArithExpr> it = action_used.iterator();
+        int i = 0;
+        while (it.hasNext()) {
+            to_add[i] = it.next();
+            it.remove();
+            i++;
+        }
+        return to_add;
     }
 
 }

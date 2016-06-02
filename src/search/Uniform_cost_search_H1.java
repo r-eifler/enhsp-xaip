@@ -30,6 +30,7 @@ package search;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.NumEffect;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;
@@ -37,8 +38,10 @@ import java.util.Collection;
 import java.util.Collections;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Level;
@@ -77,7 +80,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
      * @param processesSet
      */
     public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet) {
-        super(G,A,processesSet);
+        super(G, A, processesSet);
     }
 
     @Override
@@ -135,7 +138,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
         ArrayList<GroundAction> actions_for_complex_condition = new ArrayList();
         boolean first = true;
         while (!q.isEmpty() || first) {
-            if (!first){
+            if (!first) {
                 Conditions cn = q.removeMin().getData();
                 closed.set(cn.getCounter(), true);
             }
@@ -145,7 +148,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
                     return goal_dist;
                 }
             }
-            
+
             //trigger actions
 //            Iterator<GroundAction> it = this.precondition_mapping.get(cn.getCounter()).iterator();
             first = false;
@@ -156,7 +159,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
                 //the condition just extracted and the action depending on it
                 GroundAction gr = it.next();
                 Float action_precondition_cost = this.compute_precondition_cost(s, dist, gr, closed);
-                
+
                 if (action_precondition_cost != MAX_VALUE) {
                     if (reacheability_setting) {
                         this.reachable.add(gr);
@@ -164,7 +167,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
                     }
                     action_to_cost.put(gr, action_precondition_cost);
                     //if (!gr.has_state_dependent_effects())
-                        //it.remove();//this can be removed since we are already looking for the closest/cheapest preconditions set
+                    it.remove();//this can be removed since we are already looking for the closest/cheapest preconditions set
                     actions_for_complex_condition.add(gr);
 
                     //for (GroundAction gr : edges) {//this can be optimized a lot
@@ -184,8 +187,9 @@ public class Uniform_cost_search_H1 extends Heuristics {
                         }
                         if (!this.is_complex.get(comp)) {
                             Float number_of_execution = gr.getNumberOfExecution(s, comp);
-                            if (number_of_execution == Float.MAX_VALUE)
+                            if (number_of_execution == Float.MAX_VALUE) {
                                 continue;
+                            }
                             Float action_cost = action_to_cost.get(gr);
                             if (!this.additive_h) {
                                 Collection<GroundAction> all_achiever = this.possible_achievers_inverted.get(comp.getCounter());
@@ -235,15 +239,15 @@ public class Uniform_cost_search_H1 extends Heuristics {
         achievers_inverted = new HashMap();
         precondition_mapping = new HashMap();
 
-        
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Predicate> predicates = new LinkedHashSet();
             for (Conditions c : this.all_conditions) {
-                if (precondition_mapping.get(c.getCounter())==null)
+                if (precondition_mapping.get(c.getCounter()) == null) {
                     precondition_mapping.put(c.getCounter(), new LinkedHashSet());
+                }
                 LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
@@ -278,18 +282,18 @@ public class Uniform_cost_search_H1 extends Heuristics {
                     }
 
                 }
-                if (gr.preconditioned_on(c)){//build mapping from atoms to actions
+                if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
 //                    System.out.println("Gr:"+ gr);
 //                    try {
 //                        System.in.read();
 //                    } catch (IOException ex) {
 //                        Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
 //                    }
-                    
-                        LinkedHashSet<GroundAction> temp = this.precondition_mapping.get(c.getCounter());
-                        temp.add(gr);
-                        this.precondition_mapping.put(c.getCounter(), temp);
-                     
+
+                    LinkedHashSet<GroundAction> temp = this.precondition_mapping.get(c.getCounter());
+                    temp.add(gr);
+                    this.precondition_mapping.put(c.getCounter(), temp);
+
                 }
 
             }
@@ -297,6 +301,34 @@ public class Uniform_cost_search_H1 extends Heuristics {
             interact_with.put(gr.counter, comparisons);
             possible_achievers.put(gr.counter, reacheable_comparisons);
         }
+
+        for (Comparison comp : this.complex_condition_set) {
+            HashSet<NumEffect> num_effects = new LinkedHashSet();
+            HashMap<NumEffect, Boolean> temp_mark = new HashMap();
+            HashMap<NumEffect, Boolean> per_mark = new HashMap();
+            sorted_nodes = new LinkedList();
+            for (GroundAction gr : A) {
+                for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
+                    temp_mark.put(nf, false);
+                    per_mark.put(nf, false);
+                    num_effects.add(nf);
+                }
+            }
+            for (NumEffect a : num_effects) {
+                if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected())))
+                    visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
+            }
+            for (GroundAction gr : A) {
+                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+                    if (sorted_nodes.contains(neff)) {
+                        possible_achievers.get(gr.counter).add(comp);
+                    }
+
+                }
+            }
+
+        }
+
     }
 
     private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Conditions p, FibonacciHeap<Conditions> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {

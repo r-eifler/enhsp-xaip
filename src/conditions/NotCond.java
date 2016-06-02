@@ -302,9 +302,12 @@ public class NotCond extends Conditions {
             el.setFreeVarSemantic(freeVarSemantic);
             el = el.weakEval(s, invF);   
             if (el.isValid()){
-                this.isUnsatisfiable();
+                this.setUnsatisfiable(true);
+                this.setValid(false);
             }else if (el.isUnsatisfiable()){
                 this.setValid(true);
+                this.setUnsatisfiable(false);
+
             }
         }
         
@@ -328,6 +331,20 @@ public class NotCond extends Conditions {
         }
         //System.out.println(ret);
         return ret;
+    }
+
+    @Override
+    public boolean is_affected_by(GroundAction gr) {
+        if (this.son!= null && !this.son.isEmpty()){
+            
+            for (Conditions c:(Collection<Conditions>) this.son){
+                if (c.is_affected_by(gr))
+                    return true;
+            }
+            
+        }
+        
+        return false;
     }
 
 

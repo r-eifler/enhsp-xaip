@@ -909,13 +909,30 @@ public class Comparison extends Conditions {
         Comparison comp = (Comparison) this;
         if (comp.getComparator().equals("=")) {
             Comparison dual = (Comparison) comp.clone();
-            dual.setComparator("<=");
-            dual.setNormalized(false);
+            ExtendedNormExpression right = (ExtendedNormExpression)dual.getRight();
+            ExtendedNormExpression left = (ExtendedNormExpression)dual.getLeft();
+
+            try {
+                dual.setLeft(right.minus(left));
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            dual.setRight(new PDDLNumber(0));
+            dual.setComparator(">=");
+            dual.normalize();
             comp.setComparator(">=");
+            comp.normalize();
             ret.addConditions(dual);
             ret.addConditions(comp);
         }else
             return this;
         return ret;
+    }
+
+    @Override
+    public boolean is_affected_by(GroundAction gr) {
+        if (this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected()))
+            return true;
+        return false;
     }
 }

@@ -413,4 +413,18 @@ public class OrCond extends Conditions {
         }
         return ret;
     }
+
+    @Override
+    public boolean is_affected_by(GroundAction gr) {
+        if (this.sons!= null && !this.sons.isEmpty()){
+            
+            for (Conditions c:(Collection<Conditions>) this.sons){
+                if (c.is_affected_by(gr))
+                    return true;
+            }
+            
+        }
+        
+        return false;
+    }
 }

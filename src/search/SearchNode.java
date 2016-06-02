@@ -40,7 +40,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class SearchNode implements Comparable {
+public class SearchNode {
 
     public State s;
     public GroundAction action;
@@ -52,8 +52,9 @@ public class SearchNode implements Comparable {
     public float wg;
     public float wh;
     public float f;
-    private boolean breakties_on_g = true; //this goes for larger g
-    private boolean go_for_smaller_g = true; //this goes for smaller g
+    private boolean breakties_on_g = false; //this goes for larger g
+    private boolean go_for_smaller_g = false; //this goes for smaller g
+    private boolean bfs = true;
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
@@ -185,62 +186,7 @@ public class SearchNode implements Comparable {
         return hash;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int hash = 5;
-//        hash = 43 * hash + (this.s != null ? this.s.hashCode() : 0);
-//        hash = 43 * hash + (this.action != null ? this.action.hashCode() : 0);
-//        hash = 43 * hash + this.h_n;
-//        hash = 43 * hash + (this.father != null ? this.father.hashCode() : 0);
-//        hash = 43 * hash + this.g_n;
-//        return hash;
-//    }
-    public int compareToOld(Object o) {
-        final SearchNode other = (SearchNode) o;
-        if ((this.h_n + this.g_n) == (other.h_n + other.g_n)) {
-            if (this.reacheable_condition < other.reacheable_condition) {
-                System.out.println("then It can happen!");
-                return +1;
-            } else if (this.reacheable_condition > other.reacheable_condition) {
-                System.out.println("then It can happen!");
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-        if ((this.h_n + this.g_n) < (other.h_n + other.g_n)) {
-            return -1;
-        } else {
-            return +1;
-        }
-    }
-    @Override
-    public int compareTo(Object o) {
-        final SearchNode other = (SearchNode) o;
-        if (f == other.f) {
-            if (breakties_on_g){
-//                System.out.println(this.g_n);
-                if (this.g_n < other.g_n)//goal is farer
-                    return +1;
-                else if (this.g_n > other.g_n) //goal is closer
-                    return -1;
-                else
-                    return 0;
-            }else if(this.go_for_smaller_g){
-                if (this.g_n < other.g_n)//goal is farer
-                    return -1;
-                else if (this.g_n > other.g_n) //goal is closer
-                    return +1;
-                else
-                    return 0;
-            }
-                return 0;
-        } 
-        if (f < other.f) {
-            return -1;
-        } else {
-            return +1;
-        }
-    }
+
+    
 
 }

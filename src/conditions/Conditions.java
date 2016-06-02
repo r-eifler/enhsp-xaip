@@ -142,6 +142,8 @@ public abstract class Conditions extends Object {
     }
 
     public abstract Conditions transform_equality();
+
+    public abstract boolean is_affected_by(GroundAction gr);
         
 
 

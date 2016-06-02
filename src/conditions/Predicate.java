@@ -452,6 +452,11 @@ public class  Predicate extends Conditions {
         return this;
     }
 
+    @Override
+    public boolean is_affected_by(GroundAction gr){
+        return gr.achieve(this) || gr.delete(this);
+    }
+
   
     
 }

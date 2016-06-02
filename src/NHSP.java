@@ -14,12 +14,11 @@ import problem.EPddlProblem;
 import problem.State;
 import search.SearchStrategies;
 import search.Uniform_cost_search_H1;
-import search.Uniform_cost_search_H15_Rep;
 import search.Uniform_cost_search_H1_5;
-import search.Uniform_cost_search_H1_Rep;
 import search.asymptotic_ibr;
 import search.Aibr;
 import search.Bellman_Ford_Hm;
+import search.Uniform_cost_search_HM;
 
 /**
  *
@@ -44,7 +43,7 @@ public class NHSP {
     private static boolean save_plan;
     private static Boolean admissible;
     private static boolean print_trace;
-    private static boolean smaller_g;
+    private static String break_ties;
 
     /**
      * @param args the command line arguments
@@ -53,7 +52,7 @@ public class NHSP {
         //Eseguibile -o domain -f problem -s solution -r tipo-repair 
         String usage = "usage:\n executable-name(java -jar...) "
                 + "\n-o domain -f problem "
-                + "\n-s <hc (Hill Climbing), wa_star (h_w = 4), gbfs (GreedyBestFirstSearch, g_w = 0), bfs (A* without node reopening), blind search"
+                + "\n-s <hc (Hill Climbing), wa_star (h_w = 4), gbfs (GreedyBestFirstSearch, g_w = 0), bfs (A* without node reopening), brfs, dfs"
                 + "\n-delta <real> (specify the delta used to approximate the passage of time)"
                 + "\n-exec_res <real> (specify the precision in the simulation of the plan, euler method)"
                 + "\n-gw <integer> (weight for the g; this overrides default search setting)"
@@ -62,6 +61,7 @@ public class NHSP {
                 + "\n-horizon <integer> (depth of the search tree)"
                 + "\n-sjr (activate search tree saving in jason file)"
                 + "\n-sp (save plan)"
+                + "\n-break_ties larger_g, smaller_g (default: Arbitrary)"
                 + "\n-adm (Admissible setting; default no)";
         
         
@@ -85,7 +85,7 @@ public class NHSP {
             save_plan = Utils.searchParameter(args, "-sp"); //Save the plan
             admissible = Utils.searchParameter(args, "-adm"); //Save the plan
             print_trace = Utils.searchParameter(args, "-print_trace"); //print_trace
-            smaller_g = Utils.searchParameter(args, "-btsg"); //print_trace
+            break_ties = Utils.searchParameterValue(args, "-break_ties"); //print_trace
             String res_validation = Utils.searchParameterValue(args, "-exec_res"); //Resolution for the validation
             if (res_validation != null) {
                 resolution_execution = Float.parseFloat(res_validation);
@@ -144,11 +144,12 @@ public class NHSP {
 
         problem.generateActionsAndProcesses();
         problem.generateConstraints();
-        //if (!config.equals("exp"))
+        if (config == null || !config.equals("exp1"))
                 problem.transform_numeric_condition();
-        //else
-         //   problem.normalize_conditions();
+        else
+            problem.normalize_conditions();
 
+//        problem.prettyPrint();
         System.out.println(problem.globalConstraints.pddlPrint(true));
         System.out.println("Grounding and Simplification finished");
         System.out.println("|A|:"+problem.getActions().size());
@@ -255,6 +256,33 @@ public class NHSP {
             Bellman_Ford_Hm h = (Bellman_Ford_Hm) searchStrategies.getHeuristic();
             h.additive_h = false;
             searchStrategies.setHw(1);
+        }else if (config.equals("exp2")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+            h.additive_h = false;
+            h.integer_variables = false;
+
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp3")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+            h.additive_h = true;
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp4")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+            //h.additive_h = true;
+            h.additive_h = false;
+            h.integer_variables = true;
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp5")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+            //h.additive_h = true;
+            h.additive_h = true;
+            h.integer_variables = false;
+            h.greedy = true;
+            searchStrategies.setHw(1);
         }else {
             System.out.println("Configuration Setting is not valid");
             System.exit(-1);
@@ -265,6 +293,23 @@ public class NHSP {
 //        if (horizon != null){
 //            searchStrategies.getHeuristic().horizon = Integer.parseInt(horizon);
 //        }
+
+        if (break_ties != null){
+            if (break_ties.equals("smaller_g")){
+                searchStrategies.breakties_on_larger_g =false;
+                searchStrategies.breakties_on_smaller_g=true;
+            }else if (break_ties.equals("larger_g")){
+                searchStrategies.breakties_on_larger_g =true;
+            }else{
+                System.out.println("Wrong setting for break-ties. Arbitrary tie breaking");
+            }
+        }else{
+            searchStrategies.breakties_on_larger_g =false;
+            searchStrategies.breakties_on_smaller_g=false;
+
+        }
+
+
         if (hw != null) {
             searchStrategies.setHw(Float.parseFloat(hw));
             System.out.println("w_h set to be " + hw);
@@ -292,18 +337,26 @@ public class NHSP {
             if (hw == null) searchStrategies.setHw(1);
             raw_plan = searchStrategies.greedy_best_first_search(problem);
         } else if ("wa_star".equals(strategy)) {
+            if (gw == null) searchStrategies.setGw(1);
             if (hw == null) searchStrategies.setGw(1);
             raw_plan = searchStrategies.wa_star(problem);
         } else if ("gbfs".equals(strategy) ) {
             if (gw == null) searchStrategies.setGw(0);
             if (hw == null) searchStrategies.setHw(1);
             raw_plan = searchStrategies.greedy_best_first_search(problem);
-        } else if ("blind".equals(strategy)) {
-            config = "blind";
+        } else if ("dfs".equals(strategy)) {
+            config = "brfs";
             searchStrategies.setHw(0);
             searchStrategies.setGw(1);
+            searchStrategies.bfs = false;
             raw_plan = searchStrategies.blindSearch(problem);
-        } else {
+        } else if ("brfs".equals(strategy)) {
+            config = "brfs";
+            searchStrategies.setHw(0);
+            searchStrategies.setGw(1);
+            searchStrategies.bfs = true;
+            raw_plan = searchStrategies.blindSearch(problem);
+        }else {
             System.out.println("Strategy is not correct");
             System.exit(-1);
         }
@@ -339,6 +392,8 @@ public class NHSP {
         System.out.println("Priority Queue Size:" + SearchStrategies.priority_queue_size);
         System.out.println("Number of Dead-Ends detected:" + SearchStrategies.num_dead_end_detected);
         System.out.println("Number of duplicates detected:" + SearchStrategies.number_duplicates);
+        System.out.println("Number of Nodes re-opened:" + SearchStrategies.node_reopened);
+
 
         if (saving_json) {
             
