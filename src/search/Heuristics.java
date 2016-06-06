@@ -120,6 +120,8 @@ public abstract class Heuristics {
     private int invocation;
     public boolean integer_variables;
     public boolean greedy;
+    Conditions gC;
+    protected HashMap<Integer, GroundAction> cond_action;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();
@@ -150,6 +152,23 @@ public abstract class Heuristics {
         all_conditions = new LinkedHashSet();
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
+    }
+    
+    public Heuristics(Conditions G, Set<GroundAction> A, Set<GroundAction> P,Conditions GC) {
+        super();
+        achievers = new HashMap();
+        add_achievers = new HashMap();
+        this.G = G;
+        this.A = new LinkedHashSet();
+        this.A.addAll(A);
+        this.A.addAll(P);
+        reacheable_predicates = new LinkedHashSet();
+        reachable = new LinkedHashSet();
+        max_depth = 10;
+        all_conditions = new LinkedHashSet();
+        def_num_fluents = new LinkedHashSet();
+        //build_integer_representation(A,G);
+        this.gC = GC;
     }
 
     //this initializer is mandatory for being executed before each invocation of the heuristic
@@ -1651,7 +1670,14 @@ public abstract class Heuristics {
         Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
         Collection<Float> minimi = new LinkedHashSet();
         HashMap<Integer, Variable> action_to_variable = new HashMap();
-        for (Conditions cond : (Collection<Conditions>) c.sons) {
+        
+        Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
+        conditions_to_evaluate.addAll(c.sons);
+        if (gC != null){ 
+//            System.out.println("considering Global Constraints:"+gC.sons);
+            conditions_to_evaluate.addAll(gC.sons);
+        }
+        for (Conditions cond : conditions_to_evaluate) {
             Float local_minimum = Float.MAX_VALUE;
 
             if (cond instanceof Comparison) {
@@ -1724,18 +1750,23 @@ public abstract class Heuristics {
                                             break;
                                         case "assign":
                                             //this is an assign
-                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
-                                            right = condition.get(action).floatValue() - right;
-                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
-                                            action.upper(1);
+//                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+//                                            right = condition.get(action).floatValue() - right;
+//                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
+//                                            action.upper(1);
+                                            System.out.println("Assign not supported");
                                             break;
                                     }
-
+                                    
+                                    
+//                                    local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+//                                    System.out.println("Action"+gr+" Cost:"+h.get(gr.getPreconditions().getCounter()));
+//                                    System.out.println("Condition " +c);
                                     if ((comp.getComparator().contains(">") && right < 0)
                                             || (comp.getComparator().contains("<") && right > 0)) {
                                         at_least_one = true;
                                         local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
-
+                                        //this is the only action that can be used. 
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
 //                                        System.out.println("Problem with:"+gr);
@@ -1748,11 +1779,11 @@ public abstract class Heuristics {
                 if (!at_least_one && !cond.isSatisfied(s_0)) {
                     return Float.MAX_VALUE;
                 }
-                if (cond.isSatisfied(s_0)) {
-                    local_minimum = 0f;
-//                   
-                }
-                minimi.add(local_minimum);
+//                if (!cond.isSatisfied(s_0)) {
+//                    minimi.add(local_minimum); 
+//                }
+                minimi.add(local_minimum); 
+
 
 //                System.out.println(condition);
             } else if (cond instanceof Predicate) {
@@ -1809,12 +1840,6 @@ public abstract class Heuristics {
         Optimisation.Result tmpResult = tmpModel.minimise();
 
         if (tmpResult.getState().isFeasible()) {
-
-//             BasicLogger.debug();
-//            BasicLogger.debug(tmpResult);
-//                        BasicLogger.debug(tmpModel);
-//
-//            BasicLogger.debug();
             minimum_precondition_cost = 0f;
 
             if (this.additive_h) {
@@ -1823,13 +1848,27 @@ public abstract class Heuristics {
                 }
             } else {
                 for (Float local_min : minimi) {
-                    minimum_precondition_cost = Math.max(local_min, minimum_precondition_cost);
+                    minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
                 }
             }
-//            if (minimum_precondition_cost == Float.MAX_VALUE){
-//                System.out.println("Error in using some of the action..");
-//            }
+//            System.out.println("Condition under evaluation:"+c);
+//            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
+//            //if (c.getCounter() == G.getCounter()){
+//                BasicLogger.debug();
+//               BasicLogger.debug(tmpResult);
+//                           BasicLogger.debug(tmpModel);
+//
+//               BasicLogger.debug();
+//               System.out.println("Minimum Precondition Costs:"+minimum_precondition_cost);
+//            //}
+//
+////            if (minimum_precondition_cost == Float.MAX_VALUE){
+////                System.out.println("Error in using some of the action..");
+////            }
+//               System.out.println("Result returned:"+(float) (tmpResult.getValue() + minimum_precondition_cost));
             return (float) (tmpResult.getValue() + minimum_precondition_cost);
+//            return (float) (tmpResult.getValue() + minimum_precondition_cost);
+
         } else {
             //            System.out.println(opt.toString());
             return Float.MAX_VALUE;

@@ -79,6 +79,17 @@ public class Bellman_Ford_Hm extends Heuristics {
         //System.out.println(this.orderings);
         //build_integer_representation();
     }
+    
+    public Bellman_Ford_Hm(Conditions G, Set<GroundAction> A,Set processesSet, Conditions GC) {
+        super(G, A,processesSet,GC);
+        greedy = false;
+        this.G = G;
+        this.A = (LinkedHashSet<GroundAction>) A;
+        complex_conditions = 0;
+
+        //System.out.println(this.orderings);
+        //build_integer_representation();
+    }
 
     @Override
     public Float setup(State s_0) {
@@ -130,7 +141,7 @@ public class Bellman_Ford_Hm extends Heuristics {
             if (update) {
                 this.update_pool(pool, A_temp, s_0, h);
             }
-//            System.out.println(iteration);
+            System.out.println(iteration);
         } while (update);
         return h.get(G.getCounter());
 
@@ -140,7 +151,7 @@ public class Bellman_Ford_Hm extends Heuristics {
         boolean update = false;
         for (Conditions c : this.all_conditions) {
             if (h.get(c.getCounter()) != 0f ) {
-                float current = compute_current_cost(pool, s_0, c, h);
+                float current = compute_current_cost2(pool, s_0, c, h);
 //                if (current == 0)
                     //System.out.println("Anomaly:"+c);
 //                System.out.println("Updating!");

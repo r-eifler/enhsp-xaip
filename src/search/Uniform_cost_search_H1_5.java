@@ -64,7 +64,7 @@ public class Uniform_cost_search_H1_5 extends Uniform_cost_search_H1{
             Logger.getLogger(Uniform_cost_search_H1_5.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-        protected void add_redundant_constraints() throws Exception {
+    protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 
         for (GroundAction a : A) {

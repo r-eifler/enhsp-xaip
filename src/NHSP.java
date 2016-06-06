@@ -172,8 +172,8 @@ public class NHSP {
             Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
             h.additive_h = true;
         } else if (config.equals("4")) {
-            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_5(problem.getGoals(), problem.getActions()));
-            Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
+            searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
             h.additive_h = false;
             searchStrategies.setHw(1);
         } else if (config.equals("3")) {//optimal planning setting.. hmax as for the IJCAI-16 paper
@@ -282,6 +282,29 @@ public class NHSP {
             h.additive_h = true;
             h.integer_variables = false;
             h.greedy = true;
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp_gc")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(),problem.processesSet,problem.globalConstraints));
+            Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+            //h.additive_h = true;
+            h.additive_h = false;
+            h.integer_variables = false;
+            h.greedy = false;
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp_gc2")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(),problem.processesSet,problem.globalConstraints));
+            Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+            //h.additive_h = true;
+            h.additive_h = false;
+            h.integer_variables = true;
+            h.greedy = false;
+            searchStrategies.setHw(1);
+        }else if (config.equals("exp_gc_bf")) {
+            searchStrategies.setup_heuristic(new Bellman_Ford_Hm(problem.getGoals(), problem.getActions(),problem.processesSet,problem.globalConstraints));
+            Bellman_Ford_Hm h = (Bellman_Ford_Hm) searchStrategies.getHeuristic();
+            //h.additive_h = true;
+            h.additive_h = false;
+            h.integer_variables = true;
             searchStrategies.setHw(1);
         }else {
             System.out.println("Configuration Setting is not valid");

@@ -259,6 +259,7 @@ public class EPddlProblem extends PddlProblem {
                 it.remove();
             }else{
                 globalConstraints.addConditions(constr.condition);
+                globalConstraints.normalize();
             }
                 
         }

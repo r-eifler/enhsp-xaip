@@ -59,7 +59,6 @@ public class Uniform_cost_search_HM extends Heuristics {
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
-    protected HashMap<Integer, GroundAction> cond_action;
     private boolean reacheability_setting;
     private boolean all_paths = false;
     protected ArrayList<Integer> dist;
@@ -77,6 +76,12 @@ public class Uniform_cost_search_HM extends Heuristics {
     public Uniform_cost_search_HM(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
     }
+    
+    public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A,Set processesSet, Conditions GC) {
+        super(G, A,processesSet,GC);
+    }
+
+
 
     @Override
     public Float setup(State s) {
@@ -123,6 +128,7 @@ public class Uniform_cost_search_HM extends Heuristics {
         G.setCounter(counter2);
         all_conditions.add(G);
         //System.out.println(conditions);;
+        
 
     }
 
@@ -243,7 +249,12 @@ public class Uniform_cost_search_HM extends Heuristics {
             this.reachable.addAll(active_actions);
         }
 
-//        System.out.println(this.reachable);
+//        System.out.println(distance.get(G.getCounter()));
+//        System.exit(-1);
+//        if (distance.get(G.getCounter())==Float.MAX_VALUE){
+////            System.out.println("Dead-End in:"+s.pddlPrint());
+//        }
+                
         return Math.max(distance.get(G.getCounter()),1f);
     }
 
