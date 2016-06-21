@@ -37,10 +37,10 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-public class Bellman_Ford_H_15_Rep extends Bellman_Ford_H1_Rep {
+public class Bellman_Ford_H1_RC_Rep extends Bellman_Ford_H1_Rep {
    
     
-    public Bellman_Ford_H_15_Rep(Conditions G, Set<GroundAction> A) throws Exception {
+    public Bellman_Ford_H1_RC_Rep(Conditions G, Set<GroundAction> A) throws Exception {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;

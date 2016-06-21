@@ -151,7 +151,7 @@ public class Bellman_Ford_Hm extends Heuristics {
         boolean update = false;
         for (Conditions c : this.all_conditions) {
             if (h.get(c.getCounter()) != 0f ) {
-                float current = compute_current_cost2(pool, s_0, c, h);
+                float current = compute_current_cost_via_lp(pool, s_0, c, h);
 //                if (current == 0)
                     //System.out.println("Anomaly:"+c);
 //                System.out.println("Updating!");

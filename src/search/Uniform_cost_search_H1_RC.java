@@ -44,24 +44,24 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-public class Uniform_cost_search_H1_5 extends Uniform_cost_search_H1{
+public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
     protected HashMap<Conditions, Boolean> redundant_constraints;
 
-    public Uniform_cost_search_H1_5(Conditions G, Set<GroundAction> A) {
+    public Uniform_cost_search_H1_RC(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1_5.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public Uniform_cost_search_H1_5(Conditions goals, Set actions, HashSet processesSet) {
+    public Uniform_cost_search_H1_RC(Conditions goals, Set actions, HashSet processesSet) {
         super(goals, actions,processesSet);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1_5.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     protected void add_redundant_constraints() throws Exception {

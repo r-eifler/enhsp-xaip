@@ -51,17 +51,17 @@ import problem.State;
  *
  * @author enrico
  */
-public class Uniform_cost_search_H15_Rep extends Uniform_cost_search_H1_Rep {
+public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
 
     protected HashMap<Conditions, Boolean> redundant_constraints;
 
 
-    public Uniform_cost_search_H15_Rep(Conditions G, Set<GroundAction> A) {
+    public Uniform_cost_search_H1_RC_Rep(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1_5.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
         protected void add_redundant_constraints() throws Exception {

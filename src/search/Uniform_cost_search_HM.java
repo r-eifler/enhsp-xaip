@@ -46,6 +46,9 @@ import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -235,7 +238,7 @@ public class Uniform_cost_search_HM extends Heuristics {
 //            System.out.println("Analizzo:" + temp_conditions.size());
             for (Conditions cond : temp_conditions) {
                 if (!closed.get(cond.getCounter())) {
-                    Float current_cost = this.compute_current_cost2(active_actions, s, cond, distance);
+                    Float current_cost = this.compute_current_cost_via_lp(active_actions, s, cond, distance);
                     if (current_cost != Float.MAX_VALUE) {
                         update_cost_if_necessary(open_list, distance, cond, q, cond_to_entry, current_cost);
                     }

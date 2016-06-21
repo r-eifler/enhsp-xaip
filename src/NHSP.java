@@ -14,7 +14,7 @@ import problem.EPddlProblem;
 import problem.State;
 import search.SearchStrategies;
 import search.Uniform_cost_search_H1;
-import search.Uniform_cost_search_H1_5;
+import search.Uniform_cost_search_H1_RC;
 import search.asymptotic_ibr;
 import search.Aibr;
 import search.Bellman_Ford_Hm;
@@ -168,8 +168,8 @@ public class NHSP {
             Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
             h.additive_h = true;
         } else if (config.equals("2")) {
-            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_5(problem.getGoals(), problem.getActions(), problem.processesSet));
-            Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
+            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_RC(problem.getGoals(), problem.getActions(), problem.processesSet));
+            Uniform_cost_search_H1_RC h = (Uniform_cost_search_H1_RC) searchStrategies.getHeuristic();
             h.additive_h = true;
         } else if (config.equals("4")) {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions()));
@@ -177,8 +177,8 @@ public class NHSP {
             h.additive_h = false;
             searchStrategies.setHw(1);
         } else if (config.equals("3")) {//optimal planning setting.. hmax as for the IJCAI-16 paper
-            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_5(problem.getGoals(), problem.getActions()));
-            Uniform_cost_search_H1_5 h = (Uniform_cost_search_H1_5) searchStrategies.getHeuristic();
+            searchStrategies.setup_heuristic(new Uniform_cost_search_H1_RC(problem.getGoals(), problem.getActions()));
+            Uniform_cost_search_H1_RC h = (Uniform_cost_search_H1_RC) searchStrategies.getHeuristic();
             h.additive_h = false;
             searchStrategies.setHw(1f);
             searchStrategies.setGw(1f);

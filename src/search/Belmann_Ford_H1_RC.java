@@ -27,42 +27,26 @@
  */
 package search;
 
-import conditions.AndCond;
-import conditions.Comparison;
 import conditions.Conditions;
-import conditions.Predicate;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
-import problem.RelState;
-import problem.State;
 //import gurobi.*;
 
 /**
  *
  * @author enrico
  */
-public class Belmann_Ford_H_15 extends Bellman_Ford_H1 {
+public class Belmann_Ford_H1_RC extends Bellman_Ford_H1 {
 
 
-    public Belmann_Ford_H_15(Conditions G, Set<GroundAction> A) {
+    public Belmann_Ford_H1_RC(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {
-            Logger.getLogger(Belmann_Ford_H_15.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Belmann_Ford_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

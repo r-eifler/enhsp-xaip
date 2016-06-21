@@ -255,7 +255,7 @@ public abstract class IntegerHeuristic {
                     break;
                 }
             } catch (Exception ex) {
-                Logger.getLogger(bottom_up_unit_cost.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         update_reacheable_predicates(h, s_0);
