@@ -137,6 +137,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
         HashMap<GroundAction, Float> action_to_cost = new HashMap();
         ArrayList<GroundAction> actions_for_complex_condition = new ArrayList();
         boolean first = true;
+        Integer iteration=0;
         while (!q.isEmpty() || first) {
             if (!first) {
                 Conditions cn = q.removeMin().getData();
@@ -149,6 +150,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
                 }
             }
 
+            this.dbg_print("Round"+iteration++);
             //trigger actions
 //            Iterator<GroundAction> it = this.precondition_mapping.get(cn.getCounter()).iterator();
             first = false;
@@ -159,7 +161,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
                 //the condition just extracted and the action depending on it
                 GroundAction gr = it.next();
                 Float action_precondition_cost = this.compute_precondition_cost(s, dist, gr, closed);
-
+                
                 if (action_precondition_cost != MAX_VALUE) {
                     if (reacheability_setting) {
                         this.reachable.add(gr);
@@ -213,12 +215,15 @@ public class Uniform_cost_search_H1 extends Heuristics {
                             update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
 
                         } else {
+                            this.dbg_print("interval based relaxation starting\n");
                             try {
                                 Float current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, actions_for_complex_condition, action_to_cost);
                                 update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
                             } catch (CloneNotSupportedException ex) {
                                 getLogger(Uniform_cost_search_H1.class.getName()).log(SEVERE, null, ex);
                             }
+                            this.dbg_print("interval based relaxation finished\n");
+
 
                         }
                     }
@@ -301,6 +306,8 @@ public class Uniform_cost_search_H1 extends Heuristics {
             interact_with.put(gr.counter, comparisons);
             possible_achievers.put(gr.counter, reacheable_comparisons);
         }
+        
+        this.dbg_print("Identify complex achievers");
 
         for (Comparison comp : this.complex_condition_set) {
             HashSet<NumEffect> num_effects = new LinkedHashSet();
@@ -328,6 +335,7 @@ public class Uniform_cost_search_H1 extends Heuristics {
             }
 
         }
+        this.dbg_print("Complex achievers identified");
 
     }
 

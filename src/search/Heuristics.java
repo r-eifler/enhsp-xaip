@@ -110,7 +110,7 @@ public abstract class Heuristics {
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
-    public int horizon = 1000000;
+    public int horizon = 1000;
     protected int hard_conditions;
     HashMap<NumEffect, GroundAction> num_eff_action;
     public Collection<GroundAction> supporters;
@@ -1014,6 +1014,7 @@ public abstract class Heuristics {
 //        float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic. If it is cyclic it terminates with null
         Boolean reacheable = null;
+        this.dbg_print("compoute enclosure");
         try {
             reacheable = compute_enclosure(pool, rel_state, (Comparison) c);
         } catch (CloneNotSupportedException ex) {
@@ -1022,11 +1023,14 @@ public abstract class Heuristics {
         if (reacheable != null && reacheable == false) {
             return Float.MAX_VALUE;
         }
+        this.dbg_print("compoute enclosure finished");
+
 
         HashMap<NumEffect, Boolean> visited = new HashMap();
-        int iteration = 0;
+        Integer iteration = 0;
         while (iteration < horizon) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
+//s
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
                 a.apply(rel_state);
@@ -1034,14 +1038,18 @@ public abstract class Heuristics {
                 if (visited.get(a) == null) {
                     cost += action_to_cost.get(this.num_eff_action.get(a));
                 }
-                iteration++;
                 visited.put(a, true);
                 if (c.isSatisfied(rel_state)) {
                     return cost;
                 }
             }
+            this.dbg_print(iteration.toString()+'\n');
+
+            iteration++;
+
 
         }
+//        System.out.println("Cost:"+cost+"Iteration:"+iteration);
         return cost;
     }
 

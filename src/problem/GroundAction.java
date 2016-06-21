@@ -2201,6 +2201,7 @@ public class GroundAction extends GenericActionType implements Comparable {
      * @return the action_cost
      */
     public float getAction_cost() {
+        
         return action_cost;
     }
 

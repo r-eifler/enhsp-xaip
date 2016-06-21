@@ -2172,6 +2172,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         current.addNumericFluent(new NumFluentAssigner("#t", resolution));
         for (GroundAction gr : this) {
             //System.out.println(gr.getClass());
+            gr.setAction_cost(current);
             this.cost+=gr.getAction_cost();
             if (!(gr instanceof GroundProcess)) {
                 //current = advance_time(current, processesSet, current_time, gr.time, resolution);
