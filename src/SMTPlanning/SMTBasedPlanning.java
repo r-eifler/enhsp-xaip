@@ -988,6 +988,7 @@ public class SMTBasedPlanning {
         }
         System.out.println("Encoding time: " + this.overallEcondingTime);
         System.out.println("Planning time: " + this.overallTime);
+        System.out.println("Plan Steps: " + this.last_horizon);
 
     }
 
@@ -1142,9 +1143,10 @@ public class SMTBasedPlanning {
         for (Object o : SC) {
             if (o instanceof GlobalConstraint) {
                 GlobalConstraint gc = (GlobalConstraint) o;
-                //Conditions temp = generate_m_times_regressed_conditions(gc.condition, gr);
-                //ret += " " + temp.toSmtVariableString(i) + " ";
-                ret += generate_string_m_times_regressed_conditions(gc.condition, gr, i);
+                Conditions temp = generate_m_times_regressed_conditions(gc.condition, gr);
+                ret += " " + temp.toSmtVariableString(i) + " ";
+                //TO-DO This following should be better, but for some reason doesn't work/ Needs to be checked thouroughly
+                //ret += generate_string_m_times_regressed_conditions(gc.condition, gr, i);
             }
         }
 
@@ -1177,7 +1179,8 @@ public class SMTBasedPlanning {
                 }
                 if (c1 instanceof Comparison) {
                     Comparison comp = (Comparison) c1;
-                    middle += "(and " + comp.toSmtVariableString(i) + " " + comp.toSmtVariableString(i, gr, var) + " )";
+                    if (comp.involve(gr.getNumericFluentAffected()))
+                        middle += "(and " + comp.toSmtVariableString(i) + " " + comp.toSmtVariableString(i, gr, var) + " )";
                 } else if (c1 instanceof AndCond) {
 //                    System.out.println("It is not a not");
                     throw new UnsupportedOperationException("For action repetition, numeric global constraint have to be represented in positive CNF:"+c1);
@@ -1203,7 +1206,8 @@ public class SMTBasedPlanning {
                 }
                 if (c1 instanceof Comparison) {
                     Comparison comp = (Comparison) c1;
-                    middle += "(and " + comp.toSmtVariableString(i) + " " + comp.toSmtVariableString(i, gr, var) + " )";
+                    if (comp.involve(gr.getNumericFluentAffected()))
+                        middle += "(and " + comp.toSmtVariableString(i) + " " + comp.toSmtVariableString(i, gr, var) + " )";
                 } else {
                     System.out.println(c1.getClass());
                     throw new UnsupportedOperationException("For action repetition, numeric global constraint have to be represented in positive CNF:"+c1);
@@ -1216,7 +1220,11 @@ public class SMTBasedPlanning {
             return "(and " + middle + " )";
         } else if (c instanceof Comparison) {
             Comparison comp = (Comparison) c;
-            return "(and " + comp.toSmtVariableString(i) + " " + comp.toSmtVariableString(i, gr, var) + " )";
+            if (comp.involve(gr.getNumericFluentAffected()))
+
+                return "(and " + comp.toSmtVariableString(i) + " " + comp.toSmtVariableString(i, gr, var) + " )";
+            else
+                return "";
         } else if (c instanceof Predicate) {
             //do nothing
         } else if (c instanceof NotCond) {
