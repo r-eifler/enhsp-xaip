@@ -38,15 +38,15 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-public class Belmann_Ford_H1_RC extends Bellman_Ford_H1 {
+public class Bellman_Ford_H1_RC extends Bellman_Ford_H1 {
 
 
-    public Belmann_Ford_H1_RC(Conditions G, Set<GroundAction> A) {
+    public Bellman_Ford_H1_RC(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {
-            Logger.getLogger(Belmann_Ford_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Bellman_Ford_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

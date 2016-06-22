@@ -2059,6 +2059,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
                 return temp;
             }
+                        //System.out.println(constr.condition.pddlPrint(false));
+            if (print_trace)
+                System.out.println(temp.pddlPrint());
         }
         if (debug == 1) {
             System.out.println("Last State:");

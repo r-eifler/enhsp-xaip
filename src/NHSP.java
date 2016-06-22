@@ -62,6 +62,7 @@ public class NHSP {
                 + "\n-sjr (activate search tree saving in jason file)"
                 + "\n-sp (save plan)"
                 + "\n-break_ties larger_g, smaller_g (default: Arbitrary)"
+                + "\n-print_trace (print trace of the plan)"
                 + "\n-adm (Admissible setting; default no)";
         
         
@@ -361,7 +362,7 @@ public class NHSP {
             raw_plan = searchStrategies.greedy_best_first_search(problem);
         } else if ("wa_star".equals(strategy)) {
             if (gw == null) searchStrategies.setGw(1);
-            if (hw == null) searchStrategies.setGw(1);
+            if (hw == null) searchStrategies.setHw(1);
             raw_plan = searchStrategies.wa_star(problem);
         } else if ("gbfs".equals(strategy) ) {
             if (gw == null) searchStrategies.setGw(0);
@@ -387,6 +388,8 @@ public class NHSP {
             System.out.println("Problem Solved");
             if (problem.processesSet.isEmpty()) {
                 sp.addAll(raw_plan);
+                                sp.print_trace = print_trace;
+
                 System.out.println("(Pddl2.1 semantic) Plan is valid:" + sp.execute(problem.getInit(), problem.globalConstraints).satisfy(problem.getGoals()));
                 System.out.println(sp);
                 System.out.println("Plan-Length:" + sp.size());

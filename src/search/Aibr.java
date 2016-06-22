@@ -397,8 +397,7 @@ public class Aibr extends Heuristics {
                 if (k==i)
                     break;
                 //System.out.println("Applying:"+gr);
-                //}
-               
+                //}             
             }
             
         }

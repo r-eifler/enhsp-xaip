@@ -76,6 +76,8 @@ public class SearchStrategies {
 
     public boolean bfs = true;
     static public int node_reopened;
+    public boolean cost_optimal;
+    private boolean can_reopen_nodes=true;
 
     public class FrontierOrder implements Comparator<SearchNode> {
 
@@ -308,15 +310,19 @@ public class SearchStrategies {
 
                         boolean to_visit = true;
                         if (visited.get(temp) != null) {
-                            if (g.get(temp) != null) {
-                                if (g.get(temp) <= current_node.g_n + act.getAction_cost()) {
+                            if (!can_reopen_nodes)
+                                to_visit = false;
+                            else{
+                                if (g.get(temp) != null) {
+                                    if (g.get(temp) <= current_node.g_n + act.getAction_cost()) {
 
-                                    to_visit = false;
-                                } else {
-                                    node_reopened++;
-//                                System.out.println("Previous Value:"+g.get(temp));
-//                                System.out.println("New Value:"+(current_node.g_n+act.getAction_cost()));
+                                        to_visit = false;
+                                    } else {
+                                        node_reopened++;
+    //                                System.out.println("Previous Value:"+g.get(temp));
+    //                                System.out.println("New Value:"+(current_node.g_n+act.getAction_cost()));
 
+                                    }
                                 }
                             }
                         }
@@ -776,6 +782,13 @@ public class SearchStrategies {
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(SearchStrategies.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private float get_cost(float g_n, GroundAction act) {
+        if (cost_optimal) {
+            return g_n+act.getAction_cost();
+        }
+        return g_n+1;
     }
 
 }
