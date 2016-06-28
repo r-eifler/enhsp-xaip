@@ -110,7 +110,7 @@ public abstract class Heuristics {
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
-    public int horizon = 1000;
+    public int horizon = 100000;
     protected int hard_conditions;
     HashMap<NumEffect, GroundAction> num_eff_action;
     public Collection<GroundAction> supporters;

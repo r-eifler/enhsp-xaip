@@ -1965,7 +1965,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         
     }
     
-    public int getNumberOfExecutionInt(State s_0, Comparison comp) {
+    public Float getNumberOfExecutionInt(State s_0, Comparison comp) {
         float a1;
         float b;
 
@@ -1973,7 +1973,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            return Integer.MAX_VALUE;
 //        }
         if (!comp.involve(this.getNumericFluentAffected())) {
-            return Integer.MAX_VALUE;
+            return Float.MAX_VALUE;
         }
 
 //        if (comp.eval_to_null(s_0)){
@@ -1989,16 +1989,16 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            System.out.println(b);
 //            //System.out.println("DEBUG:"+s_0);
 //            System.out.println("DEBUG: "+this.toEcoString()+" is considered negative for:"+comp);
-            return Integer.MAX_VALUE;//the action contributes negatively
+            return Float.MAX_VALUE;//the action contributes negatively
         }
 
         //Assumption: comparisons are normalized!
         if (comp.getComparator().equals("=")) {
             int m1 = (int) (-a1 / b);
             if (m1 < 0 || a1 % b != 0) {
-                return Integer.MAX_VALUE;
+                return Float.MAX_VALUE;
             } else {
-                return m1;
+                return (float)m1;
             }
         } else {//it is >= or >
             float m1 = -a1 / b;
@@ -2006,9 +2006,9 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (comp.getComparator().equals(">")) {
                     m1 += 1;
                 }
-                return (int) Math.ceil(m1);
+                return (float) Math.ceil(m1);
             } else {
-                return Integer.MAX_VALUE;
+                return Float.MAX_VALUE;
             }
         }
     }
@@ -2054,7 +2054,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             float m1 = -a1 / b;
             if (m1 >= 0) {
                 if (comp.getComparator().equals(">")) {
-                    m1 += 1;
+                    m1 += 0.00001;//epsilon
                 }
                 return m1;
             } else {

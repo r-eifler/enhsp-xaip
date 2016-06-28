@@ -165,7 +165,7 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
                         for (HeuristicSearchNode gr : pool) {
                             if (this.achvs.get(new Pair(c,gr.action))== false)
                                 continue;
-                            int number_of_repetition = gr.action.getNumberOfExecutionInt(s_0, (Comparison) c);
+                            int number_of_repetition = gr.action.getNumberOfExecution(s_0, (Comparison) c).intValue();
                             if (number_of_repetition != Integer.MAX_VALUE) {
                                 if (this.full_regression) {
                                     if (update_value(h, c, gr.action_cost_to_get_here * number_of_repetition + number_of_repetition)) {

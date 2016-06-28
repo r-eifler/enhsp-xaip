@@ -163,6 +163,7 @@ public class NHSP {
             Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
             searchStrategies.setGw(1);
             searchStrategies.setHw(1);
+//            h.greedy = true;
             h.additive_h = true;
         } else if (config.equals("1")) {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions(), problem.processesSet));
@@ -324,6 +325,9 @@ public class NHSP {
                 searchStrategies.breakties_on_smaller_g=true;
             }else if (break_ties.equals("larger_g")){
                 searchStrategies.breakties_on_larger_g =true;
+            }else if (break_ties.equals("random")){
+                searchStrategies.breakties_on_larger_g =false;
+                searchStrategies.breakties_on_smaller_g=false;
             }else{
                 System.out.println("Wrong setting for break-ties. Arbitrary tie breaking");
             }

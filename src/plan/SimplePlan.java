@@ -2168,7 +2168,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, float delta, float resolution) throws CloneNotSupportedException {
 
+        if (resolution > delta)
+            resolution = delta;
         int steps_number = (int) (delta / resolution);
+        System.out.println("steps number:"+steps_number);
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
         this.cost=0f;
@@ -2187,8 +2190,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
             } else {
                 current = advance_time(current, processesSet, steps_number, resolution);
-            }
 
+            }
+            if (print_trace)
+                System.out.println(current.pddlPrint());
             if (!current.satisfy(GC)) {
                 System.out.println("Global Constraint is not satisfied:" + GC);
 
@@ -2196,11 +2201,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
                 // MRJ: Meant for debugging
             //System.out.println(constr.condition.pddlPrint(false));
-            if (print_trace)
-                System.out.println(current.pddlPrint());
+
 
         }
-        System.out.println(current.pddlPrint());
+        if (!print_trace)
+            System.out.println(current.pddlPrint());
         return current;
 
     }
@@ -2225,8 +2230,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             }
             current = waiting.apply(current);
-            if (print_trace)
-                System.out.println(waiting.toPDDL());
+//            if (print_trace)
+//                System.out.println(waiting.toPDDL());
             //temp+=delta;
         }
         return current;
