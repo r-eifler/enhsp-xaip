@@ -169,7 +169,12 @@ public class NHSP {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions(), problem.processesSet));
             Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
             h.additive_h = true;
-        } else if (config.equals("2")) {
+        } else if (config.equals("1i")) {
+            searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions(), problem.processesSet));
+            Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
+            h.additive_h = true;
+            h.quasi_integer_actions = true;
+        }else if (config.equals("2")) {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1_RC(problem.getGoals(), problem.getActions(), problem.processesSet));
             Uniform_cost_search_H1_RC h = (Uniform_cost_search_H1_RC) searchStrategies.getHeuristic();
             h.additive_h = true;

@@ -122,6 +122,7 @@ public abstract class Heuristics {
     public boolean greedy;
     Conditions gC;
     protected HashMap<Integer, GroundAction> cond_action;
+    public boolean quasi_integer_actions=false;
 
     public Heuristics(Conditions G, Set<GroundAction> A) {
         super();

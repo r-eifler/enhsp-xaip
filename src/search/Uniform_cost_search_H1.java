@@ -191,7 +191,11 @@ public class Uniform_cost_search_H1 extends Heuristics {
                             continue;
                         }
                         if (!this.is_complex.get(comp)) {
-                            Float number_of_execution = gr.getNumberOfExecution(s, comp);
+                            Float number_of_execution = null;
+                            if (this.additive_h && quasi_integer_actions)
+                                number_of_execution = gr.getNumberOfExecutionInt(s, comp);
+                            else
+                                number_of_execution = gr.getNumberOfExecution(s, comp);
                             if (number_of_execution == Float.MAX_VALUE) {
                                 continue;
                             }
