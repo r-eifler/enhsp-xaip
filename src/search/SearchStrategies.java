@@ -77,17 +77,47 @@ public class SearchStrategies {
     public boolean bfs = true;
     static public int node_reopened;
     public boolean cost_optimal;
+    public Conditions goal;
             HashMap<State, Float> g = new HashMap();
 
     private boolean can_reopen_nodes = true;
 
     public class FrontierOrder implements Comparator<SearchNode> {
-
+        Heuristics h;
+        public FrontierOrder(Heuristics h){
+            super();
+            this.h = h;
+        }
+        public FrontierOrder(){
+            super();
+            this.h = null;
+        }
         @Override
         public int compare(SearchNode o1, SearchNode o2) {
             final SearchNode other = (SearchNode) o2;
             final SearchNode a = o1;
             if (a.f == other.f) {
+//                if (h!=null){
+//                    
+//                    this.h.quasi_integer_actions = true;
+////                    this.h.additive_h = true;
+////                    this.h.greedy =true;
+//                    Float sec_a = this.h.compute_estimate(a.s)*a.wh+a.g_n*a.wg;
+//                    Float sec_b = this.h.compute_estimate(other.s)*a.wh+other.g_n*a.wg;
+//                    this.h.quasi_integer_actions = false;
+////                    this.h.greedy = false;                   
+//                    
+//
+//                    if (sec_a < sec_b){
+////                        System.out.println("Weight configuration: g_n"+a.g_n + " gw:"+a.wg );
+////                        System.out.println("tie broken");
+//                        return -1;
+//                    }
+//                    if (sec_a > sec_b){
+////                        System.out.println("tie broken");
+//                        return 1;
+//                    }
+//                }
                 if (breakties_on_larger_g) {
 //                System.out.println(this.g_n);
                     if (a.g_n < other.g_n)//goal is farer
@@ -174,6 +204,7 @@ public class SearchStrategies {
     public SearchNode breadth_first_search(State current, Conditions goals, HashSet actions, Heuristics heuristic, EPddlProblem problem) throws Exception {
         HashMap<State, Boolean> visited = new HashMap();
         //System.out.println("Visited size:"+visited.size());
+        
         PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
         boolean strong_relaxation = false;
         //int current_value = Heuristics.h1_recursion_memoization(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);

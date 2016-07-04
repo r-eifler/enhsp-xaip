@@ -173,6 +173,7 @@ public class NHSP {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions(), problem.processesSet));
             Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
             h.additive_h = true;
+//            h.greedy =true;
             h.quasi_integer_actions = true;
         }else if (config.equals("2")) {
             searchStrategies.setup_heuristic(new Uniform_cost_search_H1_RC(problem.getGoals(), problem.getActions(), problem.processesSet));
@@ -216,6 +217,12 @@ public class NHSP {
             searchStrategies.setup_heuristic(new asymptotic_ibr(problem.getGoals(), problem.getActions(), problem.processesSet));
             asymptotic_ibr h = (asymptotic_ibr) searchStrategies.getHeuristic();
             h.set(false, true);
+            searchStrategies.setGw(1);
+            searchStrategies.setHw(1);
+        } else if (config.equals("113")) {
+            searchStrategies.setup_heuristic(new asymptotic_ibr(problem.getGoals(), problem.getActions(), problem.processesSet));
+            asymptotic_ibr h = (asymptotic_ibr) searchStrategies.getHeuristic();
+            h.set(false, false);
             searchStrategies.setGw(1);
             searchStrategies.setHw(1);
         } else if (config.equals("20")) {
@@ -330,7 +337,7 @@ public class NHSP {
                 searchStrategies.breakties_on_smaller_g=true;
             }else if (break_ties.equals("larger_g")){
                 searchStrategies.breakties_on_larger_g =true;
-            }else if (break_ties.equals("random")){
+            }else if (break_ties.equals("arbitrary")){
                 searchStrategies.breakties_on_larger_g =false;
                 searchStrategies.breakties_on_smaller_g=false;
             }else{

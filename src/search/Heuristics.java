@@ -119,7 +119,7 @@ public abstract class Heuristics {
     protected boolean check_mutex = false;
     private int invocation;
     public boolean integer_variables;
-    public boolean greedy;
+    public boolean greedy = false;
     Conditions gC;
     protected HashMap<Integer, GroundAction> cond_action;
     public boolean quasi_integer_actions=false;
@@ -281,7 +281,7 @@ public abstract class Heuristics {
         }
 
         for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
-            if (closed != null && !closed.get(t.getCounter())) {
+            if (closed != null && !closed.get(t.getCounter()) && !greedy) {
                 return Float.MAX_VALUE;
             }
             Float temp = h.get(t.getCounter());
