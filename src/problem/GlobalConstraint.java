@@ -57,7 +57,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
       
         HashMap invariantFluents = problem.getInvariantFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>)domain.getFree_functions()){
+        for (NumFluent nf : (Collection<NumFluent>)domain.get_derived_variables()){
             invariantFluents.put(nf.getName(),Boolean.FALSE);
         }
         

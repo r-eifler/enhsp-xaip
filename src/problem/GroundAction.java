@@ -761,7 +761,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         HashMap invariantFluents = problem.getInvariantFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>) domain.getFree_functions()) {
+        for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 
@@ -1766,7 +1766,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         HashMap invariantFluents = problem.getInvariantFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>) domain.getFree_functions()) {
+        for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 
@@ -2557,6 +2557,23 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
                     
         return has_state_dependent_effects;
+    }
+
+    public boolean delete_own_preconditions() {//to do
+    
+        if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty() && this.getDelList()!= null && !this.getDelList().sons.isEmpty()){
+            if (this.getPreconditions() instanceof Predicate){
+                
+            }else if (this.getPreconditions() instanceof AndCond){
+                
+            }else if (this.getPreconditions() instanceof Comparison){
+            
+            }else{
+                System.out.println("precondition not supported"+ this.getPreconditions());
+            }
+            
+        }
+        return false;
     }
 
 

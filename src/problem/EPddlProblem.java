@@ -176,7 +176,7 @@ public class EPddlProblem extends PddlProblem {
                 keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
             }
             if (!keep) {
-                //System.out.println("Pruning action:"+act.getName());
+//                System.out.println("Pruning action:"+act.getName());
                 it.remove();
             }
         }

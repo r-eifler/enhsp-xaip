@@ -150,6 +150,8 @@ public class Aibr extends Heuristics {
 
     }
 
+    
+    
     private void generate_supporters(Set<GroundAction> actions) {
         this.supp_to_action = new HashMap();
 

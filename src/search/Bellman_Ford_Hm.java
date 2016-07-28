@@ -27,8 +27,6 @@
  */
 package search;
 
-import com.microsoft.z3.Optimize;
-import com.microsoft.z3.*;
 
 import conditions.Comparison;
 import conditions.Conditions;

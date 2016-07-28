@@ -82,7 +82,7 @@ public final class PddlDomain extends Object {
     private List types;
     private PDDLObjects constants;
     private List functions;
-    private List free_functions;
+    private List<NumFluent> derived_variables;
     private List DurativeActions;
     private List Requirements;
     private String pddlReferenceFile;
@@ -107,7 +107,7 @@ public final class PddlDomain extends Object {
         types = new ArrayList();
         ActionsSchema = new TreeSet(new ActionComparator());
         functions = new ArrayList();
-        free_functions = new ArrayList();
+        derived_variables = new ArrayList();
         Requirements = new ArrayList();
         constants = new PDDLObjects();
         SchemaGlobalConstraints = new LinkedHashSet();
@@ -124,7 +124,7 @@ public final class PddlDomain extends Object {
             types = new ArrayList();
             ActionsSchema = new TreeSet(new ActionComparator());
             functions = new ArrayList();
-            free_functions = new ArrayList();
+            derived_variables = new ArrayList();
             Requirements = new ArrayList();
             constants = new PDDLObjects();
             ProcessesSchema = new LinkedHashSet();
@@ -1046,7 +1046,7 @@ public final class PddlDomain extends Object {
                 abstractInvariantFluents.put(nf.getName(), false);
             }
         }
-        for (NumFluent nf : (Collection<NumFluent>)this.getFree_functions()){
+        for (NumFluent nf : (Collection<NumFluent>)this.get_derived_variables()){
             abstractInvariantFluents.put(nf.getName(), false);
         }
         
@@ -1124,7 +1124,7 @@ public final class PddlDomain extends Object {
 
                     ret.addVariable(v);
                 }
-                this.getFree_functions().add(ret);
+                this.get_derived_variables().add(ret);
             }
         }
     }
@@ -1132,15 +1132,15 @@ public final class PddlDomain extends Object {
     /**
      * @return the free_functions
      */
-    public List getFree_functions() {
-        return free_functions;
+    public List<NumFluent> get_derived_variables() {
+        return derived_variables;
     }
 
     /**
      * @param free_functions the free_functions to set
      */
     public void setFree_functions(List free_functions) {
-        this.free_functions = free_functions;
+        this.derived_variables = free_functions;
     }
 
     private void addGlobalConstraints(Tree c) {
