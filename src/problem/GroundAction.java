@@ -59,7 +59,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plan.SimplePlan;
-import heuristics.advanced.RegressedSearchNode;
+import heuristics.RegressedSearchNode;
 
 public class GroundAction extends GenericActionType implements Comparable {
 

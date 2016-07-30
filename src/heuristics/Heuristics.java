@@ -28,7 +28,6 @@
 package heuristics;
 
 
-import heuristics.advanced.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;

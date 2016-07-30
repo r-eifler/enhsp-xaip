@@ -26,7 +26,7 @@
  *
  ********************************************************************
  */
-package heuristics.advanced;
+package heuristics;
 
 import java.util.Set;
 import problem.GroundAction;
