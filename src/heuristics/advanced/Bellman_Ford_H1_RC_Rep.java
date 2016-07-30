@@ -25,12 +25,11 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics.advanced;
 
 import conditions.Conditions;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import problem.GroundAction;
 //import gurobi.*;
 
@@ -38,17 +37,16 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-public class Bellman_Ford_H1_RC extends Bellman_Ford_H1 {
-
-
-    public Bellman_Ford_H1_RC(Conditions G, Set<GroundAction> A) {
+public class Bellman_Ford_H1_RC_Rep extends Bellman_Ford_H1_Rep {
+   
+    
+    public Bellman_Ford_H1_RC_Rep(Conditions G, Set<GroundAction> A) throws Exception {
         super(G, A);
-        try {
-            this.add_redundant_constraints();
-        } catch (Exception ex) {
-            Logger.getLogger(Bellman_Ford_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.G = G;
+        this.A = (LinkedHashSet<GroundAction>) A;
+        add_redundant_constraints();
+        //System.out.println(this.orderings);
+        //build_integer_representation();
+        
     }
-
 }
-

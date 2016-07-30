@@ -25,7 +25,7 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics.advanced;
 
 
 import conditions.Comparison;
@@ -35,6 +35,8 @@ import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import extraUtils.Pair;
+import heuristics.Heuristics;
+import heuristics.Heuristics;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

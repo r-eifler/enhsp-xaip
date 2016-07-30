@@ -26,7 +26,7 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics.advanced;
 
 import java.util.Set;
 import problem.GroundAction;
@@ -35,7 +35,7 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-class HeuristicSearchNode implements Comparable{
+public class HeuristicSearchNode implements Comparable{
 
     public GroundAction action;
     public int goal_distance;

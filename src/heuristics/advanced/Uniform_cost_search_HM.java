@@ -25,12 +25,14 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics.advanced;
 
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import heuristics.Heuristics;
+import heuristics.Heuristics;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;

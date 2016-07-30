@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package search;
+package heuristics.advanced;
 
 import conditions.AndCond;
 import conditions.Comparison;
@@ -11,6 +11,8 @@ import conditions.Conditions;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
+import heuristics.Heuristics;
+import heuristics.Heuristics;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +66,7 @@ public class asymptotic_ibr extends Heuristics {
     }
 
     @Override
-    Float compute_estimate(State s) {
+    public Float compute_estimate(State s) {
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;

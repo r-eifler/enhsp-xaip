@@ -27,9 +27,9 @@
 package adaptation;
 
 import antlr.RecognitionException;
-import computation.DomainEnhancer;
-import computation.NumericKernel;
-import computation.NumericPlanningGraph;
+import some_computatitional_tool.DomainEnhancer;
+import some_computatitional_tool.NumericKernel;
+import some_computatitional_tool.NumericPlanningGraph;
 import conditions.Conditions;
 import domain.PddlDomain;
 import extraUtils.Utils;

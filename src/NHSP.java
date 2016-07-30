@@ -13,12 +13,12 @@ import plan.SimplePlan;
 import problem.EPddlProblem;
 import problem.State;
 import search.SearchStrategies;
-import search.Uniform_cost_search_H1;
-import search.Uniform_cost_search_H1_RC;
-import search.asymptotic_ibr;
-import search.Aibr;
-import search.Bellman_Ford_Hm;
-import search.Uniform_cost_search_HM;
+import heuristics.advanced.Uniform_cost_search_H1;
+import heuristics.advanced.Uniform_cost_search_H1_RC;
+import heuristics.advanced.asymptotic_ibr;
+import heuristics.Aibr;
+import heuristics.advanced.Bellman_Ford_Hm;
+import heuristics.advanced.Uniform_cost_search_HM;
 
 /**
  *

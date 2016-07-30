@@ -25,7 +25,7 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics.advanced;
 
 import conditions.AndCond;
 import conditions.Comparison;

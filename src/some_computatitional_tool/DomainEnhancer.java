@@ -25,7 +25,7 @@
  *
  ********************************************************************
  */
-package computation;
+package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;

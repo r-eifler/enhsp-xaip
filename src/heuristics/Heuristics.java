@@ -25,9 +25,10 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics;
 
 
+import heuristics.advanced.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
@@ -70,11 +71,11 @@ public abstract class Heuristics {
     public boolean additive_h = true;
     protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
     public int max_depth;
-    int debug = 0;
+    public int debug = 0;
     protected boolean internal_update;
     public LinkedHashSet<Predicate> reacheable_predicates;
 
-    Collection<Conditions> all_conditions;
+    protected Collection<Conditions> all_conditions;
     HashMap<GroundAction, HashSet<Conditions>> influenced_by;
     HashMap<GroundAction, GroundAction> depends_on;
 
@@ -95,7 +96,7 @@ public abstract class Heuristics {
 
     public LinkedHashSet<GroundAction> relaxed_plan_actions;
     public HashMap<Integer, GroundAction> final_achiever;
-    protected boolean preferred_operators;
+    public boolean preferred_operators;
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
@@ -256,7 +257,7 @@ public abstract class Heuristics {
 
     }
 
-    abstract Float compute_estimate(State s_0);
+    abstract public Float compute_estimate(State s_0);
 
     protected Float compute_precondition_cost(State s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, gr.getPreconditions(), closed);

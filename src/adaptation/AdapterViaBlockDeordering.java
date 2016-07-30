@@ -8,7 +8,7 @@ package adaptation;
 
 
 import adaptation.PlanAdapter;
-import computation.DomainEnhancer;
+import some_computatitional_tool.DomainEnhancer;
 import domain.PddlDomain;
 import extraUtils.Utils;
 import java.io.BufferedReader;

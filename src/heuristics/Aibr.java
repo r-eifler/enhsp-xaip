@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package search;
+package heuristics;
 
 import conditions.AndCond;
 import conditions.Comparison;

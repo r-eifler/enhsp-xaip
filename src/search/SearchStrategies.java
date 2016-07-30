@@ -27,7 +27,8 @@
  */
 package search;
 
-import computation.NumericPlanningGraph;
+import heuristics.Heuristics;
+import some_computatitional_tool.NumericPlanningGraph;
 import conditions.AndCond;
 import conditions.Conditions;
 import conditions.Predicate;

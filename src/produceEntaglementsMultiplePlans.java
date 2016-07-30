@@ -1,7 +1,7 @@
 package entanglements;
 
 
-import computation.DomainEnhancer;
+import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
 import conditions.Conditions;
 import domain.ActionSchema;

@@ -26,7 +26,7 @@
  *
  ********************************************************************
  */
-package search;
+package heuristics.advanced;
 
 import java.util.Comparator;
 import problem.GroundAction;
