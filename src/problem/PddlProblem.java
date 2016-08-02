@@ -344,9 +344,9 @@ public class PddlProblem {
         }
         if (infoAction.getType() == PddlParser.PRED_HEAD) {
             //estrapola tutti i predicati e ritornali come set di predicati
-            AndCond and = new AndCond();
-            and.addConditions(buildInstPredicate(infoAction));
-            return and;
+//            AndCond and = new AndCond();
+//            and.addConditions();
+            return buildInstPredicate(infoAction);
         } else if (infoAction.getType() == PddlParser.AND_GD) {
             AndCond and = new AndCond();
             for (int i = 0; i < infoAction.getChildCount(); i++) {

@@ -43,20 +43,21 @@ import java.util.HashSet;
  */
 public class RelState extends Object {
 
-    public HashMap poss_propositions;
+    public HashMap<Predicate,Integer> poss_interpretation;//0 is negative, 1 positive, 2 both
     public HashMap poss_numericFs;
     HashSet timedLiterals;///to do
 
     public RelState() {
         super();
-        poss_propositions = new HashMap();
+        poss_interpretation = new HashMap();
+
         poss_numericFs = new HashMap();
         timedLiterals = new HashSet();
     }
 
     @Override
     public String toString() {
-        return "State{" + "propositions=" + poss_propositions + "numericFs=" + poss_numericFs + "timedLiterals=" + timedLiterals + '}';
+        return "State{" + "propositions=" + poss_interpretation + "numericFs=" + poss_numericFs + "timedLiterals=" + timedLiterals + '}';
     }
 
     @Override
@@ -77,12 +78,11 @@ public class RelState extends Object {
             }
             ret_val.addNumericFluent(newA);
         }
-
-
-        for (Object o : this.poss_propositions.keySet()) {
+        for (Object o : this.poss_interpretation.keySet()) {
             Predicate ele = (Predicate) o;
-            ret_val.addProposition((Predicate) ele.clone());
+            ret_val.poss_interpretation.put((Predicate) ele.clone(), this.poss_interpretation.get(o));
         }
+
         //ret_val.propositions = (HashSet) this.propositions.clone();
 
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
@@ -124,8 +124,13 @@ public class RelState extends Object {
         return null;
     }
 
-    public void addProposition(Predicate buildInstPredicate) {
-        poss_propositions.put(buildInstPredicate, true);
+    public void make_positive(Predicate p) {
+        Integer inter =poss_interpretation.get(p);
+        if (inter==null){//if was negative by default
+            poss_interpretation.put(p,2);
+        }else if (inter == 0){//if was said to be negative
+            poss_interpretation.put(p,2);
+        }
     }
 
     public void addNumericFluent(NumFluentAssigner a) {
@@ -139,23 +144,17 @@ public class RelState extends Object {
         timedLiterals.add(buildInstPredicate);
     }
 
-    public Iterable<Object> getPropositions() {
-        return this.poss_propositions.keySet();
+    public Iterable<Predicate> getPropositions() {
+        return this.poss_interpretation.keySet();
     }
 
-    public boolean containProposition(Predicate aThis) {
+    public boolean is_true(Predicate aThis) {
 
-        Object o = this.poss_propositions.get(aThis);
+        Integer o = this.poss_interpretation.get(aThis);
         if (o == null) {
             return false;
         }
-        if (o instanceof Boolean) {
-            Boolean b = (Boolean) o;
-            if (b == true) {
-                return true;
-            }
-        }
-        return false;
+        return o>=1;
     }
 
     public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
@@ -174,18 +173,12 @@ public class RelState extends Object {
 
     }
 
-    public void removeProposition(Predicate aThis) {
-        this.poss_propositions.put(aThis, false);
-//        
-//        for (Iterator i = poss_propositions.iterator(); i.hasNext();) {
-//            Predicate p = (Predicate) i.next();
-//            if (p.equals(aThis)) {
-//                i.remove();
-//                return;
-//  
-//            }
-//        }
-//        System.out.println(aThis + "non trovato");
+    public void make_negative(Predicate p) {
+        Integer inter =poss_interpretation.get(p);
+        if (inter==null){//if was negative by default
+        }else if (inter == 1){//if was said to be positive it will also be negative
+            poss_interpretation.put(p,2);
+        }
     }
 
 //    public String pddlPrint(){
@@ -254,6 +247,7 @@ public class RelState extends Object {
         if (con == null){
             System.out.println(this);
             System.out.println("something wrong");
+            System.exit(-1);
         }
         return con.isSatisfied(this);
 

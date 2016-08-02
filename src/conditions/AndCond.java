@@ -354,7 +354,7 @@ public class AndCond extends Conditions {
                 ret = t.apply(s);
             } else if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.apply(s);
+                ret = p.make_positive(s);
             } else if (o instanceof NotCond) {
                 NotCond n = (NotCond) o;
                 ret = n.apply(s);
@@ -377,7 +377,7 @@ public class AndCond extends Conditions {
                 ret = t.remove(s);
             } else if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.remove(s);
+                ret = p.make_negative(s);
             } else if (o instanceof NotCond) {
                 NotCond n = (NotCond) o;
                 ret = n.apply(s);

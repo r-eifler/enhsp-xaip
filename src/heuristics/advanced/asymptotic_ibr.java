@@ -136,10 +136,8 @@ public class asymptotic_ibr extends Heuristics {
                     }
                 }
             }
-            if (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) {
-
-                supporters.add(generate_propositional_action(gr.getAddList(), gr.toFileCompliant() + "prop", (AndCond) gr.getPreconditions()));
-
+            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty())||(gr.getDelList()!=null && !gr.getDelList().sons.isEmpty())) {
+                supporters.add(generate_propositional_action(gr.toFileCompliant() + "prop", (AndCond) gr.getPreconditions(), gr));
             }
 
         }
@@ -213,10 +211,11 @@ public class asymptotic_ibr extends Heuristics {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition);
     }
 
-    private GroundAction generate_propositional_action(Conditions addList, String name, AndCond andCond) {
+    private GroundAction generate_propositional_action(String name, AndCond andCond, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         ret.setPreconditions(andCond);
-        ret.setAddList(addList);
+        ret.setAddList(gr.getAddList());
+        ret.setDelList(gr.getDelList());
         return ret;
     }
 

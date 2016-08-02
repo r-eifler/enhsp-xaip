@@ -108,12 +108,20 @@ public class NotCond extends Conditions {
 
     @Override
     public boolean isSatisfied(RelState s) {
-        return true;
-//        for (Object o : this.son) {
-//            Conditions c = (Conditions) o;
-//            return !c.isSatisfied(s);
-//        }
-//        return false;
+        
+        for (Object o : this.son) {
+            Conditions c = (Conditions) o;
+            if (c instanceof Predicate){
+                Predicate p = (Predicate)o;
+                if (s.poss_interpretation.get(p)== null || s.poss_interpretation.get(p)==2)
+                    return true;
+                else
+                    return false;
+            }
+            return !c.isSatisfied(s);
+        }
+        System.out.println("Something wrong...");
+        return false;
     }
 
     public State apply(State s) {
@@ -228,7 +236,7 @@ public class NotCond extends Conditions {
                 ret = t.remove(s);
             } else if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.remove(s);
+                ret = p.make_negative(s);
             } else if (o instanceof NotCond) {
                 NotCond n = (NotCond) o;
                 ret = n.apply(s);

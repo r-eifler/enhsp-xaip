@@ -143,7 +143,7 @@ public class State extends Object {
 
     }
 
-    public boolean containProposition(Predicate aThis) {
+    public boolean is_true(Predicate aThis) {
 
         Boolean b = (Boolean) propositions.get(aThis);
         if (b != null) {
@@ -274,7 +274,7 @@ public class State extends Object {
                 }
 
             } else if (o instanceof Predicate) {
-                if (!this.containProposition((Predicate) o)) {
+                if (!this.is_true((Predicate) o)) {
                     System.out.println(o + "is not satisfied");
                     ret = false;
                 }
@@ -310,7 +310,7 @@ public class State extends Object {
 
         for (Object o : this.propositions.keySet()) {
             Predicate ele = (Predicate) o;
-            ret_val.addProposition((Predicate) ele.clone());
+            ret_val.poss_interpretation.put(ele,1);
         }
         //ret_val.propositions = (HashSet) this.propositions.clone();
 
@@ -372,8 +372,8 @@ public class State extends Object {
         }
         for (Object o : this.getPropositions()) {
             Predicate p = (Predicate) o;
-            if (this.containProposition(p)) {
-                if (!other.containProposition(p)) {
+            if (this.is_true(p)) {
+                if (!other.is_true(p)) {
 
                     return false;
                 }
@@ -415,7 +415,7 @@ public class State extends Object {
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (this.containProposition(p)) {
+            if (this.is_true(p)) {
                 ret.sons.add(p);
             }
         }
@@ -428,7 +428,7 @@ public class State extends Object {
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (!init.containProposition(p)) {
+            if (!init.is_true(p)) {
                 diff.add(p);
             }
 
@@ -436,7 +436,7 @@ public class State extends Object {
         it = init.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (!this.containProposition(p)) {
+            if (!this.is_true(p)) {
                 diff.add(p);
             }
 

@@ -401,9 +401,13 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public RelState apply(RelState s) {
         RelState ret = s;
-        AndCond add = (AndCond) addList;
+        AndCond add = (AndCond) addList;//if it is not the case then it will signal the error
         if (add != null) {
             ret = add.apply(s);
+        }
+        AndCond del = (AndCond) delList;//if it is not the case then it will signal the error
+        if (del != null) {
+            ret = del.apply(s);
         }
         AndCond c = (AndCond) this.getNumericEffects();
 
@@ -1048,7 +1052,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             end = sp.get(i).apply(end);
         }
         for (Object o : threatenedAtoms) {
-            if (!end.containProposition((Predicate) o)) {
+            if (!end.is_true((Predicate) o)) {
                 System.out.println("=================Found a goal threat=============");
                 return true;
             }
@@ -2386,10 +2390,17 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
     public RelState apply_with_generalized_interval_based_relaxation(RelState s) {
         RelState ret = s;
+//        System.out.println("before"+s);
+
         AndCond add = (AndCond) addList;
         if (add != null) {
             ret = add.apply(s);
         }
+        AndCond del = (AndCond) delList;//if it is not the case then it will signal the error
+        if (del != null) {
+            ret = del.apply(s);
+        }
+//        System.out.println("after"+s);
         AndCond c = (AndCond) this.getNumericEffects();
 
         if (c != null) {

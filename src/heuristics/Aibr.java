@@ -167,10 +167,8 @@ public class Aibr extends Heuristics {
                     }
                 }
             }
-            if (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) {
-
-                supporters.add(generate_propositional_action(gr.getAddList(), gr.toFileCompliant() + "prop", (AndCond) gr.getPreconditions(), gr));
-
+            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty())||(gr.getDelList()!=null && !gr.getDelList().sons.isEmpty())) {
+                supporters.add(generate_propositional_action(gr.toFileCompliant() + "prop", (AndCond) gr.getPreconditions(), gr));
             }
 
         }
@@ -246,10 +244,11 @@ public class Aibr extends Heuristics {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition, gr);
     }
 
-    private GroundAction generate_propositional_action(Conditions addList, String name, AndCond andCond, GroundAction gr) {
+    private GroundAction generate_propositional_action(String name, AndCond andCond, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         ret.setPreconditions(andCond);
-        ret.setAddList(addList);
+        ret.setAddList(gr.getAddList());
+        ret.setDelList(gr.getDelList());
         this.supp_to_action.put(ret, gr);
 
         return ret;

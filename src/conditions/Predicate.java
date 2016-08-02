@@ -193,18 +193,18 @@ public class  Predicate extends Conditions {
 
     @Override
     public boolean eval(State s) {
-        return s.containProposition(this);
+        return s.is_true(this);
     }
 
     @Override
     public boolean isSatisfied(State s) {
 
-        return s.containProposition(this);
+        return s.is_true(this);
     }
 
     @Override
     public boolean isSatisfied(RelState s) {
-        return s.containProposition(this);
+        return s.is_true(this);
     }
 
 //    /**
@@ -275,7 +275,7 @@ public class  Predicate extends Conditions {
 
     
     public State apply(State s) {
-        if (!s.containProposition(this)) {
+        if (!s.is_true(this)) {
             s.addProposition(this);
         }
         return s;
@@ -330,29 +330,16 @@ public class  Predicate extends Conditions {
 
     @Override
     public Conditions clone() {
-//        Predicate ret_val = new Predicate();
-//        ret_val.setPredicateName(predicateName);
-//        ret_val.grounded = this.grounded;
-//        if (grounded)
-//            ret_val.terms = (ArrayList)this.terms.clone();
-//        else
-//            ret_val.variables = (ArrayList)this.variables.clone();
-//        
-//        return ret_val;
         return this;
     }
 
-    public RelState apply(RelState s) {
-
-        if (!s.containProposition(this)) {
-            s.addProposition(this);
-        }
+    public RelState make_positive(RelState s) {
+        s.make_positive(this);        
         return s;
     }
 
-    RelState remove(RelState s) {
-        s.removeProposition(this);
-
+    RelState make_negative(RelState s) {
+        s.make_negative(this);
         return s;
     }
 
