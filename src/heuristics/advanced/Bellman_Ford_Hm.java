@@ -35,8 +35,8 @@ import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import extraUtils.Pair;
-import heuristics.Heuristics;
-import heuristics.Heuristics;
+import heuristics.Heuristic;
+import heuristics.Heuristic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +55,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class Bellman_Ford_Hm extends Heuristics {
+public class Bellman_Ford_Hm extends Heuristic {
 
     private boolean greedy;
     protected boolean full_regression = false;

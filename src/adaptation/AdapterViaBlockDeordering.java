@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import plan.SimplePlan;
-import planners.metricFFWrapper;
-import planners.planningTool;
+import wrapped_planners.metricFFWrapper;
+import wrapped_planners.planningTool;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 

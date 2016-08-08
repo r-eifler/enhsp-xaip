@@ -27,7 +27,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class Aibr extends Heuristics {
+public class Aibr extends Heuristic {
 
     boolean reacheability;
     public boolean conservative = false;

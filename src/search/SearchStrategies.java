@@ -27,7 +27,7 @@
  */
 package search;
 
-import heuristics.Heuristics;
+import heuristics.Heuristic;
 import some_computatitional_tool.NumericPlanningGraph;
 import conditions.AndCond;
 import conditions.Conditions;
@@ -57,7 +57,7 @@ public class SearchStrategies {
     private float hw = 4;
     public static int priority_queue_size;
     private boolean checking_visited = true;
-    private Heuristics heuristic;
+    private Heuristic heuristic;
     private boolean decreasing_heuristic_pruning = false;
     private float gw;
     public static int states_evaluated;
@@ -84,8 +84,8 @@ public class SearchStrategies {
     private boolean can_reopen_nodes = true;
 
     public class FrontierOrder implements Comparator<SearchNode> {
-        Heuristics h;
-        public FrontierOrder(Heuristics h){
+        Heuristic h;
+        public FrontierOrder(Heuristic h){
             super();
             this.h = h;
         }
@@ -161,7 +161,7 @@ public class SearchStrategies {
 
     }
 
-    public void setup_heuristic(Heuristics input) {
+    public void setup_heuristic(Heuristic input) {
         this.setHeuristic(input);
         setGw(0);
         setHw(1);
@@ -202,7 +202,7 @@ public class SearchStrategies {
 
     public static int nodes_expanded = 0;
 
-    public SearchNode breadth_first_search(State current, Conditions goals, HashSet actions, Heuristics heuristic, EPddlProblem problem) throws Exception {
+    public SearchNode breadth_first_search(State current, Conditions goals, HashSet actions, Heuristic heuristic, EPddlProblem problem) throws Exception {
         HashMap<State, Boolean> visited = new HashMap();
         //System.out.println("Visited size:"+visited.size());
         
@@ -723,14 +723,14 @@ public class SearchStrategies {
     /**
      * @return the heuristic
      */
-    public Heuristics getHeuristic() {
+    public Heuristic getHeuristic() {
         return heuristic;
     }
 
     /**
      * @param heuristic the heuristic to set
      */
-    public void setHeuristic(Heuristics heuristic) {
+    public void setHeuristic(Heuristic heuristic) {
         this.heuristic = heuristic;
     }
 

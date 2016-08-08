@@ -62,7 +62,7 @@ import org.ojalgo.optimisation.Variable;
  *
  * @author enrico
  */
-public abstract class Heuristics {
+public abstract class Heuristic {
 
     static public LinkedHashSet usefulActions = new LinkedHashSet();
     protected LinkedList<NumEffect> sorted_nodes;
@@ -106,14 +106,14 @@ public abstract class Heuristics {
     public RelState reacheable_state;
     protected Collection<Comparison> complex_condition_set;
     protected boolean check_mutex = false;
-    private int invocation;
+    public int invocation;
     public boolean integer_variables;
     public boolean greedy = false;
-    Conditions gC;
+    public Conditions gC;
     protected HashMap<Integer, GroundAction> cond_action;
     public boolean quasi_integer_actions=false;
 
-    public Heuristics(Conditions G, Set<GroundAction> A) {
+    public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -128,7 +128,7 @@ public abstract class Heuristics {
         //build_integer_representation(A,G);
     }
 
-    public Heuristics(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -144,7 +144,7 @@ public abstract class Heuristics {
         //build_integer_representation(A,G);
     }
     
-    public Heuristics(Conditions G, Set<GroundAction> A, Set<GroundAction> P,Conditions GC) {
+    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P,Conditions GC) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -521,7 +521,7 @@ public abstract class Heuristics {
         try {
             reacheable = compute_enclosure(pool, rel_state, (Comparison) c);
         } catch (CloneNotSupportedException ex) {
-            Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Heuristic.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (reacheable != null && reacheable == false) {
             return Float.MAX_VALUE;

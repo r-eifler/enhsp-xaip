@@ -11,8 +11,8 @@ import conditions.Conditions;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
-import heuristics.Heuristics;
-import heuristics.Heuristics;
+import heuristics.Heuristic;
+import heuristics.Heuristic;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,7 @@ import problem.State;
  * @author enrico
  */
 @Deprecated
-public class asymptotic_ibr extends Heuristics {
+public class asymptotic_ibr extends Heuristic {
 
     public Collection<GroundAction> supporters;
     boolean reacheability;

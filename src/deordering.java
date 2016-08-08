@@ -24,7 +24,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import plan.SimplePlan;
-import planners.metricFFWrapper;
+import wrapped_planners.metricFFWrapper;
 import problem.GroundAction;
 import problem.PddlProblem;
 

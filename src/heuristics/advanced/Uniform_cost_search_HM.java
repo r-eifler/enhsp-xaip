@@ -27,40 +27,23 @@
  */
 package heuristics.advanced;
 
-import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import heuristics.Heuristics;
-import heuristics.Heuristics;
+import heuristics.Heuristic;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Logger.getLogger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 
@@ -68,7 +51,7 @@ import static java.util.logging.Logger.getLogger;
  *
  * @author enrico
  */
-public class Uniform_cost_search_HM extends Heuristics {
+public class Uniform_cost_search_HM extends Heuristic {
 
     protected HashMap<Integer, LinkedHashSet<Predicate>> achieve;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
@@ -79,6 +62,8 @@ public class Uniform_cost_search_HM extends Heuristics {
     private boolean reacheability_setting;
     private boolean all_paths = false;
     protected ArrayList<Integer> dist;
+    private lp_interface lp_interface;
+    public boolean cplex = false;
 
     public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -92,10 +77,14 @@ public class Uniform_cost_search_HM extends Heuristics {
      */
     public Uniform_cost_search_HM(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
+        lp_interface = new lp_interface();
+        
     }
     
     public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A,Set processesSet, Conditions GC) {
         super(G, A,processesSet,GC);
+        lp_interface = new lp_interface();
+        
     }
 
 
@@ -252,7 +241,13 @@ public class Uniform_cost_search_HM extends Heuristics {
 //            System.out.println("Analizzo:" + temp_conditions.size());
             for (Conditions cond : temp_conditions) {
                 if (!closed.get(cond.getCounter())) {
-                    Float current_cost = this.compute_current_cost_via_lp(active_actions, s, cond, distance);
+                    Float current_cost = null;
+                    if (cplex){
+                        current_cost = lp_interface.compute_current_cost_via_lp_cplex(active_actions, s, cond, distance,this.gC);
+                    }else
+                        current_cost = lp_interface.compute_current_cost_via_lp(active_actions, s, cond, distance,this.gC);
+         
+                    invocation = lp_interface.invocation;
                     if (current_cost != Float.MAX_VALUE) {
                         update_cost_if_necessary(open_list, distance, cond, q, cond_to_entry, current_cost);
                     }

@@ -31,8 +31,8 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.NumEffect;
-import heuristics.Heuristics;
-import heuristics.Heuristics;
+import heuristics.Heuristic;
+import heuristics.Heuristic;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;
@@ -69,12 +69,28 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
  * @author enrico
  */
-public class Uniform_cost_search_H1 extends Heuristics {
+public class Uniform_cost_search_H1 extends Heuristic {
 
     protected HashMap<Integer, LinkedHashSet<Predicate>> achieve;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;

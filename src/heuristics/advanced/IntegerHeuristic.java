@@ -37,8 +37,8 @@ import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
 import extraUtils.Pair;
-import heuristics.Heuristics;
-import heuristics.Heuristics;
+import heuristics.Heuristic;
+import heuristics.Heuristic;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -258,7 +258,7 @@ public abstract class IntegerHeuristic {
                     break;
                 }
             } catch (Exception ex) {
-                Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Heuristic.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         update_reacheable_predicates(h, s_0);
