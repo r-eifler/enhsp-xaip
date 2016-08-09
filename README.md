@@ -36,4 +36,4 @@ The SMT Planner can be downloaded from [Here](https://bitbucket.org/enricode/spr
 
 ##Dependencies
 
-The library depends on a number of other libs and for some of the facilities it also depends on s
+The library depends on a number of other libs and for some of the facilities it also depends on....
