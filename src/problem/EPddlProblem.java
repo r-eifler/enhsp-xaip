@@ -168,7 +168,6 @@ public class EPddlProblem extends PddlProblem {
         
         Iterator it = getActions().iterator();
         //System.out.println("prova");
-        System.out.println(getActions().size());
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
@@ -180,7 +179,6 @@ public class EPddlProblem extends PddlProblem {
                 it.remove();
             }
         }
-        System.out.println(getActions().size());
 
         
         it = this.processesSet.iterator();
