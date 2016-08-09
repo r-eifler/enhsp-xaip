@@ -197,7 +197,7 @@ public class PddlProblem {
      *
      * @return the value of pddlFilRef
      */
-    public String getPddlFilRef() {
+    public String getPddlFileReference() {
         return pddlFilRef;
     }
 

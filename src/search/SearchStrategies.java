@@ -163,8 +163,8 @@ public class SearchStrategies {
 
     public void setup_heuristic(Heuristic input) {
         this.setHeuristic(input);
-        setGw(0);
-        setHw(1);
+        set_w_g(0);
+        set_w_h(1);
         //horizon = Float.MAX_VALUE;
         setDecreasing_heuristic_pruning(false);
     }
@@ -687,7 +687,7 @@ public class SearchStrategies {
     /**
      * @param gw the gw to set
      */
-    public void setGw(float gw) {
+    public void set_w_g(float gw) {
         this.gw = gw;
     }
 
@@ -701,7 +701,7 @@ public class SearchStrategies {
     /**
      * @param hw the hw to set
      */
-    public void setHw(float hw) {
+    public void set_w_h(float hw) {
         this.hw = hw;
     }
 

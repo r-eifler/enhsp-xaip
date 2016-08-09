@@ -47,7 +47,7 @@ public class AdapterViaBlockDeordering extends PlanAdapter{
         //HashMap achieveGoal = new HashMap();
         long beforeMacrogeneration = System.currentTimeMillis();
         //List c = null;
-        List blocks = block_construction(problem.getPddlFilRef(),domain.getPddlFilRef(),planFile,sp,0);
+        List blocks = block_construction(problem.getPddlFileReference(),domain.getPddlFilRef(),planFile,sp,0);
         //TreeSet macros = this.pruneSmallMacros(blocks,10);
         System.out.println(blocks);
         List mac = sp.generateMacrosFromBlocks(blocks);
@@ -72,7 +72,7 @@ public class AdapterViaBlockDeordering extends PlanAdapter{
  
         String solutionString = null;
         if (planner instanceof metricFFWrapper){
-            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFilRef());
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFileReference());
         }else{
             PDDLObjects temp  = (PDDLObjects)problem.getObjects().clone();
             problem.removeObjects(dEnh.getConstantsFound());

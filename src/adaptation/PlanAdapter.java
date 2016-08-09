@@ -193,7 +193,7 @@ public class PlanAdapter {
 
             //Temporary Problem to emulate a new goal in a PDDL problem description
             PddlProblem tempProblem = new PddlProblem();
-            tempProblem.parseProblem(prob.getPddlFilRef());
+            tempProblem.parseProblem(prob.getPddlFileReference());
             tempProblem.setGoals((Conditions) nk.get(i));
             tempProblem.saveProblem("temp.pddl");
 
@@ -308,7 +308,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan temp_new_plan = new SimplePlan(temp, problem, false);
-            String solutionString = planner.plan(temp.getPddlFilRef(), problem.getPddlFilRef());
+            String solutionString = planner.plan(temp.getPddlFilRef(), problem.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -443,7 +443,7 @@ public class PlanAdapter {
 
             
             input_plan.savePlan("plan.sol");
-            String solutionString = planner.adapt(domain.getPddlFilRef(), problem.getPddlFilRef(), "plan.sol");
+            String solutionString = planner.adapt(domain.getPddlFilRef(), problem.getPddlFileReference(), "plan.sol");
             if (solutionString == null) {
                 return null;
             }
@@ -473,7 +473,7 @@ public class PlanAdapter {
             SimplePlan new_plan = new SimplePlan(domain, problem);
             planningTool replanner = this.planner;
 
-            String solutionString = replanner.plan(domain.getPddlFilRef(), problem.getPddlFilRef());
+            String solutionString = replanner.plan(domain.getPddlFilRef(), problem.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -533,7 +533,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan sp1 = new SimplePlan(temp, problem, false);
-            String solutionString = planner.plan(temp.getPddlFilRef(), problem.getPddlFilRef());
+            String solutionString = planner.plan(temp.getPddlFilRef(), problem.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -610,7 +610,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan sp1 = new SimplePlan(temp, problem, false);
-            String solutionString = planner.plan(temp.getPddlFilRef(), problem.getPddlFilRef());
+            String solutionString = planner.plan(temp.getPddlFilRef(), problem.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -660,7 +660,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan new_plan = new SimplePlan(new PddlDomain(dEnh.getDomainEnhancedFileName()), problem, false);
-            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFilRef());
+            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -705,7 +705,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan sp1 = new SimplePlan(temp, problem, false);
-            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFilRef());
+            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -747,7 +747,7 @@ public class PlanAdapter {
 
             //planning using the enhanced domain
             SimplePlan sp1 = new SimplePlan(dom, prob, false);
-            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFilRef());
+            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -789,7 +789,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan sp1 = new SimplePlan(temp, prob, false);
-            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFilRef());
+            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -834,7 +834,7 @@ public class PlanAdapter {
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan sp1 = new SimplePlan(temp, prob, false);
-            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFilRef());
+            String solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFileReference());
             if (solutionString == null) {
                 return null;
             }
@@ -925,7 +925,7 @@ public class PlanAdapter {
         SimplePlan new_plan = new SimplePlan(domain, problem, false);
         String solutionString = null;
         if (planner instanceof metricFFWrapper){
-            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFilRef());
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFileReference());
         }else{
             PDDLObjects temp  = (PDDLObjects)problem.getObjects().clone();
             problem.removeObjects(dEnh.getConstantsFound());
@@ -1022,7 +1022,7 @@ public class PlanAdapter {
  
         String solutionString = null;
         if (planner instanceof metricFFWrapper){
-            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFilRef());
+            solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFileReference());
         }else{
             PDDLObjects temp  = (PDDLObjects)prob.getObjects().clone();
             prob.removeObjects(dEnh.getConstantsFound());
