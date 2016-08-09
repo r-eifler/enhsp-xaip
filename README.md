@@ -30,3 +30,6 @@ In particular the -h can be configured with
 - 112, to get Additive Interval Based Relaxation (as for ECAI 2016 paper)
 - exp_gc, experimental version of something which is similar to h^m
 - op_counting, experimental version which supports operator counting constraints
+
+
+The SMT Planner can be downloaded from [Here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
