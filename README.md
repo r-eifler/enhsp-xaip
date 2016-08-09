@@ -8,7 +8,7 @@ This API has been used as basis for many projects, all related to Automated Plan
 
 For more information on its applications have a look at some of the papers in [Google Scholar](https://scholar.google.com.au/citations?user=lgfpklAAAAAJ&hl=en)
 
-The most recent advances of the library refers to:
+The most recent advances of the library refer to:
 
 E. Scala, P. Haslum, S. Thiebaux: **Heuristics for Numeric Planning via Subgoaling**, IJCAI 2016
 
