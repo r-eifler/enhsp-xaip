@@ -178,6 +178,7 @@ public abstract class Heuristic {
     
 
     public void build_integer_representation() {
+        all_conditions = new LinkedHashSet();
         int counter2 = 0;
 
         int counter_actions = 0;

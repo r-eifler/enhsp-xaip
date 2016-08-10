@@ -771,6 +771,8 @@ public abstract class IntegerHeuristic {
         for (Conditions c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
                 h.set(c_1.getCounter(), 0);
+            }else{
+                
             }
             if (debug >= 2) {
                 System.out.println("Condition counter mapping:" + c_1 + " ," + c_1.getCounter());

@@ -17,6 +17,7 @@ import heuristics.advanced.Uniform_cost_search_H1_RC;
 import heuristics.advanced.asymptotic_ibr;
 import heuristics.Aibr;
 import heuristics.advanced.Uniform_cost_search_HM;
+import heuristics.advanced.landmarks_factory;
 import heuristics.operator_counting.operator_counting_heuristic;
 
 /**
@@ -176,6 +177,13 @@ public class NHSP {
             h.extract_plan = true;
             searchStrategies.set_w_g(1);
             searchStrategies.set_w_h(1);
+        } else if (config.equals("landmark_test")) {//Landmark Extraction
+            System.out.println("landmark test");
+            searchStrategies.setup_heuristic(new landmarks_factory(problem.getGoals(), problem.getActions()));
+            landmarks_factory h = (landmarks_factory) searchStrategies.getHeuristic();
+            h.setup(problem.getInit());
+            h.compute_estimate(problem.getInit());
+            System.exit(-1);
         } else if (config.equals("exp_gc")) {//Experimental Setting. using hm-like formulation. Not published!
             searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
             Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
