@@ -24,25 +24,26 @@ Planners built on top of PPMaJaL can be downloaded following these other bitbuck
 *The ENHSP Planner* can be downloaded from [here](https://bitbucket.org/enricode/enhsp)
 
 
-
-
 ## Dependencies
 
 The library depends on a number of libs, some for the PDDL parsing, other for some standard algorithm on graphs, and some to interface the API with lp solvers:
 
 In particular:
 
-[Antlr 3.4](http://www.antlr3.org) is used for parsing pddl problems. [Here](http://www.antlr3.org/download/antlr-3.4-complete.jar) the link to the actual library file that needs to be linked
-[Jgraph](http://jgrapht.org). The version used by the library is the
-[Ojalgo](http://ojalgo.org). The version used is the v39.
+- [Antlr 3.4](http://www.antlr3.org) is used for parsing pddl problems. [Here](http://www.antlr3.org/download/antlr-3.4-complete.jar) the link to the actual library file that needs to be linked
+- [Jgraph](http://jgrapht.org). This is for general algorithms on graphs
+- [Ojalgo](http://ojalgo.org). The version used is the v40
+- [Json Simple](https://github.com/fangyidong/json-simple). This is used to store information of the search space explored.
 
-They are all open source projects, so is this library. We tested also CPLEX, but for the problem with dealt with, we did not observe substantial improvements.
+They are all open source projects, so is this library. For your convenience, the necessary jar files are all under the lib folder.
+
+We tested also CPLEX for some of the optimisation required, but for the instances with dealt with, we did not observe substantial improvements. To use CPLEX optimization you need to link the oplall.jar file, which comes with the library. However, CPLEX is not free, so you need to buy or get an academic licence first of being allowed to download it.
 
 ## Compilation
 
-You can use the library *off-the-shelf* but tou can also eecide to compile that. I am going to add a building file that should do the job for you. For the moment you should do the compilation manually (shouldn't be mucb of a problem though)
+You can use the library *off-the-shelf* but you can also decide to compile that. I am going to add a building file that should do the job for you. For the moment you should do the compilation manually (shouldn't be much of a problem though)
 
-## Already in the box
+## Already in the box: a clone of the ENHSP planner
 
 Besides many other things, the API has some self-contained planners such as the ENHSP planner (which stands for Expressive Numeric Heuristic Search Planner).
 
@@ -56,3 +57,5 @@ In particular the -h accepts the following parameters
 - 3, to get h_max
 - 112, to get Additive Interval Based Relaxation (as for ECAI 2016 paper)
 - exp_gc, experimental version of something which is similar to h^m relaxation
+
+There are also other settings, and new things in the frontend that can be accessed by running the planner without any parameter. You get a help file for that.
