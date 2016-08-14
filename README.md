@@ -1,5 +1,3 @@
-The following is still temporary..
-
 # What is PPMaJal?
 
 This repository contains the PPMaJal API, which is a planning manager library meant to build systems that speak the PDDL language. It supports many features that go way beyond classical planning, such as numeric representations, linear and non-linear constraints, autonomout processes, global constraints and other things.
@@ -18,9 +16,33 @@ E. Scala, P. Torasso, **Deordering and Numeric Macro Actions for Plan Repair**, 
 
 E. Scala, P. Haslum, S. Thiebaux, M. Ramirex, **Interval-Based Relaxation for General Numeric Planning**, ECAI 2016
 
+
 Planners built on top of PPMaJaL can be downloaded following these other bitbucket repositories:
 
+*The SMT Planner* can be downloaded from [here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
 
+*The ENHSP Planner* can be downloaded from [here](https://bitbucket.org/enricode/enhsp)
+
+
+
+
+## Dependencies
+
+The library depends on a number of libs, some for the PDDL parsing, other for some standard algorithm on graphs, and some to interface the API with lp solvers:
+
+In particular:
+
+[Antlr 3.4](http://www.antlr3.org) is used for parsing pddl problems. [Here](http://www.antlr3.org/download/antlr-3.4-complete.jar) the link to the actual library file that needs to be linked
+[Jgraph](http://jgrapht.org). The version used by the library is the
+[Ojalgo](http://ojalgo.org). The version used is the v39.
+
+They are all open source projects, so is this library. We tested also CPLEX, but for the problem with dealt with, we did not observe substantial improvements.
+
+## Compilation
+
+You can use the library *off-the-shelf* but tou can also eecide to compile that. I am going to add a building file that should do the job for you. For the moment you should do the compilation manually (shouldn't be mucb of a problem though)
+
+## Already in the box
 
 Besides many other things, the API has some self-contained planners such as the ENHSP planner (which stands for Expressive Numeric Heuristic Search Planner).
 
@@ -28,17 +50,9 @@ This planner can be invoked by:
 
 java -jar dist/PPMaJal2.jar -o <domain_file> -f <problem_file> -h <configuration> -s <search-strategy> -gw <weight for the g-values> -hw <weight for the h-values> -break_ties <larger_g, smaller_g, arbitrary>
 
-In particular the -h can be configured with
+In particular the -h accepts the following parameters
 
 - 1, to get h_add
 - 3, to get h_max
 - 112, to get Additive Interval Based Relaxation (as for ECAI 2016 paper)
-- exp_gc, experimental version of something which is similar to h^m
-- op_counting, experimental version which supports operator counting constraints
-
-
-The SMT Planner can be downloaded from [Here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
-
-## DependenciesThe SMT Planner can be downloaded from [Here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
-
-The library depends o n a number of other libs and for some of the facilities it also depends on....
+- exp_gc, experimental version of something which is similar to h^m relaxation
