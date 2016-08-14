@@ -58,4 +58,4 @@ In particular the -h accepts the following parameters
 - 112, to get Additive Interval Based Relaxation (as for ECAI 2016 paper)
 - exp_gc, experimental version of something which is similar to h^m relaxation
 
-There are also other settings, and new things in the frontend that can be accessed by running the planner without any parameter. You get a help file for that.
+There are also other settings, and new things in the frontend that can be accessed by running the planner without any parameter.
