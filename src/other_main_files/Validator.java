@@ -1,3 +1,5 @@
+package other_main_files;
+
 
 import conditions.Conditions;
 import domain.ActionSchema;
