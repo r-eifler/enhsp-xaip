@@ -1,8 +1,8 @@
 The following is still temporary..
 
-#What is PPMaJal?
+# What is PPMaJal?
 
-This repository contains the PPMaJal API, which is a planning problem manager library meant to build systems that speak the PDDL language. It supports many features that go way beyond classical planning, such as numeric representations, linear and non-linear constraints, autonomout processes, global constraints and other things.
+This repository contains the PPMaJal API, which is a planning manager library meant to build systems that speak the PDDL language. It supports many features that go way beyond classical planning, such as numeric representations, linear and non-linear constraints, autonomout processes, global constraints and other things.
 
 This API has been used as basis for many projects, all related to Automated Planning, Replanning, Plan Execution, SMT Planning and others that I cannot remember now.
 
@@ -17,6 +17,8 @@ E. Scala, M. Ramirez, P. Haslum, S. Thiebaux: **Numeric Planning with Disjunctiv
 E. Scala, P. Torasso, **Deordering and Numeric Macro Actions for Plan Repair**, IJCAI 2015
 
 E. Scala, P. Haslum, S. Thiebaux, M. Ramirex, **Interval-Based Relaxation for General Numeric Planning**, ECAI 2016
+
+Planners built on top of PPMaJaL can be downloaded following these other bitbucket repositories:
 
 
 
@@ -37,6 +39,6 @@ In particular the -h can be configured with
 
 The SMT Planner can be downloaded from [Here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
 
-##Dependencies
+## DependenciesThe SMT Planner can be downloaded from [Here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
 
-The library depends on a number of other libs and for some of the facilities it also depends on....
+The library depends o n a number of other libs and for some of the facilities it also depends on....

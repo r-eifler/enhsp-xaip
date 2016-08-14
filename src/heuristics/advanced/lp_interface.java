@@ -172,10 +172,8 @@ public class lp_interface {
                 if (!at_least_one && !cond.isSatisfied(s_0)) {
                     return Float.MAX_VALUE;
                 }
-//                if (!cond.isSatisfied(s_0)) {
-//                    minimi.add(local_minimum);
-//                }
-                minimi.add(local_minimum);
+                if (at_least_one && !cond.isSatisfied(s_0)) 
+                    minimi.add(local_minimum);
 
 //                System.out.println(condition);
             } else if (cond instanceof Predicate) {
@@ -220,7 +218,8 @@ public class lp_interface {
                     if (!at_least_one) {
                         return Float.MAX_VALUE;
                     }
-                    minimi.add(local_minimum);
+                    if (!cond.isSatisfied(s_0))
+                        minimi.add(local_minimum);
                 }
 
             } else {
@@ -240,10 +239,11 @@ public class lp_interface {
                 }
             } else {
                 for (Float local_min : minimi) {
-                    minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
+
+                        minimum_precondition_cost = Math.max(local_min, minimum_precondition_cost);
                 }
             }
-//            System.out.println("Condition under evaluation:"+c);
+//            System.out.println("Condition under evaluation:"+c);local_minimum
 //            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
 //            //if (c.getCounter() == G.getCounter()){
 //                BasicLogger.debug();
