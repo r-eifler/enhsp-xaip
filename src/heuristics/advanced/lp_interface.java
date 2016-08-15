@@ -49,7 +49,6 @@ public class lp_interface {
         if (c == null || c.sons == null || c.sons.isEmpty()) {
             return 0.0F;
         }
-        Float minimum_precondition_cost;
 
 //         BasicLogger.debug();
 //        BasicLogger.debug("Test for "+c.pddlPrint(false));
@@ -58,7 +57,8 @@ public class lp_interface {
 //        BasicLogger.debug();
         final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
 //        ExpressionsBasedModel.addIntegration(oSlverCPLEX.INTEGRATION);
-
+        
+        float min_cost_achieving_conditions = 0f;
 
         Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
         Collection<Float> minimi = new LinkedHashSet();
@@ -72,7 +72,7 @@ public class lp_interface {
         }
         for (Conditions cond : conditions_to_evaluate) {
             Float local_minimum = Float.MAX_VALUE;
-
+            Float action_with_minimum_cost = Float.MAX_VALUE;
             if (cond instanceof Comparison) {
                 Comparison comp = (Comparison) cond;
                 ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
@@ -109,8 +109,8 @@ public class lp_interface {
                                     }
                                     //                                    System.out.println(neff);
                                     gr.setAction_cost(s_0);
-                                    Float cost_action = gr.getAction_cost();
-                                    if (cost_action.isNaN()) {
+                                    Float action_cost = gr.getAction_cost();
+                                    if (action_cost.isNaN()) {
                                         continue;
                                     }
 
@@ -121,7 +121,7 @@ public class lp_interface {
                                             action.integer(true);
                                         }
                                     } else {
-                                        action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
+                                        action = Variable.make(gr.toEcoString()).lower(0).weight(action_cost);
                                         tmpModel.addVariable(action);
                                         action_to_variable.put(gr.counter, action);
                                     }
@@ -158,6 +158,7 @@ public class lp_interface {
                                             || (comp.getComparator().contains("<") && right > 0)) {
                                         at_least_one = true;
                                         local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                                        action_with_minimum_cost = Math.min(action_with_minimum_cost, action_cost);
                                         //this is the only action that can be used.
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
@@ -171,8 +172,10 @@ public class lp_interface {
                 if (!at_least_one && !cond.isSatisfied(s_0)) {
                     return Float.MAX_VALUE;
                 }
-                if (at_least_one && !cond.isSatisfied(s_0)) 
+                if (at_least_one && !cond.isSatisfied(s_0)){ 
                     minimi.add(local_minimum);
+                    min_cost_achieving_conditions +=action_with_minimum_cost;
+                }
 
 //                System.out.println(condition);
             } else if (cond instanceof Predicate) {
@@ -185,8 +188,8 @@ public class lp_interface {
                     for (GroundAction gr : pool) {
                         if (gr.achieve(p)) {
                             gr.setAction_cost(s_0);
-                            Float cost_action = gr.getAction_cost();
-                            if (cost_action.isNaN()) {
+                            Float action_cost = gr.getAction_cost();
+                            if (action_cost.isNaN()) {
                                 continue;
                             }
                             at_least_one = true;
@@ -194,7 +197,7 @@ public class lp_interface {
                             if (action_to_variable.get(gr.counter) != null) {
                                 action = action_to_variable.get(gr.counter);
                             } else {
-                                action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
+                                action = Variable.make(gr.toEcoString()).lower(0).weight(action_cost);
                                 tmpModel.addVariable(action);
                                 action_to_variable.put(gr.counter, action);
                                 if (integer_variables) {
@@ -209,6 +212,8 @@ public class lp_interface {
                             //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
                             //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
                             condition = condition.set(action, 1);
+                            action_with_minimum_cost = Math.min(action_with_minimum_cost, action_cost);
+
                             if (local_minimum == Float.MAX_VALUE) {//should not be true: debugging
                                 System.out.println("Problem with:" + gr);
                             }
@@ -217,8 +222,11 @@ public class lp_interface {
                     if (!at_least_one) {
                         return Float.MAX_VALUE;
                     }
-                    if (!cond.isSatisfied(s_0))
+                    if (!cond.isSatisfied(s_0)){
                         minimi.add(local_minimum);
+                        min_cost_achieving_conditions +=action_with_minimum_cost;
+
+                    }
                 }
 
             } else {
@@ -230,17 +238,25 @@ public class lp_interface {
         Optimisation.Result tmpResult = tmpModel.minimise();
 
         if (tmpResult.getState().isFeasible()) {
-            minimum_precondition_cost = 0f;
 
+            float objective = (float) tmpResult.getValue();
             if (this.additive_h) {
+                Float max_over_precondition_costs = 0f;
                 for (Float local_min : minimi) {
-                    minimum_precondition_cost += local_min;
+                    objective += local_min;//very additive
+                    //max_over_precondition_costs = Math.max(local_min, minimum_precondition_cost);// less additive but still inadmissible..  
                 }
             } else {
+                Float minimum_precondition_cost = Float.MAX_VALUE;
+                Float max_over_precondition_costs = 0f;
                 for (Float local_min : minimi) {
-
-                        minimum_precondition_cost = Math.max(local_min, minimum_precondition_cost);
+                        minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
+                        max_over_precondition_costs = Math.max(local_min, minimum_precondition_cost);
                 }
+                if (minimi.isEmpty())
+                    minimum_precondition_cost = 0f;
+
+                objective = Math.max(objective+minimum_precondition_cost, max_over_precondition_costs+min_cost_achieving_conditions);
             }
 //            System.out.println("Condition under evaluation:"+c);local_minimum
 //            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
@@ -257,7 +273,7 @@ public class lp_interface {
 ////                System.out.println("Error in using some of the action..");
 ////            }
 //               System.out.println("Result returned:"+(float) (tmpResult.getValue() + minimum_precondition_cost));
-            return (float) (tmpResult.getValue() + minimum_precondition_cost);
+            return objective;
 //            return (float) (tmpResult.getValue() + minimum_precondition_cost);
 
         } else {
