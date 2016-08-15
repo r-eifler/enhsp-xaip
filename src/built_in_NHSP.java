@@ -24,7 +24,7 @@ import heuristics.advanced.landmarks_factory;
  *
  * @author enrico
  */
-public class NHSP {
+public class built_in_NHSP {
 
     private static String domainFile;
     private static String problemFile;
