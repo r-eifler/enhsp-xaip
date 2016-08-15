@@ -243,7 +243,7 @@ public class Uniform_cost_search_HM extends Heuristic {
                 if (!closed.get(cond.getCounter())) {
                     Float current_cost = null;
                     if (cplex){
-                        current_cost = lp_interface.compute_current_cost_via_lp_cplex(active_actions, s, cond, distance,this.gC);
+                        //current_cost = lp_interface.compute_current_cost_via_lp_cplex(active_actions, s, cond, distance,this.gC);
                     }else
                         current_cost = lp_interface.compute_current_cost_via_lp(active_actions, s, cond, distance,this.gC);
          
