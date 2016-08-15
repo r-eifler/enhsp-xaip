@@ -21,8 +21,7 @@ import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
 import problem.GroundAction;
 import problem.State;
-import ilog.concert.*;
-import ilog.cplex.*;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -268,160 +267,160 @@ public class lp_interface {
         //        System.out.println(opt.Check());
     }
 
-    protected float compute_current_cost_via_lp_cplex(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h, Conditions gC) {
+//    protected float compute_current_cost_via_lp_cplex(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h, Conditions gC) {
 
-        invocation = invocation + 1;
-
-        try {
-            if (c == null || c.sons == null || c.sons.isEmpty()) {
-                return 0.0F;
-            }
-
-            IloCplex cplex = new IloCplex();
-            cplex.setOut(null);
-
-            IloNumVar[][] var = new IloNumVar[1][];
-            IloRange[][] rng = new IloRange[1][];
-
-            Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
-            conditions_to_evaluate.addAll(c.sons);
-            HashMap<Integer, IloNumVar> action_to_variable = new HashMap();
-
-            if (gC != null) {
-//            System.out.println("considering Global Constraints:"+gC.sons);
-                conditions_to_evaluate.addAll(gC.sons);
-            }
-            IloNumExpr obj = cplex.numExpr();
-            for (Conditions cond : conditions_to_evaluate) {
-                if (cond instanceof Comparison) {
-                    Comparison comp = (Comparison) cond;
-                    ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
-                    boolean at_least_one = false;
-                    Float num = comp.getLeft().eval(s_0).getNumber();
-                    IloNumExpr condition = cplex.numExpr();
-
-                    for (ExtendedAddendum ad : left.summations) {
-                        if (ad.f != null) {
-                            for (GroundAction gr : pool) {
-                                if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
-                                    for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
-                                        if (!neff.getFluentAffected().equals(ad.f)) {
-                                            continue;
-                                        }
-                                        //                                    System.out.println(neff);
-                                        gr.setAction_cost(s_0);
-                                        Float cost_action = gr.getAction_cost();
-                                        if (cost_action.isNaN()) {
-                                            continue;
-                                        }
-                                        cplex.numVar(0, Float.MAX_VALUE);
-
-                                        IloNumVar action;
-                                        if (action_to_variable.get(gr.counter) != null) {
-                                            action = action_to_variable.get(gr.counter);
-                                        } else {
-                                            action = cplex.numVar(0, Float.MAX_VALUE);
-                                            action_to_variable.put(gr.counter, action);
-                                            obj = cplex.sum(obj, action);
-
-                                        }
-//                                        System.out.println("ACtion under consideration"+gr.toPDDL());
-//                                        System.out.println("Action:"+action);
-//                                        System.out.println("Obj before:"+obj);
-//                                        System.out.println("Obj after:"+obj);
-
-//                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
-//opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
-//opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
-                                        Float right = null;
-
-                                        switch (neff.getOperator()) {
-                                            case "increase":
-                                                right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
-                                                condition = cplex.sum(condition, cplex.prod(right, action));
-                                                break;
-                                            case "decrease":
-                                                right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
-                                                condition = cplex.sum(condition, cplex.prod(-right, action));
-                                                break;
-                                            case "assign":
-                                                //this is an assign
-//                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
-//                                            right = condition.get(action).floatValue() - right;
-//                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
-//                                            action.upper(1);
-                                                System.out.println("Assign not supported");
-                                                break;
-                                        }
-                                    if ((comp.getComparator().contains(">") && right > 0)
-                                            || (comp.getComparator().contains("<") && right < 0)) {
-                                        at_least_one = true;
-                                        //this is the only action that can be used.
-                                    }
-                                    
-
-                                        
-
-//                                    local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
-//                                    System.out.println("Action"+gr+" Cost:"+h.get(gr.getPreconditions().getCounter()));
-//                                    System.out.println("Condition " +c);
-//                                    if (local_minimum == Float.MAX_VALUE){
-//                                        System.out.println("Problem with:"+gr);
+//        invocation = invocation + 1;
+//
+//        try {
+//            if (c == null || c.sons == null || c.sons.isEmpty()) {
+//                return 0.0F;
+//            }
+//
+//            IloCplex cplex = new IloCplex();
+//            cplex.setOut(null);
+//
+//            IloNumVar[][] var = new IloNumVar[1][];
+//            IloRange[][] rng = new IloRange[1][];
+//
+//            Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
+//            conditions_to_evaluate.addAll(c.sons);
+//            HashMap<Integer, IloNumVar> action_to_variable = new HashMap();
+//
+//            if (gC != null) {
+////            System.out.println("considering Global Constraints:"+gC.sons);
+//                conditions_to_evaluate.addAll(gC.sons);
+//            }
+//            IloNumExpr obj = cplex.numExpr();
+//            for (Conditions cond : conditions_to_evaluate) {
+//                if (cond instanceof Comparison) {
+//                    Comparison comp = (Comparison) cond;
+//                    ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
+//                    boolean at_least_one = false;
+//                    Float num = comp.getLeft().eval(s_0).getNumber();
+//                    IloNumExpr condition = cplex.numExpr();
+//
+//                    for (ExtendedAddendum ad : left.summations) {
+//                        if (ad.f != null) {
+//                            for (GroundAction gr : pool) {
+//                                if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+//                                    for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+//                                        if (!neff.getFluentAffected().equals(ad.f)) {
+//                                            continue;
+//                                        }
+//                                        //                                    System.out.println(neff);
+//                                        gr.setAction_cost(s_0);
+//                                        Float cost_action = gr.getAction_cost();
+//                                        if (cost_action.isNaN()) {
+//                                            continue;
+//                                        }
+//                                        cplex.numVar(0, Float.MAX_VALUE);
+//
+//                                        IloNumVar action;
+//                                        if (action_to_variable.get(gr.counter) != null) {
+//                                            action = action_to_variable.get(gr.counter);
+//                                        } else {
+//                                            action = cplex.numVar(0, Float.MAX_VALUE);
+//                                            action_to_variable.put(gr.counter, action);
+//                                            obj = cplex.sum(obj, action);
+//
+//                                        }
+////                                        System.out.println("ACtion under consideration"+gr.toPDDL());
+////                                        System.out.println("Action:"+action);
+////                                        System.out.println("Obj before:"+obj);
+////                                        System.out.println("Obj after:"+obj);
+//
+////                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
+////opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
+////opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
+//                                        Float right = null;
+//
+//                                        switch (neff.getOperator()) {
+//                                            case "increase":
+//                                                right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+//                                                condition = cplex.sum(condition, cplex.prod(right, action));
+//                                                break;
+//                                            case "decrease":
+//                                                right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+//                                                condition = cplex.sum(condition, cplex.prod(-right, action));
+//                                                break;
+//                                            case "assign":
+//                                                //this is an assign
+////                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+////                                            right = condition.get(action).floatValue() - right;
+////                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
+////                                            action.upper(1);
+//                                                System.out.println("Assign not supported");
+//                                                break;
+//                                        }
+//                                    if ((comp.getComparator().contains(">") && right > 0)
+//                                            || (comp.getComparator().contains("<") && right < 0)) {
+//                                        at_least_one = true;
+//                                        //this is the only action that can be used.
 //                                    }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (!at_least_one && !cond.isSatisfied(s_0)) {
-                        return Float.MAX_VALUE;
-                    }
-                    switch (comp.getComparator()) {
-                        case ">":
-
-                            cplex.addGe(cplex.sum(condition, num), 0);
-                            break;
-                        case ">=":
-                            cplex.addGe(cplex.sum(condition, num), 0);
-                            break;
-                        case "<":
-                            cplex.addLe(cplex.sum(condition, num), 0);
-                            break;
-                        case "<=":
-                            cplex.addLe(cplex.sum(condition, num), 0);
-                            break;
-                        case "=":
-                            cplex.addEq(cplex.sum(condition, num), 0);
-                            break;
-                    }
-//                if (!cond.isSatisfied(s_0)) {
-//                    minimi.add(local_minimum);
+//                                    
+//
+//                                        
+//
+////                                    local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+////                                    System.out.println("Action"+gr+" Cost:"+h.get(gr.getPreconditions().getCounter()));
+////                                    System.out.println("Condition " +c);
+////                                    if (local_minimum == Float.MAX_VALUE){
+////                                        System.out.println("Problem with:"+gr);
+////                                    }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (!at_least_one && !cond.isSatisfied(s_0)) {
+//                        return Float.MAX_VALUE;
+//                    }
+//                    switch (comp.getComparator()) {
+//                        case ">":
+//
+//                            cplex.addGe(cplex.sum(condition, num), 0);
+//                            break;
+//                        case ">=":
+//                            cplex.addGe(cplex.sum(condition, num), 0);
+//                            break;
+//                        case "<":
+//                            cplex.addLe(cplex.sum(condition, num), 0);
+//                            break;
+//                        case "<=":
+//                            cplex.addLe(cplex.sum(condition, num), 0);
+//                            break;
+//                        case "=":
+//                            cplex.addEq(cplex.sum(condition, num), 0);
+//                            break;
+//                    }
+////                if (!cond.isSatisfied(s_0)) {
+////                    minimi.add(local_minimum);
+////                }
+//
+////                System.out.println(condition);
+//                } else if (cond instanceof Predicate) {
 //                }
-
-//                System.out.println(condition);
-                } else if (cond instanceof Predicate) {
-                }
-            }
-
-            cplex.addMinimize(obj);
-//            System.out.println(cplex.getObjective().toString());
-//            System.out.println(obj);
-
-//            cplex.exportModel("mipex1.lp");
-//            System.out.println(cplex);
-            if (cplex.solve()) {
-//                System.out.println("Objective:"+cplex.getObjValue());
-                float ret = (float) cplex.getObjValue();
-                cplex.end();
-                return ret;
-            } else {
-                cplex.end();
-                //            System.out.println(opt.toString());
-                return Float.MAX_VALUE;
-            }
-        } catch (IloException ex) {
-            Logger.getLogger(lp_interface.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return Float.MAX_VALUE;
-    }
+//            }
+//
+//            cplex.addMinimize(obj);
+////            System.out.println(cplex.getObjective().toString());
+////            System.out.println(obj);
+//
+////            cplex.exportModel("mipex1.lp");
+////            System.out.println(cplex);
+//            if (cplex.solve()) {
+////                System.out.println("Objective:"+cplex.getObjValue());
+//                float ret = (float) cplex.getObjValue();
+//                cplex.end();
+//                return ret;
+//            } else {
+//                cplex.end();
+//                //            System.out.println(opt.toString());
+//                return Float.MAX_VALUE;
+//            }
+//        } catch (IloException ex) {
+//            Logger.getLogger(lp_interface.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return Float.MAX_VALUE;
+//    }
 }
