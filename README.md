@@ -45,9 +45,9 @@ You can use the library *off-the-shelf* but you can also decide to compile that.
 
 ## Already in the box: a clone of the ENHSP planner
 
-Besides many other things, the API has some self-contained planners such as the ENHSP planner (which stands for Expressive Numeric Heuristic Search Planner).
+Besides many other things, the API has some self-contained planners such as the ENHSP planner (which stands for Expressive Numeric Heuristic Search Planner). I heavily suggest you to install the planner starting from [here](https://bitbucket.org/enricode/enhsp.-numeric-heuristic-search-pddl-planner) if you want to use the planner.
 
-This planner can be invoked by:
+By the way you can use a version of that planner also from here. It can be invoked with:
 
 java -jar dist/PPMaJal2.jar -o <domain_file> -f <problem_file> -h <configuration> -s <search-strategy> -gw <weight for the g-values> -hw <weight for the h-values> -break_ties <larger_g, smaller_g, arbitrary>
 
