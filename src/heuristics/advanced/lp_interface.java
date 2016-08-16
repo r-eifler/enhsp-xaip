@@ -55,11 +55,10 @@ public class lp_interface {
 //        BasicLogger.debug(OjAlgoUtils.getTitle());
 //        BasicLogger.debug(OjAlgoUtils.getDate());
 //        BasicLogger.debug();
+        float smallest_achiever_cost = Float.MAX_VALUE;
         final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
 //        ExpressionsBasedModel.addIntegration(oSlverCPLEX.INTEGRATION);
         
-        float min_cost_achieving_conditions = 0f;
-
         Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
         Collection<Float> minimi = new LinkedHashSet();
         HashMap<Integer, Variable> action_to_variable = new HashMap();
@@ -72,7 +71,6 @@ public class lp_interface {
         }
         for (Conditions cond : conditions_to_evaluate) {
             Float local_minimum = Float.MAX_VALUE;
-            Float action_with_minimum_cost = Float.MAX_VALUE;
             if (cond instanceof Comparison) {
                 Comparison comp = (Comparison) cond;
                 ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
@@ -158,7 +156,7 @@ public class lp_interface {
                                             || (comp.getComparator().contains("<") && right > 0)) {
                                         at_least_one = true;
                                         local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
-                                        action_with_minimum_cost = Math.min(action_with_minimum_cost, action_cost);
+                                        smallest_achiever_cost = Math.min(smallest_achiever_cost, action_cost*gr.getNumberOfExecutionInt(s_0, comp));
                                         //this is the only action that can be used.
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
@@ -174,7 +172,6 @@ public class lp_interface {
                 }
                 if (at_least_one && !cond.isSatisfied(s_0)){ 
                     minimi.add(local_minimum);
-                    min_cost_achieving_conditions +=action_with_minimum_cost;
                 }
 
 //                System.out.println(condition);
@@ -212,8 +209,7 @@ public class lp_interface {
                             //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
                             //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
                             condition = condition.set(action, 1);
-                            action_with_minimum_cost = Math.min(action_with_minimum_cost, action_cost);
-
+                            smallest_achiever_cost = Math.min(smallest_achiever_cost, action_cost);
                             if (local_minimum == Float.MAX_VALUE) {//should not be true: debugging
                                 System.out.println("Problem with:" + gr);
                             }
@@ -224,7 +220,6 @@ public class lp_interface {
                     }
                     if (!cond.isSatisfied(s_0)){
                         minimi.add(local_minimum);
-                        min_cost_achieving_conditions +=action_with_minimum_cost;
 
                     }
                 }
@@ -256,7 +251,7 @@ public class lp_interface {
                 if (minimi.isEmpty())
                     minimum_precondition_cost = 0f;
 
-                objective = Math.max(objective+minimum_precondition_cost, max_over_precondition_costs+min_cost_achieving_conditions);
+                objective = Math.max(objective+minimum_precondition_cost, max_over_precondition_costs+smallest_achiever_cost);
             }
 //            System.out.println("Condition under evaluation:"+c);local_minimum
 //            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
