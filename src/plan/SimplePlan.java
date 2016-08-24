@@ -151,7 +151,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
     @Override
     public Object clone() {
         SimplePlan sp = new SimplePlan(pd, pp);
-        sp.invariantFluents = (HashMap) this.invariantFluents.clone();
+        if (this.invariantFluents!= null)
+            sp.invariantFluents = (HashMap) this.invariantFluents.clone();
+        else
+            sp.invariantFluents = null;
         sp.invariantAnalysis = this.invariantAnalysis;
         for (Object o : this) {
             GroundAction gr = (GroundAction) o;

@@ -34,7 +34,7 @@ public class ExtendedAddendum {
 
     public PDDLNumber n;
     public NumFluent f;
-    public BinaryOp bin;
+    public GenericOperator bin;
     public boolean linear;
 
     public ExtendedAddendum() {
@@ -49,7 +49,7 @@ public class ExtendedAddendum {
         linear = true;
         
     }
-    public ExtendedAddendum(BinaryOp bin) {
+    public ExtendedAddendum(GenericOperator bin) {
         this.bin = bin;
         linear = false;
     }
@@ -58,7 +58,7 @@ public class ExtendedAddendum {
     protected Object clone() throws CloneNotSupportedException {
         ExtendedAddendum ret = new ExtendedAddendum();
         if (!this.linear){
-            ret.bin = (BinaryOp) this.bin.clone();
+            ret.bin = (GenericOperator) this.bin.clone();
             ret.linear = false;
         }else{
             if (ret.bin != null){

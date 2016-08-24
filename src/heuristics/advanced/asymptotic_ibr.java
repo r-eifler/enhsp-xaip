@@ -8,7 +8,7 @@ package heuristics.advanced;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
-import expressions.BinaryOp;
+import expressions.GenericOperator;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import heuristics.Heuristic;
@@ -177,7 +177,7 @@ public class asymptotic_ibr extends Heuristic {
         GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(disequality);
         if (effect.getOperator().equals("assign")) {
-            indirect_precondition.setLeft(new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true));
+            indirect_precondition.setLeft(new GenericOperator(effect.getRight(), "-", effect.getFluentAffected(), true));
         } else {
             indirect_precondition.setLeft(effect.getRight());
         }

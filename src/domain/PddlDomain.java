@@ -36,7 +36,7 @@ import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.PDDLObjectsEquality;
 import conditions.Predicate;
-import expressions.BinaryOp;
+import expressions.GenericOperator;
 import expressions.Expression;
 import expressions.MinusUnary;
 import expressions.MultiOp;
@@ -897,7 +897,7 @@ public final class PddlDomain extends Object {
     private Expression createExpression(Tree t, SchemaParameters parTable) {
 
         if (t.getType() == PddlParser.BINARY_OP) {
-            BinaryOp ret = new BinaryOp();
+            GenericOperator ret = new GenericOperator();
             ret.setOperator(t.getChild(0).getText());
             ret.setOne(createExpression(t.getChild(1), parTable));
             ret.setRight(createExpression(t.getChild(2), parTable));

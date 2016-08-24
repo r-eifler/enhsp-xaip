@@ -353,11 +353,11 @@ public class NumEffect extends Expression {
 
 
                 if (ef.getOperator().equals("assign")) {
-                    ret.setRight(new BinaryOp(ret.right, "-", new BinaryOp(ef.right, "-", ret.fluentAffected, true), true));
+                    ret.setRight(new GenericOperator(ret.right, "-", new GenericOperator(ef.right, "-", ret.fluentAffected, true), true));
                 } else if (ef.getOperator().equals(ret.getOperator())) {
-                    ret.setRight(new BinaryOp(ret.right, "+", ef.right, true));
+                    ret.setRight(new GenericOperator(ret.right, "+", ef.right, true));
                 } else {
-                    ret.setRight(new BinaryOp(ret.right, "-", ef.right, true));
+                    ret.setRight(new GenericOperator(ret.right, "-", ef.right, true));
                 }
 
 
@@ -389,7 +389,7 @@ public class NumEffect extends Expression {
 
     @Override
     public String toSmtVariableString(int i) {
-        BinaryOp op = new BinaryOp();
+        GenericOperator op = new GenericOperator();
         if (this.operator.equals("increase")) {
             op.setOperator("+");
             op.setRight(this.getRight());

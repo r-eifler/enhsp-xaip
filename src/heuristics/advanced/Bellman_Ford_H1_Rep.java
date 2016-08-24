@@ -32,7 +32,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import expressions.BinaryOp;
+import expressions.GenericOperator;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -252,7 +252,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                         Pair<Comparison, Comparison> comparisons = new Pair();
                         {
                             Comparison new_comp = new Comparison(comp.getComparator() + "=");
-                            BinaryOp op = new BinaryOp(comp.getLeft().clone(), "+", new PDDLNumber(b - a), true);
+                            GenericOperator op = new GenericOperator(comp.getLeft().clone(), "+", new PDDLNumber(b - a), true);
                             new_comp.setLeft(op);
                             new_comp.setRight(new PDDLNumber(0));
                             new_comp.normalize();
@@ -282,7 +282,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                         }
                         if (too_optimistic) {
                             Comparison new_comp = new Comparison(comp.getComparator() + "=");
-                            BinaryOp op = new BinaryOp(comp.getLeft().clone(), "+", new PDDLNumber(2 * b - a), true);
+                            GenericOperator op = new GenericOperator(comp.getLeft().clone(), "+", new PDDLNumber(2 * b - a), true);
                             new_comp.setLeft(op);
                             new_comp.setRight(new PDDLNumber(0));
                             new_comp.normalize();

@@ -30,7 +30,7 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import expressions.BinaryOp;
+import expressions.GenericOperator;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import java.util.ArrayList;
@@ -399,7 +399,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(disequality);
         if (effect.getOperator().equals("assign")){
-            indirect_precondition.setLeft(new BinaryOp(effect.getRight(),"-",effect.getFluentAffected(),true));
+            indirect_precondition.setLeft(new GenericOperator(effect.getRight(),"-",effect.getFluentAffected(),true));
         }else{
             indirect_precondition.setLeft(effect.getRight());
         }

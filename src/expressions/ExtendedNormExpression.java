@@ -63,7 +63,7 @@ public class ExtendedNormExpression extends Expression {
 
     }
 
-    public ExtendedNormExpression(BinaryOp bin) {
+    public ExtendedNormExpression(GenericOperator bin) {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum(bin);
         this.summations.add(a);
@@ -251,7 +251,7 @@ public class ExtendedNormExpression extends Expression {
                 }
                 result.summations.add(ele);
             } else {
-                BinaryOp bin = new BinaryOp();
+                GenericOperator bin = new GenericOperator();
                 bin.setRight(new PDDLNumber(-1));
                 bin.setOperator("*");
                 bin.setOne(b.bin.clone());
@@ -298,22 +298,22 @@ public class ExtendedNormExpression extends Expression {
                         adding = false;
                     }
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() * b.n.getNumber()), "*", new BinaryOp(a.f, "*", b.f, true), true);
+                    ele_to_add.bin = new GenericOperator(new PDDLNumber(a.n.getNumber() * b.n.getNumber()), "*", new GenericOperator(a.f, "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f == null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", b.n.clone(), true);
+                    ele_to_add.bin = new GenericOperator(a.bin.clone(), "*", b.n.clone(), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.bin = new GenericOperator(a.bin.clone(), "*", new GenericOperator(b.n, "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f == null && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(b.bin.clone(), "*", a.n.clone(), true);
+                    ele_to_add.bin = new GenericOperator(b.bin.clone(), "*", a.n.clone(), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f != null && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(new BinaryOp(a.n, "*", a.f, true), "*", b.bin.clone(), true);
+                    ele_to_add.bin = new GenericOperator(new GenericOperator(a.n, "*", a.f, true), "*", b.bin.clone(), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", b.bin.clone(), true);
+                    ele_to_add.bin = new GenericOperator(a.bin.clone(), "*", b.bin.clone(), true);
                     ele_to_add.linear = false;
                 }
                 //System.out.println(ele_to_add);
@@ -343,29 +343,29 @@ public class ExtendedNormExpression extends Expression {
                         adding = false;
                     }
                 } else if (a.linear && b.linear && b.f == null) {
-                    ele_to_add.bin = new BinaryOp(a.f.clone(), "*", new PDDLNumber(a.n.getNumber() / b.n.getNumber()), true);
+                    ele_to_add.bin = new GenericOperator(a.f.clone(), "*", new PDDLNumber(a.n.getNumber() / b.n.getNumber()), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f == null && b.linear) {
-                    ele_to_add.bin = new BinaryOp(a.n, "/", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.bin = new GenericOperator(a.n, "/", new GenericOperator(b.n, "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new BinaryOp(a.f, "/", b.f, true), true);
+                    ele_to_add.bin = new GenericOperator(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new GenericOperator(a.f, "/", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f == null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", b.n.clone(), true);
+                    ele_to_add.bin = new GenericOperator(a.bin.clone(), "/", b.n.clone(), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.bin = new GenericOperator(a.bin.clone(), "/", new GenericOperator(b.n, "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f == null && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(a.n.clone(), "/", b.bin.clone(), true);
+                    ele_to_add.bin = new GenericOperator(a.n.clone(), "/", b.bin.clone(), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f != null && !b.linear) {
                     ele_to_add.linear = false;
-                    ele_to_add.bin = new BinaryOp(new BinaryOp(a.n, "*", a.f, true), "/", b.bin.clone(), true);
+                    ele_to_add.bin = new GenericOperator(new GenericOperator(a.n, "*", a.f, true), "/", b.bin.clone(), true);
                 } else if (!a.linear && !b.linear) {
                     ele_to_add.linear = false;
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", b.bin.clone(), true);
+                    ele_to_add.bin = new GenericOperator(a.bin.clone(), "/", b.bin.clone(), true);
                 }
                 if (adding) {
                     result.summations.add(ele_to_add);
@@ -620,7 +620,7 @@ public class ExtendedNormExpression extends Expression {
             if (ad.linear) {
                 ad.n = new PDDLNumber(ad.n.getNumber() * n.getNumber());
             } else {
-                ad.bin = new BinaryOp(ad.bin, "*", n, true);
+                ad.bin = new GenericOperator(ad.bin, "*", n, true);
             }
         }
     }

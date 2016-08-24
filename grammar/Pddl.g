@@ -400,7 +400,7 @@ assignOp : 'assign' | 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
 /************* DURATIONS  ****************************/
 
 durationConstraint
-	: '(' 'and' simpleDuratypedNameListtionConstraint+ ')'
+	: '(' 'and' simpleDurationConstraint+ ')'
 	| '(' ')'
 	| simpleDurationConstraint
 	;
@@ -466,7 +466,8 @@ problemDomain
 	;
 
 objectDecl
-	: '(' ':objects'  typedNameList* ')' -> ^(OBJECTS typedNameList*)
+	: '(' ':objects' typedNameList ')'
+	-> ^(OBJECTS typedNameList)
 	;
 
 init
@@ -593,8 +594,6 @@ WHITESPACE
         )+
         { $channel = HIDDEN; }
     ;
-
-
 
 
 

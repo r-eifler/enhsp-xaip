@@ -34,6 +34,7 @@ public class lp_interface {
     public int invocation;
     public boolean integer_variables;
     public boolean additive_h;
+    private boolean no_further_reasoning = true;
 
     public lp_interface() {
         super();
@@ -58,7 +59,7 @@ public class lp_interface {
         float smallest_achiever_cost = Float.MAX_VALUE;
         final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
 //        ExpressionsBasedModel.addIntegration(oSlverCPLEX.INTEGRATION);
-        
+
         Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
         Collection<Float> minimi = new LinkedHashSet();
         HashMap<Integer, Variable> action_to_variable = new HashMap();
@@ -156,7 +157,7 @@ public class lp_interface {
                                             || (comp.getComparator().contains("<") && right > 0)) {
                                         at_least_one = true;
                                         local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
-                                        smallest_achiever_cost = Math.min(smallest_achiever_cost, action_cost*gr.getNumberOfExecutionInt(s_0, comp));
+                                        smallest_achiever_cost = Math.min(smallest_achiever_cost, action_cost * gr.getNumberOfExecutionInt(s_0, comp));
                                         //this is the only action that can be used.
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
@@ -170,7 +171,7 @@ public class lp_interface {
                 if (!at_least_one && !cond.isSatisfied(s_0)) {
                     return Float.MAX_VALUE;
                 }
-                if (at_least_one && !cond.isSatisfied(s_0)){ 
+                if (at_least_one && !cond.isSatisfied(s_0)) {
                     minimi.add(local_minimum);
                 }
 
@@ -218,7 +219,7 @@ public class lp_interface {
                     if (!at_least_one) {
                         return Float.MAX_VALUE;
                     }
-                    if (!cond.isSatisfied(s_0)){
+                    if (!cond.isSatisfied(s_0)) {
                         minimi.add(local_minimum);
 
                     }
@@ -235,6 +236,7 @@ public class lp_interface {
         if (tmpResult.getState().isFeasible()) {
 
             float objective = (float) tmpResult.getValue();
+
             if (this.additive_h) {
                 Float max_over_precondition_costs = 0f;
                 for (Float local_min : minimi) {
@@ -243,15 +245,23 @@ public class lp_interface {
                 }
             } else {
                 Float minimum_precondition_cost = Float.MAX_VALUE;
+
+                if (no_further_reasoning) {
+                    for (Float local_min : minimi) {
+                        minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
+                    }
+                    return (objective + minimum_precondition_cost);
+                }
                 Float max_over_precondition_costs = 0f;
                 for (Float local_min : minimi) {
-                        minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
-                        max_over_precondition_costs = Math.max(local_min, minimum_precondition_cost);
+                    minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
+                    max_over_precondition_costs = Math.max(local_min, minimum_precondition_cost);
                 }
-                if (minimi.isEmpty())
+                if (minimi.isEmpty()) {
                     minimum_precondition_cost = 0f;
+                }
 
-                objective = Math.max(objective+minimum_precondition_cost, max_over_precondition_costs+smallest_achiever_cost);
+                objective = Math.max(objective + minimum_precondition_cost, max_over_precondition_costs + smallest_achiever_cost);
             }
 //            System.out.println("Condition under evaluation:"+c);local_minimum
 //            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
@@ -279,7 +289,6 @@ public class lp_interface {
     }
 
 //    protected float compute_current_cost_via_lp_cplex(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h, Conditions gC) {
-
 //        invocation = invocation + 1;
 //
 //        try {
