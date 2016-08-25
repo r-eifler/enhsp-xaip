@@ -42,18 +42,18 @@ import problem.State;
  *
  * @author enrico
  */
-public class GenericOperator extends Expression {
+public class BinaryOp extends Expression {
 
-    private String operator;
+    protected String operator;
     private Expression left;
     private Expression right;
 
-    public GenericOperator() {
+    public BinaryOp() {
         super();
 
     }
 
-    public GenericOperator(Expression one, String string, Expression two, boolean grounded) {
+    public BinaryOp(Expression one, String string, Expression two, boolean grounded) {
         this.operator = string;
         this.left = one;
         this.right = two;
@@ -114,7 +114,7 @@ public class GenericOperator extends Expression {
 
     @Override
     public Expression ground(Map substitution) {
-        GenericOperator ret = new GenericOperator();
+        BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
         ret.left = left.ground(substitution);
@@ -175,7 +175,7 @@ public class GenericOperator extends Expression {
 
         try {
             if ((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && (this.getOperator().equals("*") || this.getOperator().equals("/")))) {
-                GenericOperator bin = new GenericOperator();
+                BinaryOp bin = new BinaryOp();
                 bin.setOperator(this.getOperator());
                 bin.setOne(l);
                 bin.setRight(r);
@@ -212,7 +212,7 @@ public class GenericOperator extends Expression {
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(GenericOperator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BinaryOp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
 //        System.out.println(this);
@@ -240,7 +240,7 @@ public class GenericOperator extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
-        GenericOperator ret = new GenericOperator();
+        BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
         left.freeVarSemantic = freeVarSemantic;
@@ -258,7 +258,7 @@ public class GenericOperator extends Expression {
 
     @Override
     public Expression clone() {
-        GenericOperator ret = new GenericOperator();
+        BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
         ret.left = left.clone();
@@ -326,7 +326,7 @@ public class GenericOperator extends Expression {
 
     @Override
     public Expression subst(Conditions numeric) {
-        GenericOperator ret = (GenericOperator) this.clone();
+        BinaryOp ret = (BinaryOp) this.clone();
         ret.left = ret.left.subst(numeric);
         ret.right = ret.right.subst(numeric);
         return ret;
@@ -342,7 +342,7 @@ public class GenericOperator extends Expression {
 
     @Override
     public Expression unGround(Map substitution) {
-        GenericOperator ret = new GenericOperator();
+        BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
         ret.left = left.unGround(substitution);
@@ -355,8 +355,8 @@ public class GenericOperator extends Expression {
 
     @Override
     public boolean isUngroundVersionOf(Expression expr) {
-        if (expr instanceof GenericOperator) {
-            GenericOperator bin = (GenericOperator) expr;
+        if (expr instanceof BinaryOp) {
+            BinaryOp bin = (BinaryOp) expr;
             if (bin.getOperator().equals(this.getOperator())) {
                 if (this.getOne().isUngroundVersionOf(bin.getOne()) && this.getRight().isUngroundVersionOf(bin.getRight())) {
                     return true;

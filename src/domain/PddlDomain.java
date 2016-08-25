@@ -36,13 +36,14 @@ import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.PDDLObjectsEquality;
 import conditions.Predicate;
-import expressions.GenericOperator;
+import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.MinusUnary;
 import expressions.MultiOp;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import expressions.TrigonometricFunction;
 import extraUtils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -112,7 +113,6 @@ public final class PddlDomain extends Object {
         constants = new PDDLObjects();
         SchemaGlobalConstraints = new LinkedHashSet();
         ProcessesSchema = new LinkedHashSet();
-
 
     }
 
@@ -242,25 +242,25 @@ public final class PddlDomain extends Object {
                 }
             }
         }
-        if (p.getGoals().sons !=null){
+        if (p.getGoals().sons != null) {
             for (Object o : p.getGoals().sons) {
 
                 if (o instanceof Predicate) {
 
                     Predicate t = (Predicate) o;
-    //                if (!predicates.validateInst(t)) {
-    //                    System.out.println("Predicato: " + t + " non valido");
-    //                    System.exit(-1);
-    //
-    //                }
+                    //                if (!predicates.validateInst(t)) {
+                    //                    System.out.println("Predicato: " + t + " non valido");
+                    //                    System.exit(-1);
+                    //
+                    //                }
                 }
             }
         }
-        for (Object o: this.getConstants()){
+        for (Object o : this.getConstants()) {
             p.getProblemObjects().add(o);
         }
         //System.out.println(p.getProblemObjects());
-        
+
         p.setDomain(this);
         p.setValidatedAgainstDomain(true);
 
@@ -321,7 +321,7 @@ public final class PddlDomain extends Object {
                     break;
                 case PddlParser.FREE_FUNCTIONS:
                     addFree_Functions(c);
-                    break; 
+                    break;
                 case PddlParser.GLOBAL_CONSTRAINT:
                     addGlobal_constraint(c);
                     break;
@@ -345,7 +345,6 @@ public final class PddlDomain extends Object {
         System.out.println("Predicates: " + this.predicates);
         System.out.println("Functions: " + this.functions);
         System.out.println("Global Constraints: " + this.getSchemaGlobalConstraints());
-
 
     }
 
@@ -496,9 +495,8 @@ public final class PddlDomain extends Object {
                         AndCond and = new AndCond();
                         and.addConditions(con);
                         a.setPreconditions(and);
-                    } else {
-                        if (con != null)
-                            a.setPreconditions(con);
+                    } else if (con != null) {
+                        a.setPreconditions(con);
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -536,19 +534,18 @@ public final class PddlDomain extends Object {
                     //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
                     //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
                     AndCond add_list = new AndCond();
-                    if (add instanceof Predicate){
+                    if (add instanceof Predicate) {
                         add_list.addConditions(add);
-                    }else{
+                    } else {
                         add_list = (AndCond) add;
                     }
-                    
+
                     AndCond del_list = new AndCond();
-                    if (del instanceof Predicate){
+                    if (del instanceof Predicate) {
                         del_list.addConditions(add);
-                    }else{
+                    } else {
                         del_list = (AndCond) del;
                     }
-                    
 
                     a.setAddList(add_list);
 
@@ -566,72 +563,73 @@ public final class PddlDomain extends Object {
             return null;
         }
 
-        if (infoAction.getType() == PddlParser.PRED_HEAD) {
-            //extract the predicate
-            return buildPredicate(infoAction, parTable);
-        } else if (infoAction.getType() == PddlParser.AND_GD) {
-            AndCond and = new AndCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                if (ret_val != null) {
-                    and.addConditions(ret_val);
+        switch (infoAction.getType()) {
+            case PddlParser.PRED_HEAD:
+                //extract the predicate
+                return buildPredicate(infoAction, parTable);
+            case PddlParser.AND_GD:
+                AndCond and = new AndCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
+                    if (ret_val != null) {
+                        and.addConditions(ret_val);
+                    }
                 }
-            }
-            return and;
-            //Crea un and e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di and
-        } else if (infoAction.getType() == PddlParser.OR_GD) {
-            OrCond or = new OrCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                if (ret_val != null) {
-                    or.addConditions(ret_val);
+                return and;
+                //Crea un and e per ogni figlio di questo nodo invoca creaformula
+                //gestendo il valore di ritorno come un attributo di and
+            case PddlParser.OR_GD:
+                OrCond or = new OrCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
+                    if (ret_val != null) {
+                        or.addConditions(ret_val);
+                    }
                 }
-            }
-            return or;
-        } else if (infoAction.getType() == PddlParser.NOT_GD) {
-            NotCond not = new NotCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                if (ret_val != null) {
-                    not.addConditions(ret_val);
+                return or;
+            case PddlParser.NOT_GD:
+                NotCond not = new NotCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
+                    if (ret_val != null) {
+                        not.addConditions(ret_val);
+                    }
                 }
-            }
-            return not;
-            //Crea un not e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di not
-        } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
-            //System.out.println("Comparison:" + infoAction.getText());
-
-            Comparison c = new Comparison(infoAction.getChild(0).getText());
-
-            c.setLeft(createExpression(infoAction.getChild(1), parTable));
-            c.setRight(createExpression(infoAction.getChild(2), parTable));
-            return c;
-            //Create an equality structure for comparing Objects
-        } else if (infoAction.getType() == PddlParser.EQUALITY_CON) {
-            PDDLObjectsEquality equality = new PDDLObjectsEquality();
-
-            if (infoAction.getChild(1).getType() == PddlParser.NAME) {
-                System.out.println("Constant objects in equality comparison are not supported");
-                System.exit(-1);
-            } else {
-                equality.setLeftV(buildVariable(infoAction.getChild(1), parTable));
-            }
-            if (infoAction.getChild(1).getType() == PddlParser.NAME) {
-                System.out.println("Constant objects in equality comparison are not supported");
-                System.exit(-1);
-            } else {
-                equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
-            }
-            return equality;
-
-        }else if (infoAction.getType() == PddlParser.IMPLY_GD) {
-            
-            System.out.println("Implication:" + infoAction.getText());
-
-            return null;
-            //Create an equality structure for comparing Objects
+                return not;
+                //Crea un not e per ogni figlio di questo nodo invoca creaformula
+                //gestendo il valore di ritorno come un attributo di not
+            case PddlParser.COMPARISON_GD:
+                //System.out.println("Comparison:" + infoAction.getText());
+                
+                Comparison c = new Comparison(infoAction.getChild(0).getText());
+                
+                c.setLeft(createExpression(infoAction.getChild(1), parTable));
+                c.setRight(createExpression(infoAction.getChild(2), parTable));
+                return c;
+                //Create an equality structure for comparing Objects
+            case PddlParser.EQUALITY_CON:
+                PDDLObjectsEquality equality = new PDDLObjectsEquality();
+                
+                if (infoAction.getChild(1).getType() == PddlParser.NAME) {
+                    System.out.println("Constant objects in equality comparison are not supported");
+                    System.exit(-1);
+                } else {
+                    equality.setLeftV(buildVariable(infoAction.getChild(1), parTable));
+                }
+                if (infoAction.getChild(1).getType() == PddlParser.NAME) {
+                    System.out.println("Constant objects in equality comparison are not supported");
+                    System.exit(-1);
+                } else {
+                    equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
+                }
+                return equality;
+            case PddlParser.IMPLY_GD:
+                System.out.println("Implication:" + infoAction.getText());
+                
+                return null;
+                //Create an equality structure for comparing Objects
+            default:
+                break;
         }
         return null;
     }
@@ -740,8 +738,7 @@ public final class PddlDomain extends Object {
                 }
             }
             //System.out.println(and);
- 
-                
+
             if (!and.sons.isEmpty()) {
                 return and;
             } else {
@@ -814,8 +811,9 @@ public final class PddlDomain extends Object {
 
     private Object createNumericEffect(SchemaParameters parameters, Tree child) {
 
-        if (child== null)
+        if (child == null) {
             return new AndCond();
+        }
         if (child.getType() == PddlParser.AND_EFFECT) {
             AndCond and = new AndCond();
             for (int i = 0; i < child.getChildCount(); i++) {
@@ -861,7 +859,7 @@ public final class PddlDomain extends Object {
                 for (int j = 0; j < t.getChildCount(); j++) {
                     Variable v = new Variable(t.getChild(j).getText());
                     if (t.getChild(j).getChild(0) != null);
-                        //System.out.println(t.getChild(j));
+                    //System.out.println(t.getChild(j));
 
                     //System.out.println(t.getChild(j).getChild(0));
                     v.setType(new Type(t.getChild(j).getChild(0).getText()));
@@ -896,55 +894,76 @@ public final class PddlDomain extends Object {
 
     private Expression createExpression(Tree t, SchemaParameters parTable) {
 
-        if (t.getType() == PddlParser.BINARY_OP) {
-            GenericOperator ret = new GenericOperator();
-            ret.setOperator(t.getChild(0).getText());
-            ret.setOne(createExpression(t.getChild(1), parTable));
-            ret.setRight(createExpression(t.getChild(2), parTable));
+        switch (t.getType()) {
+            case PddlParser.BINARY_OP: {
+                BinaryOp ret = new BinaryOp();
+                ret.setOperator(t.getChild(0).getText());
+                ret.setOne(createExpression(t.getChild(1), parTable));
+                ret.setRight(createExpression(t.getChild(2), parTable));
 
-            return ret;
-        } else if (t.getType() == PddlParser.NUMBER) {
-            PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
-            return ret;
-        } else if (t.getType() == PddlParser.FUNC_HEAD) {
-            NumFluent ret = new NumFluent(t.getChild(0).getText());
-            for (int i = 1; i < t.getChildCount(); i++) {
+                return ret;
+            }
+            case PddlParser.SIN: {
+                TrigonometricFunction ret = new TrigonometricFunction();
+//                System.out.println(t.getChild(1));
+                ret.setOperator("sin");
+                ret.setArg(createExpression(t.getChild(0), parTable));
+                return ret;
+            }
+            case PddlParser.COS: {
+                TrigonometricFunction ret = new TrigonometricFunction();
+//                System.out.println(t.getChild(1));
+                ret.setOperator("cos");
+                ret.setArg(createExpression(t.getChild(0), parTable));
+                return ret;
+            }
+            case PddlParser.NUMBER: {
+                PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
+                return ret;
+            }
+            case PddlParser.FUNC_HEAD: {
+                NumFluent ret = new NumFluent(t.getChild(0).getText());
+                for (int i = 1; i < t.getChildCount(); i++) {
 //                System.out.println("Constant Type:" + PddlParser.CONSTANTS);
 //                System.out.println("Name Type:" + PddlParser.NAME);
 //                System.out.println("Current Type:" + t.getChild(i).getType());
-                if (t.getChild(i).getType() == PddlParser.NAME) {
-                    PDDLObject o = new PDDLObject(t.getChild(i).getText());
-                    PDDLObject o1 = this.getConstants().containsTerm(o);
-                    if (o1 != null) {
-                        ret.addTerms(o1);
-                    } else {
+                    if (t.getChild(i).getType() == PddlParser.NAME) {
+                        PDDLObject o = new PDDLObject(t.getChild(i).getText());
+                        PDDLObject o1 = this.getConstants().containsTerm(o);
+                        if (o1 != null) {
+                            ret.addTerms(o1);
+                        } else {
 
-                        System.out.println("NumFluent:Variable " + o + " is not a constant object");
-                        System.exit(-1);
-                    }
-                } else {
-                    Variable v = new Variable(t.getChild(i).getText());
-                    Variable v1 = parTable.containsVariable(v);
-
-                    if (v1 != null) {
-                        ret.addVariable(v1);
+                            System.out.println("NumFluent:Variable " + o + " is not a constant object");
+                            System.exit(-1);
+                        }
                     } else {
+                        Variable v = new Variable(t.getChild(i).getText());
+                        Variable v1 = parTable.containsVariable(v);
+
+                        if (v1 != null) {
+                            ret.addVariable(v1);
+                        } else {
 //                        System.out.println("t.getType: " + t.getChild(i).getText());
-                        System.out.println("NumFluent: Variable " + v + " not involved in the action model");
-                        System.exit(-1);
+                            System.out.println("NumFluent: Variable " + v + " not involved in the action model");
+                            System.exit(-1);
+                        }
                     }
                 }
+                return ret;
             }
-            return ret;
-        } else if (t.getType() == PddlParser.UNARY_MINUS) {
-            return new MinusUnary(createExpression(t.getChild(0), parTable));
-        } else if (t.getType() == PddlParser.MULTI_OP) {
-            MultiOp ret = new MultiOp(t.getChild(0).getText());
-            for (int i = 1; i < t.getChildCount(); i++) {
-                //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
-                ret.addExpression(createExpression(t.getChild(i), parTable));
+            case PddlParser.UNARY_MINUS:
+                return new MinusUnary(createExpression(t.getChild(0), parTable));
+            case PddlParser.MULTI_OP: {
+                MultiOp ret = new MultiOp(t.getChild(0).getText());
+                for (int i = 1; i < t.getChildCount(); i++) {
+                    //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
+                    ret.addExpression(createExpression(t.getChild(i), parTable));
+                }
+                return ret;
             }
-            return ret;
+            default:
+                break;
         }
 
         return null;
@@ -1037,8 +1056,9 @@ public final class PddlDomain extends Object {
     }
 
     public HashMap generateAbstractInvariantFluents() {
-        if (getAbstractInvariantFluents() != null)
+        if (getAbstractInvariantFluents() != null) {
             return getAbstractInvariantFluents();
+        }
         abstractInvariantFluents = new HashMap();
         for (ActionSchema as : (Set<ActionSchema>) this.ActionsSchema) {
             Set s = as.getAbstractNumericFluentAffected();
@@ -1046,12 +1066,10 @@ public final class PddlDomain extends Object {
                 abstractInvariantFluents.put(nf.getName(), false);
             }
         }
-        for (NumFluent nf : (Collection<NumFluent>)this.get_derived_variables()){
+        for (NumFluent nf : (Collection<NumFluent>) this.get_derived_variables()) {
             abstractInvariantFluents.put(nf.getName(), false);
         }
-        
-        
-        
+
         return abstractInvariantFluents;
     }
 
@@ -1066,42 +1084,42 @@ public final class PddlDomain extends Object {
 
     public HashMap<Object, Boolean> generateInvariant() {
         HashMap<Object, Boolean> ret = new HashMap();
-        for (ActionSchema as: this.getActionsSchema()){
+        for (ActionSchema as : this.getActionsSchema()) {
             Conditions prop_effects = as.getAddList();
-            if (prop_effects instanceof AndCond){
-                AndCond ac = (AndCond)prop_effects;
-                for (Object o: ac.sons){
-                    if (o instanceof Predicate){
-                        Predicate p = (Predicate)o;
+            if (prop_effects instanceof AndCond) {
+                AndCond ac = (AndCond) prop_effects;
+                for (Object o : ac.sons) {
+                    if (o instanceof Predicate) {
+                        Predicate p = (Predicate) o;
                         Predicate pDef = this.getPredicates().findAssociated(p);
                         ret.put(pDef, Boolean.FALSE);
                     }
                 }
-            }else{
+            } else {
                 System.out.println("Support only and cond as prop effects. In case of singleton, please put it under AND");
             }
             prop_effects = as.getDelList();
-            if (prop_effects != null){
-                if (prop_effects instanceof AndCond){
-                    AndCond ac = (AndCond)prop_effects;
-                    for (Object o: ac.sons){
-                        if (o instanceof NotCond){
-                            NotCond nc = (NotCond)o;
+            if (prop_effects != null) {
+                if (prop_effects instanceof AndCond) {
+                    AndCond ac = (AndCond) prop_effects;
+                    for (Object o : ac.sons) {
+                        if (o instanceof NotCond) {
+                            NotCond nc = (NotCond) o;
                             //System.out.println(nc);
-                            for (Object o1:nc.son){
-                                Predicate p = (Predicate)o1;
+                            for (Object o1 : nc.son) {
+                                Predicate p = (Predicate) o1;
                                 Predicate pDef = this.getPredicates().findAssociated(p);
                                 ret.put(pDef, Boolean.FALSE);
                             }
 
                         }
                     }
-                }else{
+                } else {
                     System.out.println("Support only AND as prop effects. In case of singleton, please put it under AND also if it is just one proposition");
                 }
             }
-            Set<NumFluent> anfa = (Set<NumFluent>)as.getAbstractNumericFluentAffected();
-            for (NumFluent nf : anfa ){
+            Set<NumFluent> anfa = (Set<NumFluent>) as.getAbstractNumericFluentAffected();
+            for (NumFluent nf : anfa) {
                 ret.put(nf, Boolean.FALSE);
             }
         }
@@ -1117,7 +1135,7 @@ public final class PddlDomain extends Object {
                 for (int j = 0; j < t.getChildCount(); j++) {
                     Variable v = new Variable(t.getChild(j).getText());
                     if (t.getChild(j).getChild(0) != null);
-                        //System.out.println(t.getChild(j));
+                    //System.out.println(t.getChild(j));
 
                     //System.out.println(t.getChild(j).getChild(0));
                     v.setType(new Type(t.getChild(j).getChild(0).getText()));
@@ -1201,7 +1219,7 @@ public final class PddlDomain extends Object {
                         con.parameters.add(new Variable(infoConstraint.getText(), t));
                     }
                     break;
-                
+
             }
 
         }
@@ -1239,9 +1257,8 @@ public final class PddlDomain extends Object {
                         AndCond and = new AndCond();
                         and.addConditions(con);
                         a.setPreconditions(and);
-                    } else {
-                        if (con != null)
-                            a.setPreconditions(con);
+                    } else if (con != null) {
+                        a.setPreconditions(con);
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -1278,12 +1295,15 @@ public final class PddlDomain extends Object {
                     }
                     //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
                     //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
-                    if (add != null)
+                    if (add != null) {
                         a.setAddList(add);
-                    if (del != null)
+                    }
+                    if (del != null) {
                         a.setDelList(del);
-                    if (o != null)
+                    }
+                    if (o != null) {
                         a.setNumericEffects(numericEffect);
+                    }
                     break;
             }
 
@@ -1303,7 +1323,5 @@ public final class PddlDomain extends Object {
     public void setProcessesSchema(Set ProcessesSchema) {
         this.ProcessesSchema = ProcessesSchema;
     }
-
-    
 
 }

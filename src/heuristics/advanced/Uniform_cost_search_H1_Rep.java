@@ -30,7 +30,7 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import expressions.GenericOperator;
+import expressions.BinaryOp;
 import expressions.PDDLNumber;
 import extraUtils.Pair;
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                         Pair<Comparison, Comparison> comparisons = new Pair();
                         {
                             Comparison new_comp = new Comparison(comp.getComparator() + "=");
-                            GenericOperator op = new GenericOperator(comp.getLeft().clone(), "+", new PDDLNumber(b - a), true);
+                            BinaryOp op = new BinaryOp(comp.getLeft().clone(), "+", new PDDLNumber(b - a), true);
                             new_comp.setLeft(op);
                             new_comp.setRight(new PDDLNumber(0));
                             new_comp.normalize();

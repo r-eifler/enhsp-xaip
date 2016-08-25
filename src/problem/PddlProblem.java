@@ -43,7 +43,7 @@ import domain.PddlDomain;
 
 import domain.Type;
 
-import expressions.GenericOperator;
+import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.NumFluent;
 import expressions.MinusUnary;
@@ -401,7 +401,7 @@ public class PddlProblem {
         switch (t.getType()) {
             case PddlParser.BINARY_OP:
             {
-                GenericOperator ret = new GenericOperator();
+                BinaryOp ret = new BinaryOp();
                 ret.setOperator(t.getChild(0).getText());
                 ret.setOne(createExpression(t.getChild(1)));
                 ret.setRight(createExpression(t.getChild(2)));

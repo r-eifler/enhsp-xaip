@@ -335,13 +335,13 @@ public class NumFluent extends Expression {
 
                 if (as.getFluentAffected().equals(this)) {
                     if (as.getOperator().equals("increase")) {
-                        GenericOperator bin = new GenericOperator();
+                        BinaryOp bin = new BinaryOp();
                         bin.setOperator("+");
                         bin.setOne(this);
                         bin.setRight(as.getRight());
                         return bin;
                     } else if (as.getOperator().equals("decrease")) {
-                        GenericOperator bin = new GenericOperator();
+                        BinaryOp bin = new BinaryOp();
                         bin.setOperator("-");
                         bin.setOne(this);
                         bin.setRight(as.getRight());

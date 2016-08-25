@@ -38,7 +38,7 @@ import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
 import domain.Variable;
-import expressions.GenericOperator;
+import expressions.BinaryOp;
 import expressions.ExtendedAddendum;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -2453,7 +2453,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
                         //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                         //monotonicity. Look at the report on generalize interval based relaxation.
-                        GenericOperator bin = new GenericOperator(all.getRight(), "-", all.getFluentAffected(), true);
+                        BinaryOp bin = new BinaryOp(all.getRight(), "-", all.getFluentAffected(), true);
                         Interval monotonic_eval = bin.eval(s);
                         after.inf = new PDDLNumber(Math.min(current.sum(monotonic_eval).inf.getNumber(), current.inf.getNumber()));
                         after.sup = new PDDLNumber(Math.max(current.sum(monotonic_eval).sup.getNumber(), current.sup.getNumber()));

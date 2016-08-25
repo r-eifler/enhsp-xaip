@@ -1,4 +1,4 @@
-// $ANTLR 3.5 /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g 2016-08-24 13:56:27
+// $ANTLR 3.5 /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g 2016-08-24 14:21:26
  package parser; 
 
 import org.antlr.runtime.*;
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 @SuppressWarnings("all")
 public class PddlLexer extends Lexer {
 	public static final int EOF=-1;
-	public static final int T__61=61;
-	public static final int T__62=62;
 	public static final int T__63=63;
 	public static final int T__64=64;
 	public static final int T__65=65;
@@ -81,6 +79,10 @@ public class PddlLexer extends Lexer {
 	public static final int T__130=130;
 	public static final int T__131=131;
 	public static final int T__132=132;
+	public static final int T__133=133;
+	public static final int T__134=134;
+	public static final int T__135=135;
+	public static final int T__136=136;
 	public static final int ACTION=4;
 	public static final int AND_EFFECT=5;
 	public static final int AND_GD=6;
@@ -90,54 +92,56 @@ public class PddlLexer extends Lexer {
 	public static final int COMPARISON_GD=10;
 	public static final int CONSTANTS=11;
 	public static final int CONSTRAINT=12;
-	public static final int DIGIT=13;
-	public static final int DOMAIN=14;
-	public static final int DOMAIN_NAME=15;
-	public static final int DURATIVE_ACTION=16;
-	public static final int EFFECT=17;
-	public static final int EITHER_TYPE=18;
-	public static final int EQUALITY_CON=19;
-	public static final int EVENT=20;
-	public static final int EXISTS_GD=21;
-	public static final int FORALL_EFFECT=22;
-	public static final int FORALL_GD=23;
-	public static final int FREE_FUNCTIONS=24;
-	public static final int FUNCTIONS=25;
-	public static final int FUNC_HEAD=26;
-	public static final int GLOBAL_CONSTRAINT=27;
-	public static final int GOAL=28;
-	public static final int IMPLY_GD=29;
-	public static final int INIT=30;
-	public static final int INIT_AT=31;
-	public static final int INIT_EQ=32;
-	public static final int LETTER=33;
-	public static final int LINE_COMMENT=34;
-	public static final int MINUS_OP=35;
-	public static final int MULTI_OP=36;
-	public static final int NAME=37;
-	public static final int NOT_EFFECT=38;
-	public static final int NOT_GD=39;
-	public static final int NOT_PRED_INIT=40;
-	public static final int NUMBER=41;
-	public static final int OBJECTS=42;
-	public static final int OR_GD=43;
-	public static final int PRECONDITION=44;
-	public static final int PREDICATES=45;
-	public static final int PRED_HEAD=46;
-	public static final int PRED_INST=47;
-	public static final int PROBLEM=48;
-	public static final int PROBLEM_CONSTRAINT=49;
-	public static final int PROBLEM_DOMAIN=50;
-	public static final int PROBLEM_METRIC=51;
-	public static final int PROBLEM_NAME=52;
-	public static final int PROCESS=53;
-	public static final int REQUIREMENTS=54;
-	public static final int REQUIRE_KEY=55;
-	public static final int TYPES=56;
-	public static final int UNARY_MINUS=57;
-	public static final int VARIABLE=58;
-	public static final int WHEN_EFFECT=59;
-	public static final int WHITESPACE=60;
+	public static final int COS=13;
+	public static final int DIGIT=14;
+	public static final int DOMAIN=15;
+	public static final int DOMAIN_NAME=16;
+	public static final int DURATIVE_ACTION=17;
+	public static final int EFFECT=18;
+	public static final int EITHER_TYPE=19;
+	public static final int EQUALITY_CON=20;
+	public static final int EVENT=21;
+	public static final int EXISTS_GD=22;
+	public static final int FORALL_EFFECT=23;
+	public static final int FORALL_GD=24;
+	public static final int FREE_FUNCTIONS=25;
+	public static final int FUNCTIONS=26;
+	public static final int FUNC_HEAD=27;
+	public static final int GLOBAL_CONSTRAINT=28;
+	public static final int GOAL=29;
+	public static final int IMPLY_GD=30;
+	public static final int INIT=31;
+	public static final int INIT_AT=32;
+	public static final int INIT_EQ=33;
+	public static final int LETTER=34;
+	public static final int LINE_COMMENT=35;
+	public static final int MINUS_OP=36;
+	public static final int MULTI_OP=37;
+	public static final int NAME=38;
+	public static final int NOT_EFFECT=39;
+	public static final int NOT_GD=40;
+	public static final int NOT_PRED_INIT=41;
+	public static final int NUMBER=42;
+	public static final int OBJECTS=43;
+	public static final int OR_GD=44;
+	public static final int PRECONDITION=45;
+	public static final int PREDICATES=46;
+	public static final int PRED_HEAD=47;
+	public static final int PRED_INST=48;
+	public static final int PROBLEM=49;
+	public static final int PROBLEM_CONSTRAINT=50;
+	public static final int PROBLEM_DOMAIN=51;
+	public static final int PROBLEM_METRIC=52;
+	public static final int PROBLEM_NAME=53;
+	public static final int PROCESS=54;
+	public static final int REQUIREMENTS=55;
+	public static final int REQUIRE_KEY=56;
+	public static final int SIN=57;
+	public static final int TYPES=58;
+	public static final int UNARY_MINUS=59;
+	public static final int VARIABLE=60;
+	public static final int WHEN_EFFECT=61;
+	public static final int WHITESPACE=62;
 
 	// delegates
 	// delegators
@@ -154,56 +158,16 @@ public class PddlLexer extends Lexer {
 	}
 	@Override public String getGrammarFileName() { return "/home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g"; }
 
-	// $ANTLR start "T__61"
-	public final void mT__61() throws RecognitionException {
+	// $ANTLR start "T__63"
+	public final void mT__63() throws RecognitionException {
 		try {
-			int _type = T__61;
+			int _type = T__63;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:4:7: ( '#t' )
 			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:4:9: '#t'
 			{
 			match("#t"); 
 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__61"
-
-	// $ANTLR start "T__62"
-	public final void mT__62() throws RecognitionException {
-		try {
-			int _type = T__62;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:5:7: ( '(' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:5:9: '('
-			{
-			match('('); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__62"
-
-	// $ANTLR start "T__63"
-	public final void mT__63() throws RecognitionException {
-		try {
-			int _type = T__63;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:6:7: ( ')' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:6:9: ')'
-			{
-			match(')'); 
 			}
 
 			state.type = _type;
@@ -220,10 +184,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__64;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:7:7: ( '*' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:7:9: '*'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:5:7: ( '(' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:5:9: '('
 			{
-			match('*'); 
+			match('('); 
 			}
 
 			state.type = _type;
@@ -240,10 +204,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__65;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:8:7: ( '+' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:8:9: '+'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:6:7: ( ')' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:6:9: ')'
 			{
-			match('+'); 
+			match(')'); 
 			}
 
 			state.type = _type;
@@ -260,10 +224,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__66;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:9:7: ( '-' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:9:9: '-'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:7:7: ( '*' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:7:9: '*'
 			{
-			match('-'); 
+			match('*'); 
 			}
 
 			state.type = _type;
@@ -280,10 +244,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__67;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:10:7: ( '/' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:10:9: '/'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:8:7: ( '+' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:8:9: '+'
 			{
-			match('/'); 
+			match('+'); 
 			}
 
 			state.type = _type;
@@ -300,11 +264,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__68;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:11:7: ( ':action' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:11:9: ':action'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:9:7: ( '-' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:9:9: '-'
 			{
-			match(":action"); 
-
+			match('-'); 
 			}
 
 			state.type = _type;
@@ -321,11 +284,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__69;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:12:7: ( ':condition' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:12:9: ':condition'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:10:7: ( '/' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:10:9: '/'
 			{
-			match(":condition"); 
-
+			match('/'); 
 			}
 
 			state.type = _type;
@@ -342,10 +304,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__70;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:13:7: ( ':constants' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:13:9: ':constants'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:11:7: ( ':action' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:11:9: ':action'
 			{
-			match(":constants"); 
+			match(":action"); 
 
 			}
 
@@ -363,10 +325,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__71;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:14:7: ( ':constraint' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:14:9: ':constraint'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:12:7: ( ':condition' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:12:9: ':condition'
 			{
-			match(":constraint"); 
+			match(":condition"); 
 
 			}
 
@@ -384,10 +346,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__72;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:15:7: ( ':constraints' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:15:9: ':constraints'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:13:7: ( ':constants' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:13:9: ':constants'
 			{
-			match(":constraints"); 
+			match(":constants"); 
 
 			}
 
@@ -405,10 +367,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__73;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:16:7: ( ':derived' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:16:9: ':derived'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:14:7: ( ':constraint' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:14:9: ':constraint'
 			{
-			match(":derived"); 
+			match(":constraint"); 
 
 			}
 
@@ -426,10 +388,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__74;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:17:7: ( ':domain' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:17:9: ':domain'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:15:7: ( ':constraints' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:15:9: ':constraints'
 			{
-			match(":domain"); 
+			match(":constraints"); 
 
 			}
 
@@ -447,10 +409,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__75;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:18:7: ( ':duration' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:18:9: ':duration'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:16:7: ( ':derived' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:16:9: ':derived'
 			{
-			match(":duration"); 
+			match(":derived"); 
 
 			}
 
@@ -468,10 +430,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__76;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:19:7: ( ':durative-action' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:19:9: ':durative-action'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:17:7: ( ':domain' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:17:9: ':domain'
 			{
-			match(":durative-action"); 
+			match(":domain"); 
 
 			}
 
@@ -489,10 +451,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__77;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:20:7: ( ':effect' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:20:9: ':effect'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:18:7: ( ':duration' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:18:9: ':duration'
 			{
-			match(":effect"); 
+			match(":duration"); 
 
 			}
 
@@ -510,10 +472,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__78;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:21:7: ( ':event' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:21:9: ':event'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:19:7: ( ':durative-action' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:19:9: ':durative-action'
 			{
-			match(":event"); 
+			match(":durative-action"); 
 
 			}
 
@@ -531,10 +493,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__79;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:22:7: ( ':free_functions' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:22:9: ':free_functions'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:20:7: ( ':effect' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:20:9: ':effect'
 			{
-			match(":free_functions"); 
+			match(":effect"); 
 
 			}
 
@@ -552,10 +514,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__80;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:23:7: ( ':functions' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:23:9: ':functions'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:21:7: ( ':event' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:21:9: ':event'
 			{
-			match(":functions"); 
+			match(":event"); 
 
 			}
 
@@ -573,10 +535,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__81;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:24:7: ( ':goal' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:24:9: ':goal'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:22:7: ( ':free_functions' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:22:9: ':free_functions'
 			{
-			match(":goal"); 
+			match(":free_functions"); 
 
 			}
 
@@ -594,10 +556,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__82;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:25:7: ( ':init' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:25:9: ':init'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:23:7: ( ':functions' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:23:9: ':functions'
 			{
-			match(":init"); 
+			match(":functions"); 
 
 			}
 
@@ -615,10 +577,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__83;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:26:7: ( ':metric' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:26:9: ':metric'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:24:7: ( ':goal' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:24:9: ':goal'
 			{
-			match(":metric"); 
+			match(":goal"); 
 
 			}
 
@@ -636,10 +598,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__84;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:27:7: ( ':objects' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:27:9: ':objects'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:25:7: ( ':init' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:25:9: ':init'
 			{
-			match(":objects"); 
+			match(":init"); 
 
 			}
 
@@ -657,10 +619,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__85;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:28:7: ( ':parameters' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:28:9: ':parameters'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:26:7: ( ':metric' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:26:9: ':metric'
 			{
-			match(":parameters"); 
+			match(":metric"); 
 
 			}
 
@@ -678,10 +640,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__86;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:29:7: ( ':precondition' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:29:9: ':precondition'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:27:7: ( ':objects' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:27:9: ':objects'
 			{
-			match(":precondition"); 
+			match(":objects"); 
 
 			}
 
@@ -699,10 +661,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__87;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:30:7: ( ':predicates' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:30:9: ':predicates'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:28:7: ( ':parameters' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:28:9: ':parameters'
 			{
-			match(":predicates"); 
+			match(":parameters"); 
 
 			}
 
@@ -720,10 +682,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__88;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:31:7: ( ':process' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:31:9: ':process'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:29:7: ( ':precondition' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:29:9: ':precondition'
 			{
-			match(":process"); 
+			match(":precondition"); 
 
 			}
 
@@ -741,10 +703,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__89;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:32:7: ( ':requirements' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:32:9: ':requirements'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:30:7: ( ':predicates' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:30:9: ':predicates'
 			{
-			match(":requirements"); 
+			match(":predicates"); 
 
 			}
 
@@ -762,10 +724,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__90;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:33:7: ( ':types' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:33:9: ':types'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:31:7: ( ':process' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:31:9: ':process'
 			{
-			match(":types"); 
+			match(":process"); 
 
 			}
 
@@ -783,10 +745,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__91;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:34:7: ( '<' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:34:9: '<'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:32:7: ( ':requirements' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:32:9: ':requirements'
 			{
-			match('<'); 
+			match(":requirements"); 
+
 			}
 
 			state.type = _type;
@@ -803,10 +766,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__92;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:35:7: ( '<=' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:35:9: '<='
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:33:7: ( ':types' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:33:9: ':types'
 			{
-			match("<="); 
+			match(":types"); 
 
 			}
 
@@ -824,10 +787,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__93;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:36:7: ( '=' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:36:9: '='
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:34:7: ( '<' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:34:9: '<'
 			{
-			match('='); 
+			match('<'); 
 			}
 
 			state.type = _type;
@@ -844,10 +807,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__94;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:37:7: ( '>' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:37:9: '>'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:35:7: ( '<=' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:35:9: '<='
 			{
-			match('>'); 
+			match("<="); 
+
 			}
 
 			state.type = _type;
@@ -864,11 +828,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__95;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:38:7: ( '>=' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:38:9: '>='
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:36:7: ( '=' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:36:9: '='
 			{
-			match(">="); 
-
+			match('='); 
 			}
 
 			state.type = _type;
@@ -885,11 +848,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__96;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:39:7: ( '?duration' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:39:9: '?duration'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:37:7: ( '>' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:37:9: '>'
 			{
-			match("?duration"); 
-
+			match('>'); 
 			}
 
 			state.type = _type;
@@ -906,10 +868,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__97;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:40:7: ( '^' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:40:9: '^'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:38:7: ( '>=' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:38:9: '>='
 			{
-			match('^'); 
+			match(">="); 
+
 			}
 
 			state.type = _type;
@@ -926,10 +889,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__98;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:41:7: ( 'all' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:41:9: 'all'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:39:7: ( '?duration' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:39:9: '?duration'
 			{
-			match("all"); 
+			match("?duration"); 
 
 			}
 
@@ -947,10 +910,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__99;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:42:7: ( 'always' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:42:9: 'always'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:40:7: ( 'COS' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:40:9: 'COS'
 			{
-			match("always"); 
+			match("COS"); 
 
 			}
 
@@ -968,10 +931,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__100;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:43:8: ( 'always-within' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:43:10: 'always-within'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:41:8: ( 'SIN' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:41:10: 'SIN'
 			{
-			match("always-within"); 
+			match("SIN"); 
 
 			}
 
@@ -989,11 +952,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__101;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:44:8: ( 'and' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:44:10: 'and'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:42:8: ( '^' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:42:10: '^'
 			{
-			match("and"); 
-
+			match('^'); 
 			}
 
 			state.type = _type;
@@ -1010,10 +972,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__102;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:45:8: ( 'assign' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:45:10: 'assign'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:43:8: ( 'all' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:43:10: 'all'
 			{
-			match("assign"); 
+			match("all"); 
 
 			}
 
@@ -1031,10 +993,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__103;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:46:8: ( 'at' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:46:10: 'at'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:44:8: ( 'always' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:44:10: 'always'
 			{
-			match("at"); 
+			match("always"); 
 
 			}
 
@@ -1052,10 +1014,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__104;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:47:8: ( 'at-most-once' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:47:10: 'at-most-once'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:45:8: ( 'always-within' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:45:10: 'always-within'
 			{
-			match("at-most-once"); 
+			match("always-within"); 
 
 			}
 
@@ -1073,10 +1035,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__105;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:48:8: ( 'decrease' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:48:10: 'decrease'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:46:8: ( 'and' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:46:10: 'and'
 			{
-			match("decrease"); 
+			match("and"); 
 
 			}
 
@@ -1094,10 +1056,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__106;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:49:8: ( 'define' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:49:10: 'define'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:47:8: ( 'assign' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:47:10: 'assign'
 			{
-			match("define"); 
+			match("assign"); 
 
 			}
 
@@ -1115,10 +1077,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__107;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:50:8: ( 'domain' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:50:10: 'domain'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:48:8: ( 'at' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:48:10: 'at'
 			{
-			match("domain"); 
+			match("at"); 
 
 			}
 
@@ -1136,10 +1098,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__108;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:51:8: ( 'either' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:51:10: 'either'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:49:8: ( 'at-most-once' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:49:10: 'at-most-once'
 			{
-			match("either"); 
+			match("at-most-once"); 
 
 			}
 
@@ -1157,10 +1119,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__109;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:52:8: ( 'end' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:52:10: 'end'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:50:8: ( 'decrease' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:50:10: 'decrease'
 			{
-			match("end"); 
+			match("decrease"); 
 
 			}
 
@@ -1178,10 +1140,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__110;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:53:8: ( 'exists' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:53:10: 'exists'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:51:8: ( 'define' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:51:10: 'define'
 			{
-			match("exists"); 
+			match("define"); 
 
 			}
 
@@ -1199,10 +1161,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__111;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:54:8: ( 'forall' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:54:10: 'forall'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:52:8: ( 'domain' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:52:10: 'domain'
 			{
-			match("forall"); 
+			match("domain"); 
 
 			}
 
@@ -1220,10 +1182,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__112;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:55:8: ( 'hold-after' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:55:10: 'hold-after'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:53:8: ( 'either' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:53:10: 'either'
 			{
-			match("hold-after"); 
+			match("either"); 
 
 			}
 
@@ -1241,10 +1203,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__113;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:56:8: ( 'hold-during' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:56:10: 'hold-during'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:54:8: ( 'end' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:54:10: 'end'
 			{
-			match("hold-during"); 
+			match("end"); 
 
 			}
 
@@ -1262,10 +1224,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__114;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:57:8: ( 'imply' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:57:10: 'imply'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:55:8: ( 'exists' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:55:10: 'exists'
 			{
-			match("imply"); 
+			match("exists"); 
 
 			}
 
@@ -1283,10 +1245,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__115;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:58:8: ( 'increase' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:58:10: 'increase'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:56:8: ( 'forall' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:56:10: 'forall'
 			{
-			match("increase"); 
+			match("forall"); 
 
 			}
 
@@ -1304,10 +1266,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__116;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:59:8: ( 'is-violated' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:59:10: 'is-violated'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:57:8: ( 'hold-after' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:57:10: 'hold-after'
 			{
-			match("is-violated"); 
+			match("hold-after"); 
 
 			}
 
@@ -1325,10 +1287,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__117;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:60:8: ( 'maximize' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:60:10: 'maximize'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:58:8: ( 'hold-during' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:58:10: 'hold-during'
 			{
-			match("maximize"); 
+			match("hold-during"); 
 
 			}
 
@@ -1346,10 +1308,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__118;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:61:8: ( 'minimize' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:61:10: 'minimize'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:59:8: ( 'imply' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:59:10: 'imply'
 			{
-			match("minimize"); 
+			match("imply"); 
 
 			}
 
@@ -1367,10 +1329,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__119;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:62:8: ( 'not' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:62:10: 'not'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:60:8: ( 'increase' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:60:10: 'increase'
 			{
-			match("not"); 
+			match("increase"); 
 
 			}
 
@@ -1388,10 +1350,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__120;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:63:8: ( 'number' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:63:10: 'number'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:61:8: ( 'is-violated' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:61:10: 'is-violated'
 			{
-			match("number"); 
+			match("is-violated"); 
 
 			}
 
@@ -1409,10 +1371,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__121;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:64:8: ( 'or' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:64:10: 'or'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:62:8: ( 'maximize' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:62:10: 'maximize'
 			{
-			match("or"); 
+			match("maximize"); 
 
 			}
 
@@ -1430,10 +1392,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__122;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:65:8: ( 'over' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:65:10: 'over'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:63:8: ( 'minimize' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:63:10: 'minimize'
 			{
-			match("over"); 
+			match("minimize"); 
 
 			}
 
@@ -1451,10 +1413,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__123;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:66:8: ( 'preference' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:66:10: 'preference'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:64:8: ( 'not' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:64:10: 'not'
 			{
-			match("preference"); 
+			match("not"); 
 
 			}
 
@@ -1472,10 +1434,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__124;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:67:8: ( 'problem' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:67:10: 'problem'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:65:8: ( 'number' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:65:10: 'number'
 			{
-			match("problem"); 
+			match("number"); 
 
 			}
 
@@ -1493,10 +1455,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__125;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:68:8: ( 'scale-down' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:68:10: 'scale-down'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:66:8: ( 'or' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:66:10: 'or'
 			{
-			match("scale-down"); 
+			match("or"); 
 
 			}
 
@@ -1514,10 +1476,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__126;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:69:8: ( 'scale-up' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:69:10: 'scale-up'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:67:8: ( 'over' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:67:10: 'over'
 			{
-			match("scale-up"); 
+			match("over"); 
 
 			}
 
@@ -1535,10 +1497,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__127;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:70:8: ( 'sometime' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:70:10: 'sometime'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:68:8: ( 'preference' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:68:10: 'preference'
 			{
-			match("sometime"); 
+			match("preference"); 
 
 			}
 
@@ -1556,10 +1518,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__128;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:71:8: ( 'sometime-after' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:71:10: 'sometime-after'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:69:8: ( 'problem' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:69:10: 'problem'
 			{
-			match("sometime-after"); 
+			match("problem"); 
 
 			}
 
@@ -1577,10 +1539,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__129;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:72:8: ( 'sometime-before' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:72:10: 'sometime-before'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:70:8: ( 'scale-down' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:70:10: 'scale-down'
 			{
-			match("sometime-before"); 
+			match("scale-down"); 
 
 			}
 
@@ -1598,10 +1560,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__130;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:73:8: ( 'start' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:73:10: 'start'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:71:8: ( 'scale-up' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:71:10: 'scale-up'
 			{
-			match("start"); 
+			match("scale-up"); 
 
 			}
 
@@ -1619,10 +1581,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__131;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:74:8: ( 'when' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:74:10: 'when'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:72:8: ( 'sometime' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:72:10: 'sometime'
 			{
-			match("when"); 
+			match("sometime"); 
 
 			}
 
@@ -1640,10 +1602,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__132;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:75:8: ( 'within' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:75:10: 'within'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:73:8: ( 'sometime-after' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:73:10: 'sometime-after'
 			{
-			match("within"); 
+			match("sometime-after"); 
 
 			}
 
@@ -1656,12 +1618,96 @@ public class PddlLexer extends Lexer {
 	}
 	// $ANTLR end "T__132"
 
+	// $ANTLR start "T__133"
+	public final void mT__133() throws RecognitionException {
+		try {
+			int _type = T__133;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:74:8: ( 'sometime-before' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:74:10: 'sometime-before'
+			{
+			match("sometime-before"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "T__133"
+
+	// $ANTLR start "T__134"
+	public final void mT__134() throws RecognitionException {
+		try {
+			int _type = T__134;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:75:8: ( 'start' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:75:10: 'start'
+			{
+			match("start"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "T__134"
+
+	// $ANTLR start "T__135"
+	public final void mT__135() throws RecognitionException {
+		try {
+			int _type = T__135;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:76:8: ( 'when' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:76:10: 'when'
+			{
+			match("when"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "T__135"
+
+	// $ANTLR start "T__136"
+	public final void mT__136() throws RecognitionException {
+		try {
+			int _type = T__136;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:77:8: ( 'within' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:77:10: 'within'
+			{
+			match("within"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "T__136"
+
 	// $ANTLR start "REQUIRE_KEY"
 	public final void mREQUIRE_KEY() throws RecognitionException {
 		try {
 			int _type = REQUIRE_KEY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:556:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:561:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
 			int alt1=16;
 			int LA1_0 = input.LA(1);
 			if ( (LA1_0==':') ) {
@@ -1869,112 +1915,112 @@ public class PddlLexer extends Lexer {
 
 			switch (alt1) {
 				case 1 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:556:7: ':strips'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:561:7: ':strips'
 					{
 					match(":strips"); 
 
 					}
 					break;
 				case 2 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:557:7: ':typing'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:562:7: ':typing'
 					{
 					match(":typing"); 
 
 					}
 					break;
 				case 3 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:558:7: ':negative-preconditions'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:563:7: ':negative-preconditions'
 					{
 					match(":negative-preconditions"); 
 
 					}
 					break;
 				case 4 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:559:7: ':disjunctive-preconditions'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:564:7: ':disjunctive-preconditions'
 					{
 					match(":disjunctive-preconditions"); 
 
 					}
 					break;
 				case 5 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:560:7: ':equality'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:565:7: ':equality'
 					{
 					match(":equality"); 
 
 					}
 					break;
 				case 6 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:561:7: ':existential-preconditions'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:566:7: ':existential-preconditions'
 					{
 					match(":existential-preconditions"); 
 
 					}
 					break;
 				case 7 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:562:7: ':universal-preconditions'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:567:7: ':universal-preconditions'
 					{
 					match(":universal-preconditions"); 
 
 					}
 					break;
 				case 8 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:563:7: ':quantified-preconditions'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:568:7: ':quantified-preconditions'
 					{
 					match(":quantified-preconditions"); 
 
 					}
 					break;
 				case 9 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:564:7: ':conditional-effects'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:569:7: ':conditional-effects'
 					{
 					match(":conditional-effects"); 
 
 					}
 					break;
 				case 10 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:565:7: ':fluents'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:570:7: ':fluents'
 					{
 					match(":fluents"); 
 
 					}
 					break;
 				case 11 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:566:7: ':adl'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:571:7: ':adl'
 					{
 					match(":adl"); 
 
 					}
 					break;
 				case 12 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:567:7: ':durative-actions'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:572:7: ':durative-actions'
 					{
 					match(":durative-actions"); 
 
 					}
 					break;
 				case 13 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:568:7: ':derived-predicates'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:573:7: ':derived-predicates'
 					{
 					match(":derived-predicates"); 
 
 					}
 					break;
 				case 14 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:569:7: ':timed-initial-literals'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:574:7: ':timed-initial-literals'
 					{
 					match(":timed-initial-literals"); 
 
 					}
 					break;
 				case 15 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:570:7: ':preferences'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:575:7: ':preferences'
 					{
 					match(":preferences"); 
 
 					}
 					break;
 				case 16 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:571:7: ':constraints'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:576:7: ':constraints'
 					{
 					match(":constraints"); 
 
@@ -1996,12 +2042,12 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NAME;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:572:5: ( LETTER ( ANY_CHAR )* )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:572:10: LETTER ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:577:5: ( LETTER ( ANY_CHAR )* )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:577:10: LETTER ( ANY_CHAR )*
 			{
 			mLETTER(); 
 
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:572:17: ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:577:17: ( ANY_CHAR )*
 			loop2:
 			while (true) {
 				int alt2=2;
@@ -2044,7 +2090,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "LETTER"
 	public final void mLETTER() throws RecognitionException {
 		try {
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:574:16: ( 'a' .. 'z' | 'A' .. 'Z' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:579:16: ( 'a' .. 'z' | 'A' .. 'Z' )
 			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:
 			{
 			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2067,7 +2113,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "ANY_CHAR"
 	public final void mANY_CHAR() throws RecognitionException {
 		try {
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:576:18: ( LETTER | '0' .. '9' | '-' | '_' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:581:18: ( LETTER | '0' .. '9' | '-' | '_' )
 			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:
 			{
 			if ( input.LA(1)=='-'||(input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2092,13 +2138,13 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = VARIABLE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:578:10: ( '?' LETTER ( ANY_CHAR )* )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:578:12: '?' LETTER ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:583:10: ( '?' LETTER ( ANY_CHAR )* )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:583:12: '?' LETTER ( ANY_CHAR )*
 			{
 			match('?'); 
 			mLETTER(); 
 
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:578:23: ( ANY_CHAR )*
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:583:23: ( ANY_CHAR )*
 			loop3:
 			while (true) {
 				int alt3=2;
@@ -2143,7 +2189,7 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NUMBER;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
 			int alt8=2;
 			int LA8_0 = input.LA(1);
 			if ( (LA8_0=='-'||(LA8_0 >= '0' && LA8_0 <= '9')) ) {
@@ -2161,9 +2207,9 @@ public class PddlLexer extends Lexer {
 
 			switch (alt8) {
 				case 1 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
 					{
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:10: ( '-' )?
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:10: ( '-' )?
 					int alt4=2;
 					int LA4_0 = input.LA(1);
 					if ( (LA4_0=='-') ) {
@@ -2171,7 +2217,7 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt4) {
 						case 1 :
-							// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:11: '-'
+							// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:11: '-'
 							{
 							match('-'); 
 							}
@@ -2179,7 +2225,7 @@ public class PddlLexer extends Lexer {
 
 					}
 
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:17: ( DIGIT )+
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:17: ( DIGIT )+
 					int cnt5=0;
 					loop5:
 					while (true) {
@@ -2212,7 +2258,7 @@ public class PddlLexer extends Lexer {
 						cnt5++;
 					}
 
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:24: ( '.' ( DIGIT )+ )?
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:24: ( '.' ( DIGIT )+ )?
 					int alt7=2;
 					int LA7_0 = input.LA(1);
 					if ( (LA7_0=='.') ) {
@@ -2220,10 +2266,10 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt7) {
 						case 1 :
-							// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:25: '.' ( DIGIT )+
+							// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:25: '.' ( DIGIT )+
 							{
 							match('.'); 
-							// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:29: ( DIGIT )+
+							// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:29: ( DIGIT )+
 							int cnt6=0;
 							loop6:
 							while (true) {
@@ -2264,7 +2310,7 @@ public class PddlLexer extends Lexer {
 					}
 					break;
 				case 2 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:580:40: '#t'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:40: '#t'
 					{
 					match("#t"); 
 
@@ -2284,7 +2330,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "DIGIT"
 	public final void mDIGIT() throws RecognitionException {
 		try {
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:582:15: ( '0' .. '9' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:587:15: ( '0' .. '9' )
 			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:
 			{
 			if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2309,11 +2355,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = LINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:590:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:590:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
 			{
 			match(';'); 
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:11: (~ ( '\\n' | '\\r' ) )*
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:590:11: (~ ( '\\n' | '\\r' ) )*
 			loop9:
 			while (true) {
 				int alt9=2;
@@ -2342,7 +2388,7 @@ public class PddlLexer extends Lexer {
 				}
 			}
 
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:25: ( '\\r' )?
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:590:25: ( '\\r' )?
 			int alt10=2;
 			int LA10_0 = input.LA(1);
 			if ( (LA10_0=='\r') ) {
@@ -2350,7 +2396,7 @@ public class PddlLexer extends Lexer {
 			}
 			switch (alt10) {
 				case 1 :
-					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:585:25: '\\r'
+					// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:590:25: '\\r'
 					{
 					match('\r'); 
 					}
@@ -2376,10 +2422,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = WHITESPACE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:589:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:589:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:594:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:594:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			{
-			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:589:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:594:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			int cnt11=0;
 			loop11:
 			while (true) {
@@ -2426,551 +2472,565 @@ public class PddlLexer extends Lexer {
 
 	@Override
 	public void mTokens() throws RecognitionException {
-		// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:8: ( T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE )
-		int alt12=78;
+		// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:8: ( T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | T__133 | T__134 | T__135 | T__136 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE )
+		int alt12=80;
 		alt12 = dfa12.predict(input);
 		switch (alt12) {
 			case 1 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:10: T__61
-				{
-				mT__61(); 
-
-				}
-				break;
-			case 2 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:16: T__62
-				{
-				mT__62(); 
-
-				}
-				break;
-			case 3 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:22: T__63
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:10: T__63
 				{
 				mT__63(); 
 
 				}
 				break;
-			case 4 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:28: T__64
+			case 2 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:16: T__64
 				{
 				mT__64(); 
 
 				}
 				break;
-			case 5 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:34: T__65
+			case 3 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:22: T__65
 				{
 				mT__65(); 
 
 				}
 				break;
-			case 6 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:40: T__66
+			case 4 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:28: T__66
 				{
 				mT__66(); 
 
 				}
 				break;
-			case 7 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:46: T__67
+			case 5 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:34: T__67
 				{
 				mT__67(); 
 
 				}
 				break;
-			case 8 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:52: T__68
+			case 6 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:40: T__68
 				{
 				mT__68(); 
 
 				}
 				break;
-			case 9 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:58: T__69
+			case 7 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:46: T__69
 				{
 				mT__69(); 
 
 				}
 				break;
-			case 10 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:64: T__70
+			case 8 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:52: T__70
 				{
 				mT__70(); 
 
 				}
 				break;
-			case 11 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:70: T__71
+			case 9 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:58: T__71
 				{
 				mT__71(); 
 
 				}
 				break;
-			case 12 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:76: T__72
+			case 10 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:64: T__72
 				{
 				mT__72(); 
 
 				}
 				break;
-			case 13 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:82: T__73
+			case 11 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:70: T__73
 				{
 				mT__73(); 
 
 				}
 				break;
-			case 14 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:88: T__74
+			case 12 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:76: T__74
 				{
 				mT__74(); 
 
 				}
 				break;
-			case 15 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:94: T__75
+			case 13 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:82: T__75
 				{
 				mT__75(); 
 
 				}
 				break;
-			case 16 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:100: T__76
+			case 14 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:88: T__76
 				{
 				mT__76(); 
 
 				}
 				break;
-			case 17 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:106: T__77
+			case 15 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:94: T__77
 				{
 				mT__77(); 
 
 				}
 				break;
-			case 18 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:112: T__78
+			case 16 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:100: T__78
 				{
 				mT__78(); 
 
 				}
 				break;
-			case 19 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:118: T__79
+			case 17 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:106: T__79
 				{
 				mT__79(); 
 
 				}
 				break;
-			case 20 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:124: T__80
+			case 18 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:112: T__80
 				{
 				mT__80(); 
 
 				}
 				break;
-			case 21 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:130: T__81
+			case 19 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:118: T__81
 				{
 				mT__81(); 
 
 				}
 				break;
-			case 22 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:136: T__82
+			case 20 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:124: T__82
 				{
 				mT__82(); 
 
 				}
 				break;
-			case 23 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:142: T__83
+			case 21 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:130: T__83
 				{
 				mT__83(); 
 
 				}
 				break;
-			case 24 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:148: T__84
+			case 22 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:136: T__84
 				{
 				mT__84(); 
 
 				}
 				break;
-			case 25 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:154: T__85
+			case 23 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:142: T__85
 				{
 				mT__85(); 
 
 				}
 				break;
-			case 26 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:160: T__86
+			case 24 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:148: T__86
 				{
 				mT__86(); 
 
 				}
 				break;
-			case 27 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:166: T__87
+			case 25 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:154: T__87
 				{
 				mT__87(); 
 
 				}
 				break;
-			case 28 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:172: T__88
+			case 26 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:160: T__88
 				{
 				mT__88(); 
 
 				}
 				break;
-			case 29 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:178: T__89
+			case 27 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:166: T__89
 				{
 				mT__89(); 
 
 				}
 				break;
-			case 30 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:184: T__90
+			case 28 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:172: T__90
 				{
 				mT__90(); 
 
 				}
 				break;
-			case 31 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:190: T__91
+			case 29 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:178: T__91
 				{
 				mT__91(); 
 
 				}
 				break;
-			case 32 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:196: T__92
+			case 30 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:184: T__92
 				{
 				mT__92(); 
 
 				}
 				break;
-			case 33 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:202: T__93
+			case 31 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:190: T__93
 				{
 				mT__93(); 
 
 				}
 				break;
-			case 34 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:208: T__94
+			case 32 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:196: T__94
 				{
 				mT__94(); 
 
 				}
 				break;
-			case 35 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:214: T__95
+			case 33 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:202: T__95
 				{
 				mT__95(); 
 
 				}
 				break;
-			case 36 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:220: T__96
+			case 34 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:208: T__96
 				{
 				mT__96(); 
 
 				}
 				break;
-			case 37 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:226: T__97
+			case 35 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:214: T__97
 				{
 				mT__97(); 
 
 				}
 				break;
-			case 38 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:232: T__98
+			case 36 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:220: T__98
 				{
 				mT__98(); 
 
 				}
 				break;
-			case 39 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:238: T__99
+			case 37 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:226: T__99
 				{
 				mT__99(); 
 
 				}
 				break;
-			case 40 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:244: T__100
+			case 38 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:232: T__100
 				{
 				mT__100(); 
 
 				}
 				break;
-			case 41 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:251: T__101
+			case 39 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:239: T__101
 				{
 				mT__101(); 
 
 				}
 				break;
-			case 42 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:258: T__102
+			case 40 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:246: T__102
 				{
 				mT__102(); 
 
 				}
 				break;
-			case 43 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:265: T__103
+			case 41 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:253: T__103
 				{
 				mT__103(); 
 
 				}
 				break;
-			case 44 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:272: T__104
+			case 42 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:260: T__104
 				{
 				mT__104(); 
 
 				}
 				break;
-			case 45 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:279: T__105
+			case 43 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:267: T__105
 				{
 				mT__105(); 
 
 				}
 				break;
-			case 46 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:286: T__106
+			case 44 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:274: T__106
 				{
 				mT__106(); 
 
 				}
 				break;
-			case 47 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:293: T__107
+			case 45 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:281: T__107
 				{
 				mT__107(); 
 
 				}
 				break;
-			case 48 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:300: T__108
+			case 46 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:288: T__108
 				{
 				mT__108(); 
 
 				}
 				break;
-			case 49 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:307: T__109
+			case 47 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:295: T__109
 				{
 				mT__109(); 
 
 				}
 				break;
-			case 50 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:314: T__110
+			case 48 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:302: T__110
 				{
 				mT__110(); 
 
 				}
 				break;
-			case 51 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:321: T__111
+			case 49 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:309: T__111
 				{
 				mT__111(); 
 
 				}
 				break;
-			case 52 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:328: T__112
+			case 50 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:316: T__112
 				{
 				mT__112(); 
 
 				}
 				break;
-			case 53 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:335: T__113
+			case 51 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:323: T__113
 				{
 				mT__113(); 
 
 				}
 				break;
-			case 54 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:342: T__114
+			case 52 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:330: T__114
 				{
 				mT__114(); 
 
 				}
 				break;
-			case 55 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:349: T__115
+			case 53 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:337: T__115
 				{
 				mT__115(); 
 
 				}
 				break;
-			case 56 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:356: T__116
+			case 54 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:344: T__116
 				{
 				mT__116(); 
 
 				}
 				break;
-			case 57 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:363: T__117
+			case 55 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:351: T__117
 				{
 				mT__117(); 
 
 				}
 				break;
-			case 58 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:370: T__118
+			case 56 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:358: T__118
 				{
 				mT__118(); 
 
 				}
 				break;
-			case 59 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:377: T__119
+			case 57 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:365: T__119
 				{
 				mT__119(); 
 
 				}
 				break;
-			case 60 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:384: T__120
+			case 58 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:372: T__120
 				{
 				mT__120(); 
 
 				}
 				break;
-			case 61 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:391: T__121
+			case 59 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:379: T__121
 				{
 				mT__121(); 
 
 				}
 				break;
-			case 62 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:398: T__122
+			case 60 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:386: T__122
 				{
 				mT__122(); 
 
 				}
 				break;
-			case 63 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:405: T__123
+			case 61 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:393: T__123
 				{
 				mT__123(); 
 
 				}
 				break;
-			case 64 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:412: T__124
+			case 62 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:400: T__124
 				{
 				mT__124(); 
 
 				}
 				break;
-			case 65 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:419: T__125
+			case 63 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:407: T__125
 				{
 				mT__125(); 
 
 				}
 				break;
-			case 66 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:426: T__126
+			case 64 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:414: T__126
 				{
 				mT__126(); 
 
 				}
 				break;
-			case 67 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:433: T__127
+			case 65 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:421: T__127
 				{
 				mT__127(); 
 
 				}
 				break;
-			case 68 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:440: T__128
+			case 66 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:428: T__128
 				{
 				mT__128(); 
 
 				}
 				break;
-			case 69 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:447: T__129
+			case 67 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:435: T__129
 				{
 				mT__129(); 
 
 				}
 				break;
-			case 70 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:454: T__130
+			case 68 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:442: T__130
 				{
 				mT__130(); 
 
 				}
 				break;
-			case 71 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:461: T__131
+			case 69 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:449: T__131
 				{
 				mT__131(); 
 
 				}
 				break;
-			case 72 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:468: T__132
+			case 70 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:456: T__132
 				{
 				mT__132(); 
 
 				}
 				break;
+			case 71 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:463: T__133
+				{
+				mT__133(); 
+
+				}
+				break;
+			case 72 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:470: T__134
+				{
+				mT__134(); 
+
+				}
+				break;
 			case 73 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:475: REQUIRE_KEY
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:477: T__135
+				{
+				mT__135(); 
+
+				}
+				break;
+			case 74 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:484: T__136
+				{
+				mT__136(); 
+
+				}
+				break;
+			case 75 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:491: REQUIRE_KEY
 				{
 				mREQUIRE_KEY(); 
 
 				}
 				break;
-			case 74 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:487: NAME
+			case 76 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:503: NAME
 				{
 				mNAME(); 
 
 				}
 				break;
-			case 75 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:492: VARIABLE
+			case 77 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:508: VARIABLE
 				{
 				mVARIABLE(); 
 
 				}
 				break;
-			case 76 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:501: NUMBER
+			case 78 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:517: NUMBER
 				{
 				mNUMBER(); 
 
 				}
 				break;
-			case 77 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:508: LINE_COMMENT
+			case 79 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:524: LINE_COMMENT
 				{
 				mLINE_COMMENT(); 
 
 				}
 				break;
-			case 78 :
-				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:521: WHITESPACE
+			case 80 :
+				// /home/enrico/Scrivania/Dropbox/plan_exec_2_0/ppmajal2/grammar/Pddl.g:1:537: WHITESPACE
 				{
 				mWHITESPACE(); 
 
@@ -2983,156 +3043,156 @@ public class PddlLexer extends Lexer {
 
 	protected DFA12 dfa12 = new DFA12(this);
 	static final String DFA12_eotS =
-		"\6\uffff\1\37\2\uffff\1\56\1\uffff\1\60\2\uffff\14\32\27\uffff\1\62\1"+
-		"\uffff\3\32\1\140\16\32\1\160\7\32\15\uffff\1\62\1\u0080\1\32\1\u0082"+
-		"\2\32\1\uffff\4\32\1\u0089\10\32\1\u0092\1\32\1\uffff\10\32\6\uffff\1"+
-		"\62\1\uffff\1\32\1\uffff\6\32\1\uffff\10\32\1\uffff\1\32\1\u00b4\5\32"+
-		"\1\u00ba\1\32\7\uffff\1\62\12\32\1\u00cc\5\32\1\uffff\4\32\1\u00d6\1\uffff"+
-		"\1\32\4\uffff\1\62\1\u00df\1\u00e0\2\32\1\u00e3\1\u00e4\1\u00e5\1\u00e6"+
-		"\1\u00e7\2\32\1\uffff\4\32\1\u00ee\4\32\1\uffff\1\u00f4\5\uffff\1\62\1"+
-		"\32\2\uffff\2\32\5\uffff\6\32\1\uffff\1\32\1\u0105\3\32\3\uffff\1\u010b"+
-		"\2\uffff\1\62\2\32\1\u0110\2\32\1\u0113\1\32\1\u0115\1\u0116\1\32\1\uffff"+
-		"\1\32\1\u0119\1\u011b\4\uffff\1\u011f\2\32\1\uffff\2\32\1\uffff\1\32\2"+
-		"\uffff\2\32\1\uffff\1\32\1\uffff\1\u0129\3\uffff\2\32\1\u012e\2\32\1\u0131"+
-		"\1\u0132\2\32\1\uffff\1\u0136\1\uffff\2\32\1\uffff\1\u013a\1\u013b\2\uffff"+
-		"\2\32\3\uffff\1\32\1\u0141\2\uffff\2\32\2\uffff\1\u0145\1\uffff\2\32\2"+
-		"\uffff\1\u0149\1\32\2\uffff\1\u014c\1\u014d\2\uffff";
+		"\6\uffff\1\41\2\uffff\1\60\1\uffff\1\62\1\uffff\2\34\1\uffff\14\34\27"+
+		"\uffff\1\64\1\uffff\5\34\1\146\16\34\1\166\7\34\15\uffff\1\64\1\u0086"+
+		"\1\u0087\1\u0088\1\34\1\u008a\2\34\1\uffff\4\34\1\u0091\10\34\1\u009a"+
+		"\1\34\1\uffff\10\34\6\uffff\1\64\3\uffff\1\34\1\uffff\6\34\1\uffff\10"+
+		"\34\1\uffff\1\34\1\u00bc\5\34\1\u00c2\1\34\7\uffff\1\64\12\34\1\u00d4"+
+		"\5\34\1\uffff\4\34\1\u00de\1\uffff\1\34\4\uffff\1\64\1\u00e7\1\u00e8\2"+
+		"\34\1\u00eb\1\u00ec\1\u00ed\1\u00ee\1\u00ef\2\34\1\uffff\4\34\1\u00f6"+
+		"\4\34\1\uffff\1\u00fc\5\uffff\1\64\1\34\2\uffff\2\34\5\uffff\6\34\1\uffff"+
+		"\1\34\1\u010d\3\34\3\uffff\1\u0113\2\uffff\1\64\2\34\1\u0118\2\34\1\u011b"+
+		"\1\34\1\u011d\1\u011e\1\34\1\uffff\1\34\1\u0121\1\u0123\4\uffff\1\u0127"+
+		"\2\34\1\uffff\2\34\1\uffff\1\34\2\uffff\2\34\1\uffff\1\34\1\uffff\1\u0131"+
+		"\3\uffff\2\34\1\u0136\2\34\1\u0139\1\u013a\2\34\1\uffff\1\u013e\1\uffff"+
+		"\2\34\1\uffff\1\u0142\1\u0143\2\uffff\2\34\3\uffff\1\34\1\u0149\2\uffff"+
+		"\2\34\2\uffff\1\u014d\1\uffff\2\34\2\uffff\1\u0151\1\34\2\uffff\1\u0154"+
+		"\1\u0155\2\uffff";
 	static final String DFA12_eofS =
-		"\u014e\uffff";
+		"\u0156\uffff";
 	static final String DFA12_minS =
-		"\1\11\1\164\4\uffff\1\60\1\uffff\1\141\1\75\1\uffff\1\75\1\101\1\uffff"+
-		"\1\154\1\145\1\151\2\157\1\155\1\141\1\157\2\162\1\143\1\150\6\uffff\1"+
-		"\143\1\157\1\145\1\146\1\154\4\uffff\1\141\1\uffff\1\151\5\uffff\1\165"+
-		"\1\uffff\1\154\1\144\1\163\1\55\1\143\1\155\1\164\1\144\1\151\1\162\1"+
-		"\154\1\160\1\143\1\55\1\170\1\156\1\164\1\155\1\55\2\145\1\141\1\155\1"+
-		"\141\1\145\1\164\2\uffff\1\156\1\162\1\uffff\1\162\5\uffff\1\145\1\160"+
-		"\1\162\1\55\1\141\1\55\1\151\1\155\1\uffff\1\162\1\151\1\141\1\150\1\55"+
-		"\1\163\1\141\1\144\1\154\1\162\1\166\2\151\1\55\1\142\1\uffff\1\162\1"+
-		"\146\1\142\1\154\1\145\1\162\1\156\1\150\1\144\1\151\1\141\1\143\1\uffff"+
-		"\1\145\1\141\1\uffff\1\171\1\uffff\1\147\1\157\1\145\1\156\1\151\1\145"+
-		"\1\uffff\1\164\1\154\1\55\1\171\1\145\1\151\2\155\1\uffff\1\145\1\55\1"+
-		"\145\1\154\1\145\2\164\1\55\2\151\1\164\1\166\1\164\3\uffff\1\164\1\163"+
-		"\1\156\1\163\1\141\1\145\1\156\1\162\1\163\1\154\1\141\1\55\1\141\1\157"+
-		"\2\151\1\162\1\uffff\1\162\1\145\1\55\1\151\1\55\1\uffff\1\156\1\164\1"+
-		"\141\1\145\2\151\2\55\1\164\1\163\5\55\1\146\1\165\1\uffff\1\163\1\154"+
-		"\2\172\1\55\1\145\1\155\1\144\1\155\1\uffff\1\55\1\151\1\uffff\1\141\1"+
-		"\144\2\157\1\167\2\uffff\1\55\1\145\5\uffff\1\164\1\162\1\145\1\141\2"+
-		"\145\1\uffff\1\156\1\55\1\157\1\160\1\145\1\uffff\1\157\1\151\1\55\1\uffff"+
-		"\1\145\1\156\1\151\1\157\1\55\1\145\1\151\1\55\1\164\2\55\1\143\1\uffff"+
-		"\1\167\2\55\2\156\1\uffff\2\55\1\164\1\156\1\uffff\1\162\1\156\1\uffff"+
-		"\1\145\2\uffff\1\145\1\156\1\uffff\1\141\1\uffff\1\141\1\164\1\141\1\uffff"+
-		"\1\150\1\143\1\55\1\147\1\144\2\55\1\146\1\145\1\uffff\1\163\1\143\1\151"+
-		"\1\145\1\uffff\2\55\2\uffff\1\164\1\146\2\uffff\1\164\1\156\1\55\2\uffff"+
-		"\1\145\1\157\1\uffff\1\151\1\55\1\uffff\2\162\1\157\1\uffff\1\55\1\145"+
-		"\1\156\1\uffff\1\55\1\163\2\uffff";
+		"\1\11\1\164\4\uffff\1\60\1\uffff\1\141\1\75\1\uffff\1\75\1\101\1\117\1"+
+		"\111\1\uffff\1\154\1\145\1\151\2\157\1\155\1\141\1\157\2\162\1\143\1\150"+
+		"\6\uffff\1\143\1\157\1\145\1\146\1\154\4\uffff\1\141\1\uffff\1\151\5\uffff"+
+		"\1\165\1\uffff\1\123\1\116\1\154\1\144\1\163\1\55\1\143\1\155\1\164\1"+
+		"\144\1\151\1\162\1\154\1\160\1\143\1\55\1\170\1\156\1\164\1\155\1\55\2"+
+		"\145\1\141\1\155\1\141\1\145\1\164\2\uffff\1\156\1\162\1\uffff\1\162\5"+
+		"\uffff\1\145\1\160\1\162\3\55\1\141\1\55\1\151\1\155\1\uffff\1\162\1\151"+
+		"\1\141\1\150\1\55\1\163\1\141\1\144\1\154\1\162\1\166\2\151\1\55\1\142"+
+		"\1\uffff\1\162\1\146\1\142\1\154\1\145\1\162\1\156\1\150\1\144\1\151\1"+
+		"\141\1\143\1\uffff\1\145\1\141\3\uffff\1\171\1\uffff\1\147\1\157\1\145"+
+		"\1\156\1\151\1\145\1\uffff\1\164\1\154\1\55\1\171\1\145\1\151\2\155\1"+
+		"\uffff\1\145\1\55\1\145\1\154\1\145\2\164\1\55\2\151\1\164\1\166\1\164"+
+		"\3\uffff\1\164\1\163\1\156\1\163\1\141\1\145\1\156\1\162\1\163\1\154\1"+
+		"\141\1\55\1\141\1\157\2\151\1\162\1\uffff\1\162\1\145\1\55\1\151\1\55"+
+		"\1\uffff\1\156\1\164\1\141\1\145\2\151\2\55\1\164\1\163\5\55\1\146\1\165"+
+		"\1\uffff\1\163\1\154\2\172\1\55\1\145\1\155\1\144\1\155\1\uffff\1\55\1"+
+		"\151\1\uffff\1\141\1\144\2\157\1\167\2\uffff\1\55\1\145\5\uffff\1\164"+
+		"\1\162\1\145\1\141\2\145\1\uffff\1\156\1\55\1\157\1\160\1\145\1\uffff"+
+		"\1\157\1\151\1\55\1\uffff\1\145\1\156\1\151\1\157\1\55\1\145\1\151\1\55"+
+		"\1\164\2\55\1\143\1\uffff\1\167\2\55\2\156\1\uffff\2\55\1\164\1\156\1"+
+		"\uffff\1\162\1\156\1\uffff\1\145\2\uffff\1\145\1\156\1\uffff\1\141\1\uffff"+
+		"\1\141\1\164\1\141\1\uffff\1\150\1\143\1\55\1\147\1\144\2\55\1\146\1\145"+
+		"\1\uffff\1\163\1\143\1\151\1\145\1\uffff\2\55\2\uffff\1\164\1\146\2\uffff"+
+		"\1\164\1\156\1\55\2\uffff\1\145\1\157\1\uffff\1\151\1\55\1\uffff\2\162"+
+		"\1\157\1\uffff\1\55\1\145\1\156\1\uffff\1\55\1\163\2\uffff";
 	static final String DFA12_maxS =
-		"\1\172\1\164\4\uffff\1\71\1\uffff\1\165\1\75\1\uffff\1\75\1\172\1\uffff"+
-		"\1\164\1\157\1\170\2\157\1\163\1\151\1\165\1\166\1\162\1\164\1\151\6\uffff"+
-		"\1\144\1\157\1\165\1\170\1\165\4\uffff\1\162\1\uffff\1\171\5\uffff\1\165"+
-		"\1\uffff\1\167\1\144\1\163\1\172\1\146\1\155\1\164\1\144\1\151\1\162\1"+
-		"\154\1\160\1\143\1\55\1\170\1\156\1\164\1\155\1\172\1\145\1\157\1\141"+
-		"\1\155\1\141\1\145\1\164\2\uffff\1\156\1\162\1\uffff\1\162\5\uffff\1\157"+
-		"\1\160\1\162\1\172\1\141\1\172\1\151\1\155\1\uffff\1\162\1\151\1\141\1"+
-		"\150\1\172\1\163\1\141\1\144\1\154\1\162\1\166\2\151\1\172\1\142\1\uffff"+
-		"\1\162\1\146\1\142\1\154\1\145\1\162\1\156\1\150\1\163\1\151\1\141\1\146"+
-		"\1\uffff\1\151\1\141\1\uffff\1\171\1\uffff\1\147\1\157\1\145\1\156\1\151"+
-		"\1\145\1\uffff\1\164\1\154\1\55\1\171\1\145\1\151\2\155\1\uffff\1\145"+
-		"\1\172\1\145\1\154\1\145\2\164\1\172\2\151\1\164\1\166\1\164\3\uffff\1"+
-		"\164\1\163\1\156\1\163\1\141\1\145\1\156\1\162\1\163\1\154\1\144\1\172"+
-		"\1\141\1\157\2\151\1\162\1\uffff\1\162\1\145\1\55\1\151\1\172\1\uffff"+
-		"\1\156\1\164\1\162\1\145\2\151\2\172\1\164\1\163\5\172\1\146\1\165\1\uffff"+
-		"\1\163\1\154\3\172\1\145\1\155\1\165\1\155\1\uffff\1\172\1\151\1\uffff"+
-		"\1\141\1\144\1\166\1\157\1\167\2\uffff\1\55\1\145\5\uffff\1\164\1\162"+
-		"\1\145\1\141\2\145\1\uffff\1\156\1\172\1\157\1\160\1\145\1\uffff\1\157"+
-		"\1\151\1\55\1\uffff\1\145\1\156\1\151\1\157\1\172\1\145\1\151\1\172\1"+
-		"\164\2\172\1\143\1\uffff\1\167\2\172\2\156\1\uffff\1\55\1\172\1\164\1"+
-		"\156\1\uffff\1\162\1\156\1\uffff\1\145\2\uffff\1\145\1\156\1\uffff\1\142"+
-		"\1\uffff\1\141\1\164\1\141\1\uffff\1\150\1\143\1\172\1\147\1\144\2\172"+
-		"\1\146\1\145\1\uffff\1\163\1\143\1\151\1\145\1\uffff\2\172\2\uffff\1\164"+
-		"\1\146\2\uffff\1\164\1\156\1\172\2\uffff\1\145\1\157\1\uffff\1\151\1\172"+
-		"\1\uffff\2\162\1\157\1\uffff\1\172\1\145\1\156\1\uffff\1\172\1\163\2\uffff";
+		"\1\172\1\164\4\uffff\1\71\1\uffff\1\165\1\75\1\uffff\1\75\1\172\1\117"+
+		"\1\111\1\uffff\1\164\1\157\1\170\2\157\1\163\1\151\1\165\1\166\1\162\1"+
+		"\164\1\151\6\uffff\1\144\1\157\1\165\1\170\1\165\4\uffff\1\162\1\uffff"+
+		"\1\171\5\uffff\1\165\1\uffff\1\123\1\116\1\167\1\144\1\163\1\172\1\146"+
+		"\1\155\1\164\1\144\1\151\1\162\1\154\1\160\1\143\1\55\1\170\1\156\1\164"+
+		"\1\155\1\172\1\145\1\157\1\141\1\155\1\141\1\145\1\164\2\uffff\1\156\1"+
+		"\162\1\uffff\1\162\5\uffff\1\157\1\160\1\162\3\172\1\141\1\172\1\151\1"+
+		"\155\1\uffff\1\162\1\151\1\141\1\150\1\172\1\163\1\141\1\144\1\154\1\162"+
+		"\1\166\2\151\1\172\1\142\1\uffff\1\162\1\146\1\142\1\154\1\145\1\162\1"+
+		"\156\1\150\1\163\1\151\1\141\1\146\1\uffff\1\151\1\141\3\uffff\1\171\1"+
+		"\uffff\1\147\1\157\1\145\1\156\1\151\1\145\1\uffff\1\164\1\154\1\55\1"+
+		"\171\1\145\1\151\2\155\1\uffff\1\145\1\172\1\145\1\154\1\145\2\164\1\172"+
+		"\2\151\1\164\1\166\1\164\3\uffff\1\164\1\163\1\156\1\163\1\141\1\145\1"+
+		"\156\1\162\1\163\1\154\1\144\1\172\1\141\1\157\2\151\1\162\1\uffff\1\162"+
+		"\1\145\1\55\1\151\1\172\1\uffff\1\156\1\164\1\162\1\145\2\151\2\172\1"+
+		"\164\1\163\5\172\1\146\1\165\1\uffff\1\163\1\154\3\172\1\145\1\155\1\165"+
+		"\1\155\1\uffff\1\172\1\151\1\uffff\1\141\1\144\1\166\1\157\1\167\2\uffff"+
+		"\1\55\1\145\5\uffff\1\164\1\162\1\145\1\141\2\145\1\uffff\1\156\1\172"+
+		"\1\157\1\160\1\145\1\uffff\1\157\1\151\1\55\1\uffff\1\145\1\156\1\151"+
+		"\1\157\1\172\1\145\1\151\1\172\1\164\2\172\1\143\1\uffff\1\167\2\172\2"+
+		"\156\1\uffff\1\55\1\172\1\164\1\156\1\uffff\1\162\1\156\1\uffff\1\145"+
+		"\2\uffff\1\145\1\156\1\uffff\1\142\1\uffff\1\141\1\164\1\141\1\uffff\1"+
+		"\150\1\143\1\172\1\147\1\144\2\172\1\146\1\145\1\uffff\1\163\1\143\1\151"+
+		"\1\145\1\uffff\2\172\2\uffff\1\164\1\146\2\uffff\1\164\1\156\1\172\2\uffff"+
+		"\1\145\1\157\1\uffff\1\151\1\172\1\uffff\2\162\1\157\1\uffff\1\172\1\145"+
+		"\1\156\1\uffff\1\172\1\163\2\uffff";
 	static final String DFA12_acceptS =
-		"\2\uffff\1\2\1\3\1\4\1\5\1\uffff\1\7\2\uffff\1\41\2\uffff\1\45\14\uffff"+
-		"\1\112\1\114\1\115\1\116\1\1\1\6\5\uffff\1\25\1\26\1\27\1\30\1\uffff\1"+
-		"\35\1\uffff\1\111\1\40\1\37\1\43\1\42\1\uffff\1\113\32\uffff\1\1\1\10"+
-		"\2\uffff\1\16\1\uffff\1\21\1\22\1\23\1\24\1\31\10\uffff\1\53\17\uffff"+
-		"\1\75\14\uffff\1\34\2\uffff\1\46\1\uffff\1\51\6\uffff\1\61\10\uffff\1"+
-		"\73\15\uffff\1\32\1\33\1\36\21\uffff\1\76\5\uffff\1\107\21\uffff\1\66"+
-		"\11\uffff\1\106\2\uffff\1\12\5\uffff\1\47\1\52\2\uffff\1\56\1\57\1\60"+
-		"\1\62\1\63\6\uffff\1\74\5\uffff\1\110\3\uffff\1\17\14\uffff\1\100\5\uffff"+
-		"\1\15\4\uffff\1\55\2\uffff\1\67\1\uffff\1\71\1\72\2\uffff\1\102\1\uffff"+
-		"\1\103\3\uffff\1\44\11\uffff\1\11\4\uffff\1\64\2\uffff\1\77\1\101\2\uffff"+
-		"\1\14\1\13\3\uffff\1\65\1\70\2\uffff\1\14\2\uffff\1\54\3\uffff\1\50\3"+
-		"\uffff\1\104\2\uffff\1\105\1\20";
+		"\2\uffff\1\2\1\3\1\4\1\5\1\uffff\1\7\2\uffff\1\41\4\uffff\1\47\14\uffff"+
+		"\1\114\1\116\1\117\1\120\1\1\1\6\5\uffff\1\25\1\26\1\27\1\30\1\uffff\1"+
+		"\35\1\uffff\1\113\1\40\1\37\1\43\1\42\1\uffff\1\115\34\uffff\1\1\1\10"+
+		"\2\uffff\1\16\1\uffff\1\21\1\22\1\23\1\24\1\31\12\uffff\1\55\17\uffff"+
+		"\1\77\14\uffff\1\34\2\uffff\1\45\1\46\1\50\1\uffff\1\53\6\uffff\1\63\10"+
+		"\uffff\1\75\15\uffff\1\32\1\33\1\36\21\uffff\1\100\5\uffff\1\111\21\uffff"+
+		"\1\70\11\uffff\1\110\2\uffff\1\12\5\uffff\1\51\1\54\2\uffff\1\60\1\61"+
+		"\1\62\1\64\1\65\6\uffff\1\76\5\uffff\1\112\3\uffff\1\17\14\uffff\1\102"+
+		"\5\uffff\1\15\4\uffff\1\57\2\uffff\1\71\1\uffff\1\73\1\74\2\uffff\1\104"+
+		"\1\uffff\1\105\3\uffff\1\44\11\uffff\1\11\4\uffff\1\66\2\uffff\1\101\1"+
+		"\103\2\uffff\1\14\1\13\3\uffff\1\67\1\72\2\uffff\1\14\2\uffff\1\56\3\uffff"+
+		"\1\52\3\uffff\1\106\2\uffff\1\107\1\20";
 	static final String DFA12_specialS =
-		"\u014e\uffff}>";
+		"\u0156\uffff}>";
 	static final String[] DFA12_transitionS = {
-			"\2\35\2\uffff\1\35\22\uffff\1\35\2\uffff\1\1\4\uffff\1\2\1\3\1\4\1\5"+
-			"\1\uffff\1\6\1\uffff\1\7\12\33\1\10\1\34\1\11\1\12\1\13\1\14\1\uffff"+
-			"\32\32\3\uffff\1\15\2\uffff\1\16\2\32\1\17\1\20\1\21\1\32\1\22\1\23\3"+
-			"\32\1\24\1\25\1\26\1\27\2\32\1\30\3\32\1\31\3\32",
-			"\1\36",
+			"\2\37\2\uffff\1\37\22\uffff\1\37\2\uffff\1\1\4\uffff\1\2\1\3\1\4\1\5"+
+			"\1\uffff\1\6\1\uffff\1\7\12\35\1\10\1\36\1\11\1\12\1\13\1\14\1\uffff"+
+			"\2\34\1\15\17\34\1\16\7\34\3\uffff\1\17\2\uffff\1\20\2\34\1\21\1\22\1"+
+			"\23\1\34\1\24\1\25\3\34\1\26\1\27\1\30\1\31\2\34\1\32\3\34\1\33\3\34",
+			"\1\40",
 			"",
 			"",
 			"",
 			"",
-			"\12\33",
+			"\12\35",
 			"",
-			"\1\40\1\uffff\1\41\1\42\1\43\1\44\1\45\1\uffff\1\46\3\uffff\1\47\1\54"+
-			"\1\50\1\51\1\54\1\52\1\54\1\53\1\54",
-			"\1\55",
-			"",
+			"\1\42\1\uffff\1\43\1\44\1\45\1\46\1\47\1\uffff\1\50\3\uffff\1\51\1\56"+
+			"\1\52\1\53\1\56\1\54\1\56\1\55\1\56",
 			"\1\57",
-			"\32\62\6\uffff\3\62\1\61\26\62",
 			"",
-			"\1\63\1\uffff\1\64\4\uffff\1\65\1\66",
-			"\1\67\11\uffff\1\70",
-			"\1\71\4\uffff\1\72\11\uffff\1\73",
-			"\1\74",
-			"\1\75",
-			"\1\76\1\77\4\uffff\1\100",
-			"\1\101\7\uffff\1\102",
-			"\1\103\5\uffff\1\104",
-			"\1\105\3\uffff\1\106",
-			"\1\107",
-			"\1\110\13\uffff\1\111\4\uffff\1\112",
-			"\1\113\1\114",
+			"\1\61",
+			"\32\64\6\uffff\3\64\1\63\26\64",
+			"\1\65",
+			"\1\66",
 			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"\1\116\1\54",
-			"\1\117",
-			"\1\120\3\uffff\1\54\5\uffff\1\121\5\uffff\1\122",
-			"\1\123\12\uffff\1\54\4\uffff\1\124\1\uffff\1\54",
-			"\1\54\5\uffff\1\125\2\uffff\1\126",
-			"",
-			"",
-			"",
-			"",
-			"\1\127\20\uffff\1\130",
-			"",
-			"\1\54\17\uffff\1\131",
+			"\1\67\1\uffff\1\70\4\uffff\1\71\1\72",
+			"\1\73\11\uffff\1\74",
+			"\1\75\4\uffff\1\76\11\uffff\1\77",
+			"\1\100",
+			"\1\101",
+			"\1\102\1\103\4\uffff\1\104",
+			"\1\105\7\uffff\1\106",
+			"\1\107\5\uffff\1\110",
+			"\1\111\3\uffff\1\112",
+			"\1\113",
+			"\1\114\13\uffff\1\115\4\uffff\1\116",
+			"\1\117\1\120",
 			"",
 			"",
 			"",
 			"",
 			"",
-			"\1\132",
 			"",
-			"\1\133\12\uffff\1\134",
-			"\1\135",
+			"\1\122\1\56",
+			"\1\123",
+			"\1\124\3\uffff\1\56\5\uffff\1\125\5\uffff\1\126",
+			"\1\127\12\uffff\1\56\4\uffff\1\130\1\uffff\1\56",
+			"\1\56\5\uffff\1\131\2\uffff\1\132",
+			"",
+			"",
+			"",
+			"",
+			"\1\133\20\uffff\1\134",
+			"",
+			"\1\56\17\uffff\1\135",
+			"",
+			"",
+			"",
+			"",
+			"",
 			"\1\136",
-			"\1\137\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\141\2\uffff\1\142",
+			"",
+			"\1\137",
+			"\1\140",
+			"\1\141\12\uffff\1\142",
 			"\1\143",
 			"\1\144",
-			"\1\145",
-			"\1\146",
-			"\1\147",
-			"\1\150",
+			"\1\145\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\147\2\uffff\1\150",
 			"\1\151",
 			"\1\152",
 			"\1\153",
@@ -3140,77 +3200,78 @@ public class PddlLexer extends Lexer {
 			"\1\155",
 			"\1\156",
 			"\1\157",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\160",
 			"\1\161",
-			"\1\162\11\uffff\1\163",
+			"\1\162",
+			"\1\163",
 			"\1\164",
 			"\1\165",
-			"\1\166",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\167",
-			"\1\170",
-			"",
-			"",
-			"\1\171",
+			"\1\170\11\uffff\1\171",
 			"\1\172",
-			"",
 			"\1\173",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"\1\174\11\uffff\1\175",
+			"\1\174",
+			"\1\175",
 			"\1\176",
-			"\1\177",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u0081",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u0083",
-			"\1\u0084",
 			"",
+			"",
+			"\1\177",
+			"\1\u0080",
+			"",
+			"\1\u0081",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"\1\u0082\11\uffff\1\u0083",
+			"\1\u0084",
 			"\1\u0085",
-			"\1\u0086",
-			"\1\u0087",
-			"\1\u0088",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u008a",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u0089",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u008b",
 			"\1\u008c",
+			"",
 			"\1\u008d",
 			"\1\u008e",
 			"\1\u008f",
 			"\1\u0090",
-			"\1\u0091",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u0092",
 			"\1\u0093",
-			"",
 			"\1\u0094",
 			"\1\u0095",
 			"\1\u0096",
 			"\1\u0097",
 			"\1\u0098",
 			"\1\u0099",
-			"\1\u009a",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u009b",
-			"\1\u009c\16\uffff\1\u009d",
+			"",
+			"\1\u009c",
+			"\1\u009d",
 			"\1\u009e",
 			"\1\u009f",
-			"\1\u00a0\1\u00a1\1\uffff\1\54",
-			"",
-			"\1\u00a2\3\uffff\1\54",
+			"\1\u00a0",
+			"\1\u00a1",
+			"\1\u00a2",
 			"\1\u00a3",
-			"",
-			"\1\u00a4",
-			"",
-			"\1\u00a5",
+			"\1\u00a4\16\uffff\1\u00a5",
 			"\1\u00a6",
 			"\1\u00a7",
-			"\1\u00a8",
-			"\1\u00a9",
-			"\1\u00aa",
+			"\1\u00a8\1\u00a9\1\uffff\1\56",
 			"",
+			"\1\u00aa\3\uffff\1\56",
 			"\1\u00ab",
+			"",
+			"",
+			"",
 			"\1\u00ac",
+			"",
 			"\1\u00ad",
 			"\1\u00ae",
 			"\1\u00af",
@@ -3219,190 +3280,199 @@ public class PddlLexer extends Lexer {
 			"\1\u00b2",
 			"",
 			"\1\u00b3",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u00b4",
 			"\1\u00b5",
 			"\1\u00b6",
 			"\1\u00b7",
 			"\1\u00b8",
 			"\1\u00b9",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u00ba",
+			"",
 			"\1\u00bb",
-			"\1\u00bc",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00bd",
 			"\1\u00be",
 			"\1\u00bf",
-			"",
-			"",
-			"",
 			"\1\u00c0",
 			"\1\u00c1",
-			"\1\u00c2",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00c3",
 			"\1\u00c4",
 			"\1\u00c5",
 			"\1\u00c6",
 			"\1\u00c7",
+			"",
+			"",
+			"",
 			"\1\u00c8",
 			"\1\u00c9",
-			"\1\u00ca\2\uffff\1\u00cb",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u00ca",
+			"\1\u00cb",
+			"\1\u00cc",
 			"\1\u00cd",
 			"\1\u00ce",
 			"\1\u00cf",
 			"\1\u00d0",
 			"\1\u00d1",
-			"",
-			"\1\u00d2",
-			"\1\u00d3",
-			"\1\u00d4",
+			"\1\u00d2\2\uffff\1\u00d3",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00d5",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"",
+			"\1\u00d6",
 			"\1\u00d7",
 			"\1\u00d8",
-			"\1\u00d9\20\uffff\1\u00da",
+			"\1\u00d9",
+			"",
+			"\1\u00da",
 			"\1\u00db",
 			"\1\u00dc",
 			"\1\u00dd",
-			"\1\u00de\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u00e1",
-			"\1\u00e2",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u00e8",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"",
+			"\1\u00df",
+			"\1\u00e0",
+			"\1\u00e1\20\uffff\1\u00e2",
+			"\1\u00e3",
+			"\1\u00e4",
+			"\1\u00e5",
+			"\1\u00e6\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00e9",
-			"",
 			"\1\u00ea",
-			"\1\u00eb",
-			"\1\u00ec",
-			"\1\u00ed",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u00ef",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00f0",
-			"\1\u00f1\20\uffff\1\u00f2",
+			"\1\u00f1",
+			"",
+			"\1\u00f2",
 			"\1\u00f3",
-			"",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u00f4",
 			"\1\u00f5",
-			"",
-			"\1\u00f6",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00f7",
-			"\1\u00f8\6\uffff\1\u00f9",
-			"\1\u00fa",
+			"\1\u00f8",
+			"\1\u00f9\20\uffff\1\u00fa",
 			"\1\u00fb",
 			"",
-			"",
-			"\1\u00fc",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u00fd",
-			"",
-			"",
-			"",
-			"",
 			"",
 			"\1\u00fe",
 			"\1\u00ff",
-			"\1\u0100",
-			"\1\u0101",
+			"\1\u0100\6\uffff\1\u0101",
 			"\1\u0102",
 			"\1\u0103",
 			"",
+			"",
 			"\1\u0104",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u0105",
+			"",
+			"",
+			"",
+			"",
+			"",
 			"\1\u0106",
 			"\1\u0107",
 			"\1\u0108",
-			"",
 			"\1\u0109",
 			"\1\u010a",
-			"\1\54",
+			"\1\u010b",
 			"",
 			"\1\u010c",
-			"\1\u010d",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u010e",
 			"\1\u010f",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u0110",
+			"",
 			"\1\u0111",
 			"\1\u0112",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\56",
+			"",
 			"\1\u0114",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u0115",
+			"\1\u0116",
 			"\1\u0117",
-			"",
-			"\1\u0118",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u011a\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u0119",
+			"\1\u011a",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u011c",
-			"\1\u011d",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u011f",
 			"",
-			"\1\u011e",
-			"\1\62\2\uffff\12\62\7\uffff\32\62\4\uffff\1\62\1\uffff\32\62",
 			"\1\u0120",
-			"\1\u0121",
-			"",
-			"\1\u0122",
-			"\1\u0123",
-			"",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u0122\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u0124",
-			"",
-			"",
 			"\1\u0125",
+			"",
 			"\1\u0126",
+			"\1\64\2\uffff\12\64\7\uffff\32\64\4\uffff\1\64\1\uffff\32\64",
+			"\1\u0128",
+			"\1\u0129",
 			"",
-			"\1\u0127\1\u0128",
-			"",
-			"\1\54",
 			"\1\u012a",
 			"\1\u012b",
 			"",
 			"\1\u012c",
-			"\1\u012d",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u012f",
-			"\1\u0130",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\u0133",
-			"\1\u0134",
 			"",
+			"",
+			"\1\u012d",
+			"\1\u012e",
+			"",
+			"\1\u012f\1\u0130",
+			"",
+			"\1\56",
+			"\1\u0132",
+			"\1\u0133",
+			"",
+			"\1\u0134",
 			"\1\u0135",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"\1\u0137",
 			"\1\u0138",
-			"\1\u0139",
-			"",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"",
-			"",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u013b",
 			"\1\u013c",
+			"",
 			"\1\u013d",
-			"",
-			"",
 			"\1\u013f",
 			"\1\u0140",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u0141",
 			"",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"",
-			"\1\u0142",
-			"\1\u0143",
 			"",
 			"\1\u0144",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"\1\u0145",
 			"",
-			"\1\u0146",
+			"",
 			"\1\u0147",
 			"\1\u0148",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
 			"",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
+			"",
 			"\1\u014a",
 			"\1\u014b",
 			"",
-			"\1\32\2\uffff\12\32\7\uffff\32\32\4\uffff\1\32\1\uffff\32\32",
-			"\1\54",
+			"\1\u014c",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"",
+			"\1\u014e",
+			"\1\u014f",
+			"\1\u0150",
+			"",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\u0152",
+			"\1\u0153",
+			"",
+			"\1\34\2\uffff\12\34\7\uffff\32\34\4\uffff\1\34\1\uffff\32\34",
+			"\1\56",
 			"",
 			""
 	};
@@ -3438,7 +3508,7 @@ public class PddlLexer extends Lexer {
 		}
 		@Override
 		public String getDescription() {
-			return "1:1: Tokens : ( T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE );";
+			return "1:1: Tokens : ( T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | T__133 | T__134 | T__135 | T__136 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE );";
 		}
 	}
 

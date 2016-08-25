@@ -30,7 +30,7 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import expressions.GenericOperator;
+import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.PDDLNumber;
 import extraUtils.Pair;
