@@ -257,6 +257,8 @@ public class GroundAction extends GenericActionType implements Comparable {
             HashMap fun2numb = new HashMap();
             for (Object o : c.sons) {
                 NumEffect all = (NumEffect) o;
+                if (all.getFluentAffected().getName().equals("total-cost"))//this is to use total-cost as a keyword and not use this in the state
+                    continue;
                 NumFluent f = all.getFluentAffected();
                 PDDLNumber newN = null;
 
@@ -420,8 +422,12 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : c.sons) {
                 NumEffect all = (NumEffect) o;
                 //all.apply(s);
+                if (all.getFluentAffected().getName().equals("total-cost"))//this is to use total-cost as a keyword and not use this in the state
+                    continue;
+                
                 NumFluent f = all.getFluentAffected();
 
+ 
                 Interval after = new Interval();
 //                if (f.getName().contains("fuel-used")){
 //                    System.out.println("Something affecting Fuel");

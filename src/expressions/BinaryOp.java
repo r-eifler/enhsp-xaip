@@ -248,6 +248,9 @@ public class BinaryOp extends Expression {
         ret.left = left.weakEval(s, invF);
         ret.right = right.weakEval(s, invF);
 
+        
+        
+        
         if (ret.left == null || ret.right == null) {
             return null;
         }

@@ -253,7 +253,12 @@ public class NumEffect extends Expression {
         if (this.right == null){
             //System.out.println(this);
             return null;
+        }else if (this.right instanceof PDDLNumber){
+            PDDLNumber rhs_number = (PDDLNumber)this.right;
+            if (rhs_number.getNumber().isNaN())
+                return null;
         }
+//        System.out.println(this);
         return this;
     }
 

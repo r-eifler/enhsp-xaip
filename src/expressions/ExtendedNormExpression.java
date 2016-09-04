@@ -444,7 +444,10 @@ public class ExtendedNormExpression extends Expression {
 //                if (invFluents.get(a.f)==null){
 //                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
 //                }
+                
                 if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
+                    if (a.f.eval(s).getNumber().isNaN())
+                        return null;
                     c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber() * a.n.getNumber());
                 } else {
                     ret.summations.add(a);

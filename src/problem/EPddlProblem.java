@@ -172,6 +172,8 @@ public class EPddlProblem extends PddlProblem {
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
+                //System.out.println("Simplifying action");
+                //keep = act.simplifyModel(linkedDomain, this);
                 keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
             }
             if (!keep) {

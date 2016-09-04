@@ -112,6 +112,7 @@ public abstract class Heuristic {
     public Conditions gC;
     protected HashMap<Integer, GroundAction> cond_action;
     public boolean quasi_integer_actions=false;
+    private boolean cost_oriented_ibr=true;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
@@ -511,49 +512,45 @@ public abstract class Heuristic {
     }
 
     protected Float interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
-        RelState rel_state = s_0.relaxState();
+    RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         float cost = 0f;
 //        float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic. If it is cyclic it terminates with null
-        Boolean reacheable = null;
-        this.dbg_print("compoute enclosure");
+        Boolean proven_reachable = null;
         try {
-            reacheable = compute_enclosure(pool, rel_state, (Comparison) c);
+            proven_reachable = compute_enclosure(pool, rel_state, (Comparison) c);
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(Heuristic.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (reacheable != null && reacheable == false) {
+        if (proven_reachable != null && proven_reachable == false) {
             return Float.MAX_VALUE;
         }
-        this.dbg_print("compoute enclosure finished");
 
-
-        HashMap<NumEffect, Boolean> visited = new HashMap();
-        Integer iteration = 0;
-        while (iteration < horizon) {
+        HashMap<NumEffect,Boolean> visited = new HashMap();
+        int iteration = 0;
+        if (proven_reachable == null)
+            proven_reachable = false;
+        while (iteration < 10000 || proven_reachable ) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
-//s
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
                 a.apply(rel_state);
-                cost += this.num_eff_action.get(a).getAction_cost();
-                if (visited.get(a) == null) {
-                    cost += action_to_cost.get(this.num_eff_action.get(a));
-                }
-                visited.put(a, true);
-                if (c.isSatisfied(rel_state)) {
+
+                if (visited.get(a)==null)
+                    cost += action_to_cost.get(this.num_eff_action.get(a));//precondition
+                if (this.cost_oriented_ibr)
+                    cost += this.num_eff_action.get(a).getAction_cost();//cost of the action
+                else
+                    cost++;//this is the unit cost case
+                iteration++;
+                visited.put(a,true);
+                if (c.isSatisfied(rel_state))
                     return cost;
-                }
             }
-            this.dbg_print(iteration.toString()+'\n');
-
-            iteration++;
-
 
         }
-//        System.out.println("Cost:"+cost+"Iteration:"+iteration);
         return cost;
     }
 

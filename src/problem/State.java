@@ -121,7 +121,8 @@ public class State extends Object {
         if (a != null) {
             return a.getTwo();
         }else{
-            return new PDDLNumber(Float.NaN);
+            return null;
+            //return new PDDLNumber(Float.NaN);
         }
 
     }
@@ -365,6 +366,10 @@ public class State extends Object {
 //            {
 //                return false;
 //            }
+            if (other.functionValue(ass_init.getNFluent())==null && ass_init.getTwo()==null){
+//                System.out.println("Error!!:"+ass_init.getNFluent());
+                continue;
+            }
             if (!ass_init.getTwo().getNumber().equals(other.functionValue(ass_init.getNFluent()).getNumber())) 
             {
                 return false;

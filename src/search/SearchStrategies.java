@@ -98,27 +98,6 @@ public class SearchStrategies {
             final SearchNode other = (SearchNode) o2;
             final SearchNode a = o1;
             if (a.f == other.f) {
-//                if (h!=null){
-//                    
-//                    this.h.quasi_integer_actions = true;
-////                    this.h.additive_h = true;
-////                    this.h.greedy =true;
-//                    Float sec_a = this.h.compute_estimate(a.s)*a.wh+a.g_n*a.wg;
-//                    Float sec_b = this.h.compute_estimate(other.s)*a.wh+other.g_n*a.wg;
-//                    this.h.quasi_integer_actions = false;
-////                    this.h.greedy = false;                   
-//                    
-//
-//                    if (sec_a < sec_b){
-////                        System.out.println("Weight configuration: g_n"+a.g_n + " gw:"+a.wg );
-////                        System.out.println("tie broken");
-//                        return -1;
-//                    }
-//                    if (sec_a > sec_b){
-////                        System.out.println("tie broken");
-//                        return 1;
-//                    }
-//                }
                 if (breakties_on_larger_g) {
 //                System.out.println(this.g_n);
                     if (a.g_n < other.g_n)//goal is farer
@@ -140,8 +119,8 @@ public class SearchStrategies {
                     } else {
                         return 0;
                     }
-                }
-                return 0;
+                }else
+                    return 0;
             }
             if (bfs) {
                 if (a.f <= other.f) {
@@ -386,7 +365,7 @@ public class SearchStrategies {
                             d = getHeuristic().compute_estimate(temp);
                             heuristic_time += System.currentTimeMillis() - start;
                             //System.out.print(d+" ");
-                            if (d != Float.MAX_VALUE && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+                            if (d != Float.MAX_VALUE){// && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
 //                        if (d!=Float.MAX_VALUE && ( d <= current_value ) ){
                                 SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving, this.gw, this.hw);
                                 //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
@@ -497,12 +476,12 @@ public class SearchStrategies {
         return null;
     }
 
-    public LinkedList greedy_best_first_search2(EPddlProblem problem) throws Exception {
+    public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
         this.can_reopen_nodes = false;
         return this.wa_star(problem);
     }
     
-    public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
+    public LinkedList greedy_best_first_search2(EPddlProblem problem) throws Exception {
          long start_global = System.currentTimeMillis();
 
         num_dead_end_detected = 0;
@@ -599,7 +578,7 @@ public class SearchStrategies {
                         //System.out.print("Reacheable Conditions:"+reacheable_conditions);
                         act.setAction_cost(temp);
 
-                        if (d != Float.MAX_VALUE && (current_node.g_n + act.getAction_cost() + d <= horizon)) {  // && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
+                        if (d != Float.MAX_VALUE){// && (current_node.g_n + act.getAction_cost() + d <= horizon)) {  // && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
 
                             SearchNode new_node = new SearchNode(temp, act, current_node, (current_node.g_n + act.getAction_cost()), d, json_rep_saving, this.gw, this.hw);
                             frontier.add(new_node);
