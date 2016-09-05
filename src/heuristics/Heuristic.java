@@ -663,13 +663,15 @@ public abstract class Heuristic {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
                                 if (!ne.fluentsInvolved().isEmpty()) {
                                     is_complex.put(comp, true);
-                                    complex_conditions++;
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
                                 }
                             }
                         }
                     }
+                }
+                if (is_complex.get(comp)){
+                    complex_conditions++;
                 }
             }
         }

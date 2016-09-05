@@ -99,8 +99,8 @@ public class Uniform_cost_search_H1 extends Heuristic {
         this.dbg_print("Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
-        out.println("Hard Conditions: " + this.hard_conditions);
-        out.println("Simple Conditions: " + (this.all_conditions.size() - this.hard_conditions));
+        out.println("Hard Conditions: " + this.complex_conditions);
+        out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
         return ret;
     }
 
