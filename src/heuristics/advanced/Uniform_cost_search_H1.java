@@ -189,7 +189,8 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         }
                         if (!this.is_complex.get(comp)) {
                             Float number_of_execution = null;
-                            if (this.additive_h && quasi_integer_actions)
+                            boolean super_simple_numeric_condition = (this.possible_achievers_inverted.get(comp.getCounter()).size()<=1);
+                            if ((this.additive_h && quasi_integer_actions) || super_simple_numeric_condition)
                                 number_of_execution = gr.getNumberOfExecutionInt(s, comp);
                             else
                                 number_of_execution = gr.getNumberOfExecution(s, comp);
@@ -221,8 +222,6 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         } else {
                             this.dbg_print("interval based relaxation starting\n");
                             try {
-//                                System.out.println("Comp:"+comp+"actions:"+actions_for_complex_condition);
-//                                System.in.read();
                                 Float current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, actions_for_complex_condition, action_to_cost);
                                 update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
                             } catch (CloneNotSupportedException ex) {

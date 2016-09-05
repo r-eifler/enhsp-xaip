@@ -532,7 +532,9 @@ public abstract class Heuristic {
         int iteration = 0;
         if (proven_reachable == null)
             proven_reachable = false;
-        while (iteration < 10000 || proven_reachable ) {
+        
+        //the bound here is only to capture really unlikely instances. Should be domain independent though
+        while (iteration < 1000000 || proven_reachable ) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();

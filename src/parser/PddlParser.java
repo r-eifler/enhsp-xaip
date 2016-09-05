@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 Pddl.g 2016-08-24 14:22:02
+// $ANTLR 3.5.2 Pddl.g 2016-09-05 02:33:13
 
 package parser;
 
@@ -32,13 +32,13 @@ public class PddlParser extends Parser {
 		"':durative-action'", "':effect'", "':event'", "':free_functions'", "':functions'", 
 		"':goal'", "':init'", "':metric'", "':objects'", "':parameters'", "':precondition'", 
 		"':predicates'", "':process'", "':requirements'", "':types'", "'<'", "'<='", 
-		"'='", "'>'", "'>='", "'?duration'", "'COS'", "'SIN'", "'^'", "'all'", 
-		"'always'", "'always-within'", "'and'", "'assign'", "'at'", "'at-most-once'", 
-		"'decrease'", "'define'", "'domain'", "'either'", "'end'", "'exists'", 
-		"'forall'", "'hold-after'", "'hold-during'", "'imply'", "'increase'", 
-		"'is-violated'", "'maximize'", "'minimize'", "'not'", "'number'", "'or'", 
-		"'over'", "'preference'", "'problem'", "'scale-down'", "'scale-up'", "'sometime'", 
-		"'sometime-after'", "'sometime-before'", "'start'", "'when'", "'within'"
+		"'='", "'>'", "'>='", "'?duration'", "'^'", "'all'", "'always'", "'always-within'", 
+		"'and'", "'assign'", "'at'", "'at-most-once'", "'cos'", "'decrease'", 
+		"'define'", "'domain'", "'either'", "'end'", "'exists'", "'forall'", "'hold-after'", 
+		"'hold-during'", "'imply'", "'increase'", "'is-violated'", "'maximize'", 
+		"'minimize'", "'not'", "'number'", "'or'", "'over'", "'preference'", "'problem'", 
+		"'scale-down'", "'scale-up'", "'sin'", "'sometime'", "'sometime-after'", 
+		"'sometime-before'", "'start'", "'when'", "'within'"
 	};
 	public static final int EOF=-1;
 	public static final int T__63=63;
@@ -237,14 +237,14 @@ public class PddlParser extends Parser {
 			int LA1_0 = input.LA(1);
 			if ( (LA1_0==64) ) {
 				int LA1_1 = input.LA(2);
-				if ( (LA1_1==110) ) {
+				if ( (LA1_1==109) ) {
 					int LA1_2 = input.LA(3);
 					if ( (LA1_2==64) ) {
 						int LA1_3 = input.LA(4);
-						if ( (LA1_3==111) ) {
+						if ( (LA1_3==110) ) {
 							alt1=1;
 						}
-						else if ( (LA1_3==128) ) {
+						else if ( (LA1_3==127) ) {
 							alt1=2;
 						}
 
@@ -386,7 +386,7 @@ public class PddlParser extends Parser {
 		Object char_literal3_tree=null;
 		Object string_literal4_tree=null;
 		Object char_literal14_tree=null;
-		RewriteRuleTokenStream stream_110=new RewriteRuleTokenStream(adaptor,"token 110");
+		RewriteRuleTokenStream stream_109=new RewriteRuleTokenStream(adaptor,"token 109");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_typesDef=new RewriteRuleSubtreeStream(adaptor,"rule typesDef");
@@ -406,8 +406,8 @@ public class PddlParser extends Parser {
 			char_literal3=(Token)match(input,64,FOLLOW_64_in_domain382); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal3);
 
-			string_literal4=(Token)match(input,110,FOLLOW_110_in_domain384); if (state.failed) return retval; 
-			if ( state.backtracking==0 ) stream_110.add(string_literal4);
+			string_literal4=(Token)match(input,109,FOLLOW_109_in_domain384); if (state.failed) return retval; 
+			if ( state.backtracking==0 ) stream_109.add(string_literal4);
 
 			pushFollow(FOLLOW_domainName_in_domain386);
 			domainName5=domainName();
@@ -822,7 +822,7 @@ public class PddlParser extends Parser {
 		Object string_literal20_tree=null;
 		Object NAME21_tree=null;
 		Object char_literal22_tree=null;
-		RewriteRuleTokenStream stream_111=new RewriteRuleTokenStream(adaptor,"token 111");
+		RewriteRuleTokenStream stream_110=new RewriteRuleTokenStream(adaptor,"token 110");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleTokenStream stream_NAME=new RewriteRuleTokenStream(adaptor,"token NAME");
@@ -834,8 +834,8 @@ public class PddlParser extends Parser {
 			char_literal19=(Token)match(input,64,FOLLOW_64_in_domainName579); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal19);
 
-			string_literal20=(Token)match(input,111,FOLLOW_111_in_domainName581); if (state.failed) return retval; 
-			if ( state.backtracking==0 ) stream_111.add(string_literal20);
+			string_literal20=(Token)match(input,110,FOLLOW_110_in_domainName581); if (state.failed) return retval; 
+			if ( state.backtracking==0 ) stream_110.add(string_literal20);
 
 			NAME21=(Token)match(input,NAME,FOLLOW_NAME_in_domainName583); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_NAME.add(NAME21);
@@ -1421,7 +1421,7 @@ public class PddlParser extends Parser {
 		Object char_literal36_tree=null;
 		Object string_literal37_tree=null;
 		Object char_literal39_tree=null;
-		RewriteRuleTokenStream stream_112=new RewriteRuleTokenStream(adaptor,"token 112");
+		RewriteRuleTokenStream stream_111=new RewriteRuleTokenStream(adaptor,"token 111");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_primType=new RewriteRuleSubtreeStream(adaptor,"rule primType");
@@ -1454,8 +1454,8 @@ public class PddlParser extends Parser {
 					char_literal36=(Token)match(input,64,FOLLOW_64_in_type735); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal36);
 
-					string_literal37=(Token)match(input,112,FOLLOW_112_in_type737); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_112.add(string_literal37);
+					string_literal37=(Token)match(input,111,FOLLOW_111_in_type737); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_111.add(string_literal37);
 
 					// Pddl.g:149:19: ( primType )+
 					int cnt16=0;
@@ -2002,7 +2002,7 @@ public class PddlParser extends Parser {
 			root_0 = (Object)adaptor.nil();
 
 
-			string_literal54=(Token)match(input,124,FOLLOW_124_in_functionType863); if (state.failed) return retval;
+			string_literal54=(Token)match(input,123,FOLLOW_123_in_functionType863); if (state.failed) return retval;
 			if ( state.backtracking==0 ) {
 			string_literal54_tree = (Object)adaptor.create(string_literal54);
 			adaptor.addChild(root_0, string_literal54_tree);
@@ -3610,7 +3610,7 @@ public class PddlParser extends Parser {
 						if ( (LA28_1==65) ) {
 							alt28=1;
 						}
-						else if ( (LA28_1==NAME||(LA28_1 >= 93 && LA28_1 <= 97)||LA28_1==105||(LA28_1 >= 114 && LA28_1 <= 115)||LA28_1==118||LA28_1==123||LA28_1==125) ) {
+						else if ( (LA28_1==NAME||(LA28_1 >= 93 && LA28_1 <= 97)||LA28_1==103||(LA28_1 >= 113 && LA28_1 <= 114)||LA28_1==117||LA28_1==122||LA28_1==124) ) {
 							alt28=2;
 						}
 
@@ -3692,7 +3692,7 @@ public class PddlParser extends Parser {
 						if ( (LA30_1==65) ) {
 							alt30=1;
 						}
-						else if ( (LA30_1==NAME||(LA30_1 >= 105 && LA30_1 <= 106)||LA30_1==109||LA30_1==115||LA30_1==119||LA30_1==123||(LA30_1 >= 129 && LA30_1 <= 130)||LA30_1==135) ) {
+						else if ( (LA30_1==NAME||(LA30_1 >= 103 && LA30_1 <= 104)||LA30_1==108||LA30_1==114||LA30_1==118||LA30_1==122||(LA30_1 >= 128 && LA30_1 <= 129)||LA30_1==135) ) {
 							alt30=2;
 						}
 
@@ -3874,7 +3874,7 @@ public class PddlParser extends Parser {
 						if ( (LA32_1==65) ) {
 							alt32=1;
 						}
-						else if ( (LA32_1==NAME||(LA32_1 >= 93 && LA32_1 <= 97)||LA32_1==105||(LA32_1 >= 114 && LA32_1 <= 115)||LA32_1==118||LA32_1==123||LA32_1==125) ) {
+						else if ( (LA32_1==NAME||(LA32_1 >= 93 && LA32_1 <= 97)||LA32_1==103||(LA32_1 >= 113 && LA32_1 <= 114)||LA32_1==117||LA32_1==122||LA32_1==124) ) {
 							alt32=2;
 						}
 
@@ -4062,12 +4062,12 @@ public class PddlParser extends Parser {
 		Object char_literal160_tree=null;
 		Object char_literal162_tree=null;
 		Object char_literal164_tree=null;
-		RewriteRuleTokenStream stream_123=new RewriteRuleTokenStream(adaptor,"token 123");
-		RewriteRuleTokenStream stream_125=new RewriteRuleTokenStream(adaptor,"token 125");
+		RewriteRuleTokenStream stream_122=new RewriteRuleTokenStream(adaptor,"token 122");
+		RewriteRuleTokenStream stream_124=new RewriteRuleTokenStream(adaptor,"token 124");
+		RewriteRuleTokenStream stream_113=new RewriteRuleTokenStream(adaptor,"token 113");
+		RewriteRuleTokenStream stream_103=new RewriteRuleTokenStream(adaptor,"token 103");
 		RewriteRuleTokenStream stream_114=new RewriteRuleTokenStream(adaptor,"token 114");
-		RewriteRuleTokenStream stream_115=new RewriteRuleTokenStream(adaptor,"token 115");
-		RewriteRuleTokenStream stream_105=new RewriteRuleTokenStream(adaptor,"token 105");
-		RewriteRuleTokenStream stream_118=new RewriteRuleTokenStream(adaptor,"token 118");
+		RewriteRuleTokenStream stream_117=new RewriteRuleTokenStream(adaptor,"token 117");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_goalDesc=new RewriteRuleSubtreeStream(adaptor,"rule goalDesc");
@@ -4081,32 +4081,32 @@ public class PddlParser extends Parser {
 			int LA36_0 = input.LA(1);
 			if ( (LA36_0==64) ) {
 				switch ( input.LA(2) ) {
-				case 105:
+				case 103:
 					{
 					alt36=2;
 					}
 					break;
-				case 125:
+				case 124:
 					{
 					alt36=3;
 					}
 					break;
-				case 123:
+				case 122:
 					{
 					alt36=4;
 					}
 					break;
-				case 118:
+				case 117:
 					{
 					alt36=5;
 					}
 					break;
-				case 114:
+				case 113:
 					{
 					alt36=6;
 					}
 					break;
-				case 115:
+				case 114:
 					{
 					alt36=7;
 					}
@@ -4259,8 +4259,8 @@ public class PddlParser extends Parser {
 					char_literal134=(Token)match(input,64,FOLLOW_64_in_goalDesc1507); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal134);
 
-					string_literal135=(Token)match(input,105,FOLLOW_105_in_goalDesc1509); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_105.add(string_literal135);
+					string_literal135=(Token)match(input,103,FOLLOW_103_in_goalDesc1509); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_103.add(string_literal135);
 
 					// Pddl.g:274:14: ( goalDesc )*
 					loop34:
@@ -4332,8 +4332,8 @@ public class PddlParser extends Parser {
 					char_literal138=(Token)match(input,64,FOLLOW_64_in_goalDesc1539); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal138);
 
-					string_literal139=(Token)match(input,125,FOLLOW_125_in_goalDesc1541); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_125.add(string_literal139);
+					string_literal139=(Token)match(input,124,FOLLOW_124_in_goalDesc1541); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_124.add(string_literal139);
 
 					// Pddl.g:276:13: ( goalDesc )*
 					loop35:
@@ -4405,8 +4405,8 @@ public class PddlParser extends Parser {
 					char_literal142=(Token)match(input,64,FOLLOW_64_in_goalDesc1571); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal142);
 
-					string_literal143=(Token)match(input,123,FOLLOW_123_in_goalDesc1573); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_123.add(string_literal143);
+					string_literal143=(Token)match(input,122,FOLLOW_122_in_goalDesc1573); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_122.add(string_literal143);
 
 					pushFollow(FOLLOW_goalDesc_in_goalDesc1575);
 					goalDesc144=goalDesc();
@@ -4452,8 +4452,8 @@ public class PddlParser extends Parser {
 					char_literal146=(Token)match(input,64,FOLLOW_64_in_goalDesc1601); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal146);
 
-					string_literal147=(Token)match(input,118,FOLLOW_118_in_goalDesc1603); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_118.add(string_literal147);
+					string_literal147=(Token)match(input,117,FOLLOW_117_in_goalDesc1603); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_117.add(string_literal147);
 
 					pushFollow(FOLLOW_goalDesc_in_goalDesc1605);
 					goalDesc148=goalDesc();
@@ -4505,8 +4505,8 @@ public class PddlParser extends Parser {
 					char_literal151=(Token)match(input,64,FOLLOW_64_in_goalDesc1635); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal151);
 
-					string_literal152=(Token)match(input,114,FOLLOW_114_in_goalDesc1637); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_114.add(string_literal152);
+					string_literal152=(Token)match(input,113,FOLLOW_113_in_goalDesc1637); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_113.add(string_literal152);
 
 					char_literal153=(Token)match(input,64,FOLLOW_64_in_goalDesc1639); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal153);
@@ -4564,8 +4564,8 @@ public class PddlParser extends Parser {
 					char_literal158=(Token)match(input,64,FOLLOW_64_in_goalDesc1673); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal158);
 
-					string_literal159=(Token)match(input,115,FOLLOW_115_in_goalDesc1675); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_115.add(string_literal159);
+					string_literal159=(Token)match(input,114,FOLLOW_114_in_goalDesc1675); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_114.add(string_literal159);
 
 					char_literal160=(Token)match(input,64,FOLLOW_64_in_goalDesc1677); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal160);
@@ -5295,7 +5295,7 @@ public class PddlParser extends Parser {
 						if ( (LA39_1==65) ) {
 							alt39=1;
 						}
-						else if ( (LA39_1==105||LA39_1==107||LA39_1==115||(LA39_1 >= 126 && LA39_1 <= 127)) ) {
+						else if ( (LA39_1==103||LA39_1==105||LA39_1==114||(LA39_1 >= 125 && LA39_1 <= 126)) ) {
 							alt39=2;
 						}
 
@@ -5380,7 +5380,7 @@ public class PddlParser extends Parser {
 						if ( (LA40_1==65) ) {
 							alt40=1;
 						}
-						else if ( ((LA40_1 >= 105 && LA40_1 <= 107)||LA40_1==109||LA40_1==115||LA40_1==119||(LA40_1 >= 129 && LA40_1 <= 130)||LA40_1==135) ) {
+						else if ( ((LA40_1 >= 103 && LA40_1 <= 105)||LA40_1==108||LA40_1==114||LA40_1==118||(LA40_1 >= 128 && LA40_1 <= 129)||LA40_1==135) ) {
 							alt40=2;
 						}
 
@@ -5510,19 +5510,19 @@ public class PddlParser extends Parser {
 			int LA43_0 = input.LA(1);
 			if ( (LA43_0==64) ) {
 				switch ( input.LA(2) ) {
-				case 107:
+				case 105:
+				case 125:
 				case 126:
-				case 127:
 					{
 					alt43=1;
 					}
 					break;
-				case 105:
+				case 103:
 					{
 					alt43=2;
 					}
 					break;
-				case 115:
+				case 114:
 					{
 					alt43=3;
 					}
@@ -5575,7 +5575,7 @@ public class PddlParser extends Parser {
 					adaptor.addChild(root_0, char_literal202_tree);
 					}
 
-					string_literal203=(Token)match(input,105,FOLLOW_105_in_daGD1985); if (state.failed) return retval;
+					string_literal203=(Token)match(input,103,FOLLOW_103_in_daGD1985); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal203_tree = (Object)adaptor.create(string_literal203);
 					adaptor.addChild(root_0, string_literal203_tree);
@@ -5628,7 +5628,7 @@ public class PddlParser extends Parser {
 					adaptor.addChild(root_0, char_literal206_tree);
 					}
 
-					string_literal207=(Token)match(input,115,FOLLOW_115_in_daGD1997); if (state.failed) return retval;
+					string_literal207=(Token)match(input,114,FOLLOW_114_in_daGD1997); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal207_tree = (Object)adaptor.create(string_literal207);
 					adaptor.addChild(root_0, string_literal207_tree);
@@ -5721,10 +5721,10 @@ public class PddlParser extends Parser {
 			int LA45_0 = input.LA(1);
 			if ( (LA45_0==64) ) {
 				int LA45_1 = input.LA(2);
-				if ( (LA45_1==107||LA45_1==126) ) {
+				if ( (LA45_1==105||LA45_1==125) ) {
 					alt45=1;
 				}
-				else if ( (LA45_1==127) ) {
+				else if ( (LA45_1==126) ) {
 					alt45=2;
 				}
 
@@ -5777,7 +5777,7 @@ public class PddlParser extends Parser {
 					adaptor.addChild(root_0, char_literal214_tree);
 					}
 
-					string_literal215=(Token)match(input,127,FOLLOW_127_in_prefTimedGD2025); if (state.failed) return retval;
+					string_literal215=(Token)match(input,126,FOLLOW_126_in_prefTimedGD2025); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal215_tree = (Object)adaptor.create(string_literal215);
 					adaptor.addChild(root_0, string_literal215_tree);
@@ -5879,10 +5879,10 @@ public class PddlParser extends Parser {
 			int LA46_0 = input.LA(1);
 			if ( (LA46_0==64) ) {
 				int LA46_1 = input.LA(2);
-				if ( (LA46_1==107) ) {
+				if ( (LA46_1==105) ) {
 					alt46=1;
 				}
-				else if ( (LA46_1==126) ) {
+				else if ( (LA46_1==125) ) {
 					alt46=2;
 				}
 
@@ -5921,7 +5921,7 @@ public class PddlParser extends Parser {
 					adaptor.addChild(root_0, char_literal219_tree);
 					}
 
-					string_literal220=(Token)match(input,107,FOLLOW_107_in_timedGD2045); if (state.failed) return retval;
+					string_literal220=(Token)match(input,105,FOLLOW_105_in_timedGD2045); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal220_tree = (Object)adaptor.create(string_literal220);
 					adaptor.addChild(root_0, string_literal220_tree);
@@ -5959,7 +5959,7 @@ public class PddlParser extends Parser {
 					adaptor.addChild(root_0, char_literal224_tree);
 					}
 
-					string_literal225=(Token)match(input,126,FOLLOW_126_in_timedGD2058); if (state.failed) return retval;
+					string_literal225=(Token)match(input,125,FOLLOW_125_in_timedGD2058); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal225_tree = (Object)adaptor.create(string_literal225);
 					adaptor.addChild(root_0, string_literal225_tree);
@@ -6034,7 +6034,7 @@ public class PddlParser extends Parser {
 
 
 			set229=input.LT(1);
-			if ( input.LA(1)==113||input.LA(1)==134 ) {
+			if ( input.LA(1)==112||input.LA(1)==134 ) {
 				input.consume();
 				if ( state.backtracking==0 ) adaptor.addChild(root_0, (Object)adaptor.create(set229));
 				state.errorRecovery=false;
@@ -6093,7 +6093,7 @@ public class PddlParser extends Parser {
 			root_0 = (Object)adaptor.nil();
 
 
-			string_literal230=(Token)match(input,102,FOLLOW_102_in_interval2086); if (state.failed) return retval;
+			string_literal230=(Token)match(input,100,FOLLOW_100_in_interval2086); if (state.failed) return retval;
 			if ( state.backtracking==0 ) {
 			string_literal230_tree = (Object)adaptor.create(string_literal230);
 			adaptor.addChild(root_0, string_literal230_tree);
@@ -6203,7 +6203,7 @@ public class PddlParser extends Parser {
 
 
 	// $ANTLR start "fExp"
-	// Pddl.g:347:1: fExp : ( NUMBER | '(' binaryOp fExp fExp2 ')' -> ^( BINARY_OP binaryOp fExp fExp2 ) | '(' '-' fExp ')' -> ^( UNARY_MINUS fExp ) | '(' 'SIN' fExp ')' -> ^( SIN fExp ) | '(' 'COS' fExp ')' -> ^( COS fExp ) | fHead );
+	// Pddl.g:347:1: fExp : ( NUMBER | '(' binaryOp fExp fExp2 ')' -> ^( BINARY_OP binaryOp fExp fExp2 ) | '(' '-' fExp ')' -> ^( UNARY_MINUS fExp ) | '(' 'sin' fExp ')' -> ^( SIN fExp ) | '(' 'cos' fExp ')' -> ^( COS fExp ) | fHead );
 	public final PddlParser.fExp_return fExp() throws RecognitionException {
 		PddlParser.fExp_return retval = new PddlParser.fExp_return();
 		retval.start = input.LT(1);
@@ -6242,17 +6242,17 @@ public class PddlParser extends Parser {
 		Object char_literal250_tree=null;
 		Object string_literal251_tree=null;
 		Object char_literal253_tree=null;
-		RewriteRuleTokenStream stream_99=new RewriteRuleTokenStream(adaptor,"token 99");
-		RewriteRuleTokenStream stream_100=new RewriteRuleTokenStream(adaptor,"token 100");
 		RewriteRuleTokenStream stream_68=new RewriteRuleTokenStream(adaptor,"token 68");
+		RewriteRuleTokenStream stream_107=new RewriteRuleTokenStream(adaptor,"token 107");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
+		RewriteRuleTokenStream stream_130=new RewriteRuleTokenStream(adaptor,"token 130");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_binaryOp=new RewriteRuleSubtreeStream(adaptor,"rule binaryOp");
 		RewriteRuleSubtreeStream stream_fExp2=new RewriteRuleSubtreeStream(adaptor,"rule fExp2");
 		RewriteRuleSubtreeStream stream_fExp=new RewriteRuleSubtreeStream(adaptor,"rule fExp");
 
 		try {
-			// Pddl.g:348:2: ( NUMBER | '(' binaryOp fExp fExp2 ')' -> ^( BINARY_OP binaryOp fExp fExp2 ) | '(' '-' fExp ')' -> ^( UNARY_MINUS fExp ) | '(' 'SIN' fExp ')' -> ^( SIN fExp ) | '(' 'COS' fExp ')' -> ^( COS fExp ) | fHead )
+			// Pddl.g:348:2: ( NUMBER | '(' binaryOp fExp fExp2 ')' -> ^( BINARY_OP binaryOp fExp fExp2 ) | '(' '-' fExp ')' -> ^( UNARY_MINUS fExp ) | '(' 'sin' fExp ')' -> ^( SIN fExp ) | '(' 'cos' fExp ')' -> ^( COS fExp ) | fHead )
 			int alt47=6;
 			switch ( input.LA(1) ) {
 			case NUMBER:
@@ -6412,20 +6412,20 @@ public class PddlParser extends Parser {
 					}
 					break;
 				case 4 :
-					// Pddl.g:351:25: '(' 'SIN' fExp ')'
+					// Pddl.g:351:7: '(' 'sin' fExp ')'
 					{
-					char_literal246=(Token)match(input,64,FOLLOW_64_in_fExp2194); if (state.failed) return retval; 
+					char_literal246=(Token)match(input,64,FOLLOW_64_in_fExp2176); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal246);
 
-					string_literal247=(Token)match(input,100,FOLLOW_100_in_fExp2196); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_100.add(string_literal247);
+					string_literal247=(Token)match(input,130,FOLLOW_130_in_fExp2178); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_130.add(string_literal247);
 
-					pushFollow(FOLLOW_fExp_in_fExp2198);
+					pushFollow(FOLLOW_fExp_in_fExp2180);
 					fExp248=fExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_fExp.add(fExp248.getTree());
-					char_literal249=(Token)match(input,65,FOLLOW_65_in_fExp2200); if (state.failed) return retval; 
+					char_literal249=(Token)match(input,65,FOLLOW_65_in_fExp2182); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal249);
 
 					// AST REWRITE
@@ -6440,9 +6440,9 @@ public class PddlParser extends Parser {
 					RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.getTree():null);
 
 					root_0 = (Object)adaptor.nil();
-					// 351:44: -> ^( SIN fExp )
+					// 351:26: -> ^( SIN fExp )
 					{
-						// Pddl.g:351:47: ^( SIN fExp )
+						// Pddl.g:351:29: ^( SIN fExp )
 						{
 						Object root_1 = (Object)adaptor.nil();
 						root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(SIN, "SIN"), root_1);
@@ -6459,20 +6459,20 @@ public class PddlParser extends Parser {
 					}
 					break;
 				case 5 :
-					// Pddl.g:352:25: '(' 'COS' fExp ')'
+					// Pddl.g:352:7: '(' 'cos' fExp ')'
 					{
-					char_literal250=(Token)match(input,64,FOLLOW_64_in_fExp2234); if (state.failed) return retval; 
+					char_literal250=(Token)match(input,64,FOLLOW_64_in_fExp2198); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal250);
 
-					string_literal251=(Token)match(input,99,FOLLOW_99_in_fExp2236); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_99.add(string_literal251);
+					string_literal251=(Token)match(input,107,FOLLOW_107_in_fExp2200); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_107.add(string_literal251);
 
-					pushFollow(FOLLOW_fExp_in_fExp2238);
+					pushFollow(FOLLOW_fExp_in_fExp2202);
 					fExp252=fExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_fExp.add(fExp252.getTree());
-					char_literal253=(Token)match(input,65,FOLLOW_65_in_fExp2240); if (state.failed) return retval; 
+					char_literal253=(Token)match(input,65,FOLLOW_65_in_fExp2204); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal253);
 
 					// AST REWRITE
@@ -6487,9 +6487,9 @@ public class PddlParser extends Parser {
 					RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.getTree():null);
 
 					root_0 = (Object)adaptor.nil();
-					// 352:44: -> ^( COS fExp )
+					// 352:26: -> ^( COS fExp )
 					{
-						// Pddl.g:352:47: ^( COS fExp )
+						// Pddl.g:352:29: ^( COS fExp )
 						{
 						Object root_1 = (Object)adaptor.nil();
 						root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(COS, "COS"), root_1);
@@ -6511,7 +6511,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_fHead_in_fExp2253);
+					pushFollow(FOLLOW_fHead_in_fExp2217);
 					fHead254=fHead();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -6566,7 +6566,7 @@ public class PddlParser extends Parser {
 			root_0 = (Object)adaptor.nil();
 
 
-			pushFollow(FOLLOW_fExp_in_fExp22265);
+			pushFollow(FOLLOW_fExp_in_fExp22229);
 			fExp255=fExp();
 			state._fsp--;
 			if (state.failed) return retval;
@@ -6644,10 +6644,10 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:361:4: '(' functionSymbol ( term )* ')'
 					{
-					char_literal256=(Token)match(input,64,FOLLOW_64_in_fHead2275); if (state.failed) return retval; 
+					char_literal256=(Token)match(input,64,FOLLOW_64_in_fHead2239); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal256);
 
-					pushFollow(FOLLOW_functionSymbol_in_fHead2277);
+					pushFollow(FOLLOW_functionSymbol_in_fHead2241);
 					functionSymbol257=functionSymbol();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -6665,7 +6665,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:361:23: term
 							{
-							pushFollow(FOLLOW_term_in_fHead2279);
+							pushFollow(FOLLOW_term_in_fHead2243);
 							term258=term();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -6678,7 +6678,7 @@ public class PddlParser extends Parser {
 						}
 					}
 
-					char_literal259=(Token)match(input,65,FOLLOW_65_in_fHead2282); if (state.failed) return retval; 
+					char_literal259=(Token)match(input,65,FOLLOW_65_in_fHead2246); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal259);
 
 					// AST REWRITE
@@ -6720,7 +6720,7 @@ public class PddlParser extends Parser {
 				case 2 :
 					// Pddl.g:362:4: functionSymbol
 					{
-					pushFollow(FOLLOW_functionSymbol_in_fHead2298);
+					pushFollow(FOLLOW_functionSymbol_in_fHead2262);
 					functionSymbol260=functionSymbol();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -6801,7 +6801,7 @@ public class PddlParser extends Parser {
 		Object char_literal261_tree=null;
 		Object string_literal262_tree=null;
 		Object char_literal264_tree=null;
-		RewriteRuleTokenStream stream_105=new RewriteRuleTokenStream(adaptor,"token 105");
+		RewriteRuleTokenStream stream_103=new RewriteRuleTokenStream(adaptor,"token 103");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_cEffect=new RewriteRuleSubtreeStream(adaptor,"rule cEffect");
@@ -6812,10 +6812,10 @@ public class PddlParser extends Parser {
 			int LA51_0 = input.LA(1);
 			if ( (LA51_0==64) ) {
 				int LA51_1 = input.LA(2);
-				if ( (LA51_1==105) ) {
+				if ( (LA51_1==103) ) {
 					alt51=1;
 				}
-				else if ( (LA51_1==NAME||LA51_1==106||LA51_1==109||LA51_1==115||LA51_1==119||LA51_1==123||(LA51_1 >= 129 && LA51_1 <= 130)||LA51_1==135) ) {
+				else if ( (LA51_1==NAME||LA51_1==104||LA51_1==108||LA51_1==114||LA51_1==118||LA51_1==122||(LA51_1 >= 128 && LA51_1 <= 129)||LA51_1==135) ) {
 					alt51=2;
 				}
 
@@ -6845,11 +6845,11 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:366:4: '(' 'and' ( cEffect )* ')'
 					{
-					char_literal261=(Token)match(input,64,FOLLOW_64_in_effect2317); if (state.failed) return retval; 
+					char_literal261=(Token)match(input,64,FOLLOW_64_in_effect2281); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal261);
 
-					string_literal262=(Token)match(input,105,FOLLOW_105_in_effect2319); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_105.add(string_literal262);
+					string_literal262=(Token)match(input,103,FOLLOW_103_in_effect2283); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_103.add(string_literal262);
 
 					// Pddl.g:366:14: ( cEffect )*
 					loop50:
@@ -6864,7 +6864,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:366:14: cEffect
 							{
-							pushFollow(FOLLOW_cEffect_in_effect2321);
+							pushFollow(FOLLOW_cEffect_in_effect2285);
 							cEffect263=cEffect();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -6877,7 +6877,7 @@ public class PddlParser extends Parser {
 						}
 					}
 
-					char_literal264=(Token)match(input,65,FOLLOW_65_in_effect2324); if (state.failed) return retval; 
+					char_literal264=(Token)match(input,65,FOLLOW_65_in_effect2288); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal264);
 
 					// AST REWRITE
@@ -6921,7 +6921,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_cEffect_in_effect2338);
+					pushFollow(FOLLOW_cEffect_in_effect2302);
 					cEffect265=cEffect();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -6989,7 +6989,7 @@ public class PddlParser extends Parser {
 		Object string_literal274_tree=null;
 		Object char_literal277_tree=null;
 		RewriteRuleTokenStream stream_135=new RewriteRuleTokenStream(adaptor,"token 135");
-		RewriteRuleTokenStream stream_115=new RewriteRuleTokenStream(adaptor,"token 115");
+		RewriteRuleTokenStream stream_114=new RewriteRuleTokenStream(adaptor,"token 114");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_goalDesc=new RewriteRuleSubtreeStream(adaptor,"rule goalDesc");
@@ -7003,7 +7003,7 @@ public class PddlParser extends Parser {
 			int LA52_0 = input.LA(1);
 			if ( (LA52_0==64) ) {
 				switch ( input.LA(2) ) {
-				case 115:
+				case 114:
 					{
 					alt52=1;
 					}
@@ -7014,12 +7014,12 @@ public class PddlParser extends Parser {
 					}
 					break;
 				case NAME:
-				case 106:
-				case 109:
-				case 119:
-				case 123:
+				case 104:
+				case 108:
+				case 118:
+				case 122:
+				case 128:
 				case 129:
-				case 130:
 					{
 					alt52=3;
 					}
@@ -7049,29 +7049,29 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:371:4: '(' 'forall' '(' typedVariableList ')' effect ')'
 					{
-					char_literal266=(Token)match(input,64,FOLLOW_64_in_cEffect2349); if (state.failed) return retval; 
+					char_literal266=(Token)match(input,64,FOLLOW_64_in_cEffect2313); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal266);
 
-					string_literal267=(Token)match(input,115,FOLLOW_115_in_cEffect2351); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_115.add(string_literal267);
+					string_literal267=(Token)match(input,114,FOLLOW_114_in_cEffect2315); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_114.add(string_literal267);
 
-					char_literal268=(Token)match(input,64,FOLLOW_64_in_cEffect2353); if (state.failed) return retval; 
+					char_literal268=(Token)match(input,64,FOLLOW_64_in_cEffect2317); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal268);
 
-					pushFollow(FOLLOW_typedVariableList_in_cEffect2355);
+					pushFollow(FOLLOW_typedVariableList_in_cEffect2319);
 					typedVariableList269=typedVariableList();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_typedVariableList.add(typedVariableList269.getTree());
-					char_literal270=(Token)match(input,65,FOLLOW_65_in_cEffect2357); if (state.failed) return retval; 
+					char_literal270=(Token)match(input,65,FOLLOW_65_in_cEffect2321); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal270);
 
-					pushFollow(FOLLOW_effect_in_cEffect2359);
+					pushFollow(FOLLOW_effect_in_cEffect2323);
 					effect271=effect();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_effect.add(effect271.getTree());
-					char_literal272=(Token)match(input,65,FOLLOW_65_in_cEffect2361); if (state.failed) return retval; 
+					char_literal272=(Token)match(input,65,FOLLOW_65_in_cEffect2325); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal272);
 
 					// AST REWRITE
@@ -7108,23 +7108,23 @@ public class PddlParser extends Parser {
 				case 2 :
 					// Pddl.g:373:4: '(' 'when' goalDesc condEffect ')'
 					{
-					char_literal273=(Token)match(input,64,FOLLOW_64_in_cEffect2379); if (state.failed) return retval; 
+					char_literal273=(Token)match(input,64,FOLLOW_64_in_cEffect2343); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal273);
 
-					string_literal274=(Token)match(input,135,FOLLOW_135_in_cEffect2381); if (state.failed) return retval; 
+					string_literal274=(Token)match(input,135,FOLLOW_135_in_cEffect2345); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_135.add(string_literal274);
 
-					pushFollow(FOLLOW_goalDesc_in_cEffect2383);
+					pushFollow(FOLLOW_goalDesc_in_cEffect2347);
 					goalDesc275=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_goalDesc.add(goalDesc275.getTree());
-					pushFollow(FOLLOW_condEffect_in_cEffect2385);
+					pushFollow(FOLLOW_condEffect_in_cEffect2349);
 					condEffect276=condEffect();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_condEffect.add(condEffect276.getTree());
-					char_literal277=(Token)match(input,65,FOLLOW_65_in_cEffect2387); if (state.failed) return retval; 
+					char_literal277=(Token)match(input,65,FOLLOW_65_in_cEffect2351); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal277);
 
 					// AST REWRITE
@@ -7164,7 +7164,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_pEffect_in_cEffect2405);
+					pushFollow(FOLLOW_pEffect_in_cEffect2369);
 					pEffect278=pEffect();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -7225,7 +7225,7 @@ public class PddlParser extends Parser {
 		Object char_literal284_tree=null;
 		Object string_literal285_tree=null;
 		Object char_literal287_tree=null;
-		RewriteRuleTokenStream stream_123=new RewriteRuleTokenStream(adaptor,"token 123");
+		RewriteRuleTokenStream stream_122=new RewriteRuleTokenStream(adaptor,"token 122");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_atomicTermFormula=new RewriteRuleSubtreeStream(adaptor,"rule atomicTermFormula");
@@ -7239,16 +7239,16 @@ public class PddlParser extends Parser {
 			int LA53_0 = input.LA(1);
 			if ( (LA53_0==64) ) {
 				switch ( input.LA(2) ) {
-				case 123:
+				case 122:
 					{
 					alt53=2;
 					}
 					break;
-				case 106:
-				case 109:
-				case 119:
+				case 104:
+				case 108:
+				case 118:
+				case 128:
 				case 129:
-				case 130:
 					{
 					alt53=1;
 					}
@@ -7283,25 +7283,25 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:379:4: '(' assignOp fHead fExp ')'
 					{
-					char_literal279=(Token)match(input,64,FOLLOW_64_in_pEffect2416); if (state.failed) return retval; 
+					char_literal279=(Token)match(input,64,FOLLOW_64_in_pEffect2380); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal279);
 
-					pushFollow(FOLLOW_assignOp_in_pEffect2418);
+					pushFollow(FOLLOW_assignOp_in_pEffect2382);
 					assignOp280=assignOp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_assignOp.add(assignOp280.getTree());
-					pushFollow(FOLLOW_fHead_in_pEffect2420);
+					pushFollow(FOLLOW_fHead_in_pEffect2384);
 					fHead281=fHead();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_fHead.add(fHead281.getTree());
-					pushFollow(FOLLOW_fExp_in_pEffect2422);
+					pushFollow(FOLLOW_fExp_in_pEffect2386);
 					fExp282=fExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_fExp.add(fExp282.getTree());
-					char_literal283=(Token)match(input,65,FOLLOW_65_in_pEffect2424); if (state.failed) return retval; 
+					char_literal283=(Token)match(input,65,FOLLOW_65_in_pEffect2388); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal283);
 
 					// AST REWRITE
@@ -7339,18 +7339,18 @@ public class PddlParser extends Parser {
 				case 2 :
 					// Pddl.g:381:4: '(' 'not' atomicTermFormula ')'
 					{
-					char_literal284=(Token)match(input,64,FOLLOW_64_in_pEffect2444); if (state.failed) return retval; 
+					char_literal284=(Token)match(input,64,FOLLOW_64_in_pEffect2408); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal284);
 
-					string_literal285=(Token)match(input,123,FOLLOW_123_in_pEffect2446); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_123.add(string_literal285);
+					string_literal285=(Token)match(input,122,FOLLOW_122_in_pEffect2410); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_122.add(string_literal285);
 
-					pushFollow(FOLLOW_atomicTermFormula_in_pEffect2448);
+					pushFollow(FOLLOW_atomicTermFormula_in_pEffect2412);
 					atomicTermFormula286=atomicTermFormula();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_atomicTermFormula.add(atomicTermFormula286.getTree());
-					char_literal287=(Token)match(input,65,FOLLOW_65_in_pEffect2450); if (state.failed) return retval; 
+					char_literal287=(Token)match(input,65,FOLLOW_65_in_pEffect2414); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal287);
 
 					// AST REWRITE
@@ -7389,7 +7389,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_atomicTermFormula_in_pEffect2466);
+					pushFollow(FOLLOW_atomicTermFormula_in_pEffect2430);
 					atomicTermFormula288=atomicTermFormula();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -7443,7 +7443,7 @@ public class PddlParser extends Parser {
 		Object char_literal289_tree=null;
 		Object string_literal290_tree=null;
 		Object char_literal292_tree=null;
-		RewriteRuleTokenStream stream_105=new RewriteRuleTokenStream(adaptor,"token 105");
+		RewriteRuleTokenStream stream_103=new RewriteRuleTokenStream(adaptor,"token 103");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_pEffect=new RewriteRuleSubtreeStream(adaptor,"rule pEffect");
@@ -7454,10 +7454,10 @@ public class PddlParser extends Parser {
 			int LA55_0 = input.LA(1);
 			if ( (LA55_0==64) ) {
 				int LA55_1 = input.LA(2);
-				if ( (LA55_1==105) ) {
+				if ( (LA55_1==103) ) {
 					alt55=1;
 				}
-				else if ( (LA55_1==NAME||LA55_1==106||LA55_1==109||LA55_1==119||LA55_1==123||(LA55_1 >= 129 && LA55_1 <= 130)) ) {
+				else if ( (LA55_1==NAME||LA55_1==104||LA55_1==108||LA55_1==118||LA55_1==122||(LA55_1 >= 128 && LA55_1 <= 129)) ) {
 					alt55=2;
 				}
 
@@ -7487,11 +7487,11 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:389:4: '(' 'and' ( pEffect )* ')'
 					{
-					char_literal289=(Token)match(input,64,FOLLOW_64_in_condEffect2479); if (state.failed) return retval; 
+					char_literal289=(Token)match(input,64,FOLLOW_64_in_condEffect2443); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal289);
 
-					string_literal290=(Token)match(input,105,FOLLOW_105_in_condEffect2481); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_105.add(string_literal290);
+					string_literal290=(Token)match(input,103,FOLLOW_103_in_condEffect2445); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_103.add(string_literal290);
 
 					// Pddl.g:389:14: ( pEffect )*
 					loop54:
@@ -7506,7 +7506,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:389:14: pEffect
 							{
-							pushFollow(FOLLOW_pEffect_in_condEffect2483);
+							pushFollow(FOLLOW_pEffect_in_condEffect2447);
 							pEffect291=pEffect();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -7519,7 +7519,7 @@ public class PddlParser extends Parser {
 						}
 					}
 
-					char_literal292=(Token)match(input,65,FOLLOW_65_in_condEffect2486); if (state.failed) return retval; 
+					char_literal292=(Token)match(input,65,FOLLOW_65_in_condEffect2450); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal292);
 
 					// AST REWRITE
@@ -7563,7 +7563,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_pEffect_in_condEffect2500);
+					pushFollow(FOLLOW_pEffect_in_condEffect2464);
 					pEffect293=pEffect();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -7620,7 +7620,7 @@ public class PddlParser extends Parser {
 
 
 			set294=input.LT(1);
-			if ( (input.LA(1) >= 66 && input.LA(1) <= 69)||input.LA(1)==101 ) {
+			if ( (input.LA(1) >= 66 && input.LA(1) <= 69)||input.LA(1)==99 ) {
 				input.consume();
 				if ( state.backtracking==0 ) adaptor.addChild(root_0, (Object)adaptor.create(set294));
 				state.errorRecovery=false;
@@ -7800,7 +7800,7 @@ public class PddlParser extends Parser {
 
 
 			set297=input.LT(1);
-			if ( input.LA(1)==106||input.LA(1)==109||input.LA(1)==119||(input.LA(1) >= 129 && input.LA(1) <= 130) ) {
+			if ( input.LA(1)==104||input.LA(1)==108||input.LA(1)==118||(input.LA(1) >= 128 && input.LA(1) <= 129) ) {
 				input.consume();
 				if ( state.backtracking==0 ) adaptor.addChild(root_0, (Object)adaptor.create(set297));
 				state.errorRecovery=false;
@@ -7868,7 +7868,7 @@ public class PddlParser extends Parser {
 			int LA57_0 = input.LA(1);
 			if ( (LA57_0==64) ) {
 				switch ( input.LA(2) ) {
-				case 105:
+				case 103:
 					{
 					alt57=1;
 					}
@@ -7881,7 +7881,7 @@ public class PddlParser extends Parser {
 				case 94:
 				case 95:
 				case 97:
-				case 107:
+				case 105:
 					{
 					alt57=3;
 					}
@@ -7914,13 +7914,13 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal298=(Token)match(input,64,FOLLOW_64_in_durationConstraint2605); if (state.failed) return retval;
+					char_literal298=(Token)match(input,64,FOLLOW_64_in_durationConstraint2569); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal298_tree = (Object)adaptor.create(char_literal298);
 					adaptor.addChild(root_0, char_literal298_tree);
 					}
 
-					string_literal299=(Token)match(input,105,FOLLOW_105_in_durationConstraint2607); if (state.failed) return retval;
+					string_literal299=(Token)match(input,103,FOLLOW_103_in_durationConstraint2571); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal299_tree = (Object)adaptor.create(string_literal299);
 					adaptor.addChild(root_0, string_literal299_tree);
@@ -7940,7 +7940,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:407:14: simpleDurationConstraint
 							{
-							pushFollow(FOLLOW_simpleDurationConstraint_in_durationConstraint2609);
+							pushFollow(FOLLOW_simpleDurationConstraint_in_durationConstraint2573);
 							simpleDurationConstraint300=simpleDurationConstraint();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -7958,7 +7958,7 @@ public class PddlParser extends Parser {
 						cnt56++;
 					}
 
-					char_literal301=(Token)match(input,65,FOLLOW_65_in_durationConstraint2612); if (state.failed) return retval;
+					char_literal301=(Token)match(input,65,FOLLOW_65_in_durationConstraint2576); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal301_tree = (Object)adaptor.create(char_literal301);
 					adaptor.addChild(root_0, char_literal301_tree);
@@ -7972,13 +7972,13 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal302=(Token)match(input,64,FOLLOW_64_in_durationConstraint2617); if (state.failed) return retval;
+					char_literal302=(Token)match(input,64,FOLLOW_64_in_durationConstraint2581); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal302_tree = (Object)adaptor.create(char_literal302);
 					adaptor.addChild(root_0, char_literal302_tree);
 					}
 
-					char_literal303=(Token)match(input,65,FOLLOW_65_in_durationConstraint2619); if (state.failed) return retval;
+					char_literal303=(Token)match(input,65,FOLLOW_65_in_durationConstraint2583); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal303_tree = (Object)adaptor.create(char_literal303);
 					adaptor.addChild(root_0, char_literal303_tree);
@@ -7992,7 +7992,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_simpleDurationConstraint_in_durationConstraint2624);
+					pushFollow(FOLLOW_simpleDurationConstraint_in_durationConstraint2588);
 					simpleDurationConstraint304=simpleDurationConstraint();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -8061,7 +8061,7 @@ public class PddlParser extends Parser {
 			int LA58_0 = input.LA(1);
 			if ( (LA58_0==64) ) {
 				int LA58_1 = input.LA(2);
-				if ( (LA58_1==107) ) {
+				if ( (LA58_1==105) ) {
 					alt58=2;
 				}
 				else if ( ((LA58_1 >= 94 && LA58_1 <= 95)||LA58_1==97) ) {
@@ -8097,31 +8097,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal305=(Token)match(input,64,FOLLOW_64_in_simpleDurationConstraint2635); if (state.failed) return retval;
+					char_literal305=(Token)match(input,64,FOLLOW_64_in_simpleDurationConstraint2599); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal305_tree = (Object)adaptor.create(char_literal305);
 					adaptor.addChild(root_0, char_literal305_tree);
 					}
 
-					pushFollow(FOLLOW_durOp_in_simpleDurationConstraint2637);
+					pushFollow(FOLLOW_durOp_in_simpleDurationConstraint2601);
 					durOp306=durOp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, durOp306.getTree());
 
-					string_literal307=(Token)match(input,98,FOLLOW_98_in_simpleDurationConstraint2639); if (state.failed) return retval;
+					string_literal307=(Token)match(input,98,FOLLOW_98_in_simpleDurationConstraint2603); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal307_tree = (Object)adaptor.create(string_literal307);
 					adaptor.addChild(root_0, string_literal307_tree);
 					}
 
-					pushFollow(FOLLOW_durValue_in_simpleDurationConstraint2641);
+					pushFollow(FOLLOW_durValue_in_simpleDurationConstraint2605);
 					durValue308=durValue();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, durValue308.getTree());
 
-					char_literal309=(Token)match(input,65,FOLLOW_65_in_simpleDurationConstraint2643); if (state.failed) return retval;
+					char_literal309=(Token)match(input,65,FOLLOW_65_in_simpleDurationConstraint2607); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal309_tree = (Object)adaptor.create(char_literal309);
 					adaptor.addChild(root_0, char_literal309_tree);
@@ -8135,31 +8135,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal310=(Token)match(input,64,FOLLOW_64_in_simpleDurationConstraint2648); if (state.failed) return retval;
+					char_literal310=(Token)match(input,64,FOLLOW_64_in_simpleDurationConstraint2612); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal310_tree = (Object)adaptor.create(char_literal310);
 					adaptor.addChild(root_0, char_literal310_tree);
 					}
 
-					string_literal311=(Token)match(input,107,FOLLOW_107_in_simpleDurationConstraint2650); if (state.failed) return retval;
+					string_literal311=(Token)match(input,105,FOLLOW_105_in_simpleDurationConstraint2614); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal311_tree = (Object)adaptor.create(string_literal311);
 					adaptor.addChild(root_0, string_literal311_tree);
 					}
 
-					pushFollow(FOLLOW_timeSpecifier_in_simpleDurationConstraint2652);
+					pushFollow(FOLLOW_timeSpecifier_in_simpleDurationConstraint2616);
 					timeSpecifier312=timeSpecifier();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, timeSpecifier312.getTree());
 
-					pushFollow(FOLLOW_simpleDurationConstraint_in_simpleDurationConstraint2654);
+					pushFollow(FOLLOW_simpleDurationConstraint_in_simpleDurationConstraint2618);
 					simpleDurationConstraint313=simpleDurationConstraint();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, simpleDurationConstraint313.getTree());
 
-					char_literal314=(Token)match(input,65,FOLLOW_65_in_simpleDurationConstraint2656); if (state.failed) return retval;
+					char_literal314=(Token)match(input,65,FOLLOW_65_in_simpleDurationConstraint2620); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal314_tree = (Object)adaptor.create(char_literal314);
 					adaptor.addChild(root_0, char_literal314_tree);
@@ -8301,7 +8301,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					NUMBER316=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_durValue2683); if (state.failed) return retval;
+					NUMBER316=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_durValue2647); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER316_tree = (Object)adaptor.create(NUMBER316);
 					adaptor.addChild(root_0, NUMBER316_tree);
@@ -8315,7 +8315,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_fExp_in_durValue2687);
+					pushFollow(FOLLOW_fExp_in_durValue2651);
 					fExp317=fExp();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -8435,13 +8435,13 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal318=(Token)match(input,64,FOLLOW_64_in_daEffect2697); if (state.failed) return retval;
+					char_literal318=(Token)match(input,64,FOLLOW_64_in_daEffect2661); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal318_tree = (Object)adaptor.create(char_literal318);
 					adaptor.addChild(root_0, char_literal318_tree);
 					}
 
-					string_literal319=(Token)match(input,105,FOLLOW_105_in_daEffect2699); if (state.failed) return retval;
+					string_literal319=(Token)match(input,103,FOLLOW_103_in_daEffect2663); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal319_tree = (Object)adaptor.create(string_literal319);
 					adaptor.addChild(root_0, string_literal319_tree);
@@ -8460,7 +8460,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:422:14: daEffect
 							{
-							pushFollow(FOLLOW_daEffect_in_daEffect2701);
+							pushFollow(FOLLOW_daEffect_in_daEffect2665);
 							daEffect320=daEffect();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -8474,7 +8474,7 @@ public class PddlParser extends Parser {
 						}
 					}
 
-					char_literal321=(Token)match(input,65,FOLLOW_65_in_daEffect2704); if (state.failed) return retval;
+					char_literal321=(Token)match(input,65,FOLLOW_65_in_daEffect2668); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal321_tree = (Object)adaptor.create(char_literal321);
 					adaptor.addChild(root_0, char_literal321_tree);
@@ -8488,7 +8488,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_timedEffect_in_daEffect2709);
+					pushFollow(FOLLOW_timedEffect_in_daEffect2673);
 					timedEffect322=timedEffect();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -8502,43 +8502,43 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal323=(Token)match(input,64,FOLLOW_64_in_daEffect2714); if (state.failed) return retval;
+					char_literal323=(Token)match(input,64,FOLLOW_64_in_daEffect2678); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal323_tree = (Object)adaptor.create(char_literal323);
 					adaptor.addChild(root_0, char_literal323_tree);
 					}
 
-					string_literal324=(Token)match(input,115,FOLLOW_115_in_daEffect2716); if (state.failed) return retval;
+					string_literal324=(Token)match(input,114,FOLLOW_114_in_daEffect2680); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal324_tree = (Object)adaptor.create(string_literal324);
 					adaptor.addChild(root_0, string_literal324_tree);
 					}
 
-					char_literal325=(Token)match(input,64,FOLLOW_64_in_daEffect2718); if (state.failed) return retval;
+					char_literal325=(Token)match(input,64,FOLLOW_64_in_daEffect2682); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal325_tree = (Object)adaptor.create(char_literal325);
 					adaptor.addChild(root_0, char_literal325_tree);
 					}
 
-					pushFollow(FOLLOW_typedVariableList_in_daEffect2720);
+					pushFollow(FOLLOW_typedVariableList_in_daEffect2684);
 					typedVariableList326=typedVariableList();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, typedVariableList326.getTree());
 
-					char_literal327=(Token)match(input,65,FOLLOW_65_in_daEffect2722); if (state.failed) return retval;
+					char_literal327=(Token)match(input,65,FOLLOW_65_in_daEffect2686); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal327_tree = (Object)adaptor.create(char_literal327);
 					adaptor.addChild(root_0, char_literal327_tree);
 					}
 
-					pushFollow(FOLLOW_daEffect_in_daEffect2724);
+					pushFollow(FOLLOW_daEffect_in_daEffect2688);
 					daEffect328=daEffect();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, daEffect328.getTree());
 
-					char_literal329=(Token)match(input,65,FOLLOW_65_in_daEffect2726); if (state.failed) return retval;
+					char_literal329=(Token)match(input,65,FOLLOW_65_in_daEffect2690); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal329_tree = (Object)adaptor.create(char_literal329);
 					adaptor.addChild(root_0, char_literal329_tree);
@@ -8552,31 +8552,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal330=(Token)match(input,64,FOLLOW_64_in_daEffect2731); if (state.failed) return retval;
+					char_literal330=(Token)match(input,64,FOLLOW_64_in_daEffect2695); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal330_tree = (Object)adaptor.create(char_literal330);
 					adaptor.addChild(root_0, char_literal330_tree);
 					}
 
-					string_literal331=(Token)match(input,135,FOLLOW_135_in_daEffect2733); if (state.failed) return retval;
+					string_literal331=(Token)match(input,135,FOLLOW_135_in_daEffect2697); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal331_tree = (Object)adaptor.create(string_literal331);
 					adaptor.addChild(root_0, string_literal331_tree);
 					}
 
-					pushFollow(FOLLOW_daGD_in_daEffect2735);
+					pushFollow(FOLLOW_daGD_in_daEffect2699);
 					daGD332=daGD();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, daGD332.getTree());
 
-					pushFollow(FOLLOW_timedEffect_in_daEffect2737);
+					pushFollow(FOLLOW_timedEffect_in_daEffect2701);
 					timedEffect333=timedEffect();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, timedEffect333.getTree());
 
-					char_literal334=(Token)match(input,65,FOLLOW_65_in_daEffect2739); if (state.failed) return retval;
+					char_literal334=(Token)match(input,65,FOLLOW_65_in_daEffect2703); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal334_tree = (Object)adaptor.create(char_literal334);
 					adaptor.addChild(root_0, char_literal334_tree);
@@ -8590,31 +8590,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal335=(Token)match(input,64,FOLLOW_64_in_daEffect2744); if (state.failed) return retval;
+					char_literal335=(Token)match(input,64,FOLLOW_64_in_daEffect2708); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal335_tree = (Object)adaptor.create(char_literal335);
 					adaptor.addChild(root_0, char_literal335_tree);
 					}
 
-					pushFollow(FOLLOW_assignOp_in_daEffect2746);
+					pushFollow(FOLLOW_assignOp_in_daEffect2710);
 					assignOp336=assignOp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, assignOp336.getTree());
 
-					pushFollow(FOLLOW_fHead_in_daEffect2748);
+					pushFollow(FOLLOW_fHead_in_daEffect2712);
 					fHead337=fHead();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, fHead337.getTree());
 
-					pushFollow(FOLLOW_fExpDA_in_daEffect2750);
+					pushFollow(FOLLOW_fExpDA_in_daEffect2714);
 					fExpDA338=fExpDA();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, fExpDA338.getTree());
 
-					char_literal339=(Token)match(input,65,FOLLOW_65_in_daEffect2752); if (state.failed) return retval;
+					char_literal339=(Token)match(input,65,FOLLOW_65_in_daEffect2716); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal339_tree = (Object)adaptor.create(char_literal339);
 					adaptor.addChild(root_0, char_literal339_tree);
@@ -8716,31 +8716,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal340=(Token)match(input,64,FOLLOW_64_in_timedEffect2763); if (state.failed) return retval;
+					char_literal340=(Token)match(input,64,FOLLOW_64_in_timedEffect2727); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal340_tree = (Object)adaptor.create(char_literal340);
 					adaptor.addChild(root_0, char_literal340_tree);
 					}
 
-					string_literal341=(Token)match(input,107,FOLLOW_107_in_timedEffect2765); if (state.failed) return retval;
+					string_literal341=(Token)match(input,105,FOLLOW_105_in_timedEffect2729); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal341_tree = (Object)adaptor.create(string_literal341);
 					adaptor.addChild(root_0, string_literal341_tree);
 					}
 
-					pushFollow(FOLLOW_timeSpecifier_in_timedEffect2767);
+					pushFollow(FOLLOW_timeSpecifier_in_timedEffect2731);
 					timeSpecifier342=timeSpecifier();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, timeSpecifier342.getTree());
 
-					pushFollow(FOLLOW_daEffect_in_timedEffect2769);
+					pushFollow(FOLLOW_daEffect_in_timedEffect2733);
 					daEffect343=daEffect();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, daEffect343.getTree());
 
-					char_literal344=(Token)match(input,65,FOLLOW_65_in_timedEffect2771); if (state.failed) return retval;
+					char_literal344=(Token)match(input,65,FOLLOW_65_in_timedEffect2735); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal344_tree = (Object)adaptor.create(char_literal344);
 					adaptor.addChild(root_0, char_literal344_tree);
@@ -8754,31 +8754,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal345=(Token)match(input,64,FOLLOW_64_in_timedEffect2781); if (state.failed) return retval;
+					char_literal345=(Token)match(input,64,FOLLOW_64_in_timedEffect2745); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal345_tree = (Object)adaptor.create(char_literal345);
 					adaptor.addChild(root_0, char_literal345_tree);
 					}
 
-					string_literal346=(Token)match(input,107,FOLLOW_107_in_timedEffect2783); if (state.failed) return retval;
+					string_literal346=(Token)match(input,105,FOLLOW_105_in_timedEffect2747); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal346_tree = (Object)adaptor.create(string_literal346);
 					adaptor.addChild(root_0, string_literal346_tree);
 					}
 
-					pushFollow(FOLLOW_timeSpecifier_in_timedEffect2785);
+					pushFollow(FOLLOW_timeSpecifier_in_timedEffect2749);
 					timeSpecifier347=timeSpecifier();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, timeSpecifier347.getTree());
 
-					pushFollow(FOLLOW_fAssignDA_in_timedEffect2787);
+					pushFollow(FOLLOW_fAssignDA_in_timedEffect2751);
 					fAssignDA348=fAssignDA();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, fAssignDA348.getTree());
 
-					char_literal349=(Token)match(input,65,FOLLOW_65_in_timedEffect2789); if (state.failed) return retval;
+					char_literal349=(Token)match(input,65,FOLLOW_65_in_timedEffect2753); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal349_tree = (Object)adaptor.create(char_literal349);
 					adaptor.addChild(root_0, char_literal349_tree);
@@ -8792,31 +8792,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal350=(Token)match(input,64,FOLLOW_64_in_timedEffect2794); if (state.failed) return retval;
+					char_literal350=(Token)match(input,64,FOLLOW_64_in_timedEffect2758); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal350_tree = (Object)adaptor.create(char_literal350);
 					adaptor.addChild(root_0, char_literal350_tree);
 					}
 
-					pushFollow(FOLLOW_assignOp_in_timedEffect2796);
+					pushFollow(FOLLOW_assignOp_in_timedEffect2760);
 					assignOp351=assignOp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, assignOp351.getTree());
 
-					pushFollow(FOLLOW_fHead_in_timedEffect2798);
+					pushFollow(FOLLOW_fHead_in_timedEffect2762);
 					fHead352=fHead();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, fHead352.getTree());
 
-					pushFollow(FOLLOW_fExp_in_timedEffect2800);
+					pushFollow(FOLLOW_fExp_in_timedEffect2764);
 					fExp353=fExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, fExp353.getTree());
 
-					char_literal354=(Token)match(input,65,FOLLOW_65_in_timedEffect2802); if (state.failed) return retval;
+					char_literal354=(Token)match(input,65,FOLLOW_65_in_timedEffect2766); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal354_tree = (Object)adaptor.create(char_literal354);
 					adaptor.addChild(root_0, char_literal354_tree);
@@ -8877,31 +8877,31 @@ public class PddlParser extends Parser {
 			root_0 = (Object)adaptor.nil();
 
 
-			char_literal355=(Token)match(input,64,FOLLOW_64_in_fAssignDA2822); if (state.failed) return retval;
+			char_literal355=(Token)match(input,64,FOLLOW_64_in_fAssignDA2786); if (state.failed) return retval;
 			if ( state.backtracking==0 ) {
 			char_literal355_tree = (Object)adaptor.create(char_literal355);
 			adaptor.addChild(root_0, char_literal355_tree);
 			}
 
-			pushFollow(FOLLOW_assignOp_in_fAssignDA2824);
+			pushFollow(FOLLOW_assignOp_in_fAssignDA2788);
 			assignOp356=assignOp();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) adaptor.addChild(root_0, assignOp356.getTree());
 
-			pushFollow(FOLLOW_fHead_in_fAssignDA2826);
+			pushFollow(FOLLOW_fHead_in_fAssignDA2790);
 			fHead357=fHead();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) adaptor.addChild(root_0, fHead357.getTree());
 
-			pushFollow(FOLLOW_fExpDA_in_fAssignDA2828);
+			pushFollow(FOLLOW_fExpDA_in_fAssignDA2792);
 			fExpDA358=fExpDA();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) adaptor.addChild(root_0, fExpDA358.getTree());
 
-			char_literal359=(Token)match(input,65,FOLLOW_65_in_fAssignDA2830); if (state.failed) return retval;
+			char_literal359=(Token)match(input,65,FOLLOW_65_in_fAssignDA2794); if (state.failed) return retval;
 			if ( state.backtracking==0 ) {
 			char_literal359_tree = (Object)adaptor.create(char_literal359);
 			adaptor.addChild(root_0, char_literal359_tree);
@@ -9000,7 +9000,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal360=(Token)match(input,64,FOLLOW_64_in_fExpDA2841); if (state.failed) return retval;
+					char_literal360=(Token)match(input,64,FOLLOW_64_in_fExpDA2805); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal360_tree = (Object)adaptor.create(char_literal360);
 					adaptor.addChild(root_0, char_literal360_tree);
@@ -9019,7 +9019,7 @@ public class PddlParser extends Parser {
 						}
 
 					}
-					else if ( ((LA63_0 >= 66 && LA63_0 <= 67)||LA63_0==69||LA63_0==101) ) {
+					else if ( ((LA63_0 >= 66 && LA63_0 <= 67)||LA63_0==69||LA63_0==99) ) {
 						alt63=1;
 					}
 
@@ -9037,19 +9037,19 @@ public class PddlParser extends Parser {
 							// Pddl.g:440:9: ( binaryOp fExpDA fExpDA )
 							// Pddl.g:440:10: binaryOp fExpDA fExpDA
 							{
-							pushFollow(FOLLOW_binaryOp_in_fExpDA2845);
+							pushFollow(FOLLOW_binaryOp_in_fExpDA2809);
 							binaryOp361=binaryOp();
 							state._fsp--;
 							if (state.failed) return retval;
 							if ( state.backtracking==0 ) adaptor.addChild(root_0, binaryOp361.getTree());
 
-							pushFollow(FOLLOW_fExpDA_in_fExpDA2847);
+							pushFollow(FOLLOW_fExpDA_in_fExpDA2811);
 							fExpDA362=fExpDA();
 							state._fsp--;
 							if (state.failed) return retval;
 							if ( state.backtracking==0 ) adaptor.addChild(root_0, fExpDA362.getTree());
 
-							pushFollow(FOLLOW_fExpDA_in_fExpDA2849);
+							pushFollow(FOLLOW_fExpDA_in_fExpDA2813);
 							fExpDA363=fExpDA();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -9065,13 +9065,13 @@ public class PddlParser extends Parser {
 							// Pddl.g:440:36: ( '-' fExpDA )
 							// Pddl.g:440:37: '-' fExpDA
 							{
-							char_literal364=(Token)match(input,68,FOLLOW_68_in_fExpDA2855); if (state.failed) return retval;
+							char_literal364=(Token)match(input,68,FOLLOW_68_in_fExpDA2819); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
 							char_literal364_tree = (Object)adaptor.create(char_literal364);
 							adaptor.addChild(root_0, char_literal364_tree);
 							}
 
-							pushFollow(FOLLOW_fExpDA_in_fExpDA2857);
+							pushFollow(FOLLOW_fExpDA_in_fExpDA2821);
 							fExpDA365=fExpDA();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -9084,7 +9084,7 @@ public class PddlParser extends Parser {
 
 					}
 
-					char_literal366=(Token)match(input,65,FOLLOW_65_in_fExpDA2861); if (state.failed) return retval;
+					char_literal366=(Token)match(input,65,FOLLOW_65_in_fExpDA2825); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal366_tree = (Object)adaptor.create(char_literal366);
 					adaptor.addChild(root_0, char_literal366_tree);
@@ -9098,7 +9098,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					string_literal367=(Token)match(input,98,FOLLOW_98_in_fExpDA2866); if (state.failed) return retval;
+					string_literal367=(Token)match(input,98,FOLLOW_98_in_fExpDA2830); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal367_tree = (Object)adaptor.create(string_literal367);
 					adaptor.addChild(root_0, string_literal367_tree);
@@ -9112,7 +9112,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_fExp_in_fExpDA2871);
+					pushFollow(FOLLOW_fExp_in_fExpDA2835);
 					fExp368=fExp();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9172,7 +9172,7 @@ public class PddlParser extends Parser {
 		Object char_literal369_tree=null;
 		Object string_literal370_tree=null;
 		Object char_literal379_tree=null;
-		RewriteRuleTokenStream stream_110=new RewriteRuleTokenStream(adaptor,"token 110");
+		RewriteRuleTokenStream stream_109=new RewriteRuleTokenStream(adaptor,"token 109");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_metricSpec=new RewriteRuleSubtreeStream(adaptor,"rule metricSpec");
@@ -9188,18 +9188,18 @@ public class PddlParser extends Parser {
 			// Pddl.g:448:2: ( '(' 'define' problemDecl problemDomain ( requireDef )? ( objectDecl )? init goal ( probConstraints )? ( metricSpec )? ')' -> ^( PROBLEM problemDecl problemDomain ( requireDef )? ( objectDecl )? init goal ( probConstraints )? ( metricSpec )? ) )
 			// Pddl.g:448:4: '(' 'define' problemDecl problemDomain ( requireDef )? ( objectDecl )? init goal ( probConstraints )? ( metricSpec )? ')'
 			{
-			char_literal369=(Token)match(input,64,FOLLOW_64_in_problem2885); if (state.failed) return retval; 
+			char_literal369=(Token)match(input,64,FOLLOW_64_in_problem2849); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal369);
 
-			string_literal370=(Token)match(input,110,FOLLOW_110_in_problem2887); if (state.failed) return retval; 
-			if ( state.backtracking==0 ) stream_110.add(string_literal370);
+			string_literal370=(Token)match(input,109,FOLLOW_109_in_problem2851); if (state.failed) return retval; 
+			if ( state.backtracking==0 ) stream_109.add(string_literal370);
 
-			pushFollow(FOLLOW_problemDecl_in_problem2889);
+			pushFollow(FOLLOW_problemDecl_in_problem2853);
 			problemDecl371=problemDecl();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_problemDecl.add(problemDecl371.getTree());
-			pushFollow(FOLLOW_problemDomain_in_problem2894);
+			pushFollow(FOLLOW_problemDomain_in_problem2858);
 			problemDomain372=problemDomain();
 			state._fsp--;
 			if (state.failed) return retval;
@@ -9217,7 +9217,7 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:450:7: requireDef
 					{
-					pushFollow(FOLLOW_requireDef_in_problem2902);
+					pushFollow(FOLLOW_requireDef_in_problem2866);
 					requireDef373=requireDef();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9240,7 +9240,7 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:451:7: objectDecl
 					{
-					pushFollow(FOLLOW_objectDecl_in_problem2911);
+					pushFollow(FOLLOW_objectDecl_in_problem2875);
 					objectDecl374=objectDecl();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9250,12 +9250,12 @@ public class PddlParser extends Parser {
 
 			}
 
-			pushFollow(FOLLOW_init_in_problem2920);
+			pushFollow(FOLLOW_init_in_problem2884);
 			init375=init();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_init.add(init375.getTree());
-			pushFollow(FOLLOW_goal_in_problem2928);
+			pushFollow(FOLLOW_goal_in_problem2892);
 			goal376=goal();
 			state._fsp--;
 			if (state.failed) return retval;
@@ -9273,7 +9273,7 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:454:7: probConstraints
 					{
-					pushFollow(FOLLOW_probConstraints_in_problem2936);
+					pushFollow(FOLLOW_probConstraints_in_problem2900);
 					probConstraints377=probConstraints();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9293,7 +9293,7 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:455:7: metricSpec
 					{
-					pushFollow(FOLLOW_metricSpec_in_problem2945);
+					pushFollow(FOLLOW_metricSpec_in_problem2909);
 					metricSpec378=metricSpec();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9303,7 +9303,7 @@ public class PddlParser extends Parser {
 
 			}
 
-			char_literal379=(Token)match(input,65,FOLLOW_65_in_problem2961); if (state.failed) return retval; 
+			char_literal379=(Token)match(input,65,FOLLOW_65_in_problem2925); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal379);
 
 			// AST REWRITE
@@ -9407,7 +9407,7 @@ public class PddlParser extends Parser {
 		Object string_literal381_tree=null;
 		Object NAME382_tree=null;
 		Object char_literal383_tree=null;
-		RewriteRuleTokenStream stream_128=new RewriteRuleTokenStream(adaptor,"token 128");
+		RewriteRuleTokenStream stream_127=new RewriteRuleTokenStream(adaptor,"token 127");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleTokenStream stream_NAME=new RewriteRuleTokenStream(adaptor,"token NAME");
@@ -9416,16 +9416,16 @@ public class PddlParser extends Parser {
 			// Pddl.g:463:5: ( '(' 'problem' NAME ')' -> ^( PROBLEM_NAME NAME ) )
 			// Pddl.g:463:7: '(' 'problem' NAME ')'
 			{
-			char_literal380=(Token)match(input,64,FOLLOW_64_in_problemDecl3018); if (state.failed) return retval; 
+			char_literal380=(Token)match(input,64,FOLLOW_64_in_problemDecl2982); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal380);
 
-			string_literal381=(Token)match(input,128,FOLLOW_128_in_problemDecl3020); if (state.failed) return retval; 
-			if ( state.backtracking==0 ) stream_128.add(string_literal381);
+			string_literal381=(Token)match(input,127,FOLLOW_127_in_problemDecl2984); if (state.failed) return retval; 
+			if ( state.backtracking==0 ) stream_127.add(string_literal381);
 
-			NAME382=(Token)match(input,NAME,FOLLOW_NAME_in_problemDecl3022); if (state.failed) return retval; 
+			NAME382=(Token)match(input,NAME,FOLLOW_NAME_in_problemDecl2986); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_NAME.add(NAME382);
 
-			char_literal383=(Token)match(input,65,FOLLOW_65_in_problemDecl3024); if (state.failed) return retval; 
+			char_literal383=(Token)match(input,65,FOLLOW_65_in_problemDecl2988); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal383);
 
 			// AST REWRITE
@@ -9511,16 +9511,16 @@ public class PddlParser extends Parser {
 			// Pddl.g:468:2: ( '(' ':domain' NAME ')' -> ^( PROBLEM_DOMAIN NAME ) )
 			// Pddl.g:468:4: '(' ':domain' NAME ')'
 			{
-			char_literal384=(Token)match(input,64,FOLLOW_64_in_problemDomain3050); if (state.failed) return retval; 
+			char_literal384=(Token)match(input,64,FOLLOW_64_in_problemDomain3014); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal384);
 
-			string_literal385=(Token)match(input,76,FOLLOW_76_in_problemDomain3052); if (state.failed) return retval; 
+			string_literal385=(Token)match(input,76,FOLLOW_76_in_problemDomain3016); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_76.add(string_literal385);
 
-			NAME386=(Token)match(input,NAME,FOLLOW_NAME_in_problemDomain3054); if (state.failed) return retval; 
+			NAME386=(Token)match(input,NAME,FOLLOW_NAME_in_problemDomain3018); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_NAME.add(NAME386);
 
-			char_literal387=(Token)match(input,65,FOLLOW_65_in_problemDomain3056); if (state.failed) return retval; 
+			char_literal387=(Token)match(input,65,FOLLOW_65_in_problemDomain3020); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal387);
 
 			// AST REWRITE
@@ -9605,18 +9605,18 @@ public class PddlParser extends Parser {
 			// Pddl.g:473:2: ( '(' ':objects' typedNameList ')' -> ^( OBJECTS typedNameList ) )
 			// Pddl.g:473:4: '(' ':objects' typedNameList ')'
 			{
-			char_literal388=(Token)match(input,64,FOLLOW_64_in_objectDecl3076); if (state.failed) return retval; 
+			char_literal388=(Token)match(input,64,FOLLOW_64_in_objectDecl3040); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal388);
 
-			string_literal389=(Token)match(input,86,FOLLOW_86_in_objectDecl3078); if (state.failed) return retval; 
+			string_literal389=(Token)match(input,86,FOLLOW_86_in_objectDecl3042); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_86.add(string_literal389);
 
-			pushFollow(FOLLOW_typedNameList_in_objectDecl3080);
+			pushFollow(FOLLOW_typedNameList_in_objectDecl3044);
 			typedNameList390=typedNameList();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_typedNameList.add(typedNameList390.getTree());
-			char_literal391=(Token)match(input,65,FOLLOW_65_in_objectDecl3082); if (state.failed) return retval; 
+			char_literal391=(Token)match(input,65,FOLLOW_65_in_objectDecl3046); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal391);
 
 			// AST REWRITE
@@ -9637,8 +9637,10 @@ public class PddlParser extends Parser {
 				{
 				Object root_1 = (Object)adaptor.nil();
 				root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(OBJECTS, "OBJECTS"), root_1);
-				adaptor.addChild(root_1, stream_typedNameList.nextTree());
-				adaptor.addChild(root_0, root_1);
+                                if (stream_typedNameList.hasNext()){
+                                    adaptor.addChild(root_1, stream_typedNameList.nextTree());
+                                    adaptor.addChild(root_0, root_1);
+                                }
 				}
 
 			}
@@ -9701,10 +9703,10 @@ public class PddlParser extends Parser {
 			// Pddl.g:478:2: ( '(' ':init' ( initEl )* ')' -> ^( INIT ( initEl )* ) )
 			// Pddl.g:478:4: '(' ':init' ( initEl )* ')'
 			{
-			char_literal392=(Token)match(input,64,FOLLOW_64_in_init3102); if (state.failed) return retval; 
+			char_literal392=(Token)match(input,64,FOLLOW_64_in_init3066); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal392);
 
-			string_literal393=(Token)match(input,84,FOLLOW_84_in_init3104); if (state.failed) return retval; 
+			string_literal393=(Token)match(input,84,FOLLOW_84_in_init3068); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_84.add(string_literal393);
 
 			// Pddl.g:478:16: ( initEl )*
@@ -9720,7 +9722,7 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:478:16: initEl
 					{
-					pushFollow(FOLLOW_initEl_in_init3106);
+					pushFollow(FOLLOW_initEl_in_init3070);
 					initEl394=initEl();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9733,7 +9735,7 @@ public class PddlParser extends Parser {
 				}
 			}
 
-			char_literal395=(Token)match(input,65,FOLLOW_65_in_init3109); if (state.failed) return retval; 
+			char_literal395=(Token)match(input,65,FOLLOW_65_in_init3073); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal395);
 
 			// AST REWRITE
@@ -9827,7 +9829,7 @@ public class PddlParser extends Parser {
 		Object NUMBER404_tree=null;
 		Object char_literal406_tree=null;
 		RewriteRuleTokenStream stream_NUMBER=new RewriteRuleTokenStream(adaptor,"token NUMBER");
-		RewriteRuleTokenStream stream_107=new RewriteRuleTokenStream(adaptor,"token 107");
+		RewriteRuleTokenStream stream_105=new RewriteRuleTokenStream(adaptor,"token 105");
 		RewriteRuleTokenStream stream_95=new RewriteRuleTokenStream(adaptor,"token 95");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
@@ -9841,7 +9843,7 @@ public class PddlParser extends Parser {
 			if ( (LA70_0==64) ) {
 				switch ( input.LA(2) ) {
 				case NAME:
-				case 123:
+				case 122:
 					{
 					alt70=1;
 					}
@@ -9851,7 +9853,7 @@ public class PddlParser extends Parser {
 					alt70=2;
 					}
 					break;
-				case 107:
+				case 105:
 					{
 					alt70=3;
 					}
@@ -9884,7 +9886,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_nameLiteral_in_initEl3130);
+					pushFollow(FOLLOW_nameLiteral_in_initEl3094);
 					nameLiteral396=nameLiteral();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -9895,21 +9897,21 @@ public class PddlParser extends Parser {
 				case 2 :
 					// Pddl.g:484:4: '(' '=' fHead NUMBER ')'
 					{
-					char_literal397=(Token)match(input,64,FOLLOW_64_in_initEl3135); if (state.failed) return retval; 
+					char_literal397=(Token)match(input,64,FOLLOW_64_in_initEl3099); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal397);
 
-					char_literal398=(Token)match(input,95,FOLLOW_95_in_initEl3137); if (state.failed) return retval; 
+					char_literal398=(Token)match(input,95,FOLLOW_95_in_initEl3101); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_95.add(char_literal398);
 
-					pushFollow(FOLLOW_fHead_in_initEl3139);
+					pushFollow(FOLLOW_fHead_in_initEl3103);
 					fHead399=fHead();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_fHead.add(fHead399.getTree());
-					NUMBER400=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_initEl3141); if (state.failed) return retval; 
+					NUMBER400=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_initEl3105); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_NUMBER.add(NUMBER400);
 
-					char_literal401=(Token)match(input,65,FOLLOW_65_in_initEl3143); if (state.failed) return retval; 
+					char_literal401=(Token)match(input,65,FOLLOW_65_in_initEl3107); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal401);
 
 					// AST REWRITE
@@ -9946,21 +9948,21 @@ public class PddlParser extends Parser {
 				case 3 :
 					// Pddl.g:485:4: '(' 'at' NUMBER nameLiteral ')'
 					{
-					char_literal402=(Token)match(input,64,FOLLOW_64_in_initEl3166); if (state.failed) return retval; 
+					char_literal402=(Token)match(input,64,FOLLOW_64_in_initEl3130); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal402);
 
-					string_literal403=(Token)match(input,107,FOLLOW_107_in_initEl3168); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_107.add(string_literal403);
+					string_literal403=(Token)match(input,105,FOLLOW_105_in_initEl3132); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_105.add(string_literal403);
 
-					NUMBER404=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_initEl3170); if (state.failed) return retval; 
+					NUMBER404=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_initEl3134); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_NUMBER.add(NUMBER404);
 
-					pushFollow(FOLLOW_nameLiteral_in_initEl3172);
+					pushFollow(FOLLOW_nameLiteral_in_initEl3136);
 					nameLiteral405=nameLiteral();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_nameLiteral.add(nameLiteral405.getTree());
-					char_literal406=(Token)match(input,65,FOLLOW_65_in_initEl3174); if (state.failed) return retval; 
+					char_literal406=(Token)match(input,65,FOLLOW_65_in_initEl3138); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal406);
 
 					// AST REWRITE
@@ -10040,7 +10042,7 @@ public class PddlParser extends Parser {
 		Object char_literal408_tree=null;
 		Object string_literal409_tree=null;
 		Object char_literal411_tree=null;
-		RewriteRuleTokenStream stream_123=new RewriteRuleTokenStream(adaptor,"token 123");
+		RewriteRuleTokenStream stream_122=new RewriteRuleTokenStream(adaptor,"token 122");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleSubtreeStream stream_atomicNameFormula=new RewriteRuleSubtreeStream(adaptor,"rule atomicNameFormula");
@@ -10051,7 +10053,7 @@ public class PddlParser extends Parser {
 			int LA71_0 = input.LA(1);
 			if ( (LA71_0==64) ) {
 				int LA71_1 = input.LA(2);
-				if ( (LA71_1==123) ) {
+				if ( (LA71_1==122) ) {
 					alt71=2;
 				}
 				else if ( (LA71_1==NAME) ) {
@@ -10087,7 +10089,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_atomicNameFormula_in_nameLiteral3196);
+					pushFollow(FOLLOW_atomicNameFormula_in_nameLiteral3160);
 					atomicNameFormula407=atomicNameFormula();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -10098,18 +10100,18 @@ public class PddlParser extends Parser {
 				case 2 :
 					// Pddl.g:490:4: '(' 'not' atomicNameFormula ')'
 					{
-					char_literal408=(Token)match(input,64,FOLLOW_64_in_nameLiteral3201); if (state.failed) return retval; 
+					char_literal408=(Token)match(input,64,FOLLOW_64_in_nameLiteral3165); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal408);
 
-					string_literal409=(Token)match(input,123,FOLLOW_123_in_nameLiteral3203); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_123.add(string_literal409);
+					string_literal409=(Token)match(input,122,FOLLOW_122_in_nameLiteral3167); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_122.add(string_literal409);
 
-					pushFollow(FOLLOW_atomicNameFormula_in_nameLiteral3205);
+					pushFollow(FOLLOW_atomicNameFormula_in_nameLiteral3169);
 					atomicNameFormula410=atomicNameFormula();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_atomicNameFormula.add(atomicNameFormula410.getTree());
-					char_literal411=(Token)match(input,65,FOLLOW_65_in_nameLiteral3207); if (state.failed) return retval; 
+					char_literal411=(Token)match(input,65,FOLLOW_65_in_nameLiteral3171); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal411);
 
 					// AST REWRITE
@@ -10196,10 +10198,10 @@ public class PddlParser extends Parser {
 			// Pddl.g:494:2: ( '(' predicate ( NAME )* ')' -> ^( PRED_INST predicate ( NAME )* ) )
 			// Pddl.g:494:4: '(' predicate ( NAME )* ')'
 			{
-			char_literal412=(Token)match(input,64,FOLLOW_64_in_atomicNameFormula3226); if (state.failed) return retval; 
+			char_literal412=(Token)match(input,64,FOLLOW_64_in_atomicNameFormula3190); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal412);
 
-			pushFollow(FOLLOW_predicate_in_atomicNameFormula3228);
+			pushFollow(FOLLOW_predicate_in_atomicNameFormula3192);
 			predicate413=predicate();
 			state._fsp--;
 			if (state.failed) return retval;
@@ -10217,7 +10219,7 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:494:18: NAME
 					{
-					NAME414=(Token)match(input,NAME,FOLLOW_NAME_in_atomicNameFormula3230); if (state.failed) return retval; 
+					NAME414=(Token)match(input,NAME,FOLLOW_NAME_in_atomicNameFormula3194); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_NAME.add(NAME414);
 
 					}
@@ -10228,7 +10230,7 @@ public class PddlParser extends Parser {
 				}
 			}
 
-			char_literal415=(Token)match(input,65,FOLLOW_65_in_atomicNameFormula3233); if (state.failed) return retval; 
+			char_literal415=(Token)match(input,65,FOLLOW_65_in_atomicNameFormula3197); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal415);
 
 			// AST REWRITE
@@ -10319,18 +10321,18 @@ public class PddlParser extends Parser {
 			// Pddl.g:501:6: ( '(' ':goal' goalDesc ')' -> ^( GOAL goalDesc ) )
 			// Pddl.g:501:8: '(' ':goal' goalDesc ')'
 			{
-			char_literal416=(Token)match(input,64,FOLLOW_64_in_goal3258); if (state.failed) return retval; 
+			char_literal416=(Token)match(input,64,FOLLOW_64_in_goal3222); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal416);
 
-			string_literal417=(Token)match(input,83,FOLLOW_83_in_goal3260); if (state.failed) return retval; 
+			string_literal417=(Token)match(input,83,FOLLOW_83_in_goal3224); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_83.add(string_literal417);
 
-			pushFollow(FOLLOW_goalDesc_in_goal3262);
+			pushFollow(FOLLOW_goalDesc_in_goal3226);
 			goalDesc418=goalDesc();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_goalDesc.add(goalDesc418.getTree());
-			char_literal419=(Token)match(input,65,FOLLOW_65_in_goal3264); if (state.failed) return retval; 
+			char_literal419=(Token)match(input,65,FOLLOW_65_in_goal3228); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal419);
 
 			// AST REWRITE
@@ -10415,18 +10417,18 @@ public class PddlParser extends Parser {
 			// Pddl.g:504:2: ( '(' ':constraints' prefConGD ')' -> ^( PROBLEM_CONSTRAINT prefConGD ) )
 			// Pddl.g:504:4: '(' ':constraints' prefConGD ')'
 			{
-			char_literal420=(Token)match(input,64,FOLLOW_64_in_probConstraints3282); if (state.failed) return retval; 
+			char_literal420=(Token)match(input,64,FOLLOW_64_in_probConstraints3246); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal420);
 
-			string_literal421=(Token)match(input,74,FOLLOW_74_in_probConstraints3284); if (state.failed) return retval; 
+			string_literal421=(Token)match(input,74,FOLLOW_74_in_probConstraints3248); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_74.add(string_literal421);
 
-			pushFollow(FOLLOW_prefConGD_in_probConstraints3287);
+			pushFollow(FOLLOW_prefConGD_in_probConstraints3251);
 			prefConGD422=prefConGD();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_prefConGD.add(prefConGD422.getTree());
-			char_literal423=(Token)match(input,65,FOLLOW_65_in_probConstraints3289); if (state.failed) return retval; 
+			char_literal423=(Token)match(input,65,FOLLOW_65_in_probConstraints3253); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal423);
 
 			// AST REWRITE
@@ -10560,13 +10562,13 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal424=(Token)match(input,64,FOLLOW_64_in_prefConGD3311); if (state.failed) return retval;
+					char_literal424=(Token)match(input,64,FOLLOW_64_in_prefConGD3275); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal424_tree = (Object)adaptor.create(char_literal424);
 					adaptor.addChild(root_0, char_literal424_tree);
 					}
 
-					string_literal425=(Token)match(input,105,FOLLOW_105_in_prefConGD3313); if (state.failed) return retval;
+					string_literal425=(Token)match(input,103,FOLLOW_103_in_prefConGD3277); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal425_tree = (Object)adaptor.create(string_literal425);
 					adaptor.addChild(root_0, string_literal425_tree);
@@ -10585,7 +10587,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:509:14: prefConGD
 							{
-							pushFollow(FOLLOW_prefConGD_in_prefConGD3315);
+							pushFollow(FOLLOW_prefConGD_in_prefConGD3279);
 							prefConGD426=prefConGD();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -10599,7 +10601,7 @@ public class PddlParser extends Parser {
 						}
 					}
 
-					char_literal427=(Token)match(input,65,FOLLOW_65_in_prefConGD3318); if (state.failed) return retval;
+					char_literal427=(Token)match(input,65,FOLLOW_65_in_prefConGD3282); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal427_tree = (Object)adaptor.create(char_literal427);
 					adaptor.addChild(root_0, char_literal427_tree);
@@ -10613,43 +10615,43 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal428=(Token)match(input,64,FOLLOW_64_in_prefConGD3323); if (state.failed) return retval;
+					char_literal428=(Token)match(input,64,FOLLOW_64_in_prefConGD3287); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal428_tree = (Object)adaptor.create(char_literal428);
 					adaptor.addChild(root_0, char_literal428_tree);
 					}
 
-					string_literal429=(Token)match(input,115,FOLLOW_115_in_prefConGD3325); if (state.failed) return retval;
+					string_literal429=(Token)match(input,114,FOLLOW_114_in_prefConGD3289); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal429_tree = (Object)adaptor.create(string_literal429);
 					adaptor.addChild(root_0, string_literal429_tree);
 					}
 
-					char_literal430=(Token)match(input,64,FOLLOW_64_in_prefConGD3327); if (state.failed) return retval;
+					char_literal430=(Token)match(input,64,FOLLOW_64_in_prefConGD3291); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal430_tree = (Object)adaptor.create(char_literal430);
 					adaptor.addChild(root_0, char_literal430_tree);
 					}
 
-					pushFollow(FOLLOW_typedVariableList_in_prefConGD3329);
+					pushFollow(FOLLOW_typedVariableList_in_prefConGD3293);
 					typedVariableList431=typedVariableList();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, typedVariableList431.getTree());
 
-					char_literal432=(Token)match(input,65,FOLLOW_65_in_prefConGD3331); if (state.failed) return retval;
+					char_literal432=(Token)match(input,65,FOLLOW_65_in_prefConGD3295); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal432_tree = (Object)adaptor.create(char_literal432);
 					adaptor.addChild(root_0, char_literal432_tree);
 					}
 
-					pushFollow(FOLLOW_prefConGD_in_prefConGD3333);
+					pushFollow(FOLLOW_prefConGD_in_prefConGD3297);
 					prefConGD433=prefConGD();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, prefConGD433.getTree());
 
-					char_literal434=(Token)match(input,65,FOLLOW_65_in_prefConGD3335); if (state.failed) return retval;
+					char_literal434=(Token)match(input,65,FOLLOW_65_in_prefConGD3299); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal434_tree = (Object)adaptor.create(char_literal434);
 					adaptor.addChild(root_0, char_literal434_tree);
@@ -10663,13 +10665,13 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal435=(Token)match(input,64,FOLLOW_64_in_prefConGD3340); if (state.failed) return retval;
+					char_literal435=(Token)match(input,64,FOLLOW_64_in_prefConGD3304); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal435_tree = (Object)adaptor.create(char_literal435);
 					adaptor.addChild(root_0, char_literal435_tree);
 					}
 
-					string_literal436=(Token)match(input,127,FOLLOW_127_in_prefConGD3342); if (state.failed) return retval;
+					string_literal436=(Token)match(input,126,FOLLOW_126_in_prefConGD3306); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal436_tree = (Object)adaptor.create(string_literal436);
 					adaptor.addChild(root_0, string_literal436_tree);
@@ -10685,7 +10687,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:511:21: NAME
 							{
-							NAME437=(Token)match(input,NAME,FOLLOW_NAME_in_prefConGD3344); if (state.failed) return retval;
+							NAME437=(Token)match(input,NAME,FOLLOW_NAME_in_prefConGD3308); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
 							NAME437_tree = (Object)adaptor.create(NAME437);
 							adaptor.addChild(root_0, NAME437_tree);
@@ -10696,13 +10698,13 @@ public class PddlParser extends Parser {
 
 					}
 
-					pushFollow(FOLLOW_conGD_in_prefConGD3347);
+					pushFollow(FOLLOW_conGD_in_prefConGD3311);
 					conGD438=conGD();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, conGD438.getTree());
 
-					char_literal439=(Token)match(input,65,FOLLOW_65_in_prefConGD3349); if (state.failed) return retval;
+					char_literal439=(Token)match(input,65,FOLLOW_65_in_prefConGD3313); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal439_tree = (Object)adaptor.create(char_literal439);
 					adaptor.addChild(root_0, char_literal439_tree);
@@ -10716,7 +10718,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_conGD_in_prefConGD3354);
+					pushFollow(FOLLOW_conGD_in_prefConGD3318);
 					conGD440=conGD();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -10780,23 +10782,23 @@ public class PddlParser extends Parser {
 			// Pddl.g:516:2: ( '(' ':metric' optimization metricFExp ')' -> ^( PROBLEM_METRIC optimization metricFExp ) )
 			// Pddl.g:516:4: '(' ':metric' optimization metricFExp ')'
 			{
-			char_literal441=(Token)match(input,64,FOLLOW_64_in_metricSpec3365); if (state.failed) return retval; 
+			char_literal441=(Token)match(input,64,FOLLOW_64_in_metricSpec3329); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_64.add(char_literal441);
 
-			string_literal442=(Token)match(input,85,FOLLOW_85_in_metricSpec3367); if (state.failed) return retval; 
+			string_literal442=(Token)match(input,85,FOLLOW_85_in_metricSpec3331); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_85.add(string_literal442);
 
-			pushFollow(FOLLOW_optimization_in_metricSpec3369);
+			pushFollow(FOLLOW_optimization_in_metricSpec3333);
 			optimization443=optimization();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_optimization.add(optimization443.getTree());
-			pushFollow(FOLLOW_metricFExp_in_metricSpec3371);
+			pushFollow(FOLLOW_metricFExp_in_metricSpec3335);
 			metricFExp444=metricFExp();
 			state._fsp--;
 			if (state.failed) return retval;
 			if ( state.backtracking==0 ) stream_metricFExp.add(metricFExp444.getTree());
-			char_literal445=(Token)match(input,65,FOLLOW_65_in_metricSpec3373); if (state.failed) return retval; 
+			char_literal445=(Token)match(input,65,FOLLOW_65_in_metricSpec3337); if (state.failed) return retval; 
 			if ( state.backtracking==0 ) stream_65.add(char_literal445);
 
 			// AST REWRITE
@@ -10877,7 +10879,7 @@ public class PddlParser extends Parser {
 
 
 			set446=input.LT(1);
-			if ( (input.LA(1) >= 121 && input.LA(1) <= 122) ) {
+			if ( (input.LA(1) >= 120 && input.LA(1) <= 121) ) {
 				input.consume();
 				if ( state.backtracking==0 ) adaptor.addChild(root_0, (Object)adaptor.create(set446));
 				state.errorRecovery=false;
@@ -11011,25 +11013,25 @@ public class PddlParser extends Parser {
 				case 1 :
 					// Pddl.g:523:4: '(' binaryOp metricFExp metricFExp ')'
 					{
-					char_literal447=(Token)match(input,64,FOLLOW_64_in_metricFExp3410); if (state.failed) return retval; 
+					char_literal447=(Token)match(input,64,FOLLOW_64_in_metricFExp3374); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal447);
 
-					pushFollow(FOLLOW_binaryOp_in_metricFExp3412);
+					pushFollow(FOLLOW_binaryOp_in_metricFExp3376);
 					binaryOp448=binaryOp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_binaryOp.add(binaryOp448.getTree());
-					pushFollow(FOLLOW_metricFExp_in_metricFExp3414);
+					pushFollow(FOLLOW_metricFExp_in_metricFExp3378);
 					metricFExp449=metricFExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_metricFExp.add(metricFExp449.getTree());
-					pushFollow(FOLLOW_metricFExp_in_metricFExp3416);
+					pushFollow(FOLLOW_metricFExp_in_metricFExp3380);
 					metricFExp450=metricFExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_metricFExp.add(metricFExp450.getTree());
-					char_literal451=(Token)match(input,65,FOLLOW_65_in_metricFExp3418); if (state.failed) return retval; 
+					char_literal451=(Token)match(input,65,FOLLOW_65_in_metricFExp3382); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal451);
 
 					// AST REWRITE
@@ -11067,15 +11069,15 @@ public class PddlParser extends Parser {
 				case 2 :
 					// Pddl.g:525:4: '(' multiOp metricFExp ( metricFExp )+ ')'
 					{
-					char_literal452=(Token)match(input,64,FOLLOW_64_in_metricFExp3440); if (state.failed) return retval; 
+					char_literal452=(Token)match(input,64,FOLLOW_64_in_metricFExp3404); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal452);
 
-					pushFollow(FOLLOW_multiOp_in_metricFExp3442);
+					pushFollow(FOLLOW_multiOp_in_metricFExp3406);
 					multiOp453=multiOp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_multiOp.add(multiOp453.getTree());
-					pushFollow(FOLLOW_metricFExp_in_metricFExp3444);
+					pushFollow(FOLLOW_metricFExp_in_metricFExp3408);
 					metricFExp454=metricFExp();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -11094,7 +11096,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:525:27: metricFExp
 							{
-							pushFollow(FOLLOW_metricFExp_in_metricFExp3446);
+							pushFollow(FOLLOW_metricFExp_in_metricFExp3410);
 							metricFExp455=metricFExp();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -11111,7 +11113,7 @@ public class PddlParser extends Parser {
 						cnt76++;
 					}
 
-					char_literal456=(Token)match(input,65,FOLLOW_65_in_metricFExp3449); if (state.failed) return retval; 
+					char_literal456=(Token)match(input,65,FOLLOW_65_in_metricFExp3413); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal456);
 
 					// AST REWRITE
@@ -11156,18 +11158,18 @@ public class PddlParser extends Parser {
 				case 3 :
 					// Pddl.g:527:4: '(' '-' metricFExp ')'
 					{
-					char_literal457=(Token)match(input,64,FOLLOW_64_in_metricFExp3473); if (state.failed) return retval; 
+					char_literal457=(Token)match(input,64,FOLLOW_64_in_metricFExp3437); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_64.add(char_literal457);
 
-					char_literal458=(Token)match(input,68,FOLLOW_68_in_metricFExp3475); if (state.failed) return retval; 
+					char_literal458=(Token)match(input,68,FOLLOW_68_in_metricFExp3439); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_68.add(char_literal458);
 
-					pushFollow(FOLLOW_metricFExp_in_metricFExp3477);
+					pushFollow(FOLLOW_metricFExp_in_metricFExp3441);
 					metricFExp459=metricFExp();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_metricFExp.add(metricFExp459.getTree());
-					char_literal460=(Token)match(input,65,FOLLOW_65_in_metricFExp3479); if (state.failed) return retval; 
+					char_literal460=(Token)match(input,65,FOLLOW_65_in_metricFExp3443); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal460);
 
 					// AST REWRITE
@@ -11206,7 +11208,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					NUMBER461=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_metricFExp3496); if (state.failed) return retval;
+					NUMBER461=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_metricFExp3460); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER461_tree = (Object)adaptor.create(NUMBER461);
 					adaptor.addChild(root_0, NUMBER461_tree);
@@ -11220,7 +11222,7 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					pushFollow(FOLLOW_fHead_in_metricFExp3501);
+					pushFollow(FOLLOW_fHead_in_metricFExp3465);
 					fHead462=fHead();
 					state._fsp--;
 					if (state.failed) return retval;
@@ -11234,25 +11236,25 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal463=(Token)match(input,64,FOLLOW_64_in_metricFExp3516); if (state.failed) return retval;
+					char_literal463=(Token)match(input,64,FOLLOW_64_in_metricFExp3480); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal463_tree = (Object)adaptor.create(char_literal463);
 					adaptor.addChild(root_0, char_literal463_tree);
 					}
 
-					string_literal464=(Token)match(input,120,FOLLOW_120_in_metricFExp3518); if (state.failed) return retval;
+					string_literal464=(Token)match(input,119,FOLLOW_119_in_metricFExp3482); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal464_tree = (Object)adaptor.create(string_literal464);
 					adaptor.addChild(root_0, string_literal464_tree);
 					}
 
-					NAME465=(Token)match(input,NAME,FOLLOW_NAME_in_metricFExp3520); if (state.failed) return retval;
+					NAME465=(Token)match(input,NAME,FOLLOW_NAME_in_metricFExp3484); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NAME465_tree = (Object)adaptor.create(NAME465);
 					adaptor.addChild(root_0, NAME465_tree);
 					}
 
-					char_literal466=(Token)match(input,65,FOLLOW_65_in_metricFExp3522); if (state.failed) return retval;
+					char_literal466=(Token)match(input,65,FOLLOW_65_in_metricFExp3486); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal466_tree = (Object)adaptor.create(char_literal466);
 					adaptor.addChild(root_0, char_literal466_tree);
@@ -11409,22 +11411,22 @@ public class PddlParser extends Parser {
 			int LA79_0 = input.LA(1);
 			if ( (LA79_0==64) ) {
 				switch ( input.LA(2) ) {
-				case 105:
+				case 103:
 					{
 					alt79=1;
 					}
 					break;
-				case 115:
+				case 114:
 					{
 					alt79=2;
 					}
 					break;
-				case 107:
+				case 105:
 					{
 					alt79=3;
 					}
 					break;
-				case 103:
+				case 101:
 					{
 					alt79=4;
 					}
@@ -11439,7 +11441,7 @@ public class PddlParser extends Parser {
 					alt79=6;
 					}
 					break;
-				case 108:
+				case 106:
 					{
 					alt79=7;
 					}
@@ -11454,17 +11456,17 @@ public class PddlParser extends Parser {
 					alt79=9;
 					}
 					break;
-				case 104:
+				case 102:
 					{
 					alt79=10;
 					}
 					break;
-				case 117:
+				case 116:
 					{
 					alt79=11;
 					}
 					break;
-				case 116:
+				case 115:
 					{
 					alt79=12;
 					}
@@ -11497,13 +11499,13 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal467=(Token)match(input,64,FOLLOW_64_in_conGD3536); if (state.failed) return retval;
+					char_literal467=(Token)match(input,64,FOLLOW_64_in_conGD3500); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal467_tree = (Object)adaptor.create(char_literal467);
 					adaptor.addChild(root_0, char_literal467_tree);
 					}
 
-					string_literal468=(Token)match(input,105,FOLLOW_105_in_conGD3538); if (state.failed) return retval;
+					string_literal468=(Token)match(input,103,FOLLOW_103_in_conGD3502); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal468_tree = (Object)adaptor.create(string_literal468);
 					adaptor.addChild(root_0, string_literal468_tree);
@@ -11522,7 +11524,7 @@ public class PddlParser extends Parser {
 						case 1 :
 							// Pddl.g:538:14: conGD
 							{
-							pushFollow(FOLLOW_conGD_in_conGD3540);
+							pushFollow(FOLLOW_conGD_in_conGD3504);
 							conGD469=conGD();
 							state._fsp--;
 							if (state.failed) return retval;
@@ -11536,7 +11538,7 @@ public class PddlParser extends Parser {
 						}
 					}
 
-					char_literal470=(Token)match(input,65,FOLLOW_65_in_conGD3543); if (state.failed) return retval;
+					char_literal470=(Token)match(input,65,FOLLOW_65_in_conGD3507); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal470_tree = (Object)adaptor.create(char_literal470);
 					adaptor.addChild(root_0, char_literal470_tree);
@@ -11550,43 +11552,43 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal471=(Token)match(input,64,FOLLOW_64_in_conGD3548); if (state.failed) return retval;
+					char_literal471=(Token)match(input,64,FOLLOW_64_in_conGD3512); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal471_tree = (Object)adaptor.create(char_literal471);
 					adaptor.addChild(root_0, char_literal471_tree);
 					}
 
-					string_literal472=(Token)match(input,115,FOLLOW_115_in_conGD3550); if (state.failed) return retval;
+					string_literal472=(Token)match(input,114,FOLLOW_114_in_conGD3514); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal472_tree = (Object)adaptor.create(string_literal472);
 					adaptor.addChild(root_0, string_literal472_tree);
 					}
 
-					char_literal473=(Token)match(input,64,FOLLOW_64_in_conGD3552); if (state.failed) return retval;
+					char_literal473=(Token)match(input,64,FOLLOW_64_in_conGD3516); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal473_tree = (Object)adaptor.create(char_literal473);
 					adaptor.addChild(root_0, char_literal473_tree);
 					}
 
-					pushFollow(FOLLOW_typedVariableList_in_conGD3554);
+					pushFollow(FOLLOW_typedVariableList_in_conGD3518);
 					typedVariableList474=typedVariableList();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, typedVariableList474.getTree());
 
-					char_literal475=(Token)match(input,65,FOLLOW_65_in_conGD3556); if (state.failed) return retval;
+					char_literal475=(Token)match(input,65,FOLLOW_65_in_conGD3520); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal475_tree = (Object)adaptor.create(char_literal475);
 					adaptor.addChild(root_0, char_literal475_tree);
 					}
 
-					pushFollow(FOLLOW_conGD_in_conGD3558);
+					pushFollow(FOLLOW_conGD_in_conGD3522);
 					conGD476=conGD();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, conGD476.getTree());
 
-					char_literal477=(Token)match(input,65,FOLLOW_65_in_conGD3560); if (state.failed) return retval;
+					char_literal477=(Token)match(input,65,FOLLOW_65_in_conGD3524); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal477_tree = (Object)adaptor.create(char_literal477);
 					adaptor.addChild(root_0, char_literal477_tree);
@@ -11600,31 +11602,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal478=(Token)match(input,64,FOLLOW_64_in_conGD3565); if (state.failed) return retval;
+					char_literal478=(Token)match(input,64,FOLLOW_64_in_conGD3529); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal478_tree = (Object)adaptor.create(char_literal478);
 					adaptor.addChild(root_0, char_literal478_tree);
 					}
 
-					string_literal479=(Token)match(input,107,FOLLOW_107_in_conGD3567); if (state.failed) return retval;
+					string_literal479=(Token)match(input,105,FOLLOW_105_in_conGD3531); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal479_tree = (Object)adaptor.create(string_literal479);
 					adaptor.addChild(root_0, string_literal479_tree);
 					}
 
-					string_literal480=(Token)match(input,113,FOLLOW_113_in_conGD3569); if (state.failed) return retval;
+					string_literal480=(Token)match(input,112,FOLLOW_112_in_conGD3533); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal480_tree = (Object)adaptor.create(string_literal480);
 					adaptor.addChild(root_0, string_literal480_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3571);
+					pushFollow(FOLLOW_goalDesc_in_conGD3535);
 					goalDesc481=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc481.getTree());
 
-					char_literal482=(Token)match(input,65,FOLLOW_65_in_conGD3573); if (state.failed) return retval;
+					char_literal482=(Token)match(input,65,FOLLOW_65_in_conGD3537); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal482_tree = (Object)adaptor.create(char_literal482);
 					adaptor.addChild(root_0, char_literal482_tree);
@@ -11638,25 +11640,25 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal483=(Token)match(input,64,FOLLOW_64_in_conGD3599); if (state.failed) return retval;
+					char_literal483=(Token)match(input,64,FOLLOW_64_in_conGD3563); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal483_tree = (Object)adaptor.create(char_literal483);
 					adaptor.addChild(root_0, char_literal483_tree);
 					}
 
-					string_literal484=(Token)match(input,103,FOLLOW_103_in_conGD3601); if (state.failed) return retval;
+					string_literal484=(Token)match(input,101,FOLLOW_101_in_conGD3565); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal484_tree = (Object)adaptor.create(string_literal484);
 					adaptor.addChild(root_0, string_literal484_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3603);
+					pushFollow(FOLLOW_goalDesc_in_conGD3567);
 					goalDesc485=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc485.getTree());
 
-					char_literal486=(Token)match(input,65,FOLLOW_65_in_conGD3605); if (state.failed) return retval;
+					char_literal486=(Token)match(input,65,FOLLOW_65_in_conGD3569); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal486_tree = (Object)adaptor.create(char_literal486);
 					adaptor.addChild(root_0, char_literal486_tree);
@@ -11670,25 +11672,25 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal487=(Token)match(input,64,FOLLOW_64_in_conGD3610); if (state.failed) return retval;
+					char_literal487=(Token)match(input,64,FOLLOW_64_in_conGD3574); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal487_tree = (Object)adaptor.create(char_literal487);
 					adaptor.addChild(root_0, char_literal487_tree);
 					}
 
-					string_literal488=(Token)match(input,131,FOLLOW_131_in_conGD3612); if (state.failed) return retval;
+					string_literal488=(Token)match(input,131,FOLLOW_131_in_conGD3576); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal488_tree = (Object)adaptor.create(string_literal488);
 					adaptor.addChild(root_0, string_literal488_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3614);
+					pushFollow(FOLLOW_goalDesc_in_conGD3578);
 					goalDesc489=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc489.getTree());
 
-					char_literal490=(Token)match(input,65,FOLLOW_65_in_conGD3616); if (state.failed) return retval;
+					char_literal490=(Token)match(input,65,FOLLOW_65_in_conGD3580); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal490_tree = (Object)adaptor.create(char_literal490);
 					adaptor.addChild(root_0, char_literal490_tree);
@@ -11702,31 +11704,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal491=(Token)match(input,64,FOLLOW_64_in_conGD3622); if (state.failed) return retval;
+					char_literal491=(Token)match(input,64,FOLLOW_64_in_conGD3586); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal491_tree = (Object)adaptor.create(char_literal491);
 					adaptor.addChild(root_0, char_literal491_tree);
 					}
 
-					string_literal492=(Token)match(input,136,FOLLOW_136_in_conGD3624); if (state.failed) return retval;
+					string_literal492=(Token)match(input,136,FOLLOW_136_in_conGD3588); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal492_tree = (Object)adaptor.create(string_literal492);
 					adaptor.addChild(root_0, string_literal492_tree);
 					}
 
-					NUMBER493=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3626); if (state.failed) return retval;
+					NUMBER493=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3590); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER493_tree = (Object)adaptor.create(NUMBER493);
 					adaptor.addChild(root_0, NUMBER493_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3628);
+					pushFollow(FOLLOW_goalDesc_in_conGD3592);
 					goalDesc494=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc494.getTree());
 
-					char_literal495=(Token)match(input,65,FOLLOW_65_in_conGD3630); if (state.failed) return retval;
+					char_literal495=(Token)match(input,65,FOLLOW_65_in_conGD3594); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal495_tree = (Object)adaptor.create(char_literal495);
 					adaptor.addChild(root_0, char_literal495_tree);
@@ -11740,25 +11742,25 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal496=(Token)match(input,64,FOLLOW_64_in_conGD3635); if (state.failed) return retval;
+					char_literal496=(Token)match(input,64,FOLLOW_64_in_conGD3599); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal496_tree = (Object)adaptor.create(char_literal496);
 					adaptor.addChild(root_0, char_literal496_tree);
 					}
 
-					string_literal497=(Token)match(input,108,FOLLOW_108_in_conGD3637); if (state.failed) return retval;
+					string_literal497=(Token)match(input,106,FOLLOW_106_in_conGD3601); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal497_tree = (Object)adaptor.create(string_literal497);
 					adaptor.addChild(root_0, string_literal497_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3639);
+					pushFollow(FOLLOW_goalDesc_in_conGD3603);
 					goalDesc498=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc498.getTree());
 
-					char_literal499=(Token)match(input,65,FOLLOW_65_in_conGD3641); if (state.failed) return retval;
+					char_literal499=(Token)match(input,65,FOLLOW_65_in_conGD3605); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal499_tree = (Object)adaptor.create(char_literal499);
 					adaptor.addChild(root_0, char_literal499_tree);
@@ -11772,31 +11774,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal500=(Token)match(input,64,FOLLOW_64_in_conGD3646); if (state.failed) return retval;
+					char_literal500=(Token)match(input,64,FOLLOW_64_in_conGD3610); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal500_tree = (Object)adaptor.create(char_literal500);
 					adaptor.addChild(root_0, char_literal500_tree);
 					}
 
-					string_literal501=(Token)match(input,132,FOLLOW_132_in_conGD3648); if (state.failed) return retval;
+					string_literal501=(Token)match(input,132,FOLLOW_132_in_conGD3612); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal501_tree = (Object)adaptor.create(string_literal501);
 					adaptor.addChild(root_0, string_literal501_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3650);
+					pushFollow(FOLLOW_goalDesc_in_conGD3614);
 					goalDesc502=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc502.getTree());
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3652);
+					pushFollow(FOLLOW_goalDesc_in_conGD3616);
 					goalDesc503=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc503.getTree());
 
-					char_literal504=(Token)match(input,65,FOLLOW_65_in_conGD3654); if (state.failed) return retval;
+					char_literal504=(Token)match(input,65,FOLLOW_65_in_conGD3618); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal504_tree = (Object)adaptor.create(char_literal504);
 					adaptor.addChild(root_0, char_literal504_tree);
@@ -11810,31 +11812,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal505=(Token)match(input,64,FOLLOW_64_in_conGD3659); if (state.failed) return retval;
+					char_literal505=(Token)match(input,64,FOLLOW_64_in_conGD3623); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal505_tree = (Object)adaptor.create(char_literal505);
 					adaptor.addChild(root_0, char_literal505_tree);
 					}
 
-					string_literal506=(Token)match(input,133,FOLLOW_133_in_conGD3661); if (state.failed) return retval;
+					string_literal506=(Token)match(input,133,FOLLOW_133_in_conGD3625); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal506_tree = (Object)adaptor.create(string_literal506);
 					adaptor.addChild(root_0, string_literal506_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3663);
+					pushFollow(FOLLOW_goalDesc_in_conGD3627);
 					goalDesc507=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc507.getTree());
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3665);
+					pushFollow(FOLLOW_goalDesc_in_conGD3629);
 					goalDesc508=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc508.getTree());
 
-					char_literal509=(Token)match(input,65,FOLLOW_65_in_conGD3667); if (state.failed) return retval;
+					char_literal509=(Token)match(input,65,FOLLOW_65_in_conGD3631); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal509_tree = (Object)adaptor.create(char_literal509);
 					adaptor.addChild(root_0, char_literal509_tree);
@@ -11848,37 +11850,37 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal510=(Token)match(input,64,FOLLOW_64_in_conGD3672); if (state.failed) return retval;
+					char_literal510=(Token)match(input,64,FOLLOW_64_in_conGD3636); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal510_tree = (Object)adaptor.create(char_literal510);
 					adaptor.addChild(root_0, char_literal510_tree);
 					}
 
-					string_literal511=(Token)match(input,104,FOLLOW_104_in_conGD3674); if (state.failed) return retval;
+					string_literal511=(Token)match(input,102,FOLLOW_102_in_conGD3638); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal511_tree = (Object)adaptor.create(string_literal511);
 					adaptor.addChild(root_0, string_literal511_tree);
 					}
 
-					NUMBER512=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3676); if (state.failed) return retval;
+					NUMBER512=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3640); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER512_tree = (Object)adaptor.create(NUMBER512);
 					adaptor.addChild(root_0, NUMBER512_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3678);
+					pushFollow(FOLLOW_goalDesc_in_conGD3642);
 					goalDesc513=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc513.getTree());
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3680);
+					pushFollow(FOLLOW_goalDesc_in_conGD3644);
 					goalDesc514=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc514.getTree());
 
-					char_literal515=(Token)match(input,65,FOLLOW_65_in_conGD3682); if (state.failed) return retval;
+					char_literal515=(Token)match(input,65,FOLLOW_65_in_conGD3646); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal515_tree = (Object)adaptor.create(char_literal515);
 					adaptor.addChild(root_0, char_literal515_tree);
@@ -11892,37 +11894,37 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal516=(Token)match(input,64,FOLLOW_64_in_conGD3687); if (state.failed) return retval;
+					char_literal516=(Token)match(input,64,FOLLOW_64_in_conGD3651); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal516_tree = (Object)adaptor.create(char_literal516);
 					adaptor.addChild(root_0, char_literal516_tree);
 					}
 
-					string_literal517=(Token)match(input,117,FOLLOW_117_in_conGD3689); if (state.failed) return retval;
+					string_literal517=(Token)match(input,116,FOLLOW_116_in_conGD3653); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal517_tree = (Object)adaptor.create(string_literal517);
 					adaptor.addChild(root_0, string_literal517_tree);
 					}
 
-					NUMBER518=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3691); if (state.failed) return retval;
+					NUMBER518=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3655); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER518_tree = (Object)adaptor.create(NUMBER518);
 					adaptor.addChild(root_0, NUMBER518_tree);
 					}
 
-					NUMBER519=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3693); if (state.failed) return retval;
+					NUMBER519=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3657); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER519_tree = (Object)adaptor.create(NUMBER519);
 					adaptor.addChild(root_0, NUMBER519_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3695);
+					pushFollow(FOLLOW_goalDesc_in_conGD3659);
 					goalDesc520=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc520.getTree());
 
-					char_literal521=(Token)match(input,65,FOLLOW_65_in_conGD3697); if (state.failed) return retval;
+					char_literal521=(Token)match(input,65,FOLLOW_65_in_conGD3661); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal521_tree = (Object)adaptor.create(char_literal521);
 					adaptor.addChild(root_0, char_literal521_tree);
@@ -11936,31 +11938,31 @@ public class PddlParser extends Parser {
 					root_0 = (Object)adaptor.nil();
 
 
-					char_literal522=(Token)match(input,64,FOLLOW_64_in_conGD3702); if (state.failed) return retval;
+					char_literal522=(Token)match(input,64,FOLLOW_64_in_conGD3666); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal522_tree = (Object)adaptor.create(char_literal522);
 					adaptor.addChild(root_0, char_literal522_tree);
 					}
 
-					string_literal523=(Token)match(input,116,FOLLOW_116_in_conGD3704); if (state.failed) return retval;
+					string_literal523=(Token)match(input,115,FOLLOW_115_in_conGD3668); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					string_literal523_tree = (Object)adaptor.create(string_literal523);
 					adaptor.addChild(root_0, string_literal523_tree);
 					}
 
-					NUMBER524=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3706); if (state.failed) return retval;
+					NUMBER524=(Token)match(input,NUMBER,FOLLOW_NUMBER_in_conGD3670); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					NUMBER524_tree = (Object)adaptor.create(NUMBER524);
 					adaptor.addChild(root_0, NUMBER524_tree);
 					}
 
-					pushFollow(FOLLOW_goalDesc_in_conGD3708);
+					pushFollow(FOLLOW_goalDesc_in_conGD3672);
 					goalDesc525=goalDesc();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) adaptor.addChild(root_0, goalDesc525.getTree());
 
-					char_literal526=(Token)match(input,65,FOLLOW_65_in_conGD3710); if (state.failed) return retval;
+					char_literal526=(Token)match(input,65,FOLLOW_65_in_conGD3674); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
 					char_literal526_tree = (Object)adaptor.create(char_literal526);
 					adaptor.addChild(root_0, char_literal526_tree);
@@ -12086,19 +12088,19 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start synpred66_Pddl
 	public final void synpred66_Pddl_fragment() throws RecognitionException {
-		// Pddl.g:351:25: ( '(' 'SIN' fExp ')' )
-		// Pddl.g:351:25: '(' 'SIN' fExp ')'
+		// Pddl.g:351:7: ( '(' 'sin' fExp ')' )
+		// Pddl.g:351:7: '(' 'sin' fExp ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred66_Pddl2194); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred66_Pddl2176); if (state.failed) return;
 
-		match(input,100,FOLLOW_100_in_synpred66_Pddl2196); if (state.failed) return;
+		match(input,130,FOLLOW_130_in_synpred66_Pddl2178); if (state.failed) return;
 
-		pushFollow(FOLLOW_fExp_in_synpred66_Pddl2198);
+		pushFollow(FOLLOW_fExp_in_synpred66_Pddl2180);
 		fExp();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred66_Pddl2200); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred66_Pddl2182); if (state.failed) return;
 
 		}
 
@@ -12107,19 +12109,19 @@ public class PddlParser extends Parser {
 
 	// $ANTLR start synpred67_Pddl
 	public final void synpred67_Pddl_fragment() throws RecognitionException {
-		// Pddl.g:352:25: ( '(' 'COS' fExp ')' )
-		// Pddl.g:352:25: '(' 'COS' fExp ')'
+		// Pddl.g:352:7: ( '(' 'cos' fExp ')' )
+		// Pddl.g:352:7: '(' 'cos' fExp ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred67_Pddl2234); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred67_Pddl2198); if (state.failed) return;
 
-		match(input,99,FOLLOW_99_in_synpred67_Pddl2236); if (state.failed) return;
+		match(input,107,FOLLOW_107_in_synpred67_Pddl2200); if (state.failed) return;
 
-		pushFollow(FOLLOW_fExp_in_synpred67_Pddl2238);
+		pushFollow(FOLLOW_fExp_in_synpred67_Pddl2202);
 		fExp();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred67_Pddl2240); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred67_Pddl2204); if (state.failed) return;
 
 		}
 
@@ -12131,7 +12133,7 @@ public class PddlParser extends Parser {
 		// Pddl.g:419:12: ( NUMBER )
 		// Pddl.g:419:12: NUMBER
 		{
-		match(input,NUMBER,FOLLOW_NUMBER_in_synpred97_Pddl2683); if (state.failed) return;
+		match(input,NUMBER,FOLLOW_NUMBER_in_synpred97_Pddl2647); if (state.failed) return;
 
 		}
 
@@ -12143,9 +12145,9 @@ public class PddlParser extends Parser {
 		// Pddl.g:422:4: ( '(' 'and' ( daEffect )* ')' )
 		// Pddl.g:422:4: '(' 'and' ( daEffect )* ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred99_Pddl2697); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred99_Pddl2661); if (state.failed) return;
 
-		match(input,105,FOLLOW_105_in_synpred99_Pddl2699); if (state.failed) return;
+		match(input,103,FOLLOW_103_in_synpred99_Pddl2663); if (state.failed) return;
 
 		// Pddl.g:422:14: ( daEffect )*
 		loop96:
@@ -12160,7 +12162,7 @@ public class PddlParser extends Parser {
 			case 1 :
 				// Pddl.g:422:14: daEffect
 				{
-				pushFollow(FOLLOW_daEffect_in_synpred99_Pddl2701);
+				pushFollow(FOLLOW_daEffect_in_synpred99_Pddl2665);
 				daEffect();
 				state._fsp--;
 				if (state.failed) return;
@@ -12173,7 +12175,7 @@ public class PddlParser extends Parser {
 			}
 		}
 
-		match(input,65,FOLLOW_65_in_synpred99_Pddl2704); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred99_Pddl2668); if (state.failed) return;
 
 		}
 
@@ -12185,7 +12187,7 @@ public class PddlParser extends Parser {
 		// Pddl.g:423:4: ( timedEffect )
 		// Pddl.g:423:4: timedEffect
 		{
-		pushFollow(FOLLOW_timedEffect_in_synpred100_Pddl2709);
+		pushFollow(FOLLOW_timedEffect_in_synpred100_Pddl2673);
 		timedEffect();
 		state._fsp--;
 		if (state.failed) return;
@@ -12200,25 +12202,25 @@ public class PddlParser extends Parser {
 		// Pddl.g:424:4: ( '(' 'forall' '(' typedVariableList ')' daEffect ')' )
 		// Pddl.g:424:4: '(' 'forall' '(' typedVariableList ')' daEffect ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred101_Pddl2714); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred101_Pddl2678); if (state.failed) return;
 
-		match(input,115,FOLLOW_115_in_synpred101_Pddl2716); if (state.failed) return;
+		match(input,114,FOLLOW_114_in_synpred101_Pddl2680); if (state.failed) return;
 
-		match(input,64,FOLLOW_64_in_synpred101_Pddl2718); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred101_Pddl2682); if (state.failed) return;
 
-		pushFollow(FOLLOW_typedVariableList_in_synpred101_Pddl2720);
+		pushFollow(FOLLOW_typedVariableList_in_synpred101_Pddl2684);
 		typedVariableList();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred101_Pddl2722); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred101_Pddl2686); if (state.failed) return;
 
-		pushFollow(FOLLOW_daEffect_in_synpred101_Pddl2724);
+		pushFollow(FOLLOW_daEffect_in_synpred101_Pddl2688);
 		daEffect();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred101_Pddl2726); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred101_Pddl2690); if (state.failed) return;
 
 		}
 
@@ -12230,21 +12232,21 @@ public class PddlParser extends Parser {
 		// Pddl.g:425:4: ( '(' 'when' daGD timedEffect ')' )
 		// Pddl.g:425:4: '(' 'when' daGD timedEffect ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred102_Pddl2731); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred102_Pddl2695); if (state.failed) return;
 
-		match(input,135,FOLLOW_135_in_synpred102_Pddl2733); if (state.failed) return;
+		match(input,135,FOLLOW_135_in_synpred102_Pddl2697); if (state.failed) return;
 
-		pushFollow(FOLLOW_daGD_in_synpred102_Pddl2735);
+		pushFollow(FOLLOW_daGD_in_synpred102_Pddl2699);
 		daGD();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_timedEffect_in_synpred102_Pddl2737);
+		pushFollow(FOLLOW_timedEffect_in_synpred102_Pddl2701);
 		timedEffect();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred102_Pddl2739); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred102_Pddl2703); if (state.failed) return;
 
 		}
 
@@ -12256,21 +12258,21 @@ public class PddlParser extends Parser {
 		// Pddl.g:430:4: ( '(' 'at' timeSpecifier daEffect ')' )
 		// Pddl.g:430:4: '(' 'at' timeSpecifier daEffect ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred103_Pddl2763); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred103_Pddl2727); if (state.failed) return;
 
-		match(input,107,FOLLOW_107_in_synpred103_Pddl2765); if (state.failed) return;
+		match(input,105,FOLLOW_105_in_synpred103_Pddl2729); if (state.failed) return;
 
-		pushFollow(FOLLOW_timeSpecifier_in_synpred103_Pddl2767);
+		pushFollow(FOLLOW_timeSpecifier_in_synpred103_Pddl2731);
 		timeSpecifier();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_daEffect_in_synpred103_Pddl2769);
+		pushFollow(FOLLOW_daEffect_in_synpred103_Pddl2733);
 		daEffect();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred103_Pddl2771); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred103_Pddl2735); if (state.failed) return;
 
 		}
 
@@ -12282,21 +12284,21 @@ public class PddlParser extends Parser {
 		// Pddl.g:431:4: ( '(' 'at' timeSpecifier fAssignDA ')' )
 		// Pddl.g:431:4: '(' 'at' timeSpecifier fAssignDA ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred104_Pddl2781); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred104_Pddl2745); if (state.failed) return;
 
-		match(input,107,FOLLOW_107_in_synpred104_Pddl2783); if (state.failed) return;
+		match(input,105,FOLLOW_105_in_synpred104_Pddl2747); if (state.failed) return;
 
-		pushFollow(FOLLOW_timeSpecifier_in_synpred104_Pddl2785);
+		pushFollow(FOLLOW_timeSpecifier_in_synpred104_Pddl2749);
 		timeSpecifier();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_fAssignDA_in_synpred104_Pddl2787);
+		pushFollow(FOLLOW_fAssignDA_in_synpred104_Pddl2751);
 		fAssignDA();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred104_Pddl2789); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred104_Pddl2753); if (state.failed) return;
 
 		}
 
@@ -12311,17 +12313,17 @@ public class PddlParser extends Parser {
 		// Pddl.g:440:9: ( binaryOp fExpDA fExpDA )
 		// Pddl.g:440:10: binaryOp fExpDA fExpDA
 		{
-		pushFollow(FOLLOW_binaryOp_in_synpred105_Pddl2845);
+		pushFollow(FOLLOW_binaryOp_in_synpred105_Pddl2809);
 		binaryOp();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_fExpDA_in_synpred105_Pddl2847);
+		pushFollow(FOLLOW_fExpDA_in_synpred105_Pddl2811);
 		fExpDA();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_fExpDA_in_synpred105_Pddl2849);
+		pushFollow(FOLLOW_fExpDA_in_synpred105_Pddl2813);
 		fExpDA();
 		state._fsp--;
 		if (state.failed) return;
@@ -12338,7 +12340,7 @@ public class PddlParser extends Parser {
 		// Pddl.g:440:4: ( '(' ( ( binaryOp fExpDA fExpDA ) | ( '-' fExpDA ) ) ')' )
 		// Pddl.g:440:4: '(' ( ( binaryOp fExpDA fExpDA ) | ( '-' fExpDA ) ) ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred106_Pddl2841); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred106_Pddl2805); if (state.failed) return;
 
 		// Pddl.g:440:8: ( ( binaryOp fExpDA fExpDA ) | ( '-' fExpDA ) )
 		int alt97=2;
@@ -12353,7 +12355,7 @@ public class PddlParser extends Parser {
 			}
 
 		}
-		else if ( ((LA97_0 >= 66 && LA97_0 <= 67)||LA97_0==69||LA97_0==101) ) {
+		else if ( ((LA97_0 >= 66 && LA97_0 <= 67)||LA97_0==69||LA97_0==99) ) {
 			alt97=1;
 		}
 
@@ -12371,17 +12373,17 @@ public class PddlParser extends Parser {
 				// Pddl.g:440:9: ( binaryOp fExpDA fExpDA )
 				// Pddl.g:440:10: binaryOp fExpDA fExpDA
 				{
-				pushFollow(FOLLOW_binaryOp_in_synpred106_Pddl2845);
+				pushFollow(FOLLOW_binaryOp_in_synpred106_Pddl2809);
 				binaryOp();
 				state._fsp--;
 				if (state.failed) return;
 
-				pushFollow(FOLLOW_fExpDA_in_synpred106_Pddl2847);
+				pushFollow(FOLLOW_fExpDA_in_synpred106_Pddl2811);
 				fExpDA();
 				state._fsp--;
 				if (state.failed) return;
 
-				pushFollow(FOLLOW_fExpDA_in_synpred106_Pddl2849);
+				pushFollow(FOLLOW_fExpDA_in_synpred106_Pddl2813);
 				fExpDA();
 				state._fsp--;
 				if (state.failed) return;
@@ -12396,9 +12398,9 @@ public class PddlParser extends Parser {
 				// Pddl.g:440:36: ( '-' fExpDA )
 				// Pddl.g:440:37: '-' fExpDA
 				{
-				match(input,68,FOLLOW_68_in_synpred106_Pddl2855); if (state.failed) return;
+				match(input,68,FOLLOW_68_in_synpred106_Pddl2819); if (state.failed) return;
 
-				pushFollow(FOLLOW_fExpDA_in_synpred106_Pddl2857);
+				pushFollow(FOLLOW_fExpDA_in_synpred106_Pddl2821);
 				fExpDA();
 				state._fsp--;
 				if (state.failed) return;
@@ -12410,7 +12412,7 @@ public class PddlParser extends Parser {
 
 		}
 
-		match(input,65,FOLLOW_65_in_synpred106_Pddl2861); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred106_Pddl2825); if (state.failed) return;
 
 		}
 
@@ -12422,9 +12424,9 @@ public class PddlParser extends Parser {
 		// Pddl.g:509:4: ( '(' 'and' ( prefConGD )* ')' )
 		// Pddl.g:509:4: '(' 'and' ( prefConGD )* ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred118_Pddl3311); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred118_Pddl3275); if (state.failed) return;
 
-		match(input,105,FOLLOW_105_in_synpred118_Pddl3313); if (state.failed) return;
+		match(input,103,FOLLOW_103_in_synpred118_Pddl3277); if (state.failed) return;
 
 		// Pddl.g:509:14: ( prefConGD )*
 		loop98:
@@ -12439,7 +12441,7 @@ public class PddlParser extends Parser {
 			case 1 :
 				// Pddl.g:509:14: prefConGD
 				{
-				pushFollow(FOLLOW_prefConGD_in_synpred118_Pddl3315);
+				pushFollow(FOLLOW_prefConGD_in_synpred118_Pddl3279);
 				prefConGD();
 				state._fsp--;
 				if (state.failed) return;
@@ -12452,7 +12454,7 @@ public class PddlParser extends Parser {
 			}
 		}
 
-		match(input,65,FOLLOW_65_in_synpred118_Pddl3318); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred118_Pddl3282); if (state.failed) return;
 
 		}
 
@@ -12464,25 +12466,25 @@ public class PddlParser extends Parser {
 		// Pddl.g:510:4: ( '(' 'forall' '(' typedVariableList ')' prefConGD ')' )
 		// Pddl.g:510:4: '(' 'forall' '(' typedVariableList ')' prefConGD ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred119_Pddl3323); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred119_Pddl3287); if (state.failed) return;
 
-		match(input,115,FOLLOW_115_in_synpred119_Pddl3325); if (state.failed) return;
+		match(input,114,FOLLOW_114_in_synpred119_Pddl3289); if (state.failed) return;
 
-		match(input,64,FOLLOW_64_in_synpred119_Pddl3327); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred119_Pddl3291); if (state.failed) return;
 
-		pushFollow(FOLLOW_typedVariableList_in_synpred119_Pddl3329);
+		pushFollow(FOLLOW_typedVariableList_in_synpred119_Pddl3293);
 		typedVariableList();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred119_Pddl3331); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred119_Pddl3295); if (state.failed) return;
 
-		pushFollow(FOLLOW_prefConGD_in_synpred119_Pddl3333);
+		pushFollow(FOLLOW_prefConGD_in_synpred119_Pddl3297);
 		prefConGD();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred119_Pddl3335); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred119_Pddl3299); if (state.failed) return;
 
 		}
 
@@ -12494,9 +12496,9 @@ public class PddlParser extends Parser {
 		// Pddl.g:511:4: ( '(' 'preference' ( NAME )? conGD ')' )
 		// Pddl.g:511:4: '(' 'preference' ( NAME )? conGD ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred121_Pddl3340); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred121_Pddl3304); if (state.failed) return;
 
-		match(input,127,FOLLOW_127_in_synpred121_Pddl3342); if (state.failed) return;
+		match(input,126,FOLLOW_126_in_synpred121_Pddl3306); if (state.failed) return;
 
 		// Pddl.g:511:21: ( NAME )?
 		int alt99=2;
@@ -12508,19 +12510,19 @@ public class PddlParser extends Parser {
 			case 1 :
 				// Pddl.g:511:21: NAME
 				{
-				match(input,NAME,FOLLOW_NAME_in_synpred121_Pddl3344); if (state.failed) return;
+				match(input,NAME,FOLLOW_NAME_in_synpred121_Pddl3308); if (state.failed) return;
 
 				}
 				break;
 
 		}
 
-		pushFollow(FOLLOW_conGD_in_synpred121_Pddl3347);
+		pushFollow(FOLLOW_conGD_in_synpred121_Pddl3311);
 		conGD();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred121_Pddl3349); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred121_Pddl3313); if (state.failed) return;
 
 		}
 
@@ -12532,24 +12534,24 @@ public class PddlParser extends Parser {
 		// Pddl.g:523:4: ( '(' binaryOp metricFExp metricFExp ')' )
 		// Pddl.g:523:4: '(' binaryOp metricFExp metricFExp ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred123_Pddl3410); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred123_Pddl3374); if (state.failed) return;
 
-		pushFollow(FOLLOW_binaryOp_in_synpred123_Pddl3412);
+		pushFollow(FOLLOW_binaryOp_in_synpred123_Pddl3376);
 		binaryOp();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_metricFExp_in_synpred123_Pddl3414);
+		pushFollow(FOLLOW_metricFExp_in_synpred123_Pddl3378);
 		metricFExp();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_metricFExp_in_synpred123_Pddl3416);
+		pushFollow(FOLLOW_metricFExp_in_synpred123_Pddl3380);
 		metricFExp();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred123_Pddl3418); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred123_Pddl3382); if (state.failed) return;
 
 		}
 
@@ -12561,14 +12563,14 @@ public class PddlParser extends Parser {
 		// Pddl.g:525:4: ( '(' multiOp metricFExp ( metricFExp )+ ')' )
 		// Pddl.g:525:4: '(' multiOp metricFExp ( metricFExp )+ ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred125_Pddl3440); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred125_Pddl3404); if (state.failed) return;
 
-		pushFollow(FOLLOW_multiOp_in_synpred125_Pddl3442);
+		pushFollow(FOLLOW_multiOp_in_synpred125_Pddl3406);
 		multiOp();
 		state._fsp--;
 		if (state.failed) return;
 
-		pushFollow(FOLLOW_metricFExp_in_synpred125_Pddl3444);
+		pushFollow(FOLLOW_metricFExp_in_synpred125_Pddl3408);
 		metricFExp();
 		state._fsp--;
 		if (state.failed) return;
@@ -12587,7 +12589,7 @@ public class PddlParser extends Parser {
 			case 1 :
 				// Pddl.g:525:27: metricFExp
 				{
-				pushFollow(FOLLOW_metricFExp_in_synpred125_Pddl3446);
+				pushFollow(FOLLOW_metricFExp_in_synpred125_Pddl3410);
 				metricFExp();
 				state._fsp--;
 				if (state.failed) return;
@@ -12604,7 +12606,7 @@ public class PddlParser extends Parser {
 			cnt100++;
 		}
 
-		match(input,65,FOLLOW_65_in_synpred125_Pddl3449); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred125_Pddl3413); if (state.failed) return;
 
 		}
 
@@ -12616,16 +12618,16 @@ public class PddlParser extends Parser {
 		// Pddl.g:527:4: ( '(' '-' metricFExp ')' )
 		// Pddl.g:527:4: '(' '-' metricFExp ')'
 		{
-		match(input,64,FOLLOW_64_in_synpred126_Pddl3473); if (state.failed) return;
+		match(input,64,FOLLOW_64_in_synpred126_Pddl3437); if (state.failed) return;
 
-		match(input,68,FOLLOW_68_in_synpred126_Pddl3475); if (state.failed) return;
+		match(input,68,FOLLOW_68_in_synpred126_Pddl3439); if (state.failed) return;
 
-		pushFollow(FOLLOW_metricFExp_in_synpred126_Pddl3477);
+		pushFollow(FOLLOW_metricFExp_in_synpred126_Pddl3441);
 		metricFExp();
 		state._fsp--;
 		if (state.failed) return;
 
-		match(input,65,FOLLOW_65_in_synpred126_Pddl3479); if (state.failed) return;
+		match(input,65,FOLLOW_65_in_synpred126_Pddl3443); if (state.failed) return;
 
 		}
 
@@ -12637,7 +12639,7 @@ public class PddlParser extends Parser {
 		// Pddl.g:530:4: ( fHead )
 		// Pddl.g:530:4: fHead
 		{
-		pushFollow(FOLLOW_fHead_in_synpred128_Pddl3501);
+		pushFollow(FOLLOW_fHead_in_synpred128_Pddl3465);
 		fHead();
 		state._fsp--;
 		if (state.failed) return;
@@ -13195,8 +13197,8 @@ public class PddlParser extends Parser {
 
 	public static final BitSet FOLLOW_domain_in_pddlDoc363 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_problem_in_pddlDoc367 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_domain382 = new BitSet(new long[]{0x0000000000000000L,0x0000400000000000L});
-	public static final BitSet FOLLOW_110_in_domain384 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_domain382 = new BitSet(new long[]{0x0000000000000000L,0x0000200000000000L});
+	public static final BitSet FOLLOW_109_in_domain384 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_domainName_in_domain386 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_requireDef_in_domain394 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_typesDef_in_domain403 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
@@ -13211,8 +13213,8 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_81_in_free_functionsDef552 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_functionList_in_free_functionsDef554 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_free_functionsDef556 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_domainName579 = new BitSet(new long[]{0x0000000000000000L,0x0000800000000000L});
-	public static final BitSet FOLLOW_111_in_domainName581 = new BitSet(new long[]{0x0000004000000000L});
+	public static final BitSet FOLLOW_64_in_domainName579 = new BitSet(new long[]{0x0000000000000000L,0x0000400000000000L});
+	public static final BitSet FOLLOW_110_in_domainName581 = new BitSet(new long[]{0x0000004000000000L});
 	public static final BitSet FOLLOW_NAME_in_domainName583 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_domainName585 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_64_in_requireDef612 = new BitSet(new long[]{0x0000000000000000L,0x0000000008000000L});
@@ -13229,8 +13231,8 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_NAME_in_singleTypeNameList701 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000010L});
 	public static final BitSet FOLLOW_68_in_singleTypeNameList704 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_type_in_singleTypeNameList708 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_type735 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
-	public static final BitSet FOLLOW_112_in_type737 = new BitSet(new long[]{0x0000004000000000L});
+	public static final BitSet FOLLOW_64_in_type735 = new BitSet(new long[]{0x0000000000000000L,0x0000800000000000L});
+	public static final BitSet FOLLOW_111_in_type737 = new BitSet(new long[]{0x0000004000000000L});
 	public static final BitSet FOLLOW_primType_in_type739 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_type742 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_primType_in_type763 = new BitSet(new long[]{0x0000000000000002L});
@@ -13240,13 +13242,13 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_functionList_in_functionsDef787 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_functionsDef789 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_atomicFunctionSkeleton_in_functionList810 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000011L});
-	public static final BitSet FOLLOW_68_in_functionList814 = new BitSet(new long[]{0x0000000000000000L,0x1000000000000000L});
+	public static final BitSet FOLLOW_68_in_functionList814 = new BitSet(new long[]{0x0000000000000000L,0x0800000000000000L});
 	public static final BitSet FOLLOW_functionType_in_functionList816 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000001L});
 	public static final BitSet FOLLOW_64_in_atomicFunctionSkeleton832 = new BitSet(new long[]{0x8000004000000000L});
 	public static final BitSet FOLLOW_functionSymbol_in_atomicFunctionSkeleton835 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_typedVariableList_in_atomicFunctionSkeleton838 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_atomicFunctionSkeleton840 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_124_in_functionType863 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_123_in_functionType863 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_64_in_constantsDef874 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
 	public static final BitSet FOLLOW_72_in_constantsDef876 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_typedNameList_in_constantsDef878 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
@@ -13327,32 +13329,32 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_65_in_constraintDefBody1459 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_goalDesc_in_constraintDefBody1464 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_atomicTermFormula_in_goalDesc1502 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goalDesc1507 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_goalDesc1509 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_64_in_goalDesc1507 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_goalDesc1509 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_goalDesc_in_goalDesc1511 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_65_in_goalDesc1514 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goalDesc1539 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
-	public static final BitSet FOLLOW_125_in_goalDesc1541 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_64_in_goalDesc1539 = new BitSet(new long[]{0x0000000000000000L,0x1000000000000000L});
+	public static final BitSet FOLLOW_124_in_goalDesc1541 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_goalDesc_in_goalDesc1543 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_65_in_goalDesc1546 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goalDesc1571 = new BitSet(new long[]{0x0000000000000000L,0x0800000000000000L});
-	public static final BitSet FOLLOW_123_in_goalDesc1573 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_goalDesc1571 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
+	public static final BitSet FOLLOW_122_in_goalDesc1573 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_goalDesc1575 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_goalDesc1577 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goalDesc1601 = new BitSet(new long[]{0x0000000000000000L,0x0040000000000000L});
-	public static final BitSet FOLLOW_118_in_goalDesc1603 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_goalDesc1601 = new BitSet(new long[]{0x0000000000000000L,0x0020000000000000L});
+	public static final BitSet FOLLOW_117_in_goalDesc1603 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_goalDesc1605 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_goalDesc1607 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_goalDesc1609 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goalDesc1635 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
-	public static final BitSet FOLLOW_114_in_goalDesc1637 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_goalDesc1635 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L});
+	public static final BitSet FOLLOW_113_in_goalDesc1637 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_64_in_goalDesc1639 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_typedVariableList_in_goalDesc1641 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_goalDesc1643 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_goalDesc1645 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_goalDesc1647 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goalDesc1673 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_goalDesc1675 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_goalDesc1673 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_goalDesc1675 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_64_in_goalDesc1677 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_typedVariableList_in_goalDesc1679 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_goalDesc1681 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
@@ -13394,41 +13396,41 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_65_in_daDefBody1958 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_daEffect_in_daDefBody1963 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_prefTimedGD_in_daGD1978 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_daGD1983 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_daGD1985 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_64_in_daGD1983 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_daGD1985 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_daGD_in_daGD1987 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
 	public static final BitSet FOLLOW_65_in_daGD1990 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_daGD1995 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_daGD1997 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_daGD1995 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_daGD1997 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_64_in_daGD1999 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_typedVariableList_in_daGD2001 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_daGD2003 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_daGD_in_daGD2005 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_daGD2007 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_timedGD_in_prefTimedGD2018 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_prefTimedGD2023 = new BitSet(new long[]{0x0000000000000000L,0x8000000000000000L});
-	public static final BitSet FOLLOW_127_in_prefTimedGD2025 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_prefTimedGD2023 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
+	public static final BitSet FOLLOW_126_in_prefTimedGD2025 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_NAME_in_prefTimedGD2027 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_timedGD_in_prefTimedGD2030 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_prefTimedGD2032 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_timedGD2043 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_timedGD2045 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L,0x0000000000000040L});
+	public static final BitSet FOLLOW_64_in_timedGD2043 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_timedGD2045 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L,0x0000000000000040L});
 	public static final BitSet FOLLOW_timeSpecifier_in_timedGD2047 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_timedGD2049 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_timedGD2051 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_timedGD2056 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
-	public static final BitSet FOLLOW_126_in_timedGD2058 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+	public static final BitSet FOLLOW_64_in_timedGD2056 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
+	public static final BitSet FOLLOW_125_in_timedGD2058 = new BitSet(new long[]{0x0000000000000000L,0x0000001000000000L});
 	public static final BitSet FOLLOW_interval_in_timedGD2060 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_timedGD2062 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_timedGD2064 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_102_in_interval2086 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_100_in_interval2086 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_64_in_derivedDef2099 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000800L});
 	public static final BitSet FOLLOW_75_in_derivedDef2102 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_typedVariableList_in_derivedDef2105 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_derivedDef2107 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_derivedDef2109 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_NUMBER_in_fExp2124 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_fExp2129 = new BitSet(new long[]{0x0000000000000000L,0x000000200000003CL});
+	public static final BitSet FOLLOW_64_in_fExp2129 = new BitSet(new long[]{0x0000000000000000L,0x000000080000003CL});
 	public static final BitSet FOLLOW_binaryOp_in_fExp2131 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_fExp_in_fExp2133 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_fExp2_in_fExp2135 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
@@ -13437,285 +13439,285 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_68_in_fExp2156 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_fExp_in_fExp2158 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_fExp2160 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_fExp2194 = new BitSet(new long[]{0x0000000000000000L,0x0000001000000000L});
-	public static final BitSet FOLLOW_100_in_fExp2196 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fExp_in_fExp2198 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_fExp2200 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_fExp2234 = new BitSet(new long[]{0x0000000000000000L,0x0000000800000000L});
-	public static final BitSet FOLLOW_99_in_fExp2236 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fExp_in_fExp2238 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_fExp2240 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_fHead_in_fExp2253 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_fExp_in_fExp22265 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_fHead2275 = new BitSet(new long[]{0x8000004000000000L});
-	public static final BitSet FOLLOW_functionSymbol_in_fHead2277 = new BitSet(new long[]{0x1000004000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_term_in_fHead2279 = new BitSet(new long[]{0x1000004000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_fHead2282 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_functionSymbol_in_fHead2298 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_effect2317 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_effect2319 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_cEffect_in_effect2321 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_effect2324 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_cEffect_in_effect2338 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_cEffect2349 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_cEffect2351 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_cEffect2353 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedVariableList_in_cEffect2355 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_cEffect2357 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_effect_in_cEffect2359 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_cEffect2361 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_cEffect2379 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
-	public static final BitSet FOLLOW_135_in_cEffect2381 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_cEffect2383 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_condEffect_in_cEffect2385 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_cEffect2387 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_pEffect_in_cEffect2405 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_pEffect2416 = new BitSet(new long[]{0x0000000000000000L,0x0080240000000000L,0x0000000000000006L});
-	public static final BitSet FOLLOW_assignOp_in_pEffect2418 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fHead_in_pEffect2420 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fExp_in_pEffect2422 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_pEffect2424 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_pEffect2444 = new BitSet(new long[]{0x0000000000000000L,0x0800000000000000L});
-	public static final BitSet FOLLOW_123_in_pEffect2446 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_atomicTermFormula_in_pEffect2448 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_pEffect2450 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_atomicTermFormula_in_pEffect2466 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_condEffect2479 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_condEffect2481 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_pEffect_in_condEffect2483 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_condEffect2486 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_pEffect_in_condEffect2500 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_durationConstraint2605 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_durationConstraint2607 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_simpleDurationConstraint_in_durationConstraint2609 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_durationConstraint2612 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_durationConstraint2617 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_durationConstraint2619 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_simpleDurationConstraint_in_durationConstraint2624 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_simpleDurationConstraint2635 = new BitSet(new long[]{0x0000000000000000L,0x00000002C0000000L});
-	public static final BitSet FOLLOW_durOp_in_simpleDurationConstraint2637 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-	public static final BitSet FOLLOW_98_in_simpleDurationConstraint2639 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_durValue_in_simpleDurationConstraint2641 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_simpleDurationConstraint2643 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_simpleDurationConstraint2648 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_simpleDurationConstraint2650 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L,0x0000000000000040L});
-	public static final BitSet FOLLOW_timeSpecifier_in_simpleDurationConstraint2652 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_simpleDurationConstraint_in_simpleDurationConstraint2654 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_simpleDurationConstraint2656 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_NUMBER_in_durValue2683 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_fExp_in_durValue2687 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_daEffect2697 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_daEffect2699 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_daEffect_in_daEffect2701 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_daEffect2704 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_timedEffect_in_daEffect2709 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_daEffect2714 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_daEffect2716 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_daEffect2718 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedVariableList_in_daEffect2720 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_daEffect2722 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_daEffect_in_daEffect2724 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_daEffect2726 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_daEffect2731 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
-	public static final BitSet FOLLOW_135_in_daEffect2733 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_daGD_in_daEffect2735 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_timedEffect_in_daEffect2737 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_daEffect2739 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_daEffect2744 = new BitSet(new long[]{0x0000000000000000L,0x0080240000000000L,0x0000000000000006L});
-	public static final BitSet FOLLOW_assignOp_in_daEffect2746 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fHead_in_daEffect2748 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_daEffect2750 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_daEffect2752 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_timedEffect2763 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_timedEffect2765 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L,0x0000000000000040L});
-	public static final BitSet FOLLOW_timeSpecifier_in_timedEffect2767 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_daEffect_in_timedEffect2769 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_timedEffect2771 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_timedEffect2781 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_timedEffect2783 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L,0x0000000000000040L});
-	public static final BitSet FOLLOW_timeSpecifier_in_timedEffect2785 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fAssignDA_in_timedEffect2787 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_timedEffect2789 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_timedEffect2794 = new BitSet(new long[]{0x0000000000000000L,0x0080240000000000L,0x0000000000000006L});
-	public static final BitSet FOLLOW_assignOp_in_timedEffect2796 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fHead_in_timedEffect2798 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fExp_in_timedEffect2800 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_timedEffect2802 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_fAssignDA2822 = new BitSet(new long[]{0x0000000000000000L,0x0080240000000000L,0x0000000000000006L});
-	public static final BitSet FOLLOW_assignOp_in_fAssignDA2824 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fHead_in_fAssignDA2826 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_fAssignDA2828 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_fAssignDA2830 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_fExpDA2841 = new BitSet(new long[]{0x0000000000000000L,0x000000200000003CL});
-	public static final BitSet FOLLOW_binaryOp_in_fExpDA2845 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_fExpDA2847 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_fExpDA2849 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_68_in_fExpDA2855 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_fExpDA2857 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_fExpDA2861 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_98_in_fExpDA2866 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_fExp_in_fExpDA2871 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_problem2885 = new BitSet(new long[]{0x0000000000000000L,0x0000400000000000L});
-	public static final BitSet FOLLOW_110_in_problem2887 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_problemDecl_in_problem2889 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_problemDomain_in_problem2894 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_requireDef_in_problem2902 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_objectDecl_in_problem2911 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_init_in_problem2920 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goal_in_problem2928 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_probConstraints_in_problem2936 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_metricSpec_in_problem2945 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_problem2961 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_problemDecl3018 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_128_in_problemDecl3020 = new BitSet(new long[]{0x0000004000000000L});
-	public static final BitSet FOLLOW_NAME_in_problemDecl3022 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_problemDecl3024 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_problemDomain3050 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
-	public static final BitSet FOLLOW_76_in_problemDomain3052 = new BitSet(new long[]{0x0000004000000000L});
-	public static final BitSet FOLLOW_NAME_in_problemDomain3054 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_problemDomain3056 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_objectDecl3076 = new BitSet(new long[]{0x0000000000000000L,0x0000000000400000L});
-	public static final BitSet FOLLOW_86_in_objectDecl3078 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedNameList_in_objectDecl3080 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_objectDecl3082 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_init3102 = new BitSet(new long[]{0x0000000000000000L,0x0000000000100000L});
-	public static final BitSet FOLLOW_84_in_init3104 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_initEl_in_init3106 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_init3109 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_nameLiteral_in_initEl3130 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_initEl3135 = new BitSet(new long[]{0x0000000000000000L,0x0000000080000000L});
-	public static final BitSet FOLLOW_95_in_initEl3137 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fHead_in_initEl3139 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_initEl3141 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_initEl3143 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_initEl3166 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_initEl3168 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_initEl3170 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_nameLiteral_in_initEl3172 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_initEl3174 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_atomicNameFormula_in_nameLiteral3196 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_nameLiteral3201 = new BitSet(new long[]{0x0000000000000000L,0x0800000000000000L});
-	public static final BitSet FOLLOW_123_in_nameLiteral3203 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_atomicNameFormula_in_nameLiteral3205 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_nameLiteral3207 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_atomicNameFormula3226 = new BitSet(new long[]{0x0000004000000000L});
-	public static final BitSet FOLLOW_predicate_in_atomicNameFormula3228 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_NAME_in_atomicNameFormula3230 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_atomicNameFormula3233 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_goal3258 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
-	public static final BitSet FOLLOW_83_in_goal3260 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_goal3262 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_goal3264 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_probConstraints3282 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000400L});
-	public static final BitSet FOLLOW_74_in_probConstraints3284 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_prefConGD_in_probConstraints3287 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_probConstraints3289 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_prefConGD3311 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_prefConGD3313 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_prefConGD_in_prefConGD3315 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_prefConGD3318 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_prefConGD3323 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_prefConGD3325 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_prefConGD3327 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedVariableList_in_prefConGD3329 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_prefConGD3331 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_prefConGD_in_prefConGD3333 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_prefConGD3335 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_prefConGD3340 = new BitSet(new long[]{0x0000000000000000L,0x8000000000000000L});
-	public static final BitSet FOLLOW_127_in_prefConGD3342 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_NAME_in_prefConGD3344 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_conGD_in_prefConGD3347 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_prefConGD3349 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_conGD_in_prefConGD3354 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_metricSpec3365 = new BitSet(new long[]{0x0000000000000000L,0x0000000000200000L});
-	public static final BitSet FOLLOW_85_in_metricSpec3367 = new BitSet(new long[]{0x0000000000000000L,0x0600000000000000L});
-	public static final BitSet FOLLOW_optimization_in_metricSpec3369 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_metricSpec3371 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_metricSpec3373 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_metricFExp3410 = new BitSet(new long[]{0x0000000000000000L,0x000000200000003CL});
-	public static final BitSet FOLLOW_binaryOp_in_metricFExp3412 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_metricFExp3414 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_metricFExp3416 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_metricFExp3418 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_metricFExp3440 = new BitSet(new long[]{0x0000000000000000L,0x000000000000000CL});
-	public static final BitSet FOLLOW_multiOp_in_metricFExp3442 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_metricFExp3444 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_metricFExp3446 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_metricFExp3449 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_metricFExp3473 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});
-	public static final BitSet FOLLOW_68_in_metricFExp3475 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_metricFExp3477 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_metricFExp3479 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_NUMBER_in_metricFExp3496 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_fHead_in_metricFExp3501 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_metricFExp3516 = new BitSet(new long[]{0x0000000000000000L,0x0100000000000000L});
-	public static final BitSet FOLLOW_120_in_metricFExp3518 = new BitSet(new long[]{0x0000004000000000L});
-	public static final BitSet FOLLOW_NAME_in_metricFExp3520 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_metricFExp3522 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3536 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_conGD3538 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_conGD_in_conGD3540 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_conGD3543 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3548 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_conGD3550 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_conGD3552 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedVariableList_in_conGD3554 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3556 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_conGD_in_conGD3558 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3560 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3565 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_conGD3567 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L});
-	public static final BitSet FOLLOW_113_in_conGD3569 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3571 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3573 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3599 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
-	public static final BitSet FOLLOW_103_in_conGD3601 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_fExp2176 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000004L});
+	public static final BitSet FOLLOW_130_in_fExp2178 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fExp_in_fExp2180 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_fExp2182 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_fExp2198 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
+	public static final BitSet FOLLOW_107_in_fExp2200 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fExp_in_fExp2202 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_fExp2204 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_fHead_in_fExp2217 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_fExp_in_fExp22229 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_fHead2239 = new BitSet(new long[]{0x8000004000000000L});
+	public static final BitSet FOLLOW_functionSymbol_in_fHead2241 = new BitSet(new long[]{0x1000004000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_term_in_fHead2243 = new BitSet(new long[]{0x1000004000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_fHead2246 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_functionSymbol_in_fHead2262 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_effect2281 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_effect2283 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_cEffect_in_effect2285 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_effect2288 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_cEffect_in_effect2302 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_cEffect2313 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_cEffect2315 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_cEffect2317 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedVariableList_in_cEffect2319 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_cEffect2321 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_effect_in_cEffect2323 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_cEffect2325 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_cEffect2343 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
+	public static final BitSet FOLLOW_135_in_cEffect2345 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_cEffect2347 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_condEffect_in_cEffect2349 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_cEffect2351 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_pEffect_in_cEffect2369 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_pEffect2380 = new BitSet(new long[]{0x0000000000000000L,0x0040110000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_assignOp_in_pEffect2382 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fHead_in_pEffect2384 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fExp_in_pEffect2386 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_pEffect2388 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_pEffect2408 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
+	public static final BitSet FOLLOW_122_in_pEffect2410 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_atomicTermFormula_in_pEffect2412 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_pEffect2414 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_atomicTermFormula_in_pEffect2430 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_condEffect2443 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_condEffect2445 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_pEffect_in_condEffect2447 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_condEffect2450 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_pEffect_in_condEffect2464 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_durationConstraint2569 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_durationConstraint2571 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_simpleDurationConstraint_in_durationConstraint2573 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_durationConstraint2576 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_durationConstraint2581 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_durationConstraint2583 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_simpleDurationConstraint_in_durationConstraint2588 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_simpleDurationConstraint2599 = new BitSet(new long[]{0x0000000000000000L,0x00000002C0000000L});
+	public static final BitSet FOLLOW_durOp_in_simpleDurationConstraint2601 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
+	public static final BitSet FOLLOW_98_in_simpleDurationConstraint2603 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_durValue_in_simpleDurationConstraint2605 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_simpleDurationConstraint2607 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_simpleDurationConstraint2612 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_simpleDurationConstraint2614 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L,0x0000000000000040L});
+	public static final BitSet FOLLOW_timeSpecifier_in_simpleDurationConstraint2616 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_simpleDurationConstraint_in_simpleDurationConstraint2618 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_simpleDurationConstraint2620 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_NUMBER_in_durValue2647 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_fExp_in_durValue2651 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_daEffect2661 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_daEffect2663 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_daEffect_in_daEffect2665 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_daEffect2668 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_timedEffect_in_daEffect2673 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_daEffect2678 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_daEffect2680 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_daEffect2682 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedVariableList_in_daEffect2684 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_daEffect2686 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_daEffect_in_daEffect2688 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_daEffect2690 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_daEffect2695 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
+	public static final BitSet FOLLOW_135_in_daEffect2697 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_daGD_in_daEffect2699 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_timedEffect_in_daEffect2701 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_daEffect2703 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_daEffect2708 = new BitSet(new long[]{0x0000000000000000L,0x0040110000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_assignOp_in_daEffect2710 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fHead_in_daEffect2712 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_daEffect2714 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_daEffect2716 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_timedEffect2727 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_timedEffect2729 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L,0x0000000000000040L});
+	public static final BitSet FOLLOW_timeSpecifier_in_timedEffect2731 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_daEffect_in_timedEffect2733 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_timedEffect2735 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_timedEffect2745 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_timedEffect2747 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L,0x0000000000000040L});
+	public static final BitSet FOLLOW_timeSpecifier_in_timedEffect2749 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fAssignDA_in_timedEffect2751 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_timedEffect2753 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_timedEffect2758 = new BitSet(new long[]{0x0000000000000000L,0x0040110000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_assignOp_in_timedEffect2760 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fHead_in_timedEffect2762 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fExp_in_timedEffect2764 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_timedEffect2766 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_fAssignDA2786 = new BitSet(new long[]{0x0000000000000000L,0x0040110000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_assignOp_in_fAssignDA2788 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fHead_in_fAssignDA2790 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_fAssignDA2792 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_fAssignDA2794 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_fExpDA2805 = new BitSet(new long[]{0x0000000000000000L,0x000000080000003CL});
+	public static final BitSet FOLLOW_binaryOp_in_fExpDA2809 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_fExpDA2811 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_fExpDA2813 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_68_in_fExpDA2819 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_fExpDA2821 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_fExpDA2825 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_98_in_fExpDA2830 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_fExp_in_fExpDA2835 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_problem2849 = new BitSet(new long[]{0x0000000000000000L,0x0000200000000000L});
+	public static final BitSet FOLLOW_109_in_problem2851 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_problemDecl_in_problem2853 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_problemDomain_in_problem2858 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_requireDef_in_problem2866 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_objectDecl_in_problem2875 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_init_in_problem2884 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goal_in_problem2892 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_probConstraints_in_problem2900 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_metricSpec_in_problem2909 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_problem2925 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_problemDecl2982 = new BitSet(new long[]{0x0000000000000000L,0x8000000000000000L});
+	public static final BitSet FOLLOW_127_in_problemDecl2984 = new BitSet(new long[]{0x0000004000000000L});
+	public static final BitSet FOLLOW_NAME_in_problemDecl2986 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_problemDecl2988 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_problemDomain3014 = new BitSet(new long[]{0x0000000000000000L,0x0000000000001000L});
+	public static final BitSet FOLLOW_76_in_problemDomain3016 = new BitSet(new long[]{0x0000004000000000L});
+	public static final BitSet FOLLOW_NAME_in_problemDomain3018 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_problemDomain3020 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_objectDecl3040 = new BitSet(new long[]{0x0000000000000000L,0x0000000000400000L});
+	public static final BitSet FOLLOW_86_in_objectDecl3042 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedNameList_in_objectDecl3044 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_objectDecl3046 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_init3066 = new BitSet(new long[]{0x0000000000000000L,0x0000000000100000L});
+	public static final BitSet FOLLOW_84_in_init3068 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_initEl_in_init3070 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_init3073 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_nameLiteral_in_initEl3094 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_initEl3099 = new BitSet(new long[]{0x0000000000000000L,0x0000000080000000L});
+	public static final BitSet FOLLOW_95_in_initEl3101 = new BitSet(new long[]{0x8000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fHead_in_initEl3103 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_initEl3105 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_initEl3107 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_initEl3130 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_initEl3132 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_initEl3134 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_nameLiteral_in_initEl3136 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_initEl3138 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_atomicNameFormula_in_nameLiteral3160 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_nameLiteral3165 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
+	public static final BitSet FOLLOW_122_in_nameLiteral3167 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_atomicNameFormula_in_nameLiteral3169 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_nameLiteral3171 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_atomicNameFormula3190 = new BitSet(new long[]{0x0000004000000000L});
+	public static final BitSet FOLLOW_predicate_in_atomicNameFormula3192 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_NAME_in_atomicNameFormula3194 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_atomicNameFormula3197 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_goal3222 = new BitSet(new long[]{0x0000000000000000L,0x0000000000080000L});
+	public static final BitSet FOLLOW_83_in_goal3224 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_goal3226 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_goal3228 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_probConstraints3246 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000400L});
+	public static final BitSet FOLLOW_74_in_probConstraints3248 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_prefConGD_in_probConstraints3251 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_probConstraints3253 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_prefConGD3275 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_prefConGD3277 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_prefConGD_in_prefConGD3279 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_prefConGD3282 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_prefConGD3287 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_prefConGD3289 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_prefConGD3291 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedVariableList_in_prefConGD3293 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_prefConGD3295 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_prefConGD_in_prefConGD3297 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_prefConGD3299 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_prefConGD3304 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
+	public static final BitSet FOLLOW_126_in_prefConGD3306 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_NAME_in_prefConGD3308 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_conGD_in_prefConGD3311 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_prefConGD3313 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_conGD_in_prefConGD3318 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_metricSpec3329 = new BitSet(new long[]{0x0000000000000000L,0x0000000000200000L});
+	public static final BitSet FOLLOW_85_in_metricSpec3331 = new BitSet(new long[]{0x0000000000000000L,0x0300000000000000L});
+	public static final BitSet FOLLOW_optimization_in_metricSpec3333 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_metricSpec3335 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_metricSpec3337 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_metricFExp3374 = new BitSet(new long[]{0x0000000000000000L,0x000000080000003CL});
+	public static final BitSet FOLLOW_binaryOp_in_metricFExp3376 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_metricFExp3378 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_metricFExp3380 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_metricFExp3382 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_metricFExp3404 = new BitSet(new long[]{0x0000000000000000L,0x000000000000000CL});
+	public static final BitSet FOLLOW_multiOp_in_metricFExp3406 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_metricFExp3408 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_metricFExp3410 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_metricFExp3413 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_metricFExp3437 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});
+	public static final BitSet FOLLOW_68_in_metricFExp3439 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_metricFExp3441 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_metricFExp3443 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_NUMBER_in_metricFExp3460 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_fHead_in_metricFExp3465 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_metricFExp3480 = new BitSet(new long[]{0x0000000000000000L,0x0080000000000000L});
+	public static final BitSet FOLLOW_119_in_metricFExp3482 = new BitSet(new long[]{0x0000004000000000L});
+	public static final BitSet FOLLOW_NAME_in_metricFExp3484 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_metricFExp3486 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3500 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_conGD3502 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_conGD_in_conGD3504 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_conGD3507 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3512 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_conGD3514 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_conGD3516 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedVariableList_in_conGD3518 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3520 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_conGD_in_conGD3522 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3524 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3529 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_conGD3531 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L});
+	public static final BitSet FOLLOW_112_in_conGD3533 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3535 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3537 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3563 = new BitSet(new long[]{0x0000000000000000L,0x0000002000000000L});
+	public static final BitSet FOLLOW_101_in_conGD3565 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3567 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3569 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3574 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000008L});
+	public static final BitSet FOLLOW_131_in_conGD3576 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3578 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3580 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3586 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000100L});
+	public static final BitSet FOLLOW_136_in_conGD3588 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_conGD3590 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3592 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3594 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3599 = new BitSet(new long[]{0x0000000000000000L,0x0000040000000000L});
+	public static final BitSet FOLLOW_106_in_conGD3601 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_goalDesc_in_conGD3603 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_conGD3605 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3610 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000008L});
-	public static final BitSet FOLLOW_131_in_conGD3612 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3614 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3616 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3622 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000100L});
-	public static final BitSet FOLLOW_136_in_conGD3624 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_conGD3626 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3628 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3630 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3635 = new BitSet(new long[]{0x0000000000000000L,0x0000100000000000L});
-	public static final BitSet FOLLOW_108_in_conGD3637 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3639 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3641 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3646 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
-	public static final BitSet FOLLOW_132_in_conGD3648 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3650 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3652 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3654 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3659 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000020L});
-	public static final BitSet FOLLOW_133_in_conGD3661 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3663 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3665 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3667 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3672 = new BitSet(new long[]{0x0000000000000000L,0x0000010000000000L});
-	public static final BitSet FOLLOW_104_in_conGD3674 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_conGD3676 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3678 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3680 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3682 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3687 = new BitSet(new long[]{0x0000000000000000L,0x0020000000000000L});
-	public static final BitSet FOLLOW_117_in_conGD3689 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_conGD3691 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_conGD3693 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3695 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3697 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_conGD3702 = new BitSet(new long[]{0x0000000000000000L,0x0010000000000000L});
-	public static final BitSet FOLLOW_116_in_conGD3704 = new BitSet(new long[]{0x0000040000000000L});
-	public static final BitSet FOLLOW_NUMBER_in_conGD3706 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_goalDesc_in_conGD3708 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_conGD3710 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3610 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
+	public static final BitSet FOLLOW_132_in_conGD3612 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3614 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3616 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3618 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3623 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000020L});
+	public static final BitSet FOLLOW_133_in_conGD3625 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3627 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3629 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3631 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3636 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+	public static final BitSet FOLLOW_102_in_conGD3638 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_conGD3640 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3642 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3644 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3646 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3651 = new BitSet(new long[]{0x0000000000000000L,0x0010000000000000L});
+	public static final BitSet FOLLOW_116_in_conGD3653 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_conGD3655 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_conGD3657 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3659 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3661 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_conGD3666 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
+	public static final BitSet FOLLOW_115_in_conGD3668 = new BitSet(new long[]{0x0000040000000000L});
+	public static final BitSet FOLLOW_NUMBER_in_conGD3670 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_goalDesc_in_conGD3672 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_conGD3674 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_atomicFunctionSkeleton_in_synpred18_Pddl810 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_fComp_in_synpred48_Pddl1714 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_typedVariableList_in_synpred51_Pddl1873 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred64_Pddl2129 = new BitSet(new long[]{0x0000000000000000L,0x000000200000003CL});
+	public static final BitSet FOLLOW_64_in_synpred64_Pddl2129 = new BitSet(new long[]{0x0000000000000000L,0x000000080000003CL});
 	public static final BitSet FOLLOW_binaryOp_in_synpred64_Pddl2131 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_fExp_in_synpred64_Pddl2133 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_fExp2_in_synpred64_Pddl2135 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
@@ -13724,81 +13726,81 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_68_in_synpred65_Pddl2156 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_fExp_in_synpred65_Pddl2158 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_synpred65_Pddl2160 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred66_Pddl2194 = new BitSet(new long[]{0x0000000000000000L,0x0000001000000000L});
-	public static final BitSet FOLLOW_100_in_synpred66_Pddl2196 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fExp_in_synpred66_Pddl2198 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred66_Pddl2200 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred67_Pddl2234 = new BitSet(new long[]{0x0000000000000000L,0x0000000800000000L});
-	public static final BitSet FOLLOW_99_in_synpred67_Pddl2236 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fExp_in_synpred67_Pddl2238 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred67_Pddl2240 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_NUMBER_in_synpred97_Pddl2683 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred99_Pddl2697 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_synpred99_Pddl2699 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_daEffect_in_synpred99_Pddl2701 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_synpred99_Pddl2704 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_timedEffect_in_synpred100_Pddl2709 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred101_Pddl2714 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_synpred101_Pddl2716 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_synpred101_Pddl2718 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedVariableList_in_synpred101_Pddl2720 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred101_Pddl2722 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_daEffect_in_synpred101_Pddl2724 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred101_Pddl2726 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred102_Pddl2731 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
-	public static final BitSet FOLLOW_135_in_synpred102_Pddl2733 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_daGD_in_synpred102_Pddl2735 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_timedEffect_in_synpred102_Pddl2737 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred102_Pddl2739 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred103_Pddl2763 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_synpred103_Pddl2765 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L,0x0000000000000040L});
-	public static final BitSet FOLLOW_timeSpecifier_in_synpred103_Pddl2767 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_daEffect_in_synpred103_Pddl2769 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred103_Pddl2771 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred104_Pddl2781 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-	public static final BitSet FOLLOW_107_in_synpred104_Pddl2783 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L,0x0000000000000040L});
-	public static final BitSet FOLLOW_timeSpecifier_in_synpred104_Pddl2785 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_fAssignDA_in_synpred104_Pddl2787 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred104_Pddl2789 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_binaryOp_in_synpred105_Pddl2845 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_synpred105_Pddl2847 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_synpred105_Pddl2849 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred106_Pddl2841 = new BitSet(new long[]{0x0000000000000000L,0x000000200000003CL});
-	public static final BitSet FOLLOW_binaryOp_in_synpred106_Pddl2845 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_synpred106_Pddl2847 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_synpred106_Pddl2849 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_68_in_synpred106_Pddl2855 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
-	public static final BitSet FOLLOW_fExpDA_in_synpred106_Pddl2857 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred106_Pddl2861 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred118_Pddl3311 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
-	public static final BitSet FOLLOW_105_in_synpred118_Pddl3313 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_prefConGD_in_synpred118_Pddl3315 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_synpred118_Pddl3318 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred119_Pddl3323 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-	public static final BitSet FOLLOW_115_in_synpred119_Pddl3325 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_synpred119_Pddl3327 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_typedVariableList_in_synpred119_Pddl3329 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred119_Pddl3331 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_prefConGD_in_synpred119_Pddl3333 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred119_Pddl3335 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred121_Pddl3340 = new BitSet(new long[]{0x0000000000000000L,0x8000000000000000L});
-	public static final BitSet FOLLOW_127_in_synpred121_Pddl3342 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_NAME_in_synpred121_Pddl3344 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_conGD_in_synpred121_Pddl3347 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred121_Pddl3349 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred123_Pddl3410 = new BitSet(new long[]{0x0000000000000000L,0x000000200000003CL});
-	public static final BitSet FOLLOW_binaryOp_in_synpred123_Pddl3412 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_synpred123_Pddl3414 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_synpred123_Pddl3416 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred123_Pddl3418 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred125_Pddl3440 = new BitSet(new long[]{0x0000000000000000L,0x000000000000000CL});
-	public static final BitSet FOLLOW_multiOp_in_synpred125_Pddl3442 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_synpred125_Pddl3444 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_synpred125_Pddl3446 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_65_in_synpred125_Pddl3449 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_synpred126_Pddl3473 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});
-	public static final BitSet FOLLOW_68_in_synpred126_Pddl3475 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_metricFExp_in_synpred126_Pddl3477 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_synpred126_Pddl3479 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_fHead_in_synpred128_Pddl3501 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred66_Pddl2176 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000004L});
+	public static final BitSet FOLLOW_130_in_synpred66_Pddl2178 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fExp_in_synpred66_Pddl2180 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred66_Pddl2182 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred67_Pddl2198 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
+	public static final BitSet FOLLOW_107_in_synpred67_Pddl2200 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fExp_in_synpred67_Pddl2202 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred67_Pddl2204 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_NUMBER_in_synpred97_Pddl2647 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred99_Pddl2661 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_synpred99_Pddl2663 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_daEffect_in_synpred99_Pddl2665 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_synpred99_Pddl2668 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_timedEffect_in_synpred100_Pddl2673 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred101_Pddl2678 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_synpred101_Pddl2680 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_synpred101_Pddl2682 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedVariableList_in_synpred101_Pddl2684 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred101_Pddl2686 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_daEffect_in_synpred101_Pddl2688 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred101_Pddl2690 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred102_Pddl2695 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
+	public static final BitSet FOLLOW_135_in_synpred102_Pddl2697 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_daGD_in_synpred102_Pddl2699 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_timedEffect_in_synpred102_Pddl2701 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred102_Pddl2703 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred103_Pddl2727 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_synpred103_Pddl2729 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L,0x0000000000000040L});
+	public static final BitSet FOLLOW_timeSpecifier_in_synpred103_Pddl2731 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_daEffect_in_synpred103_Pddl2733 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred103_Pddl2735 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred104_Pddl2745 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000000L});
+	public static final BitSet FOLLOW_105_in_synpred104_Pddl2747 = new BitSet(new long[]{0x0000000000000000L,0x0001000000000000L,0x0000000000000040L});
+	public static final BitSet FOLLOW_timeSpecifier_in_synpred104_Pddl2749 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_fAssignDA_in_synpred104_Pddl2751 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred104_Pddl2753 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_binaryOp_in_synpred105_Pddl2809 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_synpred105_Pddl2811 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_synpred105_Pddl2813 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred106_Pddl2805 = new BitSet(new long[]{0x0000000000000000L,0x000000080000003CL});
+	public static final BitSet FOLLOW_binaryOp_in_synpred106_Pddl2809 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_synpred106_Pddl2811 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_synpred106_Pddl2813 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_68_in_synpred106_Pddl2819 = new BitSet(new long[]{0x8000044000000000L,0x0000000400000001L});
+	public static final BitSet FOLLOW_fExpDA_in_synpred106_Pddl2821 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred106_Pddl2825 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred118_Pddl3275 = new BitSet(new long[]{0x0000000000000000L,0x0000008000000000L});
+	public static final BitSet FOLLOW_103_in_synpred118_Pddl3277 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_prefConGD_in_synpred118_Pddl3279 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_synpred118_Pddl3282 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred119_Pddl3287 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+	public static final BitSet FOLLOW_114_in_synpred119_Pddl3289 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_synpred119_Pddl3291 = new BitSet(new long[]{0x1000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_typedVariableList_in_synpred119_Pddl3293 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred119_Pddl3295 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_prefConGD_in_synpred119_Pddl3297 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred119_Pddl3299 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred121_Pddl3304 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
+	public static final BitSet FOLLOW_126_in_synpred121_Pddl3306 = new BitSet(new long[]{0x0000004000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_NAME_in_synpred121_Pddl3308 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_conGD_in_synpred121_Pddl3311 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred121_Pddl3313 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred123_Pddl3374 = new BitSet(new long[]{0x0000000000000000L,0x000000080000003CL});
+	public static final BitSet FOLLOW_binaryOp_in_synpred123_Pddl3376 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_synpred123_Pddl3378 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_synpred123_Pddl3380 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred123_Pddl3382 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred125_Pddl3404 = new BitSet(new long[]{0x0000000000000000L,0x000000000000000CL});
+	public static final BitSet FOLLOW_multiOp_in_synpred125_Pddl3406 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_synpred125_Pddl3408 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_synpred125_Pddl3410 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_65_in_synpred125_Pddl3413 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_synpred126_Pddl3437 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});
+	public static final BitSet FOLLOW_68_in_synpred126_Pddl3439 = new BitSet(new long[]{0x8000044000000000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_metricFExp_in_synpred126_Pddl3441 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_synpred126_Pddl3443 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_fHead_in_synpred128_Pddl3465 = new BitSet(new long[]{0x0000000000000002L});
 }
