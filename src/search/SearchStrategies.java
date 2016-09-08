@@ -351,7 +351,7 @@ public class SearchStrategies {
                             g.put(temp, current_node.g_n + act.getAction_cost());
                             setStates_evaluated(getStates_evaluated() + 1);
 
-                            long start = System.currentTimeMillis();
+                            long start = System.currentTimeMillis(); 
                             Float d;
 //                        if (temp.satisfy(problem.getGoals())){
 //                            d = 0f;

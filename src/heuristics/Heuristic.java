@@ -99,7 +99,7 @@ public abstract class Heuristic {
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
-    public int horizon = 100000;
+    public int horizon = Integer.MAX_VALUE;
     protected int hard_conditions;
     HashMap<NumEffect, GroundAction> num_eff_action;
     public Collection<GroundAction> supporters;
@@ -534,7 +534,7 @@ public abstract class Heuristic {
             proven_reachable = false;
         
         //the bound here is only to capture really unlikely instances. Should be domain independent though
-        while (iteration < 1000000 || proven_reachable ) {
+        while (iteration < 100 || proven_reachable ) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
