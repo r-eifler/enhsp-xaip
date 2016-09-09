@@ -77,8 +77,8 @@ public class NumFluentAssigner extends Conditions {
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
         nFluent = fluent;
-        this.nFluentValue = poss_values.inf;
-        this.nFlunetValueUpperBound = poss_values.sup;
+        this.nFluentValue = poss_values.getInf();
+        this.nFlunetValueUpperBound = poss_values.getSup();
         
     }
 

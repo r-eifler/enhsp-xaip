@@ -447,20 +447,20 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (all.getOperator().equals("increase")) {
                     //System.out.println(current);
                     //System.out.println(current.sum(eval).inf);
-                    after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
-                    after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
+                    after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
 //                    System.out.println(current.sum(eval).inf.getNumber());
                 } else if (all.getOperator().equals("decrease")) {
-                    after.inf = new PDDLNumber(Math.min(current.subtract(eval).inf.getNumber(), current.inf.getNumber()));
-                    after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
+                    after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
                 } else if (all.getOperator().equals("assign")) {
-                    if (current == null || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN()))) {
-                        after.inf = new PDDLNumber(eval.inf.getNumber());
-                        after.sup = new PDDLNumber(eval.sup.getNumber());
+                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
                     } else {
-                        after.inf = new PDDLNumber(Math.min(eval.inf.getNumber(), current.inf.getNumber()));
-                        after.sup = new PDDLNumber(Math.max(eval.sup.getNumber(), current.sup.getNumber()));
+                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
                     }
                 }
 //                if (f.getName().contains("fuel-used")){
@@ -468,7 +468,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                    System.out.println("After ("+after.inf+","+after.sup+")");
 //                
 //                }
-                if (after == null || after.inf == null || after.sup == null) {
+                if (after == null || after.getInf() == null || after.getSup() == null) {
                     System.out.println("Something went really wrong when applying effect on " + f);
                     System.exit(-1);
                 }
@@ -1764,7 +1764,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return this.numericEffects.sons.stream().anyMatch(new java.util.function.Predicate<NumEffect>() {
             @Override
             public boolean test(NumEffect e) {
-                return e.getRight().eval(current).inf.getNumber().isNaN();
+                return e.getRight().eval(current).getInf().getNumber().isNaN();
             }
         });
 //            
@@ -2439,30 +2439,30 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (all.getOperator().equals("increase")) {
                     //System.out.println(current);
                     //System.out.println(current.sum(eval).inf);
-                    after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
-                    after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
+                    after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
 //                    System.out.println(current.sum(eval).inf.getNumber());
                 } else if (all.getOperator().equals("decrease")) {
-                    after.inf = new PDDLNumber(Math.min(current.subtract(eval).inf.getNumber(), current.inf.getNumber()));
-                    after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
+                    after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
                 } else if (all.getOperator().equals("assign")) {
 
-                    if (all.getRight().fluentsInvolved().isEmpty() || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN()))) {
-                        if (current == null || ((current.inf.getNumber().isNaN()) && (current.sup.getNumber().isNaN()))) {
-                            after.inf = new PDDLNumber(eval.inf.getNumber());
-                            after.sup = new PDDLNumber(eval.sup.getNumber());
+                    if (all.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                        if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                            after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                            after.setSup(new PDDLNumber(eval.getSup().getNumber()));
                         } else {
-                            after.inf = new PDDLNumber(Math.min(eval.inf.getNumber(), current.inf.getNumber()));
-                            after.sup = new PDDLNumber(Math.max(eval.sup.getNumber(), current.sup.getNumber()));
+                            after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                            after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
                         }
                     } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
                         //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                         //monotonicity. Look at the report on generalize interval based relaxation.
                         BinaryOp bin = new BinaryOp(all.getRight(), "-", all.getFluentAffected(), true);
                         Interval monotonic_eval = bin.eval(s);
-                        after.inf = new PDDLNumber(Math.min(current.sum(monotonic_eval).inf.getNumber(), current.inf.getNumber()));
-                        after.sup = new PDDLNumber(Math.max(current.sum(monotonic_eval).sup.getNumber(), current.sup.getNumber()));
+                        after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
+                        after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
                     }
                 }
 //                if (f.getName().contains("fuel-used")){
@@ -2470,7 +2470,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //                    System.out.println("After ("+after.inf+","+after.sup+")");
 //                
 //                }
-                if (after == null || after.inf == null || after.sup == null) {
+                if (after == null || after.getInf() == null || after.getSup() == null) {
                     System.out.println("Something went really wrong when applying effect on " + f);
                     System.exit(-1);
                 }

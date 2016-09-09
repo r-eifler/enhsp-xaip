@@ -298,20 +298,20 @@ public class NumEffect extends Expression {
         if (getOperator().equals("increase")) {
             //System.out.println(current);
             //System.out.println(current.sum(eval).inf);
-             after.inf = new PDDLNumber(Math.min(current.sum(eval).inf.getNumber(), current.inf.getNumber()));
-            after.sup = new PDDLNumber(Math.max(current.sum(eval).sup.getNumber(), current.sup.getNumber()));
+             after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+             after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
 //                    System.out.println(current.sum(eval).inf.getNumber());
         } else if (getOperator().equals("decrease")) {
-            after.inf = new PDDLNumber(Math.min(current.subtract(eval).inf.getNumber(), current.inf.getNumber()));
-            after.sup = new PDDLNumber(Math.max(current.subtract(eval).sup.getNumber(), current.sup.getNumber()));
+            after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
+            after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
         } else if (getOperator().equals("assign")) {
-            if (current == null || current.is_not_a_number || current.inf.getNumber() == Float.NaN || current.sup.getNumber() == Float.NaN ) {
-                after.inf = new PDDLNumber(eval.inf.getNumber());
-                after.sup = new PDDLNumber(eval.sup.getNumber());
+            if (current == null || current.is_not_a_number || current.getInf().getNumber() == Float.NaN || current.getSup().getNumber() == Float.NaN ) {
+                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
             } else {
-                after.inf = new PDDLNumber(Math.min(eval.inf.getNumber(), current.inf.getNumber()));
-                after.sup = new PDDLNumber(Math.max(eval.sup.getNumber(), current.sup.getNumber()));
+                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
             }
         }
         

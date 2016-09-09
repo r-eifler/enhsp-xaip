@@ -282,7 +282,7 @@ public class BinaryOp extends Expression {
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return null;
         }
-        if ((first.inf == null) || (first.sup == null) || (second.inf == null) || (second.sup == null)) {
+        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
             return null;//negation by failure.
         }
         if (this.getOperator().equals("+")) {

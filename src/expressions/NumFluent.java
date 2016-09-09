@@ -203,9 +203,9 @@ public class NumFluent extends Expression {
     @Override
     public Interval eval(RelState s) {
         Interval ret = new Interval();
-        ret.inf = s.functionInfValue(this);
-        ret.sup = s.functionSupValue(this);
-        if (ret.inf == null) {
+        ret.setInf(s.functionInfValue(this));
+        ret.setSup(s.functionSupValue(this));
+        if (ret.getInf() == null) {
             ret.is_not_a_number = true;
             
             return ret;

@@ -100,17 +100,15 @@ public class TrigonometricFunction extends BinaryOp {
 
     @Override
     public Interval eval(RelState s) {
-        Interval ret = new Interval();
+        Interval ret = null;
         Interval arg = this.getArg().eval(s);
         
         switch (this.operator) {
             case "sin":
-                ret.inf = new PDDLNumber(new Float(Math.min(Math.sin(arg.inf.getNumber()), Math.sin(arg.sup.getNumber()))));
-                ret.sup = new PDDLNumber(new Float(Math.max(Math.sin(arg.inf.getNumber()), Math.sin(arg.sup.getNumber()))));
+                ret = arg.sin();
                 break;
             case "cos":
-                ret.inf = new PDDLNumber(new Float(Math.min(Math.cos(arg.inf.getNumber()), Math.cos(arg.sup.getNumber()))));
-                ret.sup = new PDDLNumber(new Float(Math.max(Math.cos(arg.inf.getNumber()), Math.cos(arg.sup.getNumber()))));
+                ret = arg.cos();
                 break;
             default:
                 System.out.println("Eval error in: " + this);

@@ -107,8 +107,8 @@ public class RelState extends Object {
         NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
         if (a != null) {
             Interval ret_val = new Interval();
-            ret_val.inf = a.getTwo();
-            ret_val.sup = a.getNFlunetValueUpperBound();
+            ret_val.setInf(a.getTwo());
+            ret_val.setSup(a.getNFlunetValueUpperBound());
             return ret_val;
         }else{
             Interval ret_val = new Interval(Float.NaN);
@@ -258,8 +258,8 @@ public class RelState extends Object {
         NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
         if (a != null) {
             if (a.getNFluent().equals(f)) {
-                a.setTwo(after.inf);
-                a.setNFlunetValueUpperBound(after.sup);
+                a.setTwo(after.getInf());
+                a.setNFlunetValueUpperBound(after.getSup());
             }
         }else{
             a = new NumFluentAssigner(f,after);
@@ -278,25 +278,25 @@ public class RelState extends Object {
         if ((lv == null) || (rv == null)) {
             return Float.MAX_VALUE;
         }
-        if ((lv.inf == null) || (lv.sup == null) || (rv.inf == null) || (rv.sup == null)) {
+        if ((lv.getInf() == null) || (lv.getSup() == null) || (rv.getInf() == null) || (rv.getSup() == null)) {
             return Float.MAX_VALUE;//negation by failure.
         }
         if (comparison.getComparator().equals("<")) {
-            return lv.inf.getNumber() - rv.sup.getNumber()+ Float.MIN_VALUE;
+            return lv.getInf().getNumber() - rv.getSup().getNumber()+ Float.MIN_VALUE;
         } else if (comparison.getComparator().equals("<=")) {
-            return lv.inf.getNumber() - rv.sup.getNumber();
+            return lv.getInf().getNumber() - rv.getSup().getNumber();
         } else if (comparison.getComparator().equals(">")) {
-            return  rv.inf.getNumber() - lv.sup.getNumber()+ Float.MIN_VALUE;
+            return  rv.getInf().getNumber() - lv.getSup().getNumber()+ Float.MIN_VALUE;
         } else if (comparison.getComparator().equals(">=")) {
-            return rv.inf.getNumber() - lv.sup.getNumber();
+            return rv.getInf().getNumber() - lv.getSup().getNumber();
         } else if (comparison.getComparator().equals("=")) {
-            if (!((lv.inf.getNumber() > rv.sup.getNumber()) || (rv.inf.getNumber() > lv.sup.getNumber()))) {
+            if (!((lv.getInf().getNumber() > rv.getSup().getNumber()) || (rv.getInf().getNumber() > lv.getSup().getNumber()))) {
                 return -Float.MIN_VALUE;
             } else {
-                if (lv.inf.getNumber() > lv.inf.getNumber()){
-                    return lv.inf.getNumber() - lv.inf.getNumber();
+                if (lv.getInf().getNumber() > lv.getInf().getNumber()){
+                    return lv.getInf().getNumber() - lv.getInf().getNumber();
                 } else{
-                    return rv.inf.getNumber() -lv.sup.getNumber();
+                    return rv.getInf().getNumber() -lv.getSup().getNumber();
                 }
                 
 

@@ -258,25 +258,25 @@ public class Comparison extends Conditions {
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return false;
         }
-        if ((first.inf == null) || (first.sup == null) || (second.inf == null) || (second.sup == null)) {
+        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first.inf.getNumber() < second.sup.getNumber();
+            return first.getInf().getNumber() < second.getSup().getNumber();
         } else if (this.getComparator().equals("<=")) {
-            return first.inf.getNumber() <= second.sup.getNumber();
+            return first.getInf().getNumber() <= second.getSup().getNumber();
         } else if (this.getComparator().equals(">")) {
-            return first.sup.getNumber() > second.inf.getNumber();
+            return first.getSup().getNumber() > second.getInf().getNumber();
         } else if (this.getComparator().equals(">=")) {
-            return first.sup.getNumber() >= second.inf.getNumber();
+            return first.getSup().getNumber() >= second.getInf().getNumber();
         } else if (this.getComparator().equals("=")) {
-//            float ret = Math.max(first.inf.getNumber()-second.sup.getNumber(), second.inf.getNumber()-first.sup.getNumber());
+//            float ret = Math.max(first.getInf().getNumber()-second.getSup().getNumber(), second.getInf().getNumber()-first.getSup().getNumber());
 //            if (ret>=0)
 //                return false;
 //            else
 //                return true;
 //            
-            if (!((first.inf.getNumber() > second.sup.getNumber()) || (second.inf.getNumber() > first.sup.getNumber()))) {
+            if (!((first.getInf().getNumber() > second.getSup().getNumber()) || (second.getInf().getNumber() > first.getSup().getNumber()))) {
                 return true;
             } else {
                 return false;
@@ -296,24 +296,24 @@ public class Comparison extends Conditions {
         if ((first == null) || (second == null)) {
             return Float.MAX_VALUE;
         }
-        if ((first.inf == null) || (first.sup == null) || (second.inf == null) || (second.sup == null)) {
+        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
             return Float.MAX_VALUE;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            Float t = second.sup.getNumber() - first.inf.getNumber();
+            Float t = second.getSup().getNumber() - first.getInf().getNumber();
             return (t - 0.00001f) * -1;
 
         } else if (this.getComparator().equals("<=")) {
-            Float t = second.sup.getNumber() - first.inf.getNumber();
+            Float t = second.getSup().getNumber() - first.getInf().getNumber();
             return t * -1;
         } else if (this.getComparator().equals(">")) {
-            Float t = first.sup.getNumber() - second.inf.getNumber();
+            Float t = first.getSup().getNumber() - second.getInf().getNumber();
             return (t - 0.00001f) * -1;
         } else if (this.getComparator().equals(">=")) {
-            Float t = first.sup.getNumber() - second.inf.getNumber();
+            Float t = first.getSup().getNumber() - second.getInf().getNumber();
             return t * (-1);
         } else if (this.getComparator().equals("=")) {
-            ret = Math.max(first.inf.getNumber() - second.sup.getNumber(), second.inf.getNumber() - first.sup.getNumber());
+            ret = Math.max(first.getInf().getNumber() - second.getSup().getNumber(), second.getInf().getNumber() - first.getSup().getNumber());
             return (ret + 0.00001f) * -1;
 
         } else {
