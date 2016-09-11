@@ -177,7 +177,7 @@ public class built_in_NHSP {
                     searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions()));
                     searchStrategies.getHeuristic().additive_h = true;
                     searchStrategies.getHeuristic().greedy = true;
-                    searchStrategies.getHeuristic().quasi_integer_actions = true;
+                    searchStrategies.getHeuristic().integer_actions = true;
 
                     searchStrategies.set_w_g(0);
                     searchStrategies.set_w_h(1);
@@ -229,7 +229,7 @@ public class built_in_NHSP {
                 Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
                 h.additive_h = true;
                 //            h.greedy =true;
-                h.quasi_integer_actions = true;
+                h.integer_actions = true;
 
             } else if (config.equals("1g")) {
                 searchStrategies.setup_heuristic(new Uniform_cost_search_H1(problem.getGoals(), problem.getActions(), problem.processesSet));
@@ -243,7 +243,7 @@ public class built_in_NHSP {
                 Uniform_cost_search_H1 h = (Uniform_cost_search_H1) searchStrategies.getHeuristic();
                 h.additive_h = true;
                 h.greedy = true;
-                h.quasi_integer_actions = true;
+                h.integer_actions = true;
 
             } else if (config.equals("2")) {
                 searchStrategies.setup_heuristic(new Uniform_cost_search_H1_RC(problem.getGoals(), problem.getActions(), problem.processesSet));

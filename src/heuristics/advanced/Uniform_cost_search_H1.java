@@ -52,6 +52,7 @@ import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -190,7 +191,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         if (!this.is_complex.get(comp)) {
                             Float number_of_execution = null;
                             boolean super_simple_numeric_condition = (this.possible_achievers_inverted.get(comp.getCounter()).size()<=1);
-                            if ((this.additive_h && quasi_integer_actions) || super_simple_numeric_condition)
+                            if ((this.additive_h && integer_actions) || super_simple_numeric_condition)
                                 number_of_execution = gr.getNumberOfExecutionInt(s, comp);
                             else
                                 number_of_execution = gr.getNumberOfExecution(s, comp);

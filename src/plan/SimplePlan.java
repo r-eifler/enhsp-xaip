@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ import java.util.logging.Logger;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
-import problem.GlobalConstraint;
+import org.json.simple.JSONObject;
 import problem.GroundAction;
 import problem.GroundProcess;
 import problem.PddlProblem;
@@ -95,6 +96,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private boolean newMethod = true;
     public boolean print_trace;
     public float cost;
+    public JSONObject numeric_plan_trace;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -2179,6 +2181,19 @@ public class SimplePlan extends ArrayList<GroundAction> {
         State current = init.clone();
         this.cost=0f;
         current.addNumericFluent(new NumFluentAssigner("#t", resolution));
+        HashMap<NumFluent,ArrayList<Float>> nf_trace = new HashMap();
+         numeric_plan_trace=null;
+        if (print_trace){
+            numeric_plan_trace = new JSONObject();
+            Iterator it = current.getNumericFluents().iterator();
+            while (it.hasNext()){
+                NumFluentAssigner ass = (NumFluentAssigner)it.next();
+                NumFluent nf = ass.getNFluent();
+                ArrayList<Float> nf_traj = new ArrayList();
+                nf_traj.add(current.functionValue(nf).getNumber());
+                nf_trace.put(nf,nf_traj);
+            }
+        }
         for (GroundAction gr : this) {
             //System.out.println(gr.getClass());
             gr.setAction_cost(current);
@@ -2195,8 +2210,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 current = advance_time(current, processesSet, steps_number, resolution);
 
             }
-            if (print_trace)
-                System.out.println(current.pddlPrint());
+            
+            if (print_trace){
+                add_state_to_json(nf_trace,current);
+            }
             if (!current.satisfy(GC)) {
                 System.out.println("Global Constraint is not satisfied:" + GC);
 
@@ -2205,10 +2222,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 // MRJ: Meant for debugging
             //System.out.println(constr.condition.pddlPrint(false));
 
-
+            for (NumFluent nf: nf_trace.keySet()){
+                numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
+            }
         }
-        if (!print_trace)
-            System.out.println(current.pddlPrint());
         return current;
 
     }
@@ -2238,6 +2255,12 @@ public class SimplePlan extends ArrayList<GroundAction> {
             //temp+=delta;
         }
         return current;
+    }
+
+    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, State current) {
+        for (NumFluent nf: nf_trace.keySet()){
+            nf_trace.get(nf).add(current.functionValue(nf).getNumber());
+        }
     }
 
 }

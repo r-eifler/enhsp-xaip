@@ -69,7 +69,7 @@ public class PDDLNumber extends Expression {
     @Override
     public String toString() {
 
-        return " " + String.format("%.2f",this.getNumber()) + " ";
+        return " " + String.format("%.6f",this.getNumber()) + " ";
     }
 
     @Override

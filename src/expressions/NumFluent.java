@@ -101,7 +101,7 @@ public class NumFluent extends Expression {
     @Override
     public String toString() {
         String ret = "";
-        ret += "  (" + this.name;
+        ret += "(" + this.name;
         for (Object o1 : this.getTerms()) {
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;

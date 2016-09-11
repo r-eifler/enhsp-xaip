@@ -111,7 +111,7 @@ public abstract class Heuristic {
     public boolean greedy = false;
     public Conditions gC;
     protected HashMap<Integer, GroundAction> cond_action;
-    public boolean quasi_integer_actions=false;
+    public boolean integer_actions=false;
     private boolean cost_oriented_ibr=true;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
