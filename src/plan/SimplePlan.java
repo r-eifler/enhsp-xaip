@@ -2027,12 +2027,26 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init, Conditions globalConstraints) throws CloneNotSupportedException {
-        State temp = init.clone();
+    public State execute(State current, Conditions globalConstraints) throws CloneNotSupportedException {
+        State temp = current.clone();
         int i = 0;
         this.cost = 0f;
+        
+        HashMap<NumFluent,ArrayList<Float>> nf_trace = new HashMap();
+        numeric_plan_trace=null;
+        if (print_trace){
+            numeric_plan_trace = new JSONObject();
+            Iterator it = current.getNumericFluents().iterator();
+            while (it.hasNext()){
+                NumFluentAssigner ass = (NumFluentAssigner)it.next();
+                NumFluent nf = ass.getNFluent();
+                ArrayList<Float> nf_traj = new ArrayList();
+                nf_traj.add(current.functionValue(nf).getNumber());
+                nf_trace.put(nf,nf_traj);
+            }
+        }
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-                gr.setAction_cost(init);
+                gr.setAction_cost(current);
                 this.cost+=gr.getAction_cost();
                 if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                     System.out.println("Global Constraint is not satisfied:" + globalConstraints);
@@ -2066,7 +2080,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
                         //System.out.println(constr.condition.pddlPrint(false));
             if (print_trace)
-                System.out.println(temp.pddlPrint());
+                add_state_to_json(nf_trace,temp);
+
         }
         if (debug == 1) {
             System.out.println("Last State:");
@@ -2182,7 +2197,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         this.cost=0f;
         current.addNumericFluent(new NumFluentAssigner("#t", resolution));
         HashMap<NumFluent,ArrayList<Float>> nf_trace = new HashMap();
-         numeric_plan_trace=null;
+        numeric_plan_trace=null;
         if (print_trace){
             numeric_plan_trace = new JSONObject();
             Iterator it = current.getNumericFluents().iterator();
@@ -2222,9 +2237,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 // MRJ: Meant for debugging
             //System.out.println(constr.condition.pddlPrint(false));
 
-            for (NumFluent nf: nf_trace.keySet()){
-                numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
-            }
         }
         return current;
 
@@ -2260,6 +2272,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, State current) {
         for (NumFluent nf: nf_trace.keySet()){
             nf_trace.get(nf).add(current.functionValue(nf).getNumber());
+            numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }
 
