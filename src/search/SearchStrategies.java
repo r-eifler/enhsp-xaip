@@ -120,7 +120,7 @@ public class SearchStrategies {
                         return 0;
                     }
                 }else
-                    return 0;
+                    return a.action.getName().compareTo(other.action.getName());
             }
             if (bfs) {
                 if (a.f <= other.f) {
