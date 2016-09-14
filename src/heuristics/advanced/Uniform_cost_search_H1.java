@@ -32,7 +32,6 @@ import conditions.Conditions;
 import conditions.Predicate;
 import expressions.NumEffect;
 import heuristics.Heuristic;
-import java.io.IOException;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;
@@ -44,20 +43,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
-import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 
 /**
@@ -92,11 +82,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
     @Override
     public Float setup(State s) {
-        try {
-            //this.add_redundant_constraints();
-        } catch (Exception ex) {
-            getLogger(Uniform_cost_search_H1.class.getName()).log(SEVERE, null, ex);
-        }
+
         
         build_integer_representation();
         identify_complex_conditions(all_conditions, A);
