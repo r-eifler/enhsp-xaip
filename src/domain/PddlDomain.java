@@ -29,12 +29,14 @@ package domain;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
 import conditions.NumFluentAssigner;
 import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.PDDLObjectsEquality;
+import conditions.PostCondition;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.Expression;
@@ -490,7 +492,7 @@ public final class PddlDomain extends Object {
 
             switch (type) {
                 case (PddlParser.PRECONDITION):
-                    Conditions con = createPreconditions(infoAction.getChild(0), a.getParameters());
+                    Conditions con = createPreconditions(infoAction.getChild(0), a.parameters);
                     if ((con instanceof Comparison) || (con instanceof Predicate)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
@@ -520,38 +522,9 @@ public final class PddlDomain extends Object {
                     }
                     break;
                 case (PddlParser.EFFECT):
-                    Conditions add = createAddEffect(a.getParameters(), infoAction.getChild(0));
-                    Conditions del = createDelEffect(a.getParameters(), infoAction.getChild(0));
-                    Object o = createNumericEffect(a.getParameters(), infoAction.getChild(0));
-
-                    Conditions numericEffect;
-                    if (o instanceof Conditions) {
-                        numericEffect = (Conditions) o;
-                    } else {
-                        numericEffect = new AndCond();
-                        numericEffect.sons.add(o);
-                    }
-                    //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
-                    //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
-                    AndCond add_list = new AndCond();
-                    if (add instanceof Predicate) {
-                        add_list.addConditions(add);
-                    } else {
-                        add_list = (AndCond) add;
-                    }
-
-                    AndCond del_list = new AndCond();
-                    if (del instanceof Predicate) {
-                        del_list.addConditions(add);
-                    } else {
-                        del_list = (AndCond) del;
-                    }
-
-                    a.setAddList(add_list);
-
-                    a.setDelList(del_list);
-                    a.setNumericEffects(numericEffect);
-
+                    add_effects(a, infoAction);
+//                    System.out.println(a);
+                    break;
             }
 
         }
@@ -576,8 +549,8 @@ public final class PddlDomain extends Object {
                     }
                 }
                 return and;
-                //Crea un and e per ogni figlio di questo nodo invoca creaformula
-                //gestendo il valore di ritorno come un attributo di and
+            //Crea un and e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di and
             case PddlParser.OR_GD:
                 OrCond or = new OrCond();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -596,20 +569,20 @@ public final class PddlDomain extends Object {
                     }
                 }
                 return not;
-                //Crea un not e per ogni figlio di questo nodo invoca creaformula
-                //gestendo il valore di ritorno come un attributo di not
+            //Crea un not e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di not
             case PddlParser.COMPARISON_GD:
                 //System.out.println("Comparison:" + infoAction.getText());
-                
+
                 Comparison c = new Comparison(infoAction.getChild(0).getText());
-                
+
                 c.setLeft(createExpression(infoAction.getChild(1), parTable));
                 c.setRight(createExpression(infoAction.getChild(2), parTable));
                 return c;
-                //Create an equality structure for comparing Objects
+            //Create an equality structure for comparing Objects
             case PddlParser.EQUALITY_CON:
                 PDDLObjectsEquality equality = new PDDLObjectsEquality();
-                
+
                 if (infoAction.getChild(1).getType() == PddlParser.NAME) {
                     System.out.println("Constant objects in equality comparison are not supported");
                     System.exit(-1);
@@ -625,33 +598,11 @@ public final class PddlDomain extends Object {
                 return equality;
             case PddlParser.IMPLY_GD:
                 System.out.println("Implication:" + infoAction.getText());
-                
+
                 return null;
-                //Create an equality structure for comparing Objects
+            //Create an equality structure for comparing Objects
             default:
                 break;
-        }
-        return null;
-    }
-
-    private Conditions createAddEffect(SchemaParameters parTable, Tree infoAction) {
-        if (infoAction == null) {
-            return new Predicate();
-        }
-        if (infoAction.getType() == PddlParser.PRED_HEAD) {
-            //estrapola tutti i predicati e ritornali come set di predicati
-            return buildPredicate(infoAction, parTable);
-        } else if (infoAction.getType() == PddlParser.AND_EFFECT) {
-            AndCond and = new AndCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createAddEffect(parTable, infoAction.getChild(i));
-                if (ret_val != null) {
-                    and.addConditions(ret_val);
-                }
-            }
-            return and;
-            //Crea un and e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di and
         }
         return null;
     }
@@ -712,52 +663,6 @@ public final class PddlDomain extends Object {
         return a;
     }
 
-    private Conditions createDelEffect(SchemaParameters parTable, Tree infoAction) {
-        if (infoAction == null) {
-            return null;
-        }
-        if (infoAction.getType() == PddlParser.PRED_HEAD) {
-            //estrapola tutti i predicati e ritornali come set di predicati
-
-            if (infoAction.getParent() != null) { //non dovrebbe mai succedere....?
-                if (infoAction.getParent().getType() == PddlParser.NOT_EFFECT) {//solo se mio padre è un not altrimenti non aggiungo niente
-                    return buildPredicate(infoAction, parTable);
-                }
-            } else {
-                System.out.println("warning: " + infoAction + "  has not father in the type hierarchy");
-            }
-//            for (int i=1; i<infoAction.getChildCount();i++){
-//                a.addVariable(add(new Variable(infoAction.getChild(i)));
-//            }
-        } else if (infoAction.getType() == PddlParser.AND_EFFECT) {
-            AndCond and = new AndCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createDelEffect(parTable, infoAction.getChild(i));
-                if (ret_val != null) {
-                    and.addConditions(ret_val);
-                }
-            }
-            //System.out.println(and);
-
-            if (!and.sons.isEmpty()) {
-                return and;
-            } else {
-                return null;
-            }
-            //Crea un or e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di or
-        } else if (infoAction.getType() == PddlParser.NOT_EFFECT) {
-            NotCond not = new NotCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                not.addConditions(createDelEffect(parTable, infoAction.getChild(i)));
-            }
-            return not;
-            //Crea un or e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di or
-        }
-        return null;
-    }
-
     private Object addPredicates(Tree t) {
         PredicateSet col = new PredicateSet();
         if (t == null) {
@@ -793,49 +698,60 @@ public final class PddlDomain extends Object {
         }
     }
 
-    @Deprecated
-    private void exploreTree(Tree t) {
-        if (t == null) {
-            return;
-        }
-        if (t.getChildCount() == 0) {
-            System.out.println("Foglia:" + t.getText() + "Tipo:" + t.getType());
-            return;
-        }
-        System.out.println("Nodo intermedio: " + t.getText() + "Tipo:" + t.getType());
-        for (int i = 0; i < t.getChildCount(); i++) {
-            exploreTree(t.getChild(i));
-        }
-        return;
-    }
+    private PostCondition createPostCondition(SchemaParameters parTable, Tree infoAction) {
 
-    private Object createNumericEffect(SchemaParameters parameters, Tree child) {
-
-        if (child == null) {
+        if (infoAction == null) {
             return new AndCond();
         }
-        if (child.getType() == PddlParser.AND_EFFECT) {
-            AndCond and = new AndCond();
-            for (int i = 0; i < child.getChildCount(); i++) {
-                Expression ret_val = (Expression) createNumericEffect(parameters, child.getChild(i));
+        switch (infoAction.getType()) {
+            case PddlParser.PRED_HEAD:
+                //estrapola tutti i predicati e ritornali come set di predicati
 
-                if (ret_val != null) {
-                    and.addExpression(ret_val);
+                if (infoAction.getParent() != null) { //non dovrebbe mai succedere....?
+                    if (infoAction.getParent().getType() == PddlParser.NOT_EFFECT) {//solo se mio padre è un not altrimenti non aggiungo niente
+                        NotCond not = new NotCond();
+                        for (int i = 0; i < infoAction.getChildCount(); i++) {
+                            Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
+                            if (ret_val != null) {
+                                not.addConditions(ret_val);
+                            }
+                        }
+                        return not;
+                        //return buildPredicate(infoAction, parTable);
+                    } else {
+                        return buildPredicate(infoAction, parTable);
+                    }
+                } else {
+                    System.out.println("warning: " + infoAction + "  has not father in the type hierarchy");
                 }
-            }
-            return and;
+                break;
+            case PddlParser.AND_EFFECT:
+                AndCond and = new AndCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Object ret_val = createPostCondition(parTable, infoAction.getChild(i));
+                    if (ret_val != null) {
+                        and.sons.add(ret_val);
+                    }
+                }
+                return and;
             //Crea un and e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di and
-        } else if (child.getType() == PddlParser.ASSIGN_EFFECT) {
-            NumEffect a = new NumEffect(child.getChild(0).getText());
-            a.setFluentAffected((NumFluent) createExpression(child.getChild(1), parameters));
-            a.setRight((Expression) createExpression(child.getChild(2), parameters));
-            return a;
+            case PddlParser.ASSIGN_EFFECT:
+                NumEffect a = new NumEffect(infoAction.getChild(0).getText());
+                a.setFluentAffected((NumFluent) createExpression(infoAction.getChild(1), parTable));
+                a.setRight((Expression) createExpression(infoAction.getChild(2), parTable));
+                return a;
+            case PddlParser.FORALL_EFFECT:
+                System.err.println("ADL not fully supported");
+                System.exit(-1);
+            case PddlParser.WHEN_EFFECT:
+                Conditions lhs = this.createPreconditions(infoAction.getChild(0), parTable);
+                PostCondition rhs = (PostCondition) this.createPostCondition(parTable, infoAction.getChild(1));
 
-        } else if (child.getType() == PddlParser.FORALL_EFFECT) {
-            System.err.println("ADL not fully supported");
-            System.exit(-1);
-
+                return new ConditionalEffect(lhs, rhs);
+            default:
+                System.err.println("ADL not fully supported");
+                break;
         }
         return null;
     }
@@ -1282,28 +1198,8 @@ public final class PddlDomain extends Object {
                     }
                     break;
                 case (PddlParser.EFFECT):
-                    Conditions add = createAddEffect(a.getParameters(), infoAction.getChild(0));
-                    Conditions del = createDelEffect(a.getParameters(), infoAction.getChild(0));
-                    Object o = createNumericEffect(a.getParameters(), infoAction.getChild(0));
-
-                    Conditions numericEffect;
-                    if (o instanceof Conditions) {
-                        numericEffect = (Conditions) o;
-                    } else {
-                        numericEffect = new AndCond();
-                        numericEffect.sons.add(o);
-                    }
-                    //Conditions numericEffect = (Conditions)createNumericEffect(a.getParameters(), infoAction.getChild(0));
-                    //a.addParameter(new Variable(infoAction.getText(),new types(infoAction.getChild(0).getText())));
-                    if (add != null) {
-                        a.setAddList(add);
-                    }
-                    if (del != null) {
-                        a.setDelList(del);
-                    }
-                    if (o != null) {
-                        a.setNumericEffects(numericEffect);
-                    }
+                    add_effects(a, infoAction);
+//                    System.out.println(a);
                     break;
             }
 
@@ -1324,4 +1220,47 @@ public final class PddlDomain extends Object {
         this.ProcessesSchema = ProcessesSchema;
     }
 
+//    private Object createConditionalEffect(SchemaParameters parameters, Tree t) {
+//        
+//        if (t.getType() == PddlParser.AND_EFFECT){
+//            for (int j = 0; j < t.getChildCount(); j++) {
+//                    if (t.getChild(j).getType() == PddlParser.WHEN_EFFECT){
+//                        Tree child = t.getChild(j);
+//                        System.out.println(t.getChild(j).toStringTree());
+//                    }
+//                }
+//        }
+//        return null;
+//    }
+    private void add_effects(GenericActionType a, Tree infoAction) {
+        PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
+        create_effects_by_cases(res,a);
+    }
+    
+    public static void create_effects_by_cases(PostCondition res, GenericActionType a){
+        if (res instanceof AndCond) {
+            AndCond pc = (AndCond) res;
+            for (Object o : pc.sons) {
+                if (o instanceof Predicate) {
+                    a.addList.sons.add(o);
+                } else if (o instanceof NotCond) {
+                    a.delList.sons.add(o);
+                } else if (o instanceof NumEffect) {
+                    a.numericEffects.sons.add(o);
+                } else if (o instanceof ConditionalEffect) {
+                    a.cond_effects.sons.add(o);
+                }
+            }
+        }else if ( res instanceof Predicate){
+           a.addList.sons.add(res);          
+        }else if ( res instanceof NotCond){
+           a.delList.sons.add(res);
+        }else if ( res instanceof NumEffect){
+           a.numericEffects.sons.add(res); 
+        }else if ( res instanceof ConditionalEffect){
+           a.cond_effects.sons.add(res); 
+        }
+    }
+    
+    
 }

@@ -47,7 +47,7 @@ import problem.State;
  *
  * @author Enrico Scala
  */
-public class AndCond extends Conditions {
+public class AndCond extends Conditions implements PostCondition {
 
     private boolean specialAndForExpression;
 
@@ -115,7 +115,6 @@ public class AndCond extends Conditions {
 
         //System.out.println(this.toString());
         for (Object o : sons) {
-
             if (o instanceof NumEffect) {
                 NumEffect el = (NumEffect) o;
                 ret.sons.add(el.ground(substitution));
@@ -213,50 +212,32 @@ public class AndCond extends Conditions {
      * @param s
      * @return
      */
-    public State apply(State s) {
+    public HashMap apply(State s) {
 
+        HashMap ret = new HashMap();
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
                 AndCond t = (AndCond) o;
-                s = t.apply(s);
+                ret.putAll(t.apply(s));
             } else if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                s = p.apply(s);
+                ret.putAll(p.apply(s));
             } else if (o instanceof NotCond) {
                 NotCond n = (NotCond) o;
-                s = n.apply(s);
+                ret.putAll(n.apply(s));
             } else if (o instanceof NumEffect) {
                 NumEffect n = (NumEffect) o;
-                n.apply(s);
-            } else {
-                System.out.println("Effect " + this + " is not valid. Please revise your action model");
+                ret.putAll(n.apply(s));
+            } else if (o instanceof ConditionalEffect){
+                ConditionalEffect ce = (ConditionalEffect)o;
+                ret.putAll(ce.apply(s));
+            }else {
+                System.out.println("Effect " + o + " is not valid. Its class is"+o.getClass()+" Please revise your action model");
                 System.exit(-1);
             }
         }
-        return s;
+        return ret;
 
-    }
-
-    /**
-     *
-     * @param s
-     * @return
-     */
-    public State remove(State s) {
-        State ret = s;
-        for (Object o : this.sons) {
-            if (o instanceof AndCond) {
-                AndCond t = (AndCond) o;
-                ret = t.remove(s);
-            } else if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                ret = p.remove(s);
-            } else if (o instanceof NotCond) {
-                NotCond n = (NotCond) o;
-                ret = n.apply(s);
-            }
-        }
-        return s;
     }
 
     /**
@@ -333,6 +314,9 @@ public class AndCond extends Conditions {
             } else if (o instanceof NumEffect) {
                 NumEffect a = (NumEffect) o;
                 ret.sons.add(a.clone());
+            }else if (o instanceof ConditionalEffect) {
+                ConditionalEffect a = (ConditionalEffect) o;
+                ret.sons.add(a.clone());
             }
         }
 
@@ -346,45 +330,33 @@ public class AndCond extends Conditions {
      * @param s
      * @return
      */
-    public RelState apply(RelState s) {
-        RelState ret = s;
+    public HashMap apply(RelState s) {
+        HashMap ret = new HashMap();
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
                 AndCond t = (AndCond) o;
-                ret = t.apply(s);
+                ret.putAll(t.apply(s));
             } else if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.make_positive(s);
+                ret.putAll(p.apply(s));
             } else if (o instanceof NotCond) {
                 NotCond n = (NotCond) o;
-                ret = n.apply(s);
+                ret.putAll(n.apply(s));
             } else if (o instanceof NumEffect) {
                 NumEffect n = (NumEffect) o;
-                n.apply(s);
+                ret.putAll(n.apply(s));
+            } else if (o instanceof ConditionalEffect) {
+                ConditionalEffect cf = (ConditionalEffect) o;
+                ret.putAll(cf.apply(s));
             } else {
-                System.out.println("Effect " + this + " is not valid. Please revise your action model");
+                System.out.println("AndCond: Effect " + o + " is not valid. Class is:"+o.getClass()+" Please revise your action model");
                 System.exit(-1);
             }
         }
         return ret;
     }
 
-    RelState remove(RelState s) {
-        RelState ret = s;
-        for (Object o : this.sons) {
-            if (o instanceof AndCond) {
-                AndCond t = (AndCond) o;
-                ret = t.remove(s);
-            } else if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                ret = p.make_negative(s);
-            } else if (o instanceof NotCond) {
-                NotCond n = (NotCond) o;
-                ret = n.apply(s);
-            }
-        }
-        return s;
-    }
+
 
     /**
      *
@@ -685,7 +657,7 @@ public class AndCond extends Conditions {
                         return null;
                     }
                 } else {
-                    System.out.println(o2);
+//                    System.out.println(o2);
                     System.out.println("Unsupported operation for :" + o2.getClass());
                 }
             }

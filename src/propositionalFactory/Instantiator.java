@@ -55,8 +55,8 @@ public class Instantiator {
     public Set Substitutions(ActionSchema a, PDDLObjects po) throws Exception {
         HashSet ret = new HashSet();
         Set combo = new HashSet();
-        SchemaParameters param = a.getParameters();
-        int n_parametri = a.getParameters().size();
+        SchemaParameters param = a.getPar();
+        int n_parametri = a.getPar().size();
         return sub(param,n_parametri,po);
 
     }
@@ -64,8 +64,8 @@ public class Instantiator {
     public Set Substitutions(ProcessSchema a, PDDLObjects po) throws Exception {
         HashSet ret = new HashSet();
         Set combo = new HashSet();
-        SchemaParameters param = a.getParameters();
-        int n_parametri = a.getParameters().size();
+        SchemaParameters param = a.getPar();
+        int n_parametri = a.getPar().size();
         return sub(param,n_parametri,po);
 
     }
@@ -127,6 +127,7 @@ public class Instantiator {
 
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
+            
             if (o instanceof ParametersAsTerms){
                 GroundAction toAdd =a.ground((ParametersAsTerms) o);
                 toAdd.generateAffectedNumFluents();

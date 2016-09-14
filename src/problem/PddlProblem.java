@@ -669,7 +669,7 @@ public class PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Instantiator af = new Instantiator();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
-                if (act.getParameters().size() != 0) {
+                if (act.getPar().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
                     GroundAction gr = act.ground();

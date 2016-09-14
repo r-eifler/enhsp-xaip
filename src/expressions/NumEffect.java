@@ -27,6 +27,7 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PostCondition;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -38,11 +39,12 @@ import problem.State;
  *
  * @author Enrico Scala
  */
-public class NumEffect extends Expression {
+public class NumEffect extends Expression implements PostCondition{
 
     public String operator;
     private NumFluent fluentAffected;
     private Expression right;
+    public boolean additive_relaxation;
 
     /**
      *
@@ -155,9 +157,9 @@ public class NumEffect extends Expression {
      *
      * @param state the state in which the effect are applied
      */
-    public void apply(State state) {
+    public HashMap apply(State state) {
 
-
+        HashMap ret = new HashMap();
         PDDLNumber after = null;
         if (this.operator.equals("increase")) {
             PDDLNumber current = state.functionValue(fluentAffected);
@@ -171,11 +173,10 @@ public class NumEffect extends Expression {
             PDDLNumber eval = this.getRight().eval(state);
             after = eval;
         }
-        if (after != null) {
-            state.setFunctionValue(fluentAffected, after);
-        }
+        
+        ret.put(this.fluentAffected,after);
 
-        return;
+        return ret;
 
     }
 
@@ -289,8 +290,9 @@ public class NumEffect extends Expression {
      *
      * @param s
      */
-    public void apply(RelState s) {
-
+    public HashMap apply(RelState s) {
+        HashMap ret = new HashMap();
+        
         Interval after = new Interval();
         Interval current = s.functionValues(fluentAffected);
         Interval eval = this.getRight().eval(s);
@@ -306,16 +308,35 @@ public class NumEffect extends Expression {
             after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
         } else if (getOperator().equals("assign")) {
-            if (current == null || current.is_not_a_number || current.getInf().getNumber() == Float.NaN || current.getSup().getNumber() == Float.NaN ) {
-                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-            } else {
-                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+            if (additive_relaxation){
+                    if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                        if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                            after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                            after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                        } else {
+                            after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                            after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                        }
+                    } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
+                        //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
+                        //monotonicity. Look at the report on generalize interval based relaxation.
+                        BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
+                        Interval monotonic_eval = bin.eval(s);
+                        after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
+                        after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
+                    }
+            }else{
+                if (current == null || current.is_not_a_number || current.getInf().getNumber() == Float.NaN || current.getSup().getNumber() == Float.NaN ) {
+                    after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                    after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                } else {
+                    after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                }
             }
         }
-        
-        s.setFunctionValues(fluentAffected, after);
+        ret.put(fluentAffected,after);
+        return ret;
 
     }
 

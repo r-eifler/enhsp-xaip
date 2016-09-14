@@ -28,6 +28,7 @@ package domain;
 import conditions.Conditions;
 
 import expressions.Expression;
+import java.util.HashSet;
 
 public abstract class GenericActionType extends Object {
 
@@ -36,6 +37,9 @@ public abstract class GenericActionType extends Object {
     protected Conditions delList;
     protected Conditions numericEffects;
     protected Conditions preconditions;
+    public Conditions cond_effects;
+    protected HashSet numericFluentAffected;
+    protected SchemaParameters parameters;
 
     /**
      * @return the addList
@@ -44,6 +48,9 @@ public abstract class GenericActionType extends Object {
         return addList;
     }
 
+    public SchemaParameters getPar(){
+        return parameters;
+    }
     /**
      * @return the delList
      */
@@ -106,4 +113,23 @@ public abstract class GenericActionType extends Object {
 
     @Override
     public abstract String toString();
+
+    //
+    //    public Action ground(ArrayList terms){
+    //
+    //
+    //        substitution = new HashMap();
+    //
+    //
+    //    }
+    /**
+     * @return the parameters
+     */
+
+    /**
+     * @param parameters the parameters to set
+     */
+    public void setParameters(SchemaParameters parameters) {
+        this.parameters = parameters;
+    }
 }

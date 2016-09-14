@@ -93,7 +93,7 @@ public class EPddlProblem extends PddlProblem {
             Instantiator af = new Instantiator();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
-                if (act.getParameters().size() != 0) {
+                if (act.getPar().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
                     GroundAction gr = act.ground();
@@ -134,7 +134,7 @@ public class EPddlProblem extends PddlProblem {
             Instantiator af = new Instantiator();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
-                if (!act.getParameters().isEmpty()) {
+                if (!act.getPar().isEmpty()) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
                     GroundAction gr = act.ground();

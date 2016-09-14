@@ -68,8 +68,8 @@ public class GroundProcess extends GroundAction implements Comparable {
         
         if (this.numericFluentAffected!=null)
             ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
-        if (this.parameters != null) {
-            ret.parameters = (ParametersAsTerms) this.parameters.clone();
+        if (this.parameters_as_terms != null) {
+            ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
         if (this.preconditions != null) {
             ret.preconditions = this.preconditions.clone();

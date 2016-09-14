@@ -7,7 +7,9 @@ package heuristics;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ConditionalEffect;
 import conditions.Conditions;
+import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
@@ -124,7 +126,7 @@ public class Aibr extends Heuristic {
 //            System.out.println("Internal Iteration: "+supporters_counter);
             i++;
         }
-
+        dbg_print("Rechability finished");
         
         if (reacheability) {
             //reacheable_state = rs.clone();
@@ -156,9 +158,18 @@ public class Aibr extends Heuristic {
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
+        Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {
+            if (gr.cond_effects != null){
+                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(),gr.cond_effects));
+            }
+        }
+        System.out.println(actions_plus_action_for_supporters);
+        actions_plus_action_for_supporters.addAll(actions);
+        for (GroundAction gr : actions_plus_action_for_supporters) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
+                    effect.additive_relaxation = true;
                     if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
                         supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions(), gr));
                     } else {
@@ -456,6 +467,23 @@ public class Aibr extends Heuristic {
         }
         return false;
 
+    }
+
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name,Conditions cond_effects) {
+        Set ret = new LinkedHashSet();
+        Integer counter = 0;
+        for (Object o: cond_effects.sons){
+            if (o instanceof ConditionalEffect){
+                ConditionalEffect cond = (ConditionalEffect)o;
+                GroundAction a = new GroundAction(name+counter);
+                a.getPreconditions().sons.add(cond.activation_condition);
+                PddlDomain.create_effects_by_cases(cond.effect,a);
+                ret.add(a);
+                counter++;
+            }
+        }
+        return ret;
+              
     }
 
 

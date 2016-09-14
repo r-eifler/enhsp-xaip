@@ -42,7 +42,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class  Predicate extends Conditions {
+public class  Predicate extends Conditions implements PostCondition {
 
     private String predicateName;
     //private ArrayList variables;
@@ -274,11 +274,10 @@ public class  Predicate extends Conditions {
 
 
     
-    public State apply(State s) {
-        if (!s.is_true(this)) {
-            s.addProposition(this);
-        }
-        return s;
+    public HashMap apply(State s) {
+        HashMap ret = new HashMap();
+        ret.put(this,Boolean.TRUE);
+        return ret;
     }
 
     public State remove(State s){
@@ -429,6 +428,7 @@ public class  Predicate extends Conditions {
         return this;
     }
 
+    
     @Override
     public String toSmtVariableString(int k, GroundAction gr, String var) {
         return " true ";
@@ -442,6 +442,16 @@ public class  Predicate extends Conditions {
     @Override
     public boolean is_affected_by(GroundAction gr){
         return gr.achieve(this) || gr.delete(this);
+    }
+
+    @Override
+    public HashMap<Object, Object> apply(RelState s) {
+        HashMap ret = new HashMap();
+        Integer inter = s.poss_interpretation.get(this);
+        if (inter == null || inter == 0){
+            ret.put(this, 1);
+        }
+        return ret;
     }
 
   

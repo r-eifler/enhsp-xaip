@@ -43,7 +43,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class NotCond extends Conditions {
+public class NotCond extends Conditions implements PostCondition{
 
     public HashSet son;
 
@@ -124,20 +124,14 @@ public class NotCond extends Conditions {
         return false;
     }
 
-    public State apply(State s) {
-        State ret = s;
+    public HashMap apply(State s) {
+        HashMap ret = new HashMap();
         for (Object o : this.son) {
-            if (o instanceof AndCond) {
-                AndCond t = (AndCond) o;
-                ret = t.remove(s);
-            } else if (o instanceof Predicate) {
+            if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.remove(s);
-            } else if (o instanceof NotCond) {
-                NotCond n = (NotCond) o;
-                ret = n.apply(s);
+                ret.put(p,Boolean.FALSE);
             } else {
-                System.out.println("Effect " + this + " is not valid. Please revise your action model");
+                System.out.println("Not Condition. Effect " + o + " is not valid. Please revise your action model");
                 System.exit(-1);
             }
         }
@@ -228,20 +222,17 @@ public class NotCond extends Conditions {
         return ret;
     }
 
-    RelState apply(RelState s) {
-        RelState ret = s;
+    public HashMap apply(RelState s) {
+        HashMap ret = new HashMap();
         for (Object o : this.son) {
-            if (o instanceof AndCond) {
-                AndCond t = (AndCond) o;
-                ret = t.remove(s);
-            } else if (o instanceof Predicate) {
+             if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                ret = p.make_negative(s);
-            } else if (o instanceof NotCond) {
-                NotCond n = (NotCond) o;
-                ret = n.apply(s);
+                if (s.poss_interpretation.get(p) == 1){
+                    ret.put(p,2);
+                }
+                
             } else {
-                System.out.println("Effect " + this + " is not valid. Please revise your action model");
+                System.out.println("Not Cond. Effect " + o + " is not valid. Please revise your action model");
                 System.exit(-1);
             }
         }

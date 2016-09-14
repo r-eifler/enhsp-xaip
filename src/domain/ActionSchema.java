@@ -29,13 +29,13 @@ package domain;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
 
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumEffect;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,8 +49,6 @@ import problem.PddlProblem;
  */
 public class ActionSchema extends GenericActionType {
 
-    private SchemaParameters parameters;
-    private HashSet numericFluentAffected;
 
 
     public ActionSchema() {
@@ -61,30 +59,10 @@ public class ActionSchema extends GenericActionType {
         this.delList = new AndCond();
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
+        this.cond_effects = new AndCond();
         
     }
 
-//
-//    public Action ground(ArrayList terms){
-//        
-//        
-//        substitution = new HashMap();
-//        
-//        
-//    }
-    /**
-     * @return the parameters
-     */
-    public SchemaParameters getParameters() {
-        return parameters;
-    }
-
-    /**
-     * @param parameters the parameters to set
-     */
-    public void setParameters(SchemaParameters parameters) {
-        this.parameters = parameters;
-    }
 
     public void addParameter(Variable o) {
 
@@ -145,7 +123,7 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(par);
 
-        //System.out.println(this);
+//        System.out.println(this);
         if (numericEffects!= null || !numericEffects.sons.isEmpty()){
             //System.out.println(this);
             ret.setNumericEffects(this.numericEffects.ground(substitution));
@@ -157,6 +135,10 @@ public class ActionSchema extends GenericActionType {
         }
         if (preconditions != null) {
             ret.setPreconditions(this.preconditions.ground(substitution));
+        }
+        if (cond_effects != null) {
+//            System.out.println(cond_effects);
+            ret.cond_effects = this.cond_effects.ground(substitution);
         }
 
         return ret;
@@ -171,7 +153,7 @@ public class ActionSchema extends GenericActionType {
         ret.setAddList(addList);
         ret.setDelList(delList);
         ret.setNumericEffects(numericEffects);
-
+        ret.cond_effects = cond_effects;
         return ret;
     }
 
@@ -186,7 +168,7 @@ public class ActionSchema extends GenericActionType {
 
         String ret = "(:action " + this.name + "\n";
 
-        ret += ":parameters " + this.getParameters() + "\n";
+        ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
         ret += ":effect " + this.pddlEffects();
 
@@ -210,6 +192,13 @@ public class ActionSchema extends GenericActionType {
         if (this.getNumericEffects() != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
+                ret += nE.pddlPrint(false);
+
+            }
+        }
+        if (this.cond_effects != null) {
+            for (Object o : this.cond_effects.sons) {
+                ConditionalEffect nE = (ConditionalEffect) o;
                 ret += nE.pddlPrint(false);
 
             }
@@ -250,8 +239,8 @@ public class ActionSchema extends GenericActionType {
         ab.name = this.name+"_"+as2.name;
         
         
-        ab.setParameters( (SchemaParameters) a.getParameters().clone());
-        ab.getParameters().mergeParameters(as2.getParameters());
+        ab.setParameters( (SchemaParameters) a.parameters.clone());
+        ab.parameters.mergeParameters(as2.parameters);
 
         ab.setPreconditions(this.regress(as2, a));
         this.progress(a, as2, ab);

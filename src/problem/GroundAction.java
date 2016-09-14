@@ -29,8 +29,10 @@ package problem;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
+import conditions.NumFluentAssigner;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ParametersAsTerms;
@@ -63,7 +65,7 @@ import heuristics.RegressedSearchNode;
 
 public class GroundAction extends GenericActionType implements Comparable {
 
-    protected ParametersAsTerms parameters;
+    protected ParametersAsTerms parameters_as_terms;
     public boolean normalized;
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     private ArrayList primitives;
@@ -96,12 +98,15 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.numericEffects != null) {
             ret.numericEffects = this.numericEffects.clone();
         }
+        if (this.cond_effects != null) {
+            ret.cond_effects = this.cond_effects.clone();
+        }
 
         if (this.numericFluentAffected != null) {
             ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
         }
-        if (this.parameters != null) {
-            ret.parameters = (ParametersAsTerms) this.parameters.clone();
+        if (this.parameters_as_terms != null) {
+            ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
         if (this.preconditions != null) {
             ret.preconditions = this.preconditions.clone();
@@ -128,7 +133,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 29 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+        hash = 29 * hash + (this.parameters_as_terms != null ? this.parameters_as_terms.hashCode() : 0);
         hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
         return hash;
     }
@@ -149,7 +154,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         super();
         this.name = name;
         numericFluentAffected = null;
-        this.parameters = new ParametersAsTerms();
+        this.parameters_as_terms = new ParametersAsTerms();
         this.preconditions = new AndCond();
         this.numericEffects = new AndCond();
         //numericFluentAffected = new HashMap();
@@ -162,9 +167,12 @@ public class GroundAction extends GenericActionType implements Comparable {
         super();
         this.name = name;
         numericFluentAffected = null;
-        this.parameters = new ParametersAsTerms();
+        this.parameters_as_terms = new ParametersAsTerms();
         this.preconditions = new AndCond();
         this.numericEffects = new AndCond();
+        this.addList = new AndCond();
+        this.delList = new AndCond();
+        this.cond_effects = new AndCond();
         //numericFluentAffected = new HashMap();
         action_cost = null;
         interact_with = new HashMap();
@@ -226,14 +234,14 @@ public class GroundAction extends GenericActionType implements Comparable {
      * @return the parameters
      */
     public ParametersAsTerms getParameters() {
-        return parameters;
+        return parameters_as_terms;
     }
 
     /**
      * @param parameters the parameters to set
      */
     public void setParameters(ParametersAsTerms parameters) {
-        this.parameters = parameters;
+        this.parameters_as_terms = parameters;
     }
 
     public State apply(State s) {
@@ -242,87 +250,34 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            //System.out.println("Action: " + this + "  is not applicable");
 //            return null;
 //        }
+        HashMap subst = new HashMap();
         AndCond del = (AndCond) delList;
         if (del != null) {
-            del.apply(s);
+            subst.putAll(del.apply(s));
         }
         AndCond add = (AndCond) addList;
         if (add != null) {
-            add.apply(s);
+            subst.putAll(add.apply(s));
         }
 
         AndCond c = (AndCond) this.getNumericEffects();
-        if (c != null) {
-            ArrayList temporaryMod = new ArrayList();
-            HashMap fun2numb = new HashMap();
-            for (Object o : c.sons) {
-                NumEffect all = (NumEffect) o;
-                if (all.getFluentAffected().getName().equals("total-cost"))//this is to use total-cost as a keyword and not use this in the state
-                    continue;
-                NumFluent f = all.getFluentAffected();
-                PDDLNumber newN = null;
-
-                Float rValue = null;
-                if (all.getRight().eval(s) == null) {
-                    newN = null;
-                } else {
-                    rValue = all.getRight().eval(s).getNumber();
-                    if (rValue == null) {
-                        System.out.println("Trying to applying an action with invalid effects!!");
-                        System.out.println(this);
-                        System.exit(-1);
-                    }
-                    //System.out.println("Rvalue!!:" + rValue);
-                    switch (all.getOperator()) {
-                        case "increase":
-                            if (s.functionValue(f) == null) {
-                                newN = null;
-                            } else {
-                                newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
-                            }
-                            break;
-                        case "decrease":
-                            //                    System.out.print("Valore di " + f);
-                            //                    System.out.println(" :"+ s.functionValue(f).getNumber());
-                            if (s.functionValue(f) == null) {
-                                newN = null;
-                            } else {
-                                newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
-                            }
-                            break;
-                        case "assign":
-                            //System.out.println("================ASSIGN===========");
-                            newN = new PDDLNumber(rValue);
-                            break;
-                    }
+        subst.putAll(c.apply(s));
+        
+        if (this.cond_effects != null){
+            AndCond c_eff = (AndCond) this.cond_effects;
+            subst.putAll(c_eff.apply(s));
+        }
+        
+        for (Object o: subst.keySet()){
+            if (o instanceof NumFluent){
+                NumFluent nf = (NumFluent)o;
+                if (nf.is_has_to_be_tracked()){
+                    NumFluentAssigner ass = (NumFluentAssigner)s.numericFs.get(nf);
+                    ass.setTwo((PDDLNumber)subst.get(o));
                 }
-                if (newN == null) {
-                    System.out.println(this);
-                    System.out.println(newN);
-                    System.out.println("Rvalue!:" + rValue);
-                    System.out.println("operation!:" + all.getOperator());
-                    System.out.println(f);
-                    System.out.println(all.getRight());
-                    System.out.println(s);
-                    System.exit(-1);
-                }
-                temporaryMod.add(f);
-                fun2numb.put(f, newN);
+            }else{
+                s.propositions.put(o,subst.get(o));
             }
-//            PDDLNumber time =  s.functionValue(new NumFluent("time_elapsed"));
-//            if (time != null){
-//                float next_time = time.getNumber()+0.01f;
-//                s.setFunctionValue(new NumFluent("time_elapsed"),new PDDLNumber(next_time));
-//            }
-
-            for (Object o : temporaryMod) {
-                NumFluent f = (NumFluent) o;
-                PDDLNumber n = (PDDLNumber) fun2numb.get(f);
-
-                s.setFunctionValue(f, n);
-                //System.out.println(s.printFluentByName("in-at"));
-            }
-
         }
         return s;
     }
@@ -402,91 +357,38 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public RelState apply(RelState s) {
-        RelState ret = s;
-        AndCond add = (AndCond) addList;//if it is not the case then it will signal the error
-        if (add != null) {
-            ret = add.apply(s);
-        }
-        AndCond del = (AndCond) delList;//if it is not the case then it will signal the error
+        
+        HashMap subst = new HashMap();
+        AndCond del = (AndCond) delList;
         if (del != null) {
-            ret = del.apply(s);
+            subst.putAll(del.apply(s));
         }
+        AndCond add = (AndCond) addList;
+        if (add != null) {
+            subst.putAll(add.apply(s));
+        }
+
         AndCond c = (AndCond) this.getNumericEffects();
-
-        if (c != null) {
-            ArrayList temporaryMod = new ArrayList();
-            HashMap fun2numb = new HashMap();
-
-            ArrayList<NumEffect> queue = new ArrayList();
-
-            for (Object o : c.sons) {
-                NumEffect all = (NumEffect) o;
-                //all.apply(s);
-                if (all.getFluentAffected().getName().equals("total-cost"))//this is to use total-cost as a keyword and not use this in the state
-                    continue;
-                
-                NumFluent f = all.getFluentAffected();
-
- 
-                Interval after = new Interval();
-//                if (f.getName().contains("fuel-used")){
-//                    System.out.println("Something affecting Fuel");
-//                }
-
-                Interval current = s.functionValues(f);
-
-//                if ((current == null) && (!(all.getOperator().equals("assign")))) {
-//                    System.out.println(f + "  is not present in the current state");
-//                }
-                Interval eval = all.getRight().eval(s);
-
-//                if (f.getName().contains("fuel-used")){
-//                    System.out.println("Before ("+current.inf+","+current.sup+")");
-//                
-//                }
-                if (all.getOperator().equals("increase")) {
-                    //System.out.println(current);
-                    //System.out.println(current.sum(eval).inf);
-                    after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
-//                    System.out.println(current.sum(eval).inf.getNumber());
-                } else if (all.getOperator().equals("decrease")) {
-                    after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
-
-                } else if (all.getOperator().equals("assign")) {
-                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-                    } else {
-                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
-                    }
-                }
-//                if (f.getName().contains("fuel-used")){
-//                    System.out.println("Azione:"+this);
-//                    System.out.println("After ("+after.inf+","+after.sup+")");
-//                
-//                }
-                if (after == null || after.getInf() == null || after.getSup() == null) {
-                    System.out.println("Something went really wrong when applying effect on " + f);
-                    System.exit(-1);
-                }
-
-                temporaryMod.add(f);
-                fun2numb.put(f, after);
-            }
-
-            for (Object o : temporaryMod) {
-                NumFluent f = (NumFluent) o;
-                Interval n = (Interval) fun2numb.get(f);
-
-                s.setFunctionValues(f, n);
-
-            }
-
+        subst.putAll(c.apply(s));
+        
+        if (this.cond_effects != null){
+            AndCond c_eff = (AndCond) this.cond_effects;
+            subst.putAll(c_eff.apply(s));
         }
-        return ret;
+        
+        for (Object o: subst.keySet()){
+            if (o instanceof NumFluent){
+                NumFluent nf = (NumFluent)o;
+                if (nf.is_has_to_be_tracked()){
+                   s.setFunctionValues(nf, (Interval)subst.get(o));
+                   
+                }
+            }else{
+                s.poss_interpretation.put((Predicate)o,(Integer)subst.get(o));
+            }
+        }
+        return s;
+        
     }
 
     public boolean isApplicable(RelState current) {
@@ -761,6 +663,13 @@ public class GroundAction extends GenericActionType implements Comparable {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
                 ret += nE.pddlPrint(false);
+            }
+        }
+        if (this.cond_effects != null) {
+            for (Object o : this.cond_effects.sons) {
+                ConditionalEffect nE = (ConditionalEffect) o;
+                ret += nE.pddlPrint(false);
+
             }
         }
 
@@ -2395,100 +2304,37 @@ public class GroundAction extends GenericActionType implements Comparable {
         return apply_with_generalized_interval_based_relaxation(s_copied);
     }
     public RelState apply_with_generalized_interval_based_relaxation(RelState s) {
-        RelState ret = s;
-//        System.out.println("before"+s);
-
+     HashMap subst = new HashMap();
+        AndCond del = (AndCond) delList;
+        if (del != null) {
+            subst.putAll(del.apply(s));
+        }
         AndCond add = (AndCond) addList;
         if (add != null) {
-            ret = add.apply(s);
+            subst.putAll(add.apply(s));
         }
-        AndCond del = (AndCond) delList;//if it is not the case then it will signal the error
-        if (del != null) {
-            ret = del.apply(s);
-        }
-//        System.out.println("after"+s);
+
         AndCond c = (AndCond) this.getNumericEffects();
-
-        if (c != null) {
-            ArrayList temporaryMod = new ArrayList();
-            HashMap fun2numb = new HashMap();
-
-            ArrayList<NumEffect> queue = new ArrayList();
-
-            for (Object o : c.sons) {
-                NumEffect all = (NumEffect) o;
-                //all.apply(s);
-                NumFluent f = all.getFluentAffected();
-
-                Interval after = new Interval();
-//                if (f.getName().contains("fuel-used")){
-//                    System.out.println("Something affecting Fuel");
-//                }
-
-                Interval current = s.functionValues(f);
-
-//                if ((current == null) && (!(all.getOperator().equals("assign")))) {
-//                    System.out.println(f + "  is not present in the current state");
-//                }
-                Interval eval = all.getRight().eval(s);
-
-//                if (f.getName().contains("fuel-used")){
-//                    System.out.println("Before ("+current.inf+","+current.sup+")");
-//                
-//                }
-                if (all.getOperator().equals("increase")) {
-                    //System.out.println(current);
-                    //System.out.println(current.sum(eval).inf);
-                    after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
-//                    System.out.println(current.sum(eval).inf.getNumber());
-                } else if (all.getOperator().equals("decrease")) {
-                    after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
-
-                } else if (all.getOperator().equals("assign")) {
-
-                    if (all.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                        if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                            after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                            after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-                        } else {
-                            after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                            after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
-                        }
-                    } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
-                        //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
-                        //monotonicity. Look at the report on generalize interval based relaxation.
-                        BinaryOp bin = new BinaryOp(all.getRight(), "-", all.getFluentAffected(), true);
-                        Interval monotonic_eval = bin.eval(s);
-                        after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
-                        after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
-                    }
-                }
-//                if (f.getName().contains("fuel-used")){
-//                    System.out.println("Azione:"+this);
-//                    System.out.println("After ("+after.inf+","+after.sup+")");
-//                
-//                }
-                if (after == null || after.getInf() == null || after.getSup() == null) {
-                    System.out.println("Something went really wrong when applying effect on " + f);
-                    System.exit(-1);
-                }
-
-                temporaryMod.add(f);
-                fun2numb.put(f, after);
-            }
-
-            for (Object o : temporaryMod) {
-                NumFluent f = (NumFluent) o;
-                Interval n = (Interval) fun2numb.get(f);
-
-                s.setFunctionValues(f, n);
-
-            }
-
+        subst.putAll(c.apply(s));
+        
+        if (this.cond_effects != null){
+            AndCond c_eff = (AndCond) this.cond_effects;
+            subst.putAll(c_eff.apply(s));
         }
-        return ret;
+        
+        for (Object o: subst.keySet()){
+            if (o instanceof NumFluent){
+                NumFluent nf = (NumFluent)o;
+                if (nf.is_has_to_be_tracked()){
+                   
+                   s.setFunctionValues(nf, (Interval)subst.get(o));
+                   
+                }
+            }else{
+                s.poss_interpretation.put((Predicate)o,(Integer)subst.get(o));
+            }
+        }
+        return s;
     }
 
     public boolean has_complex_preconditions() {

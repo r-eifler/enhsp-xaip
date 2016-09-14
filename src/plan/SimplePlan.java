@@ -92,7 +92,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug = 0;
+    private int debug =0;
     private boolean newMethod = true;
     public boolean print_trace;
     public float cost;
@@ -233,7 +233,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             PDDLObject obj = new PDDLObject(par);
                             //System.out.println(obj);
                             ActionSchema a = this.pd.getActionByName(nameOperator);
-                            Variable v = (Variable) a.getParameters().get(objectCounter);
+                            Variable v = (Variable) a.getPar().get(objectCounter);
                             obj.setType(v.getType());
 
                             pars.add(obj);
@@ -282,7 +282,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                System.out.println(a);
 //               System.out.println(a.getParameters().size());
 //                System.out.println(objectCounter);
-                Variable v = (Variable) a.getParameters().get(objectCounter);
+                Variable v = (Variable) a.getPar().get(objectCounter);
                 obj.setType(v.getType());
 
                 pars.add(obj);
@@ -2058,7 +2058,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr.isApplicable(temp)) {
                 i++;
                 // MRJ: Prints the state, meant for debugging
-                //System.out.println(temp.pddlPrint());
+                if (debug >1 )
+                    System.out.println(temp.pddlPrint());
                 temp = gr.apply(temp);
 
                 if (debug > 1) {

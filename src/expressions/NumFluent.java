@@ -47,6 +47,7 @@ public class NumFluent extends Expression {
     final private String name;
     private ArrayList terms;
     private String beforeReformulation;
+    private Boolean has_to_be_tracked;
 
     @Override
     public boolean equals(Object obj) {
@@ -451,5 +452,15 @@ public class NumFluent extends Expression {
         ret+="-"+i;
         //ret = ret.concat(")");
         return ret.replaceAll("\\s+","");
+    }
+
+    public boolean is_has_to_be_tracked() {
+        if (has_to_be_tracked == null){
+            if (this.getName().equals("total-cost"))
+                has_to_be_tracked = Boolean.FALSE;
+            else
+                has_to_be_tracked = Boolean.TRUE;
+        }
+        return has_to_be_tracked;
     }
 }

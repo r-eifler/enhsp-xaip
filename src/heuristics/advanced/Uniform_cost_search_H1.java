@@ -55,6 +55,10 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -93,6 +97,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         } catch (Exception ex) {
             getLogger(Uniform_cost_search_H1.class.getName()).log(SEVERE, null, ex);
         }
+        
         build_integer_representation();
         identify_complex_conditions(all_conditions, A);
         generate_achievers();

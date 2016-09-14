@@ -259,17 +259,20 @@ public class SearchStrategies {
 
         getHeuristic().setup(current);
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
+//        System.out.println(getHeuristic().reachable);
         Float current_value = getHeuristic().compute_estimate(current);
         Float init_estimate = current_value;
         //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
         System.out.println("H(s_0,G)=:" + current_value);
-        if (current_value == Float.MAX_VALUE) {
-            num_dead_end_detected++;
-            return null;
-        }
+
         SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
+        }
+        
+        if (current_value == Float.MAX_VALUE) {
+            num_dead_end_detected++;
+            return null;
         }
         frontier.add(init);
         HashMap<State, Boolean> visited = new HashMap();
@@ -279,8 +282,10 @@ public class SearchStrategies {
         node_reopened = 0;
         float current_g = 0f;
         g.put(problem.getInit(), 0f);
+        
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
+//            System.out.println(current_node);
             if (current_node.g_n >= horizon) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
@@ -391,6 +396,7 @@ public class SearchStrategies {
 
     public LinkedList blindSearch(EPddlProblem problem) throws Exception {
 
+        System.out.println("Blind Search");
         long start_global = System.currentTimeMillis();
         PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
         State current = (State) problem.getInit();
