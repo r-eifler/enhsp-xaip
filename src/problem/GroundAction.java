@@ -272,8 +272,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             if (o instanceof NumFluent){
                 NumFluent nf = (NumFluent)o;
                 if (nf.is_has_to_be_tracked()){
-                    NumFluentAssigner ass = (NumFluentAssigner)s.numericFs.get(nf);
-                    ass.setTwo((PDDLNumber)subst.get(o));
+                    s.setFunctionValue(nf, (PDDLNumber)subst.get(o));
                 }
             }else{
                 Boolean newval =(Boolean)subst.get(o);
@@ -385,7 +384,6 @@ public class GroundAction extends GenericActionType implements Comparable {
                 NumFluent nf = (NumFluent)o;
                 if (nf.is_has_to_be_tracked()){
                    s.setFunctionValues(nf, (Interval)subst.get(o));
-                   
                 }
             }else{
                 s.poss_interpretation.put((Predicate)o,(Integer)subst.get(o));

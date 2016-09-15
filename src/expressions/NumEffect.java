@@ -161,20 +161,27 @@ public class NumEffect extends Expression implements PostCondition{
 
         HashMap ret = new HashMap();
         PDDLNumber after = null;
+        PDDLNumber eval = null;
         if (this.operator.equals("increase")) {
             PDDLNumber current = state.functionValue(fluentAffected);
-            PDDLNumber eval = this.getRight().eval(state);
+             eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() + eval.getNumber());
         } else if (this.operator.equals("decrease")) {
             PDDLNumber current = state.functionValue(fluentAffected);
-            PDDLNumber eval = this.getRight().eval(state);
+             eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() - eval.getNumber());
         } else if (this.operator.equals("assign")) {
-            PDDLNumber eval = this.getRight().eval(state);
+             eval = this.getRight().eval(state);
             after = eval;
         }
         
+        if (eval == null){
+            System.out.println("Applying a not applicable effect!:"+this);
+            System.exit(-1);
+        }
+        
         ret.put(this.fluentAffected,after);
+        
 
         return ret;
 
