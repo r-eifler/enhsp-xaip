@@ -282,7 +282,6 @@ public class  Predicate extends Conditions implements PostCondition {
 
     public State remove(State s){
         s.removeProposition(this);
-
         return s;
     }
 

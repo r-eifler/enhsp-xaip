@@ -706,25 +706,8 @@ public final class PddlDomain extends Object {
         switch (infoAction.getType()) {
             case PddlParser.PRED_HEAD:
                 //estrapola tutti i predicati e ritornali come set di predicati
+                return buildPredicate(infoAction, parTable);
 
-                if (infoAction.getParent() != null) { //non dovrebbe mai succedere....?
-                    if (infoAction.getParent().getType() == PddlParser.NOT_EFFECT) {//solo se mio padre è un not altrimenti non aggiungo niente
-                        NotCond not = new NotCond();
-                        for (int i = 0; i < infoAction.getChildCount(); i++) {
-                            Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                            if (ret_val != null) {
-                                not.addConditions(ret_val);
-                            }
-                        }
-                        return not;
-                        //return buildPredicate(infoAction, parTable);
-                    } else {
-                        return buildPredicate(infoAction, parTable);
-                    }
-                } else {
-                    System.out.println("warning: " + infoAction + "  has not father in the type hierarchy");
-                }
-                break;
             case PddlParser.AND_EFFECT:
                 AndCond and = new AndCond();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -734,10 +717,18 @@ public final class PddlDomain extends Object {
                     }
                 }
                 return and;
+            case PddlParser.NOT_EFFECT:
+                NotCond not = new NotCond();
+                Conditions ret_val = (Conditions)createPostCondition(parTable,infoAction.getChild(0));
+                not.addConditions((Conditions) ret_val);
+                 
+                
+                return not;
             //Crea un and e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di and
             case PddlParser.ASSIGN_EFFECT:
                 NumEffect a = new NumEffect(infoAction.getChild(0).getText());
+//                System.out.println("DEBUG: Working out this effect:"+a);
                 a.setFluentAffected((NumFluent) createExpression(infoAction.getChild(1), parTable));
                 a.setRight((Expression) createExpression(infoAction.getChild(2), parTable));
                 return a;
@@ -750,7 +741,9 @@ public final class PddlDomain extends Object {
 
                 return new ConditionalEffect(lhs, rhs);
             default:
+                System.out.println("Serious error in parsing:" + infoAction);
                 System.err.println("ADL not fully supported");
+                System.exit(-1);
                 break;
         }
         return null;
@@ -855,6 +848,7 @@ public final class PddlDomain extends Object {
                         }
                     } else {
                         Variable v = new Variable(t.getChild(i).getText());
+                        //System.out.println(parTable);
                         Variable v1 = parTable.containsVariable(v);
 
                         if (v1 != null) {
@@ -1159,7 +1153,7 @@ public final class PddlDomain extends Object {
         ProcessSchema a = new ProcessSchema();
         Tree process = (Tree) c.getChild(0);
         a.setName(process.getText());
-        //System.out.println("Adding:"+a.getName());
+//        System.out.println("DEBUG: Adding:"+a.getName());
         this.ProcessesSchema.add(a);
 
         for (int i = 1; i < c.getChildCount(); i++) {
@@ -1234,10 +1228,10 @@ public final class PddlDomain extends Object {
 //    }
     private void add_effects(GenericActionType a, Tree infoAction) {
         PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
-        create_effects_by_cases(res,a);
+        create_effects_by_cases(res, a);
     }
-    
-    public static void create_effects_by_cases(PostCondition res, GenericActionType a){
+
+    public static void create_effects_by_cases(PostCondition res, GenericActionType a) {
         if (res instanceof AndCond) {
             AndCond pc = (AndCond) res;
             for (Object o : pc.sons) {
@@ -1251,16 +1245,15 @@ public final class PddlDomain extends Object {
                     a.cond_effects.sons.add(o);
                 }
             }
-        }else if ( res instanceof Predicate){
-           a.addList.sons.add(res);          
-        }else if ( res instanceof NotCond){
-           a.delList.sons.add(res);
-        }else if ( res instanceof NumEffect){
-           a.numericEffects.sons.add(res); 
-        }else if ( res instanceof ConditionalEffect){
-           a.cond_effects.sons.add(res); 
+        } else if (res instanceof Predicate) {
+            a.addList.sons.add(res);
+        } else if (res instanceof NotCond) {
+            a.delList.sons.add(res);
+        } else if (res instanceof NumEffect) {
+            a.numericEffects.sons.add(res);
+        } else if (res instanceof ConditionalEffect) {
+            a.cond_effects.sons.add(res);
         }
     }
-    
-    
+
 }

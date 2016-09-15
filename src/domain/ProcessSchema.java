@@ -49,8 +49,8 @@ import problem.PddlProblem;
  */
 public class ProcessSchema extends GenericActionType {
 
-    private SchemaParameters parameters;
-    private HashSet numericFluentAffected;
+    //private SchemaParameters parameters;
+    //private HashSet numericFluentAffected;
 
 
     public ProcessSchema() {
@@ -184,7 +184,7 @@ public class ProcessSchema extends GenericActionType {
 //        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
 //    }
 
-        String ret = "(:action " + this.name + "\n";
+        String ret = "(:process " + this.name + "\n";
 
         ret += ":parameters " + this.getParameters() + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";

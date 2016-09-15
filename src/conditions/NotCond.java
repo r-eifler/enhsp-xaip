@@ -128,7 +128,7 @@ public class NotCond extends Conditions implements PostCondition{
         HashMap ret = new HashMap();
         for (Object o : this.son) {
             if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
+                Predicate p = (Predicate) o;         
                 ret.put(p,Boolean.FALSE);
             } else {
                 System.out.println("Not Condition. Effect " + o + " is not valid. Please revise your action model");
@@ -227,9 +227,10 @@ public class NotCond extends Conditions implements PostCondition{
         for (Object o : this.son) {
              if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                if (s.poss_interpretation.get(p) == 1){
-                    ret.put(p,2);
-                }
+                if (s.poss_interpretation.get(p) != null)
+                    if (s.poss_interpretation.get(p) == 1){
+                        ret.put(p,2);
+                    }
                 
             } else {
                 System.out.println("Not Cond. Effect " + o + " is not valid. Please revise your action model");

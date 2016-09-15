@@ -276,7 +276,11 @@ public class GroundAction extends GenericActionType implements Comparable {
                     ass.setTwo((PDDLNumber)subst.get(o));
                 }
             }else{
-                s.propositions.put(o,subst.get(o));
+                Boolean newval =(Boolean)subst.get(o);
+                if (!newval)
+                    s.removeProposition((Predicate)o);
+                else
+                    s.propositions.put(o,subst.get(o));
             }
         }
         return s;

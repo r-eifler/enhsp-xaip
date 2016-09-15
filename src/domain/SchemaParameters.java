@@ -37,7 +37,6 @@ import java.util.Iterator;
 public class SchemaParameters extends ArrayList {
 
     public Variable containsVariable(Variable o) {
-        Integer ret_val = -1;
         Iterator it = this.iterator();
         while (it.hasNext()) {
             Variable v = (Variable) it.next();

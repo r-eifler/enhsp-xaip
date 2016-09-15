@@ -92,7 +92,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private IdentityHashMap validationStructures;
     private HashMap goalAchiever;
     private ConnectivityInspector<Object, Object> connectedSetBuilder;
-    private int debug =0;
+    private int debug = 0;
     private boolean newMethod = true;
     public boolean print_trace;
     public float cost;
@@ -2211,6 +2211,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : this) {
+            if (debug>0)
+                System.out.println(current.pddlPrint());
             //System.out.println(gr.getClass());
             gr.setAction_cost(current);
             this.cost+=gr.getAction_cost();

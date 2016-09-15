@@ -92,9 +92,9 @@ public class State extends Object {
 
         
         for (Object o : this.propositions.keySet()) {
-            Predicate ele = (Predicate) o;
             //ret_val.addProposition((Predicate) ele.clone());
-            ret_val.addProposition((Predicate) ele.clone());
+            ret_val.propositions.put(o, this.propositions.get(o));
+//            ret_val.addProposition((Predicate) ele.clone());
         }
         //ret_val.propositions = (HashSet) this.propositions.clone();
 
