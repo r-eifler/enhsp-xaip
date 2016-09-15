@@ -532,13 +532,14 @@ public abstract class Heuristic {
         int iteration = 0;
         if (proven_reachable == null)
             proven_reachable = false;
-        
+        this.dbg_print("Starting the reacheability analysis. Is it Reachable? :"+proven_reachable);
         //the bound here is only to capture really unlikely instances. Should be domain independent though
         while (iteration < 100 || proven_reachable ) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
-                a.apply(rel_state);
+                rel_state.update_values(a.apply(rel_state));
+                
 
                 if (visited.get(a)==null)
                     cost += action_to_cost.get(this.num_eff_action.get(a));//precondition

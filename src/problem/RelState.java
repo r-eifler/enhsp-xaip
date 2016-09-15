@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package problem;
 
 import conditions.Comparison;
@@ -43,7 +45,7 @@ import java.util.HashSet;
  */
 public class RelState extends Object {
 
-    public HashMap<Predicate,Integer> poss_interpretation;//0 is negative, 1 positive, 2 both
+    public HashMap<Predicate, Integer> poss_interpretation;//0 is negative, 1 positive, 2 both
     public HashMap poss_numericFs;
     HashSet timedLiterals;///to do
 
@@ -61,7 +63,7 @@ public class RelState extends Object {
     }
 
     @Override
-    public RelState clone()  {
+    public RelState clone() {
         RelState ret_val = new RelState();
 
         for (Object o : this.poss_numericFs.values()) {
@@ -84,7 +86,6 @@ public class RelState extends Object {
         }
 
         //ret_val.propositions = (HashSet) this.propositions.clone();
-
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
 
         return ret_val;
@@ -110,7 +111,7 @@ public class RelState extends Object {
             ret_val.setInf(a.getTwo());
             ret_val.setSup(a.getNFlunetValueUpperBound());
             return ret_val;
-        }else{
+        } else {
             Interval ret_val = new Interval(Float.NaN);
             return ret_val;
         }
@@ -125,11 +126,11 @@ public class RelState extends Object {
     }
 
     public void make_positive(Predicate p) {
-        Integer inter =poss_interpretation.get(p);
-        if (inter==null){//if was negative by default
-            poss_interpretation.put(p,2);
-        }else if (inter == 0){//if was said to be negative
-            poss_interpretation.put(p,2);
+        Integer inter = poss_interpretation.get(p);
+        if (inter == null) {//if was negative by default
+            poss_interpretation.put(p, 2);
+        } else if (inter == 0) {//if was said to be negative
+            poss_interpretation.put(p, 2);
         }
     }
 
@@ -154,7 +155,7 @@ public class RelState extends Object {
         if (o == null) {
             return false;
         }
-        return o>=1;
+        return o >= 1;
     }
 
     public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
@@ -174,10 +175,10 @@ public class RelState extends Object {
     }
 
     public void make_negative(Predicate p) {
-        Integer inter =poss_interpretation.get(p);
-        if (inter==null){//if was negative by default
-        }else if (inter == 1){//if was said to be positive it will also be negative
-            poss_interpretation.put(p,2);
+        Integer inter = poss_interpretation.get(p);
+        if (inter == null) {//if was negative by default
+        } else if (inter == 1) {//if was said to be positive it will also be negative
+            poss_interpretation.put(p, 2);
         }
     }
 
@@ -244,13 +245,12 @@ public class RelState extends Object {
 //    }
     public boolean satisfy(Conditions con) {
 
-        if (con == null){
+        if (con == null) {
             System.out.println(this);
             System.out.println("something wrong");
             System.exit(-1);
         }
         return con.isSatisfied(this);
-
 
     }
 
@@ -261,15 +261,16 @@ public class RelState extends Object {
                 a.setTwo(after.getInf());
                 a.setNFlunetValueUpperBound(after.getSup());
             }
-        }else{
-            a = new NumFluentAssigner(f,after);
+        } else {
+            a = new NumFluentAssigner(f, after);
             this.addNumericFluent(a);
         }
     }
 
     public float satisfaction_distance(Comparison comparison) {
-        if (this.satisfy(comparison))
+        if (this.satisfy(comparison)) {
             return 0;
+        }
         RelState s = this;
         Expression left = comparison.getLeft();
         Expression right = comparison.getRight();
@@ -282,29 +283,38 @@ public class RelState extends Object {
             return Float.MAX_VALUE;//negation by failure.
         }
         if (comparison.getComparator().equals("<")) {
-            return lv.getInf().getNumber() - rv.getSup().getNumber()+ Float.MIN_VALUE;
+            return lv.getInf().getNumber() - rv.getSup().getNumber() + Float.MIN_VALUE;
         } else if (comparison.getComparator().equals("<=")) {
             return lv.getInf().getNumber() - rv.getSup().getNumber();
         } else if (comparison.getComparator().equals(">")) {
-            return  rv.getInf().getNumber() - lv.getSup().getNumber()+ Float.MIN_VALUE;
+            return rv.getInf().getNumber() - lv.getSup().getNumber() + Float.MIN_VALUE;
         } else if (comparison.getComparator().equals(">=")) {
             return rv.getInf().getNumber() - lv.getSup().getNumber();
         } else if (comparison.getComparator().equals("=")) {
             if (!((lv.getInf().getNumber() > rv.getSup().getNumber()) || (rv.getInf().getNumber() > lv.getSup().getNumber()))) {
                 return -Float.MIN_VALUE;
+            } else if (lv.getInf().getNumber() > lv.getInf().getNumber()) {
+                return lv.getInf().getNumber() - lv.getInf().getNumber();
             } else {
-                if (lv.getInf().getNumber() > lv.getInf().getNumber()){
-                    return lv.getInf().getNumber() - lv.getInf().getNumber();
-                } else{
-                    return rv.getInf().getNumber() -lv.getSup().getNumber();
-                }
-                
-
+                return rv.getInf().getNumber() - lv.getSup().getNumber();
             }
         } else {
             System.out.println(comparison.getComparator() + "  is not supported");
         }
 
         return Float.MAX_VALUE;
+    }
+
+    public void update_values(HashMap subst) {
+        for (Object o : subst.keySet()) {
+            if (o instanceof NumFluent) {
+                NumFluent nf = (NumFluent) o;
+                if (nf.is_has_to_be_tracked()) {
+                    this.setFunctionValues(nf, (Interval) subst.get(o));
+                }
+            } else {
+                this.poss_interpretation.put((Predicate) o, (Integer) subst.get(o));
+            }
+        }
     }
 }

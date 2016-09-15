@@ -379,16 +379,9 @@ public class GroundAction extends GenericActionType implements Comparable {
             subst.putAll(c_eff.apply(s));
         }
         
-        for (Object o: subst.keySet()){
-            if (o instanceof NumFluent){
-                NumFluent nf = (NumFluent)o;
-                if (nf.is_has_to_be_tracked()){
-                   s.setFunctionValues(nf, (Interval)subst.get(o));
-                }
-            }else{
-                s.poss_interpretation.put((Predicate)o,(Integer)subst.get(o));
-            }
-        }
+        s.update_values(subst);
+        
+
         return s;
         
     }

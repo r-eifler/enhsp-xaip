@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package expressions;
 
 import conditions.Conditions;
@@ -39,7 +41,7 @@ import problem.State;
  *
  * @author Enrico Scala
  */
-public class NumEffect extends Expression implements PostCondition{
+public class NumEffect extends Expression implements PostCondition {
 
     public String operator;
     private NumFluent fluentAffected;
@@ -109,7 +111,8 @@ public class NumEffect extends Expression implements PostCondition{
 
     /**
      *
-     * @param substitution a substitution for variables. It is a mapping of object to variable
+     * @param substitution a substitution for variables. It is a mapping of
+     * object to variable
      * @return a new Grounded NumEffect object
      */
     @Override
@@ -120,7 +123,7 @@ public class NumEffect extends Expression implements PostCondition{
         ret.grounded = true;
         return ret;
     }
-    
+
     @Override
     public Expression unGround(Map substitution) {
         NumEffect ret = new NumEffect(this.operator);
@@ -129,7 +132,6 @@ public class NumEffect extends Expression implements PostCondition{
         ret.grounded = false;
         return ret;
     }
-    
 
     /**
      *
@@ -159,29 +161,31 @@ public class NumEffect extends Expression implements PostCondition{
      */
     public HashMap apply(State state) {
 
+        if (!fluentAffected.is_has_to_be_tracked())
+            return new HashMap();
         HashMap ret = new HashMap();
         PDDLNumber after = null;
-        PDDLNumber eval = null;
+        PDDLNumber eval = this.getRight().eval(state);
+        if (eval == null) {
+            System.out.println("Applying a not applicable effect!:" + this);
+            System.exit(-1);
+        }
+
         if (this.operator.equals("increase")) {
             PDDLNumber current = state.functionValue(fluentAffected);
-             eval = this.getRight().eval(state);
+            if (current == null) {
+                System.out.println("Applying a not applicable effect!:" + this);
+                System.exit(-1);
+            }
             after = new PDDLNumber(current.getNumber() + eval.getNumber());
         } else if (this.operator.equals("decrease")) {
             PDDLNumber current = state.functionValue(fluentAffected);
-             eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() - eval.getNumber());
         } else if (this.operator.equals("assign")) {
-             eval = this.getRight().eval(state);
             after = eval;
         }
-        
-        if (eval == null){
-            System.out.println("Applying a not applicable effect!:"+this);
-            System.exit(-1);
-        }
-        
-        ret.put(this.fluentAffected,after);
-        
+
+        ret.put(this.fluentAffected, after);
 
         return ret;
 
@@ -258,13 +262,14 @@ public class NumEffect extends Expression implements PostCondition{
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.setRight(this.right.weakEval(s, invF));
-        if (this.right == null){
+        if (this.right == null) {
             //System.out.println(this);
             return null;
-        }else if (this.right instanceof PDDLNumber){
-            PDDLNumber rhs_number = (PDDLNumber)this.right;
-            if (rhs_number.getNumber().isNaN())
+        } else if (this.right instanceof PDDLNumber) {
+            PDDLNumber rhs_number = (PDDLNumber) this.right;
+            if (rhs_number.getNumber().isNaN()) {
                 return null;
+            }
         }
 //        System.out.println(this);
         return this;
@@ -297,52 +302,50 @@ public class NumEffect extends Expression implements PostCondition{
      *
      * @param s
      */
-    public HashMap apply(RelState s) {
+    public HashMap apply(RelState s) {//This follows as for Convex union
         HashMap ret = new HashMap();
-        
+
         Interval after = new Interval();
         Interval current = s.functionValues(fluentAffected);
         Interval eval = this.getRight().eval(s);
 
-        if (getOperator().equals("increase")) {
+        if (this.getOperator().equals("increase")) {
             //System.out.println(current);
             //System.out.println(current.sum(eval).inf);
-             after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-             after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
-//                    System.out.println(current.sum(eval).inf.getNumber());
+            after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+            after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
         } else if (getOperator().equals("decrease")) {
             after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
             after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
         } else if (getOperator().equals("assign")) {
-            if (additive_relaxation){
-                    if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                        if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                            after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                            after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-                        } else {
-                            after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                            after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
-                        }
-                    } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
-                        //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
-                        //monotonicity. Look at the report on generalize interval based relaxation.
-                        BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
-                        Interval monotonic_eval = bin.eval(s);
-                        after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
-                        after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
+            if (additive_relaxation) {
+                if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                    } else {
+                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
                     }
-            }else{
-                if (current == null || current.is_not_a_number || current.getInf().getNumber() == Float.NaN || current.getSup().getNumber() == Float.NaN ) {
-                    after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                    after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-                } else {
-                    after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
+                    //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
+                    //monotonicity. Look at the report on generalize interval based relaxation.
+                    BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
+                    Interval monotonic_eval = bin.eval(s);
+                    after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
                 }
+            } else if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+            } else {
+                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
             }
+
         }
-        ret.put(fluentAffected,after);
+        ret.put(fluentAffected, after);
         return ret;
 
     }
@@ -353,7 +356,7 @@ public class NumEffect extends Expression implements PostCondition{
      * @return
      */
     @Override
-    public boolean involve(HashMap<NumFluent,Boolean> arrayList) {
+    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
         return this.getRight().involve(arrayList);
     }
 
@@ -366,7 +369,6 @@ public class NumEffect extends Expression implements PostCondition{
     public Expression subst(Conditions numeric) {
 
         //NumEffect ret = (NumEffect)this.clone();
-
         NumEffect ret = (NumEffect) this.clone();
         ret.right = ret.right.subst(numeric);
 
@@ -384,7 +386,6 @@ public class NumEffect extends Expression implements PostCondition{
             NumEffect ef = (NumEffect) o;
             if (ef.fluentAffected.equals(ret.fluentAffected)) {
 
-
                 if (ef.getOperator().equals("assign")) {
                     ret.setRight(new BinaryOp(ret.right, "-", new BinaryOp(ef.right, "-", ret.fluentAffected, true), true));
                 } else if (ef.getOperator().equals(ret.getOperator())) {
@@ -392,7 +393,6 @@ public class NumEffect extends Expression implements PostCondition{
                 } else {
                     ret.setRight(new BinaryOp(ret.right, "-", ef.right, true));
                 }
-
 
             }
         }
@@ -427,77 +427,73 @@ public class NumEffect extends Expression implements PostCondition{
             op.setOperator("+");
             op.setRight(this.getRight());
             op.setOne(this.getFluentAffected());
-            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ op.toSmtVariableString(i)+")";
+            return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + op.toSmtVariableString(i) + ")";
 
         } else if (this.operator.equals("decrease")) {
             op.setOperator("-");
             op.setRight(this.getRight());
             op.setOne(this.getFluentAffected());
-            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ op.toSmtVariableString(i)+")";
+            return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + op.toSmtVariableString(i) + ")";
 
         } else if (this.operator.equals("assign")) {
-            return "(= "+ this.getFluentAffected().toSmtVariableString(i+1) +" "+ this.getRight().toSmtVariableString(i)+")";
+            return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + this.getRight().toSmtVariableString(i) + ")";
         }
 
         return null;
     }
-    
+
     public String to_smtlib_with_repetition(int i, String var) {
-        
-        
+
         //here there is the assumption that increase and decrease are internal cycle free, which makes a lot of sense. Formally
         //rhs(e) \cap lhs(e) = \emptyset
-        return "(= "+ this.getFluentAffected().toSmtVariableString(i+1)+" "+ this.to_smtlib_with_repetition_for_the_right_part(i, var)+")";
+        return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + this.to_smtlib_with_repetition_for_the_right_part(i, var) + ")";
     }
 
     public String to_smtlib_with_repetition_for_the_right_part(int i, String var) {
-        
-        
+
         //here there is the assumption that increase and decrease are internal cycle free, which makes a lot of sense. Formally
         //rhs(e) \cap lhs(e) = \emptyset
         if (this.operator.equals("increase")) {
-            return "(+ "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" ))";
+            return "(+ " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + this.getRight().toSmtVariableString(i) + " ))";
         } else if (this.operator.equals("decrease")) {
-            return "(- "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ this.getRight().toSmtVariableString(i)+" ))";
+            return "(- " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + this.getRight().toSmtVariableString(i) + " ))";
         } else if (this.operator.equals("assign")) {
-            ExtendedNormExpression r = (ExtendedNormExpression)this.getRight();
-            ExtendedNormExpression new_right= new ExtendedNormExpression(0f);
+            ExtendedNormExpression r = (ExtendedNormExpression) this.getRight();
+            ExtendedNormExpression new_right = new ExtendedNormExpression(0f);
             PDDLNumber alpha = null;
-            for (ExtendedAddendum ad: r.summations){
-                if (ad.bin != null){
+            for (ExtendedAddendum ad : r.summations) {
+                if (ad.bin != null) {
                     System.out.println("Error: Trying to roll up an unrollable action");
                     System.exit(-1);
                 }
-                
-                if (ad.f != null && ad.f.equals(this.getFluentAffected())){
-                     if (ad.n.getNumber() > 0f || ad.n.getNumber() == -1f) {
+
+                if (ad.f != null && ad.f.equals(this.getFluentAffected())) {
+                    if (ad.n.getNumber() > 0f || ad.n.getNumber() == -1f) {
                         ///setting the alpha...
                         alpha = ad.n;
-                     }else{
+                    } else {
                         System.out.println("Error: Trying to roll up an unrollable action");
                         System.exit(-1);
-                     }
-                }else{
+                    }
+                } else {
                     new_right.summations.add(ad);
                 }
             }
-            if (alpha == null){
+            if (alpha == null) {
                 return new_right.toSmtVariableString(i);
-            }else if (alpha.getNumber() == -1f){
-                return "(- "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ new_right.toSmtVariableString(i)+" ))";
-            }else if (alpha.getNumber() == 1f){
-                return "(+ "+this.getFluentAffected().toSmtVariableString(i)+" (* " +var+" "+ new_right.toSmtVariableString(i)+" ))";
-            }else{
-                String exp_variable = "(/ (^ "+alpha.getNumber()+" (+ "+var+" 1) )(- "+alpha.getNumber()+" 1) )";
-                return  "(+ (* (^ "+alpha.toSmtVariableString(i)+" "+var+" ) "+this.getFluentAffected().toSmtVariableString(i)+" )"+" "
-                        + "(* " +exp_variable+" "+ new_right.toSmtVariableString(i)+" ))";
+            } else if (alpha.getNumber() == -1f) {
+                return "(- " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + new_right.toSmtVariableString(i) + " ))";
+            } else if (alpha.getNumber() == 1f) {
+                return "(+ " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + new_right.toSmtVariableString(i) + " ))";
+            } else {
+                String exp_variable = "(/ (^ " + alpha.getNumber() + " (+ " + var + " 1) )(- " + alpha.getNumber() + " 1) )";
+                return "(+ (* (^ " + alpha.toSmtVariableString(i) + " " + var + " ) " + this.getFluentAffected().toSmtVariableString(i) + " )" + " "
+                        + "(* " + exp_variable + " " + new_right.toSmtVariableString(i) + " ))";
             }
         }
 
         return null;
     }
-    
-    
 
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new LinkedHashSet();
@@ -506,12 +502,11 @@ public class NumEffect extends Expression implements PostCondition{
         return ret;
     }
 
-
     public NumEffect generate_m_times_extension(NumFluent m) throws CloneNotSupportedException {
         NumEffect ret = new NumEffect(this.operator);
         ret.setFluentAffected(fluentAffected);
-        ExtendedNormExpression temp = (ExtendedNormExpression)this.getRight();
-        
+        ExtendedNormExpression temp = (ExtendedNormExpression) this.getRight();
+
         //this applies for the case in which the effects of the action are increase decrease or assign without cycles.
         ret.setRight(temp.mult(m.normalize()));
         return ret;
@@ -537,6 +532,5 @@ public class NumEffect extends Expression implements PostCondition{
 //        }
         return this.getRight().involve(this.fluentAffected);
     }
-
 
 }
