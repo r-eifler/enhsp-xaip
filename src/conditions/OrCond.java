@@ -427,4 +427,26 @@ public class OrCond extends Conditions {
         
         return false;
     }
+
+    @Override
+    public Conditions regress(GroundAction gr) {
+        OrCond con = new OrCond();
+        for (Object o : this.sons) {
+            if (o instanceof Conditions) {
+                Conditions t = (Conditions) o;
+                Conditions temp = t.regress(gr);
+                if (!temp.isValid()){//needs to be satisfied
+                    if (!temp.isUnsatisfiable()){
+                        con.addConditions(temp);
+                    }
+                }else{
+                    return new Predicate(Predicate.true_false.TRUE);
+                }
+            } else {
+                System.out.println("AndCond: Condition " + o + " cannot be regressed");
+                System.exit(-1);
+            }
+        }
+        return con;   
+    }
 }

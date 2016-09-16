@@ -26,6 +26,7 @@
 
 package conditions;
 
+import conditions.Predicate.true_false;
 import expressions.NumFluent;
 import java.util.Collection;
 import java.util.HashMap;
@@ -345,6 +346,28 @@ public class NotCond extends Conditions implements PostCondition{
         }
         
         return false;
+    }
+
+    @Override
+    public Conditions regress(GroundAction gr) {
+        NotCond not = new NotCond();
+        if (!this.son.isEmpty()){
+            Conditions t = (Conditions)(this.son.iterator().next());
+            Conditions temp = t.regress(gr);
+            if (temp.isValid()){
+                NotCond ret = new NotCond();
+                ret.setUnsatisfiable(true);
+                return new Predicate(true_false.FALSE);
+            }
+            if (temp.isUnsatisfiable()){
+                return new Predicate(true_false.TRUE);
+            }
+            not.son.add(temp);
+        }else{
+            System.out.println("Malformed condition"+this);
+            System.exit(-1);
+        }
+        return not;
     }
 
 

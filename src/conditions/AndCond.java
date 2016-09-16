@@ -742,4 +742,26 @@ public class AndCond extends Conditions implements PostCondition {
         return false;
     }
 
+    @Override
+    public Conditions regress(GroundAction gr) {
+        AndCond con = new AndCond();
+        for (Object o : this.sons) {
+            if (o instanceof Conditions) {
+                Conditions t = (Conditions) o;
+                Conditions temp = t.regress(gr);
+                
+                if (!temp.isValid()){//needs to be satisfied
+                    if (temp.isUnsatisfiable()){
+                        return new Predicate(Predicate.true_false.FALSE);
+                    }else
+                        con.addConditions(temp);
+                }//else do not add the condition at all
+            } else {
+                System.out.println("AndCond: Condition " + o + " cannot be regressed");
+                System.exit(-1);
+            }
+        }
+        return con;   
+    }
+
 }

@@ -164,5 +164,10 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public Conditions regress(GroundAction gr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 
 }

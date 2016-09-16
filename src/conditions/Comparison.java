@@ -935,4 +935,9 @@ public class Comparison extends Conditions {
             return true;
         return false;
     }
+
+    @Override
+    public Conditions regress(GroundAction gr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

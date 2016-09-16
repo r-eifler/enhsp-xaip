@@ -39,7 +39,7 @@ import problem.State;
  *
  * @author enrico
  */
-public abstract class Conditions extends Object {
+public abstract  class Conditions extends Object {
 
     public boolean grounded;
     public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
@@ -56,6 +56,21 @@ public abstract class Conditions extends Object {
     public abstract Conditions weakEval(State s, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
+    
+    
+    /*
+        The following regression operation operates under the following assumptions:
+            1) Action do not have conflicting effects. 
+                a) Conditional effects will never conflict
+                b) Add and Delete List will never conflict
+            2) Any literals (positive or negative) caused by an action 
+               takes part just in one of the conditional effects of the action.
+               Add and Del list can be seen as conditional effects with empty
+               activation conditions.
+    
+    */
+    public abstract Conditions regress(GroundAction gr);
+    
     public abstract Conditions ground(Map substitution);
     public abstract Conditions ground(Map substitution, int c);
 

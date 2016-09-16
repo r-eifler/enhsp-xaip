@@ -655,6 +655,19 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return temp;
     }
 
+    
+    
+    public Conditions regress(Conditions cond){
+        
+        
+        for (int i=(this.size()-1);i>=0;i--){
+//            System.out.println("DEBUG: before regressing");
+            cond = this.get(i).regress_formula(cond);
+//            System.out.println("DEBUG: "+cond);
+        }
+        return cond;
+    }
+    
     public TreeSet<GroundAction> generateMacrosSuffandPref() throws CloneNotSupportedException, Exception {
         TreeSet<GroundAction> ret = new TreeSet();
         GroundAction macroPlan = new GroundAction();

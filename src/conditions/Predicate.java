@@ -50,7 +50,8 @@ public class  Predicate extends Conditions implements PostCondition {
     private boolean grounded;
     public HashSet son;
     public Integer hash_code;
-
+    public enum true_false {TRUE,FALSE};
+    
     /**
      * @return the predicateName
      */
@@ -60,11 +61,24 @@ public class  Predicate extends Conditions implements PostCondition {
         terms = new ArrayList();
     }
     
+    public Predicate(true_false input) {
+        super();
+        //variables = new ArrayList();
+        if (input == true_false.TRUE){
+            this.predicateName = "TRUE";
+        }else{
+            this.predicateName = "FALSE";
+        }
+        terms = new ArrayList();
+
+    }
+    
     public Predicate(String name) {
         super();
         //variables = new ArrayList();
         this.predicateName = name;
         terms = new ArrayList();
+
     }
 
     public Predicate(boolean g) {
@@ -73,6 +87,7 @@ public class  Predicate extends Conditions implements PostCondition {
         grounded = g;
         //variables = new ArrayList();
         terms = new ArrayList();
+
 
     }
 
@@ -198,7 +213,10 @@ public class  Predicate extends Conditions implements PostCondition {
 
     @Override
     public boolean isSatisfied(State s) {
-
+        if (isValid())
+            return true;
+        if (isUnsatisfiable())
+            return false;
         return s.is_true(this);
     }
 
@@ -265,9 +283,9 @@ public class  Predicate extends Conditions implements PostCondition {
         if (this.terms != other.terms && (this.terms == null || !this.terms.equals(other.terms))) {
             return false;
         }
-        if (this.hash_code != other.hash_code && (this.hash_code == null || !this.hash_code.equals(other.hash_code))) {
-            return false;
-        }
+//        if (this.hash_code != other.hash_code && (this.hash_code == null || !this.hash_code.equals(other.hash_code))) {
+//            return false;
+//        }
         return true;
     }
 
@@ -451,6 +469,64 @@ public class  Predicate extends Conditions implements PostCondition {
             ret.put(this, 1);
         }
         return ret;
+    }
+
+    @Override
+    public Conditions regress(GroundAction gr) {
+        PostCondition achiever =  gr.getAdder(this);
+        PostCondition destroyer =  gr.getDeleter(this);
+        if (destroyer != null && destroyer instanceof Predicate){
+            Conditions con = new NotCond();
+            con.setUnsatisfiable(true);
+            return con;
+        }
+        if (destroyer == null){
+            if (achiever == null)
+                return this;
+            if (achiever instanceof Predicate){
+                AndCond cond = new AndCond();
+                cond.setValid(true);
+                return cond;
+            }
+            if (achiever instanceof ConditionalEffect){
+                ConditionalEffect c_eff = (ConditionalEffect)achiever;
+                OrCond cond = new OrCond();
+                cond.addConditions(c_eff.activation_condition);
+                cond.addConditions(this);
+                return cond;
+            }
+        }else{//destroyer is ConditionalEffect
+            ConditionalEffect c_eff = (ConditionalEffect)destroyer;
+            if (achiever == null){
+                NotCond not = new NotCond();
+                not.son.add(c_eff.activation_condition);
+                AndCond cond = new AndCond();
+                cond.addConditions(this);
+                cond.addConditions(not);
+                return cond;
+            }
+            if (achiever instanceof Predicate){
+                NotCond not = new NotCond();
+                not.son.add(c_eff.activation_condition);
+                AndCond cond = new AndCond();
+                cond.addConditions(this);
+                return cond;
+            }
+            //achiever is a ConditionalEffect
+            ConditionalEffect c_eff_ach = (ConditionalEffect)achiever;
+            OrCond ret = new OrCond();
+            NotCond not = new NotCond();
+            not.son.add(c_eff.activation_condition);
+            AndCond cond = new AndCond();
+            cond.addConditions(this);
+            cond.addConditions(not);
+            ret.addConditions(cond);
+            ret.addConditions(c_eff_ach.activation_condition);
+            return ret;
+        }
+        return null;
+        
+        
     }
 
   

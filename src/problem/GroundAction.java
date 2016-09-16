@@ -34,6 +34,7 @@ import conditions.Conditions;
 import conditions.NotCond;
 import conditions.NumFluentAssigner;
 import conditions.PDDLObject;
+import conditions.PostCondition;
 import conditions.Predicate;
 import domain.ParametersAsTerms;
 import domain.ActionSchema;
@@ -262,24 +263,25 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         AndCond c = (AndCond) this.getNumericEffects();
         subst.putAll(c.apply(s));
-        
-        if (this.cond_effects != null){
+
+        if (this.cond_effects != null) {
             AndCond c_eff = (AndCond) this.cond_effects;
             subst.putAll(c_eff.apply(s));
         }
-        
-        for (Object o: subst.keySet()){
-            if (o instanceof NumFluent){
-                NumFluent nf = (NumFluent)o;
-                if (nf.is_has_to_be_tracked()){
-                    s.setFunctionValue(nf, (PDDLNumber)subst.get(o));
+
+        for (Object o : subst.keySet()) {
+            if (o instanceof NumFluent) {
+                NumFluent nf = (NumFluent) o;
+                if (nf.is_has_to_be_tracked()) {
+                    s.setFunctionValue(nf, (PDDLNumber) subst.get(o));
                 }
-            }else{
-                Boolean newval =(Boolean)subst.get(o);
-                if (!newval)
-                    s.removeProposition((Predicate)o);
-                else
-                    s.propositions.put(o,subst.get(o));
+            } else {
+                Boolean newval = (Boolean) subst.get(o);
+                if (!newval) {
+                    s.removeProposition((Predicate) o);
+                } else {
+                    s.propositions.put(o, subst.get(o));
+                }
             }
         }
         return s;
@@ -360,7 +362,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public RelState apply(RelState s) {
-        
+
         HashMap subst = new HashMap();
         AndCond del = (AndCond) delList;
         if (del != null) {
@@ -373,17 +375,16 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         AndCond c = (AndCond) this.getNumericEffects();
         subst.putAll(c.apply(s));
-        
-        if (this.cond_effects != null){
+
+        if (this.cond_effects != null) {
             AndCond c_eff = (AndCond) this.cond_effects;
             subst.putAll(c_eff.apply(s));
         }
-        
+
         s.update_values(subst);
-        
 
         return s;
-        
+
     }
 
     public boolean isApplicable(RelState current) {
@@ -395,8 +396,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getPreconditions() == null) {
             return true;
         }
-        
-        
 
         return this.getPreconditions().isSatisfied(current);
     }
@@ -559,6 +558,15 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         //AndCond numericCondition = 
         return result;
+    }
+    
+    public Conditions regress_formula(Conditions input){
+        AndCond ret = new AndCond();
+        if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty())
+            ret.addConditions(this.getPreconditions());
+        System.out.println("DEBUG: Action Precondition"+this.getPreconditions());
+        ret.addConditions(input.regress(this));
+        return ret;
     }
 
     private void progress(GroundAction a, GroundAction b, GroundAction ab) {
@@ -1241,10 +1249,8 @@ public class GroundAction extends GenericActionType implements Comparable {
             if (temp.getFirst()) {
                 ret.setFirst(Boolean.TRUE);
                 return ret;
-            } else {
-                if (temp.getSecond() > 0) {
-                    ret.setSecond(temp.getSecond() + 1);
-                }
+            } else if (temp.getSecond() > 0) {
+                ret.setSecond(temp.getSecond() + 1);
             }
 
         }
@@ -1650,12 +1656,14 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     private boolean numericEffectUndefined(RelState current) {
-        
-        if (this.numericEffects==null)
+
+        if (this.numericEffects == null) {
             return false;
-        if (this.numericEffects.sons.isEmpty())
+        }
+        if (this.numericEffects.sons.isEmpty()) {
             return false;
-        
+        }
+
 //        for (NumEffect e: (Collection<NumEffect>)this.numericEffects.sons){
 //            if (e.getRight().eval(current).inf.getNumber().isNaN()){
 //                return true;
@@ -1663,8 +1671,6 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            
 //        }
 //        return false;
-        
-        
         return this.numericEffects.sons.stream().anyMatch(new java.util.function.Predicate<NumEffect>() {
             @Override
             public boolean test(NumEffect e) {
@@ -1672,8 +1678,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             }
         });
 //            
-        
-        
+
     }
 
     public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
@@ -1783,11 +1788,9 @@ public class GroundAction extends GenericActionType implements Comparable {
                 if (!ne.isNumber()) {
                     return true;
                 }
-            } else {
-                if (!(nf.getRight() instanceof PDDLNumber)) {
-                    //System.out.println(nf.getRight());
-                    return true;
-                }
+            } else if (!(nf.getRight() instanceof PDDLNumber)) {
+                //System.out.println(nf.getRight());
+                return true;
             }
         }
 
@@ -1865,20 +1868,23 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
-    
     public boolean preconditioned_on(Conditions c) {
-        if (this.getPreconditions()==null)
+        if (this.getPreconditions() == null) {
             return false;
+        }
         if (this.getPreconditions().sons == null)//assuming action preconditions are given as set of atoms
+        {
             return false;
-        for (Conditions cond: (Collection<Conditions>)this.getPreconditions().sons){
-            if (cond.getCounter() == c.getCounter())
+        }
+        for (Conditions cond : (Collection<Conditions>) this.getPreconditions().sons) {
+            if (cond.getCounter() == c.getCounter()) {
                 return true;
+            }
         }
         return false;
-        
+
     }
-    
+
     public Float getNumberOfExecutionInt(State s_0, Comparison comp) {
         float a1;
         float b;
@@ -1912,7 +1918,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             if (m1 < 0 || a1 % b != 0) {
                 return Float.MAX_VALUE;
             } else {
-                return (float)m1;
+                return (float) m1;
             }
         } else {//it is >= or >
             float m1 = -a1 / b;
@@ -1946,8 +1952,9 @@ public class GroundAction extends GenericActionType implements Comparable {
 //        }
         a1 = comp.eval_not_affected(s_0, this);
         b = comp.eval_affected(s_0, this);
-        if (a1 == null || b == null)
+        if (a1 == null || b == null) {
             return Float.MAX_VALUE;
+        }
         if (b < 0.0) {
 //            System.out.println(a1);
 //            System.out.println(b);
@@ -1958,7 +1965,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         //Assumption: comparisons are normalized!
         if (comp.getComparator().equals("=")) {
-            Float m1 =  (-a1 / b);
+            Float m1 = (-a1 / b);
             if (m1 < 0 || a1 % b != 0) {
                 return Float.MAX_VALUE;
             } else {
@@ -1977,7 +1984,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
     }
 
-    
     public int getNumberOfExecutionWithoutCache(State s_0, Comparison comp) {
         float a1;
         float b;
@@ -2115,7 +2121,7 @@ public class GroundAction extends GenericActionType implements Comparable {
      * @return the action_cost
      */
     public float getAction_cost() {
-        
+
         return action_cost;
     }
 
@@ -2292,14 +2298,14 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
     }
 
-    
-    public RelState apply_with_generalized_interval_based_relaxation_copy(RelState s){
+    public RelState apply_with_generalized_interval_based_relaxation_copy(RelState s) {
         RelState s_copied = null;
         s_copied = s.clone();
         return apply_with_generalized_interval_based_relaxation(s_copied);
     }
+
     public RelState apply_with_generalized_interval_based_relaxation(RelState s) {
-     HashMap subst = new HashMap();
+        HashMap subst = new HashMap();
         AndCond del = (AndCond) delList;
         if (del != null) {
             subst.putAll(del.apply(s));
@@ -2311,50 +2317,53 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         AndCond c = (AndCond) this.getNumericEffects();
         subst.putAll(c.apply(s));
-        
-        if (this.cond_effects != null){
+
+        if (this.cond_effects != null) {
             AndCond c_eff = (AndCond) this.cond_effects;
             subst.putAll(c_eff.apply(s));
         }
-        
-        for (Object o: subst.keySet()){
-            if (o instanceof NumFluent){
-                NumFluent nf = (NumFluent)o;
-                if (nf.is_has_to_be_tracked()){
-                   
-                   s.setFunctionValues(nf, (Interval)subst.get(o));
-                   
+
+        for (Object o : subst.keySet()) {
+            if (o instanceof NumFluent) {
+                NumFluent nf = (NumFluent) o;
+                if (nf.is_has_to_be_tracked()) {
+
+                    s.setFunctionValues(nf, (Interval) subst.get(o));
+
                 }
-            }else{
-                s.poss_interpretation.put((Predicate)o,(Integer)subst.get(o));
+            } else {
+                s.poss_interpretation.put((Predicate) o, (Integer) subst.get(o));
             }
         }
         return s;
     }
 
     public boolean has_complex_preconditions() {
-        
-        if (this.getPreconditions() == null || this.getPreconditions().sons.isEmpty())
+
+        if (this.getPreconditions() == null || this.getPreconditions().sons.isEmpty()) {
             return false;
-        
-        for (Conditions c: (Collection<Conditions>)this.getPreconditions().sons){
-            if (c instanceof Comparison){
-                Comparison comp = (Comparison)c;
-                if (comp.getLeft() instanceof ExtendedNormExpression){
-                    ExtendedNormExpression a  = (ExtendedNormExpression)comp.getLeft();
-                    for (ExtendedAddendum ad: a.summations){
-                        if (ad.bin != null)
+        }
+
+        for (Conditions c : (Collection<Conditions>) this.getPreconditions().sons) {
+            if (c instanceof Comparison) {
+                Comparison comp = (Comparison) c;
+                if (comp.getLeft() instanceof ExtendedNormExpression) {
+                    ExtendedNormExpression a = (ExtendedNormExpression) comp.getLeft();
+                    for (ExtendedAddendum ad : a.summations) {
+                        if (ad.bin != null) {
                             return true;
+                        }
                     }
-                    
+
                 }
-                if (comp.getRight() instanceof ExtendedNormExpression){
-                    ExtendedNormExpression a  = (ExtendedNormExpression)comp.getRight();
-                    for (ExtendedAddendum ad: a.summations){
-                        if (ad.bin != null)
+                if (comp.getRight() instanceof ExtendedNormExpression) {
+                    ExtendedNormExpression a = (ExtendedNormExpression) comp.getRight();
+                    for (ExtendedAddendum ad : a.summations) {
+                        if (ad.bin != null) {
                             return true;
+                        }
                     }
-                    
+
                 }
             }
         }
@@ -2362,78 +2371,120 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public boolean has_exponential_or_nl_effects_asymptotic_effects() {
-        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty())
+        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty()) {
             return false;
-        for (NumEffect neff: this.getNumericEffectsAsCollection()){
+        }
+        for (NumEffect neff : this.getNumericEffectsAsCollection()) {
             NumFluent nf = neff.getFluentAffected();
 
-            if (neff.getRight() instanceof ExtendedNormExpression){
-                ExtendedNormExpression right = (ExtendedNormExpression)neff.getRight();
-                for (ExtendedAddendum ad  : right.summations){
-                    if (ad.bin!=null)
+            if (neff.getRight() instanceof ExtendedNormExpression) {
+                ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                for (ExtendedAddendum ad : right.summations) {
+                    if (ad.bin != null) {
                         return true;
-                    if (ad.f !=null){
-                        if (ad.f.equals(nf)){
-                            if (ad.n.getNumber() != 1.0f || ad.n.getNumber() != .0f){
+                    }
+                    if (ad.f != null) {
+                        if (ad.f.equals(nf)) {
+                            if (ad.n.getNumber() != 1.0f || ad.n.getNumber() != .0f) {
                                 return true;
                             }
                         }
                     }
-                    
+
                 }
             }
-            
+
         }
         return false;
     }
 
     public boolean has_additive_effects() {
-        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty())
+        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty()) {
             return false;
-        for (NumEffect neff: this.getNumericEffectsAsCollection()){
-            if (neff.getOperator().equals("increase") || neff.getOperator().equals("decrease"))
+        }
+        for (NumEffect neff : this.getNumericEffectsAsCollection()) {
+            if (neff.getOperator().equals("increase") || neff.getOperator().equals("decrease")) {
                 return true;
-        
+            }
+
         }
         return false;
 
     }
 
     public boolean has_state_dependent_effects() {
-        if (has_state_dependent_effects != null)
+        if (has_state_dependent_effects != null) {
             return has_state_dependent_effects;
-        
-        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty()){
+        }
+
+        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty()) {
             has_state_dependent_effects = false;
-        }else{
-            for (NumEffect neff: this.getNumericEffectsAsCollection()){
-                if (!(neff.getRight() instanceof PDDLNumber)){
+        } else {
+            for (NumEffect neff : this.getNumericEffectsAsCollection()) {
+                if (!(neff.getRight() instanceof PDDLNumber)) {
                     has_state_dependent_effects = true;
                     break;
                 }
             }
         }
-                    
+
         return has_state_dependent_effects;
     }
 
     public boolean delete_own_preconditions() {//to do
-    
-        if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty() && this.getDelList()!= null && !this.getDelList().sons.isEmpty()){
-            if (this.getPreconditions() instanceof Predicate){
-                
-            }else if (this.getPreconditions() instanceof AndCond){
-                
-            }else if (this.getPreconditions() instanceof Comparison){
-            
-            }else{
-                System.out.println("precondition not supported"+ this.getPreconditions());
+
+        if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty() && this.getDelList() != null && !this.getDelList().sons.isEmpty()) {
+            if (this.getPreconditions() instanceof Predicate) {
+
+            } else if (this.getPreconditions() instanceof AndCond) {
+
+            } else if (this.getPreconditions() instanceof Comparison) {
+
+            } else {
+                System.out.println("precondition not supported" + this.getPreconditions());
             }
-            
+
         }
         return false;
     }
 
+    public PostCondition getAdder(Predicate aThis) {
+        for (PostCondition eff : (Collection<PostCondition>) this.addList.sons) {
+            if (((Predicate) eff).equals(aThis)) {
+                return eff;
+            }
+        }
+        for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
+            ConditionalEffect c_eff = (ConditionalEffect) eff;
+//            Predicate p = (Predicate)c_eff.effect;
+            if (c_eff.effect.equals(aThis)) {
+                return c_eff;
+            }
+        }
+        return null;
+    }
 
+    public PostCondition getDeleter(Predicate aThis) {
+        for (PostCondition eff : (Collection<PostCondition>) this.delList.sons) {
+            NotCond n_eff = (NotCond)eff;
+            Predicate p = (Predicate)n_eff.son.iterator().next();
+            if (p.equals(aThis)) {
+                return p;
+            }
+        }
+        for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
+            ConditionalEffect c_eff = (ConditionalEffect) eff;
+            //for now single condition effect. Extend to andcond
+            if (c_eff.effect instanceof NotCond){
+                NotCond n_eff = (NotCond)c_eff.effect;
+                Predicate p = (Predicate)n_eff.son.iterator().next();
+                if (p.equals(aThis)) {
+                    return c_eff;
+                }
+            }
+
+        }
+        return null;
+    }
 
 }
