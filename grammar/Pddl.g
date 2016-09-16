@@ -33,6 +33,7 @@ tokens {
     FUNC_HEAD;
     PRECONDITION;
     EFFECT;
+    FORMULAINIT;/*This is to represent a belief instead of a fully specified state*/
     AND_GD;
     OR_GD;
 	NOT_GD;
@@ -477,6 +478,7 @@ objectDecl
 init
 	: '(' ':init' initEl* ')'
 	-> ^(INIT initEl*)
+	| '(' ':init' goalDesc ')' -> ^(FORMULAINIT goalDesc)
 	;
 
 initEl

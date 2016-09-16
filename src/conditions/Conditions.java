@@ -27,6 +27,7 @@
 package conditions;
 
 import expressions.NumFluent;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -160,6 +161,23 @@ public abstract  class Conditions extends Object {
 
     public abstract boolean is_affected_by(GroundAction gr);
         
+    public Collection<Predicate> getInvolvedPredicates(){
+        Collection ret = new LinkedHashSet();
+        if (this instanceof Predicate){
+                ret.add(this);
+                return ret;
+        }else if (this instanceof NotCond){
+                NotCond temp = (NotCond)this;
+                Conditions temp2 = (Conditions)temp.son.iterator().next();
+                ret.addAll(temp2.getInvolvedPredicates());   
+                return ret;
+        }
+        //from here it can only be an AndCond or a Or. Other cases are not considered
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            ret.addAll(c.getInvolvedPredicates());
+        }
+        return ret;
+    }
 
 
 }

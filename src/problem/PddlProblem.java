@@ -103,6 +103,7 @@ public class PddlProblem {
     public int counterNumericFluents = 0;
     protected boolean simplifyActions;
     protected HashMap invariantFluents;
+    public Conditions belief;
 
     /**
      * Get the value of groundedActions
@@ -283,6 +284,9 @@ public class PddlProblem {
                     break;
                 case PddlParser.INIT:
                     addInitFacts(child);
+                    break;
+                case PddlParser.FORMULAINIT:
+                    this.belief = createGoals(child.getChild(0));
                     break;
                 case PddlParser.GOAL:
                     this.setGoals(createGoals(child.getChild(0)));

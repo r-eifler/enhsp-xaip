@@ -65,8 +65,10 @@ public class  Predicate extends Conditions implements PostCondition {
         super();
         //variables = new ArrayList();
         if (input == true_false.TRUE){
+            this.setValid(true);
             this.predicateName = "TRUE";
         }else{
+            this.setUnsatisfiable(true);
             this.predicateName = "FALSE";
         }
         terms = new ArrayList();
@@ -417,7 +419,13 @@ public class  Predicate extends Conditions implements PostCondition {
 
     @Override
     public String toSmtVariableString(int i) {
-                String ret = "";
+        
+        if (this.isValid())
+            return "true";
+        if (this.isUnsatisfiable())
+            return "false";
+        
+        String ret = "";
         ret = ret.concat(this.getPredicateName());
         for (Object o1 : this.getTerms()) {
             if (o1 instanceof PDDLObject){

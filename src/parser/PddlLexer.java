@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 Pddl.g 2016-09-05 02:33:13
+// $ANTLR 3.5.2 Pddl.g 2016-09-16 10:52:23
  package parser; 
 
 import org.antlr.runtime.*;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 @SuppressWarnings("all")
 public class PddlLexer extends Lexer {
 	public static final int EOF=-1;
-	public static final int T__63=63;
 	public static final int T__64=64;
 	public static final int T__65=65;
 	public static final int T__66=66;
@@ -83,6 +82,7 @@ public class PddlLexer extends Lexer {
 	public static final int T__134=134;
 	public static final int T__135=135;
 	public static final int T__136=136;
+	public static final int T__137=137;
 	public static final int ACTION=4;
 	public static final int AND_EFFECT=5;
 	public static final int AND_GD=6;
@@ -104,44 +104,45 @@ public class PddlLexer extends Lexer {
 	public static final int EXISTS_GD=22;
 	public static final int FORALL_EFFECT=23;
 	public static final int FORALL_GD=24;
-	public static final int FREE_FUNCTIONS=25;
-	public static final int FUNCTIONS=26;
-	public static final int FUNC_HEAD=27;
-	public static final int GLOBAL_CONSTRAINT=28;
-	public static final int GOAL=29;
-	public static final int IMPLY_GD=30;
-	public static final int INIT=31;
-	public static final int INIT_AT=32;
-	public static final int INIT_EQ=33;
-	public static final int LETTER=34;
-	public static final int LINE_COMMENT=35;
-	public static final int MINUS_OP=36;
-	public static final int MULTI_OP=37;
-	public static final int NAME=38;
-	public static final int NOT_EFFECT=39;
-	public static final int NOT_GD=40;
-	public static final int NOT_PRED_INIT=41;
-	public static final int NUMBER=42;
-	public static final int OBJECTS=43;
-	public static final int OR_GD=44;
-	public static final int PRECONDITION=45;
-	public static final int PREDICATES=46;
-	public static final int PRED_HEAD=47;
-	public static final int PRED_INST=48;
-	public static final int PROBLEM=49;
-	public static final int PROBLEM_CONSTRAINT=50;
-	public static final int PROBLEM_DOMAIN=51;
-	public static final int PROBLEM_METRIC=52;
-	public static final int PROBLEM_NAME=53;
-	public static final int PROCESS=54;
-	public static final int REQUIREMENTS=55;
-	public static final int REQUIRE_KEY=56;
-	public static final int SIN=57;
-	public static final int TYPES=58;
-	public static final int UNARY_MINUS=59;
-	public static final int VARIABLE=60;
-	public static final int WHEN_EFFECT=61;
-	public static final int WHITESPACE=62;
+	public static final int FORMULAINIT=25;
+	public static final int FREE_FUNCTIONS=26;
+	public static final int FUNCTIONS=27;
+	public static final int FUNC_HEAD=28;
+	public static final int GLOBAL_CONSTRAINT=29;
+	public static final int GOAL=30;
+	public static final int IMPLY_GD=31;
+	public static final int INIT=32;
+	public static final int INIT_AT=33;
+	public static final int INIT_EQ=34;
+	public static final int LETTER=35;
+	public static final int LINE_COMMENT=36;
+	public static final int MINUS_OP=37;
+	public static final int MULTI_OP=38;
+	public static final int NAME=39;
+	public static final int NOT_EFFECT=40;
+	public static final int NOT_GD=41;
+	public static final int NOT_PRED_INIT=42;
+	public static final int NUMBER=43;
+	public static final int OBJECTS=44;
+	public static final int OR_GD=45;
+	public static final int PRECONDITION=46;
+	public static final int PREDICATES=47;
+	public static final int PRED_HEAD=48;
+	public static final int PRED_INST=49;
+	public static final int PROBLEM=50;
+	public static final int PROBLEM_CONSTRAINT=51;
+	public static final int PROBLEM_DOMAIN=52;
+	public static final int PROBLEM_METRIC=53;
+	public static final int PROBLEM_NAME=54;
+	public static final int PROCESS=55;
+	public static final int REQUIREMENTS=56;
+	public static final int REQUIRE_KEY=57;
+	public static final int SIN=58;
+	public static final int TYPES=59;
+	public static final int UNARY_MINUS=60;
+	public static final int VARIABLE=61;
+	public static final int WHEN_EFFECT=62;
+	public static final int WHITESPACE=63;
 
 	// delegates
 	// delegators
@@ -158,36 +159,16 @@ public class PddlLexer extends Lexer {
 	}
 	@Override public String getGrammarFileName() { return "Pddl.g"; }
 
-	// $ANTLR start "T__63"
-	public final void mT__63() throws RecognitionException {
+	// $ANTLR start "T__64"
+	public final void mT__64() throws RecognitionException {
 		try {
-			int _type = T__63;
+			int _type = T__64;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Pddl.g:4:7: ( '#t' )
 			// Pddl.g:4:9: '#t'
 			{
 			match("#t"); 
 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__63"
-
-	// $ANTLR start "T__64"
-	public final void mT__64() throws RecognitionException {
-		try {
-			int _type = T__64;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:5:7: ( '(' )
-			// Pddl.g:5:9: '('
-			{
-			match('('); 
 			}
 
 			state.type = _type;
@@ -204,10 +185,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__65;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:6:7: ( ')' )
-			// Pddl.g:6:9: ')'
+			// Pddl.g:5:7: ( '(' )
+			// Pddl.g:5:9: '('
 			{
-			match(')'); 
+			match('('); 
 			}
 
 			state.type = _type;
@@ -224,10 +205,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__66;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:7:7: ( '*' )
-			// Pddl.g:7:9: '*'
+			// Pddl.g:6:7: ( ')' )
+			// Pddl.g:6:9: ')'
 			{
-			match('*'); 
+			match(')'); 
 			}
 
 			state.type = _type;
@@ -244,10 +225,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__67;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:8:7: ( '+' )
-			// Pddl.g:8:9: '+'
+			// Pddl.g:7:7: ( '*' )
+			// Pddl.g:7:9: '*'
 			{
-			match('+'); 
+			match('*'); 
 			}
 
 			state.type = _type;
@@ -264,10 +245,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__68;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:9:7: ( '-' )
-			// Pddl.g:9:9: '-'
+			// Pddl.g:8:7: ( '+' )
+			// Pddl.g:8:9: '+'
 			{
-			match('-'); 
+			match('+'); 
 			}
 
 			state.type = _type;
@@ -284,10 +265,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__69;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:10:7: ( '/' )
-			// Pddl.g:10:9: '/'
+			// Pddl.g:9:7: ( '-' )
+			// Pddl.g:9:9: '-'
 			{
-			match('/'); 
+			match('-'); 
 			}
 
 			state.type = _type;
@@ -304,11 +285,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__70;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:11:7: ( ':action' )
-			// Pddl.g:11:9: ':action'
+			// Pddl.g:10:7: ( '/' )
+			// Pddl.g:10:9: '/'
 			{
-			match(":action"); 
-
+			match('/'); 
 			}
 
 			state.type = _type;
@@ -325,10 +305,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__71;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:12:7: ( ':condition' )
-			// Pddl.g:12:9: ':condition'
+			// Pddl.g:11:7: ( ':action' )
+			// Pddl.g:11:9: ':action'
 			{
-			match(":condition"); 
+			match(":action"); 
 
 			}
 
@@ -346,10 +326,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__72;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:13:7: ( ':constants' )
-			// Pddl.g:13:9: ':constants'
+			// Pddl.g:12:7: ( ':condition' )
+			// Pddl.g:12:9: ':condition'
 			{
-			match(":constants"); 
+			match(":condition"); 
 
 			}
 
@@ -367,10 +347,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__73;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:14:7: ( ':constraint' )
-			// Pddl.g:14:9: ':constraint'
+			// Pddl.g:13:7: ( ':constants' )
+			// Pddl.g:13:9: ':constants'
 			{
-			match(":constraint"); 
+			match(":constants"); 
 
 			}
 
@@ -388,10 +368,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__74;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:15:7: ( ':constraints' )
-			// Pddl.g:15:9: ':constraints'
+			// Pddl.g:14:7: ( ':constraint' )
+			// Pddl.g:14:9: ':constraint'
 			{
-			match(":constraints"); 
+			match(":constraint"); 
 
 			}
 
@@ -409,10 +389,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__75;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:16:7: ( ':derived' )
-			// Pddl.g:16:9: ':derived'
+			// Pddl.g:15:7: ( ':constraints' )
+			// Pddl.g:15:9: ':constraints'
 			{
-			match(":derived"); 
+			match(":constraints"); 
 
 			}
 
@@ -430,10 +410,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__76;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:17:7: ( ':domain' )
-			// Pddl.g:17:9: ':domain'
+			// Pddl.g:16:7: ( ':derived' )
+			// Pddl.g:16:9: ':derived'
 			{
-			match(":domain"); 
+			match(":derived"); 
 
 			}
 
@@ -451,10 +431,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__77;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:18:7: ( ':duration' )
-			// Pddl.g:18:9: ':duration'
+			// Pddl.g:17:7: ( ':domain' )
+			// Pddl.g:17:9: ':domain'
 			{
-			match(":duration"); 
+			match(":domain"); 
 
 			}
 
@@ -472,10 +452,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__78;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:19:7: ( ':durative-action' )
-			// Pddl.g:19:9: ':durative-action'
+			// Pddl.g:18:7: ( ':duration' )
+			// Pddl.g:18:9: ':duration'
 			{
-			match(":durative-action"); 
+			match(":duration"); 
 
 			}
 
@@ -493,10 +473,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__79;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:20:7: ( ':effect' )
-			// Pddl.g:20:9: ':effect'
+			// Pddl.g:19:7: ( ':durative-action' )
+			// Pddl.g:19:9: ':durative-action'
 			{
-			match(":effect"); 
+			match(":durative-action"); 
 
 			}
 
@@ -514,10 +494,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__80;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:21:7: ( ':event' )
-			// Pddl.g:21:9: ':event'
+			// Pddl.g:20:7: ( ':effect' )
+			// Pddl.g:20:9: ':effect'
 			{
-			match(":event"); 
+			match(":effect"); 
 
 			}
 
@@ -535,10 +515,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__81;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:22:7: ( ':free_functions' )
-			// Pddl.g:22:9: ':free_functions'
+			// Pddl.g:21:7: ( ':event' )
+			// Pddl.g:21:9: ':event'
 			{
-			match(":free_functions"); 
+			match(":event"); 
 
 			}
 
@@ -556,10 +536,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__82;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:23:7: ( ':functions' )
-			// Pddl.g:23:9: ':functions'
+			// Pddl.g:22:7: ( ':free_functions' )
+			// Pddl.g:22:9: ':free_functions'
 			{
-			match(":functions"); 
+			match(":free_functions"); 
 
 			}
 
@@ -577,10 +557,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__83;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:24:7: ( ':goal' )
-			// Pddl.g:24:9: ':goal'
+			// Pddl.g:23:7: ( ':functions' )
+			// Pddl.g:23:9: ':functions'
 			{
-			match(":goal"); 
+			match(":functions"); 
 
 			}
 
@@ -598,10 +578,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__84;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:25:7: ( ':init' )
-			// Pddl.g:25:9: ':init'
+			// Pddl.g:24:7: ( ':goal' )
+			// Pddl.g:24:9: ':goal'
 			{
-			match(":init"); 
+			match(":goal"); 
 
 			}
 
@@ -619,10 +599,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__85;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:26:7: ( ':metric' )
-			// Pddl.g:26:9: ':metric'
+			// Pddl.g:25:7: ( ':init' )
+			// Pddl.g:25:9: ':init'
 			{
-			match(":metric"); 
+			match(":init"); 
 
 			}
 
@@ -640,10 +620,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__86;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:27:7: ( ':objects' )
-			// Pddl.g:27:9: ':objects'
+			// Pddl.g:26:7: ( ':metric' )
+			// Pddl.g:26:9: ':metric'
 			{
-			match(":objects"); 
+			match(":metric"); 
 
 			}
 
@@ -661,10 +641,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__87;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:28:7: ( ':parameters' )
-			// Pddl.g:28:9: ':parameters'
+			// Pddl.g:27:7: ( ':objects' )
+			// Pddl.g:27:9: ':objects'
 			{
-			match(":parameters"); 
+			match(":objects"); 
 
 			}
 
@@ -682,10 +662,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__88;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:29:7: ( ':precondition' )
-			// Pddl.g:29:9: ':precondition'
+			// Pddl.g:28:7: ( ':parameters' )
+			// Pddl.g:28:9: ':parameters'
 			{
-			match(":precondition"); 
+			match(":parameters"); 
 
 			}
 
@@ -703,10 +683,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__89;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:30:7: ( ':predicates' )
-			// Pddl.g:30:9: ':predicates'
+			// Pddl.g:29:7: ( ':precondition' )
+			// Pddl.g:29:9: ':precondition'
 			{
-			match(":predicates"); 
+			match(":precondition"); 
 
 			}
 
@@ -724,10 +704,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__90;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:31:7: ( ':process' )
-			// Pddl.g:31:9: ':process'
+			// Pddl.g:30:7: ( ':predicates' )
+			// Pddl.g:30:9: ':predicates'
 			{
-			match(":process"); 
+			match(":predicates"); 
 
 			}
 
@@ -745,10 +725,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__91;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:32:7: ( ':requirements' )
-			// Pddl.g:32:9: ':requirements'
+			// Pddl.g:31:7: ( ':process' )
+			// Pddl.g:31:9: ':process'
 			{
-			match(":requirements"); 
+			match(":process"); 
 
 			}
 
@@ -766,10 +746,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__92;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:33:7: ( ':types' )
-			// Pddl.g:33:9: ':types'
+			// Pddl.g:32:7: ( ':requirements' )
+			// Pddl.g:32:9: ':requirements'
 			{
-			match(":types"); 
+			match(":requirements"); 
 
 			}
 
@@ -787,10 +767,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__93;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:34:7: ( '<' )
-			// Pddl.g:34:9: '<'
+			// Pddl.g:33:7: ( ':types' )
+			// Pddl.g:33:9: ':types'
 			{
-			match('<'); 
+			match(":types"); 
+
 			}
 
 			state.type = _type;
@@ -807,11 +788,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__94;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:35:7: ( '<=' )
-			// Pddl.g:35:9: '<='
+			// Pddl.g:34:7: ( '<' )
+			// Pddl.g:34:9: '<'
 			{
-			match("<="); 
-
+			match('<'); 
 			}
 
 			state.type = _type;
@@ -828,10 +808,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__95;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:36:7: ( '=' )
-			// Pddl.g:36:9: '='
+			// Pddl.g:35:7: ( '<=' )
+			// Pddl.g:35:9: '<='
 			{
-			match('='); 
+			match("<="); 
+
 			}
 
 			state.type = _type;
@@ -848,10 +829,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__96;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:37:7: ( '>' )
-			// Pddl.g:37:9: '>'
+			// Pddl.g:36:7: ( '=' )
+			// Pddl.g:36:9: '='
 			{
-			match('>'); 
+			match('='); 
 			}
 
 			state.type = _type;
@@ -868,11 +849,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__97;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:38:7: ( '>=' )
-			// Pddl.g:38:9: '>='
+			// Pddl.g:37:7: ( '>' )
+			// Pddl.g:37:9: '>'
 			{
-			match(">="); 
-
+			match('>'); 
 			}
 
 			state.type = _type;
@@ -889,10 +869,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__98;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:39:7: ( '?duration' )
-			// Pddl.g:39:9: '?duration'
+			// Pddl.g:38:7: ( '>=' )
+			// Pddl.g:38:9: '>='
 			{
-			match("?duration"); 
+			match(">="); 
 
 			}
 
@@ -910,10 +890,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__99;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:40:7: ( '^' )
-			// Pddl.g:40:9: '^'
+			// Pddl.g:39:7: ( '?duration' )
+			// Pddl.g:39:9: '?duration'
 			{
-			match('^'); 
+			match("?duration"); 
+
 			}
 
 			state.type = _type;
@@ -930,11 +911,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__100;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:41:8: ( 'all' )
-			// Pddl.g:41:10: 'all'
+			// Pddl.g:40:8: ( '^' )
+			// Pddl.g:40:10: '^'
 			{
-			match("all"); 
-
+			match('^'); 
 			}
 
 			state.type = _type;
@@ -951,10 +931,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__101;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:42:8: ( 'always' )
-			// Pddl.g:42:10: 'always'
+			// Pddl.g:41:8: ( 'all' )
+			// Pddl.g:41:10: 'all'
 			{
-			match("always"); 
+			match("all"); 
 
 			}
 
@@ -972,10 +952,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__102;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:43:8: ( 'always-within' )
-			// Pddl.g:43:10: 'always-within'
+			// Pddl.g:42:8: ( 'always' )
+			// Pddl.g:42:10: 'always'
 			{
-			match("always-within"); 
+			match("always"); 
 
 			}
 
@@ -993,10 +973,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__103;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:44:8: ( 'and' )
-			// Pddl.g:44:10: 'and'
+			// Pddl.g:43:8: ( 'always-within' )
+			// Pddl.g:43:10: 'always-within'
 			{
-			match("and"); 
+			match("always-within"); 
 
 			}
 
@@ -1014,10 +994,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__104;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:45:8: ( 'assign' )
-			// Pddl.g:45:10: 'assign'
+			// Pddl.g:44:8: ( 'and' )
+			// Pddl.g:44:10: 'and'
 			{
-			match("assign"); 
+			match("and"); 
 
 			}
 
@@ -1035,10 +1015,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__105;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:46:8: ( 'at' )
-			// Pddl.g:46:10: 'at'
+			// Pddl.g:45:8: ( 'assign' )
+			// Pddl.g:45:10: 'assign'
 			{
-			match("at"); 
+			match("assign"); 
 
 			}
 
@@ -1056,10 +1036,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__106;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:47:8: ( 'at-most-once' )
-			// Pddl.g:47:10: 'at-most-once'
+			// Pddl.g:46:8: ( 'at' )
+			// Pddl.g:46:10: 'at'
 			{
-			match("at-most-once"); 
+			match("at"); 
 
 			}
 
@@ -1077,10 +1057,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__107;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:48:8: ( 'cos' )
-			// Pddl.g:48:10: 'cos'
+			// Pddl.g:47:8: ( 'at-most-once' )
+			// Pddl.g:47:10: 'at-most-once'
 			{
-			match("cos"); 
+			match("at-most-once"); 
 
 			}
 
@@ -1098,10 +1078,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__108;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:49:8: ( 'decrease' )
-			// Pddl.g:49:10: 'decrease'
+			// Pddl.g:48:8: ( 'cos' )
+			// Pddl.g:48:10: 'cos'
 			{
-			match("decrease"); 
+			match("cos"); 
 
 			}
 
@@ -1119,10 +1099,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__109;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:50:8: ( 'define' )
-			// Pddl.g:50:10: 'define'
+			// Pddl.g:49:8: ( 'decrease' )
+			// Pddl.g:49:10: 'decrease'
 			{
-			match("define"); 
+			match("decrease"); 
 
 			}
 
@@ -1140,10 +1120,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__110;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:51:8: ( 'domain' )
-			// Pddl.g:51:10: 'domain'
+			// Pddl.g:50:8: ( 'define' )
+			// Pddl.g:50:10: 'define'
 			{
-			match("domain"); 
+			match("define"); 
 
 			}
 
@@ -1161,10 +1141,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__111;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:52:8: ( 'either' )
-			// Pddl.g:52:10: 'either'
+			// Pddl.g:51:8: ( 'domain' )
+			// Pddl.g:51:10: 'domain'
 			{
-			match("either"); 
+			match("domain"); 
 
 			}
 
@@ -1182,10 +1162,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__112;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:53:8: ( 'end' )
-			// Pddl.g:53:10: 'end'
+			// Pddl.g:52:8: ( 'either' )
+			// Pddl.g:52:10: 'either'
 			{
-			match("end"); 
+			match("either"); 
 
 			}
 
@@ -1203,10 +1183,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__113;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:54:8: ( 'exists' )
-			// Pddl.g:54:10: 'exists'
+			// Pddl.g:53:8: ( 'end' )
+			// Pddl.g:53:10: 'end'
 			{
-			match("exists"); 
+			match("end"); 
 
 			}
 
@@ -1224,10 +1204,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__114;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:55:8: ( 'forall' )
-			// Pddl.g:55:10: 'forall'
+			// Pddl.g:54:8: ( 'exists' )
+			// Pddl.g:54:10: 'exists'
 			{
-			match("forall"); 
+			match("exists"); 
 
 			}
 
@@ -1245,10 +1225,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__115;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:56:8: ( 'hold-after' )
-			// Pddl.g:56:10: 'hold-after'
+			// Pddl.g:55:8: ( 'forall' )
+			// Pddl.g:55:10: 'forall'
 			{
-			match("hold-after"); 
+			match("forall"); 
 
 			}
 
@@ -1266,10 +1246,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__116;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:57:8: ( 'hold-during' )
-			// Pddl.g:57:10: 'hold-during'
+			// Pddl.g:56:8: ( 'hold-after' )
+			// Pddl.g:56:10: 'hold-after'
 			{
-			match("hold-during"); 
+			match("hold-after"); 
 
 			}
 
@@ -1287,10 +1267,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__117;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:58:8: ( 'imply' )
-			// Pddl.g:58:10: 'imply'
+			// Pddl.g:57:8: ( 'hold-during' )
+			// Pddl.g:57:10: 'hold-during'
 			{
-			match("imply"); 
+			match("hold-during"); 
 
 			}
 
@@ -1308,10 +1288,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__118;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:59:8: ( 'increase' )
-			// Pddl.g:59:10: 'increase'
+			// Pddl.g:58:8: ( 'imply' )
+			// Pddl.g:58:10: 'imply'
 			{
-			match("increase"); 
+			match("imply"); 
 
 			}
 
@@ -1329,10 +1309,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__119;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:60:8: ( 'is-violated' )
-			// Pddl.g:60:10: 'is-violated'
+			// Pddl.g:59:8: ( 'increase' )
+			// Pddl.g:59:10: 'increase'
 			{
-			match("is-violated"); 
+			match("increase"); 
 
 			}
 
@@ -1350,10 +1330,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__120;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:61:8: ( 'maximize' )
-			// Pddl.g:61:10: 'maximize'
+			// Pddl.g:60:8: ( 'is-violated' )
+			// Pddl.g:60:10: 'is-violated'
 			{
-			match("maximize"); 
+			match("is-violated"); 
 
 			}
 
@@ -1371,10 +1351,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__121;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:62:8: ( 'minimize' )
-			// Pddl.g:62:10: 'minimize'
+			// Pddl.g:61:8: ( 'maximize' )
+			// Pddl.g:61:10: 'maximize'
 			{
-			match("minimize"); 
+			match("maximize"); 
 
 			}
 
@@ -1392,10 +1372,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__122;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:63:8: ( 'not' )
-			// Pddl.g:63:10: 'not'
+			// Pddl.g:62:8: ( 'minimize' )
+			// Pddl.g:62:10: 'minimize'
 			{
-			match("not"); 
+			match("minimize"); 
 
 			}
 
@@ -1413,10 +1393,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__123;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:64:8: ( 'number' )
-			// Pddl.g:64:10: 'number'
+			// Pddl.g:63:8: ( 'not' )
+			// Pddl.g:63:10: 'not'
 			{
-			match("number"); 
+			match("not"); 
 
 			}
 
@@ -1434,10 +1414,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__124;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:65:8: ( 'or' )
-			// Pddl.g:65:10: 'or'
+			// Pddl.g:64:8: ( 'number' )
+			// Pddl.g:64:10: 'number'
 			{
-			match("or"); 
+			match("number"); 
 
 			}
 
@@ -1455,10 +1435,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__125;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:66:8: ( 'over' )
-			// Pddl.g:66:10: 'over'
+			// Pddl.g:65:8: ( 'or' )
+			// Pddl.g:65:10: 'or'
 			{
-			match("over"); 
+			match("or"); 
 
 			}
 
@@ -1476,10 +1456,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__126;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:67:8: ( 'preference' )
-			// Pddl.g:67:10: 'preference'
+			// Pddl.g:66:8: ( 'over' )
+			// Pddl.g:66:10: 'over'
 			{
-			match("preference"); 
+			match("over"); 
 
 			}
 
@@ -1497,10 +1477,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__127;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:68:8: ( 'problem' )
-			// Pddl.g:68:10: 'problem'
+			// Pddl.g:67:8: ( 'preference' )
+			// Pddl.g:67:10: 'preference'
 			{
-			match("problem"); 
+			match("preference"); 
 
 			}
 
@@ -1518,10 +1498,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__128;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:69:8: ( 'scale-down' )
-			// Pddl.g:69:10: 'scale-down'
+			// Pddl.g:68:8: ( 'problem' )
+			// Pddl.g:68:10: 'problem'
 			{
-			match("scale-down"); 
+			match("problem"); 
 
 			}
 
@@ -1539,10 +1519,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__129;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:70:8: ( 'scale-up' )
-			// Pddl.g:70:10: 'scale-up'
+			// Pddl.g:69:8: ( 'scale-down' )
+			// Pddl.g:69:10: 'scale-down'
 			{
-			match("scale-up"); 
+			match("scale-down"); 
 
 			}
 
@@ -1560,10 +1540,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__130;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:71:8: ( 'sin' )
-			// Pddl.g:71:10: 'sin'
+			// Pddl.g:70:8: ( 'scale-up' )
+			// Pddl.g:70:10: 'scale-up'
 			{
-			match("sin"); 
+			match("scale-up"); 
 
 			}
 
@@ -1581,10 +1561,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__131;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:72:8: ( 'sometime' )
-			// Pddl.g:72:10: 'sometime'
+			// Pddl.g:71:8: ( 'sin' )
+			// Pddl.g:71:10: 'sin'
 			{
-			match("sometime"); 
+			match("sin"); 
 
 			}
 
@@ -1602,10 +1582,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__132;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:73:8: ( 'sometime-after' )
-			// Pddl.g:73:10: 'sometime-after'
+			// Pddl.g:72:8: ( 'sometime' )
+			// Pddl.g:72:10: 'sometime'
 			{
-			match("sometime-after"); 
+			match("sometime"); 
 
 			}
 
@@ -1623,10 +1603,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__133;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:74:8: ( 'sometime-before' )
-			// Pddl.g:74:10: 'sometime-before'
+			// Pddl.g:73:8: ( 'sometime-after' )
+			// Pddl.g:73:10: 'sometime-after'
 			{
-			match("sometime-before"); 
+			match("sometime-after"); 
 
 			}
 
@@ -1644,10 +1624,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__134;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:75:8: ( 'start' )
-			// Pddl.g:75:10: 'start'
+			// Pddl.g:74:8: ( 'sometime-before' )
+			// Pddl.g:74:10: 'sometime-before'
 			{
-			match("start"); 
+			match("sometime-before"); 
 
 			}
 
@@ -1665,10 +1645,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__135;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:76:8: ( 'when' )
-			// Pddl.g:76:10: 'when'
+			// Pddl.g:75:8: ( 'start' )
+			// Pddl.g:75:10: 'start'
 			{
-			match("when"); 
+			match("start"); 
 
 			}
 
@@ -1686,6 +1666,27 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = T__136;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Pddl.g:76:8: ( 'when' )
+			// Pddl.g:76:10: 'when'
+			{
+			match("when"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "T__136"
+
+	// $ANTLR start "T__137"
+	public final void mT__137() throws RecognitionException {
+		try {
+			int _type = T__137;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Pddl.g:77:8: ( 'within' )
 			// Pddl.g:77:10: 'within'
 			{
@@ -1700,14 +1701,14 @@ public class PddlLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__136"
+	// $ANTLR end "T__137"
 
 	// $ANTLR start "REQUIRE_KEY"
 	public final void mREQUIRE_KEY() throws RecognitionException {
 		try {
 			int _type = REQUIRE_KEY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:561:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
+			// Pddl.g:563:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
 			int alt1=16;
 			int LA1_0 = input.LA(1);
 			if ( (LA1_0==':') ) {
@@ -1915,112 +1916,112 @@ public class PddlLexer extends Lexer {
 
 			switch (alt1) {
 				case 1 :
-					// Pddl.g:561:7: ':strips'
+					// Pddl.g:563:7: ':strips'
 					{
 					match(":strips"); 
 
 					}
 					break;
 				case 2 :
-					// Pddl.g:562:7: ':typing'
+					// Pddl.g:564:7: ':typing'
 					{
 					match(":typing"); 
 
 					}
 					break;
 				case 3 :
-					// Pddl.g:563:7: ':negative-preconditions'
+					// Pddl.g:565:7: ':negative-preconditions'
 					{
 					match(":negative-preconditions"); 
 
 					}
 					break;
 				case 4 :
-					// Pddl.g:564:7: ':disjunctive-preconditions'
+					// Pddl.g:566:7: ':disjunctive-preconditions'
 					{
 					match(":disjunctive-preconditions"); 
 
 					}
 					break;
 				case 5 :
-					// Pddl.g:565:7: ':equality'
+					// Pddl.g:567:7: ':equality'
 					{
 					match(":equality"); 
 
 					}
 					break;
 				case 6 :
-					// Pddl.g:566:7: ':existential-preconditions'
+					// Pddl.g:568:7: ':existential-preconditions'
 					{
 					match(":existential-preconditions"); 
 
 					}
 					break;
 				case 7 :
-					// Pddl.g:567:7: ':universal-preconditions'
+					// Pddl.g:569:7: ':universal-preconditions'
 					{
 					match(":universal-preconditions"); 
 
 					}
 					break;
 				case 8 :
-					// Pddl.g:568:7: ':quantified-preconditions'
+					// Pddl.g:570:7: ':quantified-preconditions'
 					{
 					match(":quantified-preconditions"); 
 
 					}
 					break;
 				case 9 :
-					// Pddl.g:569:7: ':conditional-effects'
+					// Pddl.g:571:7: ':conditional-effects'
 					{
 					match(":conditional-effects"); 
 
 					}
 					break;
 				case 10 :
-					// Pddl.g:570:7: ':fluents'
+					// Pddl.g:572:7: ':fluents'
 					{
 					match(":fluents"); 
 
 					}
 					break;
 				case 11 :
-					// Pddl.g:571:7: ':adl'
+					// Pddl.g:573:7: ':adl'
 					{
 					match(":adl"); 
 
 					}
 					break;
 				case 12 :
-					// Pddl.g:572:7: ':durative-actions'
+					// Pddl.g:574:7: ':durative-actions'
 					{
 					match(":durative-actions"); 
 
 					}
 					break;
 				case 13 :
-					// Pddl.g:573:7: ':derived-predicates'
+					// Pddl.g:575:7: ':derived-predicates'
 					{
 					match(":derived-predicates"); 
 
 					}
 					break;
 				case 14 :
-					// Pddl.g:574:7: ':timed-initial-literals'
+					// Pddl.g:576:7: ':timed-initial-literals'
 					{
 					match(":timed-initial-literals"); 
 
 					}
 					break;
 				case 15 :
-					// Pddl.g:575:7: ':preferences'
+					// Pddl.g:577:7: ':preferences'
 					{
 					match(":preferences"); 
 
 					}
 					break;
 				case 16 :
-					// Pddl.g:576:7: ':constraints'
+					// Pddl.g:578:7: ':constraints'
 					{
 					match(":constraints"); 
 
@@ -2042,12 +2043,12 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NAME;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:577:5: ( LETTER ( ANY_CHAR )* )
-			// Pddl.g:577:10: LETTER ( ANY_CHAR )*
+			// Pddl.g:579:5: ( LETTER ( ANY_CHAR )* )
+			// Pddl.g:579:10: LETTER ( ANY_CHAR )*
 			{
 			mLETTER(); 
 
-			// Pddl.g:577:17: ( ANY_CHAR )*
+			// Pddl.g:579:17: ( ANY_CHAR )*
 			loop2:
 			while (true) {
 				int alt2=2;
@@ -2090,7 +2091,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "LETTER"
 	public final void mLETTER() throws RecognitionException {
 		try {
-			// Pddl.g:579:16: ( 'a' .. 'z' | 'A' .. 'Z' )
+			// Pddl.g:581:16: ( 'a' .. 'z' | 'A' .. 'Z' )
 			// Pddl.g:
 			{
 			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2113,7 +2114,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "ANY_CHAR"
 	public final void mANY_CHAR() throws RecognitionException {
 		try {
-			// Pddl.g:581:18: ( LETTER | '0' .. '9' | '-' | '_' )
+			// Pddl.g:583:18: ( LETTER | '0' .. '9' | '-' | '_' )
 			// Pddl.g:
 			{
 			if ( input.LA(1)=='-'||(input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2138,13 +2139,13 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = VARIABLE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:583:10: ( '?' LETTER ( ANY_CHAR )* )
-			// Pddl.g:583:12: '?' LETTER ( ANY_CHAR )*
+			// Pddl.g:585:10: ( '?' LETTER ( ANY_CHAR )* )
+			// Pddl.g:585:12: '?' LETTER ( ANY_CHAR )*
 			{
 			match('?'); 
 			mLETTER(); 
 
-			// Pddl.g:583:23: ( ANY_CHAR )*
+			// Pddl.g:585:23: ( ANY_CHAR )*
 			loop3:
 			while (true) {
 				int alt3=2;
@@ -2189,7 +2190,7 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NUMBER;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:585:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
+			// Pddl.g:587:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
 			int alt8=2;
 			int LA8_0 = input.LA(1);
 			if ( (LA8_0=='-'||(LA8_0 >= '0' && LA8_0 <= '9')) ) {
@@ -2207,9 +2208,9 @@ public class PddlLexer extends Lexer {
 
 			switch (alt8) {
 				case 1 :
-					// Pddl.g:585:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
+					// Pddl.g:587:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
 					{
-					// Pddl.g:585:10: ( '-' )?
+					// Pddl.g:587:10: ( '-' )?
 					int alt4=2;
 					int LA4_0 = input.LA(1);
 					if ( (LA4_0=='-') ) {
@@ -2217,7 +2218,7 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt4) {
 						case 1 :
-							// Pddl.g:585:11: '-'
+							// Pddl.g:587:11: '-'
 							{
 							match('-'); 
 							}
@@ -2225,7 +2226,7 @@ public class PddlLexer extends Lexer {
 
 					}
 
-					// Pddl.g:585:17: ( DIGIT )+
+					// Pddl.g:587:17: ( DIGIT )+
 					int cnt5=0;
 					loop5:
 					while (true) {
@@ -2258,7 +2259,7 @@ public class PddlLexer extends Lexer {
 						cnt5++;
 					}
 
-					// Pddl.g:585:24: ( '.' ( DIGIT )+ )?
+					// Pddl.g:587:24: ( '.' ( DIGIT )+ )?
 					int alt7=2;
 					int LA7_0 = input.LA(1);
 					if ( (LA7_0=='.') ) {
@@ -2266,10 +2267,10 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt7) {
 						case 1 :
-							// Pddl.g:585:25: '.' ( DIGIT )+
+							// Pddl.g:587:25: '.' ( DIGIT )+
 							{
 							match('.'); 
-							// Pddl.g:585:29: ( DIGIT )+
+							// Pddl.g:587:29: ( DIGIT )+
 							int cnt6=0;
 							loop6:
 							while (true) {
@@ -2310,7 +2311,7 @@ public class PddlLexer extends Lexer {
 					}
 					break;
 				case 2 :
-					// Pddl.g:585:40: '#t'
+					// Pddl.g:587:40: '#t'
 					{
 					match("#t"); 
 
@@ -2330,7 +2331,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "DIGIT"
 	public final void mDIGIT() throws RecognitionException {
 		try {
-			// Pddl.g:587:15: ( '0' .. '9' )
+			// Pddl.g:589:15: ( '0' .. '9' )
 			// Pddl.g:
 			{
 			if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2355,11 +2356,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = LINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:590:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
-			// Pddl.g:590:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+			// Pddl.g:592:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
+			// Pddl.g:592:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
 			{
 			match(';'); 
-			// Pddl.g:590:11: (~ ( '\\n' | '\\r' ) )*
+			// Pddl.g:592:11: (~ ( '\\n' | '\\r' ) )*
 			loop9:
 			while (true) {
 				int alt9=2;
@@ -2388,7 +2389,7 @@ public class PddlLexer extends Lexer {
 				}
 			}
 
-			// Pddl.g:590:25: ( '\\r' )?
+			// Pddl.g:592:25: ( '\\r' )?
 			int alt10=2;
 			int LA10_0 = input.LA(1);
 			if ( (LA10_0=='\r') ) {
@@ -2396,7 +2397,7 @@ public class PddlLexer extends Lexer {
 			}
 			switch (alt10) {
 				case 1 :
-					// Pddl.g:590:25: '\\r'
+					// Pddl.g:592:25: '\\r'
 					{
 					match('\r'); 
 					}
@@ -2422,10 +2423,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = WHITESPACE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:594:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-			// Pddl.g:594:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// Pddl.g:596:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+			// Pddl.g:596:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			{
-			// Pddl.g:594:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// Pddl.g:596:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			int cnt11=0;
 			loop11:
 			while (true) {
@@ -2472,565 +2473,565 @@ public class PddlLexer extends Lexer {
 
 	@Override
 	public void mTokens() throws RecognitionException {
-		// Pddl.g:1:8: ( T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | T__133 | T__134 | T__135 | T__136 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE )
+		// Pddl.g:1:8: ( T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | T__133 | T__134 | T__135 | T__136 | T__137 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE )
 		int alt12=80;
 		alt12 = dfa12.predict(input);
 		switch (alt12) {
 			case 1 :
-				// Pddl.g:1:10: T__63
-				{
-				mT__63(); 
-
-				}
-				break;
-			case 2 :
-				// Pddl.g:1:16: T__64
+				// Pddl.g:1:10: T__64
 				{
 				mT__64(); 
 
 				}
 				break;
-			case 3 :
-				// Pddl.g:1:22: T__65
+			case 2 :
+				// Pddl.g:1:16: T__65
 				{
 				mT__65(); 
 
 				}
 				break;
-			case 4 :
-				// Pddl.g:1:28: T__66
+			case 3 :
+				// Pddl.g:1:22: T__66
 				{
 				mT__66(); 
 
 				}
 				break;
-			case 5 :
-				// Pddl.g:1:34: T__67
+			case 4 :
+				// Pddl.g:1:28: T__67
 				{
 				mT__67(); 
 
 				}
 				break;
-			case 6 :
-				// Pddl.g:1:40: T__68
+			case 5 :
+				// Pddl.g:1:34: T__68
 				{
 				mT__68(); 
 
 				}
 				break;
-			case 7 :
-				// Pddl.g:1:46: T__69
+			case 6 :
+				// Pddl.g:1:40: T__69
 				{
 				mT__69(); 
 
 				}
 				break;
-			case 8 :
-				// Pddl.g:1:52: T__70
+			case 7 :
+				// Pddl.g:1:46: T__70
 				{
 				mT__70(); 
 
 				}
 				break;
-			case 9 :
-				// Pddl.g:1:58: T__71
+			case 8 :
+				// Pddl.g:1:52: T__71
 				{
 				mT__71(); 
 
 				}
 				break;
-			case 10 :
-				// Pddl.g:1:64: T__72
+			case 9 :
+				// Pddl.g:1:58: T__72
 				{
 				mT__72(); 
 
 				}
 				break;
-			case 11 :
-				// Pddl.g:1:70: T__73
+			case 10 :
+				// Pddl.g:1:64: T__73
 				{
 				mT__73(); 
 
 				}
 				break;
-			case 12 :
-				// Pddl.g:1:76: T__74
+			case 11 :
+				// Pddl.g:1:70: T__74
 				{
 				mT__74(); 
 
 				}
 				break;
-			case 13 :
-				// Pddl.g:1:82: T__75
+			case 12 :
+				// Pddl.g:1:76: T__75
 				{
 				mT__75(); 
 
 				}
 				break;
-			case 14 :
-				// Pddl.g:1:88: T__76
+			case 13 :
+				// Pddl.g:1:82: T__76
 				{
 				mT__76(); 
 
 				}
 				break;
-			case 15 :
-				// Pddl.g:1:94: T__77
+			case 14 :
+				// Pddl.g:1:88: T__77
 				{
 				mT__77(); 
 
 				}
 				break;
-			case 16 :
-				// Pddl.g:1:100: T__78
+			case 15 :
+				// Pddl.g:1:94: T__78
 				{
 				mT__78(); 
 
 				}
 				break;
-			case 17 :
-				// Pddl.g:1:106: T__79
+			case 16 :
+				// Pddl.g:1:100: T__79
 				{
 				mT__79(); 
 
 				}
 				break;
-			case 18 :
-				// Pddl.g:1:112: T__80
+			case 17 :
+				// Pddl.g:1:106: T__80
 				{
 				mT__80(); 
 
 				}
 				break;
-			case 19 :
-				// Pddl.g:1:118: T__81
+			case 18 :
+				// Pddl.g:1:112: T__81
 				{
 				mT__81(); 
 
 				}
 				break;
-			case 20 :
-				// Pddl.g:1:124: T__82
+			case 19 :
+				// Pddl.g:1:118: T__82
 				{
 				mT__82(); 
 
 				}
 				break;
-			case 21 :
-				// Pddl.g:1:130: T__83
+			case 20 :
+				// Pddl.g:1:124: T__83
 				{
 				mT__83(); 
 
 				}
 				break;
-			case 22 :
-				// Pddl.g:1:136: T__84
+			case 21 :
+				// Pddl.g:1:130: T__84
 				{
 				mT__84(); 
 
 				}
 				break;
-			case 23 :
-				// Pddl.g:1:142: T__85
+			case 22 :
+				// Pddl.g:1:136: T__85
 				{
 				mT__85(); 
 
 				}
 				break;
-			case 24 :
-				// Pddl.g:1:148: T__86
+			case 23 :
+				// Pddl.g:1:142: T__86
 				{
 				mT__86(); 
 
 				}
 				break;
-			case 25 :
-				// Pddl.g:1:154: T__87
+			case 24 :
+				// Pddl.g:1:148: T__87
 				{
 				mT__87(); 
 
 				}
 				break;
-			case 26 :
-				// Pddl.g:1:160: T__88
+			case 25 :
+				// Pddl.g:1:154: T__88
 				{
 				mT__88(); 
 
 				}
 				break;
-			case 27 :
-				// Pddl.g:1:166: T__89
+			case 26 :
+				// Pddl.g:1:160: T__89
 				{
 				mT__89(); 
 
 				}
 				break;
-			case 28 :
-				// Pddl.g:1:172: T__90
+			case 27 :
+				// Pddl.g:1:166: T__90
 				{
 				mT__90(); 
 
 				}
 				break;
-			case 29 :
-				// Pddl.g:1:178: T__91
+			case 28 :
+				// Pddl.g:1:172: T__91
 				{
 				mT__91(); 
 
 				}
 				break;
-			case 30 :
-				// Pddl.g:1:184: T__92
+			case 29 :
+				// Pddl.g:1:178: T__92
 				{
 				mT__92(); 
 
 				}
 				break;
-			case 31 :
-				// Pddl.g:1:190: T__93
+			case 30 :
+				// Pddl.g:1:184: T__93
 				{
 				mT__93(); 
 
 				}
 				break;
-			case 32 :
-				// Pddl.g:1:196: T__94
+			case 31 :
+				// Pddl.g:1:190: T__94
 				{
 				mT__94(); 
 
 				}
 				break;
-			case 33 :
-				// Pddl.g:1:202: T__95
+			case 32 :
+				// Pddl.g:1:196: T__95
 				{
 				mT__95(); 
 
 				}
 				break;
-			case 34 :
-				// Pddl.g:1:208: T__96
+			case 33 :
+				// Pddl.g:1:202: T__96
 				{
 				mT__96(); 
 
 				}
 				break;
-			case 35 :
-				// Pddl.g:1:214: T__97
+			case 34 :
+				// Pddl.g:1:208: T__97
 				{
 				mT__97(); 
 
 				}
 				break;
-			case 36 :
-				// Pddl.g:1:220: T__98
+			case 35 :
+				// Pddl.g:1:214: T__98
 				{
 				mT__98(); 
 
 				}
 				break;
-			case 37 :
-				// Pddl.g:1:226: T__99
+			case 36 :
+				// Pddl.g:1:220: T__99
 				{
 				mT__99(); 
 
 				}
 				break;
-			case 38 :
-				// Pddl.g:1:232: T__100
+			case 37 :
+				// Pddl.g:1:226: T__100
 				{
 				mT__100(); 
 
 				}
 				break;
-			case 39 :
-				// Pddl.g:1:239: T__101
+			case 38 :
+				// Pddl.g:1:233: T__101
 				{
 				mT__101(); 
 
 				}
 				break;
-			case 40 :
-				// Pddl.g:1:246: T__102
+			case 39 :
+				// Pddl.g:1:240: T__102
 				{
 				mT__102(); 
 
 				}
 				break;
-			case 41 :
-				// Pddl.g:1:253: T__103
+			case 40 :
+				// Pddl.g:1:247: T__103
 				{
 				mT__103(); 
 
 				}
 				break;
-			case 42 :
-				// Pddl.g:1:260: T__104
+			case 41 :
+				// Pddl.g:1:254: T__104
 				{
 				mT__104(); 
 
 				}
 				break;
-			case 43 :
-				// Pddl.g:1:267: T__105
+			case 42 :
+				// Pddl.g:1:261: T__105
 				{
 				mT__105(); 
 
 				}
 				break;
-			case 44 :
-				// Pddl.g:1:274: T__106
+			case 43 :
+				// Pddl.g:1:268: T__106
 				{
 				mT__106(); 
 
 				}
 				break;
-			case 45 :
-				// Pddl.g:1:281: T__107
+			case 44 :
+				// Pddl.g:1:275: T__107
 				{
 				mT__107(); 
 
 				}
 				break;
-			case 46 :
-				// Pddl.g:1:288: T__108
+			case 45 :
+				// Pddl.g:1:282: T__108
 				{
 				mT__108(); 
 
 				}
 				break;
-			case 47 :
-				// Pddl.g:1:295: T__109
+			case 46 :
+				// Pddl.g:1:289: T__109
 				{
 				mT__109(); 
 
 				}
 				break;
-			case 48 :
-				// Pddl.g:1:302: T__110
+			case 47 :
+				// Pddl.g:1:296: T__110
 				{
 				mT__110(); 
 
 				}
 				break;
-			case 49 :
-				// Pddl.g:1:309: T__111
+			case 48 :
+				// Pddl.g:1:303: T__111
 				{
 				mT__111(); 
 
 				}
 				break;
-			case 50 :
-				// Pddl.g:1:316: T__112
+			case 49 :
+				// Pddl.g:1:310: T__112
 				{
 				mT__112(); 
 
 				}
 				break;
-			case 51 :
-				// Pddl.g:1:323: T__113
+			case 50 :
+				// Pddl.g:1:317: T__113
 				{
 				mT__113(); 
 
 				}
 				break;
-			case 52 :
-				// Pddl.g:1:330: T__114
+			case 51 :
+				// Pddl.g:1:324: T__114
 				{
 				mT__114(); 
 
 				}
 				break;
-			case 53 :
-				// Pddl.g:1:337: T__115
+			case 52 :
+				// Pddl.g:1:331: T__115
 				{
 				mT__115(); 
 
 				}
 				break;
-			case 54 :
-				// Pddl.g:1:344: T__116
+			case 53 :
+				// Pddl.g:1:338: T__116
 				{
 				mT__116(); 
 
 				}
 				break;
-			case 55 :
-				// Pddl.g:1:351: T__117
+			case 54 :
+				// Pddl.g:1:345: T__117
 				{
 				mT__117(); 
 
 				}
 				break;
-			case 56 :
-				// Pddl.g:1:358: T__118
+			case 55 :
+				// Pddl.g:1:352: T__118
 				{
 				mT__118(); 
 
 				}
 				break;
-			case 57 :
-				// Pddl.g:1:365: T__119
+			case 56 :
+				// Pddl.g:1:359: T__119
 				{
 				mT__119(); 
 
 				}
 				break;
-			case 58 :
-				// Pddl.g:1:372: T__120
+			case 57 :
+				// Pddl.g:1:366: T__120
 				{
 				mT__120(); 
 
 				}
 				break;
-			case 59 :
-				// Pddl.g:1:379: T__121
+			case 58 :
+				// Pddl.g:1:373: T__121
 				{
 				mT__121(); 
 
 				}
 				break;
-			case 60 :
-				// Pddl.g:1:386: T__122
+			case 59 :
+				// Pddl.g:1:380: T__122
 				{
 				mT__122(); 
 
 				}
 				break;
-			case 61 :
-				// Pddl.g:1:393: T__123
+			case 60 :
+				// Pddl.g:1:387: T__123
 				{
 				mT__123(); 
 
 				}
 				break;
-			case 62 :
-				// Pddl.g:1:400: T__124
+			case 61 :
+				// Pddl.g:1:394: T__124
 				{
 				mT__124(); 
 
 				}
 				break;
-			case 63 :
-				// Pddl.g:1:407: T__125
+			case 62 :
+				// Pddl.g:1:401: T__125
 				{
 				mT__125(); 
 
 				}
 				break;
-			case 64 :
-				// Pddl.g:1:414: T__126
+			case 63 :
+				// Pddl.g:1:408: T__126
 				{
 				mT__126(); 
 
 				}
 				break;
-			case 65 :
-				// Pddl.g:1:421: T__127
+			case 64 :
+				// Pddl.g:1:415: T__127
 				{
 				mT__127(); 
 
 				}
 				break;
-			case 66 :
-				// Pddl.g:1:428: T__128
+			case 65 :
+				// Pddl.g:1:422: T__128
 				{
 				mT__128(); 
 
 				}
 				break;
-			case 67 :
-				// Pddl.g:1:435: T__129
+			case 66 :
+				// Pddl.g:1:429: T__129
 				{
 				mT__129(); 
 
 				}
 				break;
-			case 68 :
-				// Pddl.g:1:442: T__130
+			case 67 :
+				// Pddl.g:1:436: T__130
 				{
 				mT__130(); 
 
 				}
 				break;
-			case 69 :
-				// Pddl.g:1:449: T__131
+			case 68 :
+				// Pddl.g:1:443: T__131
 				{
 				mT__131(); 
 
 				}
 				break;
-			case 70 :
-				// Pddl.g:1:456: T__132
+			case 69 :
+				// Pddl.g:1:450: T__132
 				{
 				mT__132(); 
 
 				}
 				break;
-			case 71 :
-				// Pddl.g:1:463: T__133
+			case 70 :
+				// Pddl.g:1:457: T__133
 				{
 				mT__133(); 
 
 				}
 				break;
-			case 72 :
-				// Pddl.g:1:470: T__134
+			case 71 :
+				// Pddl.g:1:464: T__134
 				{
 				mT__134(); 
 
 				}
 				break;
-			case 73 :
-				// Pddl.g:1:477: T__135
+			case 72 :
+				// Pddl.g:1:471: T__135
 				{
 				mT__135(); 
 
 				}
 				break;
-			case 74 :
-				// Pddl.g:1:484: T__136
+			case 73 :
+				// Pddl.g:1:478: T__136
 				{
 				mT__136(); 
 
 				}
 				break;
+			case 74 :
+				// Pddl.g:1:485: T__137
+				{
+				mT__137(); 
+
+				}
+				break;
 			case 75 :
-				// Pddl.g:1:491: REQUIRE_KEY
+				// Pddl.g:1:492: REQUIRE_KEY
 				{
 				mREQUIRE_KEY(); 
 
 				}
 				break;
 			case 76 :
-				// Pddl.g:1:503: NAME
+				// Pddl.g:1:504: NAME
 				{
 				mNAME(); 
 
 				}
 				break;
 			case 77 :
-				// Pddl.g:1:508: VARIABLE
+				// Pddl.g:1:509: VARIABLE
 				{
 				mVARIABLE(); 
 
 				}
 				break;
 			case 78 :
-				// Pddl.g:1:517: NUMBER
+				// Pddl.g:1:518: NUMBER
 				{
 				mNUMBER(); 
 
 				}
 				break;
 			case 79 :
-				// Pddl.g:1:524: LINE_COMMENT
+				// Pddl.g:1:525: LINE_COMMENT
 				{
 				mLINE_COMMENT(); 
 
 				}
 				break;
 			case 80 :
-				// Pddl.g:1:537: WHITESPACE
+				// Pddl.g:1:538: WHITESPACE
 				{
 				mWHITESPACE(); 
 
@@ -3508,7 +3509,7 @@ public class PddlLexer extends Lexer {
 		}
 		@Override
 		public String getDescription() {
-			return "1:1: Tokens : ( T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | T__133 | T__134 | T__135 | T__136 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE );";
+			return "1:1: Tokens : ( T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | T__76 | T__77 | T__78 | T__79 | T__80 | T__81 | T__82 | T__83 | T__84 | T__85 | T__86 | T__87 | T__88 | T__89 | T__90 | T__91 | T__92 | T__93 | T__94 | T__95 | T__96 | T__97 | T__98 | T__99 | T__100 | T__101 | T__102 | T__103 | T__104 | T__105 | T__106 | T__107 | T__108 | T__109 | T__110 | T__111 | T__112 | T__113 | T__114 | T__115 | T__116 | T__117 | T__118 | T__119 | T__120 | T__121 | T__122 | T__123 | T__124 | T__125 | T__126 | T__127 | T__128 | T__129 | T__130 | T__131 | T__132 | T__133 | T__134 | T__135 | T__136 | T__137 | REQUIRE_KEY | NAME | VARIABLE | NUMBER | LINE_COMMENT | WHITESPACE );";
 		}
 	}
 

@@ -564,7 +564,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         AndCond ret = new AndCond();
         if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty())
             ret.addConditions(this.getPreconditions());
-        System.out.println("DEBUG: Action Precondition"+this.getPreconditions());
         ret.addConditions(input.regress(this));
         return ret;
     }
