@@ -85,6 +85,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     private Integer int_depencies;
     public Float time = null;
     private Boolean has_state_dependent_effects;
+    private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -308,20 +309,24 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public Collection<NumEffect> getNumericEffectsAsCollection() {
-        AndCond num = (AndCond) this.getNumericEffects();
-        Collection<NumEffect> ret = new LinkedHashSet();
-        this.numericFluentAffected = new HashMap();
-        if (num != null) {
-            for (Object o : num.sons) {
-                if (o instanceof NumEffect) {
-                    NumEffect e = (NumEffect) o;
-                    this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
-                    ret.add(e);
+        if (this.list_of_numeric_fluents_affected == null) {
+            AndCond num = (AndCond) this.getNumericEffects();
+            list_of_numeric_fluents_affected = new LinkedHashSet();
+            this.numericFluentAffected = new HashMap();
+            if (num != null) {
+                for (Object o : num.sons) {
+                    if (o instanceof NumEffect) {
+                        NumEffect e = (NumEffect) o;
+                        this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
+                        list_of_numeric_fluents_affected.add(e);
+                    }
                 }
             }
         }
-        return ret;
+        return list_of_numeric_fluents_affected;
     }
+
+    
 
     public void normalize() throws Exception {
 
@@ -559,11 +564,12 @@ public class GroundAction extends GenericActionType implements Comparable {
         //AndCond numericCondition = 
         return result;
     }
-    
-    public Conditions regress_formula(Conditions input){
+
+    public Conditions regress_formula(Conditions input) {
         AndCond ret = new AndCond();
-        if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty())
+        if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty()) {
             ret.addConditions(this.getPreconditions());
+        }
         ret.addConditions(input.regress(this));
         return ret;
     }
@@ -2465,8 +2471,8 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public PostCondition getDeleter(Predicate aThis) {
         for (PostCondition eff : (Collection<PostCondition>) this.delList.sons) {
-            NotCond n_eff = (NotCond)eff;
-            Predicate p = (Predicate)n_eff.son.iterator().next();
+            NotCond n_eff = (NotCond) eff;
+            Predicate p = (Predicate) n_eff.son.iterator().next();
             if (p.equals(aThis)) {
                 return p;
             }
@@ -2474,9 +2480,9 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
             ConditionalEffect c_eff = (ConditionalEffect) eff;
             //for now single condition effect. Extend to andcond
-            if (c_eff.effect instanceof NotCond){
-                NotCond n_eff = (NotCond)c_eff.effect;
-                Predicate p = (Predicate)n_eff.son.iterator().next();
+            if (c_eff.effect instanceof NotCond) {
+                NotCond n_eff = (NotCond) c_eff.effect;
+                Predicate p = (Predicate) n_eff.son.iterator().next();
                 if (p.equals(aThis)) {
                     return c_eff;
                 }

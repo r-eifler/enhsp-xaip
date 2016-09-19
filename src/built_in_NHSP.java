@@ -543,7 +543,7 @@ public class built_in_NHSP {
 
     "Number of Nodes re-opened:" + SearchStrategies.node_reopened);
     System.out.println (
-    "Number of LP invocations:" + searchStrategies.getHeuristic().invocation);
+    "Number of LP invocations:" + searchStrategies.getHeuristic().n_lp_invocations);
 
     if (saving_json
 

@@ -106,7 +106,7 @@ public abstract class Heuristic {
     public RelState reacheable_state;
     protected Collection<Comparison> complex_condition_set;
     protected boolean check_mutex = false;
-    public int invocation;
+    public int n_lp_invocations;
     public boolean integer_variables;
     public boolean greedy = false;
     public Conditions gC;
@@ -743,7 +743,7 @@ public abstract class Heuristic {
    
     protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h) {
 
-        invocation = invocation + 1;
+        n_lp_invocations = n_lp_invocations + 1;
 //        System.out.println(invocation);
         if (c == null || c.sons == null || c.sons.isEmpty()) {
             return 0.0F;

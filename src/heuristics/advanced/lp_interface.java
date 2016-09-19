@@ -22,8 +22,6 @@ import org.ojalgo.optimisation.Variable;
 import problem.GroundAction;
 import problem.State;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -31,38 +29,34 @@ import java.util.logging.Logger;
  */
 public class lp_interface {
 
-    public int invocation;
+    public int n_invocations;
     public boolean integer_variables;
     public boolean additive_h;
     private boolean no_further_reasoning = true;
 
     public lp_interface() {
         super();
-        invocation = 0;
+        n_invocations = 0;
         integer_variables = false;
         additive_h = false;
     }
 
     protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h, Conditions gC) {
 
-        invocation = invocation + 1;
+        n_invocations = n_invocations + 1;
 //        System.out.println(invocation);
         if (c == null || c.sons == null || c.sons.isEmpty()) {
             return 0.0F;
         }
 
-//         BasicLogger.debug();
-//        BasicLogger.debug("Test for "+c.pddlPrint(false));
-//        BasicLogger.debug(OjAlgoUtils.getTitle());
-//        BasicLogger.debug(OjAlgoUtils.getDate());
-//        BasicLogger.debug();
         float smallest_achiever_cost = Float.MAX_VALUE;
         final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
 //        ExpressionsBasedModel.addIntegration(oSlverCPLEX.INTEGRATION);
 
-        Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
         Collection<Float> minimi = new LinkedHashSet();
         HashMap<Integer, Variable> action_to_variable = new HashMap();
+        
+        HashMap<Integer,Float> condition_to_minimum_precondition_cost = new HashMap();
 
         Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
         conditions_to_evaluate.addAll(c.sons);
@@ -72,6 +66,12 @@ public class lp_interface {
         }
         for (Conditions cond : conditions_to_evaluate) {
             Float local_minimum = Float.MAX_VALUE;
+            condition_to_minimum_precondition_cost.put(cond.getCounter(),Float.MAX_VALUE);
+            if (!cond.isSatisfied(s_0)) {
+                condition_to_minimum_precondition_cost.put(cond.getCounter(),Float.MAX_VALUE);
+            }else{
+                condition_to_minimum_precondition_cost.put(cond.getCounter(),0f);
+            }
             if (cond instanceof Comparison) {
                 Comparison comp = (Comparison) cond;
                 ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
@@ -98,8 +98,6 @@ public class lp_interface {
                 for (ExtendedAddendum ad : left.summations) {
                     if (ad.f != null) {
                         for (GroundAction gr : pool) {
-                            boolean condition_investigated = false;
-
 //                                                        System.out.println(gr);
                             if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
                                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
@@ -141,13 +139,16 @@ public class lp_interface {
                                             condition = condition.set(action, right);
                                             break;
                                         case "assign":
+                                            at_least_one = true;
+                                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()+1));
                                             //this is an assign
 //                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
 //                                            right = condition.get(action).floatValue() - right;
 //                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
 //                                            action.upper(1);
-                                            System.out.println("Assign not supported");
-                                            break;
+//                                            System.out.println("Assign not supported");
+                                            continue;
+//                                            break;
                                     }
 
 //                                    local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
@@ -159,6 +160,8 @@ public class lp_interface {
                                         local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
                                         smallest_achiever_cost = Math.min(smallest_achiever_cost, action_cost * gr.getNumberOfExecutionInt(s_0, comp));
                                         //this is the only action that can be used.
+                                        Float min_so_far = condition_to_minimum_precondition_cost.get(comp.getCounter());
+                                        condition_to_minimum_precondition_cost.put(comp.getCounter(),Math.min(min_so_far, h.get(gr.getPreconditions().getCounter())));
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
 //                                        System.out.println("Problem with:"+gr);
@@ -177,7 +180,6 @@ public class lp_interface {
 
 //                System.out.println(condition);
             } else if (cond instanceof Predicate) {
-                pred_to_satisfy.add((Predicate) cond);
                 if (!cond.isSatisfied(s_0)) {
                     boolean at_least_one = false;
                     Predicate p = (Predicate) cond;
@@ -211,9 +213,13 @@ public class lp_interface {
                             //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
                             condition = condition.set(action, 1);
                             smallest_achiever_cost = Math.min(smallest_achiever_cost, action_cost);
-                            if (local_minimum == Float.MAX_VALUE) {//should not be true: debugging
+                            if (local_minimum == Float.MAX_VALUE) {//should never be true: debugging
                                 System.out.println("Problem with:" + gr);
                             }
+                            Float min_so_far = condition_to_minimum_precondition_cost.get(cond.getCounter());
+
+                            condition_to_minimum_precondition_cost.put(cond.getCounter(),Math.min(min_so_far, h.get(gr.getPreconditions().getCounter())));
+
                         }
                     }
                     if (!at_least_one) {
@@ -221,12 +227,11 @@ public class lp_interface {
                     }
                     if (!cond.isSatisfied(s_0)) {
                         minimi.add(local_minimum);
-
                     }
                 }
 
             } else {
-
+                
             }
 
         }
@@ -236,13 +241,18 @@ public class lp_interface {
         if (tmpResult.getState().isFeasible()) {
 
             float objective = (float) tmpResult.getValue();
-
+//            System.out.println("DEBUG: Current Objective");
             if (this.additive_h) {
-                Float max_over_precondition_costs = 0f;
+//                System.out.println("Additive version");
                 for (Float local_min : minimi) {
-                    objective += local_min;//very additive
-                    //max_over_precondition_costs = Math.max(local_min, minimum_precondition_cost);// less additive but still inadmissible..  
+                    objective+= local_min;
                 }
+
+//                for (Integer index_cond : condition_to_minimum_precondition_cost.keySet()) {
+//                    objective += condition_to_minimum_precondition_cost.get(index_cond);//very additive
+//                    
+//                    //max_over_precondition_costs = Math.max(local_min, minimum_precondition_cost);// less additive but still inadmissible..  
+//                }
             } else {
                 Float minimum_precondition_cost = Float.MAX_VALUE;
 

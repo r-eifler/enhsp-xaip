@@ -53,6 +53,7 @@ import problem.RelState;
 public class Comparison extends Conditions {
 
     private Integer hash_code;
+    private String string_representation;
 
     @Override
     public boolean equals(Object obj) {
@@ -122,7 +123,11 @@ public class Comparison extends Conditions {
 
     @Override
     public String toString() {
-        return "(" + getComparator() + " (" + getLeft() + ") ( " + getRight() + "))";
+        
+        if (string_representation==null)
+            string_representation = "(" + getComparator() + " (" + getLeft() + ") ( " + getRight() + "))";
+        
+        return string_representation;
 
         //return "(" + getLeft() + " " + getComparator() + " " + getRight() + ")";
     }
