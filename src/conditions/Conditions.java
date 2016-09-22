@@ -85,6 +85,8 @@ public abstract  class Conditions extends Object {
     public abstract void changeVar(Map substitution);
 
     public abstract String pddlPrint(boolean typeInformation);
+    
+    public abstract String pddlPrintWithExtraObject();
 
     @Override
     public abstract Conditions clone();

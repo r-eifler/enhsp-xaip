@@ -28,7 +28,8 @@
 package problem;
 
 import conditions.AndCond;
-import conditions.Conditions;
+import conditions.OneOf;
+import conditions.Predicate;
 import domain.ActionSchema;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
@@ -54,7 +55,7 @@ public class EPddlProblem extends PddlProblem {
     private boolean globalConstraintGrounded;
     private boolean processesGround;
     public AndCond globalConstraints;
-    
+
     private boolean grounding;
 
     public EPddlProblem(String problemFile) {
@@ -215,9 +216,11 @@ public class EPddlProblem extends PddlProblem {
                     invariantFluents.put(nf, Boolean.FALSE);
                 }
             }
-            for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
-                for (NumFluent nf : pr.getNumericFluentAffected().keySet()) {
-                    invariantFluents.put(nf, Boolean.FALSE);
+            if (this.processesSet != null){
+                for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+                    for (NumFluent nf : pr.getNumericFluentAffected().keySet()) {
+                        invariantFluents.put(nf, Boolean.FALSE);
+                    }
                 }
             }
         }

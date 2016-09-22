@@ -304,4 +304,15 @@ public class PDDLObjectsEquality extends Conditions {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public String pddlPrintWithExtraObject() {
+        String ret = "";
+        if (grounded) {
+            ret += "( = "+this.getLeft().pddlPrintWithExtraObject() +" "+ this.getRight().pddlPrintWithExtraObject()+")";
+        } else {
+            ret += "( = "+this.getLeftV().pddlPrint(false) +" "+ this.getRightV().pddlPrint()+")";
+
+        }
+        return ret;    }
+
 }

@@ -4,6 +4,7 @@
  */
 package extraUtils;
 
+import domain.ActionSchema;
 import domain.Type;
 import java.io.File;
 import java.util.Collection;
@@ -40,6 +41,14 @@ public class Utils {
         String ret = "";
         for (Object o : c) {
             ret += o.toString()+"\n";
+        }
+        return ret;
+    }
+    
+     public static String toPDDLWithExtraObject(Collection<ActionSchema> c) {
+        String ret = "";
+        for (ActionSchema o : c) {
+            ret += o.pddlPrintWithExtraObject()+"\n";
         }
         return ret;
     }

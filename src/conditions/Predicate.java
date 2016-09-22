@@ -50,6 +50,44 @@ public class  Predicate extends Conditions implements PostCondition {
     private boolean grounded;
     public HashSet son;
     public Integer hash_code;
+
+    @Override
+    public String pddlPrintWithExtraObject() {
+        String ret = "";
+        ret = ret.concat("  (" + this.getPredicateName());
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+                ret = ret.concat(" " + obj.getName());
+                
+            }
+            
+        }
+        ret = ret.concat(" ?x)");
+        return ret;    
+    }
+    
+    public String pddlPrintWithTypedExtraObject() {
+        String ret = "";
+        ret = ret.concat("  (" + this.getPredicateName());
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }else{
+                Variable obj = (Variable) o1;
+//                System.out.println("DEBUG: obj"+obj);
+                ret = ret.concat(" " + obj.getName()+obj.getType());
+                
+            }
+            
+        }
+        ret = ret.concat(" ?x)");
+        return ret;    
+    }
     public enum true_false {TRUE,FALSE};
     
     /**
@@ -278,11 +316,14 @@ public class  Predicate extends Conditions implements PostCondition {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        
         final Predicate other = (Predicate) obj;
         if ((this.predicateName == null) ? (other.predicateName != null) : !this.predicateName.equals(other.predicateName)) {
             return false;
         }
-        if (this.terms != other.terms && (this.terms == null || !this.terms.equals(other.terms))) {
+        if (this.terms == null) 
+                return false;
+        if (!this.terms.equals(other.terms)) {
             return false;
         }
 //        if (this.hash_code != other.hash_code && (this.hash_code == null || !this.hash_code.equals(other.hash_code))) {
@@ -430,17 +471,20 @@ public class  Predicate extends Conditions implements PostCondition {
         for (Object o1 : this.getTerms()) {
             if (o1 instanceof PDDLObject){
                 PDDLObject obj = (PDDLObject) o1;
-                ret = ret.concat(" " + obj.getName());
+                ret = ret.concat("" + obj.getName());
             }else{
                 Variable obj = (Variable) o1;
-                ret = ret.concat(" " + obj.getName());
+                ret = ret.concat("" + obj.getName());
                 
             }
             
         }
         ret+="-"+i;
         //ret = ret.concat(")");
-        return ret.replaceAll("\\s+","");
+//        System.out.println(ret);
+//        System.out.println(ret.replaceAll("\\s+",""));
+        return ret;
+//        return ret.replaceAll("\\s+","");
     }
 
     @Override

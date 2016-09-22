@@ -46,9 +46,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -169,9 +171,35 @@ public class State extends Object {
     public void removeProposition(Predicate aThis) {
         propositions.remove(aThis);
     }
+    
+     public String pddlPrintWithDummyTrue() {
+        String ret = "(:init (true)\n";
+
+        for (Object o : this.getPropositions()) {
+            Predicate a = (Predicate) o;
+            ret = ret.concat("  (" + a.getPredicateName());
+            for (Object o1 : a.getTerms()) {
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }
+            ret = ret.concat(")\n");
+        }
+        for (Object o : this.getNumericFluents()) {
+            NumFluentAssigner a = (NumFluentAssigner) o;
+            ret = ret.concat("  ( = (" + a.getNFluent().getName());
+            for (Object o1 : a.getNFluent().getTerms()) {
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            }
+            ret = ret.concat(") " + a.getTwo().pddlPrint(false) + ")\n");
+        }
+
+        ret = ret.concat(")");
+        return ret;
+    }
 
     public String pddlPrint() {
-        String ret = "(:init\n";
+        String ret = "(:init \n";
 
         for (Object o : this.getPropositions()) {
             Predicate a = (Predicate) o;
@@ -870,6 +898,10 @@ public class State extends Object {
 
     void increase_time_by_epsilon() {
         this.time.setTwo(new PDDLNumber(time.getTwo().getNumber()+0.1f));
+    }
+
+    public Collection<Predicate> getPropositionsAsSet() {
+        return new LinkedHashSet(this.propositions.keySet());
     }
 
 }

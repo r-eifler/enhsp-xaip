@@ -22,7 +22,14 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     public Conditions activation_condition;
     public PostCondition effect;
 
+    
+    public ConditionalEffect(){
+        super();
+        
+    }
     public ConditionalEffect(Conditions lhs, PostCondition rhs){
+        super();
+
         this.activation_condition = lhs;
         effect = rhs;
         
@@ -42,7 +49,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     }
     
     public String toString(){
-        return "(when "+this.activation_condition.pddlPrint(false)+" "+this.effect.pddlPrint(false)+")";
+        return "(when "+this.activation_condition.pddlPrint(true)+" "+this.effect.pddlPrint(true)+")";
     }
     
     public String pddlPrint(boolean typeInformation){
@@ -75,18 +82,21 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     }
 
     public ConditionalEffect ground(Map substitution) {
-        this.activation_condition.ground(substitution);
+        ConditionalEffect ret = new ConditionalEffect();
+        ret.activation_condition = this.activation_condition.ground(substitution);
+        
         if (this.effect instanceof Conditions){
             Conditions con = (Conditions)this.effect;
-            con.ground(substitution);
+            ret.effect = (PostCondition) con.ground(substitution);
         }else if (this.effect instanceof ConditionalEffect){
             ConditionalEffect sub = (ConditionalEffect)this.effect;
-            sub.ground(substitution);
+            ret.effect = sub.ground(substitution);
         }else if (this.effect instanceof NumEffect){
             NumEffect ne = (NumEffect)this.effect;
-            ne.ground(substitution);
+            ret.effect = (NumEffect)ne.ground(substitution);
         }
-        return this;    
+        ret.grounded = true;
+        return ret;    
     }
 
     @Override
@@ -167,6 +177,11 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public Conditions regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String pddlPrintWithExtraObject() {
+        return "(when "+this.activation_condition.pddlPrintWithExtraObject()+" "+this.effect.pddlPrintWithExtraObject()+")";
     }
 
 

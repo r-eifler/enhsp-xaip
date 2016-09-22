@@ -570,6 +570,11 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty()) {
             ret.addConditions(this.getPreconditions());
         }
+        Conditions con = input.regress(this);
+        if (con instanceof AndCond)
+            ret.sons.addAll(((AndCond) con).sons);
+        else
+            
         ret.addConditions(input.regress(this));
         return ret;
     }
@@ -1686,6 +1691,8 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
+
+    
     public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
 
         HashMap invariantFluents = problem.getInvariantFluents();
@@ -2483,7 +2490,9 @@ public class GroundAction extends GenericActionType implements Comparable {
             if (c_eff.effect instanceof NotCond) {
                 NotCond n_eff = (NotCond) c_eff.effect;
                 Predicate p = (Predicate) n_eff.son.iterator().next();
+//                System.out.println("DEBUG: Comparing: "+p+" with "+aThis);
                 if (p.equals(aThis)) {
+//                    System.out.println("DEBUG: Equal");
                     return c_eff;
                 }
             }

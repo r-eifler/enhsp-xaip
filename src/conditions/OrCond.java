@@ -437,7 +437,10 @@ public class OrCond extends Conditions {
                 Conditions temp = t.regress(gr);
                 if (!temp.isValid()){//needs to be satisfied
                     if (!temp.isUnsatisfiable()){
-                        con.addConditions(temp);
+                        if (temp instanceof OrCond)
+                            con.sons.addAll(((OrCond) temp).sons);
+                        else
+                            con.sons.add(temp);
                     }
                 }else{
                     return new Predicate(Predicate.true_false.TRUE);
@@ -449,4 +452,22 @@ public class OrCond extends Conditions {
         }
         return con;   
     }
+
+    @Override
+    public String pddlPrintWithExtraObject() {
+        String ret_val = "(or ";
+        for (Object o : sons) {
+            if (o instanceof Conditions) {
+                Conditions c = (Conditions) o;
+                ret_val = ret_val.concat(c.pddlPrintWithExtraObject());
+            } else if (o instanceof Comparison) {
+                Comparison comp = (Comparison) o;
+                ret_val = ret_val.concat(comp.pddlPrintWithExtraObject());
+            } else {
+                System.out.println("Error in pddlPrint:" + this);
+                System.exit(-1);
+            }
+        }
+        ret_val = ret_val.concat(")");
+        return ret_val;    }
 }

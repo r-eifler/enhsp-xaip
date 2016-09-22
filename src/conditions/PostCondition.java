@@ -20,4 +20,6 @@ public interface PostCondition {
     public abstract HashMap<Object,Object> apply(RelState s);
     public abstract String pddlPrint(boolean type_info);
     public abstract Object clone();
+    public abstract String pddlPrintWithExtraObject();
+
 }

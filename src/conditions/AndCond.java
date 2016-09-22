@@ -280,6 +280,24 @@ public class AndCond extends Conditions implements PostCondition {
         ret_val = ret_val.concat(")");
         return ret_val;
     }
+    
+    public String pddlPrintWithExtraObject() {
+        String ret_val = "(and ";
+        for (Object o : sons) {
+            if (o instanceof Conditions) {
+                Conditions c = (Conditions) o;
+                ret_val = ret_val.concat(c.pddlPrintWithExtraObject());
+            } else if (o instanceof Comparison) {
+                Comparison comp = (Comparison) o;
+                ret_val = ret_val.concat(comp.pddlPrintWithExtraObject());
+            } else {
+                System.out.println("Error in pddlPrint:" + this);
+                System.exit(-1);
+            }
+        }
+        ret_val = ret_val.concat(")");
+        return ret_val;
+    }
 
     /**
      *
@@ -753,13 +771,26 @@ public class AndCond extends Conditions implements PostCondition {
                 if (!temp.isValid()){//needs to be satisfied
                     if (temp.isUnsatisfiable()){
                         return new Predicate(Predicate.true_false.FALSE);
-                    }else
-                        con.addConditions(temp);
+                    }else{
+                        if (temp instanceof AndCond)
+                            con.sons.addAll(((AndCond) temp).sons);
+                        else
+                            con.sons.add(temp);
+                    }
                 }//else do not add the condition at all
+//                System.out.println("DEBUG: Condition before regression"+t);
+//                System.out.println("DEBUG: Condition after regression"+temp);
+
             } else {
                 System.out.println("AndCond: Condition " + o + " cannot be regressed");
                 System.exit(-1);
             }
+        }
+//        System.out.println(this);
+
+        if (con.sons.isEmpty()){
+//            System.out.println("Always valid");
+            return new Predicate(Predicate.true_false.TRUE);
         }
         return con;   
     }

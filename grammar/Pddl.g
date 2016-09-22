@@ -61,6 +61,9 @@ tokens {
 	PRED_INST;
 	PROBLEM_CONSTRAINT;
 	PROBLEM_METRIC;
+	//UNCERTAINTY
+	UNKNOWN;
+	ONEOF;
 }
 
 
@@ -485,6 +488,9 @@ initEl
 	: nameLiteral
 	| '(' '=' fHead NUMBER ')'         -> ^(INIT_EQ fHead NUMBER)
 	| '(' 'at' NUMBER nameLiteral ')'  -> ^(INIT_AT NUMBER nameLiteral)
+	| '(' 'unknown'  atomicNameFormula ')'  -> ^(UNKNOWN atomicNameFormula)
+	| '(' 'oneof'  atomicNameFormula* ')'  -> ^(ONEOF atomicNameFormula*)
+	| '(' 'or'  nameLiteral* ')'  -> ^(OR_GD nameLiteral*)
 	;
 
 nameLiteral
@@ -500,7 +506,7 @@ atomicNameFormula
 // but I can't get the LL(*) parsing to work
 // This means 'preference' preconditions cannot be used
 //goal : '(' ':goal' preGD ')'  -> ^(GOAL preGD);
-goal : '(' ':goal' goalDesc ')' -> ^(GOAL goalDesc) ;
+goal : '(' ':goal' goalDesc  ')' -> ^(GOAL goalDesc) ;
 
 probConstraints
 	: '(' ':constraints'  prefConGD ')'

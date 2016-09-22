@@ -114,6 +114,18 @@ public class PredicateSet extends HashSet {
          }
         return ret+")";
     }
+    
+    public String pddlPrintWithExtraObject(boolean typeInformation) {
+        String ret="";
+        for (Object el : this) {
+            Predicate elP = (Predicate) el;
+            if (typeInformation)
+                ret += elP.pddlPrintWithTypedExtraObject();
+            else
+                ret += elP.pddlPrintWithExtraObject();
+         }
+        return ret+")";
+    }
 
     public void addIfNecessary(Predicate p) {
         boolean found = false;

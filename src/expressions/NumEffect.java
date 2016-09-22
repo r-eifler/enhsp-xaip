@@ -533,4 +533,9 @@ public class NumEffect extends Expression implements PostCondition {
         return this.getRight().involve(this.fluentAffected);
     }
 
+    @Override
+    public String pddlPrintWithExtraObject() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

@@ -69,6 +69,19 @@ public class ActionSchema extends GenericActionType {
         parameters.add(o);
 
     }
+    
+    
+        
+    public String pddlPrintWithExtraObject(){
+        String ret = "(:action " + this.name + "\n";
+
+        ret += ":parameters " + this.parameters + "\n";
+        if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty())
+            ret += ":precondition (forall (?x -interpretation)" + this.getPreconditions().pddlPrintWithExtraObject() + ")\n";
+        ret += ":effect " + this.pddlEffectsWithExtraObject();
+
+        return ret + ")";
+    }
 
     public GroundAction ground(Map substitution) {
         GroundAction ret = new GroundAction(this.name);
@@ -84,7 +97,7 @@ public class ActionSchema extends GenericActionType {
         ret.setAddList(this.addList.ground(substitution));
         ret.setDelList(this.delList.ground(substitution));
         ret.setPreconditions(this.preconditions.ground(substitution));
-
+        ret.cond_effects = this.cond_effects.ground(substitution);
 
 
 
@@ -111,7 +124,6 @@ public class ActionSchema extends GenericActionType {
 
     public GroundAction ground(ParametersAsTerms par) {
         GroundAction ret = new GroundAction(this.name);
-        ParametersAsTerms input = new ParametersAsTerms();
         int i = 0;
 
         Map substitution = new HashMap();
@@ -137,8 +149,10 @@ public class ActionSchema extends GenericActionType {
             ret.setPreconditions(this.preconditions.ground(substitution));
         }
         if (cond_effects != null) {
-//            System.out.println(cond_effects);
+//            System.out.println("DEBUG: Before:"+cond_effects);
             ret.cond_effects = this.cond_effects.ground(substitution);
+//            System.out.println("DEBUG: after:"+cond_effects);
+       
         }
 
         return ret;
@@ -170,7 +184,7 @@ public class ActionSchema extends GenericActionType {
 
         ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
-        ret += ":effect " + this.pddlEffects();
+        ret += ":effect " + this.pddlEffectsWithExtraObject();
 
         return ret + ")";
     }
@@ -352,6 +366,38 @@ public class ActionSchema extends GenericActionType {
         return result;    
     
     
+    }
+
+    private String pddlEffectsWithExtraObject() {
+        String ret = "(and ";
+        if (this.getAddList() != null) {
+            for (Object o : this.getAddList().sons) {
+                Predicate p = (Predicate) o;
+                ret += "(forall (?x -object) "+p.pddlPrintWithExtraObject()+")";
+            }
+        }
+        if (this.getDelList() != null) {
+            for (Object o : this.getDelList().sons) {
+                NotCond p = (NotCond) o;
+                ret += "(forall (?x -object) "+p.pddlPrintWithExtraObject()+")";
+            }
+        }
+        if (this.getNumericEffects() != null) {
+            for (Object o : this.getNumericEffects().sons) {
+                NumEffect nE = (NumEffect) o;
+                ret += "(forall (?x -object) "+nE.pddlPrint(false)+")";
+
+            }
+        }
+        if (this.cond_effects != null) {
+            for (Object o : this.cond_effects.sons) {
+                ConditionalEffect cond_eff = (ConditionalEffect) o;
+                ret += "(forall (?x -object) "+cond_eff.pddlPrintWithExtraObject()+")";
+
+            }
+        }
+
+        return ret + ")";
     }
     
     

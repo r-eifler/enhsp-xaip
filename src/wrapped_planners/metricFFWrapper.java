@@ -63,7 +63,7 @@ public class metricFFWrapper extends planningTool {
                 System.out.println("....TIMEOUT");
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable")){
+            if (this.outputPlanning.contains("unsolvable") || (this.outputPlanning.contains("goal can be simplified to FALSE"))){
                 this.failed=true;
                 System.out.println("....UNSOLVABLE");
                 this.findTotalTimeInFile(outputPlanning);

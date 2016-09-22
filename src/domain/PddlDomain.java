@@ -1256,4 +1256,32 @@ public final class PddlDomain extends Object {
         }
     }
 
+    public void saveProblemWithObjectInterpretation(String file) throws IOException {
+        PddlDomain domain = this;
+        Writer f;
+
+        f = new BufferedWriter(new FileWriter(file));
+        ParametersAsTerms constants = new ParametersAsTerms();
+
+        f.write("(define (domain " + domain.getName() + ")\n");
+        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        }
+        if (domain.getTypes() != null && !domain.getTypes().isEmpty()) {
+            f.write("(:types interpretation " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
+        }
+        if (!domain.getPredicates().isEmpty()) // f.write("(:constants "+constants.pddlPrint()+")\n");
+        {
+            f.write("(:predicates (true) " + domain.getPredicates().pddlPrintWithExtraObject(true) + " \n");
+        }
+
+        if (!domain.getActionsSchema().isEmpty()) {
+            f.write(Utils.toPDDLWithExtraObject(domain.getActionsSchema()));
+        }
+
+        f.write("\n)");
+        f.close();
+        f.close();
+    }
+
 }

@@ -34,6 +34,7 @@ import conditions.NumFluentAssigner;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
+import conditions.OneOf;
 import conditions.OrCond;
 import conditions.Predicate;
 import conditions.PDDLObject;
@@ -104,6 +105,11 @@ public class PddlProblem {
     protected boolean simplifyActions;
     protected HashMap invariantFluents;
     public Conditions belief;
+    public Collection<Predicate> unknonw_predicates;
+    public Collection<OneOf> one_of_s;
+    public Collection<OrCond> or_s;
+
+    
 
     /**
      * Get the value of groundedActions
@@ -226,6 +232,23 @@ public class PddlProblem {
         file.write(toWrite);
         file.close();
     }
+    
+    public void saveProblemWithObjectInterpretation(String pddlNewFile) throws IOException {
+
+        pddlFilRef = pddlNewFile;
+
+        String toWrite = "(define (problem " + this.getName() + ") "
+                + "(:domain " + this.getDomainName() + ") "
+                + this.getObjects().pddlPrint() + "\n"
+                + this.init.pddlPrintWithDummyTrue()+ "\n"
+                + "(:goal (forall (?x -interpretation)" + this.getGoals().pddlPrintWithExtraObject() + "))\n"
+                + this.metric.pddlPrint() + "\n"
+                + ")";
+        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        file.write(toWrite);
+        file.close();
+    }
+
 
     /**
      *
@@ -268,6 +291,9 @@ public class PddlProblem {
         CommonTree t = (CommonTree) root.getTree();
 //        System.out.println("tree:" + t.toStringTree());
 //        exploreTree(t);
+        this.one_of_s = new LinkedHashSet();
+        this.unknonw_predicates = new LinkedHashSet();
+        this.or_s = new LinkedHashSet();
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
             //System.out.println(child.getChild(0).getText());
@@ -294,6 +320,7 @@ public class PddlProblem {
                 case PddlParser.PROBLEM_METRIC:
                     addMetric(child);
                     break;
+
             }
         }
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
@@ -328,7 +355,7 @@ public class PddlProblem {
         for (int i = 1; i < t.getChildCount(); i++) {
 
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
-
+//            System.out.println(t1.getType());
             if (t1 != null) {
                 a.addObject(t1);
             } else {
@@ -466,6 +493,18 @@ public class PddlProblem {
                     break;
                 case PddlParser.INIT_AT:
                     init.addTimedLiteral(buildInstPredicate(c));
+                    break;
+                case PddlParser.UNKNOWN:
+//                    System.out.println("DEBUG: unknonw");
+                    this.unknonw_predicates.add((Predicate) addUnknown(c));
+                    break;
+                case PddlParser.ONEOF:
+//                    System.out.println("DEBUG: oneof");
+                    this.one_of_s.add((OneOf) addOneOf(c));
+                    break;
+                case PddlParser.OR_GD:
+//                    System.out.println("DEBUG: or Conditition");
+                    this.or_s.add((OrCond) this.addOr(c));
                     break;
                 default:
                     break;
@@ -1038,5 +1077,95 @@ public class PddlProblem {
         }
 
         return true;
+    }
+
+    private Conditions addUnknown(Tree infoAction) {
+        if (infoAction == null) {
+            return null;
+        }
+        if (infoAction.getType() == PddlParser.PRED_INST) {
+            //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+            return buildInstPredicate(infoAction);
+        } else if (infoAction.getType() == PddlParser.UNKNOWN) {
+
+          return addUnknown(infoAction.getChild(0));
+
+        }else{
+            System.out.println("Some serious error:"+infoAction);
+            return null;
+        }
+    }
+
+    private Conditions addOneOf(Tree infoAction) {
+        if (infoAction == null) {
+            return null;
+        }
+        if (infoAction.getType() == PddlParser.PRED_INST) {
+            //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+            return buildInstPredicate(infoAction);
+        } else if (infoAction.getType() == PddlParser.ONEOF) {
+            OneOf one_of = new OneOf();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Conditions ret_val = addOneOf(infoAction.getChild(i));
+                if (ret_val != null) {
+                    one_of.sons.add(ret_val);
+                }
+            }
+            return one_of;
+        }else{
+            System.out.println("Some serious error:"+infoAction);
+            return null;
+        }
+    }
+
+    private Conditions addOr(Tree infoAction) {
+        if (infoAction == null) {
+            return null;
+        }
+        if (infoAction.getType() == PddlParser.PRED_INST) {
+            //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+            return buildInstPredicate(infoAction);
+        } else if (infoAction.getType() == PddlParser.AND_GD) {
+            AndCond and = new AndCond();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Conditions ret_val = addOr(infoAction.getChild(i));
+                if (ret_val != null) {
+                    and.addConditions(ret_val);
+                }
+            }
+            return and;
+
+        } else if (infoAction.getType() == PddlParser.OR_GD) {
+//            System.out.println("Or Condition");
+            OrCond or = new OrCond();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Conditions ret_val = addOr(infoAction.getChild(i));
+//                System.out.println(ret_val);
+                if (ret_val != null) {
+                    or.addConditions(ret_val);
+                }
+            }
+            return or;
+            //Crea un or e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di or
+        } else if (infoAction.getType() == PddlParser.NOT_PRED_INIT) {
+            NotCond not = new NotCond();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Conditions ret_val = addOr(infoAction.getChild(i));
+                if (ret_val != null) {
+                    not.addConditions(ret_val);
+                }
+            }
+            return not;
+        }else{
+            System.out.println("Some serious error:"+infoAction);
+            return null;
+        }
     }
 }

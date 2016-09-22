@@ -945,4 +945,9 @@ public class Comparison extends Conditions {
     public Conditions regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public String pddlPrintWithExtraObject() {
+        return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
+    }
 }
