@@ -373,26 +373,26 @@ public class ActionSchema extends GenericActionType {
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
-                ret += "(forall (?x -object) "+p.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?x -interpretation) "+p.pddlPrintWithExtraObject()+")";
             }
         }
         if (this.getDelList() != null) {
             for (Object o : this.getDelList().sons) {
                 NotCond p = (NotCond) o;
-                ret += "(forall (?x -object) "+p.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?x -interpretation) "+p.pddlPrintWithExtraObject()+")";
             }
         }
         if (this.getNumericEffects() != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
-                ret += "(forall (?x -object) "+nE.pddlPrint(false)+")";
+                ret += "(forall (?x -interpretation) "+nE.pddlPrint(false)+")";
 
             }
         }
         if (this.cond_effects != null) {
             for (Object o : this.cond_effects.sons) {
                 ConditionalEffect cond_eff = (ConditionalEffect) o;
-                ret += "(forall (?x -object) "+cond_eff.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?x -interpretation) "+cond_eff.pddlPrintWithExtraObject()+")";
 
             }
         }
