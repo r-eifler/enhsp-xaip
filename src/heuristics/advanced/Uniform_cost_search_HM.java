@@ -101,7 +101,7 @@ public class Uniform_cost_search_HM extends Heuristic {
         }
         this.cond_action = new HashMap();
         build_integer_representation();
-//        identify_complex_conditions(all_conditions, A);
+        //identify_complex_conditions(all_conditions, A);
         generate_achievers();
         reacheability_setting = true;
         this.dbg_print("Reachability Analysis Started");
@@ -119,12 +119,10 @@ public class Uniform_cost_search_HM extends Heuristic {
         int counter2 = 0;
 
         int counter_actions = 0;
-        ArrayList conditions = new ArrayList();
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         for (GroundAction a : actions_to_consider) {
             a.counter = counter_actions++;
             if (a.getPreconditions() != null) {
-
                 if (a.getPreconditions() != null && a.getPreconditions().sons != null) {
                     a.getPreconditions().setCounter(counter2++);
                     all_conditions.add(a.getPreconditions());
@@ -165,12 +163,6 @@ public class Uniform_cost_search_HM extends Heuristic {
             }
         }
         reacheable_conditions = 0;
-        LinkedHashSet<GroundAction> temp_a;
-        if (reacheability_setting) {
-            temp_a = new LinkedHashSet(A);
-        } else {
-            temp_a = new LinkedHashSet(this.reachable);
-        }
         final_achiever = new HashMap();
 
         ArrayList<GroundAction> active_actions = new ArrayList();
@@ -178,8 +170,7 @@ public class Uniform_cost_search_HM extends Heuristic {
 //            if (gr.isApplicable(s))
 //                //active_actions.add(gr);
 //        }
-        Collection<Conditions> temp_conditions = new LinkedHashSet();
-        int iteration = 0;
+        Collection<Conditions> temp_conditions = null;
 //        System.out.println(all_conditions.size());
         while (!q.isEmpty()) {
             //if (!first) {
@@ -198,7 +189,7 @@ public class Uniform_cost_search_HM extends Heuristic {
                 
                 Conditions cn = q.removeMin().getData();
                 if (distance.get(cn.getCounter()) == Float.MAX_VALUE){
-                    System.out.println("Anomaly!!!");
+                    System.out.println("Anomaly!!!");//This shouldn't happen as only reachable conditions are put in the list
                     break;
                 }
                 if (first == null) {
@@ -211,15 +202,15 @@ public class Uniform_cost_search_HM extends Heuristic {
                         q.insert(node, distance.get(cn.getCounter()));
                         cond_to_entry.put(cn.getCounter(), node);
                         first = null;
-                        break;
+                        break;//exot from this inner loop and compute cost for new conditons that can be achieved
+                        //looking at the active actions activated by this step.
                     }
 
 
                 }
-//                System.out.println(distance.get(cn.getCounter()));
-                closed.set(cn.getCounter(), true);
 
-//            temp_conditions.remove(cn);
+                closed.set(cn.getCounter(), true);//this is the best cost so far; no need to reopen this fact again
+
                 if (cn.getCounter() == G.getCounter() && !this.reacheability_setting) {
                     if (distance.get(cn.getCounter()) == Float.MAX_VALUE){
                         System.out.println("Anomaly");
