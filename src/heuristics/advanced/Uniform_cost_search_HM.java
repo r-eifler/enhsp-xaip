@@ -48,6 +48,10 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -81,16 +85,13 @@ public class Uniform_cost_search_HM extends Heuristic {
         super(G, A, processesSet);
         lp_interface = new lp_interface();
         lp_interface.additive_h = this.additive_h;
-        
+
     }
-    
-    public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A,Set processesSet, Conditions GC) {
-        super(G, A,processesSet,GC);
+
+    public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
+        super(G, A, processesSet, GC);
         lp_interface = new lp_interface();
-        lp_interface.additive_h = this.additive_h;
     }
-
-
 
     @Override
     public Float setup(State s) {
@@ -103,6 +104,9 @@ public class Uniform_cost_search_HM extends Heuristic {
         build_integer_representation();
         //identify_complex_conditions(all_conditions, A);
         generate_achievers();
+        lp_interface.additive_h = this.additive_h;
+
+        lp_interface.initialize(A, s, all_conditions, gC);
         reacheability_setting = true;
         this.dbg_print("Reachability Analysis Started");
         Float ret = compute_estimate(s);
@@ -122,6 +126,7 @@ public class Uniform_cost_search_HM extends Heuristic {
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         for (GroundAction a : actions_to_consider) {
             a.counter = counter_actions++;
+            
             if (a.getPreconditions() != null) {
                 if (a.getPreconditions() != null && a.getPreconditions().sons != null) {
                     a.getPreconditions().setCounter(counter2++);
@@ -132,20 +137,22 @@ public class Uniform_cost_search_HM extends Heuristic {
             }
         }
 
-        G.setCounter(counter2);
+        G.setCounter(counter2++);
         all_conditions.add(G);
+        this.gC.setCounter(counter2);
         //System.out.println(conditions);;
-        
 
     }
 
     @Override
     public Float compute_estimate(State s) {
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
-        if (s.satisfy(G))
+        if (s.satisfy(G)) {
             return 0f;
+        }
         FibonacciHeap<Conditions> q = new FibonacciHeap();
-
+        lp_interface.update_all_conditions(s, all_conditions);
+        
         relaxed_plan_actions = new LinkedHashSet();
         //setting up the initial values
         ArrayList<Boolean> closed = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
@@ -165,7 +172,7 @@ public class Uniform_cost_search_HM extends Heuristic {
         reacheable_conditions = 0;
         final_achiever = new HashMap();
 
-        ArrayList<GroundAction> active_actions = new ArrayList();
+        ArrayList<Boolean> active_actions = new ArrayList<>(nCopies(A.size() + 1, false));
 //        for (GroundAction gr: temp_a){
 //            if (gr.isApplicable(s))
 //                //active_actions.add(gr);
@@ -179,48 +186,46 @@ public class Uniform_cost_search_HM extends Heuristic {
             temp_conditions = new LinkedHashSet();
 //            System.out.println("New Iteration");
             while (!q.isEmpty()) {//take all the elements with equal distance from the initial state
-                
-                if (this.greedy && !this.reacheability_setting){
-                    if (distance.get(G.getCounter()) != Float.MAX_VALUE){
+
+                if (this.greedy && !this.reacheability_setting) {
+                    if (distance.get(G.getCounter()) != Float.MAX_VALUE) {
                         return distance.get(G.getCounter());
                     }
                 }
-                    
-                
+
                 Conditions cn = q.removeMin().getData();
-                if (distance.get(cn.getCounter()) == Float.MAX_VALUE){
+                if (distance.get(cn.getCounter()) == Float.MAX_VALUE) {
                     System.out.println("Anomaly!!!");//This shouldn't happen as only reachable conditions are put in the list
                     break;
                 }
                 if (first == null) {
                     first = distance.get(cn.getCounter());
-                } else {
-                    if (first < distance.get(cn.getCounter())) {//put back and stop
-                        distance.set(cn.getCounter(), distance.get(cn.getCounter()));
-                        open_list.set(cn.getCounter(), true);
-                        FibonacciHeapNode node = new FibonacciHeapNode(cn);
-                        q.insert(node, distance.get(cn.getCounter()));
-                        cond_to_entry.put(cn.getCounter(), node);
-                        first = null;
-                        break;//exot from this inner loop and compute cost for new conditons that can be achieved
-                        //looking at the active actions activated by this step.
-                    }
-
-
+                } else if (first < distance.get(cn.getCounter())) {//put back and stop
+                    distance.set(cn.getCounter(), distance.get(cn.getCounter()));
+                    open_list.set(cn.getCounter(), true);
+                    FibonacciHeapNode node = new FibonacciHeapNode(cn);
+                    q.insert(node, distance.get(cn.getCounter()));
+                    cond_to_entry.put(cn.getCounter(), node);
+                    first = null;
+                    break;//exot from this inner loop and compute cost for new conditons that can be achieved
+                    //looking at the active actions activated by this step.
                 }
 
                 closed.set(cn.getCounter(), true);//this is the best cost so far; no need to reopen this fact again
 
                 if (cn.getCounter() == G.getCounter() && !this.reacheability_setting) {
-                    if (distance.get(cn.getCounter()) == Float.MAX_VALUE){
+                    if (distance.get(cn.getCounter()) == Float.MAX_VALUE) {
                         System.out.println("Anomaly");
-                                
+
                     }
-                    return Math.max(distance.get(cn.getCounter()),1f);
+                    return Math.max(distance.get(cn.getCounter()), 1f);
                 }
                 GroundAction gr = this.cond_action.get(cn.getCounter());
                 if (gr != null) {
-                    active_actions.add(gr);
+                    active_actions.set(gr.counter, Boolean.TRUE);
+                    if (this.reacheability_setting) {
+                        this.reachable.add(gr);
+                    }
                     temp_conditions.addAll(interact_with.get(gr.counter));
 
                 }
@@ -230,11 +235,11 @@ public class Uniform_cost_search_HM extends Heuristic {
             for (Conditions cond : temp_conditions) {
                 if (!closed.get(cond.getCounter())) {
                     Float current_cost = null;
-                    if (cplex){
+                    if (cplex) {
                         //current_cost = lp_interface.compute_current_cost_via_lp_cplex(active_actions, s, cond, distance,this.gC);
-                    }else
-                        current_cost = lp_interface.compute_current_cost_via_lp(active_actions, s, cond, distance,this.gC);
-         
+                    } else {
+                        current_cost = lp_interface.update_cost(s,active_actions, cond, distance);
+                    }
                     n_lp_invocations = lp_interface.n_invocations;
                     if (current_cost != Float.MAX_VALUE) {
                         update_cost_if_necessary(open_list, distance, cond, q, cond_to_entry, current_cost);
@@ -245,17 +250,12 @@ public class Uniform_cost_search_HM extends Heuristic {
         }
 
         //System.out.println("Current Estimate to the goal:"+this.compute_float_cost(s, G, dist));
-        if (this.reacheability_setting) {
-            this.reachable.addAll(active_actions);
-        }
-
 //        System.out.println(distance.get(G.getCounter()));
 //        System.exit(-1);
 //        if (distance.get(G.getCounter())==Float.MAX_VALUE){
 ////            System.out.println("Dead-End in:"+s.pddlPrint());
 //        }
-                
-        return Math.max(distance.get(G.getCounter()),1f);
+        return Math.max(distance.get(G.getCounter()), 1f);
     }
 
     private void generate_achievers() {
@@ -264,10 +264,10 @@ public class Uniform_cost_search_HM extends Heuristic {
         for (GroundAction gr : this.A) {
             interact_with.put(gr.counter, new LinkedHashSet());
             for (Conditions c : this.all_conditions) {
-                if (gr.getPreconditions().getCounter() != c.getCounter()){
+                if (gr.getPreconditions().getCounter() != c.getCounter()) {
                     if (c.is_affected_by(gr)) {
-                            interact_with.get(gr.counter).add(c);   
-                   
+                        interact_with.get(gr.counter).add(c);
+
                     }
                 }
 

@@ -1963,7 +1963,11 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            }
 //        }
         a1 = comp.eval_not_affected(s_0, this);
+        if (a1 == Float.NaN)
+            return Float.MAX_VALUE;
         b = comp.eval_affected(s_0, this);
+        if (b == Float.NaN)
+            return Float.MAX_VALUE;
         if (a1 == null || b == null) {
             return Float.MAX_VALUE;
         }

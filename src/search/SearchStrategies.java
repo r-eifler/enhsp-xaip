@@ -252,12 +252,19 @@ public class SearchStrategies {
         long start_global = System.currentTimeMillis();
         PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
         State current = (State) problem.getInit();
+        if (!current.satisfy(problem.globalConstraints)){
+            System.out.println("Initial State is not valid");
+            return null;
+        }
         //problem.generateActions();
 
         LinkedHashSet rel_actions = new LinkedHashSet(problem.getActions());
         //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
 
-        getHeuristic().setup(current);
+        if (getHeuristic().setup(current) == Float.MAX_VALUE){
+            System.out.println("H(s_0,G) = inf");
+            return null;
+        }
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
 //        System.out.println(getHeuristic().reachable);
         Float current_value = getHeuristic().compute_estimate(current);

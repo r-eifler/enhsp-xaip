@@ -826,7 +826,11 @@ public class ExtendedNormExpression extends Expression {
                 current += ad.n.getNumber() * ad.f.eval(s_0).getNumber();
             } else if (action.getCoefficientAffected(ad.f) != null) {
                 //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
-                current += ad.n.getNumber() * action.getCoefficientAffected(ad.f) * ad.f.eval(s_0).getNumber();
+                
+                PDDLNumber num = ad.f.eval(s_0);
+                if (num == null)
+                    return Float.NaN;
+                current += ad.n.getNumber() * action.getCoefficientAffected(ad.f) * num.getNumber();
             }
         }
         return current;
