@@ -31,6 +31,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import heuristics.Heuristic;
+import ilog.concert.IloException;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;
@@ -39,11 +40,21 @@ import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
+import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
@@ -68,8 +79,8 @@ public class Uniform_cost_search_HM extends Heuristic {
     private boolean reacheability_setting;
     private boolean all_paths = false;
     protected ArrayList<Integer> dist;
-    private lp_interface lp_interface;
     public boolean cplex = false;
+    public HashMap<Integer,LpInterface> lps;
 
     public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -83,14 +94,12 @@ public class Uniform_cost_search_HM extends Heuristic {
      */
     public Uniform_cost_search_HM(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
-        lp_interface = new lp_interface();
-        lp_interface.additive_h = this.additive_h;
+        
 
     }
 
     public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
         super(G, A, processesSet, GC);
-        lp_interface = new lp_interface();
     }
 
     @Override
@@ -104,9 +113,11 @@ public class Uniform_cost_search_HM extends Heuristic {
         build_integer_representation();
         //identify_complex_conditions(all_conditions, A);
         generate_achievers();
-        lp_interface.additive_h = this.additive_h;
-
-        lp_interface.initialize(A, s, all_conditions, gC);
+        try {
+            this.generate_linear_programs(A, s);
+        } catch (IloException ex) {
+            Logger.getLogger(Uniform_cost_search_HM.class.getName()).log(Level.SEVERE, null, ex);
+        }
         reacheability_setting = true;
         this.dbg_print("Reachability Analysis Started");
         Float ret = compute_estimate(s);
@@ -129,6 +140,7 @@ public class Uniform_cost_search_HM extends Heuristic {
             
             if (a.getPreconditions() != null) {
                 if (a.getPreconditions() != null && a.getPreconditions().sons != null) {
+                    
                     a.getPreconditions().setCounter(counter2++);
                     all_conditions.add(a.getPreconditions());
                     this.cond_action.put(a.getPreconditions().getCounter(), a);
@@ -151,8 +163,10 @@ public class Uniform_cost_search_HM extends Heuristic {
             return 0f;
         }
         FibonacciHeap<Conditions> q = new FibonacciHeap();
-        lp_interface.update_all_conditions(s, all_conditions);
-        
+//        if (this.reacheability_setting)
+//            generate_lp(A,s);
+//        else
+//            generate_lp(this.reachable,s);
         relaxed_plan_actions = new LinkedHashSet();
         //setting up the initial values
         ArrayList<Boolean> closed = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
@@ -167,8 +181,14 @@ public class Uniform_cost_search_HM extends Heuristic {
                 distance.set(c.getCounter(), 0f);
                 open_list.set(c.getCounter(), true);
                 closed.set(c.getCounter(), true);
+            }else{
+                //lps.get(c.getCounter()).initialize(A, s);
+                
+                lps.get(c.getCounter()).update_conditions_bound_plus_reset_variables(s);
+                
             }
         }
+        
         reacheable_conditions = 0;
         final_achiever = new HashMap();
 
@@ -238,9 +258,9 @@ public class Uniform_cost_search_HM extends Heuristic {
                     if (cplex) {
                         //current_cost = lp_interface.compute_current_cost_via_lp_cplex(active_actions, s, cond, distance,this.gC);
                     } else {
-                        current_cost = lp_interface.update_cost(s,active_actions, cond, distance);
+                        current_cost = lps.get(cond.getCounter()).update_cost(s,active_actions, distance);
                     }
-                    n_lp_invocations = lp_interface.n_invocations;
+                    n_lp_invocations++;
                     if (current_cost != Float.MAX_VALUE) {
                         update_cost_if_necessary(open_list, distance, cond, q, cond_to_entry, current_cost);
                     }
@@ -291,6 +311,16 @@ public class Uniform_cost_search_HM extends Heuristic {
             q.insert(node, current_cost);
             cond_to_entry.put(p.getCounter(), node);
             reacheable_conditions++;
+        }
+    }
+
+    private void generate_linear_programs(Collection<GroundAction> actions,State s_0) throws IloException {
+        lps = new HashMap();
+        for (Conditions c: all_conditions){
+            LpInterface lp = new cplex_interface(c,this.gC);
+            lp.additive_h = this.additive_h;
+            lp.initialize(actions, s_0);
+            lps.put(c.getCounter(), lp);
         }
     }
 

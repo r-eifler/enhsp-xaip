@@ -14,13 +14,14 @@ import expressions.NumEffect;
 import expressions.PDDLNumber;
 import java.util.ArrayList;
 import java.util.Collection;
-import static java.util.Collections.nCopies;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
+import org.ojalgo.optimisation.external.SolverCPLEX;
 import problem.GroundAction;
 import problem.State;
 
@@ -28,74 +29,76 @@ import problem.State;
  *
  * @author enrico
  */
-public class lp_interface {
+public final class ojalgo_interface extends LpInterface  {
 
-    public int n_invocations;
-    public boolean integer_variables;
-    public boolean additive_h;
-    private boolean no_further_reasoning = true;
     public HashMap<Integer, Collection<GroundAction>> affectors_of;
+    public HashMap<Integer, Collection<GroundAction>> affectors_of_temp;
+
     public HashMap<Integer, ExpressionsBasedModel> cond_lp_formulation;
     public HashMap<Conditions,Collection<GroundAction>> pos_affectors_of;
-    public Conditions gc;
     public HashMap<Integer, Variable> action_to_variable;
-    public HashMap<Integer,HashMap<Integer,Integer>> cond_to_lp_variables;
     public ArrayList<Boolean> first_time;
-
-    public lp_interface() {
-        super();
+    public HashMap<Variable,Collection<Constraint>> var_to_expr; 
+    
+    public ExpressionsBasedModel lp;
+    public ojalgo_interface(Conditions cond, Conditions global_constraint) {
+        super(cond,global_constraint);
         n_invocations = 0;
         integer_variables = false;
         additive_h = false;
+        lp = new ExpressionsBasedModel();
+//        ExpressionsBasedModel.addIntegration(SolverCPLEX.INTEGRATION);
+
+    }
+
+    @Override
+    public void initialize(Collection<GroundAction> actions, State s_0) {
+        this.cond_lp_formulation = new HashMap();
+        this.var_to_expr = new HashMap();
         this.affectors_of = new HashMap();
         pos_affectors_of = new HashMap();
-    }
 
-    public void initialize(Collection<GroundAction> actions, State s_0, Collection<Conditions> all_conds, Conditions global_constraint) {
-        gc = global_constraint;
-        this.cond_lp_formulation = new HashMap();
-        cond_to_lp_variables  = new HashMap();
-        first_time = new ArrayList<>(nCopies(all_conds.size() + 1, true));
-        for (Conditions c : all_conds) {
             //first_time.set(c.getCounter(),true);
-            this.cond_lp_formulation.put(c.getCounter(), this.init_condition(actions, s_0, c, gc));
-        }
+        this.init_condition(actions, s_0);
+        
         
     }
 
-    public boolean update_all_conditions(State s_0, Collection<Conditions> conds) {
-        boolean ret = true;
-        for (Conditions c : conds) {
-            ret = ret && this.update_eval_condition(s_0, c);
+    @Override
+    public void update_conditions_bound_plus_reset_variables(State s_0) {
+        this.update_local_global_conditions(s_0);
+        for (Variable v: lp.getVariables())
+            v.upper(0);
+        affectors_of_temp = new HashMap();
+        for (Integer i:this.affectors_of.keySet()){
+            affectors_of_temp.put(i,new LinkedHashSet());
+            affectors_of_temp.get(i).addAll(this.affectors_of.get(i));
         }
-        return ret;
-        //this.update_eval_condition(s_0, gc);
+        return;
     }
 
-    private boolean update_eval_condition(State s_0, Conditions c) {
+    @Override
+    protected void update_local_global_conditions(State s_0) {
 
-        ExpressionsBasedModel lp = this.cond_lp_formulation.get(c.getCounter());
-        boolean ret = update_condition(s_0,lp,c);
-        
+        update_condition(s_0,c);  
         if (this.gc != null){
-            ret = ret && update_condition(s_0,lp,gc);
+             update_condition(s_0,gc);
         }
 
-        return ret;
     }
 
-    public float update_cost(State s_0,ArrayList<Boolean> active_actions, Conditions c, ArrayList<Float> h) {
+    @Override
+    public float update_cost(State s_0,ArrayList<Boolean> active_actions, ArrayList<Float> h) {
 
-        ExpressionsBasedModel lp = this.cond_lp_formulation.get(c.getCounter());
-        HashMap<Integer,Integer> action_to_var = this.cond_to_lp_variables.get(c.getCounter());
-        Collection<GroundAction> affectors = this.affectors_of.get(c.getCounter());
-        for (GroundAction gr : affectors) {
+        Collection<GroundAction> affectors = this.affectors_of_temp.get(c.getCounter());
+        Iterator<GroundAction> it = affectors.iterator();
+        while (it.hasNext()) {
+            GroundAction gr = it.next();
             if (active_actions.get(gr.counter)) {
-                Variable v = lp.getVariable(action_to_var.get(gr.counter));
-                v.upper(Integer.MAX_VALUE).lower(0); 
-//                System.out.println("DEBUG:"+lp.indexOf(v));
-//                Variable v1 = lp.getVariable(lp.indexOf(v));
-//                v1.upper(Integer.MAX_VALUE);
+                Variable v = this.action_to_variable.get(gr.counter);
+                v.upper(Integer.MAX_VALUE);
+               it.remove();
+
             }
         }
         
@@ -120,53 +123,42 @@ public class lp_interface {
                 else
                     precondition_contribution = Math.min(precondition_contribution,local_min);
         }
-        //this.
+        if (precondition_contribution == Float.MAX_VALUE)
+            precondition_contribution = 0f;
         n_invocations++;
-        
-        
-        
-        Optimisation.Result tmpResult = lp.minimise();
-//        if (first_time.get(c.getCounter())){
-//            tmpResult = lp.minimise();
-//            first_time.set(c.getCounter(), false);
-//        }else
-//            tmpResult = lp.solve(lp.getVariableValues());
-        if (tmpResult.getState().isFeasible()) {
-            return (float)tmpResult.getValue()+precondition_contribution;            
-//            return ret;
+
+//        System.out.println(lp);
+        Optimisation.Result tmpResult = lp.copy().minimise();
+//        System.out.println(lp);
+
+        if (tmpResult.getState().isFeasible()){
+            return (float)tmpResult.getValue()+precondition_contribution;
         }
+
 
         return Float.MAX_VALUE;
     }
 
-    protected ExpressionsBasedModel init_condition(Collection<GroundAction> pool, State s_0, Conditions c, Conditions gC) {
+    
+    protected void init_condition(Collection<GroundAction> pool, State s_0) {
 
-        final ExpressionsBasedModel lp = new ExpressionsBasedModel();
 
         
         action_to_variable = new HashMap();
-        cond_to_lp_variables.put(c.getCounter(),new HashMap());
         Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
         conditions_to_evaluate.addAll(c.sons);
-        if (gC != null) {
+        if (gc != null) {
 //            System.out.println("considering Global Constraints:"+gC.sons);
-            conditions_to_evaluate.addAll(gC.sons);
+            conditions_to_evaluate.addAll(gc.sons);
         }
         this.affectors_of.put(c.getCounter(), new LinkedHashSet());
 
         for (Conditions cond : conditions_to_evaluate) {
-            Expression condition = null;
-            condition = lp.addExpression(cond.toString());
+            Expression condition = lp.addExpression(cond.toString());
             pos_affectors_of.put(cond,new LinkedHashSet());
             if (cond instanceof Comparison) {
                 Comparison comp = (Comparison) cond;
-//                Float eval = comp.getLeft().eval(s_0).getNumber();
-//
-//                if (comp.getComparator().equals(">") || comp.getComparator().equals(">=")) {
-//                    condition.lower(-eval);
-//                } else {
-//                    condition.lower(eval);
-//                }
+
                 ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                 for (ExtendedAddendum ad : left.summations) {
                     if (ad.f != null) {
@@ -187,7 +179,7 @@ public class lp_interface {
                                     }
                                     affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
 
-                                    final Variable action;
+                                    Variable action ;
                                     if (action_to_variable.get(gr.counter) != null) {
                                         action = action_to_variable.get(gr.counter);
                                         if (integer_variables) {
@@ -195,7 +187,8 @@ public class lp_interface {
                                         }
                                     } else {
                                         action = Variable.make(gr.toEcoString()).lower(0).upper(0).weight(action_cost);
-                                        this.cond_to_lp_variables.get(c.getCounter()).put(gr.counter, lp.countVariables());              
+                                        this.var_to_expr.put(action, new LinkedHashSet());
+                                        //action.lower(0);
                                         lp.addVariable(action);
                                         action_to_variable.put(gr.counter, action);
                                     }
@@ -208,15 +201,16 @@ public class lp_interface {
                                         case "increase":
                                             right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
                                             right = condition.get(action).floatValue() + right;
-                                            condition = condition.set(action, right);
+                                            //var_to_expr.get(action).add(new Constraint(condition,right));
+                                            condition.set(action, right);
 
 //                                            System.out.println("DEBUG:"+condition);
                                             break;
                                         case "decrease":
                                             right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
                                             right = condition.get(action).floatValue() - right;
-                                            condition = condition.set(action, right);
-
+                                            //var_to_expr.get(action).add(new Constraint(condition,-right));
+                                            condition.set(action, right);
                                             break;
                                         case "assign":
                                             continue;
@@ -234,7 +228,6 @@ public class lp_interface {
 
 //                System.out.println(condition);
             } else if (cond instanceof Predicate) {
-                if (!cond.isSatisfied(s_0)) {
                     condition.lower(1);
                     Predicate p = (Predicate) cond;
                     for (GroundAction gr : pool) {
@@ -246,54 +239,74 @@ public class lp_interface {
                             if (action_cost.isNaN()) {
                                 continue;
                             }
-                            final Variable action;
+                            Variable action;
                             if (action_to_variable.get(gr.counter) != null) {
                                 action = action_to_variable.get(gr.counter);
                             } else {
-                                action = Variable.make(gr.toEcoString()).lower(0).upper(0).weight(action_cost);
-                                this.cond_to_lp_variables.get(c.getCounter()).put(gr.counter, lp.countVariables());
+                                action = Variable.make(gr.toEcoString()).lower(0).weight(action_cost);
                                 lp.addVariable(action);
                                 action_to_variable.put(gr.counter, action);
                                 if (integer_variables) {
                                     action.integer(true);
                                 }
                             }
-                            condition.set(action, 1);
+                            condition.set(action,1);
+
                         }
                     }
-                }
             }
 
         }
 
         lp.setMinimisation();
 //        System.out.println("DEBUG: Condition: " + c + " LP Created:" + lp + " LP Obj function:" + lp.getObjectiveExpression());
-        return lp;
 
     }
 
-    private boolean update_condition(State s_0, ExpressionsBasedModel lp, Conditions c) {
-        for (Conditions c_0 : (Collection<Conditions>) c.sons) {
+    @Override
+    protected void update_condition(State s_0,Conditions temp) {
+        for (Conditions c_0 : (Collection<Conditions>) temp.sons) {
             Expression lp_cond = lp.getExpression(c_0.toString());
             if (c_0 instanceof Comparison) {
                 Comparison comp = (Comparison) c_0;
                 PDDLNumber eval = comp.getLeft().eval(s_0);
-                //if (eval== null)
-                    //return false;
-//                System.out.println("DEBUG: expression before:" + lp.getExpression(lp_cond.getName()));
-                if (comp.getComparator().equals(">") || comp.getComparator().equals(">=")) {
-                    lp_cond.lower(-eval.getNumber());
-                } else {
-                    lp_cond.lower(eval.getNumber());
+                if (eval== null){
+                    lp_cond.lower(5).upper(4);             
+                }else{
+                    Float number = eval.getNumber();
+    //                System.out.println("DEBUG: expression before:" + lp.getExpression(lp_cond.getName()));
+                    if (comp.getComparator().equals(">") || comp.getComparator().equals(">=")) {
+                        lp_cond.lower(-number);
+                    } else if (comp.getComparator().equals("=")){
+                        lp_cond.lower(number).upper(number);
+                    }else{
+                        lp_cond.lower(number);
+                    }
                 }
 //                System.out.println("DEBUG: expression after:" + lp.getExpression(lp_cond.getName()));
 
+            }else if (c_0 instanceof Predicate){
+                if (s_0.satisfy(c_0)){
+                    lp_cond.lower(0);
+                }else{
+                    lp_cond.lower(1);
+                }
             }
         }
-        return true;
+       
 
               
 
+    }
+
+    private static class Constraint {
+        public Expression expr;
+        public Float contr;
+        public Constraint(Expression e, Float n) {
+            super();
+            expr = e;
+            contr = n;
+        }
     }
 
 }

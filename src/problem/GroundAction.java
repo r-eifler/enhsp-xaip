@@ -1715,7 +1715,10 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //                System.out.println("A precondition is never satisfiable; pruning"+a.toEcoString());
                 return false;
             }
-        }
+        }else
+            return false;
+        if (con.isUnsatisfiable())
+            return false;
 
         Conditions eff = a.getNumericEffects();
         eff.setFreeVarSemantic(true);
