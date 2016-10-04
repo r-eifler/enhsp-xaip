@@ -49,6 +49,7 @@ public final class cplex_interface extends LpInterface {
     public HashMap<Conditions, IloRange> cond_to_cplex_cond;
     public HashMap<Integer, IloSemiContVar> action_to_variable;
     public IloNumExpr objective;
+    
 
     public cplex_interface(Conditions cond, Conditions global_constraint) throws IloException {
         super(cond, global_constraint);
@@ -59,6 +60,7 @@ public final class cplex_interface extends LpInterface {
             lp.setOut(null);
             cond_to_cplex_cond = new HashMap();
             action_to_variable = new HashMap();
+            
 
 
 
