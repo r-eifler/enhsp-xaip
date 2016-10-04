@@ -276,7 +276,7 @@ public class NumFluent extends Expression {
             return s.functionValue(this);
         }
         
-        if ((invF.get(this) == null) ){//this means that the fluent can be 
+        if ((invF.get(this) == null) ){//this means that the fluent can be in principle assigned
             return s.functionValue(this);
         }
         if (invF.get(this)!= null){

@@ -63,6 +63,22 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -72,7 +88,7 @@ public class Uniform_cost_search_HM extends Heuristic {
 
     protected HashMap<Integer, LinkedHashSet<Predicate>> achieve;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
-    protected HashMap<Integer, LinkedHashSet<Conditions>> interact_with;
+    protected HashMap<Integer, LinkedHashSet<Conditions>> poss_achiever;
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
@@ -112,7 +128,7 @@ public class Uniform_cost_search_HM extends Heuristic {
         this.cond_action = new HashMap();
         build_integer_representation();
         //identify_complex_conditions(all_conditions, A);
-        generate_achievers();
+        generate_achievers(s);
         try {
             this.generate_linear_programs(A, s);
         } catch (IloException ex) {
@@ -246,7 +262,7 @@ public class Uniform_cost_search_HM extends Heuristic {
                     if (this.reacheability_setting) {
                         this.reachable.add(gr);
                     }
-                    temp_conditions.addAll(interact_with.get(gr.counter));
+                    temp_conditions.addAll(poss_achiever.get(gr.counter));
 
                 }
 
@@ -278,16 +294,25 @@ public class Uniform_cost_search_HM extends Heuristic {
         return Math.max(distance.get(G.getCounter()), 1f);
     }
 
-    private void generate_achievers() {
-        interact_with = new HashMap();
+    private void generate_achievers(State s_0) {
+        poss_achiever = new HashMap();
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
-            interact_with.put(gr.counter, new LinkedHashSet());
+            poss_achiever.put(gr.counter, new LinkedHashSet());
             for (Conditions c : this.all_conditions) {
                 if (gr.getPreconditions().getCounter() != c.getCounter()) {
-                    if (c.is_affected_by(gr)) {
-                        interact_with.get(gr.counter).add(c);
-
+                    for (Conditions c_in: (Collection<Conditions>)c.sons){
+                        if (c_in instanceof Comparison){
+                            if (gr.getNumberOfExecution(s_0, (Comparison) c_in)!= Float.MAX_VALUE) {
+                                poss_achiever.get(gr.counter).add(c);
+                                break;
+                            }
+                        }else if (c_in instanceof Predicate){
+                            if (gr.achieve((Predicate) c_in)) {
+                                poss_achiever.get(gr.counter).add(c);
+                                break;
+                            } 
+                        }
                     }
                 }
 
