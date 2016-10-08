@@ -6,7 +6,7 @@
 package conditions;
 
 import expressions.NumFluent;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -20,6 +20,8 @@ import problem.State;
  * @author enrico
  */
 public class OneOf extends Conditions{
+
+    private String smt_representation;
 
     
     public OneOf(){
@@ -103,31 +105,32 @@ public class OneOf extends Conditions{
 
     @Override
     public String toSmtVariableString(int i) {//does not work
-        String ret = "";
-        Collection<Predicate> to_sum = new LinkedHashSet();
-        if (this.sons != null) {
-            if (this.sons.size() > 1) {
-                ret += "(and (or ";
+        if (smt_representation == null){
+            smt_representation = "";
+            AndCond and = new AndCond();
+            OrCond or = new OrCond();
+            for (Predicate p1 : this.getInvolvedPredicates()){
+                or.addConditions(p1);
             }
-            for (Object o : this.sons) {
-                if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
-                    ret += " " + p.toSmtVariableString(i);
-                    to_sum.add(p);
-                } 
-            }
-            if (this.sons.size() > 1) {
-                String inner_sum = "(= (+ ";
-                for (Predicate p: to_sum){
-                    inner_sum += " (to_int (" + p.toSmtVariableString(i)+"))";
-                    //inner_sum += " " + p.toSmtVariableString(i);
+            and.addConditions(or);
+            ArrayList<Predicate> list1 = new ArrayList(this.getInvolvedPredicates());
 
-                }
-                inner_sum +=") 1)";
-                ret += ") "+inner_sum+")";
+            for (int k=0;k<list1.size();k++){
+                for (int j=k+1;j<list1.size();j++){
+                        OrCond or2 = new OrCond();
+                        NotCond a = new NotCond();
+                        NotCond b = new NotCond();
+                        a.addConditions(list1.get(k));
+                        b.addConditions(list1.get(j));
+                        or2.addConditions(a);
+                        or2.addConditions(b);
+                        and.addConditions(or2);
+                }    
             }
+            smt_representation = and.toSmtVariableString(i);
         }
-        return ret;
+        
+        return smt_representation;
     }
 
     @Override

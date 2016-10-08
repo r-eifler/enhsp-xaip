@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 Pddl.g 2016-09-21 14:34:50
+// $ANTLR 3.5.2 Pddl.g 2016-10-06 11:30:25
  package parser; 
 
 import org.antlr.runtime.*;
@@ -1754,7 +1754,7 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = REQUIRE_KEY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:569:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
+			// Pddl.g:570:5: ( ':strips' | ':typing' | ':negative-preconditions' | ':disjunctive-preconditions' | ':equality' | ':existential-preconditions' | ':universal-preconditions' | ':quantified-preconditions' | ':conditional-effects' | ':fluents' | ':adl' | ':durative-actions' | ':derived-predicates' | ':timed-initial-literals' | ':preferences' | ':constraints' )
 			int alt1=16;
 			int LA1_0 = input.LA(1);
 			if ( (LA1_0==':') ) {
@@ -1962,112 +1962,112 @@ public class PddlLexer extends Lexer {
 
 			switch (alt1) {
 				case 1 :
-					// Pddl.g:569:7: ':strips'
+					// Pddl.g:570:7: ':strips'
 					{
 					match(":strips"); 
 
 					}
 					break;
 				case 2 :
-					// Pddl.g:570:7: ':typing'
+					// Pddl.g:571:7: ':typing'
 					{
 					match(":typing"); 
 
 					}
 					break;
 				case 3 :
-					// Pddl.g:571:7: ':negative-preconditions'
+					// Pddl.g:572:7: ':negative-preconditions'
 					{
 					match(":negative-preconditions"); 
 
 					}
 					break;
 				case 4 :
-					// Pddl.g:572:7: ':disjunctive-preconditions'
+					// Pddl.g:573:7: ':disjunctive-preconditions'
 					{
 					match(":disjunctive-preconditions"); 
 
 					}
 					break;
 				case 5 :
-					// Pddl.g:573:7: ':equality'
+					// Pddl.g:574:7: ':equality'
 					{
 					match(":equality"); 
 
 					}
 					break;
 				case 6 :
-					// Pddl.g:574:7: ':existential-preconditions'
+					// Pddl.g:575:7: ':existential-preconditions'
 					{
 					match(":existential-preconditions"); 
 
 					}
 					break;
 				case 7 :
-					// Pddl.g:575:7: ':universal-preconditions'
+					// Pddl.g:576:7: ':universal-preconditions'
 					{
 					match(":universal-preconditions"); 
 
 					}
 					break;
 				case 8 :
-					// Pddl.g:576:7: ':quantified-preconditions'
+					// Pddl.g:577:7: ':quantified-preconditions'
 					{
 					match(":quantified-preconditions"); 
 
 					}
 					break;
 				case 9 :
-					// Pddl.g:577:7: ':conditional-effects'
+					// Pddl.g:578:7: ':conditional-effects'
 					{
 					match(":conditional-effects"); 
 
 					}
 					break;
 				case 10 :
-					// Pddl.g:578:7: ':fluents'
+					// Pddl.g:579:7: ':fluents'
 					{
 					match(":fluents"); 
 
 					}
 					break;
 				case 11 :
-					// Pddl.g:579:7: ':adl'
+					// Pddl.g:580:7: ':adl'
 					{
 					match(":adl"); 
 
 					}
 					break;
 				case 12 :
-					// Pddl.g:580:7: ':durative-actions'
+					// Pddl.g:581:7: ':durative-actions'
 					{
 					match(":durative-actions"); 
 
 					}
 					break;
 				case 13 :
-					// Pddl.g:581:7: ':derived-predicates'
+					// Pddl.g:582:7: ':derived-predicates'
 					{
 					match(":derived-predicates"); 
 
 					}
 					break;
 				case 14 :
-					// Pddl.g:582:7: ':timed-initial-literals'
+					// Pddl.g:583:7: ':timed-initial-literals'
 					{
 					match(":timed-initial-literals"); 
 
 					}
 					break;
 				case 15 :
-					// Pddl.g:583:7: ':preferences'
+					// Pddl.g:584:7: ':preferences'
 					{
 					match(":preferences"); 
 
 					}
 					break;
 				case 16 :
-					// Pddl.g:584:7: ':constraints'
+					// Pddl.g:585:7: ':constraints'
 					{
 					match(":constraints"); 
 
@@ -2089,12 +2089,12 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NAME;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:585:5: ( LETTER ( ANY_CHAR )* )
-			// Pddl.g:585:10: LETTER ( ANY_CHAR )*
+			// Pddl.g:586:5: ( LETTER ( ANY_CHAR )* )
+			// Pddl.g:586:10: LETTER ( ANY_CHAR )*
 			{
 			mLETTER(); 
 
-			// Pddl.g:585:17: ( ANY_CHAR )*
+			// Pddl.g:586:17: ( ANY_CHAR )*
 			loop2:
 			while (true) {
 				int alt2=2;
@@ -2137,7 +2137,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "LETTER"
 	public final void mLETTER() throws RecognitionException {
 		try {
-			// Pddl.g:587:16: ( 'a' .. 'z' | 'A' .. 'Z' )
+			// Pddl.g:588:16: ( 'a' .. 'z' | 'A' .. 'Z' )
 			// Pddl.g:
 			{
 			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2160,7 +2160,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "ANY_CHAR"
 	public final void mANY_CHAR() throws RecognitionException {
 		try {
-			// Pddl.g:589:18: ( LETTER | '0' .. '9' | '-' | '_' )
+			// Pddl.g:590:18: ( LETTER | '0' .. '9' | '-' | '_' )
 			// Pddl.g:
 			{
 			if ( input.LA(1)=='-'||(input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
@@ -2185,13 +2185,13 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = VARIABLE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:591:10: ( '?' LETTER ( ANY_CHAR )* )
-			// Pddl.g:591:12: '?' LETTER ( ANY_CHAR )*
+			// Pddl.g:592:10: ( '?' LETTER ( ANY_CHAR )* )
+			// Pddl.g:592:12: '?' LETTER ( ANY_CHAR )*
 			{
 			match('?'); 
 			mLETTER(); 
 
-			// Pddl.g:591:23: ( ANY_CHAR )*
+			// Pddl.g:592:23: ( ANY_CHAR )*
 			loop3:
 			while (true) {
 				int alt3=2;
@@ -2236,7 +2236,7 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = NUMBER;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:593:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
+			// Pddl.g:594:8: ( ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )? | '#t' )
 			int alt8=2;
 			int LA8_0 = input.LA(1);
 			if ( (LA8_0=='-'||(LA8_0 >= '0' && LA8_0 <= '9')) ) {
@@ -2254,9 +2254,9 @@ public class PddlLexer extends Lexer {
 
 			switch (alt8) {
 				case 1 :
-					// Pddl.g:593:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
+					// Pddl.g:594:10: ( '-' )? ( DIGIT )+ ( '.' ( DIGIT )+ )?
 					{
-					// Pddl.g:593:10: ( '-' )?
+					// Pddl.g:594:10: ( '-' )?
 					int alt4=2;
 					int LA4_0 = input.LA(1);
 					if ( (LA4_0=='-') ) {
@@ -2264,7 +2264,7 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt4) {
 						case 1 :
-							// Pddl.g:593:11: '-'
+							// Pddl.g:594:11: '-'
 							{
 							match('-'); 
 							}
@@ -2272,7 +2272,7 @@ public class PddlLexer extends Lexer {
 
 					}
 
-					// Pddl.g:593:17: ( DIGIT )+
+					// Pddl.g:594:17: ( DIGIT )+
 					int cnt5=0;
 					loop5:
 					while (true) {
@@ -2305,7 +2305,7 @@ public class PddlLexer extends Lexer {
 						cnt5++;
 					}
 
-					// Pddl.g:593:24: ( '.' ( DIGIT )+ )?
+					// Pddl.g:594:24: ( '.' ( DIGIT )+ )?
 					int alt7=2;
 					int LA7_0 = input.LA(1);
 					if ( (LA7_0=='.') ) {
@@ -2313,10 +2313,10 @@ public class PddlLexer extends Lexer {
 					}
 					switch (alt7) {
 						case 1 :
-							// Pddl.g:593:25: '.' ( DIGIT )+
+							// Pddl.g:594:25: '.' ( DIGIT )+
 							{
 							match('.'); 
-							// Pddl.g:593:29: ( DIGIT )+
+							// Pddl.g:594:29: ( DIGIT )+
 							int cnt6=0;
 							loop6:
 							while (true) {
@@ -2357,7 +2357,7 @@ public class PddlLexer extends Lexer {
 					}
 					break;
 				case 2 :
-					// Pddl.g:593:40: '#t'
+					// Pddl.g:594:40: '#t'
 					{
 					match("#t"); 
 
@@ -2377,7 +2377,7 @@ public class PddlLexer extends Lexer {
 	// $ANTLR start "DIGIT"
 	public final void mDIGIT() throws RecognitionException {
 		try {
-			// Pddl.g:595:15: ( '0' .. '9' )
+			// Pddl.g:596:15: ( '0' .. '9' )
 			// Pddl.g:
 			{
 			if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2402,11 +2402,11 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = LINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:598:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
-			// Pddl.g:598:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+			// Pddl.g:599:5: ( ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' )
+			// Pddl.g:599:7: ';' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
 			{
 			match(';'); 
-			// Pddl.g:598:11: (~ ( '\\n' | '\\r' ) )*
+			// Pddl.g:599:11: (~ ( '\\n' | '\\r' ) )*
 			loop9:
 			while (true) {
 				int alt9=2;
@@ -2435,7 +2435,7 @@ public class PddlLexer extends Lexer {
 				}
 			}
 
-			// Pddl.g:598:25: ( '\\r' )?
+			// Pddl.g:599:25: ( '\\r' )?
 			int alt10=2;
 			int LA10_0 = input.LA(1);
 			if ( (LA10_0=='\r') ) {
@@ -2443,7 +2443,7 @@ public class PddlLexer extends Lexer {
 			}
 			switch (alt10) {
 				case 1 :
-					// Pddl.g:598:25: '\\r'
+					// Pddl.g:599:25: '\\r'
 					{
 					match('\r'); 
 					}
@@ -2469,10 +2469,10 @@ public class PddlLexer extends Lexer {
 		try {
 			int _type = WHITESPACE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pddl.g:602:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-			// Pddl.g:602:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// Pddl.g:603:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+			// Pddl.g:603:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			{
-			// Pddl.g:602:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+			// Pddl.g:603:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
 			int cnt11=0;
 			loop11:
 			while (true) {

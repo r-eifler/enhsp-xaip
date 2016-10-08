@@ -326,8 +326,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         return list_of_numeric_fluents_affected;
     }
 
-    
-
     public void normalize() throws Exception {
 
         if (normalized) {
@@ -571,11 +569,11 @@ public class GroundAction extends GenericActionType implements Comparable {
             ret.addConditions(this.getPreconditions());
         }
         Conditions con = input.regress(this);
-        if (con instanceof AndCond)
+        if (con instanceof AndCond) {
             ret.sons.addAll(((AndCond) con).sons);
-        else
-            
-        ret.addConditions(input.regress(this));
+        } else {
+            ret.addConditions(input.regress(this));
+        }
         return ret;
     }
 
@@ -663,25 +661,25 @@ public class GroundAction extends GenericActionType implements Comparable {
 
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
-                ret += p.pddlPrint(false);
+                ret += p.pddlPrint(true);
             }
         }
         if (this.getDelList() != null && this.getDelList().sons != null) {
             for (Object o : this.getDelList().sons) {
                 NotCond p = (NotCond) o;
-                ret += p.pddlPrint(false);
+                ret += p.pddlPrint(true);
             }
         }
         if (this.getNumericEffects() != null && this.getNumericEffects().sons != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
-                ret += nE.pddlPrint(false);
+                ret += nE.pddlPrint(true);
             }
         }
         if (this.cond_effects != null) {
             for (Object o : this.cond_effects.sons) {
                 ConditionalEffect nE = (ConditionalEffect) o;
-                ret += nE.pddlPrint(false);
+                ret += nE.pddlPrint(true);
 
             }
         }
@@ -1691,8 +1689,6 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-
-    
     public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
 
         HashMap invariantFluents = problem.getInvariantFluents();
@@ -1715,10 +1711,12 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //                System.out.println("A precondition is never satisfiable; pruning"+a.toEcoString());
                 return false;
             }
-        }else
+        } else {
             return false;
-        if (con.isUnsatisfiable())
+        }
+        if (con.isUnsatisfiable()) {
             return false;
+        }
 
         Conditions eff = a.getNumericEffects();
         eff.setFreeVarSemantic(true);
@@ -1966,11 +1964,13 @@ public class GroundAction extends GenericActionType implements Comparable {
 //            }
 //        }
         a1 = comp.eval_not_affected(s_0, this);
-        if (a1 == Float.NaN)
+        if (a1 == Float.NaN) {
             return Float.MAX_VALUE;
+        }
         b = comp.eval_affected(s_0, this);
-        if (b == Float.NaN)
+        if (b == Float.NaN) {
             return Float.MAX_VALUE;
+        }
         if (a1 == null || b == null) {
             return Float.MAX_VALUE;
         }
@@ -2476,6 +2476,12 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
             ConditionalEffect c_eff = (ConditionalEffect) eff;
 //            Predicate p = (Predicate)c_eff.effect;
+            if (c_eff.effect instanceof AndCond) {
+                AndCond and = (AndCond) c_eff.effect;
+                if (and.getInvolvedPredicates().contains(aThis)) {
+                    return c_eff;
+                }
+            }
             if (c_eff.effect.equals(aThis)) {
                 return c_eff;
             }
@@ -2494,6 +2500,20 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
             ConditionalEffect c_eff = (ConditionalEffect) eff;
             //for now single condition effect. Extend to andcond
+            if (c_eff.effect instanceof AndCond) {
+                AndCond and = (AndCond) c_eff.effect;
+                for (Conditions c : (Collection<Conditions>) and.sons) {
+                    if (c instanceof NotCond) {
+                        NotCond n_eff = (NotCond) c;
+                        Predicate p = (Predicate) n_eff.son.iterator().next();
+//                System.out.println("DEBUG: Comparing: "+p+" with "+aThis);
+                        if (p.equals(aThis)) {
+//                    System.out.println("DEBUG: Equal");
+                            return c_eff;
+                        }
+                    }
+                }
+            }
             if (c_eff.effect instanceof NotCond) {
                 NotCond n_eff = (NotCond) c_eff.effect;
                 Predicate p = (Predicate) n_eff.son.iterator().next();

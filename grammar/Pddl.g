@@ -281,6 +281,7 @@ goalDesc
 	          -> ^(OR_GD goalDesc*)
 	| '(' 'not' goalDesc ')'
 	          -> ^(NOT_GD goalDesc)
+	| '(' 'oneof'  atomicNameFormula* ')'  -> ^(ONEOF atomicNameFormula*)
 	| '(' 'imply' goalDesc goalDesc ')'
 	          -> ^(IMPLY_GD goalDesc goalDesc)
 	| '(' 'exists' '(' typedVariableList ')' goalDesc ')'

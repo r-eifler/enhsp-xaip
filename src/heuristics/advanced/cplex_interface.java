@@ -14,12 +14,10 @@ import expressions.NumEffect;
 import expressions.PDDLNumber;
 import ilog.concert.IloConstraint;
 import ilog.concert.IloException;
-import ilog.concert.IloLPMatrix;
-import ilog.concert.IloNumExpr;
+import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.concert.IloRange;
-import ilog.concert.IloSemiContVar;
 import ilog.cplex.IloCplex;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,40 +35,36 @@ import problem.State;
  */
 public final class cplex_interface extends LpInterface {
 
-    public HashMap<Integer, Collection<GroundAction>> affectors_of;
+    public final HashMap<Integer, Collection<GroundAction>> affectors_of;
     public HashMap<Integer, Collection<GroundAction>> affectors_of_temp;
 
-    public HashMap<Conditions, Collection<GroundAction>> pos_affectors_of;
+    public final HashMap<Conditions, Collection<GroundAction>> pos_affectors_of;
     public ArrayList<Boolean> first_time;
 
     public final IloCplex lp;
-    public Collection<IloNumVar> action_variables;
+    public IloNumVar[] action_variables;
     public Collection<IloConstraint> constraints;
     public HashMap<Conditions, IloRange> cond_to_cplex_cond;
-    public HashMap<Integer, IloSemiContVar> action_to_variable;
-    public IloNumExpr objective;
-    
+    public HashMap<Integer, IloNumVar> action_to_variable;
+    public IloLinearNumExpr objective;
 
     public cplex_interface(Conditions cond, Conditions global_constraint) throws IloException {
         super(cond, global_constraint);
-            n_invocations = 0;
-            integer_variables = false;
-            additive_h = false;
-            lp = new IloCplex();
-            lp.setOut(null);
-            cond_to_cplex_cond = new HashMap();
-            action_to_variable = new HashMap();
-            
-
-
+        n_invocations = 0;
+        integer_variables = false;
+        additive_h = false;
+        lp = new IloCplex();
+        lp.setOut(null);
+        cond_to_cplex_cond = new HashMap();
+        action_to_variable = new HashMap();
+        pos_affectors_of = new HashMap();
+        this.affectors_of = new HashMap();
 
     }
 
     @Override
     public void initialize(Collection<GroundAction> actions, State s_0) {
-        this.affectors_of = new HashMap();
-        pos_affectors_of = new HashMap();
-
+        
 
         //first_time.set(c.getCounter(),true);
         this.init_condition(actions, s_0);
@@ -80,7 +74,9 @@ public final class cplex_interface extends LpInterface {
     @Override
     public void update_conditions_bound_plus_reset_variables(State s_0) {
         this.update_local_global_conditions(s_0);
-        for (IloNumVar v: this.action_to_variable.values()){
+        
+        
+        for (IloNumVar v : this.action_to_variable.values()) {
             try {
                 v.setUB(0.0);
             } catch (IloException ex) {
@@ -114,10 +110,8 @@ public final class cplex_interface extends LpInterface {
             GroundAction gr = it.next();
             if (active_actions.get(gr.counter)) {
                 try {
-                    IloSemiContVar v = this.action_to_variable.get(gr.counter);
-                    v.setUB(Float.MAX_VALUE);
-                    
-//                    v = (IloNumVar)lp.add(v);
+                    IloNumVar v = this.action_to_variable.get(gr.counter);
+                    v.setUB(Float.MAX_VALUE);//activate action in the LP model
                     it.remove();
                 } catch (IloException ex) {
                     Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
@@ -156,12 +150,12 @@ public final class cplex_interface extends LpInterface {
 
         try {
 //            lp.solveFixed();
-            lp.setParam (IloCplex.IntParam.RootAlg, IloCplex.Algorithm.Primal);
-//            System.out.println(lp.);
-            if(lp.solve()){
-                
+            lp.setParam (IloCplex.IntParam.NodeAlg, IloCplex.Algorithm.Dual);
+            
+//            System.out.println(lp.isMIP());
+
+            if (lp.solve()) {
 //                System.out.println(lp.getObjValue());
-                
                 if (lp.getStatus() == IloCplex.Status.Optimal) {
                     return (float) lp.getObjValue() + precondition_contribution;
                 }
@@ -171,10 +165,8 @@ public final class cplex_interface extends LpInterface {
 //                }
 //        System.out.println(lp);
         } catch (IloException ex) {
-            Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex); 
+            Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        
 
         return Float.MAX_VALUE;
     }
@@ -187,9 +179,9 @@ public final class cplex_interface extends LpInterface {
         if (gc != null) {
 //            System.out.println("considering Global Constraints:"+gC.sons);
             conditions_to_evaluate.addAll(gc.sons);
-        } 
+        }
         try {
-            objective = lp.numExpr();
+            objective = lp.linearNumExpr();
         } catch (IloException ex) {
             Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -202,13 +194,11 @@ public final class cplex_interface extends LpInterface {
 
                 try {
                     Comparison comp = (Comparison) cond;
-                    
-                    IloNumExpr expr = lp.numExpr();
-                    //IloLPMatrix m = lp.LPMatrix();
-                    
-                    
-//                    IloRange e = lp.range(0, 0);
 
+                    IloLinearNumExpr expr = lp.linearNumExpr();
+                    //IloLPMatrix m = lp.LPMatrix();
+
+//                    IloRange e = lp.range(0, 0);
                     ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                     for (ExtendedAddendum ad : left.summations) {
                         if (ad.f != null) {
@@ -229,26 +219,26 @@ public final class cplex_interface extends LpInterface {
                                         }
                                         affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
 
-                                        IloSemiContVar action;
+                                        IloNumVar action;
                                         if (action_to_variable.get(gr.counter) != null) {
                                             action = action_to_variable.get(gr.counter);
                                         } else {
-                                            action = (IloSemiContVar) lp.semiContVar(0, 0, IloNumVarType.Float);
+                                            action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
                                             action_to_variable.put(gr.counter, action);
-                                            objective = lp.sum(objective, lp.prod(action, action_cost));
+                                            objective.addTerm(action, action_cost);
                                         }
 
                                         Float right = null;
                                         switch (neff.getOperator()) {
                                             case "increase":
                                                 right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
-                                                expr = lp.sum(expr, lp.prod(right,action));
-
+//                                                expr = lp.sum(expr, lp.prod(right,action));
+                                                expr.addTerm(action, right);
                                                 break;
                                             case "decrease":
                                                 right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
                                                 //var_to_expr.get(action).add(new Constraint(condition,-right));
-                                                expr = lp.sum(expr, lp.prod( -right,action));
+                                                expr.addTerm(action, -right);
 //                                                System.out.println(expr.getClass());
                                                 break;
                                             case "assign":
@@ -264,57 +254,62 @@ public final class cplex_interface extends LpInterface {
                             }
                         }
                     }
-                    
-                    IloRange e = lp.addGe(expr, 0);
+
+                    IloRange e = lp.addGe(expr, 0.0);
                     //lp.add(e);
                     this.cond_to_cplex_cond.put(cond, e);
                 } catch (IloException ex) {
                     Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else if (cond instanceof Predicate) {
-                    try {
-                        IloNumExpr e = lp.numExpr();
-                        Predicate p = (Predicate) cond;
-                        for (GroundAction gr : pool) {
-                            if (gr.achieve(p)) {
-                                pos_affectors_of.get(cond).add(gr);
-                                affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
-                                gr.setAction_cost(s_0);
-                                Float action_cost = gr.getAction_cost();
-                                if (action_cost.isNaN()) {
-                                    continue;
-                                }
-                                IloSemiContVar action;
-                                if (action_to_variable.get(gr.counter) != null) {
-                                    action = action_to_variable.get(gr.counter);
-                                } else {
-                                    action = (IloSemiContVar) lp.semiContVar(0, 0, IloNumVarType.Float);
-                                    action_to_variable.put(gr.counter, action);
-                                    
-                                    objective = lp.sum(objective, lp.prod(action, action_cost));
-                                }
-                                e = lp.sum(lp.prod(action, 1), e);
+                try {
+                    IloLinearNumExpr e = lp.linearNumExpr();
+                    Predicate p = (Predicate) cond;
+                    for (GroundAction gr : pool) {
+                        if (gr.achieve(p)) {
+                            pos_affectors_of.get(cond).add(gr);
+                            affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
+                            gr.setAction_cost(s_0);
+                            Float action_cost = gr.getAction_cost();
+                            if (action_cost.isNaN()) {
+                                continue;
                             }
-                        }
-                        
-                        IloRange condition = lp.addGe(e,1);
-                        this.cond_to_cplex_cond.put(cond,condition);
+                            IloNumVar action;
+                            if (action_to_variable.get(gr.counter) != null) {
+                                action = action_to_variable.get(gr.counter);
+                            } else {
+                                action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
+                                action_to_variable.put(gr.counter, action);
 
-                    } catch (IloException ex) {
-                        Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
+                                objective.addTerm(action, action_cost);     
+                            }
+                            e.addTerm(action, 1);
+//                                e = lp.sum(lp.prod(action, 1), e);
+                        }
                     }
+
+                    IloRange condition = lp.addGe(e, 1.0);
+                    this.cond_to_cplex_cond.put(cond, condition);
+
+                } catch (IloException ex) {
+                    Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
 
         }
         try {
-           lp.setWarning(null);
-           lp.addMinimize(objective);
+            
+//            this.action_variables = lp.numVarArray(action_to_variable.values().size(), 0, 0);
+//            for (Integer grInd: action_to_variable.keySet()){
+//                action_variables[grInd]  =action_to_variable.get(grInd);
+//            }
+            lp.setWarning(null);
+//           System.out.println(objective.getClass());
+            lp.addMinimize(objective);
 
         } catch (IloException ex) {
             Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-
 
     }
 
@@ -328,35 +323,27 @@ public final class cplex_interface extends LpInterface {
                 PDDLNumber eval = comp.getLeft().eval(s_0);
                 if (eval == null) {
                     try {
-                        lp_cond.setLB(Integer.MAX_VALUE);
-                        //lp_cond.setUB(-1);
+                        lp_cond.setLB(Float.MAX_VALUE);//This is a little hack. It may happen that the constraints cannot be evaluated. In 
                     } catch (IloException ex) {
                         Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     Float number = eval.getNumber();
                     //                System.out.println("DEBUG: expression before:" + lp.getExpression(lp_cond.getName()));
-                    if (comp.getComparator().equals(">") || comp.getComparator().equals(">=")) {
-                        try {
+                    try {
+
+                        if (comp.getComparator().equals(">") || comp.getComparator().equals(">=")) {
                             lp_cond.setLB(-number);
-                        } catch (IloException ex) {
-                            Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else if (comp.getComparator().equals("=")) {
-                        try {
+
+                        } else if (comp.getComparator().equals("=")) {
                             lp_cond.setLB(number);
                             lp_cond.setUB(number);
-                        } catch (IloException ex) {
-                            Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                                
-                               
-                    } else {
-                        try {
+                        } else {
                             lp_cond.setLB(number);
-                        } catch (IloException ex) {
-                            Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
+
                         }
+                    } catch (IloException ex) {
+                        Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
 //                System.out.println("DEBUG: expression after:" + lp.getExpression(lp_cond.getName()));
@@ -377,9 +364,7 @@ public final class cplex_interface extends LpInterface {
                 }
             }
         }
-        
 
     }
-
 
 }

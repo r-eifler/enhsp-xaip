@@ -77,7 +77,7 @@ public class ActionSchema extends GenericActionType {
 
         ret += ":parameters " + this.parameters + "\n";
         if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty())
-            ret += ":precondition (forall (?x -interpretation)" + this.getPreconditions().pddlPrintWithExtraObject() + ")\n";
+            ret += ":precondition (forall (?interpr - interpretation)" + this.getPreconditions().pddlPrintWithExtraObject() + ")\n";
         ret += ":effect " + this.pddlEffectsWithExtraObject();
 
         return ret + ")";
@@ -373,26 +373,26 @@ public class ActionSchema extends GenericActionType {
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
-                ret += "(forall (?x -interpretation) "+p.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?interpr - interpretation) "+p.pddlPrintWithExtraObject()+")";
             }
         }
         if (this.getDelList() != null) {
             for (Object o : this.getDelList().sons) {
                 NotCond p = (NotCond) o;
-                ret += "(forall (?x -interpretation) "+p.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?interpr - interpretation) "+p.pddlPrintWithExtraObject()+")";
             }
         }
         if (this.getNumericEffects() != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
-                ret += "(forall (?x -interpretation) "+nE.pddlPrint(false)+")";
+                ret += "(forall (?interpr - interpretation) "+nE.pddlPrint(false)+")";
 
             }
         }
         if (this.cond_effects != null) {
             for (Object o : this.cond_effects.sons) {
                 ConditionalEffect cond_eff = (ConditionalEffect) o;
-                ret += "(forall (?x -interpretation) "+cond_eff.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?interpr - interpretation) "+cond_eff.pddlPrintWithExtraObject()+")";
 
             }
         }

@@ -66,7 +66,7 @@ public class  Predicate extends Conditions implements PostCondition {
             }
             
         }
-        ret = ret.concat(" ?x)");
+        ret = ret.concat(" ?interpr)");
         return ret;    
     }
     

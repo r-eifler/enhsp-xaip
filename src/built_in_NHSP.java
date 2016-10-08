@@ -383,7 +383,6 @@ public class built_in_NHSP {
                 h.additive_h = false;
                 h.integer_variables = false;
                 h.greedy = false;
-                h.cplex = true;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp_gc2")) {
                 searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));

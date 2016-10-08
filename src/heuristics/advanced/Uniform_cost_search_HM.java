@@ -30,6 +30,7 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.NumFluent;
 import heuristics.Heuristic;
 import ilog.concert.IloException;
 import static java.lang.Float.MAX_VALUE;
@@ -48,37 +49,6 @@ import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -86,16 +56,10 @@ import static java.util.logging.Logger.getLogger;
  */
 public class Uniform_cost_search_HM extends Heuristic {
 
-    protected HashMap<Integer, LinkedHashSet<Predicate>> achieve;
-    protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<Conditions>> poss_achiever;
-    protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
-    protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
-    protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
     private boolean reacheability_setting;
-    private boolean all_paths = false;
     protected ArrayList<Integer> dist;
-    public boolean cplex = false;
+    private boolean cplex = true;
     public HashMap<Integer,LpInterface> lps;
 
     public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A) {
@@ -223,7 +187,7 @@ public class Uniform_cost_search_HM extends Heuristic {
 //            System.out.println("New Iteration");
             while (!q.isEmpty()) {//take all the elements with equal distance from the initial state
 
-                if (this.greedy && !this.reacheability_setting) {
+                if (this.additive_h && !this.reacheability_setting) {
                     if (distance.get(G.getCounter()) != Float.MAX_VALUE) {
                         return distance.get(G.getCounter());
                     }
@@ -247,7 +211,7 @@ public class Uniform_cost_search_HM extends Heuristic {
                     //looking at the active actions activated by this step.
                 }
 
-                closed.set(cn.getCounter(), true);//this is the best cost so far; no need to reopen this fact again
+                closed.set(cn.getCounter(), true);//this is the best cost so far; no need to reopen this condition again
 
                 if (cn.getCounter() == G.getCounter() && !this.reacheability_setting) {
                     if (distance.get(cn.getCounter()) == Float.MAX_VALUE) {
@@ -267,19 +231,17 @@ public class Uniform_cost_search_HM extends Heuristic {
                 }
 
             }
-
+            
             for (Conditions cond : temp_conditions) {
                 if (!closed.get(cond.getCounter())) {
                     Float current_cost = null;
-                    if (cplex) {
-                        //current_cost = lp_interface.compute_current_cost_via_lp_cplex(active_actions, s, cond, distance,this.gC);
-                    } else {
-                        current_cost = lps.get(cond.getCounter()).update_cost(s,active_actions, distance);
-                    }
+                    current_cost = lps.get(cond.getCounter()).update_cost(s,active_actions, distance);
                     n_lp_invocations++;
                     if (current_cost != Float.MAX_VALUE) {
                         update_cost_if_necessary(open_list, distance, cond, q, cond_to_entry, current_cost);
                     }
+                }else{
+                    
                 }
 
             }
@@ -303,10 +265,16 @@ public class Uniform_cost_search_HM extends Heuristic {
                 if (gr.getPreconditions().getCounter() != c.getCounter()) {
                     for (Conditions c_in: (Collection<Conditions>)c.sons){
                         if (c_in instanceof Comparison){
-                            if (gr.getNumberOfExecution(s_0, (Comparison) c_in)!= Float.MAX_VALUE) {
-                                poss_achiever.get(gr.counter).add(c);
-                                break;
+                            for (NumFluent nf : gr.getNumericFluentAffected().keySet()){
+                                if (c_in.getInvolvedFluents().contains(nf)){
+                                    poss_achiever.get(gr.counter).add(c);
+                                    break;
+                                } 
                             }
+//                            if (gr.getNumberOfExecution(s_0, (Comparison) c_in)!= Float.MAX_VALUE) {
+//                                poss_achiever.get(gr.counter).add(c);
+//                                break;
+//                            }
                         }else if (c_in instanceof Predicate){
                             if (gr.achieve((Predicate) c_in)) {
                                 poss_achiever.get(gr.counter).add(c);
@@ -342,7 +310,15 @@ public class Uniform_cost_search_HM extends Heuristic {
     private void generate_linear_programs(Collection<GroundAction> actions,State s_0) throws IloException {
         lps = new HashMap();
         for (Conditions c: all_conditions){
-            LpInterface lp = new cplex_interface(c,this.gC);
+            LpInterface lp = null;
+            if (cplex){
+//                System.out.println("DEBUG: Using CPLEX");
+                lp = new cplex_interface(c,this.gC);
+            }else{
+//                System.out.println("DEBUG: Using OJALGO");
+
+                lp = new ojalgo_interface(c,this.gC);
+            }
             lp.additive_h = this.additive_h;
             lp.initialize(actions, s_0);
             lps.put(c.getCounter(), lp);

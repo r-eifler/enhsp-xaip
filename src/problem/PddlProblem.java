@@ -241,7 +241,7 @@ public class PddlProblem {
                 + "(:domain " + this.getDomainName() + ") "
                 + this.getObjects().pddlPrint() + "\n"
                 + this.init.pddlPrintWithDummyTrue()+ "\n"
-                + "(:goal (forall (?x -interpretation)" + this.getGoals().pddlPrintWithExtraObject() + "))\n"
+                + "(:goal (forall (?interpr - interpretation)" + this.getGoals().pddlPrintWithExtraObject() + "))\n"
                 + this.metric.pddlPrint() + "\n"
                 + ")";
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
@@ -421,6 +421,15 @@ public class PddlProblem {
             return ret;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
+        }else if (infoAction.getType() == PddlParser.ONEOF) {
+            OneOf one_of = new OneOf();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Conditions ret_val = addOneOf(infoAction.getChild(i));
+                if (ret_val != null) {
+                    one_of.sons.add(ret_val);
+                }
+            }
+            return one_of;
         }
 
         return null;

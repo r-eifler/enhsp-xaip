@@ -661,10 +661,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
         
         
         for (int i=(this.size()-1);i>=0;i--){
-//            System.out.println("DEBUG: before regressing: "+cond.toSmtVariableString(0));
+//            System.out.println("DEBUG: before regressing: "+cond);
 //            System.out.println("DEBUG: Action applied:"+this.get(i).toPDDL());
             cond = this.get(i).regress_formula(cond);
-//            System.out.println("DEBUG: "+cond.toSmtVariableString(0));
+//            System.out.println("DEBUG: "+cond);
 //            System.in.read();
         }
         return cond;
