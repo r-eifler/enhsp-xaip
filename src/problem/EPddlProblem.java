@@ -165,7 +165,7 @@ public class EPddlProblem extends PddlProblem {
             System.err.println("Please connect the domain of the problem via validation");
             System.exit(-1);
         }
-        
+        this.getInvariantFluents();
         
         Iterator it = getActions().iterator();
         //System.out.println("prova");
@@ -210,10 +210,10 @@ public class EPddlProblem extends PddlProblem {
     @Override
     public HashMap getInvariantFluents() throws Exception {
         if (invariantFluents == null) {
-            invariantFluents = new HashMap();
-            if (this.getActions() == null || this.getActions().isEmpty()) {
+            if ( (this.getActions() == null || this.getActions().isEmpty())&& (this.processesSet == null || this.processesSet.isEmpty())) {
                 this.generateActionsAndProcesses();
             }
+            invariantFluents = new HashMap();
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
                 for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
                     invariantFluents.put(nf, Boolean.FALSE);
