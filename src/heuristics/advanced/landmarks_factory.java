@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import problem.GroundAction;
 import problem.State;
@@ -30,6 +31,9 @@ public class landmarks_factory extends Heuristic {
     public HashMap<GroundAction, Integer> action_level;
     public HashMap<Conditions, Integer> dplus;
     private LinkedHashSet<GroundAction> reacheable_at_this_stage;
+    
+    public HashMap<Integer,Set<repetition_landmark>> possible_achievers;
+    
 
     public landmarks_factory(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
@@ -97,12 +101,16 @@ public class landmarks_factory extends Heuristic {
         boolean update;
         Set<GroundAction> actions_to_consider = new LinkedHashSet();
         actions_to_consider.addAll(reachable);
+        possible_achievers = new HashMap();
         do {
             update = false;
             for (Conditions c : all_conditions) {
+                
                 int l = condition_level.get(c);
                 int old_dplus = dplus.get(c);
                 Set<GroundAction> ach_of_conditions = new LinkedHashSet();
+                Set<repetition_landmark> ach_of_conditions_with_repetition = new LinkedHashSet();
+
                 if (c instanceof Predicate) {
                     Predicate p = (Predicate) c;
                     reacheable_at_this_stage.stream().filter((gr) -> (gr.achieve(p))).map((gr) -> {
@@ -111,6 +119,7 @@ public class landmarks_factory extends Heuristic {
                         return gr;
                     }).forEach((gr) -> {
                         ach_of_conditions.add(gr);
+                        ach_of_conditions_with_repetition.add(new repetition_landmark(gr,1));
                     });
                 } else if (c instanceof Comparison) {
                     Comparison cmp = (Comparison) c;
@@ -120,9 +129,12 @@ public class landmarks_factory extends Heuristic {
                             dplus.put(c, Math.min(repetition_needed.intValue(), dplus.get(c)));
                             condition_level.put(cmp, Math.min((action_level.get(gr) + 1), condition_level.get(cmp)));
                             ach_of_conditions.add(gr);
+                            ach_of_conditions_with_repetition.add(new repetition_landmark(gr,repetition_needed.intValue()));
+
                         }
                     });
                 }
+                update_poss_achievers(c,ach_of_conditions_with_repetition);
                 if (update_landmarks(c, ach_of_conditions) || l != condition_level.get(c) || dplus.get(c) != old_dplus) {
                     update = true;
                 }
@@ -166,10 +178,9 @@ public class landmarks_factory extends Heuristic {
         }
 
         float estimate = 0;
-        for (Conditions c : goal_landmark) {
-//            if (!c.isSatisfied(s_0)) {
-                estimate += dplus.get(c);
-//            }
+        for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
+            System.out.println("Debug: Poss_achiever("+c+":)"+this.possible_achievers.get(c.getCounter()));
+            estimate += dplus.get(c);
         }
 
         return estimate;
@@ -198,6 +209,45 @@ public class landmarks_factory extends Heuristic {
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void update_poss_achievers(Conditions c, Set<repetition_landmark> ach_of_conditions) {
+        if (this.possible_achievers.get(c.getCounter())==null){
+            this.possible_achievers.put(c.getCounter(),new LinkedHashSet());
+        }
+        this.possible_achievers.get(c.getCounter()).addAll(ach_of_conditions);
+    }
+    
+    
+    public class repetition_landmark extends Object{
+        public GroundAction gr;
+        public int repetition;
+        public repetition_landmark(GroundAction gr_input, int repetition_input){
+            super();
+            this.gr = gr_input;
+            this.repetition = repetition_input;
+        }
+        
+        @Override
+        public String toString(){
+            return "("+gr.toEcoString()+" "+repetition+")";
+        }
+        
+        @Override
+        public boolean equals(Object b){
+            if (b instanceof repetition_landmark){
+                repetition_landmark b_rep = (repetition_landmark)b;
+                return b_rep.gr.counter == gr.counter;
+            }else
+                return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 89 * hash + Objects.hashCode(this.gr.counter);
+            return hash;
         }
     }
 }
