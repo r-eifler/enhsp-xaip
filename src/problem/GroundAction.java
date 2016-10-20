@@ -32,7 +32,7 @@ import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.NumFluentAssigner;
+import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;

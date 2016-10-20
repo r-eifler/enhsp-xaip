@@ -31,7 +31,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.NumFluentAssigner;
+import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionSchema;
@@ -408,7 +408,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         //invariantFluents.put(pp.getFunctions(), true);
         for (Object o3 : pp.getInit().getNumericFluents()) {
-            NumFluentAssigner ass = (NumFluentAssigner) o3;
+            NumFluentValue ass = (NumFluentValue) o3;
             if (invariantFluents.get(ass.getNFluent()) == null) {
                 invariantFluents.put(ass.getNFluent(), true);
 
@@ -591,7 +591,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //System.out.println(this.getInvariantFluents());
 
         for (Object o : temp.getNumericFluents()) {
-            NumFluentAssigner ass = (NumFluentAssigner) o;
+            NumFluentValue ass = (NumFluentValue) o;
             Object o1 = this.getInvariantFluents().get(ass.getNFluent());
             if (o1 != null) {
                 //System.out.println(o1);
@@ -2053,7 +2053,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             numeric_plan_trace = new JSONObject();
             Iterator it = current.getNumericFluents().iterator();
             while (it.hasNext()){
-                NumFluentAssigner ass = (NumFluentAssigner)it.next();
+                NumFluentValue ass = (NumFluentValue)it.next();
                 NumFluent nf = ass.getNFluent();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());
@@ -2211,14 +2211,14 @@ public class SimplePlan extends ArrayList<GroundAction> {
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
         this.cost=0f;
-        current.addNumericFluent(new NumFluentAssigner("#t", resolution));
+        current.addNumericFluent(new NumFluentValue("#t", resolution));
         HashMap<NumFluent,ArrayList<Float>> nf_trace = new HashMap();
         numeric_plan_trace=null;
         if (print_trace){
             numeric_plan_trace = new JSONObject();
             Iterator it = current.getNumericFluents().iterator();
             while (it.hasNext()){
-                NumFluentAssigner ass = (NumFluentAssigner)it.next();
+                NumFluentValue ass = (NumFluentValue)it.next();
                 NumFluent nf = ass.getNFluent();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());

@@ -41,7 +41,7 @@ import problem.State;
  *
  * @author Enrico Scala
  */
-public class NumFluentAssigner extends Conditions {
+public class NumFluentValue extends Conditions {
 
     private String operator; //it must be equal to =
     private NumFluent nFluent;
@@ -49,30 +49,30 @@ public class NumFluentAssigner extends Conditions {
     private PDDLNumber nFlunetValueUpperBound;//only for relaxed state. In case such value is not null it represents the upper bound of the domain of the fluent whereas nFluentValue represents the lower bound
     public HashSet son;
 
-    public NumFluentAssigner(String operator) {
+    public NumFluentValue(String operator) {
         super();
         this.operator = operator;
         this.nFlunetValueUpperBound = null;
     }
     
-    public NumFluentAssigner(String fluent,float value) {
+    public NumFluentValue(String fluent,float value) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
         nFluent = new NumFluent(fluent);
         
-        this.setTwo(new PDDLNumber(value));
+        this.setValue(new PDDLNumber(value));
     }
     
-    public NumFluentAssigner(NumFluent fluent,float value) {
+    public NumFluentValue(NumFluent fluent,float value) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
         nFluent = fluent;
         
-        this.setTwo(new PDDLNumber(value));
+        this.setValue(new PDDLNumber(value));
     }
-    public NumFluentAssigner(NumFluent fluent,Interval poss_values) {
+    public NumFluentValue(NumFluent fluent,Interval poss_values) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
@@ -86,9 +86,9 @@ public class NumFluentAssigner extends Conditions {
     public String toString() {
 
         if (this.nFlunetValueUpperBound == null) {
-            return "(" + getOperator() + " " + getNFluent() + " " + getTwo() + ")";
+            return "(" + getOperator() + " " + getNFluent() + " " + getValue() + ")";
         } else {
-            return "(" + getOperator() + " " + getNFluent() + " (" + getTwo() + "," + this.getNFlunetValueUpperBound() + "))";
+            return "(" + getOperator() + " " + getNFluent() + " (" + getValue() + "," + this.getNFlunetValueUpperBound() + "))";
         }
     }
 
@@ -123,20 +123,20 @@ public class NumFluentAssigner extends Conditions {
     /**
      * @return the nFluentValue
      */
-    public PDDLNumber getTwo() {
+    public PDDLNumber getValue() {
         return nFluentValue;
     }
 
     /**
      * @param nFluentValue the nFluentValue to set
      */
-    public void setTwo(PDDLNumber two) {
+    public void setValue(PDDLNumber two) {
         this.nFluentValue = two;
     }
 
     @Override
     public Conditions ground(Map substitution) {
-        NumFluentAssigner ret = new NumFluentAssigner(operator);
+        NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) nFluent.ground(substitution);
         ret.grounded = true;
         return ret;
@@ -184,14 +184,14 @@ public class NumFluentAssigner extends Conditions {
 
     @Override
     public String pddlPrint(boolean typeInformation) {
-        return "( = (" + getNFluent() + " ) " + getTwo() + ")";
+        return "( = (" + getNFluent() + " ) " + getValue() + ")";
 
 
     }
 
     @Override
     public Conditions clone() {
-        NumFluentAssigner ret = new NumFluentAssigner(operator);
+        NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) this.nFluent.clone();
         ret.grounded = this.grounded;
         ret.nFluentValue = new PDDLNumber(this.nFluentValue.getNumber());
@@ -219,7 +219,7 @@ public class NumFluentAssigner extends Conditions {
 
     @Override
     public Conditions unGround(Map asbstractionOf) {
-        NumFluentAssigner ret = new NumFluentAssigner(operator);
+        NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) nFluent.unGround(asbstractionOf);
         ret.grounded = false;
         return ret;
@@ -250,7 +250,7 @@ public class NumFluentAssigner extends Conditions {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final NumFluentAssigner other = (NumFluentAssigner) obj;
+        final NumFluentValue other = (NumFluentValue) obj;
         if (this.nFluent != other.nFluent && (this.nFluent == null || !this.nFluent.equals(other.nFluent))) {
             return false;
         }

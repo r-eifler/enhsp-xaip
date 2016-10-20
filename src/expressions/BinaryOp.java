@@ -45,18 +45,18 @@ import problem.State;
 public class BinaryOp extends Expression {
 
     protected String operator;
-    private Expression left;
-    private Expression right;
+    private Expression lhs;
+    private Expression rhs;
 
     public BinaryOp() {
         super();
 
     }
 
-    public BinaryOp(Expression one, String string, Expression two, boolean grounded) {
+    public BinaryOp(Expression lhs, String string, Expression rhs, boolean grounded) {
         this.operator = string;
-        this.left = one;
-        this.right = two;
+        this.lhs = lhs;
+        this.rhs = rhs;
         this.grounded = grounded;
 
     }
@@ -88,28 +88,28 @@ public class BinaryOp extends Expression {
      * @return the one
      */
     public Expression getOne() {
-        return left;
+        return lhs;
     }
 
     /**
      * @param one the one to set
      */
     public void setOne(Expression one) {
-        this.left = one;
+        this.lhs = one;
     }
 
     /**
      * @return the right element of the binary operation
      */
     public Expression getRight() {
-        return right;
+        return rhs;
     }
 
     /**
      * @param right the two to set
      */
     public void setRight(Expression right) {
-        this.right = right;
+        this.rhs = right;
     }
 
     @Override
@@ -117,8 +117,8 @@ public class BinaryOp extends Expression {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
-        ret.left = left.ground(substitution);
-        ret.right = right.ground(substitution);
+        ret.lhs = lhs.ground(substitution);
+        ret.rhs = rhs.ground(substitution);
 
         ret.grounded = true;
 
@@ -128,8 +128,8 @@ public class BinaryOp extends Expression {
     @Override
     public PDDLNumber eval(State s) {
         PDDLNumber ret_val = null;
-        PDDLNumber first = this.left.eval(s);
-        PDDLNumber second = this.right.eval(s);
+        PDDLNumber first = this.lhs.eval(s);
+        PDDLNumber second = this.rhs.eval(s);
         if ((first == null) || (second == null)) {
             return null;//negation by failure.
         }
@@ -226,8 +226,8 @@ public class BinaryOp extends Expression {
 
     @Override
     public void changeVar(Map substitution) {
-        this.left.changeVar(substitution);
-        this.right.changeVar(substitution);
+        this.lhs.changeVar(substitution);
+        this.rhs.changeVar(substitution);
 
     }
 
@@ -243,15 +243,15 @@ public class BinaryOp extends Expression {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
-        left.freeVarSemantic = freeVarSemantic;
-        right.freeVarSemantic = freeVarSemantic;
-        ret.left = left.weakEval(s, invF);
-        ret.right = right.weakEval(s, invF);
+        lhs.freeVarSemantic = freeVarSemantic;
+        rhs.freeVarSemantic = freeVarSemantic;
+        ret.lhs = lhs.weakEval(s, invF);
+        ret.rhs = rhs.weakEval(s, invF);
 
         
         
         
-        if (ret.left == null || ret.right == null) {
+        if (ret.lhs == null || ret.rhs == null) {
             return null;
         }
 
@@ -264,8 +264,8 @@ public class BinaryOp extends Expression {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
-        ret.left = left.clone();
-        ret.right = right.clone();
+        ret.lhs = lhs.clone();
+        ret.rhs = rhs.clone();
 
         ret.grounded = this.grounded;
 
@@ -275,8 +275,8 @@ public class BinaryOp extends Expression {
     @Override
     public Interval eval(RelState s) {
         Interval ret_val = null;
-        Interval first = this.left.eval(s);
-        Interval second = this.right.eval(s);
+        Interval first = this.lhs.eval(s);
+        Interval second = this.rhs.eval(s);
 
 //        System.out.println(this);
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
@@ -320,26 +320,26 @@ public class BinaryOp extends Expression {
 
     @Override
     public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
-        if (this.left.involve(arrayList)) {
+        if (this.lhs.involve(arrayList)) {
             return true;
         } else {
-            return this.right.involve(arrayList);
+            return this.rhs.involve(arrayList);
         }
     }
 
     @Override
     public Expression subst(Conditions numeric) {
         BinaryOp ret = (BinaryOp) this.clone();
-        ret.left = ret.left.subst(numeric);
-        ret.right = ret.right.subst(numeric);
+        ret.lhs = ret.lhs.subst(numeric);
+        ret.rhs = ret.rhs.subst(numeric);
         return ret;
     }
 
     @Override
     public Set fluentsInvolved() {
         Set ret = new HashSet();
-        ret.addAll(this.left.fluentsInvolved());
-        ret.addAll(this.right.fluentsInvolved());
+        ret.addAll(this.lhs.fluentsInvolved());
+        ret.addAll(this.rhs.fluentsInvolved());
         return ret;
     }
 
@@ -348,8 +348,8 @@ public class BinaryOp extends Expression {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
-        ret.left = left.unGround(substitution);
-        ret.right = right.unGround(substitution);
+        ret.lhs = lhs.unGround(substitution);
+        ret.rhs = rhs.unGround(substitution);
 
         ret.grounded = false;
 
@@ -371,16 +371,16 @@ public class BinaryOp extends Expression {
 
     @Override
     public Expression susbtFluentsWithTheirInvariants(int j) {
-        this.left = this.left.susbtFluentsWithTheirInvariants(j);
-        this.right = this.right.susbtFluentsWithTheirInvariants(++j);
+        this.lhs = this.lhs.susbtFluentsWithTheirInvariants(j);
+        this.rhs = this.rhs.susbtFluentsWithTheirInvariants(++j);
         return this;
 
     }
 
     @Override
     public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
-        this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
-        this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
+        this.lhs = this.lhs.susbtFluentsWithTheirInvariants(invariantFluent, j);
+        this.rhs = this.rhs.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
         return this;
     }
 
@@ -391,10 +391,10 @@ public class BinaryOp extends Expression {
 
     @Override
     public boolean involve(NumFluent a) {
-        if (this.left.involve(a)) {
+        if (this.lhs.involve(a)) {
             return true;
         } else {
-            return this.right.involve(a);
+            return this.rhs.involve(a);
         }
     }
 }

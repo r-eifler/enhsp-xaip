@@ -141,6 +141,7 @@ public class Aibr extends Heuristic {
         if (reachability) {
             //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+            this.supporters = new LinkedHashSet(supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             return (float)i;
         }
         if (layers_counter) {

@@ -32,7 +32,7 @@ import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.NumFluentAssigner;
+import conditions.NumFluentValue;
 import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.PDDLObjectsEquality;
@@ -163,8 +163,8 @@ public final class PddlDomain extends Object {
         }
 
         for (Object o : p.getInit().getPropositions()) {
-            if (o instanceof NumFluentAssigner) {
-                NumFluentAssigner nf = (NumFluentAssigner) o;
+            if (o instanceof NumFluentValue) {
+                NumFluentValue nf = (NumFluentValue) o;
                 for (Object o1 : nf.getNFluent().getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator it = types.iterator();
@@ -204,9 +204,9 @@ public final class PddlDomain extends Object {
             }
         }
         for (Object o : p.getInit().getNumericFluents()) {
-            if (o instanceof NumFluentAssigner) {
-                NumFluentAssigner nf = (NumFluentAssigner) o;
-                for (Object o1 : nf.getNFluent().getTerms()) {
+            if (o instanceof NumFluent) {
+                NumFluent nf = (NumFluent) o;
+                for (Object o1 : nf.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator it = types.iterator();
                     boolean found = false;

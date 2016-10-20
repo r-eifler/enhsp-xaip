@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-import conditions.NumFluentAssigner;
+import conditions.NumFluentValue;
 import domain.PddlDomain;
 import extraUtils.Utils;
 import java.util.LinkedList;
@@ -135,10 +135,10 @@ public class built_in_NHSP {
         });
         LinkedList raw_plan = null;//raw list of actions returned by the search strategies
         if (!domain.getProcessesSchema().isEmpty()) {
-            problem.getInit().addNumericFluent(new NumFluentAssigner("#t", Float.parseFloat(delta_t)));
+            problem.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t)));
 
             System.out.println("Delta:" + Float.parseFloat(delta_t));
-            problem.getInit().addNumericFluent(new NumFluentAssigner("time_elapsed", 0));
+            problem.getInit().addNumericFluent(new NumFluentValue("time_elapsed", 0));
             searchStrategies.delta = Float.parseFloat(delta_t);
             searchStrategies.processes = true;
         }

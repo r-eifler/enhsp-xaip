@@ -326,8 +326,8 @@ public class AndCond extends Conditions implements PostCondition {
             } else if (o instanceof Comparison) {
                 Comparison a = (Comparison) o;
                 ret.sons.add(a.clone());
-            } else if (o instanceof NumFluentAssigner) {
-                NumFluentAssigner a = (NumFluentAssigner) o;
+            } else if (o instanceof NumFluentValue) {
+                NumFluentValue a = (NumFluentValue) o;
                 ret.sons.add(a.clone());
             } else if (o instanceof NumEffect) {
                 NumEffect a = (NumEffect) o;

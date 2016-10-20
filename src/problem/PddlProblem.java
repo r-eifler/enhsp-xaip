@@ -30,7 +30,7 @@ package problem;
 import antlr.RecognitionException;
 
 import conditions.AndCond;
-import conditions.NumFluentAssigner;
+import conditions.NumFluentValue;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
@@ -494,9 +494,9 @@ public class PddlProblem {
                     break;
                 case PddlParser.INIT_EQ:
                     counterNumericFluents++;
-                    NumFluentAssigner a = new NumFluentAssigner("=");
+                    NumFluentValue a = new NumFluentValue("=");
                     a.setNFluent((NumFluent) createExpression(c.getChild(0)));
-                    a.setTwo((PDDLNumber) createExpression(c.getChild(1)));
+                    a.setValue((PDDLNumber) createExpression(c.getChild(1)));
                     //System.out.println(a);
                     init.addNumericFluent(a);
                     break;
@@ -680,8 +680,8 @@ public class PddlProblem {
     public NumFluent getFunction(String string, ArrayList terms) {
         for (Object o : init.getNumericFluents()) {
 
-            if (o instanceof NumFluentAssigner) {
-                NumFluentAssigner ele = (NumFluentAssigner) o;
+            if (o instanceof NumFluentValue) {
+                NumFluentValue ele = (NumFluentValue) o;
                 NumFluent fAssign = ele.getNFluent();
 
                 if (fAssign.getName().equals(string)) {
@@ -700,8 +700,8 @@ public class PddlProblem {
 
         for (Object o : init.getNumericFluents()) {
 
-            if (o instanceof NumFluentAssigner) {
-                NumFluentAssigner ele = (NumFluentAssigner) o;
+            if (o instanceof NumFluentValue) {
+                NumFluentValue ele = (NumFluentValue) o;
                 NumFluent fAssign = ele.getNFluent();
                 res.add(fAssign);
 

@@ -29,7 +29,7 @@
 package problem;
 
 import conditions.Comparison;
-import conditions.NumFluentAssigner;
+import conditions.NumFluentValue;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.Expression;
@@ -46,7 +46,7 @@ import java.util.HashSet;
 public class RelState extends Object {
 
     public HashMap<Predicate, Integer> poss_interpretation;//0 is negative, 1 positive, 2 both
-    public HashMap poss_numericFs;
+    public HashMap<NumFluent,Interval> poss_numericFs;
     HashSet timedLiterals;///to do
 
     public RelState() {
@@ -65,24 +65,13 @@ public class RelState extends Object {
     @Override
     public RelState clone() {
         RelState ret_val = new RelState();
-
-        for (Object o : this.poss_numericFs.values()) {
-            NumFluentAssigner ele = (NumFluentAssigner) o;
-            NumFluentAssigner newA = new NumFluentAssigner("=");
-            newA.setNFluent(ele.getNFluent());
-            PDDLNumber newN = new PDDLNumber(ele.getTwo().getNumber());
-            newA.setTwo(newN);
-            if (ele.getNFlunetValueUpperBound() != null) {
-                PDDLNumber newSup = new PDDLNumber(ele.getNFlunetValueUpperBound().getNumber());
-                newA.setNFlunetValueUpperBound(newSup);
-            } else {
-                newA.setNFlunetValueUpperBound(newN);
-            }
-            ret_val.addNumericFluent(newA);
+        
+        for (NumFluent nf : this.poss_numericFs.keySet()){
+            ret_val.poss_numericFs.put(nf, this.poss_numericFs.get(nf));
         }
-        for (Object o : this.poss_interpretation.keySet()) {
-            Predicate ele = (Predicate) o;
-            ret_val.poss_interpretation.put((Predicate) ele.clone(), this.poss_interpretation.get(o));
+        for (Predicate ele : this.poss_interpretation.keySet()) {
+//            this.poss_interpretation.get(ele);
+            ret_val.poss_interpretation.put( ele, this.poss_interpretation.get(ele));
         }
 
         //ret_val.propositions = (HashSet) this.propositions.clone();
@@ -91,26 +80,23 @@ public class RelState extends Object {
         return ret_val;
     }
 
-    public Iterable<Object> getNumericFluents() {
-        return poss_numericFs.values();
+    public Iterable<NumFluent> getNumericFluents() {
+        return poss_numericFs.keySet();
     }
 
     public PDDLNumber functionInfValue(NumFluent f) {
-        NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
-        if (a != null) {
-            return a.getTwo();
+        Interval n = this.poss_numericFs.get(f);
+        if (n != null) {
+            return n.getInf();
         }
         return null;
     }
 
     public Interval functionValues(NumFluent f) {
 
-        NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
+        Interval a = this.poss_numericFs.get(f);
         if (a != null) {
-            Interval ret_val = new Interval();
-            ret_val.setInf(a.getTwo());
-            ret_val.setSup(a.getNFlunetValueUpperBound());
-            return ret_val;
+            return a;
         } else {
             Interval ret_val = new Interval(Float.NaN);
             return ret_val;
@@ -118,9 +104,9 @@ public class RelState extends Object {
     }
 
     public PDDLNumber functionSupValue(NumFluent f) {
-        NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
+        Interval a =  this.poss_numericFs.get(f);
         if (a != null) {
-            return a.getNFlunetValueUpperBound();
+            return a.getSup();
         }
         return null;
     }
@@ -134,12 +120,7 @@ public class RelState extends Object {
         }
     }
 
-    public void addNumericFluent(NumFluentAssigner a) {
 
-        poss_numericFs.put(a.getNFluent(), a);
-
-//        poss_numericFs.add(a);
-    }
 
     void addTimedLiteral(Predicate buildInstPredicate) {
         timedLiterals.add(buildInstPredicate);
@@ -159,17 +140,17 @@ public class RelState extends Object {
     }
 
     public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
-        NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
+        Interval a =  this.poss_numericFs.get(f);
         if (a != null) {
-            a.setTwo(after);
+            a.setInf(after);
         }
 
     }
 
     public void setFunctionSupValue(NumFluent f, PDDLNumber after) {
-        NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
+        Interval a =  this.poss_numericFs.get(f);
         if (a != null) {
-            a.setNFlunetValueUpperBound(after);
+            a.setSup(after);
         }
 
     }
@@ -255,16 +236,8 @@ public class RelState extends Object {
     }
 
     public void setFunctionValues(NumFluent f, Interval after) {
-        NumFluentAssigner a = (NumFluentAssigner) this.poss_numericFs.get(f);
-        if (a != null) {
-            if (a.getNFluent().equals(f)) {
-                a.setTwo(after.getInf());
-                a.setNFlunetValueUpperBound(after.getSup());
-            }
-        } else {
-            a = new NumFluentAssigner(f, after);
-            this.addNumericFluent(a);
-        }
+        this.poss_numericFs.put(f,after);
+
     }
 
     public float satisfaction_distance(Comparison comparison) {
@@ -316,5 +289,9 @@ public class RelState extends Object {
                 this.poss_interpretation.put((Predicate) o, (Integer) subst.get(o));
             }
         }
+    }
+
+    void addNumericFluent(NumFluentValue newA) {
+       this.poss_numericFs.put(newA.getNFluent(), new Interval(newA.getValue().getNumber()));
     }
 }

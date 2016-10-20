@@ -200,6 +200,8 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         
+        link_names(this.getInit(),this.actions,this.processesSet);
+        
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.processesGround = true;
         this.setGroundedActions(true);
@@ -355,5 +357,19 @@ public class EPddlProblem extends PddlProblem {
         //globalConstraints = (AndCond)globalConstraints.transform_equality();
         
         goals.normalize();
+    }
+
+    private void link_names(State init, Set<GroundAction> actions, Set<GroundProcess> processesSet) {
+        
+//        for (NumFluent nf :init.numericFs.keySet()){
+//            for (GroundAction gr: actions){
+//                gr.get
+//            }
+//        }
+//        for (Predicate p : (Collection<Predicate>)init.propositions.keySet()){
+//            
+//        }
+//        
+        
     }
 }
