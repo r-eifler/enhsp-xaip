@@ -67,6 +67,7 @@ import heuristics.RegressedSearchNode;
 public class GroundAction extends GenericActionType implements Comparable {
 
     protected ParametersAsTerms parameters_as_terms;
+    public Boolean numeric_effect_undefined;
     public boolean normalized;
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     private ArrayList primitives;
@@ -1665,26 +1666,22 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     private boolean numericEffectUndefined(RelState current) {
 
-        if (this.numericEffects == null) {
-            return false;
-        }
-        if (this.numericEffects.sons.isEmpty()) {
-            return false;
-        }
+        if (numeric_effect_undefined == null) {//there is no action that can make a numeric fluent undefined. So this can be considered an invariant
 
-//        for (NumEffect e: (Collection<NumEffect>)this.numericEffects.sons){
-//            if (e.getRight().eval(current).inf.getNumber().isNaN()){
-//                return true;
-//            }
-//            
-//        }
-//        return false;
-        return this.numericEffects.sons.stream().anyMatch(new java.util.function.Predicate<NumEffect>() {
-            @Override
-            public boolean test(NumEffect e) {
-                return e.getRight().eval(current).getInf().getNumber().isNaN();
+            if (this.numericEffects == null) {
+                return false;
             }
-        });
+            if (this.numericEffects.sons.isEmpty()) {
+                return false;
+            }
+            numeric_effect_undefined = this.numericEffects.sons.stream().anyMatch(new java.util.function.Predicate<NumEffect>() {
+                @Override
+                public boolean test(NumEffect e) {
+                    return e.getRight().eval(current).getInf().getNumber().isNaN();
+                }
+            });
+        }
+        return numeric_effect_undefined;
 //            
 
     }

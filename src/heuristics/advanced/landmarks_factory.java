@@ -143,7 +143,7 @@ public class landmarks_factory extends Heuristic {
                     });
                 }
                 update_poss_achievers(c, ach_of_conditions_with_repetition);
-                if (update_landmarks(c, ach_of_conditions) || l != condition_level.get(c.getCounter()) || dplus.get(c.getCounter()) != old_dplus) {
+                if (update_landmarks(c, ach_of_conditions)){// || l != condition_level.get(c.getCounter()) || dplus.get(c.getCounter()) != old_dplus) {
                     update = true;
                 }
             }
@@ -211,7 +211,7 @@ public class landmarks_factory extends Heuristic {
                                 action_to_variable.put(dlm.gr.counter, action);
                                 objective.addTerm(action, action_cost);
                             }
-                            expr.addTerm(action, 1.0 / (float) dlm.repetition);
+                            expr.addTerm(action, 1.0 / dlm.repetition);
                         }
                         lp.addGe(expr, 1);
                     }
@@ -281,9 +281,9 @@ public class landmarks_factory extends Heuristic {
     public class repetition_landmark extends Object {
 
         public GroundAction gr;
-        public int repetition;
+        public float repetition;
 
-        public repetition_landmark(GroundAction gr_input, int repetition_input) {
+        public repetition_landmark(GroundAction gr_input, float repetition_input) {
             super();
             this.gr = gr_input;
             this.repetition = repetition_input;

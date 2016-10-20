@@ -31,7 +31,7 @@ import problem.State;
  */
 public class Aibr extends Heuristic {
 
-    boolean reacheability;
+    boolean reachability;
     public boolean conservative = false;
     private boolean counting_layers = true;
     private boolean greedy_relaxed_plan = false;
@@ -42,13 +42,13 @@ public class Aibr extends Heuristic {
     private HashMap<GroundAction, Integer> supporter_level;
     private HashMap<Integer, LinkedHashSet<GroundAction>> supporters_exec_at_time_index;
     private HashMap<Integer, LinkedHashSet<Conditions>> conditions_sat_at_time_index;
+    private HashMap<Integer,GroundAction> supp_to_actions;
     protected ArrayList<Integer> dist;
     public boolean layers_counter;
 
     public Aibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
         this.dbg_print("Generate Supporters\n");
-
         generate_supporters(A);
     }
 
@@ -69,12 +69,12 @@ public class Aibr extends Heuristic {
 
     @Override
     public Float setup(State s_0) {
-        reacheability = true;
+        reachability = true;
         this.dbg_print("Computing Internal Data Structure\n");
         this.build_integer_representation();
         this.dbg_print("Computing Reachable Actions\n");
         Float ret = compute_estimate(s_0);
-        reacheability = false;
+        reachability = false;
         return ret;
     }
 
@@ -94,41 +94,51 @@ public class Aibr extends Heuristic {
 //        }
         //System.out.println("Supporter to action:"+this.supp_to_action);
         int i = 0;
-        while (true) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
+        boolean exit = false;
+        while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
             this.conditions_sat_at_time_index.put(i, new LinkedHashSet());
-            if (check_goal_condition(G, i, rs) && !reacheability) {
+            if (check_goal_condition(G, i, rs) && !reachability) {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs, i);
 
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
-                    if (reacheability){
+                    if (reachability){
                         reacheable_state = rs.clone();
                         this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
                     }
                     return Float.MAX_VALUE;
                 } else {
                     reacheable_state = rs.clone();
-                    this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+                    //this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
                     break;
                 }
             }
             this.supporters_exec_at_time_index.put(i, (LinkedHashSet<GroundAction>) S);
 
-            S.stream().forEach((GroundAction a) -> a.apply(rs));
-            supporters_counter += S.size();
-//            if (supporters_counter >=horizon){
-////                System.out.println("Something wrong is happening");
-//                return Integer.MAX_VALUE;
-//            }
-//            System.out.println("Internal Iteration: "+supporters_counter);
+            if (reachability){
+                S.stream().forEach((GroundAction a) -> a.apply(rs));
+                supporters_counter += S.size();
+            }else{
+                for(GroundAction gr: S){
+                    supporters_counter++;
+                    gr.apply(rs);
+                    if (check_goal_condition(G, i, rs)){
+                        exit = true;
+                        break;
+                    }
+                }
+            }
+ 
+            
+
             i++;
         }
         dbg_print("Rechability finished");
         
-        if (reacheability) {
+        if (reachability) {
             //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             return (float)i;
@@ -164,7 +174,7 @@ public class Aibr extends Heuristic {
                 actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(),gr.cond_effects));
             }
         }
-        System.out.println(actions_plus_action_for_supporters);
+        //System.out.println(actions_plus_action_for_supporters);
         actions_plus_action_for_supporters.addAll(actions);
         for (GroundAction gr : actions_plus_action_for_supporters) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
@@ -438,6 +448,7 @@ public class Aibr extends Heuristic {
             }
             if (add_action) {
                 ret.add(gr);
+//                this.reachable.add();
                 it.remove();
             }
         }
