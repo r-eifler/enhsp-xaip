@@ -175,8 +175,10 @@ public abstract  class Conditions extends Object {
                 return ret;
         }
         //from here it can only be an AndCond or a Or. Other cases are not considered
-        for (Conditions c: (Collection<Conditions>)this.sons){
-            ret.addAll(c.getInvolvedPredicates());
+        if (this.sons != null){
+            for (Conditions c: (Collection<Conditions>)this.sons){
+                ret.addAll(c.getInvolvedPredicates());
+            }
         }
         return ret;
     }

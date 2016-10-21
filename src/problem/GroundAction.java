@@ -2525,4 +2525,27 @@ public class GroundAction extends GenericActionType implements Comparable {
         return null;
     }
 
+    Collection<NumFluent> getInvolvedNumFluents() {
+        Collection<NumFluent> ret = this.preconditions.getInvolvedFluents();
+        ret.addAll(this.numericEffects.getInvolvedFluents());
+        return ret;
+    }
+
+    Collection<Predicate> getInvolvedPredicates() {
+        Collection<Predicate> ret = new LinkedHashSet();
+        if (this.preconditions != null)
+            ret.addAll(this.preconditions.getInvolvedPredicates());
+        if (this.addList != null)
+            ret.addAll(this.addList.getInvolvedPredicates());
+        if (this.delList != null)
+            ret.addAll(this.delList.getInvolvedPredicates());
+        if (this.cond_effects != null)
+            ret.addAll(this.cond_effects.getInvolvedPredicates());
+        return ret;
+    }
+
+    void subst_predicate(Predicate p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

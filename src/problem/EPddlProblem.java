@@ -55,6 +55,9 @@ public class EPddlProblem extends PddlProblem {
     private boolean globalConstraintGrounded;
     private boolean processesGround;
     public AndCond globalConstraints;
+    public Collection<NumFluent> num_fluent_universe;
+    public Collection<Predicate> predicates_universe;
+
 
     private boolean grounding;
 
@@ -200,7 +203,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         
-        link_names(this.getInit(),this.actions,this.processesSet);
+        unify_objects_names(this.getInit(),this.actions,this.processesSet);
         
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.processesGround = true;
@@ -359,17 +362,61 @@ public class EPddlProblem extends PddlProblem {
         goals.normalize();
     }
 
-    private void link_names(State init, Set<GroundAction> actions, Set<GroundProcess> processesSet) {
+    private void unify_objects_names(State init, Set<GroundAction> actions, Set<GroundProcess> processesSet) {
+        this.predicates_universe = new LinkedHashSet();
+        this.num_fluent_universe = new LinkedHashSet();
+        for (GroundAction gr: actions){
+            Collection involved_nf= gr.getInvolvedNumFluents();
+            Collection involved_predicates= gr.getInvolvedPredicates();
+            add_if_necessary(involved_nf,this.num_fluent_universe);
+            add_if_necessary(involved_predicates,this.predicates_universe);
+        }
         
-//        for (NumFluent nf :init.numericFs.keySet()){
-//            for (GroundAction gr: actions){
-//                gr.get
-//            }
-//        }
-//        for (Predicate p : (Collection<Predicate>)init.propositions.keySet()){
-//            
-//        }
-//        
+        for (GroundProcess gr: processesSet){
+            Collection involved_nf= gr.getInvolvedNumFluents();
+            Collection involved_predicates= gr.getInvolvedPredicates();
+            add_if_necessary(involved_nf,this.num_fluent_universe);
+            add_if_necessary(involved_predicates,this.predicates_universe);
+        }
         
+        for(Predicate p: this.predicates_universe){
+            for (GroundAction gr: actions){
+                gr.subst_predicate(p);
+            }
+            for (GroundProcess gr: processesSet){
+                gr.subst_predicate(p);
+            }
+        }
+        
+                for(Predicate p: this.predicates_universe){
+            for (GroundAction gr: actions){
+                gr.subst_predicate(p);
+            }
+            for (GroundProcess gr: processesSet){
+                gr.subst_predicate(p);
+            }
+        }
+        
+        
+        
+
+        
+    }
+
+    private void add_if_necessary(Collection to_be_modified,Collection set) {
+        for (Object nf : to_be_modified){
+                Iterator it = set.iterator();
+                boolean to_add = true;
+                while(it.hasNext()){
+                    Object target = it.next();
+                    if (target.equals(nf)){
+                        to_add = false;
+                        break;
+                    }
+                }
+                if (to_add)
+                    set.add(nf);
+            }
+
     }
 }
