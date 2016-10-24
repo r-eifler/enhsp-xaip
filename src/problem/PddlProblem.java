@@ -41,6 +41,7 @@ import conditions.PDDLObject;
 import domain.ParametersAsTerms;
 import domain.ActionSchema;
 import domain.PddlDomain;
+import domain.PredicateSet;
 
 import domain.Type;
 
@@ -49,7 +50,6 @@ import expressions.Expression;
 import expressions.NumFluent;
 import expressions.MinusUnary;
 import expressions.MultiOp;
-import expressions.ExtendedNormExpression;
 import expressions.PDDLNumber;
 
 import java.io.BufferedWriter;
@@ -108,6 +108,8 @@ public class PddlProblem {
     public Collection<Predicate> unknonw_predicates;
     public Collection<OneOf> one_of_s;
     public Collection<OrCond> or_s;
+    public Collection<NumFluent> num_fluent_universe;
+    public Collection<Predicate> predicates_universe;
 
     
 
@@ -717,6 +719,7 @@ public class PddlProblem {
     }
 
     public void generateActions() throws Exception {
+        
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Instantiator af = new Instantiator();
@@ -1176,5 +1179,43 @@ public class PddlProblem {
             System.out.println("Some serious error:"+infoAction);
             return null;
         }
+    }
+
+    public void generate_universe_of_variables(PredicateSet predicates, List<NumFluent> functions, List<NumFluent> derived_variables) {
+        
+        this.num_fluent_universe = new LinkedHashSet();
+        this.predicates_universe = new LinkedHashSet();
+        for (Predicate p: predicates){
+            Set<ParametersAsTerms> combos =  Instantiator.sub(p.getTerms(), p.getTerms().size(), objects);
+//            System.out.println("Combo Found:"+combos);
+
+            for (ParametersAsTerms ele : combos){
+                HashMap subst = create_subst(ele,p.getTerms());
+//                System.out.println("Current substitution:"+subst);
+                predicates_universe.add((Predicate)p.ground(subst));
+            }
+            if (p.getTerms().isEmpty())
+                predicates_universe.add(p);
+        }
+        for (NumFluent nf: functions){
+            Set<ParametersAsTerms> combos =  Instantiator.sub(nf.getTerms(), nf.getTerms().size(), objects);
+            for (ParametersAsTerms ele : combos){
+                HashMap subst = create_subst(ele,nf.getTerms());
+                num_fluent_universe.add((NumFluent)nf.ground(subst));
+            }
+            if (nf.getTerms().isEmpty())
+                num_fluent_universe.add(nf);
+        }
+    }
+
+
+
+    private HashMap create_subst(ParametersAsTerms ele, ArrayList terms) {
+        HashMap ret = new HashMap();
+        for (int i=0;i<terms.size();i++){
+            ret.put(terms.get(i),ele.get(i));
+        }
+        return ret;
+
     }
 }

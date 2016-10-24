@@ -36,7 +36,7 @@ import java.util.HashSet;
  *
  * @author enrico
  */
-public class PredicateSet extends HashSet {
+public class PredicateSet extends HashSet<Predicate> {
 
     public boolean validate(Predicate p) {
 

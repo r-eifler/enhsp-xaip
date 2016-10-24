@@ -265,6 +265,10 @@ public final class PddlDomain extends Object {
 
         p.setDomain(this);
         p.setValidatedAgainstDomain(true);
+        
+        p.generate_universe_of_variables(this.getPredicates(),this.getFunctions(),this.derived_variables);
+        System.out.println(p.num_fluent_universe);
+        System.out.println(p.predicates_universe);
 
         return true;
     }

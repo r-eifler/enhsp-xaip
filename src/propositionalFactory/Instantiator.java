@@ -37,6 +37,7 @@ import java.lang.Exception;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -80,7 +81,7 @@ public class Instantiator {
     }
 
     
-    public boolean incVettore(Integer[] v, int n, Integer[] max) {
+    private static boolean incVettore(Integer[] v, int n, Integer[] max) {
 
         if (n < 0) {
             return false;
@@ -169,6 +170,80 @@ public class Instantiator {
         return ret;
 
     }
+    
+    
+    public static Set sub(ArrayList param, int n_parametri, PDDLObjects po) {
+        HashSet combo = new HashSet();
+        ArrayList<PDDLObject>[] sub = new ArrayList[n_parametri];
+        
+        int i = 0;
+
+        if (po.isEmpty())
+            return combo;
+        
+
+        if (param.isEmpty()) {
+            //combo.add(new PDDLObject("null"));
+            return combo;
+        }
+
+
+        //for each parameter in the action schema, look for all the possible substitutions.
+        for (Object el1 : param) {
+            sub[i] = new ArrayList();
+            //System.out.println("Variable" + el1);
+            boolean at_least_one = false;
+            for (Object el : po) {
+                PDDLObject t = (PDDLObject) el;
+                Variable v = (Variable) el1;
+                if ((v.getType().isAncestorOf(t.getType())) || (t.getType().equals(v.getType()))) {
+                    sub[i].add(t);
+                    at_least_one = true;
+                }
+            }
+            if (!at_least_one)
+                return combo;
+            //System.out.println("Number of Substitution captured:"+sub[i].keySet().size());
+            i++;
+            
+        }
+        
+        //This keeps track of the size of each set of objects, for each variable within the action schema
+        Integer[] sizes = new Integer[n_parametri];
+        for (i = 0; i < n_parametri; i++) {
+            sizes[i] = sub[i].size() - 1;
+            //System.out.println(sizes[i]);
+        }
+        
+
+        Integer[] counter = new Integer[n_parametri];
+        for (i = 0; i < n_parametri; i++) {
+            counter[i] = 0;
+        }
+
+        do {
+//                System.out.print("Combo: ");
+//                for(i=0; i<n_parametri;i++)
+//                    System.out.print(counter[i]);
+//                 System.out.println("");
+////                 System.out.println(sub[0]);
+////                 System.out.println(a);
+            ParametersAsTerms toAdd = new ParametersAsTerms();
+            for (int z = 0; z < n_parametri; z++) {
+//                System.out.println("z: "+z);
+//                System.out.println("counter[z]: "+counter[z]);
+//                System.out.println(sub[z].keySet());
+                //if (sub[z].size()<counter[z])
+                toAdd.add(sub[z].get(counter[z]));
+                //else
+                 //   break;
+            }
+            combo.add(toAdd);
+
+        } while (incVettore(counter, n_parametri-1, sizes));
+
+        return combo;
+    }
 
     private Set sub(SchemaParameters param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
@@ -242,6 +317,8 @@ public class Instantiator {
 
         return combo;
     }
+    
+    
     
     
 }

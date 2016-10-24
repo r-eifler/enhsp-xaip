@@ -55,8 +55,6 @@ public class EPddlProblem extends PddlProblem {
     private boolean globalConstraintGrounded;
     private boolean processesGround;
     public AndCond globalConstraints;
-    public Collection<NumFluent> num_fluent_universe;
-    public Collection<Predicate> predicates_universe;
 
 
     private boolean grounding;
@@ -203,7 +201,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         
-        unify_objects_names(this.getInit(),this.actions,this.processesSet);
+//        unify_objects_names(this.getInit(),this.actions,this.processesSet);
         
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.processesGround = true;
