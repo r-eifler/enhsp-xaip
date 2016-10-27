@@ -160,6 +160,8 @@ public class GroundProcess extends GroundAction implements Comparable {
             if (int_eff.getFluentAffected().equals(eff.getFluentAffected())){
                 if (eff.getOperator().equals(int_eff.getOperator())){
                     try {
+//                        System.out.println("DEBUG:"+int_eff);
+//                        System.out.println("DEBUG:"+int_eff.getRight());
                         ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
                         ExtendedNormExpression res = expr.sum((ExtendedNormExpression) eff.getRight());
                         NumEffect n_effect = new NumEffect(eff.getOperator());
@@ -201,6 +203,8 @@ public class GroundProcess extends GroundAction implements Comparable {
                 return;
             }
         }
+        //In case it does not found another effect like that, add just this one (this is not checking for the particular type of the effects, so you can potentially
+        //use processes to represent sponteneous, more general evolution of the environment
         this.numericEffects.sons.add(eff);
         
     

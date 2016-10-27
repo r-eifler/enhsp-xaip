@@ -187,7 +187,8 @@ public class EPddlProblem extends PddlProblem {
         System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
 
-        
+        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
+
         it = this.processesSet.iterator();
         while (it.hasNext()) {
             GroundProcess process = (GroundProcess) it.next();
@@ -196,7 +197,7 @@ public class EPddlProblem extends PddlProblem {
                 keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
             
             if (!keep) {
-                //System.out.println("Pruning action:"+act.getName());
+//                System.out.println("Pruning process:"+process.toEcoString());
                 it.remove();
             }
         }

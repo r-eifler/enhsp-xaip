@@ -750,7 +750,8 @@ public class SearchStrategies {
 
                 if (act instanceof GroundProcess) {
                     GroundProcess gp = (GroundProcess) act;
-
+//                    System.out.println("DEBUG: Current waiting"+waiting.toPDDL());
+//                    System.out.println("DEBUG: Adding process"+gp.toPDDL());
                     if (gp.isActive(current_node.s)) {
                         AndCond precondition = (AndCond) waiting.getPreconditions();
                         precondition.addConditions(gp.getPreconditions());

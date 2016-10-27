@@ -407,10 +407,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
 
         //invariantFluents.put(pp.getFunctions(), true);
-        for (Object o3 : pp.getInit().getNumericFluents()) {
-            NumFluentValue ass = (NumFluentValue) o3;
-            if (invariantFluents.get(ass.getNFluent()) == null) {
-                invariantFluents.put(ass.getNFluent(), true);
+        for (NumFluent o3 : pp.getInit().getNumericFluents()) {
+            if (invariantFluents.get(o3) == null) {
+                invariantFluents.put(o3, true);
 
             }
         }
@@ -590,9 +589,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         ret += "S[plan(" + i + ")] \n";
         //System.out.println(this.getInvariantFluents());
 
-        for (Object o : temp.getNumericFluents()) {
-            NumFluentValue ass = (NumFluentValue) o;
-            Object o1 = this.getInvariantFluents().get(ass.getNFluent());
+        for (NumFluent o : temp.getNumericFluents()) {
+            Object o1 = this.getInvariantFluents().get(o);
             if (o1 != null) {
                 //System.out.println(o1);
                 if (o1 instanceof Boolean) {
@@ -2051,10 +2049,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
         numeric_plan_trace=null;
         if (print_trace){
             numeric_plan_trace = new JSONObject();
-            Iterator it = current.getNumericFluents().iterator();
+            Iterator<NumFluent> it = current.getNumericFluents().iterator();
             while (it.hasNext()){
-                NumFluentValue ass = (NumFluentValue)it.next();
-                NumFluent nf = ass.getNFluent();
+                NumFluent nf = it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());
                 nf_trace.put(nf,nf_traj);
@@ -2218,8 +2215,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             numeric_plan_trace = new JSONObject();
             Iterator it = current.getNumericFluents().iterator();
             while (it.hasNext()){
-                NumFluentValue ass = (NumFluentValue)it.next();
-                NumFluent nf = ass.getNFluent();
+                
+                NumFluent nf = (NumFluent)it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());
                 nf_trace.put(nf,nf_traj);
@@ -2271,7 +2268,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
                 if (gp.isActive(current)) {
-                    //System.out.println("---Active Process:" + gp.toPDDL());
+//                    System.out.println("---Active Process:" + gp.toPDDL());
                     for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
 
                         waiting.add_numeric_effect(eff);

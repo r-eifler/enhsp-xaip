@@ -361,7 +361,7 @@ public class PddlProblem {
             if (t1 != null) {
                 a.addObject(t1);
             } else {
-                System.out.println("Object " + t1 + " does not exist");
+                System.out.println("Object " + t1 + " does not exist. Issue in building predicate "+a.getPredicateName());
                 System.exit(-1);
             }
         }

@@ -413,7 +413,7 @@ public class ExtendedNormExpression extends Expression {
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
-                //System.out.println(a.bin);
+//                System.out.println(a.bin);
                 ret = new PDDLNumber(a.bin.eval(s).getNumber() + ret.getNumber());
             } else if (a.f != null) {
                 if (s.functionValue(a.f) == null) {

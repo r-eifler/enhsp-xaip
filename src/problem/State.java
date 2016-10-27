@@ -182,14 +182,14 @@ public class State extends Object {
             }
             ret = ret.concat(")\n");
         }
-        for (Object o : this.getNumericFluents()) {
-            NumFluentValue a = (NumFluentValue) o;
-            ret = ret.concat("  ( = (" + a.getNFluent().getName());
-            for (Object o1 : a.getNFluent().getTerms()) {
+        for (NumFluent o : this.getNumericFluents()) {
+            
+            ret = ret.concat("  ( = (" + o.getName());
+            for (Object o1 : o.getTerms()) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
             }
-            ret = ret.concat(") " + a.getValue().pddlPrint(false) + ")\n");
+            ret = ret.concat(") " + this.numericFs.get(o).pddlPrint(false) + ")\n");
         }
 
         ret = ret.concat(")");

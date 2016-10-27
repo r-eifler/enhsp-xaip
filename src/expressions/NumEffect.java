@@ -247,6 +247,7 @@ public class NumEffect extends Expression implements PostCondition {
      */
     @Override
     public String pddlPrint(boolean typeInformation) {
+        
         return "(" + getOperator() + " " + getFluentAffected().pddlPrint(typeInformation) + " " + getRight().pddlPrint(typeInformation) + ")";
 
     }
