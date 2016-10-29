@@ -38,6 +38,7 @@ import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
 import domain.Variable;
 import expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -423,7 +424,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void grounding_reachability() throws CloneNotSupportedException {
+    public void grounding_reachability() throws CloneNotSupportedException, Exception {
         HashSet<GroundAction> reachable = new LinkedHashSet();
         State s = this.init.clone();
         while(true){
@@ -445,7 +446,7 @@ public class EPddlProblem extends PddlProblem {
         
         
     }
-    public Set<GroundAction> ground(ActionSchema a, State s){
+    public Set<GroundAction> ground(ActionSchema a, State s) throws Exception{
         
         Set<HashMap<Variable,PDDLObject>> subst = new LinkedHashSet();
         
@@ -457,7 +458,7 @@ public class EPddlProblem extends PddlProblem {
         return ret;
     }
 
-    private Set<HashMap<Variable,PDDLObject>> find_substs(Object a, State s) {
+    private Set<HashMap<Variable,PDDLObject>> find_substs(Object a, State s) throws Exception {
         Set<HashMap<Variable,PDDLObject>> subst = new HashSet();
         if (a == null)
             return null;
@@ -465,11 +466,13 @@ public class EPddlProblem extends PddlProblem {
             Predicate p1 = (Predicate)a;
             HashMap<Variable,PDDLObject> subst_p = new HashMap();
             for (Predicate p: s.getPropositions()){
+                boolean conflict = false;
                 if (p1.isUngroundVersionOf(p)){
                     for (int i=0;i<p1.getTerms().size();i++){
-                        subst_p.put((Variable) p1.getTerms().get(i), (PDDLObject) p.getTerms().get(i));    
+                            subst_p.put((Variable) p1.getTerms().get(i), (PDDLObject) p.getTerms().get(i));   
                     }
-                    subst.add(subst_p);
+                    if (!conflict)
+                        subst.add(subst_p);
                 }
             }
         }
@@ -477,6 +480,7 @@ public class EPddlProblem extends PddlProblem {
             NumFluent nf = (NumFluent)a;
             HashMap<Variable,PDDLObject> subst_p = new HashMap();
             for (NumFluent p: s.getNumericFluents()){
+                boolean conflict = false;
                 if (nf.isUngroundVersionOf(p)){
                     for (int i=0;i<nf.getTerms().size();i++){
                         subst_p.put((Variable) nf.getTerms().get(i), (PDDLObject) p.getTerms().get(i));    
@@ -518,12 +522,11 @@ public class EPddlProblem extends PddlProblem {
             
         }
         else if (a instanceof NotCond){//this is problematique.
-            OrCond comp = (OrCond)a;
-            //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            for (Object o: comp.sons){
-                    subst.addAll(this.find_substs(o, s));
-            }
-            
+            NotCond nc = (NotCond)a;
+            subst = Instantiator.substitutions(nc.getVariablesInvolved(), objects);
+            for (Object o: nc.son){
+                    subst.removeAll(this.find_substs(o, s));
+            }           
         }
         else if (a instanceof GroundAction){
             GroundAction gr = (GroundAction)a;
@@ -570,7 +573,29 @@ public class EPddlProblem extends PddlProblem {
 
     private Set<HashMap<Variable, PDDLObject>> find_substs_effects(GroundAction gr, State s, Set<HashMap<Variable, PDDLObject>> subst) {
     
+        
+        /*In this setting here, you have to generate a number of substitutions. Each one of them is a possible grounding of the
+        action according to its effect. This has to be intersected with what we have discovered so far, but still it has to be done*/
+        //add list
+        
+        AndCond add_list = (AndCond)gr.getAddList();
+        
+        
+        
+        
+        
+        
+        AndCond del_list = (AndCond)gr.getDelList();
         return null;
+    }
+
+    private boolean conflicting(PDDLObject get, PDDLObject get0) {
+        if (get0.getName().equals("#Universe#"))
+            return false;
+        if (get0.equals(get))
+            return false;
+        return true;
+        
     }
 
 

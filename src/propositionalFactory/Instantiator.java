@@ -37,10 +37,11 @@ import java.lang.Exception;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import problem.GlobalConstraint;
 import problem.GroundAction;
@@ -76,6 +77,30 @@ public class Instantiator {
         int n_parametri = constr.parameters.size();
         
         return sub(param,n_parametri,po);
+        
+        
+    }
+    
+    public static Set substitutions(ArrayList<Variable> input, PDDLObjects po) throws Exception {
+        int n_parametri = input.size();
+        
+        Set<HashMap<Variable,PDDLObject>> ret = new LinkedHashSet();
+        Set<ArrayList<PDDLObject>> sub_ret = sub(input,n_parametri,po);
+        
+        int i = 0;
+
+        for (ArrayList<PDDLObject> ele :sub_ret){
+            HashMap<Variable,PDDLObject> substitution = new HashMap();
+            for (Variable el : input) {
+                substitution.put(el, ele.get(i));
+                PDDLObject t = (PDDLObject) substitution.get(el);
+                i++;
+            }
+            ret.add(substitution);
+            
+        }
+        return ret;
+        
         
         
     }
@@ -122,7 +147,61 @@ public class Instantiator {
         }
         return ret;
     }
+    
+    public static Set<HashMap<Variable,PDDLObject>> create_combos_ext(Set<Variable> variables, Set<PDDLObject> objects){
+        
+        //assign integer 
+        HashMap<Integer,Variable> int_to_var = new HashMap();
+        Integer var_counter = 0;
+        for(Variable v: variables){
+            int_to_var.put(var_counter, v);
+            var_counter++;
+        }
+        
+        HashMap<Integer,PDDLObject> int_to_obj = new HashMap();
+        Integer obj_counter = 0;
+        for(PDDLObject v: objects){
+            int_to_obj.put(obj_counter, v);
+            obj_counter++;
+        }
+        return null;
+    }
 
+    public static Set<PDDLObject[]> create_combos(PDDLObject[][] poss, int i){
+        if (i>= poss.length)
+            return new LinkedHashSet();
+        if (i == poss.length-1){
+            Set<PDDLObject[]> ret = new LinkedHashSet();
+            for (int k=0;k<poss[i].length;k++){
+                if (poss[k].length == 0){
+                    return ret;
+                }
+            }
+            for (int k=0;k<poss[i].length;k++){
+                PDDLObject[] ele = new PDDLObject[poss.length];
+                for (int j=0;j<poss.length-1;j++){
+                    ele[j] = poss[j][0];
+                }
+                ele[i] = poss[i][k];
+                ret.add(ele);
+            }
+            return ret;
+        }else{
+            Set<PDDLObject[]> ret = create_combos(poss,i+1);
+            Set<PDDLObject[]> ret2 = new LinkedHashSet();
+            for (int k=1;k<poss[i].length;k++){
+                for (PDDLObject[] ele : ret){
+                    PDDLObject[] ele2 = ele.clone();
+                    ele2[i]=poss[i][k];
+                    ret2.add(ele2);
+                }
+            }
+            ret.addAll(ret2);
+            return ret;
+        }
+        
+    }
+    
     public Set Propositionalize(ActionSchema a, PDDLObjects po) throws Exception {
         Set ret = new LinkedHashSet();
 

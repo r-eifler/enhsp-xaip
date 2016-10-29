@@ -27,7 +27,9 @@
 package conditions;
 
 import conditions.Predicate.true_false;
+import domain.Variable;
 import expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -389,6 +391,19 @@ public class NotCond extends Conditions implements PostCondition{
         }
         ret_val = ret_val.concat(")");
         return ret_val;    }
+
+    public ArrayList<Variable> getVariablesInvolved() {
+            
+        ArrayList ret = new ArrayList();
+        for (NumFluent nf:this.getInvolvedFluents()){
+            ret.addAll(nf.getTerms());
+        }
+        for (Predicate p:this.getInvolvedPredicates()){
+            ret.addAll(p.getTerms());
+        }
+        return ret;
+    }
+    
 
 
 
