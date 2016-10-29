@@ -28,11 +28,15 @@
 package problem;
 
 import conditions.AndCond;
-import conditions.OneOf;
+import conditions.Comparison;
+import conditions.NotCond;
+import conditions.OrCond;
+import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionSchema;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
+import domain.Variable;
 import expressions.NumFluent;
 import java.util.Collection;
 import java.util.HashMap;
@@ -418,4 +422,158 @@ public class EPddlProblem extends PddlProblem {
             }
 
     }
+
+    public void grounding_reachability() throws CloneNotSupportedException {
+        HashSet<GroundAction> reachable = new LinkedHashSet();
+        State s = this.init.clone();
+        while(true){
+            HashSet<GroundAction> A_primo = new LinkedHashSet();
+            for (ActionSchema a:this.linkedDomain.getActionsSchema()){
+                A_primo.addAll(ground(a,s));
+                A_primo.removeAll(reachable);
+                
+            }
+            if (A_primo.isEmpty())
+                return;
+            
+            reachable.addAll(A_primo);
+            for (GroundAction a: reachable){
+                s = a.apply(s);
+            }
+            
+        }
+        
+        
+    }
+    public Set<GroundAction> ground(ActionSchema a, State s){
+        
+        Set<HashMap<Variable,PDDLObject>> subst = new LinkedHashSet();
+        
+        subst = find_substs(a,s);
+        Set<GroundAction> ret = new LinkedHashSet();
+        for (HashMap<Variable,PDDLObject> ele : subst){
+            ret.add(a.ground(ele));
+        }
+        return ret;
+    }
+
+    private Set<HashMap<Variable,PDDLObject>> find_substs(Object a, State s) {
+        Set<HashMap<Variable,PDDLObject>> subst = new HashSet();
+        if (a == null)
+            return null;
+        if (a instanceof Predicate){
+            Predicate p1 = (Predicate)a;
+            HashMap<Variable,PDDLObject> subst_p = new HashMap();
+            for (Predicate p: s.getPropositions()){
+                if (p1.isUngroundVersionOf(p)){
+                    for (int i=0;i<p1.getTerms().size();i++){
+                        subst_p.put((Variable) p1.getTerms().get(i), (PDDLObject) p.getTerms().get(i));    
+                    }
+                    subst.add(subst_p);
+                }
+            }
+        }
+        else if (a instanceof NumFluent){
+            NumFluent nf = (NumFluent)a;
+            HashMap<Variable,PDDLObject> subst_p = new HashMap();
+            for (NumFluent p: s.getNumericFluents()){
+                if (nf.isUngroundVersionOf(p)){
+                    for (int i=0;i<nf.getTerms().size();i++){
+                        subst_p.put((Variable) nf.getTerms().get(i), (PDDLObject) p.getTerms().get(i));    
+                    }
+                    subst.add(subst_p);
+                }
+            }
+        }
+        else if (a instanceof Comparison){
+            Comparison comp = (Comparison)a;
+            //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
+            for (NumFluent nf :comp.getInvolvedFluents()){
+                if (subst.isEmpty())
+                    subst = this.find_substs(nf, s);
+                else{
+                    subst = intersect(subst,this.find_substs(nf, s));
+                }
+            }
+            
+        }
+        else if (a instanceof AndCond){
+            AndCond comp = (AndCond)a;
+            //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
+            for (Object o: comp.sons){
+                if (subst.isEmpty())
+                    subst = this.find_substs(o, s);
+                else{
+                    subst = intersect(subst,this.find_substs(o, s));
+                }
+            }
+            
+        }
+        else if (a instanceof OrCond){
+            OrCond comp = (OrCond)a;
+            //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
+            for (Object o: comp.sons){
+                    subst.addAll(this.find_substs(o, s));
+            }
+            
+        }
+        else if (a instanceof NotCond){//this is problematique.
+            OrCond comp = (OrCond)a;
+            //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
+            for (Object o: comp.sons){
+                    subst.addAll(this.find_substs(o, s));
+            }
+            
+        }
+        else if (a instanceof GroundAction){
+            GroundAction gr = (GroundAction)a;
+            //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
+            subst = this.find_substs(gr.getPreconditions(), s);
+            
+            subst = this.find_substs_effects(gr,s,subst);
+            //add the intersection with the add list,
+            
+        }
+        return subst;
+        
+    }
+
+    public Set<HashMap<Variable,PDDLObject>> intersect(Set<HashMap<Variable,PDDLObject>> a,Set<HashMap<Variable,PDDLObject>> b){
+        Set<HashMap<Variable,PDDLObject>> ret = new LinkedHashSet();
+
+        for (HashMap<Variable,PDDLObject> grounding :a){
+            Set<Variable> all_vars = new LinkedHashSet();
+            all_vars.addAll(grounding.keySet());
+            for (HashMap<Variable,PDDLObject> grounding2 :b){
+                all_vars.addAll(grounding2.keySet());
+                boolean conflict = false;
+                HashMap<Variable,PDDLObject> t = new HashMap();
+                for (Variable v: all_vars){
+                    PDDLObject o1 = grounding.get(v);
+                    PDDLObject o2 = grounding2.get(v);
+                    if (o1 != null && o2 != null && !o1.equals(o2)){
+                        conflict = true;
+                        break;
+                    }
+                    if (o1 == null)
+                        t.put(v, o2);
+                    else
+                        t.put(v, o1);
+                }
+                if (!conflict){
+                    ret.add(t);
+                }
+            }
+        }
+        return ret;
+    }
+
+    private Set<HashMap<Variable, PDDLObject>> find_substs_effects(GroundAction gr, State s, Set<HashMap<Variable, PDDLObject>> subst) {
+    
+        return null;
+    }
+
+
+    
+
 }

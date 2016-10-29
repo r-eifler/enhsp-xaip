@@ -27,6 +27,7 @@
  */
 package conditions;
 
+import domain.Variable;
 import expressions.ExtendedAddendum;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -949,5 +950,13 @@ public class Comparison extends Conditions {
     @Override
     public String pddlPrintWithExtraObject() {
         return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
+    }
+
+    public ArrayList<Variable> getVariablesInvolved() {
+        ArrayList ret = new ArrayList();
+        for (NumFluent nf:this.getInvolvedFluents()){
+            ret.addAll(nf.getTerms());
+        }
+        return ret;
     }
 }
