@@ -27,7 +27,9 @@
 package conditions;
 
 import domain.Type;
+import domain.Variable;
 import expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -139,7 +141,7 @@ public class PDDLObject extends Conditions {
     }
 
     @Override
-    public boolean isSatisfied(RelState s) {
+    public boolean can_be_true(RelState s) {
         return true;
     }
 
@@ -217,6 +219,16 @@ public class PDDLObject extends Conditions {
     @Override
     public String pddlPrintWithExtraObject() {
             return this.getName();
+    }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean can_be_false(RelState aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
    

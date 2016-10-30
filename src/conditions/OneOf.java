@@ -5,6 +5,7 @@
  */
 package conditions;
 
+import domain.Variable;
 import expressions.NumFluent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class OneOf extends Conditions{
     }
 
     @Override
-    public boolean isSatisfied(RelState aThis) {
+    public boolean can_be_true(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -145,6 +146,16 @@ public class OneOf extends Conditions{
 
     @Override
     public boolean is_affected_by(GroundAction gr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -5,8 +5,10 @@
  */
 package conditions;
 
+import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -125,7 +127,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     }
 
     @Override
-    public boolean isSatisfied(RelState aThis) {
+    public boolean can_be_true(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -182,6 +184,16 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public String pddlPrintWithExtraObject() {
         return "(when "+this.activation_condition.pddlPrintWithExtraObject()+" "+this.effect.pddlPrintWithExtraObject()+")";
+    }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean can_be_false(RelState aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

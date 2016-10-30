@@ -88,6 +88,17 @@ public class  Predicate extends Conditions implements PostCondition {
         ret = ret.concat(" ?x)");
         return ret;    
     }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+        return this.terms;
+    }
+
+    @Override
+    public boolean can_be_false(RelState s) {
+        Integer i = s.poss_interpretation.get(this);
+        return (i == null) || (i == 0) || (i == 2);
+    }
     public enum true_false {TRUE,FALSE};
     
     /**
@@ -261,9 +272,12 @@ public class  Predicate extends Conditions implements PostCondition {
     }
 
     @Override
-    public boolean isSatisfied(RelState s) {
-        return s.is_true(this);
-    }
+    public boolean can_be_true(RelState s) {
+        Integer i = s.poss_interpretation.get(this);
+        if (i == null)
+            return false;
+        return (i == 1) || (i == 2);
+    }    
 
 //    /**
 //     *
@@ -518,7 +532,7 @@ public class  Predicate extends Conditions implements PostCondition {
         HashMap ret = new HashMap();
         Integer inter = s.poss_interpretation.get(this);
         if (inter == null || inter == 0){
-            ret.put(this, 1);
+            ret.put(this, 2);
         }
         return ret;
     }

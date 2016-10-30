@@ -143,7 +143,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
                     Object o = nc.son.iterator().next();
                     if (o instanceof Predicate){
                         Predicate p = (Predicate)o;
-                        if (!p.isSatisfied(reacheableState))
+                        if (!p.can_be_true(reacheableState))
                             return true;
                     }
                 }

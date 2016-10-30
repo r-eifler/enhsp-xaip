@@ -1346,7 +1346,7 @@ public abstract class IntegerHeuristic {
 //        if (cyclic){
 //            sorted_nodes.addAll(num_effects);
 //        }
-        boolean try_anyway = c.isSatisfied(temp);
+        boolean try_anyway = c.can_be_true(temp);
         if (!try_anyway && cyclic) {
             return null;
         }

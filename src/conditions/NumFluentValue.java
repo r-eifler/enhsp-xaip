@@ -26,9 +26,11 @@
 
 package conditions;
 
+import domain.Variable;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -168,7 +170,7 @@ public class NumFluentValue extends Conditions {
     }
 
     @Override
-    public boolean isSatisfied(RelState s) {
+    public boolean can_be_true(RelState s) {
         if (s.functionSupValue(nFluent).getNumber() >= s.functionInfValue(nFluent).getNumber()) {
             return true;
         } else {
@@ -295,6 +297,16 @@ public class NumFluentValue extends Conditions {
 
     @Override
     public String pddlPrintWithExtraObject() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

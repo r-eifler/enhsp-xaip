@@ -110,18 +110,11 @@ public class NotCond extends Conditions implements PostCondition{
     }
 
     @Override
-    public boolean isSatisfied(RelState s) {
+    public boolean can_be_true(RelState s) {
         
         for (Object o : this.son) {
             Conditions c = (Conditions) o;
-            if (c instanceof Predicate){
-                Predicate p = (Predicate)o;
-                if (s.poss_interpretation.get(p)== null || s.poss_interpretation.get(p)==2)
-                    return true;
-                else
-                    return false;
-            }
-            return !c.isSatisfied(s);
+            return c.can_be_false(s);
         }
         System.out.println("Something wrong...");
         return false;
@@ -303,8 +296,11 @@ public class NotCond extends Conditions implements PostCondition{
         for (Object o : son) {
             Conditions el = (Conditions) o;
             el.setFreeVarSemantic(freeVarSemantic);
-            el = el.weakEval(s, invF);   
-            if (el.isValid()){
+            el = el.weakEval(s, invF); 
+            if (el == null){
+                this.setValid(true);
+                this.setUnsatisfiable(false);
+            }else if (el.isValid()){
                 this.setUnsatisfiable(true);
                 this.setValid(false);
             }else if (el.isUnsatisfiable()){
@@ -392,7 +388,7 @@ public class NotCond extends Conditions implements PostCondition{
         ret_val = ret_val.concat(")");
         return ret_val;    }
 
-    public ArrayList<Variable> getVariablesInvolved() {
+    public ArrayList<Variable> getInvolvedVariables() {
             
         ArrayList ret = new ArrayList();
         for (NumFluent nf:this.getInvolvedFluents()){
@@ -403,6 +399,18 @@ public class NotCond extends Conditions implements PostCondition{
         }
         return ret;
     }
+
+    @Override
+    public boolean can_be_false(RelState s) {
+        for (Object o : this.son) {
+            Conditions c = (Conditions) o;
+            return c.can_be_true(s);
+        }
+        System.out.println("Something wrong...");
+        return true;
+    }
+
+
     
 
 

@@ -118,12 +118,13 @@ public class Aibr extends Heuristic {
             }
             this.supporters_exec_at_time_index.put(i, (LinkedHashSet<GroundAction>) S);
 
-            if (reachability){
+            if (reachability || extract_plan){
+//            if (true){
                 S.stream().forEach((GroundAction a) -> a.apply(rs));
                 supporters_counter += S.size();
             }else{
                 for(GroundAction gr: S){
-                    supporters_counter++;
+                    supporters_counter += S.size();
                     gr.apply(rs);
                     if (check_goal_condition(G, i, rs)){
                         exit = true;
@@ -404,7 +405,7 @@ public class Aibr extends Heuristic {
                 boolean go_ahead = true;
 
                 for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
-                    if (!c.isSatisfied(rs2)) {
+                    if (!c.can_be_true(rs2)) {
                         go_ahead = false;
                     }
                 }
@@ -437,7 +438,7 @@ public class Aibr extends Heuristic {
             boolean add_action = true;
             if (gr.getPreconditions().sons != null) {
                 for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
-                    if (c.isSatisfied(rs)) {
+                    if (c.can_be_true(rs)) {
                         if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
                             this.dist.set(c.getCounter(), i);
                             this.conditions_sat_at_time_index.get(i).add(c);
@@ -460,7 +461,7 @@ public class Aibr extends Heuristic {
     private boolean check_goal_condition(Conditions G, int i, RelState rs) {
         boolean goal_satisfied = true;
         for (Conditions c : (Collection<Conditions>) G.sons) {
-            if (c.isSatisfied(rs)) {
+            if (c.can_be_true(rs)) {
                 if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
                     this.dist.set(c.getCounter(), i);
                     this.conditions_sat_at_time_index.get(i).add(c);

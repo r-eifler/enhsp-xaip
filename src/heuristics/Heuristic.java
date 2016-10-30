@@ -501,7 +501,7 @@ public abstract class Heuristic {
 //        if (cyclic){
 //            sorted_nodes.addAll(num_effects);
 //        }
-        boolean try_anyway = c.isSatisfied(temp);
+        boolean try_anyway = c.can_be_true(temp);
         if (!try_anyway && cyclic) {
             return null;
         }
@@ -549,7 +549,7 @@ public abstract class Heuristic {
                     cost++;//this is the unit cost case
                 iteration++;
                 visited.put(a,true);
-                if (c.isSatisfied(rel_state))
+                if (c.can_be_true(rel_state))
                     return cost;
             }
 

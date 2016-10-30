@@ -80,7 +80,7 @@ public final class PddlDomain extends Object {
 
     private String name;
     protected Set ActionsSchema;
-    private Set ProcessesSchema;
+    private Set<ProcessSchema> ProcessesSchema;
     private PredicateSet predicates;
     private List types;
     private PDDLObjects constants;

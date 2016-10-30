@@ -401,7 +401,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             return true;
         }
 
-        return this.getPreconditions().isSatisfied(current);
+        return this.getPreconditions().can_be_true(current);
     }
 
     public boolean isApplicable(State current) {

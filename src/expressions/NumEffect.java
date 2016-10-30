@@ -30,6 +30,8 @@ package expressions;
 
 import conditions.Conditions;
 import conditions.PostCondition;
+import domain.Variable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -537,6 +539,10 @@ public class NumEffect extends Expression implements PostCondition {
     @Override
     public String pddlPrintWithExtraObject() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public ArrayList<Variable> getInvolvedVariables()  {
+        return this.fluentAffected.getTerms();
     }
 
 }

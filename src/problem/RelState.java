@@ -117,7 +117,7 @@ public class RelState extends Object {
             poss_interpretation.put(p, 2);
         } else if (inter == 0) {//if was said to be negative
             poss_interpretation.put(p, 2);
-        }
+        }//otherwise it was already fine
     }
 
 
@@ -130,13 +130,21 @@ public class RelState extends Object {
         return this.poss_interpretation.keySet();
     }
 
-    public boolean is_true(Predicate aThis) {
+    public boolean can_be_true(Predicate aThis) {
 
         Integer o = this.poss_interpretation.get(aThis);
         if (o == null) {
             return false;
         }
         return o >= 1;
+    }
+    public boolean can_be_false(Predicate aThis) {
+
+        Integer o = this.poss_interpretation.get(aThis);
+        if (o == null) {
+            return true;
+        }
+        return o == 0 || o == 2;
     }
 
     public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
@@ -160,7 +168,7 @@ public class RelState extends Object {
         if (inter == null) {//if was negative by default
         } else if (inter == 1) {//if was said to be positive it will also be negative
             poss_interpretation.put(p, 2);
-        }
+        }//otherwise all good (inter == 2)
     }
 
 //    public String pddlPrint(){
@@ -231,7 +239,7 @@ public class RelState extends Object {
             System.out.println("something wrong");
             System.exit(-1);
         }
-        return con.isSatisfied(this);
+        return con.can_be_true(this);
 
     }
 

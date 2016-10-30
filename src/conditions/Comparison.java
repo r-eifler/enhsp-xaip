@@ -256,7 +256,7 @@ public class Comparison extends Conditions {
     }
 
     @Override
-    public boolean isSatisfied(RelState s) {
+    public boolean can_be_true(RelState s) {
 
         Interval first = left.eval(s);
         Interval second = right.eval(s);
@@ -952,11 +952,40 @@ public class Comparison extends Conditions {
         return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
     }
 
-    public ArrayList<Variable> getVariablesInvolved() {
+    public ArrayList<Variable> getInvolvedVariables() {
         ArrayList ret = new ArrayList();
         for (NumFluent nf:this.getInvolvedFluents()){
             ret.addAll(nf.getTerms());
         }
         return ret;
+    }
+
+    @Override
+    public boolean can_be_false(RelState s) {
+
+        Interval first = left.eval(s);
+        Interval second = right.eval(s);
+        
+        if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
+            return true;
+        }
+        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
+            return true;//negation by failure.
+        }
+        if (this.getComparator().equals("<")) {
+            return first.getSup().getNumber() >= second.getInf().getNumber();
+        } else if (this.getComparator().equals("<=")) {
+            return first.getSup().getNumber() > second.getInf().getNumber();
+        } else if (this.getComparator().equals(">")) {
+            return first.getInf().getNumber() <= second.getSup().getNumber();
+        } else if (this.getComparator().equals(">=")) {
+            return first.getInf().getNumber() < second.getSup().getNumber();
+        } else if (this.getComparator().equals("=")) {
+            return (first.getSup().getNumber() > second.getInf().getNumber() || (first.getInf().getNumber() < second.getSup().getNumber()));           
+        } else {
+            System.out.println(this.getComparator() + "  is not supported");
+        }
+
+        return false;
     }
 }

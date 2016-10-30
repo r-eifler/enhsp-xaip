@@ -226,7 +226,7 @@ public class NumericPlanningGraph {
                 level = new ArrayList();
                 for (Iterator it = acts.iterator(); it.hasNext();) {
                     GroundAction gr = (GroundAction) it.next();
-                    if (gr.getPreconditions().isSatisfied(current)) {
+                    if (gr.getPreconditions().can_be_true(current)) {
                         level.add(gr);
                         it.remove();
                     }
@@ -263,7 +263,7 @@ public class NumericPlanningGraph {
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
-                if (gr.getPreconditions().isSatisfied(current)) {
+                if (gr.getPreconditions().can_be_true(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -306,7 +306,7 @@ public class NumericPlanningGraph {
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
-                if (gr.getPreconditions().isSatisfied(current)) {
+                if (gr.getPreconditions().can_be_true(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -349,7 +349,7 @@ public class NumericPlanningGraph {
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
-                if (gr.getPreconditions().isSatisfied(current)) {
+                if (gr.getPreconditions().can_be_true(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -408,7 +408,7 @@ public class NumericPlanningGraph {
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
                 
-                if (gr.getPreconditions()== null || gr.getPreconditions().isSatisfied(current)) {
+                if (gr.getPreconditions()== null || gr.getPreconditions().can_be_true(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -485,7 +485,7 @@ public class NumericPlanningGraph {
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
-                if (gr.getPreconditions().isSatisfied(current)) {
+                if (gr.getPreconditions().can_be_true(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -550,7 +550,7 @@ public class NumericPlanningGraph {
                     Predicate p = (Predicate) o;
                     //System.out.println("Livello in esame:" + t);
                     //System.out.println(p.isSatisfied((RelState) this.rel_state_level.get(t )));
-                    if ((!((p.isSatisfied((RelState) rel_state_level.get(t)))))) {
+                    if ((!((p.can_be_true((RelState) rel_state_level.get(t)))))) {
                         //if (!((p.isSatisfied(s)))) {
                         if (visited.get(p) == null) {
                             //System.out.println("Searching for the support for:" + p);
@@ -598,7 +598,7 @@ public class NumericPlanningGraph {
                     Comparison comp = (Comparison) o;
 //                    while(true){
                     for (GroundAction gr : (Collection<GroundAction>) this.action_level.get(t)) {
-                        if (comp.isSatisfied(s)) {
+                        if (comp.can_be_true(s)) {
                             AG[t].sons.add(comp);
                             break;
                         }
@@ -646,7 +646,7 @@ public class NumericPlanningGraph {
                     Predicate p = (Predicate) o;
                     //System.out.println("Livello in esame:" + t);
                     //System.out.println(p.isSatisfied((RelState) this.rel_state_level.get(t )));
-                    if (!((p.isSatisfied((RelState) this.rel_state_level.get(t))))) {
+                    if (!((p.can_be_true((RelState) this.rel_state_level.get(t))))) {
                         //System.out.println("Searching for the support for:" + p);
                         GroundAction gr = searchForAndRemove((HashSet) this.action_level.get(t), p);
                         if (gr == null) {

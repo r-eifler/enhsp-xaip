@@ -292,7 +292,7 @@ public class asymptotic_ibr extends Heuristic {
                         //}
                         Deque<GroundAction> candidates = action_layers.pollLast();
                         AndCond new_cond = new AndCond();
-                        while (!temp.isSatisfied(previous)) {
+                        while (!temp.can_be_true(previous)) {
                             GroundAction selected = candidates.pollFirst();
                             selected.apply_with_generalized_interval_based_relaxation(previous);
                             counter++;

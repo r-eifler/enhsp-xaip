@@ -773,7 +773,7 @@ public class PddlProblem {
                 level = new HashSet();
                 for (Iterator it = getActions().iterator(); it.hasNext();) {
                     GroundAction gr = (GroundAction) it.next();
-                    if (gr.getPreconditions().isSatisfied(s)) {
+                    if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
                         it.remove();
                     }
@@ -814,7 +814,7 @@ public class PddlProblem {
                 level = new HashSet();
                 for (Iterator it = getActions().iterator(); it.hasNext();) {
                     GroundAction gr = (GroundAction) it.next();
-                    if (gr.getPreconditions().isSatisfied(s)) {
+                    if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
                         it.remove();
                     }
@@ -844,7 +844,7 @@ public class PddlProblem {
             for (Iterator it = getActions().iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
-                if (gr.getPreconditions().isSatisfied(s)) {
+                if (gr.getPreconditions().can_be_true(s)) {
                     totalActions.add(gr);
                     level.add(gr);
                     it.remove();
@@ -882,7 +882,7 @@ public class PddlProblem {
             for (Iterator it = getActions().iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
-                if (gr.getPreconditions().isSatisfied(s)) {
+                if (gr.getPreconditions().can_be_true(s)) {
                     level.add(gr);
                 }
             }
@@ -948,7 +948,7 @@ public class PddlProblem {
             for (Iterator it = getActions().iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
-                if (gr.getPreconditions().isSatisfied(s)) {
+                if (gr.getPreconditions().can_be_true(s)) {
                     totalActions.add(gr);
                     level.add(gr);
                     it.remove();

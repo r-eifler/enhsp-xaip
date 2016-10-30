@@ -27,7 +27,10 @@
  */
 package conditions;
 
+import domain.Variable;
+import expressions.NumEffect;
 import expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,10 +147,10 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public boolean isSatisfied(RelState s) {
+    public boolean can_be_true(RelState s) {
         for (Object o : sons) {
             Conditions c = (Conditions) o;
-            if (c.isSatisfied(s)) {
+            if (c.can_be_true(s)) {
                 return true;
             }
         }
@@ -470,4 +473,41 @@ public class OrCond extends Conditions {
         }
         ret_val = ret_val.concat(")");
         return ret_val;    }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+        ArrayList<Variable> ret = new ArrayList();
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                    if (o instanceof Conditions) {
+                        Conditions c = (Conditions) o;
+                        if (c.getInvolvedVariables() != null) {
+                            ret.addAll(c.getInvolvedVariables());
+                        }
+                    } else if (o instanceof NumEffect) {
+                        NumEffect c = (NumEffect) o;
+                        if (c.getInvolvedVariables() != null) {
+                            ret.addAll(c.getInvolvedVariables());
+                        }
+                    } else {
+                        System.out.println("Error in getting involved variables");
+                    }
+                }
+            
+        }
+
+        return ret;    
+    }
+
+    @Override
+    public boolean can_be_false(RelState s) {
+        for (Object o : sons) {
+            Conditions c = (Conditions) o;
+            if (!c.can_be_false(s)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

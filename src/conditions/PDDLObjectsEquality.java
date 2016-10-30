@@ -29,6 +29,7 @@ package conditions;
 
 import domain.Variable;
 import expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -84,7 +85,7 @@ public class PDDLObjectsEquality extends Conditions {
         return ret;
 
     }
-    
+
     @Override
     public Conditions ground(Map substitution, int c) {
         Conditions ret = this.ground(substitution);
@@ -124,9 +125,9 @@ public class PDDLObjectsEquality extends Conditions {
     public String pddlPrint(boolean typeInformation) {
         String ret = "";
         if (grounded) {
-            ret += "( = "+this.getLeft().pddlPrint(typeInformation) +" "+ this.getRight().pddlPrint(typeInformation)+")";
+            ret += "( = " + this.getLeft().pddlPrint(typeInformation) + " " + this.getRight().pddlPrint(typeInformation) + ")";
         } else {
-            ret += "( = "+this.getLeftV().pddlPrint(typeInformation) +" "+ this.getRightV().pddlPrint(typeInformation)+")";
+            ret += "( = " + this.getLeftV().pddlPrint(typeInformation) + " " + this.getRightV().pddlPrint(typeInformation) + ")";
 
         }
         return ret;
@@ -147,7 +148,7 @@ public class PDDLObjectsEquality extends Conditions {
     }
 
     @Override
-    public boolean isSatisfied(RelState aThis) {
+    public boolean can_be_true(RelState aThis) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         //actions are not allowed to change objects..
         if (!grounded) {
@@ -156,7 +157,7 @@ public class PDDLObjectsEquality extends Conditions {
         }
 
         return getLeft().equals(getRight());
-    
+
     }
 
     @Override
@@ -234,25 +235,29 @@ public class PDDLObjectsEquality extends Conditions {
         }
         ret.grounded = false;
 
-        return ret;    
-    
+        return ret;
+
     }
 
     @Override
     public boolean isUngroundVersionOf(Conditions conditions) {
-        if (conditions instanceof PDDLObjectsEquality){
-            PDDLObjectsEquality c = (PDDLObjectsEquality)conditions;
-            Variable v1 = (Variable)this.getLeftV();
-            Variable v2 = (Variable)this.getRightV();
-            PDDLObject obj1 = (PDDLObject)c.getLeft();
-            PDDLObject obj2 = (PDDLObject)c.getRight();
-                        //System.out.print("Matching Types between: "+ v.getType() + obj.getType());
-            if (!v1.getType().equals(obj1.getType()))
-                if (!v1.getType().isAncestorOf(obj1.getType()))
+        if (conditions instanceof PDDLObjectsEquality) {
+            PDDLObjectsEquality c = (PDDLObjectsEquality) conditions;
+            Variable v1 = (Variable) this.getLeftV();
+            Variable v2 = (Variable) this.getRightV();
+            PDDLObject obj1 = (PDDLObject) c.getLeft();
+            PDDLObject obj2 = (PDDLObject) c.getRight();
+            //System.out.print("Matching Types between: "+ v.getType() + obj.getType());
+            if (!v1.getType().equals(obj1.getType())) {
+                if (!v1.getType().isAncestorOf(obj1.getType())) {
                     return false;
-            if (!v2.getType().equals(obj2.getType()))
-                if (!v2.getType().isAncestorOf(obj2.getType()))
+                }
+            }
+            if (!v2.getType().equals(obj2.getType())) {
+                if (!v2.getType().isAncestorOf(obj2.getType())) {
                     return false;
+                }
+            }
             return true;
         }
         return false;
@@ -260,11 +265,11 @@ public class PDDLObjectsEquality extends Conditions {
 
     @Override
     public String toSmtVariableString(int i) {
-        if (this.left.equals(right)){
+        if (this.left.equals(right)) {
             return "true";
-        }
-        else
+        } else {
             return "false";
+        }
     }
 
     @Override
@@ -274,10 +279,10 @@ public class PDDLObjectsEquality extends Conditions {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
-        if (this.left.equals(this.right)){
+        if (this.left.equals(this.right)) {
             this.setValid(true);
             this.setUnsatisfiable(false);
-        }else{ 
+        } else {
             this.setUnsatisfiable(true);
             this.setValid(false);
         }
@@ -308,11 +313,27 @@ public class PDDLObjectsEquality extends Conditions {
     public String pddlPrintWithExtraObject() {
         String ret = "";
         if (grounded) {
-            ret += "( = "+this.getLeft().pddlPrintWithExtraObject() +" "+ this.getRight().pddlPrintWithExtraObject()+")";
+            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRight().pddlPrintWithExtraObject() + ")";
         } else {
-            ret += "( = "+this.getLeftV().pddlPrint(false) +" "+ this.getRightV().pddlPrint()+")";
+            ret += "( = " + this.getLeftV().pddlPrint(false) + " " + this.getRightV().pddlPrint() + ")";
 
         }
-        return ret;    }
+        return ret;
+    }
+
+    @Override
+    public ArrayList<Variable> getInvolvedVariables() {
+
+        ArrayList<Variable> ret = new ArrayList();
+        ret.add(this.leftV);
+        ret.add(this.rightV);
+        return ret;
+
+    }
+
+    @Override
+    public boolean can_be_false(RelState aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }
