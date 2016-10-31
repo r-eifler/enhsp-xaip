@@ -55,6 +55,7 @@ tokens {
 	UNARY_MINUS;
 	SIN;
 	COS;
+	ABS;
 	INIT_EQ;
 	INIT_AT;
 	NOT_PRED_INIT;
@@ -353,8 +354,9 @@ fExp
 	: NUMBER
 	| '(' binaryOp fExp fExp2 ')' -> ^(BINARY_OP binaryOp fExp fExp2)
 	| '(' '-' fExp ')' -> ^(UNARY_MINUS fExp)
-    | '(' 'sin' fExp ')' -> ^(SIN fExp)
-    | '(' 'cos' fExp ')' -> ^(COS fExp)
+	| '(' 'sin' fExp ')' -> ^(SIN fExp)
+	| '(' 'cos' fExp ')' -> ^(COS fExp)
+	| '(' 'abs' fExp ')' -> ^(ABS fExp)
 	| fHead
 	;
 

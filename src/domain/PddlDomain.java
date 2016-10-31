@@ -38,6 +38,7 @@ import conditions.PDDLObject;
 import conditions.PDDLObjectsEquality;
 import conditions.PostCondition;
 import conditions.Predicate;
+import expressions.ComplexFunction;
 import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.MinusUnary;
@@ -820,6 +821,13 @@ public final class PddlDomain extends Object {
                 TrigonometricFunction ret = new TrigonometricFunction();
 //                System.out.println(t.getChild(1));
                 ret.setOperator("sin");
+                ret.setArg(createExpression(t.getChild(0), parTable));
+                return ret;
+            }
+            case PddlParser.ABS: {
+                ComplexFunction ret = new ComplexFunction();
+//                System.out.println(t.getChild(1));
+                ret.setOperator("abs");
                 ret.setArg(createExpression(t.getChild(0), parTable));
                 return ret;
             }

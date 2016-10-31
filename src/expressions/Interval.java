@@ -98,6 +98,7 @@ public class Interval {
     }
 
     public Interval mult(Interval b) {
+//        System.out.println(this);
         RealInterval ret = IAMath.mul(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
                                       new RealInterval(b.getInf().getNumber(),b.getSup().getNumber()));
         
@@ -259,6 +260,15 @@ public class Interval {
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
+        
+        return ret_val;
+    }
+    
+    public Interval abs() {
+        
+        Interval ret_val = new Interval();
+        ret_val.setInf(new PDDLNumber(Math.min(getInf().getNumber(), getSup().getNumber())));
+        ret_val.setSup(new PDDLNumber(Math.max(getInf().getNumber(), getSup().getNumber())));
         
         return ret_val;
     }
