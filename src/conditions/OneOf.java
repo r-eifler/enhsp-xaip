@@ -8,6 +8,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumFluent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -110,11 +111,11 @@ public class OneOf extends Conditions{
             smt_representation = "";
             AndCond and = new AndCond();
             OrCond or = new OrCond();
-            for (Predicate p1 : this.getInvolvedPredicates()){
+            for (Conditions p1 : (Collection<Conditions>)this.sons){
                 or.addConditions(p1);
             }
             and.addConditions(or);
-            ArrayList<Predicate> list1 = new ArrayList(this.getInvolvedPredicates());
+            ArrayList<Conditions> list1 = new ArrayList((Collection<Conditions>)this.sons);
 
             for (int k=0;k<list1.size();k++){
                 for (int j=k+1;j<list1.size();j++){

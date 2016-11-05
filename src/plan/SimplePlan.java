@@ -41,6 +41,7 @@ import domain.Variable;
 import expressions.Expression;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import extraUtils.Pair;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -653,7 +654,83 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return temp;
     }
 
-    
+    public Pair<ArrayList<String>,HashSet<String>> regress_polynomial(Conditions cond,HashMap<String,Predicate> str_to_pred ) throws IOException{
+        Pair<ArrayList<String>,HashSet<String>> ret = new Pair();
+        ArrayList<String> simulation = new ArrayList();          
+        ArrayList<String> preference = new ArrayList();  
+
+        
+        HashSet<String> variables = new HashSet();
+
+        //first add the goal statement
+        Collection<Predicate> current_goal_predicates = cond.getInvolvedPredicates();
+        for (Predicate p: current_goal_predicates){
+            variables.add(p.toSmtVariableString(this.size()));
+            str_to_pred.put(p.toSmtVariableString(this.size()), p);
+        }
+        preference.add(cond.toSmtVariableString(this.size()));
+
+        
+        for (int i=(this.size()-1);i>=0;i--){
+
+              Collection<Predicate> temp = new HashSet();
+              //for each atom in the previous goal (updated incrementally) compute the justification for it via the action
+              for (Predicate p: current_goal_predicates){
+                  //here we regress
+                  Conditions c = p.regress(this.get(i));
+//                  System.out.println("Condition to Regress: "+p);
+//                  System.out.println("Action regressing: "+this.get(i).toPDDL());
+//                  System.out.println("Conditions regressed: "+c);
+
+                  
+                  for (Predicate p3: this.get(i).getPreconditions().getInvolvedPredicates()){
+                        variables.add(p3.toSmtVariableString(i));
+                        str_to_pred.put(p3.toSmtVariableString(i), p3);
+                        temp.add(p3);
+                  }
+                  if (this.get(i).getPreconditions() != null && !this.get(i).getPreconditions().sons.isEmpty())
+                    preference.add(this.get(i).getPreconditions().toSmtVariableString(i));
+                  for (Predicate p1: c.getInvolvedPredicates()){
+                    //for any new variable created we instantiate it and put in the next goal. There is going to be also the variable itself without modification...is in it?
+                    temp.add(p1);
+                    variables.add(p1.toSmtVariableString(i));
+                    str_to_pred.put(p1.toSmtVariableString(i), p1);
+
+
+                  }
+//                  System.out.println("Step:"+i);
+//                  System.out.println(this.get(i));
+//                  System.out.println(p);
+//                  System.out.println(c);
+                  //this adds the double implication to capture when the variable can be made true
+                  if ( c.isValid()){
+//                    regression.add("( => "+p.toSmtVariableString(i+1)+" )");
+                    simulation.add("( = "+p.toSmtVariableString(i+1)+" true)");  
+                  }else if (c.isUnsatisfiable()){
+                    simulation.add("( = "+p.toSmtVariableString(i+1)+" false)");  
+                  }else {
+                    simulation.add("( = "+p.toSmtVariableString(i+1)+"  "+c.toSmtVariableString(i)+")");
+                    //regression.add("( => "+c.toSmtVariableString(i)+"  "+p.toSmtVariableString(i+1)+")");
+                  }
+              }
+              
+              current_goal_predicates = new HashSet(temp);
+
+        }
+
+        String all_preferences = "(not (and ";
+        for (String ele : preference){
+            all_preferences+=ele;
+        }
+        all_preferences+="))";
+        simulation.add(all_preferences);
+        ret.setFirst(simulation);
+        ret.setSecond(variables);
+
+        
+        
+        return ret;
+    }
     
     public Conditions regress(Conditions cond) throws IOException{
         
@@ -2290,5 +2367,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }
+
+
 
 }

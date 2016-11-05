@@ -37,9 +37,11 @@ import domain.ActionSchema;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
 import domain.Variable;
+import expressions.BinaryOp;
+import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import java.util.ArrayList;
+import expressions.PDDLNumber;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -652,6 +654,29 @@ public class EPddlProblem extends PddlProblem {
             return false;
         return true;
         
+    }
+
+    public void transform_constant_effect() throws Exception {
+
+        for (GroundAction gr: this.actions){
+            if (gr.getNumericEffects()!= null && !gr.getNumericEffects().sons.isEmpty()){
+                for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                    NumEffect neff = (NumEffect)it.next();
+                    if (neff.getOperator().equals("assign") ){     
+                        ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
+                        if (right.isNumber()){//constant effect
+                            neff.setOperator("increase");
+                            neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
+                            neff.setPseudo_num_effect(true);
+                        }
+                    }
+                    
+                }
+            }
+            gr.normalize();
+            
+        }
+
     }
 
 

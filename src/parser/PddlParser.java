@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 Pddl.g 2016-10-31 16:42:14
+// $ANTLR 3.5.2 Pddl.g 2016-11-05 19:50:12
 
 package parser;
 
@@ -4006,7 +4006,7 @@ public class PddlParser extends Parser {
 
 
 	// $ANTLR start "goalDesc"
-	// Pddl.g:277:1: goalDesc : ( atomicTermFormula | '(' 'and' ( goalDesc )* ')' -> ^( AND_GD ( goalDesc )* ) | '(' 'or' ( goalDesc )* ')' -> ^( OR_GD ( goalDesc )* ) | '(' 'not' goalDesc ')' -> ^( NOT_GD goalDesc ) | '(' 'oneof' ( atomicNameFormula )* ')' -> ^( ONEOF ( atomicNameFormula )* ) | '(' 'imply' goalDesc goalDesc ')' -> ^( IMPLY_GD goalDesc goalDesc ) | '(' 'exists' '(' typedVariableList ')' goalDesc ')' -> ^( EXISTS_GD typedVariableList goalDesc ) | '(' 'forall' '(' typedVariableList ')' goalDesc ')' -> ^( FORALL_GD typedVariableList goalDesc ) | fComp -> ^( COMPARISON_GD fComp ) | equality -> ^( EQUALITY_CON equality ) );
+	// Pddl.g:277:1: goalDesc : ( atomicTermFormula | '(' 'and' ( goalDesc )* ')' -> ^( AND_GD ( goalDesc )* ) | '(' 'or' ( goalDesc )* ')' -> ^( OR_GD ( goalDesc )* ) | '(' 'not' goalDesc ')' -> ^( NOT_GD goalDesc ) | '(' 'oneof' ( goalDesc )* ')' -> ^( ONEOF ( goalDesc )* ) | '(' 'imply' goalDesc goalDesc ')' -> ^( IMPLY_GD goalDesc goalDesc ) | '(' 'exists' '(' typedVariableList ')' goalDesc ')' -> ^( EXISTS_GD typedVariableList goalDesc ) | '(' 'forall' '(' typedVariableList ')' goalDesc ')' -> ^( FORALL_GD typedVariableList goalDesc ) | fComp -> ^( COMPARISON_GD fComp ) | equality -> ^( EQUALITY_CON equality ) );
 	public final PddlParser.goalDesc_return goalDesc() throws RecognitionException {
 		PddlParser.goalDesc_return retval = new PddlParser.goalDesc_return();
 		retval.start = input.LT(1);
@@ -4042,7 +4042,7 @@ public class PddlParser extends Parser {
 		ParserRuleReturnScope goalDesc136 =null;
 		ParserRuleReturnScope goalDesc140 =null;
 		ParserRuleReturnScope goalDesc144 =null;
-		ParserRuleReturnScope atomicNameFormula148 =null;
+		ParserRuleReturnScope goalDesc148 =null;
 		ParserRuleReturnScope goalDesc152 =null;
 		ParserRuleReturnScope goalDesc153 =null;
 		ParserRuleReturnScope typedVariableList158 =null;
@@ -4089,11 +4089,10 @@ public class PddlParser extends Parser {
 		RewriteRuleSubtreeStream stream_goalDesc=new RewriteRuleSubtreeStream(adaptor,"rule goalDesc");
 		RewriteRuleSubtreeStream stream_typedVariableList=new RewriteRuleSubtreeStream(adaptor,"rule typedVariableList");
 		RewriteRuleSubtreeStream stream_fComp=new RewriteRuleSubtreeStream(adaptor,"rule fComp");
-		RewriteRuleSubtreeStream stream_atomicNameFormula=new RewriteRuleSubtreeStream(adaptor,"rule atomicNameFormula");
 		RewriteRuleSubtreeStream stream_equality=new RewriteRuleSubtreeStream(adaptor,"rule equality");
 
 		try {
-			// Pddl.g:278:2: ( atomicTermFormula | '(' 'and' ( goalDesc )* ')' -> ^( AND_GD ( goalDesc )* ) | '(' 'or' ( goalDesc )* ')' -> ^( OR_GD ( goalDesc )* ) | '(' 'not' goalDesc ')' -> ^( NOT_GD goalDesc ) | '(' 'oneof' ( atomicNameFormula )* ')' -> ^( ONEOF ( atomicNameFormula )* ) | '(' 'imply' goalDesc goalDesc ')' -> ^( IMPLY_GD goalDesc goalDesc ) | '(' 'exists' '(' typedVariableList ')' goalDesc ')' -> ^( EXISTS_GD typedVariableList goalDesc ) | '(' 'forall' '(' typedVariableList ')' goalDesc ')' -> ^( FORALL_GD typedVariableList goalDesc ) | fComp -> ^( COMPARISON_GD fComp ) | equality -> ^( EQUALITY_CON equality ) )
+			// Pddl.g:278:2: ( atomicTermFormula | '(' 'and' ( goalDesc )* ')' -> ^( AND_GD ( goalDesc )* ) | '(' 'or' ( goalDesc )* ')' -> ^( OR_GD ( goalDesc )* ) | '(' 'not' goalDesc ')' -> ^( NOT_GD goalDesc ) | '(' 'oneof' ( goalDesc )* ')' -> ^( ONEOF ( goalDesc )* ) | '(' 'imply' goalDesc goalDesc ')' -> ^( IMPLY_GD goalDesc goalDesc ) | '(' 'exists' '(' typedVariableList ')' goalDesc ')' -> ^( EXISTS_GD typedVariableList goalDesc ) | '(' 'forall' '(' typedVariableList ')' goalDesc ')' -> ^( FORALL_GD typedVariableList goalDesc ) | fComp -> ^( COMPARISON_GD fComp ) | equality -> ^( EQUALITY_CON equality ) )
 			int alt37=10;
 			int LA37_0 = input.LA(1);
 			if ( (LA37_0==68) ) {
@@ -4469,7 +4468,7 @@ public class PddlParser extends Parser {
 					}
 					break;
 				case 5 :
-					// Pddl.g:285:4: '(' 'oneof' ( atomicNameFormula )* ')'
+					// Pddl.g:285:4: '(' 'oneof' ( goalDesc )* ')'
 					{
 					char_literal146=(Token)match(input,68,FOLLOW_68_in_goalDesc1623); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_68.add(char_literal146);
@@ -4477,7 +4476,7 @@ public class PddlParser extends Parser {
 					string_literal147=(Token)match(input,129,FOLLOW_129_in_goalDesc1625); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_129.add(string_literal147);
 
-					// Pddl.g:285:17: ( atomicNameFormula )*
+					// Pddl.g:285:17: ( goalDesc )*
 					loop36:
 					while (true) {
 						int alt36=2;
@@ -4488,13 +4487,13 @@ public class PddlParser extends Parser {
 
 						switch (alt36) {
 						case 1 :
-							// Pddl.g:285:17: atomicNameFormula
+							// Pddl.g:285:17: goalDesc
 							{
-							pushFollow(FOLLOW_atomicNameFormula_in_goalDesc1628);
-							atomicNameFormula148=atomicNameFormula();
+							pushFollow(FOLLOW_goalDesc_in_goalDesc1628);
+							goalDesc148=goalDesc();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_atomicNameFormula.add(atomicNameFormula148.getTree());
+							if ( state.backtracking==0 ) stream_goalDesc.add(goalDesc148.getTree());
 							}
 							break;
 
@@ -4507,7 +4506,7 @@ public class PddlParser extends Parser {
 					if ( state.backtracking==0 ) stream_69.add(char_literal149);
 
 					// AST REWRITE
-					// elements: atomicNameFormula
+					// elements: goalDesc
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -4518,17 +4517,17 @@ public class PddlParser extends Parser {
 					RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.getTree():null);
 
 					root_0 = (Object)adaptor.nil();
-					// 285:41: -> ^( ONEOF ( atomicNameFormula )* )
+					// 285:32: -> ^( ONEOF ( goalDesc )* )
 					{
-						// Pddl.g:285:44: ^( ONEOF ( atomicNameFormula )* )
+						// Pddl.g:285:35: ^( ONEOF ( goalDesc )* )
 						{
 						Object root_1 = (Object)adaptor.nil();
 						root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(ONEOF, "ONEOF"), root_1);
-						// Pddl.g:285:52: ( atomicNameFormula )*
-						while ( stream_atomicNameFormula.hasNext() ) {
-							adaptor.addChild(root_1, stream_atomicNameFormula.nextTree());
+						// Pddl.g:285:43: ( goalDesc )*
+						while ( stream_goalDesc.hasNext() ) {
+							adaptor.addChild(root_1, stream_goalDesc.nextTree());
 						}
-						stream_atomicNameFormula.reset();
+						stream_goalDesc.reset();
 
 						adaptor.addChild(root_0, root_1);
 						}
@@ -13744,7 +13743,7 @@ public class PddlParser extends Parser {
 		"\1\104\1\50\1\104\2\50\2\104\1\0\1\50\1\0\1\50\1\105\1\104";
 	static final String DFA71_maxS =
 		"\1\104\1\130\1\105\1\u008d\1\uffff\2\104\2\105\1\uffff\1\105\1\u0082\1"+
-		"\u0088\2\104\1\50\1\105\1\u0082\7\105\1\0\1\104\1\105\2\0\3\105\1\104"+
+		"\u0088\2\104\1\u0082\1\105\1\u0082\7\105\1\0\1\104\1\105\2\0\3\105\1\104"+
 		"\3\105\1\u0082\3\105\1\0\1\105\1\0\3\105";
 	static final String DFA71_acceptS =
 		"\4\uffff\1\1\4\uffff\1\2\45\uffff";
@@ -13769,7 +13768,8 @@ public class PddlParser extends Parser {
 			"\1\11",
 			"\1\11\3\uffff\1\27\23\uffff\1\11\2\uffff\2\11",
 			"\1\11\3\uffff\1\27\26\uffff\2\11",
-			"\1\30",
+			"\1\30\70\uffff\5\11\6\uffff\1\11\11\uffff\2\11\2\uffff\1\11\4\uffff"+
+			"\1\11\1\uffff\2\11",
 			"\1\4\1\31",
 			"\1\33\70\uffff\5\11\6\uffff\1\11\11\uffff\2\11\2\uffff\1\11\4\uffff"+
 			"\1\32\1\uffff\2\11",
@@ -13779,7 +13779,7 @@ public class PddlParser extends Parser {
 			"\1\36\27\uffff\1\11\4\uffff\1\37",
 			"\1\40\27\uffff\1\40\4\uffff\1\41",
 			"\1\42",
-			"\1\43\34\uffff\1\44",
+			"\1\43\27\uffff\1\11\4\uffff\1\44",
 			"\1\uffff",
 			"\1\45",
 			"\1\46\27\uffff\1\11\4\uffff\1\47",
@@ -13790,7 +13790,7 @@ public class PddlParser extends Parser {
 			"\1\40\27\uffff\1\40\4\uffff\1\41",
 			"\1\11\3\uffff\1\27\26\uffff\2\11",
 			"\1\4\1\51",
-			"\1\43\34\uffff\1\44",
+			"\1\43\27\uffff\1\11\4\uffff\1\44",
 			"\1\17\1\20",
 			"\1\52\70\uffff\5\11\6\uffff\1\11\11\uffff\2\11\2\uffff\1\11\4\uffff"+
 			"\1\11\1\uffff\2\11",
@@ -14064,7 +14064,7 @@ public class PddlParser extends Parser {
 	public static final BitSet FOLLOW_69_in_goalDesc1599 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_68_in_goalDesc1623 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_129_in_goalDesc1625 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000030L});
-	public static final BitSet FOLLOW_atomicNameFormula_in_goalDesc1628 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000030L});
+	public static final BitSet FOLLOW_goalDesc_in_goalDesc1628 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000030L});
 	public static final BitSet FOLLOW_69_in_goalDesc1631 = new BitSet(new long[]{0x0000000000000002L});
 	public static final BitSet FOLLOW_68_in_goalDesc1646 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
 	public static final BitSet FOLLOW_122_in_goalDesc1648 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});

@@ -769,7 +769,7 @@ public class AndCond extends Conditions implements PostCondition {
             if (o instanceof Conditions) {
                 Conditions t = (Conditions) o;
                 Conditions temp = t.regress(gr);
-                
+//                System.out.println(temp);
                 if (!temp.isValid()){//needs to be satisfied
                     if (temp.isUnsatisfiable()){
                         return new Predicate(Predicate.true_false.FALSE);
@@ -835,5 +835,7 @@ public class AndCond extends Conditions implements PostCondition {
         }
         return false;    
     }
+
+
 
 }

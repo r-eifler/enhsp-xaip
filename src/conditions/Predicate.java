@@ -79,7 +79,7 @@ public class  Predicate extends Conditions implements PostCondition {
                 ret = ret.concat(" " + obj.getName());
             }else{
                 Variable obj = (Variable) o1;
-//                System.out.println("DEBUG: obj"+obj);
+                //System.out.println("DEBUG: obj"+obj+"In the context:"+this);
                 ret = ret.concat(" " + obj.getName()+obj.getType());
                 
             }
@@ -176,19 +176,19 @@ public class  Predicate extends Conditions implements PostCondition {
      * @param adding a variable term to the predicate
      */
     public void addVariable(Variable v) {
-        if (isGrounded()) {
-            System.out.println("Predicate grounded; no variable is possible");
-        } else {
+////        if (isGrounded()) {
+////            System.out.println("Predicate grounded; no variable is possible");
+//        } else {
             getTerms().add(v);
-        }
+//        }
     }
 
     public void addObject(PDDLObject t) {
-        if (!isGrounded()) {
-            System.out.println("Predicate not grounded; no term is possible");
-        } else {
+//        if (!isGrounded()) {
+//            System.out.println("Predicate not grounded; no term is possible");
+//        } else {
             getTerms().add(t);
-        }
+//        }
     }
 
     @Override
@@ -245,6 +245,8 @@ public class  Predicate extends Conditions implements PostCondition {
                 } else {
                     ret.terms.add(t);
                 }
+            }else{
+                ret.terms.add(o);
             }
         }
         return ret;

@@ -43,18 +43,13 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
+import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 
 /**
@@ -93,7 +88,11 @@ public class Uniform_cost_search_H1 extends Heuristic {
         
         build_integer_representation();
         identify_complex_conditions(all_conditions, A);
-        generate_achievers();
+        try {
+            generate_achievers();
+        } catch (Exception ex) {
+            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+        }
         reacheability_setting = true;
         this.dbg_print("Reachability Analysis Started");
         Float ret = compute_estimate(s);
@@ -245,7 +244,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         return this.check_goal_conditions(s, G, dist, closed);
     }
 
-    private void generate_achievers() {
+    private void generate_achievers() throws Exception {
         interact_with = new HashMap();
         achieve = new HashMap();
         possible_achievers = new HashMap();
@@ -267,12 +266,12 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
                         comparisons.add(comp);
-                        if (gr.is_possible_achiever_of(comp)) {
-                            reacheable_comparisons.add(comp);
-                            action_list.add(gr);
-                        }
+
                         if (this.is_complex.get(comp)) {
                             reacheable_comparisons.add(comp);
+                        }else if (gr.is_possible_achiever_of(comp)) {
+                            reacheable_comparisons.add(comp);
+                            action_list.add(gr);
                         }
                     }
                     if (this.possible_achievers_inverted.get(comp.getCounter()) == null) {

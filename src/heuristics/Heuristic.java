@@ -498,10 +498,13 @@ public abstract class Heuristic {
             }
         }
 
+        if (sorted_nodes.isEmpty())
+            return false;
 //        if (cyclic){
 //            sorted_nodes.addAll(num_effects);
 //        }
         boolean try_anyway = c.can_be_true(temp);
+
         if (!try_anyway && cyclic) {
             return null;
         }
@@ -536,6 +539,8 @@ public abstract class Heuristic {
         //the bound here is only to capture really unlikely instances. Should be domain independent though
         while (iteration < 100 || proven_reachable ) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
+//            if (q.isEmpty())
+//                break;
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
                 rel_state.update_values(a.apply(rel_state));
@@ -664,7 +669,8 @@ public abstract class Heuristic {
                         AndCond effects = (AndCond) gr.getNumericEffects();
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
-                                if (!ne.fluentsInvolved().isEmpty()) {
+
+                                if (!ne.fluentsInvolved().isEmpty() && !ne.isPseudo_num_effect()) {
                                     is_complex.put(comp, true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
@@ -965,6 +971,8 @@ public abstract class Heuristic {
         }
         //        System.out.println(opt.Check());
     }
+
+    
 
 
 

@@ -621,7 +621,7 @@ public final class PddlDomain extends Object {
                 PDDLObject o = new PDDLObject(t.getChild(i).getText());
                 PDDLObject o1 = this.getConstants().containsTerm(o);
                 if (o1 != null) {
-                    a.setGrounded(true);
+                    //a.setGrounded(true);
                     a.addObject(o1);
                 } else {
                     System.out.println("Variable " + o + " is not a constant object");
@@ -633,8 +633,7 @@ public final class PddlDomain extends Object {
                 if (v1 != null) {
                     a.addVariable(v1);
                 } else {
-
-                    System.out.println("BuildPredicate: Variable " + v + " not involved in the action model");
+                    System.out.println("BuildPredicate: Variable " + v + " not in the action model");
                     System.exit(-1);
                 }
             }

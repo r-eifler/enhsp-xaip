@@ -267,8 +267,22 @@ public class Interval {
     public Interval abs() {
         
         Interval ret_val = new Interval();
-        ret_val.setInf(new PDDLNumber(Math.min(getInf().getNumber(), getSup().getNumber())));
-        ret_val.setSup(new PDDLNumber(Math.max(getInf().getNumber(), getSup().getNumber())));
+
+//        ret_val.setInf(new PDDLNumber(Float.MIN_VALUE));
+//        ret_val.setSup(new PDDLNumber(Float.MAX_VALUE));
+//        return ret_val;
+        if (this.contain_zero()){
+            ret_val.setInf(new PDDLNumber(0));
+            ret_val.setSup(new PDDLNumber(Math.max(Math.abs(this.inf.getNumber()), Math.abs(this.sup.getNumber()))));
+        }else if (this.sup.getNumber() <= 0){
+            ret_val.setInf(new PDDLNumber(Math.abs(this.sup.getNumber())));
+            ret_val.setSup(new PDDLNumber(Math.abs(this.inf.getNumber())));
+        }else{
+            ret_val.setInf(new PDDLNumber(Math.abs(this.inf.getNumber())));           
+            ret_val.setSup(new PDDLNumber(Math.abs(this.sup.getNumber())));
+        }
+        
+        
         
         return ret_val;
     }

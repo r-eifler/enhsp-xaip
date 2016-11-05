@@ -49,6 +49,7 @@ public class NumEffect extends Expression implements PostCondition {
     private NumFluent fluentAffected;
     private Expression right;
     public boolean additive_relaxation;
+    private boolean pseudo_num_effect;
 
     /**
      *
@@ -57,6 +58,7 @@ public class NumEffect extends Expression implements PostCondition {
     public NumEffect(String operator) {
         super();
         this.operator = operator;
+        this.pseudo_num_effect = false;
     }
 
     /**
@@ -544,5 +546,21 @@ public class NumEffect extends Expression implements PostCondition {
     public ArrayList<Variable> getInvolvedVariables()  {
         return this.fluentAffected.getTerms();
     }
+
+    /**
+     * @return the pseudo_num_effect
+     */
+    public boolean isPseudo_num_effect() {
+        return pseudo_num_effect;
+    }
+
+    /**
+     * @param pseudo_num_effect the pseudo_num_effect to set
+     */
+    public void setPseudo_num_effect(boolean pseudo_num_effect) {
+        this.pseudo_num_effect = pseudo_num_effect;
+    }
+
+
 
 }

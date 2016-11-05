@@ -97,7 +97,7 @@ public class PddlProblem {
     protected String domainName;
     PddlDomain linkedDomain;
     protected boolean validatedAgainstDomain;
-    protected Set actions;
+    protected Set<GroundAction> actions;
     protected long propositionalTime;
     protected boolean groundActions;
     protected RelState possStates;
@@ -309,6 +309,8 @@ public class PddlProblem {
                     break;
                 case PddlParser.OBJECTS:
                     addObjects(child);
+                    System.out.println("Objects considered:"+objects);
+
                     break;
                 case PddlParser.INIT:
                     addInitFacts(child);
@@ -356,12 +358,14 @@ public class PddlProblem {
         //System.out.println(a);
         for (int i = 1; i < t.getChildCount(); i++) {
 
+            
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
 //            System.out.println(t1.getType());
             if (t1 != null) {
                 a.addObject(t1);
             } else {
-                System.out.println("Object " + t1 + " does not exist. Issue in building predicate "+a.getPredicateName());
+                
+                System.out.println("Object " + t.getChild(i).getText() + " does not exist. Issue in building predicate "+a.getPredicateName());
                 System.exit(-1);
             }
         }
@@ -1114,23 +1118,60 @@ public class PddlProblem {
         if (infoAction == null) {
             return null;
         }
-        if (infoAction.getType() == PddlParser.PRED_INST) {
-            //estrapola tutti i predicati e ritornali come set di predicati
+        switch (infoAction.getType()) {
+            case PddlParser.PRED_HEAD:
+                //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-            return buildInstPredicate(infoAction);
-        } else if (infoAction.getType() == PddlParser.ONEOF) {
-            OneOf one_of = new OneOf();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = addOneOf(infoAction.getChild(i));
-                if (ret_val != null) {
-                    one_of.sons.add(ret_val);
+                return buildInstPredicate(infoAction);
+            case PddlParser.AND_GD:
+                AndCond and = new AndCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        and.addConditions(ret_val);
+                    }
                 }
-            }
-            return one_of;
-        }else{
-            System.out.println("Some serious error:"+infoAction);
-            return null;
+                return and;
+            case PddlParser.OR_GD:
+                //            System.out.println("Or Condition");
+                OrCond or = new OrCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = addOneOf(infoAction.getChild(i));
+//                System.out.println(ret_val);
+                    if (ret_val != null) {
+                        or.addConditions(ret_val);
+                    }
+                }
+                return or;
+                //Crea un or e per ogni figlio di questo nodo invoca creaformula
+                //gestendo il valore di ritorno come un attributo di or
+            case PddlParser.NOT_PRED_INIT:
+                NotCond not = new NotCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        not.addConditions(ret_val);
+                    }
+                }
+                return not;
+            case PddlParser.PRED_INST:
+                //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+                return buildInstPredicate(infoAction);
+            case PddlParser.ONEOF:
+                OneOf one_of = new OneOf();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Conditions ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        one_of.sons.add(ret_val);
+                    }
+                }
+                return one_of;
+            default:
+                System.out.println("Oneof Parsing: Some serious error:"+infoAction);
+                return null;
         }
     }
 
@@ -1176,7 +1217,7 @@ public class PddlProblem {
             }
             return not;
         }else{
-            System.out.println("Some serious error:"+infoAction);
+            System.out.println("OR parsing: Some serious error:"+infoAction);
             return null;
         }
     }

@@ -563,8 +563,20 @@ public class GroundAction extends GenericActionType implements Comparable {
         //AndCond numericCondition = 
         return result;
     }
-
+    
+    
     public Conditions regress_formula(Conditions input) {
+        AndCond ret = new AndCond();
+        Conditions con = input.regress(this);
+        if (con instanceof AndCond) {
+            ret.sons.addAll(((AndCond) con).sons);
+        } else {
+            ret.addConditions(con);
+        }
+        return ret;
+    }
+    
+    public Conditions regress_formula_old(Conditions input) {
         AndCond ret = new AndCond();
         if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty()) {
             ret.addConditions(this.getPreconditions());
@@ -573,7 +585,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (con instanceof AndCond) {
             ret.sons.addAll(((AndCond) con).sons);
         } else {
-            ret.addConditions(input.regress(this));
+            ret.addConditions(con);
         }
         return ret;
     }
@@ -2236,8 +2248,11 @@ public class GroundAction extends GenericActionType implements Comparable {
                         if (!ne.getFluentAffected().equals(ad.f)) {
                             continue;
                         }
+                        if (ne.isPseudo_num_effect())
+                            return true;
                         if (ne.fluentsInvolved().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
+                            
                             if (!rhs.linear) {
                                 return false;
                             }

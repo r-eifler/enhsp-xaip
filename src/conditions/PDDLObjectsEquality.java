@@ -312,12 +312,12 @@ public class PDDLObjectsEquality extends Conditions {
     @Override
     public String pddlPrintWithExtraObject() {
         String ret = "";
-        if (grounded) {
-            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRight().pddlPrintWithExtraObject() + ")";
-        } else {
-            ret += "( = " + this.getLeftV().pddlPrint(false) + " " + this.getRightV().pddlPrint() + ")";
+//        if (grounded) {
+//            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRight().pddlPrintWithExtraObject() + ")";
+//        } else {
+            ret += "( = " + this.getLeftV().pddlPrint(false) + " " + this.getRightV().pddlPrint(false) + ")";
 
-        }
+//        }
         return ret;
     }
 

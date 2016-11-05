@@ -347,8 +347,12 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
                         comparisons.add(comp);
-                        if (gr.is_possible_achiever_of(comp)) {
-                            reacheable_comparisons.add(comp);
+                        try {
+                            if (gr.is_possible_achiever_of(comp)) {
+                                reacheable_comparisons.add(comp);
+                            }
+                        } catch (Exception ex) {
+                            Logger.getLogger(Uniform_cost_search_H1_Rep.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         if (this.is_complex.get(comp)) {
                             reacheable_comparisons.add(comp);
@@ -377,8 +381,12 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
-                        if (gr.is_possible_achiever_of(comp)) {
-                            reacheable_comparisons.add(comp);
+                        try {
+                            if (gr.is_possible_achiever_of(comp)) {
+                                reacheable_comparisons.add(comp);
+                            }
+                        } catch (Exception ex) {
+                            Logger.getLogger(Uniform_cost_search_H1_Rep.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }

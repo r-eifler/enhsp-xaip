@@ -176,6 +176,8 @@ public abstract class Conditions extends Object {
             return ret;
         } else if (this instanceof NotCond) {
             NotCond temp = (NotCond) this;
+            if (temp.son == null || temp.son.isEmpty())
+                return ret;
             Conditions temp2 = (Conditions) temp.son.iterator().next();
             ret.addAll(temp2.getInvolvedPredicates());
             return ret;
@@ -215,5 +217,6 @@ public abstract class Conditions extends Object {
 //        }
 //        return ret;
 //    }
+
 
 }
