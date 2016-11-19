@@ -196,5 +196,38 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public Conditions achieve(Predicate p) {
+        Conditions c = this.effect.achieve(p);
+        if (c==null)
+            return null;
+        if (c.isValid()){
+            return this.activation_condition;
+        }
+        if (c.isUnsatisfiable())
+            return c;
+        AndCond and = new AndCond();
+        and.addConditions(this.activation_condition);
+        and.addConditions(c);
+        return and;
+
+    }
+
+    @Override
+    public Conditions delete(Predicate p) {
+        Conditions c = this.effect.delete(p);
+        if (c==null)
+            return null;
+        if (c.isValid()){
+            return this.activation_condition;
+        }
+        if (c.isUnsatisfiable())
+            return c;
+        AndCond and = new AndCond();
+        and.addConditions(this.activation_condition);
+        and.addConditions(c);
+        return and;
+    }
+
 
 }

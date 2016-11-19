@@ -30,6 +30,7 @@ import domain.Variable;
 import expressions.NumFluent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,12 +75,15 @@ public class  Predicate extends Conditions implements PostCondition {
         String ret = "";
         ret = ret.concat("  (" + this.getPredicateName());
         for (Object o1 : this.getTerms()) {
+            if (o1 == null){
+                System.out.println("There is some problem here with predicate:"+this);
+            }
             if (o1 instanceof PDDLObject){
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
             }else{
                 Variable obj = (Variable) o1;
-                //System.out.println("DEBUG: obj"+obj+"In the context:"+this);
+//                System.out.println("DEBUG: obj"+obj+"In the context:"+this);
                 ret = ret.concat(" " + obj.getName()+obj.getType());
                 
             }
@@ -98,6 +102,19 @@ public class  Predicate extends Conditions implements PostCondition {
     public boolean can_be_false(RelState s) {
         Integer i = s.poss_interpretation.get(this);
         return (i == null) || (i == 0) || (i == 2);
+    }
+
+    @Override
+    public Conditions achieve(Predicate p) {
+        if (this.equals(p)){
+            return new Predicate(Predicate.true_false.TRUE);
+        }
+        return null;
+    }
+
+    @Override
+    public Conditions delete(Predicate p) {
+        return null;
     }
     public enum true_false {TRUE,FALSE};
     
@@ -540,7 +557,28 @@ public class  Predicate extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Conditions regress(GroundAction gr){
+        
+        OrCond achievers = gr.getAdders(this);
+        OrCond deleters = gr.getDels(this);
+        OrCond or = new OrCond();
+        AndCond effect_reasons = new AndCond();
+        AndCond frame_axiom = new AndCond();
+        NotCond no_del = new NotCond();
+        no_del.addConditions(deleters);
+        
+        effect_reasons.addConditions(achievers);
+        effect_reasons.addConditions(no_del);
+        frame_axiom.addConditions(no_del);
+        frame_axiom.addConditions(this);
+        or.addConditions(effect_reasons);
+        or.addConditions(frame_axiom);
+        return or;
+    }
+    
+    
+
+    public Conditions regress_old(GroundAction gr) {
         PostCondition achiever =  gr.getAdder(this);
         PostCondition destroyer =  gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate){

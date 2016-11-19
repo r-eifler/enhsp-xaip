@@ -30,6 +30,7 @@ package expressions;
 
 import conditions.Conditions;
 import conditions.PostCondition;
+import conditions.Predicate;
 import domain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,7 +166,7 @@ public class NumEffect extends Expression implements PostCondition {
      */
     public HashMap apply(State state) {
 
-        if (!fluentAffected.is_has_to_be_tracked())
+        if (!fluentAffected.has_to_be_tracked())
             return new HashMap();
         HashMap ret = new HashMap();
         PDDLNumber after = null;
@@ -178,12 +179,16 @@ public class NumEffect extends Expression implements PostCondition {
         if (this.operator.equals("increase")) {
             PDDLNumber current = state.functionValue(fluentAffected);
             if (current == null) {
-                System.out.println("Applying a not applicable effect!:" + this);
+                System.out.println("This effect cannot be applied!:" + this);
                 System.exit(-1);
             }
             after = new PDDLNumber(current.getNumber() + eval.getNumber());
         } else if (this.operator.equals("decrease")) {
             PDDLNumber current = state.functionValue(fluentAffected);
+            if (current == null) {
+                System.out.println("This effect cannot be applied!:" + this);
+                System.exit(-1);
+            }
             after = new PDDLNumber(current.getNumber() - eval.getNumber());
         } else if (this.operator.equals("assign")) {
             after = eval;
@@ -559,6 +564,16 @@ public class NumEffect extends Expression implements PostCondition {
      */
     public void setPseudo_num_effect(boolean pseudo_num_effect) {
         this.pseudo_num_effect = pseudo_num_effect;
+    }
+
+    @Override
+    public Conditions achieve(Predicate p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Conditions delete(Predicate p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

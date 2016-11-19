@@ -38,6 +38,8 @@ import expressions.PDDLNumber;
 import expressions.Interval;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -67,11 +69,13 @@ public class RelState extends Object {
         RelState ret_val = new RelState();
         
         for (NumFluent nf : this.poss_numericFs.keySet()){
-            ret_val.poss_numericFs.put(nf, this.poss_numericFs.get(nf));
+            ret_val.poss_numericFs.put(nf, this.poss_numericFs.get(nf).clone());
         }
         for (Predicate ele : this.poss_interpretation.keySet()) {
-//            this.poss_interpretation.get(ele);
-            ret_val.poss_interpretation.put( ele, this.poss_interpretation.get(ele));
+
+                //            this.poss_interpretation.get(ele);
+                ret_val.poss_interpretation.put(ele, new Integer(this.poss_interpretation.get(ele)));
+
         }
 
         //ret_val.propositions = (HashSet) this.propositions.clone();
@@ -290,7 +294,7 @@ public class RelState extends Object {
         for (Object o : subst.keySet()) {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
-                if (nf.is_has_to_be_tracked()) {
+                if (nf.has_to_be_tracked()) {
                     this.setFunctionValues(nf, (Interval) subst.get(o));
                 }
             } else {

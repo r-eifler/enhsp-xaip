@@ -454,7 +454,7 @@ public class NumFluent extends Expression {
         return ret.replaceAll("\\s+","");
     }
 
-    public boolean is_has_to_be_tracked() {
+    public boolean has_to_be_tracked() {
         if (has_to_be_tracked == null){
             if (this.getName().equals("total-cost"))
                 has_to_be_tracked = Boolean.FALSE;

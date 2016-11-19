@@ -410,6 +410,20 @@ public class NotCond extends Conditions implements PostCondition{
         return true;
     }
 
+    @Override
+    public Conditions achieve(Predicate p) {
+        return null;
+    }
+
+    @Override
+    public Conditions delete(Predicate p) {
+        Predicate p1 = (Predicate)this.son.iterator().next();
+        if (p1.equals(p)){
+            return new Predicate(Predicate.true_false.TRUE);
+        }
+        return null;
+    }
+
 
     
 

@@ -32,7 +32,7 @@ import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.NumFluentValue;
+import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;
@@ -41,7 +41,6 @@ import domain.ActionSchema;
 import domain.GenericActionType;
 import domain.PddlDomain;
 import domain.Variable;
-import expressions.BinaryOp;
 import expressions.ExtendedAddendum;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -213,7 +212,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.time == null) {
             return "Action Name:" + this.name + " Parameters: " + parametri;
         } else {
-            return "(" + time + " )Action Name:" + this.name + " Parameters: " + parametri;
+            return "(" + String.format("%.5f",time)  + " )Action Name:" + this.name + " Parameters: " + parametri;
         }
 
     }
@@ -228,7 +227,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (time == null) {
             return "(" + this.name + " " + parametri + ")";
         } else {
-            return time + ": (" + this.name + " " + parametri + ")";
+            return String.format("%.5f",time) + ": (" + this.name + " " + parametri + ")";
         }
 
     }
@@ -274,7 +273,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (Object o : subst.keySet()) {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
-                if (nf.is_has_to_be_tracked()) {
+                if (nf.has_to_be_tracked()) {
                     s.setFunctionValue(nf, (PDDLNumber) subst.get(o));
                 }
             } else {
@@ -2357,7 +2356,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (Object o : subst.keySet()) {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
-                if (nf.is_has_to_be_tracked()) {
+                if (nf.has_to_be_tracked()) {
 
                     s.setFunctionValues(nf, (Interval) subst.get(o));
 
@@ -2561,6 +2560,45 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     void subst_predicate(Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public OrCond getAdders(Predicate aThis) {
+        OrCond or = new OrCond();
+        or.addConditions(new Predicate(Predicate.true_false.FALSE));
+
+        if (this.addList instanceof AndCond){
+            AndCond and = (AndCond)this.addList;
+            Conditions c = and.achieve(aThis);
+            if (c != null){
+                or.addConditions(c);
+            }
+        }
+        for (ConditionalEffect c: (Collection<ConditionalEffect>)this.cond_effects.sons){
+            Conditions c1 = c.achieve(aThis);
+            if (c1 != null){
+                or.addConditions(c1);
+            }
+        }
+        return or;
+    }
+
+    public OrCond getDels(Predicate aThis) {
+        OrCond or = new OrCond();
+        or.addConditions(new Predicate(Predicate.true_false.FALSE));
+        if (this.delList instanceof AndCond){
+            AndCond and = (AndCond)this.delList;
+            Conditions c = and.delete(aThis);
+            if (c != null){
+                or.addConditions(c);
+            }
+        }
+        for (ConditionalEffect c: (Collection<ConditionalEffect>)this.cond_effects.sons){
+            Conditions c1 = c.delete(aThis);
+            if (c1 != null){
+                or.addConditions(c1);
+            }
+        }
+        return or;
     }
 
 }

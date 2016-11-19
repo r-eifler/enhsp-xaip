@@ -109,6 +109,7 @@ public class Aibr extends Heuristic {
                         reacheable_state = rs.clone();
                         this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
                     }
+//                    get_applicable_supporters(temp_supporters, rs, i);
                     return Float.MAX_VALUE;
                 } else {
                     reacheable_state = rs.clone();
@@ -157,7 +158,7 @@ public class Aibr extends Heuristic {
 
         RelState rs2 = s.relaxState();
         if (!extract_plan) {
-            return fix_point_computation(rs2);
+            return fix_point_computation(s,rs2);
         } else {
             return extract_plan(rs2, i);
         }
@@ -277,7 +278,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private Float fix_point_computation(RelState rs2) {
+    private Float fix_point_computation(State s, RelState rs2) {
         Float counter = 0f;
         Float layer_counter = 0f;
         while (counter <= horizon) {
@@ -286,7 +287,9 @@ public class Aibr extends Heuristic {
             for (GroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    counter++;//=gr.getAction_cost();
+                    counter++;//=
+                    //gr.setAction_cost(s);
+                    //counter+=gr.getAction_cost();
                     fix_point = false;
                     if (rs2.satisfy(G) && greedy_relaxed_plan) {
                         if (counting_layers) {

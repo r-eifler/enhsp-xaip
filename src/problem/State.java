@@ -144,6 +144,33 @@ public class State extends Object {
         propositions.remove(aThis);
     }
     
+    public StringBuilder stringBuilderPddlPrintWithDummyTrue() {
+        final StringBuilder ret = new StringBuilder("(:init (true)\n");
+
+        for (Object o : this.getPropositions()) {
+            Predicate a = (Predicate) o;
+            ret.append("  (" + a.getPredicateName());
+            for (Object o1 : a.getTerms()) {
+                PDDLObject obj = (PDDLObject) o1;
+                ret.append(" " + obj.getName());
+            }
+            ret.append(")\n");
+        }
+        for (Object o : this.getNumericFluents()) {
+            NumFluentValue a = (NumFluentValue) o;
+            ret.append("  ( = (" + a.getNFluent().getName());
+            for (Object o1 : a.getNFluent().getTerms()) {
+                PDDLObject obj = (PDDLObject) o1;
+                ret.append(" " + obj.getName());
+            }
+            ret.append(") " + a.getValue().pddlPrint(false) + ")\n");
+        }
+
+        ret.append(")");
+        return ret;
+    }
+
+    
      public String pddlPrintWithDummyTrue() {
         String ret = "(:init (true)\n";
 

@@ -836,6 +836,30 @@ public class AndCond extends Conditions implements PostCondition {
         return false;    
     }
 
+    @Override
+    public Conditions achieve(Predicate p) {
+        for (Conditions p1: (Collection<Conditions>)this.sons ){
+            if (p1 instanceof Predicate)
+                if (p1.equals(p))
+                    return new Predicate(Predicate.true_false.TRUE);
+        }
+        return null;
+
+    }
+
+    @Override
+    public Conditions delete(Predicate p) {
+        for (Conditions p1: (Collection<Conditions>)this.sons ){
+            if (p1 instanceof NotCond){
+                NotCond nc = (NotCond)p1;
+                Predicate p2 = (Predicate)nc.son.iterator().next();
+                if (p2.equals(p))
+                    return new Predicate(Predicate.true_false.TRUE);
+            }
+        }
+        return null;    
+    }
+
 
 
 }

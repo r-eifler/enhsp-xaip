@@ -491,6 +491,7 @@ public class SearchStrategies {
 
     public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
         this.can_reopen_nodes = false;
+        this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.wa_star(problem);
     }
     

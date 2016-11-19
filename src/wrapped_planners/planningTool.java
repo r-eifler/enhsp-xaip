@@ -84,6 +84,7 @@ public abstract class planningTool {
 
             Worker worker = new Worker(process);
             worker.start();
+            
             worker.join(getTimeout());
 
             if (worker.exit != null) {

@@ -21,5 +21,7 @@ public interface PostCondition {
     public abstract String pddlPrint(boolean type_info);
     public abstract Object clone();
     public abstract String pddlPrintWithExtraObject();
+    public abstract Conditions achieve(Predicate p);
+    public abstract Conditions delete(Predicate p);
 
 }

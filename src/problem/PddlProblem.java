@@ -239,15 +239,17 @@ public class PddlProblem {
 
         pddlFilRef = pddlNewFile;
 
-        String toWrite = "(define (problem " + this.getName() + ") "
-                + "(:domain " + this.getDomainName() + ") "
-                + this.getObjects().pddlPrint() + "\n"
-                + this.init.pddlPrintWithDummyTrue()+ "\n"
-                + "(:goal (forall (?interpr - interpretation)" + this.getGoals().pddlPrintWithExtraObject() + "))\n"
-                + this.metric.pddlPrint() + "\n"
-                + ")";
+//        final StringBuilder toWrite = new StringBuilder().append(this.metric.pddlPrint()).append("\n"
+//                + ")");
+//        
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
-        file.write(toWrite);
+        file.write("(define (problem " + this.getName() + ") ");
+        file.write("(:domain ");
+        file.write(this.getDomainName()+")");
+        file.write(this.getObjects().pddlPrint());
+        file.write(this.init.stringBuilderPddlPrintWithDummyTrue().toString());
+        file.write("(:goal (forall (?interpr - interpretation)");
+        file.write(this.getGoals().pddlPrintWithExtraObject()+")))");
         file.close();
     }
 
@@ -360,7 +362,9 @@ public class PddlProblem {
 
             
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
-//            System.out.println(t1.getType());
+//            System.out.println(a);
+//
+//            System.out.println(t1);
             if (t1 != null) {
                 a.addObject(t1);
             } else {

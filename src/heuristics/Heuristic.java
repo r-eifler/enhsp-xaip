@@ -189,6 +189,7 @@ public abstract class Heuristic {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
+            
             a.counter = counter_actions++;
             LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
@@ -523,7 +524,7 @@ public abstract class Heuristic {
         //this terminates correctly whenever the numeric dependency graph is acyclic. If it is cyclic it terminates with null
         Boolean proven_reachable = null;
         try {
-            proven_reachable = compute_enclosure(pool, rel_state, (Comparison) c);
+            proven_reachable = compute_enclosure(pool, rel_state.clone(), (Comparison) c);
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(Heuristic.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -552,11 +553,12 @@ public abstract class Heuristic {
                     cost += this.num_eff_action.get(a).getAction_cost();//cost of the action
                 else
                     cost++;//this is the unit cost case
-                iteration++;
+                
                 visited.put(a,true);
                 if (c.can_be_true(rel_state))
                     return cost;
             }
+            iteration++;
 
         }
         return cost;

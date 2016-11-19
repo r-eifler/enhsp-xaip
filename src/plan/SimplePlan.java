@@ -154,10 +154,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
     @Override
     public Object clone() {
         SimplePlan sp = new SimplePlan(pd, pp);
-        if (this.invariantFluents!= null)
+        if (this.invariantFluents != null) {
             sp.invariantFluents = (HashMap) this.invariantFluents.clone();
-        else
+        } else {
             sp.invariantFluents = null;
+        }
         sp.invariantAnalysis = this.invariantAnalysis;
         for (Object o : this) {
             GroundAction gr = (GroundAction) o;
@@ -513,6 +514,37 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return false;
 
     }
+    
+        public boolean saveConformantIPCPlan(String nFile) {
+        Writer output = null;
+        
+        try {
+            output = new BufferedWriter(new FileWriter(nFile));
+            output.write("0 \n %% \n "+this.size());
+            for (Object o : this) {
+                GroundAction a = (GroundAction) o;
+                output.write(a.toFileCompliant() + " ");
+            }
+           output.write("\n %% \n linear "+this.size());
+           for(int i=0;i<this.size();i++){
+               output.write(" "+i);
+           }
+
+           output.close();
+           return true;
+        } catch (IOException ex) {
+            Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                output.close();
+            } catch (IOException ex) {
+                Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        return false;
+
+    }
 
     public boolean savePlan(String nFile, boolean processes) {
         Writer output = null;
@@ -654,88 +686,82 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return temp;
     }
 
-    public Pair<ArrayList<String>,HashSet<String>> regress_polynomial(Conditions cond,HashMap<String,Predicate> str_to_pred ) throws IOException{
-        Pair<ArrayList<String>,HashSet<String>> ret = new Pair();
-        ArrayList<String> simulation = new ArrayList();          
-        ArrayList<String> preference = new ArrayList();  
+    public Pair<ArrayList<String>, HashSet<String>> regress_polynomial(Conditions cond, HashMap<String, Predicate> str_to_pred) throws IOException {
+        Pair<ArrayList<String>, HashSet<String>> ret = new Pair();
+        ArrayList<String> simulation = new ArrayList();
+        ArrayList<String> preference = new ArrayList();
 
-        
         HashSet<String> variables = new HashSet();
 
         //first add the goal statement
         Collection<Predicate> current_goal_predicates = cond.getInvolvedPredicates();
-        for (Predicate p: current_goal_predicates){
-            variables.add(p.toSmtVariableString(this.size()));
-            str_to_pred.put(p.toSmtVariableString(this.size()), p);
+        for (Predicate p : current_goal_predicates) {
+            if (!p.isValid() && !p.isUnsatisfiable()) {
+
+                variables.add(p.toSmtVariableString(this.size()));
+                str_to_pred.put(p.toSmtVariableString(this.size()), p);
+            }
         }
         preference.add(cond.toSmtVariableString(this.size()));
 
-        
-        for (int i=(this.size()-1);i>=0;i--){
+        for (int i = (this.size() - 1); i >= 0; i--) {
 
-              Collection<Predicate> temp = new HashSet();
-              //for each atom in the previous goal (updated incrementally) compute the justification for it via the action
-              for (Predicate p: current_goal_predicates){
-                  //here we regress
-                  Conditions c = p.regress(this.get(i));
-//                  System.out.println("Condition to Regress: "+p);
-//                  System.out.println("Action regressing: "+this.get(i).toPDDL());
-//                  System.out.println("Conditions regressed: "+c);
+            Collection<Predicate> temp = new HashSet();
+            //for each atom in the previous goal (updated incrementally) compute the justification for it via the action
+            for (Predicate p : current_goal_predicates) {
+                //here we regress
+                Conditions c = p.regress(this.get(i));
 
-                  
-                  for (Predicate p3: this.get(i).getPreconditions().getInvolvedPredicates()){
+                for (Predicate p3 : this.get(i).getPreconditions().getInvolvedPredicates()) {
+                    if (!p3.isValid() && !p3.isUnsatisfiable()) {
                         variables.add(p3.toSmtVariableString(i));
                         str_to_pred.put(p3.toSmtVariableString(i), p3);
                         temp.add(p3);
-                  }
-                  if (this.get(i).getPreconditions() != null && !this.get(i).getPreconditions().sons.isEmpty())
+                    }
+                }
+                if (this.get(i).getPreconditions() != null && !this.get(i).getPreconditions().sons.isEmpty()) {
                     preference.add(this.get(i).getPreconditions().toSmtVariableString(i));
-                  for (Predicate p1: c.getInvolvedPredicates()){
-                    //for any new variable created we instantiate it and put in the next goal. There is going to be also the variable itself without modification...is in it?
-                    temp.add(p1);
-                    variables.add(p1.toSmtVariableString(i));
-                    str_to_pred.put(p1.toSmtVariableString(i), p1);
+                }
+                for (Predicate p1 : c.getInvolvedPredicates()) {
+                    if (!p1.isValid() && !p1.isUnsatisfiable()) {
 
+                        //for any new variable created we instantiate it and put in the next goal. There is going to be also the variable itself without modification...is in it?
+                        temp.add(p1);
+                        variables.add(p1.toSmtVariableString(i));
+                        str_to_pred.put(p1.toSmtVariableString(i), p1);
+                    }
 
-                  }
-//                  System.out.println("Step:"+i);
-//                  System.out.println(this.get(i));
-//                  System.out.println(p);
-//                  System.out.println(c);
-                  //this adds the double implication to capture when the variable can be made true
-                  if ( c.isValid()){
+                }
+                if (c.isValid()) {
 //                    regression.add("( => "+p.toSmtVariableString(i+1)+" )");
-                    simulation.add("( = "+p.toSmtVariableString(i+1)+" true)");  
-                  }else if (c.isUnsatisfiable()){
-                    simulation.add("( = "+p.toSmtVariableString(i+1)+" false)");  
-                  }else {
-                    simulation.add("( = "+p.toSmtVariableString(i+1)+"  "+c.toSmtVariableString(i)+")");
+                    simulation.add("( = " + p.toSmtVariableString(i + 1) + " true)");
+                } else if (c.isUnsatisfiable()) {
+                    simulation.add("( = " + p.toSmtVariableString(i + 1) + " false)");
+                } else {
+                    simulation.add("( = " + p.toSmtVariableString(i + 1) + "  " + c.toSmtVariableString(i) + ")");
                     //regression.add("( => "+c.toSmtVariableString(i)+"  "+p.toSmtVariableString(i+1)+")");
-                  }
-              }
-              
-              current_goal_predicates = new HashSet(temp);
+                }
+            }
+
+            current_goal_predicates = new HashSet(temp);
 
         }
 
         String all_preferences = "(not (and ";
-        for (String ele : preference){
-            all_preferences+=ele;
+        for (String ele : preference) {
+            all_preferences += ele;
         }
-        all_preferences+="))";
+        all_preferences += "))";
         simulation.add(all_preferences);
         ret.setFirst(simulation);
         ret.setSecond(variables);
 
-        
-        
         return ret;
     }
-    
-    public Conditions regress(Conditions cond) throws IOException{
-        
-        
-        for (int i=(this.size()-1);i>=0;i--){
+
+    public Conditions regress(Conditions cond) throws IOException {
+
+        for (int i = (this.size() - 1); i >= 0; i--) {
 //            System.out.println("DEBUG: before regressing: "+cond);
 //            System.out.println("DEBUG: Action applied:"+this.get(i).toPDDL());
             cond = this.get(i).regress_formula(cond);
@@ -744,7 +770,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         return cond;
     }
-    
+
     public TreeSet<GroundAction> generateMacrosSuffandPref() throws CloneNotSupportedException, Exception {
         TreeSet<GroundAction> ret = new TreeSet();
         GroundAction macroPlan = new GroundAction();
@@ -2121,34 +2147,35 @@ public class SimplePlan extends ArrayList<GroundAction> {
         State temp = current.clone();
         int i = 0;
         this.cost = 0f;
-        
-        HashMap<NumFluent,ArrayList<Float>> nf_trace = new HashMap();
-        numeric_plan_trace=null;
-        if (print_trace){
+
+        HashMap<NumFluent, ArrayList<Float>> nf_trace = new HashMap();
+        numeric_plan_trace = null;
+        if (print_trace) {
             numeric_plan_trace = new JSONObject();
             Iterator<NumFluent> it = current.getNumericFluents().iterator();
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 NumFluent nf = it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());
-                nf_trace.put(nf,nf_traj);
+                nf_trace.put(nf, nf_traj);
             }
         }
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-                gr.setAction_cost(current);
-                this.cost+=gr.getAction_cost();
-                if (!temp.satisfy(globalConstraints) && (debug > 0)) {
-                    System.out.println("Global Constraint is not satisfied:" + globalConstraints);
-                    return temp;
-                }
-                // MRJ: Meant for debugging
-                //System.out.println(constr.condition.pddlPrint(false));
+            gr.setAction_cost(current);
+            this.cost += gr.getAction_cost();
+            if (!temp.satisfy(globalConstraints) && (debug > 0)) {
+                System.out.println("Global Constraint is not satisfied:" + globalConstraints);
+                return temp;
+            }
+            // MRJ: Meant for debugging
+            //System.out.println(constr.condition.pddlPrint(false));
 
             if (gr.isApplicable(temp)) {
                 i++;
                 // MRJ: Prints the state, meant for debugging
-                if (debug >1 )
+                if (debug > 1) {
                     System.out.println(temp.pddlPrint());
+                }
                 temp = gr.apply(temp);
 
                 if (debug > 1) {
@@ -2168,9 +2195,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
                 return temp;
             }
-                        //System.out.println(constr.condition.pddlPrint(false));
-            if (print_trace)
-                add_state_to_json(nf_trace,temp);
+            //System.out.println(constr.condition.pddlPrint(false));
+            if (print_trace) {
+                add_state_to_json(nf_trace, temp);
+            }
 
         }
         if (debug == 1) {
@@ -2258,10 +2286,12 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, float epsilon) {
-
-        float time = 0;
+    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, Float epsilon) {
+        
+        System.out.println("Epsilon set to be:"+epsilon);
+        Float time = 0.0000000000f;
         for (GroundAction gr : raw_plan) {
+            
             if (gr instanceof GroundProcess) {
                 gr.time = time;
                 this.add(gr);
@@ -2271,40 +2301,42 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 this.add(gr);
                 time += epsilon;
             }
-            // System.out.println(time);
+//             System.out.println(time);
         }
 
     }
 
     public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, float delta, float resolution) throws CloneNotSupportedException {
 
-        if (resolution > delta)
+        if (resolution > delta) {
             resolution = delta;
+        }
         int steps_number = (int) (delta / resolution);
-        System.out.println("steps number:"+steps_number);
+        System.out.println("steps number:" + steps_number);
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
-        this.cost=0f;
+        this.cost = 0f;
         current.addNumericFluent(new NumFluentValue("#t", resolution));
-        HashMap<NumFluent,ArrayList<Float>> nf_trace = new HashMap();
-        numeric_plan_trace=null;
-        if (print_trace){
+        HashMap<NumFluent, ArrayList<Float>> nf_trace = new HashMap();
+        numeric_plan_trace = null;
+        if (print_trace) {
             numeric_plan_trace = new JSONObject();
             Iterator it = current.getNumericFluents().iterator();
-            while (it.hasNext()){
-                
-                NumFluent nf = (NumFluent)it.next();
+            while (it.hasNext()) {
+
+                NumFluent nf = (NumFluent) it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());
-                nf_trace.put(nf,nf_traj);
+                nf_trace.put(nf, nf_traj);
             }
         }
         for (GroundAction gr : this) {
-            if (debug>0)
+            if (debug > 0) {
                 System.out.println(current.pddlPrint());
+            }
             //System.out.println(gr.getClass());
             gr.setAction_cost(current);
-            this.cost+=gr.getAction_cost();
+            this.cost += gr.getAction_cost();
             if (!(gr instanceof GroundProcess)) {
                 //current = advance_time(current, processesSet, current_time, gr.time, resolution);
                 if (gr.isApplicable(current)) {
@@ -2317,16 +2349,16 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 current = advance_time(current, processesSet, steps_number, resolution);
 
             }
-            
-            if (print_trace){
-                add_state_to_json(nf_trace,current);
+
+            if (print_trace) {
+                add_state_to_json(nf_trace, current);
             }
             if (!current.satisfy(GC)) {
                 System.out.println("Global Constraint is not satisfied:" + GC);
 
                 return current;
             }
-                // MRJ: Meant for debugging
+            // MRJ: Meant for debugging
             //System.out.println(constr.condition.pddlPrint(false));
 
         }
@@ -2362,12 +2394,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, State current) {
-        for (NumFluent nf: nf_trace.keySet()){
+        for (NumFluent nf : nf_trace.keySet()) {
             nf_trace.get(nf).add(current.functionValue(nf).getNumber());
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }
-
-
 
 }
