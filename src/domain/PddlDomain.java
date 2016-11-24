@@ -83,7 +83,7 @@ public final class PddlDomain extends Object {
     protected Set ActionsSchema;
     private Set<ProcessSchema> ProcessesSchema;
     private PredicateSet predicates;
-    private List types;
+    private List<Type> types;
     private PDDLObjects constants;
     private List functions;
     private List<NumFluent> derived_variables;
@@ -93,7 +93,7 @@ public final class PddlDomain extends Object {
     private HashMap abstractInvariantFluents;
     private LinkedHashSet SchemaGlobalConstraints;
 
-    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List types, List Functions, List DurativeActions, List Requirements) {
+    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List Requirements) {
         this.ActionsSchema = ActionsSchema;
         this.predicates = Predicates;
         this.types = types;
@@ -108,7 +108,7 @@ public final class PddlDomain extends Object {
      */
     public PddlDomain() {
         super();
-        types = new ArrayList();
+        types = new ArrayList<>();
         ActionsSchema = new TreeSet(new ActionComparator());
         functions = new ArrayList();
         derived_variables = new ArrayList();
@@ -124,7 +124,7 @@ public final class PddlDomain extends Object {
         try {
             SchemaGlobalConstraints = new LinkedHashSet();
 
-            types = new ArrayList();
+            types = new ArrayList<>();
             ActionsSchema = new TreeSet(new ActionComparator());
             functions = new ArrayList();
             derived_variables = new ArrayList();
@@ -147,10 +147,10 @@ public final class PddlDomain extends Object {
 
         for (Object o : p.getProblemObjects()) {
             PDDLObject t = (PDDLObject) o;
-            Iterator it = types.iterator();
+            Iterator<Type> it = types.iterator();
             boolean founded = false;
             while (it.hasNext()) {
-                Type ele = (Type) it.next();
+                Type ele = it.next();
                 if (ele.equals(t.getType())) {
                     t.setType(ele);
                     founded = true;
@@ -168,10 +168,10 @@ public final class PddlDomain extends Object {
                 NumFluentValue nf = (NumFluentValue) o;
                 for (Object o1 : nf.getNFluent().getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
-                    Iterator it = types.iterator();
+                    Iterator<Type> it = types.iterator();
                     boolean founded = false;
                     while (it.hasNext()) {
-                        Type ele = (Type) it.next();
+                        Type ele = it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
                             founded = true;
@@ -187,10 +187,10 @@ public final class PddlDomain extends Object {
                 Predicate t1 = (Predicate) o;
                 for (Object o1 : t1.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
-                    Iterator it = types.iterator();
+                    Iterator<Type> it = types.iterator();
                     boolean found = false;
                     while (it.hasNext()) {
-                        Type ele = (Type) it.next();
+                        Type ele = it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
                             found = true;
@@ -209,10 +209,10 @@ public final class PddlDomain extends Object {
                 NumFluent nf = (NumFluent) o;
                 for (Object o1 : nf.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
-                    Iterator it = types.iterator();
+                    Iterator<Type> it = types.iterator();
                     boolean found = false;
                     while (it.hasNext()) {
-                        Type ele = (Type) it.next();
+                        Type ele = it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
                             found = true;
@@ -228,10 +228,10 @@ public final class PddlDomain extends Object {
                 Predicate t1 = (Predicate) o;
                 for (Object o1 : t1.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
-                    Iterator it = types.iterator();
+                    Iterator<Type> it = types.iterator();
                     boolean found = false;
                     while (it.hasNext()) {
-                        Type ele = (Type) it.next();
+                        Type ele = it.next();
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
                             found = true;
@@ -373,14 +373,14 @@ public final class PddlDomain extends Object {
     /**
      * @return the types declared in the domain
      */
-    public List getTypes() {
+    public List<Type> getTypes() {
         return types;
     }
 
     /**
      * @param types the types to set
      */
-    private void setTypes(List Types) {
+    private void setTypes(List<Type> Types) {
         this.types = Types;
     }
 
@@ -456,9 +456,9 @@ public final class PddlDomain extends Object {
                     tip.setSubTypeOf(father);
                     subTypeOfExist = true;
                 } else {
-                    Iterator it = types.iterator();
+                    Iterator<Type> it = types.iterator();
                     while (it.hasNext()) {
-                        Type ele = (Type) it.next();
+                        Type ele = it.next();
                         if (ele.equals(father)) {
                             tip.setSubTypeOf(ele);
                             subTypeOfExist = true;
