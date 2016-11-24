@@ -21,7 +21,6 @@ import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
-import org.ojalgo.optimisation.external.SolverCPLEX;
 import problem.GroundAction;
 import problem.State;
 
