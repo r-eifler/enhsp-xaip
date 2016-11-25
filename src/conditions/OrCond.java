@@ -50,7 +50,7 @@ import problem.State;
  */
 public class OrCond extends Conditions {
 
-    public HashSet son;
+    public HashSet son; // TODO: REMOVE?
 
     public OrCond() {
         super();
@@ -508,6 +508,36 @@ public class OrCond extends Conditions {
             }
         }
 
+        return true;
+    }
+
+    @Override 
+    public int hashCode() {
+        final int sonHash = sons.hashCode();
+        final int result = sonHash + 12;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!(obj instanceof OrCond)) {
+            return false;
+        }
+        
+        final OrCond other = (OrCond)obj;
+        
+        if (!this.sons.equals(other.sons)) {
+            return false;
+        }
+        
         return true;
     }
 }

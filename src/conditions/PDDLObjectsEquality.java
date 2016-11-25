@@ -336,4 +336,70 @@ public class PDDLObjectsEquality extends Conditions {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override 
+    public int hashCode() {
+        final int pddlObjectsHash, variablesHash;
+        {
+            final int h1,h2;
+            if (left == null) {
+                h1 = 0;
+            } else {
+                h1 = left.hashCode();
+            }
+            if (right == null) {
+                h2 = 0;
+            } else {
+                h2 = right.hashCode();
+            }
+            pddlObjectsHash = (h1 * h2) + h1;
+        }
+        {
+            final int h1,h2;
+            if (leftV == null) {
+                h1 = 0;
+            } else {
+                h1 = leftV.hashCode();
+            }
+            if (rightV == null) {
+                h2 = 0;
+            } else {
+                h2 = rightV.hashCode();
+            }
+            variablesHash = (h1 * h2) + h1;
+        }
+        
+        final int result = (pddlObjectsHash * variablesHash) + variablesHash;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!(obj instanceof PDDLObjectsEquality)) {
+            return false;
+        }
+        
+        final PDDLObjectsEquality other = (PDDLObjectsEquality)obj;
+        
+        if (left != right) { // they should differ from null
+            if (!left.equals(right)) {
+                return false;
+            }
+        }
+        if (leftV != rightV) { // they should differ from null
+            if (!leftV.equals(rightV)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
 }

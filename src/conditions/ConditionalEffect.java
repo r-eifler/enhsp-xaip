@@ -229,5 +229,39 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         return and;
     }
 
+    @Override
+    public int hashCode() {
+        final int condHash = activation_condition.hashCode();
+        final int effHash = effect.hashCode();
+        final int result = (condHash * effHash) + condHash;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!(obj instanceof ConditionalEffect)) {
+            return false;
+        }
+        
+        final ConditionalEffect other = (ConditionalEffect)obj;
+        
+        if (!this.activation_condition.equals(other.activation_condition)) {
+            return false;
+        }
+        
+        if (!this.effect.equals(other.effect)) {
+            return false;
+        }
+        
+        return true;
+    }
 
 }

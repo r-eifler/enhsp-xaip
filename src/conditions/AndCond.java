@@ -53,27 +53,6 @@ public class AndCond extends Conditions implements PostCondition {
 
     private boolean specialAndForExpression;
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final AndCond other = (AndCond) obj;
-
-//        System.out.println("ANDCOND: equal function not implemented yet");
-//        System.exit(-1);
-        return false;
-    }
-
     /**
      * Standard Constructor for the AndCond.
      */
@@ -860,6 +839,33 @@ public class AndCond extends Conditions implements PostCondition {
         return null;    
     }
 
-
-
+    @Override 
+    public int hashCode() {
+        final int sonHash = sons.hashCode();
+        final int result = sonHash + 7;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!(obj instanceof AndCond)) {
+            return false;
+        }
+        
+        final AndCond other = (AndCond)obj;
+        
+        if (!this.sons.equals(other.sons)) {
+            return false;
+        }
+        
+        return true;
+    }
 }

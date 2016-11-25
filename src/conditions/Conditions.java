@@ -48,6 +48,7 @@ public abstract class Conditions extends Object {
 
     public boolean grounded;
     public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
+    // TODO: Make a ConditionsWithSons class that sits between AndCond/OrCond/OneOf and Conditions
     protected boolean freeVarSemantic = false;
     private boolean unsatisfiable = false;
     private boolean valid = false;
@@ -58,6 +59,12 @@ public abstract class Conditions extends Object {
         grounded = false;
         unsatisfiable = false;
     }
+    
+    @Override
+    public abstract int hashCode();
+    
+    @Override
+    public abstract boolean equals(Object obj);
 
     public abstract Conditions weakEval(State s, HashMap invF);
     //public abstract void addConditions(Conditions o);
