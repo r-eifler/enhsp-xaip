@@ -48,7 +48,8 @@ import problem.State;
  */
 public class NotCond extends Conditions implements PostCondition{
 
-    public HashSet son;
+    public HashSet son; // TODO: Make private ? 
+    // TODO: Replace HashSet with Object
 
     public NotCond() {
         super();
@@ -191,29 +192,7 @@ public class NotCond extends Conditions implements PostCondition{
     public Conditions clone() {
         NotCond ret = new NotCond();
 
-//        ret.sons = new HashSet();
         ret.son = (HashSet) this.son.clone();
-//        for(Object o: this.sons){
-//            if (o instanceof AndCond){
-//                AndCond a = (AndCond)o;
-//                ret.sons.add(a.clone());
-//            }else if(o instanceof NotCond){
-//                NotCond a = (NotCond)o;
-//                ret.sons.add(a.clone());
-//            }else if(o instanceof OrCond){
-//                OrCond a = (OrCond)o;
-//                ret.sons.add(a.clone());
-//            }else if(o instanceof Predicate){
-//                Predicate a = (Predicate)o;
-//                ret.sons.add(a.clone());            
-//            }else if(o instanceof Comparison){
-//                Comparison a = (Comparison)o;
-//                ret.sons.add(a.clone());            
-//            }else if(o instanceof Assigner){
-//                Assigner a = (Assigner)o;
-//                ret.sons.add(a.clone());            
-//            }
-//        }
         ret.grounded = this.grounded;
         return ret;
     }
@@ -424,10 +403,34 @@ public class NotCond extends Conditions implements PostCondition{
         return null;
     }
 
-
+    @Override 
+    public int hashCode() {
+        final int sonHash = son.hashCode();
+        final int result = sonHash + 11;
+        return result;
+    }
     
-
-
-
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!(obj instanceof NotCond)) {
+            return false;
+        }
+        
+        final NotCond other = (NotCond)obj;
+        
+        if (!this.son.equals(other.son)) {
+            return false;
+        }
+        
+        return true;
+    }
 
 }

@@ -159,5 +159,35 @@ public class OneOf extends Conditions{
     public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override 
+    public int hashCode() {
+        final int sonHash = sons.hashCode();
+        final int result = sonHash + 2;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (!(obj instanceof OneOf)) {
+            return false;
+        }
+        
+        final OneOf other = (OneOf)obj;
+        
+        if (!this.sons.equals(other.sons)) {
+            return false;
+        }
+        
+        return true;
+    }
     
 }
