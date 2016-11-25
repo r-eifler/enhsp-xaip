@@ -88,12 +88,12 @@ public final class PddlDomain extends Object {
     private List functions;
     private List<NumFluent> derived_variables;
     private List DurativeActions;
-    private List Requirements;
+    private List<String> Requirements;
     private String pddlReferenceFile;
     private HashMap abstractInvariantFluents;
     private LinkedHashSet SchemaGlobalConstraints;
 
-    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List Requirements) {
+    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List<String> Requirements) {
         this.ActionsSchema = ActionsSchema;
         this.predicates = Predicates;
         this.types = types;
@@ -112,7 +112,7 @@ public final class PddlDomain extends Object {
         ActionsSchema = new TreeSet(new ActionComparator());
         functions = new ArrayList();
         derived_variables = new ArrayList();
-        Requirements = new ArrayList();
+        Requirements = new ArrayList<>();
         constants = new PDDLObjects();
         SchemaGlobalConstraints = new LinkedHashSet();
         ProcessesSchema = new LinkedHashSet();
@@ -128,7 +128,7 @@ public final class PddlDomain extends Object {
             ActionsSchema = new TreeSet(new ActionComparator());
             functions = new ArrayList();
             derived_variables = new ArrayList();
-            Requirements = new ArrayList();
+            Requirements = new ArrayList<>();
             constants = new PDDLObjects();
             ProcessesSchema = new LinkedHashSet();
             this.parseDomain(domainFile);
@@ -415,14 +415,14 @@ public final class PddlDomain extends Object {
     /**
      * @return the Requirements declared in the domain
      */
-    public List getRequirements() {
+    public List<String> getRequirements() {
         return Requirements;
     }
 
     /**
      * @param Requirements the Requirements to set
      */
-    private void setRequirements(List Requirements) {
+    private void setRequirements(List<String> Requirements) {
         this.Requirements = Requirements;
     }
 
@@ -757,7 +757,8 @@ public final class PddlDomain extends Object {
         if (c != null) {
             //System.out.println(c.getText());
             for (int i = 0; i < c.getChildCount(); i++) {
-                this.Requirements.add(c.getChild(i).getText());
+                final String req = c.getChild(i).getText();
+                this.Requirements.add(req);
             }
         }
     }
