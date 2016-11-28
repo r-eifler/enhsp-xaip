@@ -61,7 +61,7 @@ public class NotCond extends Conditions implements PostCondition {
         return son;
     }
     
-    public void addSon(Conditions c) {
+    public void setSon(Conditions c) {
         son = c;
     }
     
@@ -79,7 +79,7 @@ public class NotCond extends Conditions implements PostCondition {
     @Override
     public Conditions ground(Map substitution) {
         NotCond ret = new NotCond();
-        ret.addSon(son.ground(substitution));
+        ret.setSon(son.ground(substitution));
         ret.grounded = true;
         return ret;
     }
@@ -213,7 +213,7 @@ public class NotCond extends Conditions implements PostCondition {
     @Override
     public Conditions unGround(Map substitution) {
         NotCond ret = new NotCond();
-        ret.addSon(son.unGround(substitution));
+        ret.setSon(son.unGround(substitution));
         ret.grounded = false;
         return ret;
     }
@@ -273,7 +273,7 @@ public class NotCond extends Conditions implements PostCondition {
         }
         NotCond ret = new NotCond();
         for (Conditions c1 : (Collection<Conditions>) this.son) {
-            ret.addSon(c1.transform_equality());
+            ret.setSon(c1.transform_equality());
         }
         //System.out.println(ret);
         return ret;
@@ -303,7 +303,7 @@ public class NotCond extends Conditions implements PostCondition {
         if (temp.isUnsatisfiable()) {
             return new Predicate(true_false.TRUE);
         }
-        not.addSon(temp);
+        not.setSon(temp);
         
         return not;
     }

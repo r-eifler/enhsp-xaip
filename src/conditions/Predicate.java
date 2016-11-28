@@ -565,7 +565,7 @@ public class  Predicate extends Conditions implements PostCondition {
         AndCond effect_reasons = new AndCond();
         AndCond frame_axiom = new AndCond();
         NotCond no_del = new NotCond();
-        no_del.addSon(deleters);
+        no_del.setSon(deleters);
         
         effect_reasons.addConditions(achievers);
         effect_reasons.addConditions(no_del);
@@ -605,7 +605,7 @@ public class  Predicate extends Conditions implements PostCondition {
             ConditionalEffect c_eff = (ConditionalEffect)destroyer;
             if (achiever == null){
                 NotCond not = new NotCond();
-                not.addSon(c_eff.activation_condition);
+                not.setSon(c_eff.activation_condition);
                 AndCond cond = new AndCond();
                 cond.addConditions(this);
                 cond.addConditions(not);
@@ -613,7 +613,7 @@ public class  Predicate extends Conditions implements PostCondition {
             }
             if (achiever instanceof Predicate){
                 NotCond not = new NotCond();
-                not.addSon(c_eff.activation_condition);
+                not.setSon(c_eff.activation_condition);
                 AndCond cond = new AndCond();
                 cond.addConditions(this);
                 return cond;
@@ -622,7 +622,7 @@ public class  Predicate extends Conditions implements PostCondition {
             ConditionalEffect c_eff_ach = (ConditionalEffect)achiever;
             OrCond ret = new OrCond();
             NotCond not = new NotCond();
-            not.addSon(c_eff.activation_condition);
+            not.setSon(c_eff.activation_condition);
             AndCond cond = new AndCond();
             cond.addConditions(this);
             cond.addConditions(not);
