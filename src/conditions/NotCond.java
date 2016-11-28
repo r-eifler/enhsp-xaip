@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -50,19 +49,18 @@ import problem.State;
  */
 public class NotCond extends Conditions implements PostCondition {
     
-    private Conditions son; // TODO: Make private ? 
-    // TODO: Replace HashSet with Object
+    /**
+     * The condition that is negated in this condition.  
+     */
+    private final Conditions son;
 
-    public NotCond() {
+    public NotCond(Conditions son) {
         super();
+        this.son = son;
     }
     
     public Conditions getSon(){
         return son;
-    }
-    
-    public void setSon(Conditions c) {
-        son = c;
     }
     
     @Override
@@ -78,8 +76,8 @@ public class NotCond extends Conditions implements PostCondition {
     
     @Override
     public Conditions ground(Map substitution) {
-        NotCond ret = new NotCond();
-        ret.setSon(son.ground(substitution));
+        final Conditions groundedSon = son.ground(substitution);
+        NotCond ret = new NotCond(groundedSon);
         ret.grounded = true;
         return ret;
     }
@@ -171,9 +169,8 @@ public class NotCond extends Conditions implements PostCondition {
     
     @Override
     public Conditions clone() {
-        NotCond ret = new NotCond();
-        
-        ret.son = this.son.clone();
+        final Conditions clonedSon = this.son.clone();
+        NotCond ret = new NotCond(clonedSon);
         ret.grounded = this.grounded;
         return ret;
     }
@@ -212,8 +209,8 @@ public class NotCond extends Conditions implements PostCondition {
     
     @Override
     public Conditions unGround(Map substitution) {
-        NotCond ret = new NotCond();
-        ret.setSon(son.unGround(substitution));
+        final Conditions ungroundSon = son.unGround(substitution);
+        NotCond ret = new NotCond(ungroundSon);
         ret.grounded = false;
         return ret;
     }
@@ -271,10 +268,8 @@ public class NotCond extends Conditions implements PostCondition {
         if (this.son == null) {
             return this;
         }
-        NotCond ret = new NotCond();
-        for (Conditions c1 : (Collection<Conditions>) this.son) {
-            ret.setSon(c1.transform_equality());
-        }
+        final Conditions transformedSon = son.transform_equality();
+        NotCond ret = new NotCond(transformedSon);
         //System.out.println(ret);
         return ret;
     }
@@ -291,19 +286,17 @@ public class NotCond extends Conditions implements PostCondition {
     
     @Override
     public Conditions regress(GroundAction gr) {
-        NotCond not = new NotCond();
         
-        Conditions t = (Conditions) son;
-        Conditions temp = t.regress(gr);
+        Conditions temp = son.regress(gr);
         if (temp.isValid()) {
-            NotCond ret = new NotCond();
-            ret.setUnsatisfiable(true);
+//            NotCond ret = new NotCond();
+//            ret.setUnsatisfiable(true);
             return new Predicate(true_false.FALSE);
         }
         if (temp.isUnsatisfiable()) {
             return new Predicate(true_false.TRUE);
         }
-        not.setSon(temp);
+        NotCond not = new NotCond(temp);
         
         return not;
     }
@@ -354,6 +347,10 @@ public class NotCond extends Conditions implements PostCondition {
     
     @Override
     public int hashCode() {
+        if (son == null) { // sometimes happen when the negation is trivially unsatisfiable
+            return 1;
+        }
+        
         final int sonHash = son.hashCode();
         final int result = sonHash + 11;
         return result;

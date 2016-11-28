@@ -564,8 +564,7 @@ public class  Predicate extends Conditions implements PostCondition {
         OrCond or = new OrCond();
         AndCond effect_reasons = new AndCond();
         AndCond frame_axiom = new AndCond();
-        NotCond no_del = new NotCond();
-        no_del.setSon(deleters);
+        NotCond no_del = new NotCond(deleters);
         
         effect_reasons.addConditions(achievers);
         effect_reasons.addConditions(no_del);
@@ -582,7 +581,7 @@ public class  Predicate extends Conditions implements PostCondition {
         PostCondition achiever =  gr.getAdder(this);
         PostCondition destroyer =  gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate){
-            Conditions con = new NotCond();
+            Conditions con = new NotCond(null); // Maybe put a dummy here?
             con.setUnsatisfiable(true);
             return con;
         }
@@ -604,16 +603,14 @@ public class  Predicate extends Conditions implements PostCondition {
         }else{//destroyer is ConditionalEffect
             ConditionalEffect c_eff = (ConditionalEffect)destroyer;
             if (achiever == null){
-                NotCond not = new NotCond();
-                not.setSon(c_eff.activation_condition);
+                NotCond not = new NotCond(c_eff.activation_condition);
                 AndCond cond = new AndCond();
                 cond.addConditions(this);
                 cond.addConditions(not);
                 return cond;
             }
             if (achiever instanceof Predicate){
-                NotCond not = new NotCond();
-                not.setSon(c_eff.activation_condition);
+//                NotCond not = new NotCond(c_eff.activation_condition); // TODO: Verify whether ``not'' should be used?
                 AndCond cond = new AndCond();
                 cond.addConditions(this);
                 return cond;
@@ -621,8 +618,7 @@ public class  Predicate extends Conditions implements PostCondition {
             //achiever is a ConditionalEffect
             ConditionalEffect c_eff_ach = (ConditionalEffect)achiever;
             OrCond ret = new OrCond();
-            NotCond not = new NotCond();
-            not.setSon(c_eff.activation_condition);
+            NotCond not = new NotCond(c_eff.activation_condition);
             AndCond cond = new AndCond();
             cond.addConditions(this);
             cond.addConditions(not);

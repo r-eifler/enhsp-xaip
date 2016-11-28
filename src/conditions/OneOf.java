@@ -120,10 +120,8 @@ public class OneOf extends Conditions{
             for (int k=0;k<list1.size();k++){
                 for (int j=k+1;j<list1.size();j++){
                         OrCond or2 = new OrCond();
-                        NotCond a = new NotCond();
-                        NotCond b = new NotCond();
-                        a.setSon(list1.get(k));
-                        b.setSon(list1.get(j));
+                        NotCond a = new NotCond(list1.get(k));
+                        NotCond b = new NotCond(list1.get(j));
                         or2.addConditions(a);
                         or2.addConditions(b);
                         and.addConditions(or2);
