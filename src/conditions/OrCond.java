@@ -300,8 +300,8 @@ public class OrCond extends Conditions {
 //                System.out.println("Testing with:"+o);
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
-                    if (nc.son.iterator().next() instanceof Predicate) {
-                        Conditions p = (Conditions) nc.son.iterator().next();
+                    if (nc.getSon() instanceof Predicate) {
+                        Conditions p = (Conditions) nc.getSon();
                         if (possibleState.satisfy(p)) {
                             //System.out.println(p+" satisfiable");
                             return true;
@@ -331,8 +331,8 @@ public class OrCond extends Conditions {
 //                System.out.println("Testing with:"+o);
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
-                    if (nc.son.iterator().next() instanceof Predicate) {
-                        Conditions p = (Conditions) nc.son.iterator().next();
+                    if (nc.getSon() instanceof Predicate) {
+                        Conditions p = (Conditions) nc.getSon();
                         if (possibleState.contains(p)) {
                             //System.out.println(p+" satisfiable");
                             return true;

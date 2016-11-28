@@ -190,9 +190,9 @@ public abstract class Conditions extends Object {
             return ret;
         } else if (this instanceof NotCond) {
             NotCond temp = (NotCond) this;
-            if (temp.son == null || temp.son.isEmpty())
+            if (temp.getSon() == null )
                 return ret;
-            Conditions temp2 = (Conditions) temp.son.iterator().next();
+            Conditions temp2 = (Conditions) temp.getSon();
             ret.addAll(temp2.getInvolvedPredicates());
             return ret;
         }

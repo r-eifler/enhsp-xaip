@@ -829,7 +829,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         } else if (delList instanceof AndCond) {
             for (NotCond o : (HashSet<NotCond>) delList.sons) {
                 //System.out.println(o);
-                if (goal.sons.contains(o.son.iterator().next())) {
+                if (goal.sons.contains(o.getSon())) {
                     //System.out.println(o);
                     destroyingGoals++;
                 }
@@ -972,7 +972,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 for (Object o1 : goal.sons) {
                     //System.out.println(o1);
                     //System.out.println(o.son.iterator().next());
-                    Predicate a = (Predicate) o.son.iterator().next();
+                    Predicate a = (Predicate) o.getSon();
                     Predicate b = (Predicate) o1;
                     if (a.toString().equalsIgnoreCase(b.toString())) {
                         //System.out.println("Scoperto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<=======================================");
@@ -1065,7 +1065,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         } else if (delList instanceof AndCond) {
             for (NotCond o : (HashSet<NotCond>) delList.sons) {
                 //System.out.println(o);
-                if (goal.sons.contains(o.son.iterator().next())) {
+                if (goal.sons.contains(o.getSon())) {
                     //System.out.println(o);
                     destroyingGoals++;
                 }
@@ -1212,7 +1212,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             NotCond nc = (NotCond) o;
             //System.out.println(nc);
 
-            if (nc.son.contains(p)) {
+            if (nc.getSon().equals(p)) {
                 return true;
             }
         }
@@ -1466,7 +1466,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
             for (Object o : this.delList.sons) {
                 NotCond nc = (NotCond) o;
-                Predicate p = (Predicate) nc.son.iterator().next();
+                Predicate p = (Predicate) nc.getSon();
                 for (Object o2 : andCond.sons) {
                     if (o2 instanceof Predicate) {
                         Predicate p1 = (Predicate) o2;
@@ -2503,7 +2503,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public PostCondition getDeleter(Predicate aThis) {
         for (PostCondition eff : (Collection<PostCondition>) this.delList.sons) {
             NotCond n_eff = (NotCond) eff;
-            Predicate p = (Predicate) n_eff.son.iterator().next();
+            Predicate p = (Predicate) n_eff.getSon();
             if (p.equals(aThis)) {
                 return p;
             }
@@ -2516,7 +2516,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 for (Conditions c : (Collection<Conditions>) and.sons) {
                     if (c instanceof NotCond) {
                         NotCond n_eff = (NotCond) c;
-                        Predicate p = (Predicate) n_eff.son.iterator().next();
+                        Predicate p = (Predicate) n_eff.getSon();
 //                System.out.println("DEBUG: Comparing: "+p+" with "+aThis);
                         if (p.equals(aThis)) {
 //                    System.out.println("DEBUG: Equal");
@@ -2527,7 +2527,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             }
             if (c_eff.effect instanceof NotCond) {
                 NotCond n_eff = (NotCond) c_eff.effect;
-                Predicate p = (Predicate) n_eff.son.iterator().next();
+                Predicate p = (Predicate) n_eff.getSon();
 //                System.out.println("DEBUG: Comparing: "+p+" with "+aThis);
                 if (p.equals(aThis)) {
 //                    System.out.println("DEBUG: Equal");

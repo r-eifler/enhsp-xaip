@@ -558,9 +558,9 @@ public class EPddlProblem extends PddlProblem {
         else if (a instanceof NotCond){//this is problematique.
             NotCond nc = (NotCond)a;
             subst = Instantiator.substitutions(nc.getInvolvedVariables(), objects);
-            for (Object o: nc.son){
-                    subst.removeAll(this.find_substs(o, s));
-            }           
+//            for (Object o: nc.son){
+                    subst.removeAll(this.find_substs(nc.getSon(), s));
+//            }           
         }
         else if (a instanceof ActionSchema){
             ActionSchema gr = (ActionSchema)a;

@@ -120,7 +120,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
             for (Conditions c : (Collection<Conditions>)or.sons){
                 if (c instanceof NotCond){
                     NotCond nc = (NotCond)c;
-                    Object o = nc.son.iterator().next();
+                    Object o = nc.getSon();
                     if (o instanceof Predicate){
                         Predicate p = (Predicate)o;
                         if (!p.isSatisfied(reacheableState))
@@ -140,7 +140,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
             for (Conditions c : (Collection<Conditions>)or.sons){
                 if (c instanceof NotCond){
                     NotCond nc = (NotCond)c;
-                    Object o = nc.son.iterator().next();
+                    Object o = nc.getSon();
                     if (o instanceof Predicate){
                         Predicate p = (Predicate)o;
                         if (!p.can_be_true(reacheableState))
