@@ -94,6 +94,13 @@ public abstract class Conditions extends Object {
 
     public abstract void changeVar(Map substitution);
 
+    /**
+     * Prints this condition in PDDL format.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @return a string representation in PDDL format of this condition.  
+     */
     public abstract String pddlPrint(boolean typeInformation);
 
     public abstract String pddlPrintWithExtraObject();

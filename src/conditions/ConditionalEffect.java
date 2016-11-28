@@ -55,7 +55,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     }
     
     public String pddlPrint(boolean typeInformation){
-        return "(when "+this.activation_condition.pddlPrint(false)+" "+this.effect.pddlPrint(false)+")";
+        return "(when "+this.activation_condition.pddlPrint(typeInformation)+" "+this.effect.pddlPrint(typeInformation)+")";
     }
 
     @Override

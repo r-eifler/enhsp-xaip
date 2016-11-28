@@ -46,7 +46,6 @@ public class PDDLObject extends Conditions {
 
     private String name;
     private Type type;
-    public HashSet son;
 
     public PDDLObject(String name) {
         grounded = true;
