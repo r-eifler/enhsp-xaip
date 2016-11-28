@@ -414,7 +414,7 @@ public class PddlProblem {
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Conditions ret_val = createGoals(infoAction.getChild(i));
                 if (ret_val != null) {
-                    not.addConditions(ret_val);
+                    not.addSon(ret_val);
                 }
             }
             return not;
@@ -1155,7 +1155,7 @@ public class PddlProblem {
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Conditions ret_val = addOneOf(infoAction.getChild(i));
                     if (ret_val != null) {
-                        not.addConditions(ret_val);
+                        not.addSon(ret_val);
                     }
                 }
                 return not;
@@ -1216,7 +1216,7 @@ public class PddlProblem {
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Conditions ret_val = addOr(infoAction.getChild(i));
                 if (ret_val != null) {
-                    not.addConditions(ret_val);
+                    not.addSon(ret_val);
                 }
             }
             return not;

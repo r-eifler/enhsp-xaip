@@ -570,7 +570,7 @@ public final class PddlDomain extends Object {
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
                     if (ret_val != null) {
-                        not.addConditions(ret_val);
+                        not.addSon(ret_val);
                     }
                 }
                 return not;
@@ -724,7 +724,7 @@ public final class PddlDomain extends Object {
             case PddlParser.NOT_EFFECT:
                 NotCond not = new NotCond();
                 Conditions ret_val = (Conditions)createPostCondition(parTable,infoAction.getChild(0));
-                not.addConditions((Conditions) ret_val);
+                not.addSon((Conditions) ret_val);
                  
                 
                 return not;
@@ -1028,11 +1028,11 @@ public final class PddlDomain extends Object {
                         if (o instanceof NotCond) {
                             NotCond nc = (NotCond) o;
                             //System.out.println(nc);
-                            for (Object o1 : nc.son) {
-                                Predicate p = (Predicate) o1;
+//                            for (Object o1 : nc.son) {
+                                Predicate p = (Predicate) nc.getSon();
                                 Predicate pDef = this.getPredicates().findAssociated(p);
                                 ret.put(pDef, Boolean.FALSE);
-                            }
+//                            }
 
                         }
                     }

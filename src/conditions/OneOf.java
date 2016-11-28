@@ -122,8 +122,8 @@ public class OneOf extends Conditions{
                         OrCond or2 = new OrCond();
                         NotCond a = new NotCond();
                         NotCond b = new NotCond();
-                        a.addConditions(list1.get(k));
-                        b.addConditions(list1.get(j));
+                        a.addSon(list1.get(k));
+                        b.addSon(list1.get(j));
                         or2.addConditions(a);
                         or2.addConditions(b);
                         and.addConditions(or2);

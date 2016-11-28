@@ -14,10 +14,10 @@ import problem.State;
  *
  * @author enrico
  */
-public class blind_heuristic extends Heuristic{
+public class blind_heuristic extends Aibr{
 
-    public blind_heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P, Conditions GC) {
-        super(G, A, P, GC);
+    public blind_heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+        super(G, A, P);
     }
     
     public blind_heuristic(Conditions G, Set<GroundAction> A) {
@@ -27,16 +27,10 @@ public class blind_heuristic extends Heuristic{
 
 
     @Override
-    public Float setup(State s_0) {
-        if (s_0.satisfy(this.G))
-                return 0f;
-        else
-            return 1f;
-        
-    }
-
-    @Override
     public Float compute_estimate(State s_0) {
+        if (reachability){
+            return super.compute_estimate(s_0);
+        }
         if (s_0.satisfy(this.G))
                 return 0f;
         else

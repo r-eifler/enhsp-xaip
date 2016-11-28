@@ -390,7 +390,7 @@ public class AndCond extends Conditions implements PostCondition {
             while (it.hasNext()) {
                 //NotCond nc = (NotCond)it.next();
                 //System.out.println("Confronto : " + o.getClass());
-                if (it.next().equals(nc.son.iterator().next())) {
+                if (it.next().equals(nc.getSon())) {
                     it.remove();
                 }
             }
@@ -413,7 +413,7 @@ public class AndCond extends Conditions implements PostCondition {
             while (it.hasNext()) {
                 NotCond nc = (NotCond) it.next();
                 //System.out.println("Confronto : " + o.getClass());
-                if (o.equals(nc.son.iterator().next())) {
+                if (o.equals(nc.getSon())) {
                     it.remove();
                 }
             }
@@ -831,7 +831,7 @@ public class AndCond extends Conditions implements PostCondition {
         for (Conditions p1: (Collection<Conditions>)this.sons ){
             if (p1 instanceof NotCond){
                 NotCond nc = (NotCond)p1;
-                Predicate p2 = (Predicate)nc.son.iterator().next();
+                Predicate p2 = (Predicate)nc.getSon();
                 if (p2.equals(p))
                     return new Predicate(Predicate.true_false.TRUE);
             }
