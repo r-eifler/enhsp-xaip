@@ -27,6 +27,7 @@
  */
 package heuristics.advanced;
 
+import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
@@ -119,15 +120,18 @@ public class Uniform_cost_search_HM extends Heuristic {
         for (GroundAction a : actions_to_consider) {
             a.counter = counter_actions++;
             
-            if (a.getPreconditions() != null) {
-                if (a.getPreconditions() != null && a.getPreconditions().sons != null) {
-                    
+//            if (a.getPreconditions() != null) {
+                if (a.getPreconditions() != null && a.getPreconditions().sons != null && !a.getPreconditions().sons.isEmpty()) {
                     a.getPreconditions().setCounter(counter2++);
                     all_conditions.add(a.getPreconditions());
                     this.cond_action.put(a.getPreconditions().getCounter(), a);
-
+                }else{//this creates a fake precondition for the action. It is needed to trigger the very first set of actions that can be applied
+                    a.setPreconditions(new AndCond());
+                    a.getPreconditions().setCounter(counter2++);
+                    all_conditions.add(a.getPreconditions());
+                    this.cond_action.put(a.getPreconditions().getCounter(), a);                   
                 }
-            }
+//            }
         }
 
         G.setCounter(counter2++);
@@ -180,7 +184,8 @@ public class Uniform_cost_search_HM extends Heuristic {
 //        }
         Collection<Conditions> temp_conditions = null;
 //        System.out.println(all_conditions.size());
-        while (!q.isEmpty()) {
+
+        while (!q.isEmpty() ) {
             //if (!first) {
 //            System.out.println(++iteration);
             Float first = null;

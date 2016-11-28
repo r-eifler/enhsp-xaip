@@ -124,7 +124,7 @@ public abstract class Heuristic {
         reacheable_predicates = new LinkedHashSet();
         reachable = new LinkedHashSet();
         max_depth = 10;
-        all_conditions = new LinkedHashSet();
+        all_conditions = new ArrayList();
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
     }
@@ -140,7 +140,7 @@ public abstract class Heuristic {
         reacheable_predicates = new LinkedHashSet();
         reachable = new LinkedHashSet();
         max_depth = 10;
-        all_conditions = new LinkedHashSet();
+        all_conditions = new ArrayList();
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
     }
@@ -156,7 +156,7 @@ public abstract class Heuristic {
         reacheable_predicates = new LinkedHashSet();
         reachable = new LinkedHashSet();
         max_depth = 10;
-        all_conditions = new LinkedHashSet();
+        all_conditions = new ArrayList();
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
         this.gC = GC;
