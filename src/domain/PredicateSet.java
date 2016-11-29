@@ -40,8 +40,7 @@ public class PredicateSet extends HashSet<Predicate> {
 
     public boolean validate(Predicate p) {
 
-        for (Object el : this) {
-            Predicate elP = (Predicate) el;
+        for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     return true;
@@ -53,8 +52,7 @@ public class PredicateSet extends HashSet<Predicate> {
     
     public Predicate findAssociated(Predicate p) {
 
-        for (Object el : this) {
-            Predicate elP = (Predicate) el;
+        for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
 //                    for (Object o: elP.getTerms())
@@ -76,8 +74,7 @@ public class PredicateSet extends HashSet<Predicate> {
 
     public boolean validateInst(Predicate p) {
 
-        for (Object el : this) {
-            Predicate elP = (Predicate) el;
+        for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {
                     int i = 0;
@@ -108,8 +105,7 @@ public class PredicateSet extends HashSet<Predicate> {
 
     public String pddlPrint(boolean typeInformation) {
         String ret="";
-        for (Object el : this) {
-            Predicate elP = (Predicate) el;
+        for (final Predicate elP : this) {
             ret += elP.pddlPrint(typeInformation);
          }
         return ret+")";
@@ -117,8 +113,7 @@ public class PredicateSet extends HashSet<Predicate> {
     
     public String pddlPrintWithExtraObject(boolean typeInformation) {
         String ret="";
-        for (Object el : this) {
-            Predicate elP = (Predicate) el;
+        for (final Predicate elP : this) {
             if (typeInformation)
                 ret += elP.pddlPrintWithTypedExtraObject();
             else
@@ -129,9 +124,7 @@ public class PredicateSet extends HashSet<Predicate> {
 
     public void addIfNecessary(Predicate p) {
         boolean found = false;
-        String name ="";
-        for (Object el : this) {
-            Predicate elP = (Predicate) el;
+        for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     found = true;
