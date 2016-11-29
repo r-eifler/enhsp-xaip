@@ -6,6 +6,8 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PDDLObject;
+import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +27,7 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Expression ground(Map substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;

@@ -29,6 +29,7 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;
 import domain.Variable;
@@ -121,7 +122,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a new Grounded NumEffect object
      */
     @Override
-    public Expression ground(Map substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution) {
         NumEffect ret = new NumEffect(this.operator);
         ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution);
         ret.right = this.right.ground(substitution);

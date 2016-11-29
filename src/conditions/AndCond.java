@@ -84,28 +84,25 @@ public class AndCond extends Conditions implements PostCondition {
         return ret_val;
     }
 
-    /**
-     *
-     * @param the sigma relating the the variable involved with concrete
-     * pddlobject
-     * @return
-     */
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
         AndCond ret = new AndCond();
 
         //System.out.println(this.toString());
         for (Object o : sons) {
+            final Object groundedO;
             if (o instanceof NumEffect) {
                 NumEffect el = (NumEffect) o;
-                ret.sons.add(el.ground(substitution));
+                groundedO = el.ground(substitution);
 
             } else {
                 Conditions el = (Conditions) o;
                 //System.out.println(el);
-                ret.sons.add(el.ground(substitution));
+                groundedO = el.ground(substitution);
             }
+            ret.sons.add(groundedO);
         }
+        
         ret.grounded = true;
         return ret;
     }

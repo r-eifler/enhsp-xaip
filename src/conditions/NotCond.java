@@ -75,7 +75,7 @@ public class NotCond extends Conditions implements PostCondition {
     }
     
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
         final Conditions groundedSon = son.ground(substitution);
         NotCond ret = new NotCond(groundedSon);
         ret.grounded = true;

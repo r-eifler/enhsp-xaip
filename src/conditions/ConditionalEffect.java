@@ -83,7 +83,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         return this;
     }
 
-    public ConditionalEffect ground(Map substitution) {
+    public ConditionalEffect ground(Map<Variable,PDDLObject> substitution) {
         ConditionalEffect ret = new ConditionalEffect();
         ret.activation_condition = this.activation_condition.ground(substitution);
         

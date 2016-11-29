@@ -118,8 +118,8 @@ public class PDDLObject extends Conditions {
     }
 
     @Override
-    public PDDLObject ground(Map substitution) {
-        return new PDDLObject(name, type);
+    public PDDLObject ground(Map<Variable,PDDLObject> substitution) {
+        return new PDDLObject(name, type); // TODO: Why not return this?
     }
     
     @Override

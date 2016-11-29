@@ -181,7 +181,7 @@ public class Comparison extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
         Comparison ret = new Comparison(comparator);
 
         ret.left = left.ground(substitution);

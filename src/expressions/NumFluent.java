@@ -119,12 +119,13 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression ground(Map substitution) {
+    public NumFluent ground(Map<Variable,PDDLObject> substitution) {
         NumFluent ret = new NumFluent(getName());
 
         for (Object o : terms) {
             if (o instanceof Variable) {
-                PDDLObject t = (PDDLObject) substitution.get(o);
+                final Variable v = (Variable)o;
+                PDDLObject t = substitution.get(v);
                 if (t == null) {
                     System.out.println("Substitution Failed for " + o.toString());
                     System.exit(-1);
