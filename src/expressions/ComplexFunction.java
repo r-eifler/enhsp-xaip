@@ -6,6 +6,8 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PDDLObject;
+import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +27,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Expression ground(Map substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution) {
         ComplexFunction ret = new ComplexFunction();
 
         ret.operator = this.operator;
@@ -63,7 +65,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

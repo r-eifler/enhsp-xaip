@@ -27,7 +27,8 @@
 package expressions;
 
 import conditions.Conditions;
-import java.util.ArrayList;
+import conditions.PDDLObject;
+import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,18 @@ public abstract class Expression extends Object {
         grounded = false;
     }
 
-    public abstract Expression ground(Map substitution);
+    /**
+     * Substitutes the variables in this expression 
+     * with the PDDLObjects associated to each variable in the specified table.  
+     * The returned expression is therefore grounded.  
+     * This method may fail if there is no substitution for some variable.  
+     * 
+     * @param substitution the map that indicates what object 
+     * should replace the specified variable.  
+     * @return a copy of this expression where each variable 
+     * is replaced to the object according to the specified mapping.  
+     */
+    public abstract Expression ground(Map<Variable,PDDLObject> substitution);
     
     public abstract Expression unGround(Map substitution);
 
@@ -57,7 +69,7 @@ public abstract class Expression extends Object {
     //public abstract State apply(State s);
     public abstract ExtendedNormExpression normalize();
 
-    public abstract void changeVar(Map substitution);
+    public abstract void changeVar(Map<Variable,PDDLObject> substitution);
 
     public abstract String pddlPrint(boolean typeInformation);
 

@@ -27,6 +27,8 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PDDLObject;
+import domain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,9 +117,9 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Expression ground(Map substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution) {
         MultiOp ret = new MultiOp();
-        for (Object o : expr) {
+        for (Object o : expr) { // TODO: If all objects are expressions, there should be a cast to Expression
             Expression e = (Expression) o;
             ret.addExpression(e.ground(substitution));
         }
@@ -158,7 +160,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

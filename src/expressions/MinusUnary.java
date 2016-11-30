@@ -28,6 +28,8 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PDDLObject;
+import domain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Expression ground(Map substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution) {
         MinusUnary ret = new MinusUnary();
 
         ret.element = element.ground(substitution);
@@ -82,7 +84,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

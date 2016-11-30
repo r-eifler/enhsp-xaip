@@ -30,7 +30,6 @@ import domain.Variable;
 import expressions.NumFluent;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,8 +46,7 @@ public class  Predicate extends Conditions implements PostCondition {
 
     private String predicateName;
     //private ArrayList variables;
-    private ArrayList terms;
-    private boolean grounded;
+    private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
     public HashSet son;
     public Integer hash_code;
 
@@ -118,9 +116,7 @@ public class  Predicate extends Conditions implements PostCondition {
     }
     public enum true_false {TRUE,FALSE};
     
-    /**
-     * @return the predicateName
-     */
+    
     public Predicate() {
         super();
         //variables = new ArrayList();
@@ -190,7 +186,9 @@ public class  Predicate extends Conditions implements PostCondition {
     }
 
     /**
-     * @param adding a variable term to the predicate
+     * Adding a variable term to the predicate
+     * 
+     * @param v the variable to add.  
      */
     public void addVariable(Variable v) {
 ////        if (isGrounded()) {
@@ -247,7 +245,7 @@ public class  Predicate extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
         ret.grounded = true;
@@ -255,7 +253,8 @@ public class  Predicate extends Conditions implements PostCondition {
         //System.out.println(this);
         for (Object o : terms) {
             if (o instanceof Variable) {
-                PDDLObject t = (PDDLObject) substitution.get(o);
+                final Variable v = (Variable)o;
+                PDDLObject t = substitution.get(v);
                 if (t == null) {
                     System.out.println("Error in substitution  for " + o);
                     System.exit(-1);
@@ -368,6 +367,7 @@ public class  Predicate extends Conditions implements PostCondition {
 
 
     
+    @Override
     public HashMap apply(State s) {
         HashMap ret = new HashMap();
         ret.put(this,Boolean.TRUE);
@@ -564,8 +564,7 @@ public class  Predicate extends Conditions implements PostCondition {
         OrCond or = new OrCond();
         AndCond effect_reasons = new AndCond();
         AndCond frame_axiom = new AndCond();
-        NotCond no_del = new NotCond();
-        no_del.setSon(deleters);
+        NotCond no_del = new NotCond(deleters);
         
         effect_reasons.addConditions(achievers);
         effect_reasons.addConditions(no_del);
@@ -582,7 +581,7 @@ public class  Predicate extends Conditions implements PostCondition {
         PostCondition achiever =  gr.getAdder(this);
         PostCondition destroyer =  gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate){
-            Conditions con = new NotCond();
+            Conditions con = new NotCond(null); // Maybe put a dummy here?
             con.setUnsatisfiable(true);
             return con;
         }
@@ -604,16 +603,14 @@ public class  Predicate extends Conditions implements PostCondition {
         }else{//destroyer is ConditionalEffect
             ConditionalEffect c_eff = (ConditionalEffect)destroyer;
             if (achiever == null){
-                NotCond not = new NotCond();
-                not.setSon(c_eff.activation_condition);
+                NotCond not = new NotCond(c_eff.activation_condition);
                 AndCond cond = new AndCond();
                 cond.addConditions(this);
                 cond.addConditions(not);
                 return cond;
             }
             if (achiever instanceof Predicate){
-                NotCond not = new NotCond();
-                not.setSon(c_eff.activation_condition);
+//                NotCond not = new NotCond(c_eff.activation_condition); // TODO: Verify whether ``not'' should be used?
                 AndCond cond = new AndCond();
                 cond.addConditions(this);
                 return cond;
@@ -621,8 +618,7 @@ public class  Predicate extends Conditions implements PostCondition {
             //achiever is a ConditionalEffect
             ConditionalEffect c_eff_ach = (ConditionalEffect)achiever;
             OrCond ret = new OrCond();
-            NotCond not = new NotCond();
-            not.setSon(c_eff.activation_condition);
+            NotCond not = new NotCond(c_eff.activation_condition);
             AndCond cond = new AndCond();
             cond.addConditions(this);
             cond.addConditions(not);

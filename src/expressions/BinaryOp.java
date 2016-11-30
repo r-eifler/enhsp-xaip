@@ -28,6 +28,8 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.PDDLObject;
+import domain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -113,7 +115,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Expression ground(Map substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
@@ -225,7 +227,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         this.lhs.changeVar(substitution);
         this.rhs.changeVar(substitution);
 

@@ -103,7 +103,7 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {

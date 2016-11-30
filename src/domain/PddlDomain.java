@@ -566,13 +566,14 @@ public final class PddlDomain extends Object {
                 }
                 return or;
             case PddlParser.NOT_GD:
-                NotCond not = new NotCond();
+                Conditions cond = null; // TODO: Can it be null or should we throw an error?  
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
                     if (ret_val != null) {
-                        not.setSon(ret_val);
+                        cond = ret_val;
                     }
                 }
+                NotCond not = new NotCond(cond);
                 return not;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -722,10 +723,8 @@ public final class PddlDomain extends Object {
                 }
                 return and;
             case PddlParser.NOT_EFFECT:
-                NotCond not = new NotCond();
                 Conditions ret_val = (Conditions)createPostCondition(parTable,infoAction.getChild(0));
-                not.setSon((Conditions) ret_val);
-                 
+                NotCond not = new NotCond(ret_val);
                 
                 return not;
             //Crea un and e per ogni figlio di questo nodo invoca creaformula

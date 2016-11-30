@@ -82,7 +82,18 @@ public abstract class Conditions extends Object {
      */
     public abstract Conditions regress(GroundAction gr);
 
-    public abstract Conditions ground(Map substitution);
+    /**
+     * Substitutes the variables in this conditions 
+     * with the PDDLObjects associated to each variable in the specified table.  
+     * The returned object is therefore grounded.  
+     * This method may fail if there is no substitution for some variable.  
+     * 
+     * @param substitution the map that indicates what object 
+     * should replace the specified variable.  
+     * @return a copy of this conditions where each variable 
+     * is replaced to the object according to the specified mapping.  
+     */
+    public abstract Conditions ground(Map<Variable,PDDLObject> substitution);
 
     public abstract Conditions ground(Map substitution, int c);
 
@@ -94,6 +105,13 @@ public abstract class Conditions extends Object {
 
     public abstract void changeVar(Map substitution);
 
+    /**
+     * Prints this condition in PDDL format.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @return a string representation in PDDL format of this condition.  
+     */
     public abstract String pddlPrint(boolean typeInformation);
 
     public abstract String pddlPrintWithExtraObject();

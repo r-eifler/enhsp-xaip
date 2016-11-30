@@ -409,13 +409,14 @@ public class PddlProblem {
             //Crea un or e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di or
         } else if (infoAction.getType() == PddlParser.NOT_GD) {
-            NotCond not = new NotCond();
+            Conditions cond = null; // TODO: Can the condition be null or should we throw an error if that happens?
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Conditions ret_val = createGoals(infoAction.getChild(i));
                 if (ret_val != null) {
-                    not.setSon(ret_val);
+                    cond = ret_val;
                 }
             }
+            NotCond not = new NotCond(cond);
             return not;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -1150,13 +1151,14 @@ public class PddlProblem {
                 //Crea un or e per ogni figlio di questo nodo invoca creaformula
                 //gestendo il valore di ritorno come un attributo di or
             case PddlParser.NOT_PRED_INIT:
-                NotCond not = new NotCond();
+                Conditions cond = null; // TODO: Can the condition be null or should we throw an error?
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Conditions ret_val = addOneOf(infoAction.getChild(i));
                     if (ret_val != null) {
-                        not.setSon(ret_val);
+                        cond = ret_val;
                     }
                 }
+                NotCond not = new NotCond(cond);
                 return not;
             case PddlParser.PRED_INST:
                 //estrapola tutti i predicati e ritornali come set di predicati
@@ -1210,14 +1212,16 @@ public class PddlProblem {
             return or;
             //Crea un or e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di or
-        } else if (infoAction.getType() == PddlParser.NOT_PRED_INIT) {
-            NotCond not = new NotCond();
+        } else if (infoAction.getType() == PddlParser.NOT_PRED_INIT) { 
+            // TODO: Can the condition be null or should we throw an error if that happens?
+            Conditions cond = null;
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Conditions ret_val = addOr(infoAction.getChild(i));
                 if (ret_val != null) {
-                    not.setSon(ret_val);
+                    cond = ret_val;
                 }
             }
+            NotCond not = new NotCond(cond);
             return not;
         }else{
             System.out.println("OR parsing: Some serious error:"+infoAction);

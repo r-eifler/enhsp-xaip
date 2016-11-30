@@ -70,11 +70,13 @@ public class PDDLObjectsEquality extends Conditions {
      * @return a grounded copy of the condition
      */
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
+        // TODO: Couldn't one of the objects be already grounded?
+        
         PDDLObjectsEquality ret = null;
 
-        PDDLObject t1 = (PDDLObject) substitution.get(getLeftV());
-        PDDLObject t2 = (PDDLObject) substitution.get(getRightV());
+        PDDLObject t1 = substitution.get(getLeftV());
+        PDDLObject t2 = substitution.get(getRightV());
         if ((t1 == null) || (t2 == null)) {
             System.out.println("Error in substitution  for " + getLeftV() + " or " + getRightV());
             System.exit(-1);

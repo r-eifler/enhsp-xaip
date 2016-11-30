@@ -137,7 +137,7 @@ public class NumFluentValue extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution) {
         NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) nFluent.ground(substitution);
         ret.grounded = true;
