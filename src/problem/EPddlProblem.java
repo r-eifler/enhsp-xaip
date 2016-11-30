@@ -664,7 +664,7 @@ public class EPddlProblem extends PddlProblem {
                     NumEffect neff = (NumEffect)it.next();
                     if (neff.getOperator().equals("assign") ){     
                         ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber()){//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
                             neff.setOperator("increase");
                             neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
                             neff.setPseudo_num_effect(true);

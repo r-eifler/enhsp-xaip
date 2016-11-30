@@ -498,7 +498,7 @@ public abstract class Heuristic {
                     }
                     break;
                 case "assign":
-                    nf.apply(temp);
+                    temp.update_values(nf.apply(temp));
                     break;
             }
         }
