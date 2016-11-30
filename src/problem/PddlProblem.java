@@ -311,8 +311,7 @@ public class PddlProblem {
                     break;
                 case PddlParser.OBJECTS:
                     addObjects(child);
-                    System.out.println("Objects considered:"+objects);
-
+//                    System.out.println("Objects considered:"+objects);
                     break;
                 case PddlParser.INIT:
                     addInitFacts(child);
