@@ -115,7 +115,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 

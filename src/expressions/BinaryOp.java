@@ -227,7 +227,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         this.lhs.changeVar(substitution);
         this.rhs.changeVar(substitution);
 

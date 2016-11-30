@@ -26,11 +26,14 @@
 
 package domain;
 
+import conditions.PDDLObject;
+import java.util.Map;
+
 /**
  *
  * @author enrico
  */
-public class Variable extends Object {
+public class Variable implements ActionParameter {
 
     private String Name;
     private Type type;
@@ -48,7 +51,18 @@ public class Variable extends Object {
     }
     public Variable() {
         super();
+    }
 
+    @Override
+    public PDDLObject ground(Map<Variable, PDDLObject> substitution) {
+        final PDDLObject o = substitution.get(this);
+        
+        if (o == null) {
+            System.out.println("Substitution Failed for " + o.toString());
+            System.exit(-1);
+        }
+        
+        return o;
     }
 
     @Override

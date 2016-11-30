@@ -29,7 +29,6 @@ package expressions;
 import conditions.Conditions;
 import conditions.PDDLObject;
 import domain.Variable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -70,7 +69,7 @@ public abstract class Expression extends Object {
     //public abstract State apply(State s);
     public abstract ExtendedNormExpression normalize();
 
-    public abstract void changeVar(Map substitution);
+    public abstract void changeVar(Map<Variable,PDDLObject> substitution);
 
     public abstract String pddlPrint(boolean typeInformation);
 

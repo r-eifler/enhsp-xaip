@@ -246,7 +246,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @param substitution
      */
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         this.fluentAffected.changeVar(substitution);
         this.right.changeVar(substitution);
     }
@@ -550,7 +550,11 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     public ArrayList<Variable> getInvolvedVariables()  {
-        return this.fluentAffected.getTerms();
+        // It is assumed that this method will be called only when the terms are ungrounded.  
+        // Here be dragon.  
+        final ArrayList list = (ArrayList)this.fluentAffected.getTerms();
+        final ArrayList<Variable> result = (ArrayList<Variable>)list;
+        return result;
     }
 
     /**

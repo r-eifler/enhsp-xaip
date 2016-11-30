@@ -29,6 +29,7 @@ package expressions;
 
 import conditions.Conditions;
 import conditions.PDDLObject;
+import domain.ActionParameter;
 import domain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ import problem.State;
 public class NumFluent extends Expression {
 
     final private String name;
-    private ArrayList terms;
+    private ArrayList<ActionParameter> terms;
     private String beforeReformulation;
     private Boolean has_to_be_tracked;
 
@@ -54,24 +55,24 @@ public class NumFluent extends Expression {
         NumFluent objF = (NumFluent) obj;
 
         if (objF.getName().equalsIgnoreCase(this.getName())) {
-            if (objF.terms.size() == this.terms.size()) {
-                for (int i = 0; i < objF.terms.size(); i++) {
-                    if (objF.terms.get(i) instanceof PDDLObject) {
-                        PDDLObject ogg = (PDDLObject) objF.terms.get(i);
-                        PDDLObject ogg2 = (PDDLObject) this.terms.get(i);
-                        if (!(ogg.equals(ogg2))) {
-                            return false;
-                        }
-                    } else if (objF.terms.get(i) instanceof Variable) {
-                        Variable ogg = (Variable) objF.terms.get(i);
-                        Variable ogg2 = (Variable) this.terms.get(i);
-                        if (!(ogg.equals(ogg2))) {
-                            return false;
-                        }
+            // TODO: Why not simply write if (!objF.terms.equals(this.terms)) { return false; }
+            if (objF.terms.size() != this.terms.size()) {
+                return false;
+            }
+            for (int i = 0; i < objF.terms.size(); i++) {
+                if (objF.terms.get(i) instanceof PDDLObject) {
+                    PDDLObject ogg = (PDDLObject) objF.terms.get(i);
+                    PDDLObject ogg2 = (PDDLObject) this.terms.get(i);
+                    if (!(ogg.equals(ogg2))) {
+                        return false;
+                    }
+                } else if (objF.terms.get(i) instanceof Variable) {
+                    Variable ogg = (Variable) objF.terms.get(i);
+                    Variable ogg2 = (Variable) this.terms.get(i);
+                    if (!(ogg.equals(ogg2))) {
+                        return false;
                     }
                 }
-            } else {
-                return false;
             }
         } else {
             return false;
@@ -91,7 +92,7 @@ public class NumFluent extends Expression {
         super();
         this.name = name;
         //variables = new ArrayList();
-        terms = new ArrayList();
+        terms = new ArrayList<>();
         this.beforeReformulation = null;
     }
 
@@ -122,19 +123,8 @@ public class NumFluent extends Expression {
     public NumFluent ground(Map<Variable,PDDLObject> substitution) {
         NumFluent ret = new NumFluent(getName());
 
-        for (Object o : terms) {
-            if (o instanceof Variable) {
-                final Variable v = (Variable)o;
-                PDDLObject t = substitution.get(v);
-                if (t == null) {
-                    System.out.println("Substitution Failed for " + o.toString());
-                    System.exit(-1);
-                } else {
-                    ret.addTerms(t);
-                }
-            } else {
-                ret.addTerms((PDDLObject) o);
-            }
+        for (final ActionParameter param : terms) {
+            ret.addTerms(param.ground(substitution));
         }
         ret.grounded = true;
         return ret;
@@ -165,7 +155,7 @@ public class NumFluent extends Expression {
     /**
      * @return the terms
      */
-    public ArrayList getTerms() {
+    public ArrayList<ActionParameter> getTerms() {
         return terms;
     }
 
@@ -187,9 +177,6 @@ public class NumFluent extends Expression {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
 //    public void setName(String name) {
 //        this.name = name;
 //    }
@@ -228,21 +215,14 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
-        ArrayList newVar = new ArrayList();
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
+        final ArrayList<ActionParameter> newVar = new ArrayList();
 
-        for (Object o : terms) {
-            if (o instanceof Variable) {
-                Variable v = (Variable) substitution.get(o);
-                if (v == null) {
-                    System.out.println("Not Found Variable" + o);
-                    System.exit(-1);
-                }
-                newVar.add(v);
-            } else {
-                newVar.add(o);
-            }
+        for (final ActionParameter o : terms) {
+            final PDDLObject sub = o.ground(substitution);
+            newVar.add(sub);
         }
+        
         terms = newVar;
     }
 

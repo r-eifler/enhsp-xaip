@@ -24,14 +24,14 @@
  *
  *********************************************************************/ 
 
-package conditions;
+package conditions; 
 
+import domain.ActionParameter;
 import domain.Type;
 import domain.Variable;
 import expressions.NumFluent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
@@ -42,7 +42,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class PDDLObject extends Conditions {
+public class PDDLObject extends Conditions implements ActionParameter {
 
     private String name;
     private Type type;

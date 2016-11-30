@@ -470,7 +470,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar(Map<Variable,PDDLObject> substitution) {
         for (Object o : this.summations) {
 
             ExtendedAddendum a = (ExtendedAddendum) o;
