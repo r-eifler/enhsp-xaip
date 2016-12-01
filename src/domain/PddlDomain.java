@@ -80,7 +80,7 @@ import problem.PddlProblem;
 public final class PddlDomain extends Object {
 
     private String name;
-    protected Set ActionsSchema;
+    protected Set<ActionSchema> ActionsSchema;
     private Set<ProcessSchema> ProcessesSchema;
     private PredicateSet predicates;
     private List<Type> types;
@@ -93,7 +93,7 @@ public final class PddlDomain extends Object {
     private HashMap abstractInvariantFluents;
     private LinkedHashSet SchemaGlobalConstraints;
 
-    private PddlDomain(Set ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List<String> Requirements) {
+    private PddlDomain(Set<ActionSchema> ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List<String> Requirements) {
         this.ActionsSchema = ActionsSchema;
         this.predicates = Predicates;
         this.types = types;
@@ -109,7 +109,7 @@ public final class PddlDomain extends Object {
     public PddlDomain() {
         super();
         types = new ArrayList<>();
-        ActionsSchema = new TreeSet(new ActionComparator());
+        ActionsSchema = new TreeSet<>(new ActionComparator());
         functions = new ArrayList();
         derived_variables = new ArrayList();
         Requirements = new ArrayList<>();
@@ -125,7 +125,7 @@ public final class PddlDomain extends Object {
             SchemaGlobalConstraints = new LinkedHashSet();
 
             types = new ArrayList<>();
-            ActionsSchema = new TreeSet(new ActionComparator());
+            ActionsSchema = new TreeSet<>(new ActionComparator());
             functions = new ArrayList();
             derived_variables = new ArrayList();
             Requirements = new ArrayList<>();
@@ -361,13 +361,6 @@ public final class PddlDomain extends Object {
      */
     public Set<ActionSchema> getActionsSchema() {
         return ActionsSchema;
-    }
-
-    /**
-     * @param ActionsSchema the ActionsSchema to set
-     */
-    private void setActionsSchema(Set ActionsSchema) {
-        this.ActionsSchema = ActionsSchema;
     }
 
     /**
@@ -786,23 +779,24 @@ public final class PddlDomain extends Object {
 
     //
     /**
+     * Returns the action with specified name.  
+     * Notice that this method is rather inefficient if there are many actions, 
+     * and that a table that maps names to action schemas could be more effective.  
      *
-     * @param name - the name of the action
+     * @param name the name of the action
      * @return an ActionSchema object (if any) with the name in input this
      * assumes that there is a 1:1 relation between action and name, i.e. we
      * cannot have different actions with the same name
      */
     public ActionSchema getActionByName(String name) {
-        ActionSchema ret = null;
-        Iterator it = this.ActionsSchema.iterator();
-
-        while (it.hasNext()) {
-            ActionSchema el = (ActionSchema) it.next();
-            if (el.getName().equalsIgnoreCase(name)) {
+        for (final ActionSchema el: ActionsSchema) {
+            final String elname = el.getName();
+            if (elname.equalsIgnoreCase(name)) {
                 return el;
             }
         }
-        return ret;
+        
+        return null;
     }
 
     private Expression createExpression(Tree t, SchemaParameters parTable) {
@@ -981,7 +975,7 @@ public final class PddlDomain extends Object {
             return getAbstractInvariantFluents();
         }
         abstractInvariantFluents = new HashMap();
-        for (ActionSchema as : (Set<ActionSchema>) this.ActionsSchema) {
+        for (final ActionSchema as : this.ActionsSchema) {
             Set s = as.getAbstractNumericFluentAffected();
             for (NumFluent nf : (Set<NumFluent>) s) {
                 abstractInvariantFluents.put(nf.getName(), false);

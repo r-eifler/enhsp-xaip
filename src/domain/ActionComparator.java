@@ -35,18 +35,14 @@ import java.util.Comparator;
  *
  * @author enrico
  */
-class ActionComparator implements Comparator {
+class ActionComparator implements Comparator<GenericActionType> {
 
     public ActionComparator() {
     }
 
     @Override
-    public int compare(Object arg0, Object arg1) {
-        GenericActionType gr0 = (GenericActionType)arg0;
-        GenericActionType gr1 = (GenericActionType)arg1;
-        
-       return gr0.name.compareTo(gr1.name);
-        
+    public int compare(GenericActionType gat1, GenericActionType gat2) {
+       return gat1.name.compareTo(gat2.name);
     }
     
 }
