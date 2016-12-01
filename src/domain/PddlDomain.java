@@ -259,7 +259,7 @@ public final class PddlDomain extends Object {
                 }
             }
         }
-        for (Object o : this.getConstants()) {
+        for (final PDDLObject o : this.getConstants()) {
             p.getProblemObjects().add(o);
         }
         //System.out.println(p.getProblemObjects());

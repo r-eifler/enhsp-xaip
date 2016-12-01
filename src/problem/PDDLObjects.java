@@ -37,61 +37,105 @@ import java.util.LinkedHashSet;
  *
  * @author enrico
  */
-public class PDDLObjects extends LinkedHashSet {
+public class PDDLObjects extends LinkedHashSet<PDDLObject> {
 
-    public boolean validate(PDDLObject t) {
-
-        for (Object el : this) {
-
-            PDDLObject elP = (PDDLObject) el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName()));
+    // Returns true if they have the same name (or both ``null''), except for the character case
+    private static boolean objectsShareSameName(PDDLObject o1, PDDLObject o2) {
+        // TODO: Should we really allow for null names?
+        
+        if (o1.getName() == null && o2.getName() == null) {
             return true;
         }
+        
+        if (o1.getName().equalsIgnoreCase(o2.getName())) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks that the specified PDDLObject appears in this list of objects.  
+     * 
+     * @param t the object whose existence is checked.  
+     * @return true if the specified PDDL object appears 
+     * in this list of PDDL objects.  
+     */
+    public boolean validate(PDDLObject t) {
+        for (final PDDLObject el : this) {
+            if (objectsShareSameName(el, t)) {
+                return true;
+            }
+        }
+        
         return false;
     }
 
+    /**
+     * Gets the type of the specified PDDL object.  
+     * This method is preferable to <code>t.getType()</code> 
+     * as <code>t</code> may ignore its type.  
+     * 
+     * @param t the PDDL object.  
+     * @return the type of the specified PDDL object if valid, 
+     * <code>null</code> otherwise.  
+     */
     public Type getTermType(PDDLObject t) {
-        for (Object el : this) {
-
-            PDDLObject elP = (PDDLObject) el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName())) {
-                return elP.getType();
+        for (final PDDLObject el : this) {
+            if (objectsShareSameName(el, t)) {
+                return el.getType();
             }
         }
         return null;
     }
 
+    /**
+     * Returns the PDDL object equivalent to the specified one.  
+     * When constructing a PDDLObject, 
+     * it is always preferable to replace it immediately
+     * with the result of the call to this method, 
+     * as it reduces the memory consumption.  
+     * 
+     * @param t the PDDL object.  
+     * @return the PDDL object equivalent to the specified one 
+     * that appears in this list of PDDL objects if existing, 
+     * <code>null</code> otherwise.  
+     */
     public PDDLObject containsTerm(PDDLObject t) {
-        for (Object el : this) {
-
-            PDDLObject elP = (PDDLObject) el;
-            if (elP.getName() == null ? t.getName() == null : elP.getName().equalsIgnoreCase(t.getName())) {
-                return elP;
+        for (final PDDLObject el : this) {
+            if (objectsShareSameName(el, t)) {
+                return el;
             }
         }
         return null;
     }
-
+    
     @Override
     public String toString() {
-        String ret_val = "";
-        for (Object el : this) {
-            PDDLObject elemento = (PDDLObject) el;
-            ret_val += " " + elemento.toString() + " ";
+        final StringBuffer result = new StringBuffer();
+        
+        for (final PDDLObject el : this) {
+            result.append(" ").append(el.toString()).append(" ");
         }
 
-        return ret_val;
+        return result.toString();
     }
 
+    /**
+     * Returns a string representation of this list of PDDLObject in PDDL format.  
+     * 
+     * @return a PDDL representation of this list of PDDLObject.  
+     */
     public String pddlPrint() {
-        String ret = "(:objects \n";
-        for (Object o : this) {
-            PDDLObject obj = (PDDLObject) o;
-
-            ret = ret + "   " + obj.pddlPrint(true) + "\n";
+        final StringBuffer result = new StringBuffer();
+        
+        result.append("(:objects \n");
+        for (final PDDLObject o : this) {
+            result.append("   ").append(o.pddlPrint(true)).append("\n");
         }
-
-        return ret + ")\n";
+        result.append(")\n");
+        
+        return result.toString();
     }
     
 }
