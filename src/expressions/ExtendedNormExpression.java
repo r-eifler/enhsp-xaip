@@ -720,7 +720,6 @@ public class ExtendedNormExpression extends Expression {
     }
 
     public boolean isNumber() throws Exception {
-        int counter = 0;
         //System.out.println(this);
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
@@ -730,7 +729,6 @@ public class ExtendedNormExpression extends Expression {
             if (ad.f != null) {
                 return false;
             }
-            counter++;
         }
         return true;
     }

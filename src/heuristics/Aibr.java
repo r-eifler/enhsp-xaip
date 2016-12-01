@@ -45,6 +45,7 @@ public class Aibr extends Heuristic {
     private HashMap<Integer,GroundAction> supp_to_actions;
     protected ArrayList<Integer> dist;
     public boolean layers_counter;
+    private boolean cost_oriented = true;
 
     public Aibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
@@ -70,6 +71,7 @@ public class Aibr extends Heuristic {
     @Override
     public Float setup(State s_0) {
         reachability = true;
+        
         this.dbg_print("Computing Internal Data Structure\n");
         this.build_integer_representation();
         this.dbg_print("Computing Reachable Actions\n");
@@ -160,7 +162,7 @@ public class Aibr extends Heuristic {
         if (!extract_plan) {
             return fix_point_computation(s,rs2);
         } else {
-            return extract_plan(rs2, i);
+            return extract_plan(rs2, i,s);
         }
 
     }
@@ -287,9 +289,14 @@ public class Aibr extends Heuristic {
             for (GroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    counter++;//=
-                    //gr.setAction_cost(s);
-                    //counter+=gr.getAction_cost();
+                    
+                    //counter++;//=
+                    if (cost_oriented){
+                        gr.setAction_cost(s);
+                        counter+=gr.getAction_cost();
+                    }else{
+                        counter++;
+                    }
                     fix_point = false;
                     if (rs2.satisfy(G) && greedy_relaxed_plan) {
                         if (counting_layers) {
@@ -321,7 +328,7 @@ public class Aibr extends Heuristic {
     }
 
     //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
-    private Float extract_plan(RelState rs2, int i) {
+    private Float extract_plan(RelState rs2, int i,State s) {
         HashMap<Integer, LinkedHashSet<GroundAction>> to_add = new HashMap();
 
         for (int t = 0; t <= i; t++) {
@@ -416,7 +423,12 @@ public class Aibr extends Heuristic {
                     k++;
                 }else{
                     rs2 = gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    counter++;
+                    if (cost_oriented){
+                        gr.setAction_cost(s);
+                        counter+=gr.getAction_cost();
+                    }else{
+                        counter++;
+                    }
                 }
                 if (counter > horizon) {
                     return counter;

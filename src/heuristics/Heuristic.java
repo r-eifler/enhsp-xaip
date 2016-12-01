@@ -112,7 +112,7 @@ public abstract class Heuristic {
     public Conditions gC;
     protected HashMap<Integer, GroundAction> cond_action;
     public boolean integer_actions=false;
-    private boolean cost_oriented_ibr=true;
+    private boolean cost_oriented_ibr=false;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
@@ -428,8 +428,12 @@ public abstract class Heuristic {
         for (NumEffect b : col) {
             if (!b.equals(nf)) {
                 if (nf.getRight().involve(b.getFluentAffected())) {
+                    //list.addLast(nf);
                     if (visit(b, col, temp_mark, per_mark, list)) {
-                        return true;
+                        per_mark.put(nf, true);
+                        temp_mark.put(nf, false);
+                        list.addLast(nf);
+                        return true;//don't bother here; the task is cyclic anyway, though keep this numeric effect and try to reach the goal afterwards
                         //cyclic = true;
                     }
                 }
@@ -494,13 +498,15 @@ public abstract class Heuristic {
                     }
                     break;
                 case "assign":
-                    nf.apply(temp);
+                    temp.update_values(nf.apply(temp));
                     break;
             }
         }
 
-        if (sorted_nodes.isEmpty())
-            return false;
+        if (sorted_nodes.isEmpty() && cyclic){
+            sorted_nodes = new LinkedList(num_eff_action.keySet());
+        }
+            
 //        if (cyclic){
 //            sorted_nodes.addAll(num_effects);
 //        }
@@ -545,8 +551,6 @@ public abstract class Heuristic {
             while (!q.isEmpty()) {
                 NumEffect a = q.pollFirst();
                 rel_state.update_values(a.apply(rel_state));
-                
-
                 if (visited.get(a)==null)
                     cost += action_to_cost.get(this.num_eff_action.get(a));//precondition
                 if (this.cost_oriented_ibr)
@@ -559,6 +563,8 @@ public abstract class Heuristic {
                     return cost;
             }
             iteration++;
+
+            
 
         }
         return cost;

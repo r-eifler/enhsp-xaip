@@ -2153,7 +2153,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     public void setAction_cost(State s_0) {
-        if (action_cost == null) {
+        //if (action_cost == null) {//this would assume state independent cost
             if (this.getNumericEffects() != null) {
                 AndCond temp = (AndCond) this.getNumericEffects();
                 for (NumEffect e : (LinkedHashSet<NumEffect>) temp.sons) {
@@ -2164,7 +2164,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 }
             }
             action_cost = 1f;
-        }
+        //}
 
     }
 

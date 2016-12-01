@@ -178,7 +178,7 @@ public class EPddlProblem extends PddlProblem {
         
         Iterator it = getActions().iterator();
         //System.out.println("prova");
-        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
+//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
@@ -192,10 +192,10 @@ public class EPddlProblem extends PddlProblem {
                 it.remove();
             }
         }
-        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
+//        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
 
-        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
+//        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
 
         it = this.processesSet.iterator();
         while (it.hasNext()) {
@@ -664,7 +664,7 @@ public class EPddlProblem extends PddlProblem {
                     NumEffect neff = (NumEffect)it.next();
                     if (neff.getOperator().equals("assign") ){     
                         ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber()){//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
                             neff.setOperator("increase");
                             neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
                             neff.setPseudo_num_effect(true);
