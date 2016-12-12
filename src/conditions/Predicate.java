@@ -364,16 +364,6 @@ public class  Predicate extends Conditions implements PostCondition {
         return true;
     }
 
-
-
-    
-    @Override
-    public HashMap apply(State s) {
-        HashMap ret = new HashMap();
-        ret.put(this,Boolean.TRUE);
-        return ret;
-    }
-
     public State remove(State s){
         s.removeProposition(this);
         return s;
@@ -547,16 +537,6 @@ public class  Predicate extends Conditions implements PostCondition {
     }
 
     @Override
-    public HashMap<Object, Object> apply(RelState s) {
-        HashMap ret = new HashMap();
-        Integer inter = s.poss_interpretation.get(this);
-        if (inter == null || inter == 0){
-            ret.put(this, 2);
-        }
-        return ret;
-    }
-
-    @Override
     public Conditions regress(GroundAction gr){
         
         OrCond achievers = gr.getAdders(this);
@@ -630,7 +610,31 @@ public class  Predicate extends Conditions implements PostCondition {
         
         
     }
-
-  
     
+    @Override
+    public HashMap apply(State s) {
+        HashMap ret = new HashMap();
+        apply(s, ret);
+        return ret;
+    }
+
+    @Override
+    public HashMap<Object, Object> apply(RelState s) {
+        HashMap ret = new HashMap();
+        apply(s, ret);
+        return ret;
+    }
+
+    @Override
+    public void apply(State s, Map modifications) {
+        modifications.put(this,Boolean.TRUE);
+    }
+
+    @Override
+    public void apply(RelState s, Map modifications) {
+        Integer inter = s.poss_interpretation.get(this);
+        if (inter == null || inter == 0){
+            modifications.put(this, 2);
+        }
+    }
 }

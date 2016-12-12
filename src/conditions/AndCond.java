@@ -187,39 +187,6 @@ public class AndCond extends Conditions implements PostCondition {
 
     /**
      *
-     * @param s
-     * @return
-     */
-    public HashMap apply(State s) {
-
-        HashMap ret = new HashMap();
-        for (Object o : this.sons) {
-            if (o instanceof AndCond) {
-                AndCond t = (AndCond) o;
-                ret.putAll(t.apply(s));
-            } else if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                ret.putAll(p.apply(s));
-            } else if (o instanceof NotCond) {
-                NotCond n = (NotCond) o;
-                ret.putAll(n.apply(s));
-            } else if (o instanceof NumEffect) {
-                NumEffect n = (NumEffect) o;
-                ret.putAll(n.apply(s));
-            } else if (o instanceof ConditionalEffect){
-                ConditionalEffect ce = (ConditionalEffect)o;
-                ret.putAll(ce.apply(s));
-            }else {
-                System.out.println("Effect " + o + " is not valid. Its class is"+o.getClass()+" Please revise your action model");
-                System.exit(-1);
-            }
-        }
-        return ret;
-
-    }
-
-    /**
-     *
      * @param substitution
      */
     @Override
@@ -319,37 +286,6 @@ public class AndCond extends Conditions implements PostCondition {
         ret.specialAndForExpression = this.specialAndForExpression;
         return ret;
 
-    }
-
-    /**
-     *
-     * @param s
-     * @return
-     */
-    public HashMap apply(RelState s) {
-        HashMap ret = new HashMap();
-        for (Object o : this.sons) {
-            if (o instanceof AndCond) {
-                AndCond t = (AndCond) o;
-                ret.putAll(t.apply(s));
-            } else if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                ret.putAll(p.apply(s));
-            } else if (o instanceof NotCond) {
-                NotCond n = (NotCond) o;
-                ret.putAll(n.apply(s));
-            } else if (o instanceof NumEffect) {
-                NumEffect n = (NumEffect) o;
-                ret.putAll(n.apply(s));
-            } else if (o instanceof ConditionalEffect) {
-                ConditionalEffect cf = (ConditionalEffect) o;
-                ret.putAll(cf.apply(s));
-            } else {
-                System.out.println("AndCond: Effect " + o + " is not valid. Class is:"+o.getClass()+" Please revise your action model");
-                System.exit(-1);
-            }
-        }
-        return ret;
     }
 
 
@@ -864,5 +800,61 @@ public class AndCond extends Conditions implements PostCondition {
         }
         
         return true;
+    }
+
+    @Override
+    public HashMap apply(State s) {
+        HashMap ret = new HashMap();
+        apply(s, ret);
+        return ret;
+    }
+
+    @Override
+    public HashMap apply(RelState s) {
+        HashMap ret = new HashMap();
+        apply(s, ret);
+        return ret;
+    }
+
+    @Override
+    public void apply(State s, Map modifications) {
+        for (Object o : this.sons) {
+//            if ((o instanceof AndCond) 
+//                    || (o instanceof Predicate)
+//                    || (o instanceof NotCond)
+//                    || (o instanceof NumEffect)
+//                    || (o instanceof ConditionalEffect)
+//                    ) {
+            if (o instanceof PostCondition) {
+                final PostCondition pc = (PostCondition)o;
+                pc.apply(s, modifications);
+            } else {
+                sonHasIncorrectType(o);
+            }
+        }
+    }
+
+    @Override
+    public void apply(RelState s, Map modifications) {
+        for (Object o : this.sons) {
+//            if ((o instanceof AndCond) 
+//                    || (o instanceof Predicate)
+//                    || (o instanceof NotCond)
+//                    || (o instanceof NumEffect)
+//                    || (o instanceof ConditionalEffect)
+//                    ) {
+            if (o instanceof PostCondition) {
+                final PostCondition pc = (PostCondition)o;
+                pc.apply(s, modifications);
+            } else {
+                sonHasIncorrectType(o);
+            }
+        }
+    }
+    
+    private void sonHasIncorrectType(Object son) {
+        System.out.println("Effect " + son + " is not valid. Its class is" 
+                + son.getClass() + ".  Please revise your action model.");
+        System.exit(-1);
     }
 }

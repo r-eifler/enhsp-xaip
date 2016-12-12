@@ -112,21 +112,6 @@ public class NotCond extends Conditions implements PostCondition {
         
     }
     
-    public HashMap apply(State s) {
-        HashMap ret = new HashMap();
-        
-        if (son instanceof Predicate) {
-            Predicate p = (Predicate) son;
-            ret.put(p, Boolean.FALSE);
-        } else {
-            System.out.println("Not Condition. Effect " + son + " is not valid. Please revise your action model");
-            System.exit(-1);
-        }
-        
-        return ret;
-        
-    }
-    
     @Override
     public void normalize() {
         if (son instanceof Comparison) {
@@ -173,24 +158,6 @@ public class NotCond extends Conditions implements PostCondition {
         NotCond ret = new NotCond(clonedSon);
         ret.grounded = this.grounded;
         return ret;
-    }
-    
-    public HashMap apply(RelState s) {
-        HashMap ret = new HashMap();
-        if (son instanceof Predicate) {
-            Predicate p = (Predicate) son;
-            if (s.poss_interpretation.get(p) != null) {
-                if (s.poss_interpretation.get(p) == 1) {
-                    ret.put(p, 2);
-                }
-            }
-            
-        } else {
-            System.out.println("Not Cond. Effect " + son + " is not valid. Please revise your action model");
-            System.exit(-1);
-        }
-        return ret;
-        
     }
     
     @Override
@@ -379,4 +346,48 @@ public class NotCond extends Conditions implements PostCondition {
         return true;
     }
     
+    @Override
+    public HashMap apply(State s) {
+        HashMap ret = new HashMap();
+        apply(s,ret);
+        return ret;
+    }
+    
+    @Override
+    public HashMap apply(RelState s) {
+        HashMap ret = new HashMap();
+        apply(s, ret);
+        return ret;
+        
+    }
+    
+    @Override
+    public void apply(State s, Map modifications) {
+        if (son instanceof Predicate) {
+            Predicate p = (Predicate) son;
+            modifications.put(p, Boolean.FALSE);
+        } else {
+            sonHasIncorrectType();
+        }
+    }
+    
+    @Override
+    public void apply(RelState s, Map modifications) {
+        if (son instanceof Predicate) {
+            Predicate p = (Predicate) son;
+            if (s.poss_interpretation.get(p) != null) {
+                if (s.poss_interpretation.get(p) == 1) {
+                    modifications.put(p, 2);
+                }
+            }
+            
+        } else {
+            sonHasIncorrectType();
+        }
+    }
+    
+    private void sonHasIncorrectType() {
+        System.out.println("Not " + son + " is not valid. Please revise your action model");
+        System.exit(-1);
+    }
 }

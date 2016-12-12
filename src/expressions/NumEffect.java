@@ -163,46 +163,6 @@ public class NumEffect extends Expression implements PostCondition {
 
     /**
      *
-     * @param state the state in which the effect are applied
-     */
-    public HashMap apply(State state) {
-
-        if (!fluentAffected.has_to_be_tracked())
-            return new HashMap();
-        HashMap ret = new HashMap();
-        PDDLNumber after = null;
-        PDDLNumber eval = this.getRight().eval(state);
-        if (eval == null) {
-            System.out.println("Applying a not applicable effect!:" + this);
-            System.exit(-1);
-        }
-
-        if (this.operator.equals("increase")) {
-            PDDLNumber current = state.functionValue(fluentAffected);
-            if (current == null) {
-                System.out.println("This effect cannot be applied!:" + this);
-                System.exit(-1);
-            }
-            after = new PDDLNumber(current.getNumber() + eval.getNumber());
-        } else if (this.operator.equals("decrease")) {
-            PDDLNumber current = state.functionValue(fluentAffected);
-            if (current == null) {
-                System.out.println("This effect cannot be applied!:" + this);
-                System.exit(-1);
-            }
-            after = new PDDLNumber(current.getNumber() - eval.getNumber());
-        } else if (this.operator.equals("assign")) {
-            after = eval;
-        }
-
-        ret.put(this.fluentAffected, after);
-
-        return ret;
-
-    }
-
-    /**
-     *
      * @param s
      * @return
      * @throws CloneNotSupportedException
@@ -307,58 +267,6 @@ public class NumEffect extends Expression implements PostCondition {
     @Override
     public Interval eval(RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     *
-     * @param s
-     */
-    public HashMap apply(RelState s) {//This follows as for Convex union
-        HashMap ret = new HashMap();
-
-        Interval after = new Interval();
-        Interval current = s.functionValues(fluentAffected);
-        Interval eval = this.getRight().eval(s);
-
-        if (this.getOperator().equals("increase")) {
-            //System.out.println(current);
-            //System.out.println(current.sum(eval).inf);
-            after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-            after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
-        } else if (getOperator().equals("decrease")) {
-            after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
-            after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
-
-        } else if (getOperator().equals("assign")) {
-            if (additive_relaxation) {
-                if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-                    } else {
-                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
-                    }
-                } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
-                    //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
-                    //monotonicity. Look at the report on generalize interval based relaxation.
-                    BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
-                    Interval monotonic_eval = bin.eval(s);
-                    after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
-                }
-            } else if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
-            } else {
-                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
-            }
-
-        }
-        ret.put(fluentAffected, after);
-        return ret;
-
     }
 
     /**
@@ -581,6 +489,97 @@ public class NumEffect extends Expression implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public HashMap apply(State state) {
+        HashMap ret = new HashMap();
+        apply(state, ret);
+        return ret;
+    }
 
+    @Override
+    public HashMap apply(RelState s) {//This follows as for Convex union
+        HashMap ret = new HashMap();
+        apply(s, ret);
+        return ret;
+    }
 
+    @Override
+    public void apply(State s, Map modifications) {
+        if (!fluentAffected.has_to_be_tracked()) {
+            return ;
+        }
+        
+        PDDLNumber after = null;
+        PDDLNumber eval = this.getRight().eval(s);
+        if (eval == null) {
+            System.out.println("Applying a not applicable effect!:" + this);
+            System.exit(-1);
+        }
+
+        if (this.operator.equals("increase")) {
+            PDDLNumber current = s.functionValue(fluentAffected);
+            if (current == null) {
+                System.out.println("This effect cannot be applied!:" + this);
+                System.exit(-1);
+            }
+            after = new PDDLNumber(current.getNumber() + eval.getNumber());
+        } else if (this.operator.equals("decrease")) {
+            PDDLNumber current = s.functionValue(fluentAffected);
+            if (current == null) {
+                System.out.println("This effect cannot be applied!:" + this);
+                System.exit(-1);
+            }
+            after = new PDDLNumber(current.getNumber() - eval.getNumber());
+        } else if (this.operator.equals("assign")) {
+            after = eval;
+        }
+
+        modifications.put(this.fluentAffected, after);
+    }
+
+    @Override
+    public void apply(RelState s, Map modifications) {
+        final Interval after = new Interval();
+        final Interval current = s.functionValues(fluentAffected);
+        final Interval eval = this.getRight().eval(s);
+
+        if (this.getOperator().equals("increase")) {
+            //System.out.println(current);
+            //System.out.println(current.sum(eval).inf);
+            after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+            after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
+        } else if (getOperator().equals("decrease")) {
+            after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
+            after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
+
+        } else if (getOperator().equals("assign")) {
+            if (additive_relaxation) {
+                if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                    } else {
+                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                    }
+                } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
+                    //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
+                    //monotonicity. Look at the report on generalize interval based relaxation.
+                    BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
+                    Interval monotonic_eval = bin.eval(s);
+                    after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
+                }
+            } else if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+            } else {
+                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+            }
+
+        }
+        
+        modifications.put(fluentAffected, after);
+    }
 }

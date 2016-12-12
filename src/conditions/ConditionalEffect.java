@@ -36,15 +36,6 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         effect = rhs;
         
     }
-    @Override
-    public HashMap<Object,Object> apply(State s) {
-        if (s.satisfy(activation_condition)){
-            return effect.apply(s);
-        }else{
-            return new HashMap();
-        }
-        
-    }
     
     public Conditions clone(){
         return new ConditionalEffect(activation_condition.clone(), (PostCondition) effect.clone());
@@ -56,15 +47,6 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     
     public String pddlPrint(boolean typeInformation){
         return "(when "+this.activation_condition.pddlPrint(typeInformation)+" "+this.effect.pddlPrint(typeInformation)+")";
-    }
-
-    @Override
-    public HashMap<Object, Object> apply(RelState s) {
-        if (s.satisfy(activation_condition)){
-            return effect.apply(s);
-        }else{
-            return new HashMap();
-        }
     }
 
 
@@ -264,4 +246,31 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         return true;
     }
 
+    @Override
+    public HashMap<Object, Object> apply(RelState s) {
+        final HashMap<Object,Object> ret = new HashMap<>();
+        apply(s, ret);
+        return ret;
+    }
+    
+    @Override
+    public HashMap<Object,Object> apply(State s) {
+        final HashMap<Object,Object> ret = new HashMap<>();
+        apply(s, ret);
+        return ret;
+    }
+
+    @Override
+    public void apply(State s, Map modifications) {
+        if (s.satisfy(activation_condition)){
+            effect.apply(s,modifications);
+        }
+    }
+
+    @Override
+    public void apply(RelState s, Map modifications) {
+        if (s.satisfy(activation_condition)){
+            effect.apply(s,modifications);
+        }
+    }
 }
