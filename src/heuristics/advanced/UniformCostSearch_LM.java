@@ -32,6 +32,7 @@ public class UniformCostSearch_LM extends Heuristic {
     public FibonacciHeap<GroundAction> pq;
     public HashMap<Integer, Set<repetition_landmark>> possible_achievers;
     private HashMap<Integer, FibonacciHeapNode<GroundAction>> actionAsFibNode;
+    protected LinkedHashSet<GroundAction> reachable_at_this_stage;
 
 
     private HashMap<Integer, Set<GroundAction>> ach_of_conditions;
@@ -46,7 +47,11 @@ public class UniformCostSearch_LM extends Heuristic {
 
     @Override
     public Float setup(State s_0) {
-        return compute_estimate(s_0);
+        reachable.addAll(A);
+        Float ret = compute_estimate(s_0);
+        reachable = new LinkedHashSet();
+        reachable.addAll(reachable_at_this_stage);
+        return ret;
     }
 
 
@@ -124,6 +129,7 @@ public class UniformCostSearch_LM extends Heuristic {
                             if (reachable) {
                                 action_level.put(g.counter, max);
                                 landmark_of_action.put(g.counter, candidate);
+                                reachable_at_this_stage.add(g);
                                 try {
                                     pq.decreaseKey(actionAsFibNode.get(g.counter), max);
                                 } catch (Exception e) {
@@ -214,6 +220,7 @@ public class UniformCostSearch_LM extends Heuristic {
         ach_of_conditions_with_repetition = new HashMap<>();
         possible_achievers = new HashMap<>();
         actionAsFibNode = new HashMap<>();
+        reachable_at_this_stage = new LinkedHashSet<>();
 
 
 
@@ -233,12 +240,13 @@ public class UniformCostSearch_LM extends Heuristic {
                 dplus.put(c.getCounter(), Integer.MAX_VALUE);
             }
         });
-        A.stream().forEach((GroundAction gr) -> {
+        reachable.stream().forEach((GroundAction gr) -> {
             if (gr.isApplicable(s)) {
                 action_level.put(gr.counter, 0);
                 FibonacciHeapNode<GroundAction> n = new FibonacciHeapNode<>(gr);
                 pq.insert(n, 0);
                 actionAsFibNode.put(gr.counter, n);
+                reachable_at_this_stage.add(gr);
                 if (gr.getPreconditions() != null && !gr.getPreconditions().sons.isEmpty()) {
                     Set<Conditions> lms = new LinkedHashSet();
                     for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
