@@ -38,9 +38,26 @@ public interface PostCondition {
      */
     public abstract void apply(RelState s, Map modifications);
     
+    /**
+     * Returns a string representation of this condition in PDDL format.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @return a string representation in PDDL format of this condition.  
+     */
+    public abstract String pddlPrint(boolean typeInformation);
+    
+    /**
+     * Prints this condition in PDDL format in the specified string builder.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @param bui the string builder where this condition is printed.  
+     */
+    public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
+    
     public abstract HashMap<Object,Object> apply(State s);
     public abstract HashMap<Object,Object> apply(RelState s);
-    public abstract String pddlPrint(boolean type_info);
     public abstract Object clone();
     public abstract String pddlPrintWithExtraObject();
     public abstract Conditions achieve(Predicate p);

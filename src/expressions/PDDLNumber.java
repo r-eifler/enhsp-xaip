@@ -120,13 +120,6 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        //return String.
-        return toString();
-//        return " " + String.format("%.2f",this.getNumber()) + " ";
-    }
-
-    @Override
     public Expression weakEval(State s, HashMap invF) {
         return this;
     }
@@ -221,5 +214,10 @@ public class PDDLNumber extends Expression {
 
     public boolean greater(int i) {
         return this.number>i;
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append(this.toString());
     }
 }

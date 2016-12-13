@@ -71,11 +71,6 @@ public class OneOf extends Conditions{
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public String pddlPrintWithExtraObject() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -186,6 +181,11 @@ public class OneOf extends Conditions{
         }
         
         return true;
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }

@@ -227,29 +227,6 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret = "";
-        ret += "  (" + this.name;
-        for (Object o1 : this.getTerms()) {
-            if (o1 instanceof PDDLObject) {
-                PDDLObject obj = (PDDLObject) o1;
-                ret = ret.concat(" " + obj.getName());
-            } else {
-                Variable obj = (Variable) o1;
-                if (typeInformation) {
-                    ret = ret.concat(" " + obj.getName() + obj.getType());
-                } else {
-                    ret = ret.concat(" " + obj.getName());
-                }
-
-            }
-        }
-        ret = ret.concat(")");
-        return ret;
-
-    }
-
-    @Override
     public Expression weakEval(State s, HashMap invF) {
         
         if (this.name.equals("#t")){
@@ -443,5 +420,26 @@ public class NumFluent extends Expression {
                 has_to_be_tracked = Boolean.TRUE;
         }
         return has_to_be_tracked;
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("  (");
+        bui.append(this.name);
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject) {
+                PDDLObject obj = (PDDLObject) o1;
+                bui.append(" ");
+                bui.append(obj.getName());
+            } else {
+                Variable obj = (Variable) o1;
+                bui.append(" ");
+                bui.append(obj.getName());
+                if (typeInformation) {
+                    bui.append(obj.getType());
+                }
+            }
+        }
+        bui.append(")");
     }
 }

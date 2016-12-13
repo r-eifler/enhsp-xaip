@@ -168,25 +168,6 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret_val = "(or ";
-        for (Object o : sons) {
-            if (o instanceof Conditions) {
-                Conditions c = (Conditions) o;
-                ret_val = ret_val.concat(c.pddlPrint(typeInformation));
-            } else if (o instanceof Comparison) {
-                Comparison comp = (Comparison) o;
-                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
-            } else {
-                System.out.println("Error in pddlPrint:" + this);
-                System.exit(-1);
-            }
-        }
-        ret_val = ret_val.concat(")");
-        return ret_val;
-    }
-
-    @Override
     public Conditions clone() {
         OrCond ret = new OrCond();
 
@@ -539,5 +520,20 @@ public class OrCond extends Conditions {
         }
         
         return true;
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(or ");
+        for (Object o : sons) {
+            if (o instanceof Conditions) {
+                Conditions c = (Conditions) o;
+                c.pddlPrint(typeInformation, bui);
+            } else {
+                System.out.println("Error in pddlPrint:" + this);
+                System.exit(-1);
+            }
+        }
+        bui.append(")");
     }
 }

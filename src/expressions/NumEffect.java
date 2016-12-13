@@ -213,17 +213,6 @@ public class NumEffect extends Expression implements PostCondition {
 
     /**
      *
-     * @return
-     */
-    @Override
-    public String pddlPrint(boolean typeInformation) {
-        
-        return "(" + getOperator() + " " + getFluentAffected().pddlPrint(typeInformation) + " " + getRight().pddlPrint(typeInformation) + ")";
-
-    }
-
-    /**
-     *
      * @param s
      * @param invF
      * @return
@@ -581,5 +570,16 @@ public class NumEffect extends Expression implements PostCondition {
         }
         
         modifications.put(fluentAffected, after);
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(");
+        bui.append(getOperator());
+        bui.append(" ");
+        getFluentAffected().pddlPrint(typeInformation,bui);
+        bui.append(" ");
+        getRight().pddlPrint(typeInformation,bui);
+        bui.append(")");
     }
 }

@@ -150,14 +150,6 @@ public class PDDLObject extends Conditions implements ActionParameter {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        if (typeInformation)
-            return this.getName() + " " + this.getType();
-        else
-            return this.getName();
-    }
-
-    @Override
     public Conditions clone() {
 //        PDDLObject ret = new PDDLObject(name,this.getType());
 //        ret.grounded = this.grounded;
@@ -230,8 +222,11 @@ public class PDDLObject extends Conditions implements ActionParameter {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-   
-
-
-
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append(getName());
+        if (typeInformation) {
+            bui.append(" ").append(getType());
+        }
+    }
 }

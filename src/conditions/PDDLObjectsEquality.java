@@ -124,18 +124,6 @@ public class PDDLObjectsEquality extends Conditions {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret = "";
-        if (grounded) {
-            ret += "( = " + this.getLeft().pddlPrint(typeInformation) + " " + this.getRight().pddlPrint(typeInformation) + ")";
-        } else {
-            ret += "( = " + this.getLeftV().pddlPrint(typeInformation) + " " + this.getRightV().pddlPrint(typeInformation) + ")";
-
-        }
-        return ret;
-    }
-
-    @Override
     public Conditions clone() {
         PDDLObjectsEquality ret = new PDDLObjectsEquality();
         ret.grounded = this.grounded;
@@ -404,4 +392,20 @@ public class PDDLObjectsEquality extends Conditions {
         return true;
     }
 
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        if (grounded) {
+            bui.append("( = ");
+            getLeft().pddlPrint(typeInformation,bui);
+            bui.append(" ");
+            getRight().pddlPrint(typeInformation,bui);
+            bui.append(")");
+        } else {
+            bui.append("( = ");
+            getLeftV().pddlPrint(typeInformation,bui);
+            bui.append(" ");
+            getRightV().pddlPrint(typeInformation,bui);
+            bui.append(")");
+        }
+    }
 }

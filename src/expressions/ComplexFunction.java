@@ -70,11 +70,6 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        return "(" + this.operator + "(" + this.getArg() + "))";
-    }
-
-    @Override
     public Expression weakEval(State s, HashMap invF) {
         ComplexFunction ret = new ComplexFunction();
 
@@ -177,4 +172,12 @@ public class ComplexFunction extends BinaryOp {
         this.arg = arg;
     }
 
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(");
+        bui.append(operator);
+        bui.append("(");
+        bui.append(getArg());
+        bui.append("))");
+    }
 }

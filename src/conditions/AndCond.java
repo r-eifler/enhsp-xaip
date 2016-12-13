@@ -202,29 +202,6 @@ public class AndCond extends Conditions implements PostCondition {
         }
 
     }
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret_val = "(and ";
-        for (Object o : sons) {
-            if (o instanceof Conditions) {
-                Conditions c = (Conditions) o;
-                ret_val = ret_val.concat(c.pddlPrint(typeInformation));
-            } else if (o instanceof Comparison) {
-                Comparison comp = (Comparison) o;
-                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
-            } else {
-                System.out.println("Error in pddlPrint:" + this);
-                System.exit(-1);
-            }
-        }
-        ret_val = ret_val.concat(")");
-        return ret_val;
-    }
     
     public String pddlPrintWithExtraObject() {
         String ret_val = "(and ";
@@ -856,5 +833,23 @@ public class AndCond extends Conditions implements PostCondition {
         System.out.println("Effect " + son + " is not valid. Its class is" 
                 + son.getClass() + ".  Please revise your action model.");
         System.exit(-1);
+    }
+    
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(and ");
+        for (Object o : sons) {
+            if (o instanceof Conditions) {
+                Conditions c = (Conditions) o;
+                c.pddlPrint(typeInformation,bui);
+//            } else if (o instanceof Comparison) { // ??? a Comparison is already a Conditions
+//                Comparison comp = (Comparison) o;
+//                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
+            } else {
+                System.out.println("Error in pddlPrint: " + this);
+                System.exit(-1);
+            }
+        }
+        bui.append(")");
     }
 }

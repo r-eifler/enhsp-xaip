@@ -69,11 +69,6 @@ public class double_implication extends Conditions{
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public String pddlPrintWithExtraObject() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -143,6 +138,8 @@ public class double_implication extends Conditions{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-    
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

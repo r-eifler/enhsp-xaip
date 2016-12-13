@@ -185,13 +185,6 @@ public class NumFluentValue extends Conditions {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        return "( = (" + getNFluent() + " ) " + getValue() + ")";
-
-
-    }
-
-    @Override
     public Conditions clone() {
         NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) this.nFluent.clone();
@@ -310,6 +303,12 @@ public class NumFluentValue extends Conditions {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("( = (");
+        getNFluent().pddlPrint(typeInformation, bui);
+        bui.append(") ");
+        getValue().pddlPrint(typeInformation, bui);
+        bui.append(")");
+    }
 }

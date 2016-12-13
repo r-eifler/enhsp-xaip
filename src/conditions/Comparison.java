@@ -133,11 +133,6 @@ public class Comparison extends Conditions {
         //return "(" + getLeft() + " " + getComparator() + " " + getRight() + ")";
     }
 
-    @Override
-    public String pddlPrint(boolean typeInformation) {
-        return "(" + getComparator() + " " + getLeft().pddlPrint(typeInformation) + " " + getRight().pddlPrint(typeInformation) + ")";
-    }
-
     /**
      * @return the bin_comp
      */
@@ -987,5 +982,14 @@ public class Comparison extends Conditions {
         }
 
         return false;
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(").append(getComparator()).append(" ");
+        getLeft().pddlPrint(typeInformation,bui);
+        bui.append(" ");
+        getRight().pddlPrint(typeInformation,bui);
+        bui.append(")");
     }
 }

@@ -44,10 +44,6 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     public String toString(){
         return "(when "+this.activation_condition.pddlPrint(true)+" "+this.effect.pddlPrint(true)+")";
     }
-    
-    public String pddlPrint(boolean typeInformation){
-        return "(when "+this.activation_condition.pddlPrint(typeInformation)+" "+this.effect.pddlPrint(typeInformation)+")";
-    }
 
 
     public ConditionalEffect weakEval(State s, HashMap invF) {
@@ -272,5 +268,14 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         if (s.satisfy(activation_condition)){
             effect.apply(s,modifications);
         }
+    }
+    
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui){
+        bui.append("(when ");
+        activation_condition.pddlPrint(typeInformation, bui);
+        bui.append(" ");
+        effect.pddlPrint(typeInformation, bui);
+        bui.append(")");
     }
 }

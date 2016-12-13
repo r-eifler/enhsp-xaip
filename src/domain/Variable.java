@@ -138,4 +138,11 @@ public class Variable implements ActionParameter {
         }else
             return this.getName();
     }
+
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append(this.getName());
+        if (typeInformation) {
+            bui.append(" ").append(this.getType());
+        }
+    }
 }

@@ -389,28 +389,6 @@ public class  Predicate extends Conditions implements PostCondition {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret = "";
-        ret = ret.concat("  (" + this.getPredicateName());
-        for (Object o1 : this.getTerms()) {
-            if (o1 instanceof PDDLObject){
-                PDDLObject obj = (PDDLObject) o1;
-                ret = ret.concat(" " + obj.getName());
-            }else{
-                Variable obj = (Variable) o1;
-                if (typeInformation)
-                    ret = ret.concat(" " + obj.getName()+obj.getType());
-                else
-                    ret = ret.concat(" " + obj.getName());
-                
-            }
-            
-        }
-        ret = ret.concat(")");
-        return ret;
-    }
-
-    @Override
     public Conditions clone() {
         return this;
     }
@@ -636,5 +614,26 @@ public class  Predicate extends Conditions implements PostCondition {
         if (inter == null || inter == 0){
             modifications.put(this, 2);
         }
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append(" (");
+        bui.append(getPredicateName());
+        for (Object o1 : this.getTerms()) {
+            if (o1 instanceof PDDLObject){
+                PDDLObject obj = (PDDLObject) o1;
+                bui.append(" ");
+                bui.append(obj.getName()); // TODO: Why not obj.pddlPrint(typeInformation,bui) ? 
+            } else {
+                Variable obj = (Variable) o1;
+                bui.append(" ");
+                bui.append(obj.getName());
+                if (typeInformation) {
+                    bui.append(obj.getType()); // No space?
+                }
+            }
+        }
+        bui.append(")");
     }
 }

@@ -134,25 +134,6 @@ public class NotCond extends Conditions implements PostCondition {
     }
     
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret_val = "(not ";
-//        for (Object o : son) {
-        if (son instanceof Conditions) {
-            Conditions c = (Conditions) son;
-            ret_val = ret_val.concat(c.pddlPrint(typeInformation));
-        } else if (son instanceof Comparison) {
-            Comparison comp = (Comparison) son;
-            ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
-        } else {
-            System.out.println("Error in pddlPrint:" + this);
-            System.exit(-1);
-        }
-//        }
-        ret_val = ret_val.concat(")");
-        return ret_val;
-    }
-    
-    @Override
     public Conditions clone() {
         final Conditions clonedSon = this.son.clone();
         NotCond ret = new NotCond(clonedSon);
@@ -389,5 +370,12 @@ public class NotCond extends Conditions implements PostCondition {
     private void sonHasIncorrectType() {
         System.out.println("Not " + son + " is not valid. Please revise your action model");
         System.exit(-1);
+    }
+    
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(not ");
+        son.pddlPrint(typeInformation,bui);
+        bui.append(")");
     }
 }

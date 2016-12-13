@@ -480,36 +480,6 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        String ret_val = "";
-
-        {
-            //System.out.println(summations);
-            ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
-            if (!ad.linear) {
-                ret_val = ad.bin.toString();
-            } else if (ad.f == null) {
-                ret_val = " " + ad.n.pddlPrint(typeInformation) + " ";
-            } else {
-                ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + ")";
-            }
-        }
-        {
-            for (int i = 1; i < summations.size(); i++) {
-                ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
-                if (!ad.linear) {
-                    ret_val = ad.bin.toString();
-                } else if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(typeInformation) + " )";
-                } else {
-                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + "))";
-                }
-            }
-        }
-        return ret_val;
-    }
-
-    @Override
     public ExtendedNormExpression subst(Conditions numeric) {
         if (numeric == null || numeric.sons == null || numeric.sons.size() == 0) {
             return this;
@@ -888,6 +858,40 @@ public class ExtendedNormExpression extends Expression {
             System.exit(-1);
         }
         return res;
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        // TODO: Implement it more efficiently.  
+        // Substrings are added before or after ret_value, so it should be possible 
+        // to store two lists of strings and rebuild everything.  
+        String ret_val = "";
+
+        {
+            //System.out.println(summations);
+            ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
+            if (!ad.linear) {
+                ret_val = ad.bin.toString();
+            } else if (ad.f == null) {
+                ret_val = " " + ad.n.pddlPrint(typeInformation) + " ";
+            } else {
+                ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + ")";
+            }
+        }
+        {
+            for (int i = 1; i < summations.size(); i++) {
+                ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
+                if (!ad.linear) {
+                    ret_val = ad.bin.toString();
+                } else if (ad.f == null) {
+                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(typeInformation) + " )";
+                } else {
+                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + "))";
+                }
+            }
+        }
+        
+        bui.append(ret_val);
     }
 
 }

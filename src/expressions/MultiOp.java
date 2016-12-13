@@ -165,11 +165,6 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public Expression weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -222,5 +217,10 @@ public class MultiOp extends Expression {
     @Override
     public boolean involve(NumFluent a) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

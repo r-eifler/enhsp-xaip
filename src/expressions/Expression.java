@@ -71,8 +71,6 @@ public abstract class Expression extends Object {
 
     public abstract void changeVar(Map<Variable,PDDLObject> substitution);
 
-    public abstract String pddlPrint(boolean typeInformation);
-
     public abstract Expression weakEval(State s, HashMap invF);
     @Override
     public abstract Expression clone();
@@ -110,7 +108,26 @@ public abstract class Expression extends Object {
     }
 
     public abstract boolean involve(NumFluent a);
-        
 
-  
+    /**
+     * Returns a string representation of this expression in PDDL format.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @return a string representation in PDDL format of this condition.  
+     */
+    public final String pddlPrint(boolean typeInformation) {
+        final StringBuilder bui = new StringBuilder();
+        pddlPrint(typeInformation, bui);
+        return bui.toString();
+    }
+    
+    /**
+     * Prints this expression in PDDL format in the specified string builder.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @param bui the string builder where this condition is printed.  
+     */
+    public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
 }

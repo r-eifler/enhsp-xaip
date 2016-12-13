@@ -105,15 +105,6 @@ public abstract class Conditions extends Object {
 
     public abstract void changeVar(Map substitution);
 
-    /**
-     * Prints this condition in PDDL format.  
-     * 
-     * @param typeInformation <tt>true</tt> 
-     * if the type of the object should be printed as well.  
-     * @return a string representation in PDDL format of this condition.  
-     */
-    public abstract String pddlPrint(boolean typeInformation);
-
     public abstract String pddlPrintWithExtraObject();
 
     @Override
@@ -242,6 +233,28 @@ public abstract class Conditions extends Object {
 //        }
 //        return ret;
 //    }
+
+    /**
+     * Returns a string representation of this condition in PDDL format.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @return a string representation in PDDL format of this condition.  
+     */
+    public final String pddlPrint(boolean typeInformation) {
+        final StringBuilder bui = new StringBuilder();
+        pddlPrint(typeInformation, bui);
+        return bui.toString();
+    }
+    
+    /**
+     * Prints this condition in PDDL format in the specified string builder.  
+     * 
+     * @param typeInformation <tt>true</tt> 
+     * if the type of the object should be printed as well.  
+     * @param bui the string builder where this condition is printed.  
+     */
+    public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
 
 
 }

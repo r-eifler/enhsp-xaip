@@ -234,13 +234,6 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public String pddlPrint(boolean typeInformation) {
-
-        return "(" + getOperator() + " " + getOne().pddlPrint(typeInformation) + " " + getRight().pddlPrint(typeInformation) + ")";
-
-    }
-
-    @Override
     public Expression weakEval(State s, HashMap invF) {
         BinaryOp ret = new BinaryOp();
 
@@ -398,5 +391,16 @@ public class BinaryOp extends Expression {
         } else {
             return this.rhs.involve(a);
         }
+    }
+
+    @Override
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        bui.append("(");
+        bui.append(getOperator());
+        bui.append(" ");
+        getOne().pddlPrint(typeInformation, bui);
+        bui.append(" ");
+        getRight().pddlPrint(typeInformation, bui);
+        bui.append(")");
     }
 }
