@@ -11,7 +11,6 @@ import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
-import org.omg.CORBA.FloatSeqHelper;
 import problem.GroundAction;
 import problem.State;
 
@@ -22,6 +21,7 @@ import java.util.logging.Logger;
 /**
  * Created by Da An on 10/12/16.
  */
+
 public class UniformCostSearch_LM extends Heuristic {
 
     public HashMap<Integer, Set<Conditions>> landmark_of;
@@ -63,12 +63,15 @@ public class UniformCostSearch_LM extends Heuristic {
         HashMap<Integer, IloNumVar> action_to_variable = new HashMap();
         this.init_data_structure(s);
 
-
+        boolean needActivation;
         while (!pq.isEmpty()) {
-            boolean needActivation = false;
+            needActivation = false;
             GroundAction gr = pq.removeMin().getData();
             if (action_level.get(gr.counter) != Integer.MAX_VALUE) {
                 for (Conditions c : all_conditions) {
+                    if (gr.getPreconditions().sons.contains(c)) {
+                        continue;
+                    }
                     int originalLevel = condition_level.get(c.getCounter());
                     if (c instanceof Predicate) {
                         Predicate p = (Predicate) c;
@@ -76,8 +79,11 @@ public class UniformCostSearch_LM extends Heuristic {
                             dplus.put(c.getCounter(), Math.min(1, dplus.get(c.getCounter())));
                             int newLevel = Math.min(action_level.get(gr.counter) +1, condition_level.get(p.getCounter()));
                             if (newLevel != originalLevel) {
-                                needActivation = true;
+                                //needActivation = true;
                                 condition_level.put(p.getCounter(), newLevel);
+                                if (originalLevel == Integer.MAX_VALUE) {
+                                    needActivation = true;
+                                }
                             }
 
                             update_landmark(c, gr);
@@ -94,8 +100,11 @@ public class UniformCostSearch_LM extends Heuristic {
                             dplus.put(c.getCounter(), Math.min(repetition_needed.intValue(), dplus.get(c.getCounter())));
                             int newLevel = Math.min(action_level.get(gr.counter) +1, condition_level.get(cmp.getCounter()));
                             if (newLevel != originalLevel) {
-                                needActivation = true;
+                                //needActivation = true;
                                 condition_level.put(cmp.getCounter(), newLevel);
+                                if (originalLevel == Integer.MAX_VALUE) {
+                                    needActivation = true;
+                                }
                             }
                             update_landmark(c, gr);
                             update_poss_achiever(c, new repetition_landmark(gr, (float) Math.ceil(repetition_needed)));
@@ -240,7 +249,7 @@ public class UniformCostSearch_LM extends Heuristic {
                 dplus.put(c.getCounter(), Integer.MAX_VALUE);
             }
         });
-        reachable.stream().forEach((GroundAction gr) -> {
+        reachable.forEach((GroundAction gr) -> {
             if (gr.isApplicable(s)) {
                 action_level.put(gr.counter, 0);
                 FibonacciHeapNode<GroundAction> n = new FibonacciHeapNode<>(gr);
@@ -270,9 +279,9 @@ public class UniformCostSearch_LM extends Heuristic {
 
     private void update_landmark(Conditions c, GroundAction achiever) {
         Set<Conditions> intersection = landmark_of.get(c.getCounter());
-        intersection.remove(c);
+        //intersection.remove(c);
         //Set<Conditions> intersection = null;
-        if (intersection.size() == 0) {
+        if (intersection.size()-1 == 0) {
             intersection.addAll(landmark_of_action.get(achiever.counter));
         } else {
             intersection.retainAll(landmark_of_action.get(achiever.counter));
