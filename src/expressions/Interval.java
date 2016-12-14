@@ -66,7 +66,8 @@ public class Interval {
 
     public Interval sum(Interval b) {
 
-
+//        System.out.println("DEBUG: "+this);
+        
         RealInterval ret = IAMath.add(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
                                       new RealInterval(b.getInf().getNumber(),b.getSup().getNumber()));
         

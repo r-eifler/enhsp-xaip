@@ -255,19 +255,19 @@ public class GroundAction extends GenericActionType implements Comparable {
         HashMap subst = new HashMap();
         AndCond del = (AndCond) delList;
         if (del != null) {
-            subst.putAll(del.apply(s));
+            del.apply(s, subst);
         }
         AndCond add = (AndCond) addList;
         if (add != null) {
-            subst.putAll(add.apply(s));
+            add.apply(s, subst);
         }
 
         AndCond c = (AndCond) this.getNumericEffects();
-        subst.putAll(c.apply(s));
+        c.apply(s, subst);
 
         if (this.cond_effects != null) {
             AndCond c_eff = (AndCond) this.cond_effects;
-            subst.putAll(c_eff.apply(s));
+            c_eff.apply(s, subst);
         }
 
         for (Object o : subst.keySet()) {
@@ -369,19 +369,19 @@ public class GroundAction extends GenericActionType implements Comparable {
         HashMap subst = new HashMap();
         AndCond del = (AndCond) delList;
         if (del != null) {
-            subst.putAll(del.apply(s));
+            del.apply(s,subst);
         }
         AndCond add = (AndCond) addList;
         if (add != null) {
-            subst.putAll(add.apply(s));
+            add.apply(s,subst);
         }
 
         AndCond c = (AndCond) this.getNumericEffects();
-        subst.putAll(c.apply(s));
+        c.apply(s,subst);
 
         if (this.cond_effects != null) {
             AndCond c_eff = (AndCond) this.cond_effects;
-            subst.putAll(c_eff.apply(s));
+            c_eff.apply(s,subst);
         }
 
         s.update_values(subst);
@@ -2346,6 +2346,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
 
         AndCond c = (AndCond) this.getNumericEffects();
+//        System.out.println("GroundAction:"+this);
         subst.putAll(c.apply(s));
 
         if (this.cond_effects != null) {

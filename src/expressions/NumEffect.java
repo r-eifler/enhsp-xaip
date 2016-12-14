@@ -528,13 +528,14 @@ public class NumEffect extends Expression implements PostCondition {
 
     @Override
     public void apply(RelState s, Map modifications) {
+        if (!fluentAffected.has_to_be_tracked())
+            return;
         final Interval after = new Interval();
         final Interval current = s.functionValues(fluentAffected);
         final Interval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
-            //System.out.println(current);
-            //System.out.println(current.sum(eval).inf);
+//            System.out.println(current);
             after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
             after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
         } else if (getOperator().equals("decrease")) {

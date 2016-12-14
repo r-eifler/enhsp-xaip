@@ -262,15 +262,15 @@ public class SearchStrategies {
         //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
 
         if (getHeuristic().setup(current) == Float.MAX_VALUE){
-            System.out.println("H(s_0,G) = inf");
+            System.out.println("h(n = s_0)=inf");
             return null;
         }
-        System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
+        System.out.println("After Reachability Actions:" + getHeuristic().reachable.size());
 //        System.out.println(getHeuristic().reachable);
         Float current_value = getHeuristic().compute_estimate(current);
         Float init_estimate = current_value;
         //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
-        System.out.println("H(s_0,G)=:" + current_value);
+        System.out.println("h(n = s_0)=" + current_value);
 
         SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
@@ -308,7 +308,7 @@ public class SearchStrategies {
                 //System.out.println("Current Distance:"+current_node.g_n);
                 //System.out.println("Current Cost:"+current_node.g_n);
                 if (current_value > current_node.h_n || current_g < current_node.g_n) {
-                    System.out.println(" g(n)= " + current_node.g_n + " h(n):" + current_node.h_n);
+                    System.out.println(" g(n)= " + current_node.g_n + " h(n)=" + current_node.h_n);
                     current_value = current_node.h_n;
                     current_g = current_node.g_n;
 //                if (current_value == 1){

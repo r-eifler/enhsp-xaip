@@ -102,6 +102,7 @@ public class RelState extends Object {
         if (a != null) {
             return a;
         } else {
+//            System.out.println("Value not found in the state!!"+f);
             Interval ret_val = new Interval(Float.NaN);
             return ret_val;
         }
