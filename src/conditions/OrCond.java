@@ -456,31 +456,6 @@ public class OrCond extends Conditions {
         return ret_val;    }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        ArrayList<Variable> ret = new ArrayList();
-        if (this.sons != null) {
-            for (Object o : this.sons) {
-                    if (o instanceof Conditions) {
-                        Conditions c = (Conditions) o;
-                        if (c.getInvolvedVariables() != null) {
-                            ret.addAll(c.getInvolvedVariables());
-                        }
-                    } else if (o instanceof NumEffect) {
-                        NumEffect c = (NumEffect) o;
-                        if (c.getInvolvedVariables() != null) {
-                            ret.addAll(c.getInvolvedVariables());
-                        }
-                    } else {
-                        System.out.println("Error in getting involved variables");
-                    }
-                }
-            
-        }
-
-        return ret;    
-    }
-
-    @Override
     public boolean can_be_false(RelState s) {
         for (Object o : sons) {
             Conditions c = (Conditions) o;
@@ -535,5 +510,23 @@ public class OrCond extends Conditions {
             }
         }
         bui.append(")");
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    c.storeInvolvedVariables(vars);
+                } else if (o instanceof NumEffect) {
+                    NumEffect c = (NumEffect) o;
+                    c.storeInvolvedVariables(vars);
+                } else {
+                    System.out.println("Error in getting involved variables");
+                }
+            }
+
+        }
     }
 }

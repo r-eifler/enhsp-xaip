@@ -947,14 +947,6 @@ public class Comparison extends Conditions {
         return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
     }
 
-    public ArrayList<Variable> getInvolvedVariables() {
-        ArrayList ret = new ArrayList();
-        for (NumFluent nf:this.getInvolvedFluents()){
-            ret.addAll(nf.getTerms());
-        }
-        return ret;
-    }
-
     @Override
     public boolean can_be_false(RelState s) {
 
@@ -991,5 +983,15 @@ public class Comparison extends Conditions {
         bui.append(" ");
         getRight().pddlPrint(typeInformation,bui);
         bui.append(")");
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        for (NumFluent nf:this.getInvolvedFluents()){
+            for (final Object o: nf.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
     }
 }

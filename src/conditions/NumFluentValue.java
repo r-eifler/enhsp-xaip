@@ -31,6 +31,7 @@ import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -294,11 +295,6 @@ public class NumFluentValue extends Conditions {
     }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -310,5 +306,10 @@ public class NumFluentValue extends Conditions {
         bui.append(") ");
         getValue().pddlPrint(typeInformation, bui);
         bui.append(")");
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

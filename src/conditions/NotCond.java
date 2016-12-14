@@ -263,18 +263,6 @@ public class NotCond extends Conditions implements PostCondition {
         return ret_val;
     }
     
-    public ArrayList<Variable> getInvolvedVariables() {
-        
-        ArrayList ret = new ArrayList();
-        for (NumFluent nf : this.getInvolvedFluents()) {
-            ret.addAll(nf.getTerms());
-        }
-        for (Predicate p : this.getInvolvedPredicates()) {
-            ret.addAll(p.getTerms());
-        }
-        return ret;
-    }
-    
     @Override
     public boolean can_be_false(RelState s) {
         return son.can_be_true(s);
@@ -377,5 +365,21 @@ public class NotCond extends Conditions implements PostCondition {
         bui.append("(not ");
         son.pddlPrint(typeInformation,bui);
         bui.append(")");
+    }
+    
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        for (NumFluent nf : this.getInvolvedFluents()) {
+            for (final Object o: nf.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
+        for (Predicate p : this.getInvolvedPredicates()) {
+            for (final Object o: p.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
     }
 }

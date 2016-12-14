@@ -31,6 +31,7 @@ import domain.Type;
 import domain.Variable;
 import expressions.NumFluent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -213,11 +214,6 @@ public class PDDLObject extends Conditions implements ActionParameter {
     }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -228,5 +224,10 @@ public class PDDLObject extends Conditions implements ActionParameter {
         if (typeInformation) {
             bui.append(" ").append(getType());
         }
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

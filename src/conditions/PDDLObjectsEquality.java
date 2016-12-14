@@ -30,6 +30,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumFluent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -312,16 +313,6 @@ public class PDDLObjectsEquality extends Conditions {
     }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-
-        ArrayList<Variable> ret = new ArrayList();
-        ret.add(this.leftV);
-        ret.add(this.rightV);
-        return ret;
-
-    }
-
-    @Override
     public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -407,5 +398,11 @@ public class PDDLObjectsEquality extends Conditions {
             getRightV().pddlPrint(typeInformation,bui);
             bui.append(")");
         }
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        vars.add(this.leftV);
+        vars.add(this.rightV);
     }
 }

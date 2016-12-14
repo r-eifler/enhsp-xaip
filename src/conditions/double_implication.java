@@ -8,6 +8,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumFluent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -124,11 +125,6 @@ public class double_implication extends Conditions{
     }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public int hashCode() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -140,6 +136,11 @@ public class double_implication extends Conditions{
 
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

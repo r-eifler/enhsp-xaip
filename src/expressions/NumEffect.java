@@ -34,6 +34,7 @@ import conditions.PostCondition;
 import conditions.Predicate;
 import domain.Variable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -446,14 +447,6 @@ public class NumEffect extends Expression implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public ArrayList<Variable> getInvolvedVariables()  {
-        // It is assumed that this method will be called only when the terms are ungrounded.  
-        // Here be dragon.  
-        final ArrayList list = (ArrayList)this.fluentAffected.getTerms();
-        final ArrayList<Variable> result = (ArrayList<Variable>)list;
-        return result;
-    }
-
     /**
      * @return the pseudo_num_effect
      */
@@ -581,5 +574,22 @@ public class NumEffect extends Expression implements PostCondition {
         bui.append(" ");
         getRight().pddlPrint(typeInformation,bui);
         bui.append(")");
+    }
+
+    public ArrayList<Variable> getInvolvedVariables()  {
+        // It is assumed that this method will be called only when the terms are ungrounded.  
+        // Here be dragon.  
+        final ArrayList list = (ArrayList)this.fluentAffected.getTerms();
+        final ArrayList<Variable> result = (ArrayList<Variable>)list;
+        return result;
+    }
+
+    public void storeInvolvedVariables(Collection<Variable> vars)  {
+        // It is assumed that this method will be called only when the terms are ungrounded.  
+        // Here be dragon.  
+        for (final Object o: this.fluentAffected.getTerms()) {
+            final Variable var = (Variable)o;
+            vars.add(var);
+        }
     }
 }
