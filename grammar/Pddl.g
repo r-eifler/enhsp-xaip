@@ -6,6 +6,7 @@ grammar Pddl;
 options {
     output=AST;
     backtrack=true;
+    memoize=true;
     //k=4;
 }
 

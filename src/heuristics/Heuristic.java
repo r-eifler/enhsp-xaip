@@ -563,9 +563,6 @@ public abstract class Heuristic {
                     return cost;
             }
             iteration++;
-
-            
-
         }
         return cost;
     }

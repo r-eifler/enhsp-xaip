@@ -68,7 +68,7 @@ public class SearchStrategies {
     public boolean preferred_operators_active = false;
     public boolean processes = false;
     public float delta;
-    public int horizon = 10000000;
+    public int depth_limit = 10000000;
     public static int num_dead_end_detected;
     public static int number_duplicates;
 
@@ -293,7 +293,7 @@ public class SearchStrategies {
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
 //            System.out.println(current_node);
-            if (current_node.g_n >= horizon) {
+            if (current_node.g_n >= depth_limit) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
             }
@@ -443,7 +443,7 @@ public class SearchStrategies {
                 return extract_plan(current_node);
             }
 
-            if (current_node.g_n >= horizon) {
+            if (current_node.g_n >= depth_limit) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
             }
@@ -568,7 +568,7 @@ public class SearchStrategies {
                 System.out.println("Stats so far. Expanded nodes:" + nodes_expanded + " States Evaluated:" + this.getStates_evaluated());
                 previous_check = (System.currentTimeMillis() - start_global);
             }
-            if (current_node.g_n >= horizon) {
+            if (current_node.g_n >= depth_limit) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
             }

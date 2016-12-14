@@ -429,10 +429,10 @@ public class built_in_NHSP {
         }
 
         if (horizon != null) {
-            searchStrategies.horizon = Integer.parseInt(horizon);
+            searchStrategies.depth_limit = Integer.parseInt(horizon);
             System.out.println("Setting horizon to:" + horizon);
         } else {
-            searchStrategies.horizon = Integer.MAX_VALUE;
+            searchStrategies.depth_limit = Integer.MAX_VALUE;
         }
 //        if (admissible != null){
 //            searchStrategies.getHeuristic().additive_h = false;
