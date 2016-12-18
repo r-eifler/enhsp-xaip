@@ -87,7 +87,7 @@ public class Aibr extends Heuristic {
         int supporters_counter = 0;
         //dist = new HashMap();
 //        if (extract_plan){
-        dist = new ArrayList<>(nCopies(all_conditions.size() + 15, Integer.MAX_VALUE));
+        dist = new ArrayList<>(nCopies(index_of_last_static_atom+1, Integer.MAX_VALUE));
         this.supporters_exec_at_time_index = new HashMap();
 
         this.cond_level = new HashMap();

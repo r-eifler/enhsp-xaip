@@ -222,8 +222,12 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         } else {
                             this.dbg_print("interval based relaxation starting\n");
                             try {
-                                Float current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, actions_for_complex_condition, action_to_cost);
+                                Float current_cost = 1f;
+                                if (this.additive_h) {
+                                    current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, actions_for_complex_condition, action_to_cost);
+                                }
                                 update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
+                                
                             } catch (CloneNotSupportedException ex) {
                                 getLogger(Uniform_cost_search_H1.class.getName()).log(SEVERE, null, ex);
                             } 

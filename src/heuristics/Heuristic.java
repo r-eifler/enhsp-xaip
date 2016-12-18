@@ -198,7 +198,9 @@ public abstract class Heuristic {
                     for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
                         int index = conditions.indexOf(c_1);
                         if (index != -1) {
-                            c_1 = (Conditions) conditions.get(index);
+                            //c_1 = (Conditions) conditions.get(index);
+                            Conditions c = (Conditions)conditions.get(index);
+                            c_1.setCounter(c.getCounter());
                         } else {
                             counter2++;
                             c_1.setCounter(counter2);
@@ -222,8 +224,8 @@ public abstract class Heuristic {
                 for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
                     int index = conditions.indexOf(c_1);
                     if (index != -1) {
-                        c_1 = (Conditions) conditions.get(index);
-                        //System.out.println(c_1+"->"+c_1.getCounter());
+                            Conditions c = (Conditions)conditions.get(index);
+                            c_1.setCounter(c.getCounter());
                     } else {
                         counter2++;
                         c_1.setCounter(counter2);
