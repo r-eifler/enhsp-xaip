@@ -3,6 +3,7 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.ExtendedNormExpression;
 import heuristics.Heuristic;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
@@ -26,194 +27,150 @@ import java.util.logging.Logger;
 
 public class UniformCostSearch_LM extends Heuristic {
 
-    public HashMap<Integer, Set<Conditions>> landmark_of;
-    //public HashMap<Integer, Set<Conditions>> landmark_of_action;
-    public HashMap<Integer, Integer> condition_level;
-    public HashMap<Integer, Integer> action_level;
-    public HashMap<Integer, Integer> dplus;
-    public FibonacciHeap<GroundAction> pq;
     public HashMap<Integer, Set<repetition_landmark>> possible_achievers;
-    protected HashMap<Integer, FibonacciHeapNode<GroundAction>> actionAsFibNode;
     protected LinkedHashSet<GroundAction> reachable_at_this_stage;
     protected HashMap<Integer, IloNumVar> action_to_variable;
-//    protected Set<Conditions> achieved_goal_sons;
-
-
+    protected Set<Conditions> goalLandmark;
     public boolean compute_lp;
+    protected Set<Conditions> conditionsToConsider;
+    protected HashMap<Integer, Set<Conditions>> conditionLandmark;
+    protected HashMap<Integer, Set<Conditions>> actionLandmark;
+    protected Set<GroundAction> actionNotApplicableYet;
+    protected HashMap<Integer, Boolean> conditionLandmarkFound;
+
+    //Anti-Cycle System
+    protected Set<Conditions> visitedCondition;
+
+    //New Queue Approach
+    protected Queue<GroundAction> reachableActions;
+    protected HashMap<Integer, Boolean> conditionReachable;
 
     public UniformCostSearch_LM(Conditions G, Set<GroundAction> A) {
         super(G, A);
         this.build_integer_representation();
     }
 
+
     @Override
-    public Float setup(State s_0) {
+    public Float setup(State s) {
         reachable.addAll(A);
-        Float ret = compute_estimate(s_0);
-        reachable = new LinkedHashSet();
+        Float ret = compute_estimate(s);
         reachable.addAll(reachable_at_this_stage);
         return ret;
     }
+
 
 
     @Override
     public Float compute_estimate(State s) {
 
         if (this.G.isSatisfied(s)) {
-            return (float)0;
+            return (float) 0;
         }
 
         this.init_data_structure(s);
 
         boolean needActivation;
 
-        while (!pq.isEmpty()) {
+        while (!reachableActions.isEmpty()) {
             needActivation = false;
-            GroundAction gr = pq.removeMin().getData();
-            if (action_level.get(gr.counter) != Integer.MAX_VALUE) {
-                for (Conditions c : all_conditions) {
-                    if (gr.getPreconditions().sons.contains(c)) {
-                        continue;
+            GroundAction gr = reachableActions.remove();
+            for (Conditions c : conditionsToConsider) {
+                if (gr.getPreconditions().sons.contains(c)) {
+                    continue; //Assume no action can achieve its precondition
+                }
+                if (c instanceof Predicate) {
+                    Predicate p = (Predicate) c;
+                    if (gr.achieve(p)) {
+                        if (!conditionReachable.get(c.getCounter())) {
+                            //if not reachable before, need to consider some new action;
+                            conditionReachable.put(c.getCounter(), true);
+                            needActivation = true;
+                        }
+                        //Mark this action as this condition's possible achiever.
+                        possible_achievers.get(c.getCounter()).add(new repetition_landmark(gr, 1));
                     }
-                    int originalLevel = condition_level.get(c.getCounter());
-                    if (c instanceof Predicate) {
-                        Predicate p = (Predicate) c;
-                        if (gr.achieve(p)) {
-                            dplus.put(c.getCounter(), Math.min(1, dplus.get(c.getCounter())));
-                            int newLevel = Math.min(action_level.get(gr.counter) +1, condition_level.get(p.getCounter()));
-                            if (newLevel != originalLevel) {
-                                //needActivation = true;
-                                condition_level.put(p.getCounter(), newLevel);
-                                if (originalLevel == Integer.MAX_VALUE) {
-                                    needActivation = true;
-                                }
-                            }
+                    continue;
+                }
 
-                            update_landmark(c, gr);
-                            update_poss_achiever(c, new repetition_landmark(gr, 1));
+                if (c instanceof Comparison) {
+                    Comparison cmp = (Comparison) c;
+                    Float repetition_needed = gr.getNumberOfExecution(s, cmp);
+                    if (repetition_needed != Float.MAX_VALUE) {
+                        if (!conditionReachable.get(c.getCounter())) {
+                            conditionReachable.put(c.getCounter(), true);
+                            needActivation = true;
                         }
-                        continue;
-                    }
-                    if (c instanceof Comparison) {
-                        Comparison cmp = (Comparison) c;
-                        Float repetition_needed = gr.getNumberOfExecution(s, cmp);
-                        if (repetition_needed != Float.MAX_VALUE) {
-                            dplus.put(c.getCounter(), Math.min(repetition_needed.intValue(), dplus.get(c.getCounter())));
-                            int newLevel = Math.min(action_level.get(gr.counter) +1, condition_level.get(cmp.getCounter()));
-                            if (newLevel != originalLevel) {
-                                //needActivation = true;
-                                condition_level.put(cmp.getCounter(), newLevel);
-                                if (originalLevel == Integer.MAX_VALUE) {
-                                    needActivation = true;
-                                }
-                            }
-                            update_landmark(c, gr);
-                            update_poss_achiever(c, new repetition_landmark(gr, (float) Math.ceil(repetition_needed)));
-                            //ach_of_conditions.put(c.getCounter(), gr);
-                            //ach_of_conditions_with_repetition.put(c.getCounter(), new UniformCostSearch_LM.repetition_landmark(gr, (float) Math.ceil(repetition_needed)));
-                        }
+                        possible_achievers.get(c.getCounter()).add(new repetition_landmark(gr, (float) Math.ceil(repetition_needed)));
                     }
 
                 }
-                if (needActivation) {
-                    for (GroundAction g : A) {
-                        if (action_level.get(g.counter) != Integer.MAX_VALUE) {
-                            //already reachable, skip;
-                            continue;
+            }
+            if (needActivation) {
+                Iterator<GroundAction> itr = actionNotApplicableYet.iterator();
+                while (itr.hasNext()) {
+                    GroundAction g = itr.next();
+                    boolean reachable = true;
+                    if (g.getPreconditions() != null && !g.getPreconditions().sons.isEmpty()) {
+                        for (Conditions c : (Collection<Conditions>) g.getPreconditions().sons) {
+                            if (!conditionReachable.get(c.getCounter())) {
+                                //still not reachable
+                                reachable = false;
+                                break;
+                            }
                         }
-                        //not reachable yet
-                        boolean reachable = true;
-                        int max = Integer.MIN_VALUE;
-                        if (g.getPreconditions() != null && !g.getPreconditions().sons.isEmpty()) {
-                            //Set<Conditions> candidate = new LinkedHashSet();
-                            for (Conditions c : (Collection<Conditions>)g.getPreconditions().sons) {
-                                if (condition_level.get(c.getCounter()) == Integer.MAX_VALUE) {
-                                    //still not reachable
-                                    reachable = false;
-                                    break;
-                                } else {
-                                    max = Math.max(max, condition_level.get(c.getCounter()));
-                                    //candidate.addAll(landmark_of.get(c.getCounter()));
-                                }
-                            }
-                            if (reachable) {
-                                action_level.put(g.counter, max);
-                                //landmark_of_action.put(g.counter, candidate);
-                                reachable_at_this_stage.add(g);
-                                try {
-                                    pq.decreaseKey(actionAsFibNode.get(g.counter), max);
-                                } catch (Exception e) {
-                                    Logger.getLogger(UniformCostSearch_LM.class.getName()).log(Level.SEVERE, null, e);
-                                }
-                            }
+                        if (reachable) {
+                            reachableActions.add(g);
+                            reachable_at_this_stage.add(g);
+                            itr.remove();
                         }
                     }
                 }
-            } else {
-                return Float.MAX_VALUE;
             }
         }
 
-        Set<Conditions> goal_landmark = new LinkedHashSet();
-        for (Conditions c : (Collection<Conditions>) this.G.sons) {
-            if (condition_level.get(c.getCounter()) == Integer.MAX_VALUE) {
-                return Float.MAX_VALUE;
-            }
-//            if (achieved_goal_sons.contains(c)) {
-//                //skip
-//                continue;
-//            }
-            if (s.getPropositionsAsSet().contains(c)) {
-                continue;
-            }
-            goal_landmark.addAll(landmark_of.get(c.getCounter()));
-        }
 
-//        if (achieved_goal_sons.equals(G.sons)) {
-//            return (float)0;
-//        }
+        findGoalLandmark(G, s);
 
         float estimate = 0;
         if (compute_lp) {
+            n_lp_invocations++;
             try {
                 IloCplex lp = new IloCplex();
                 lp.setOut(null);
 
                 IloLinearNumExpr objective = lp.linearNumExpr();
-                for (Conditions c : goal_landmark) {
-                    if (!c.isSatisfied(s)) {
-                        IloLinearNumExpr expr = lp.linearNumExpr();
-
-                        for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
-                            IloNumVar action;
-                            dlm.gr.setAction_cost(s);
-                            Float action_cost = dlm.gr.getAction_cost();
-                            if (action_cost.isNaN()) {
-                                continue;
-                            }
-                            if (action_to_variable.get(dlm.gr.counter) != null) {
-                                action = action_to_variable.get(dlm.gr.counter);
-                            } else {
-                                action = lp.numVar(0.0, Float.MAX_VALUE, IloNumVarType.Float);
-                                action_to_variable.put(dlm.gr.counter, action);
-                                objective.addTerm(action, action_cost);
-                            }
-                            expr.addTerm(action, 1.0 / dlm.repetition);
+                for (Conditions c : goalLandmark) {
+                    IloLinearNumExpr expr = lp.linearNumExpr();
+                    for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
+                        IloNumVar action;
+                        dlm.gr.setAction_cost(s);
+                        Float action_cost = dlm.gr.getAction_cost();
+                        if (action_cost.isNaN()) {
+                            continue;
                         }
-                        lp.addGe(expr, 1);
+                        if (action_to_variable.get(dlm.gr.counter) != null) {
+                            action = action_to_variable.get(dlm.gr.counter);
+                        } else {
+                            action = lp.numVar(0.0, Float.MAX_VALUE, IloNumVarType.Float);
+                            action_to_variable.put(dlm.gr.counter, action);
+                            objective.addTerm(action, action_cost);
+                        }
+                        expr.addTerm(action, 1.0 / dlm.repetition);
                     }
+                    lp.addGe(expr, 1);
                 }
                 lp.addMinimize(objective);
 
                 if (lp.solve()) {
+
                     if (lp.getStatus() == IloCplex.Status.Optimal) {
-                        estimate = (float)lp.getObjValue();
+                        estimate = (float) lp.getObjValue();
                     } else {
                         estimate = Float.MAX_VALUE;
                     }
                 } else {
                     estimate = Float.MAX_VALUE;
-
                 }
                 lp.end();
 
@@ -221,114 +178,124 @@ public class UniformCostSearch_LM extends Heuristic {
                 Logger.getLogger(landmarks_factory.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
-//                System.out.println("Debug: Poss_achiever(" + c + ":)" + this.possible_achievers.get(c.getCounter()));
-
-                estimate += dplus.get(c.getCounter());
-            }
+            System.out.println("Landmark Heuristic has to compute LP to remain optimal, please set the compute_lp = true");
+            estimate = Integer.MAX_VALUE;
         }
         return estimate;
     }
 
-    private void init_data_structure (State s) {
-        landmark_of = new HashMap();
-        //landmark_of_action = new HashMap();
-        condition_level = new HashMap();
-        action_level = new HashMap();
-        dplus = new HashMap();
-        pq = new FibonacciHeap();
-//        ach_of_conditions = new HashMap<>();
-//        ach_of_conditions_with_repetition = new HashMap<>();
+
+    protected void findGoalLandmark(Conditions goal, State s) {
+        for (Conditions c: (Collection<Conditions>) goal.sons) {
+            goalLandmark.addAll(findConditionLandmark(c));
+        }
+    }
+
+    protected Set<Conditions> findConditionLandmark(Conditions c) {
+        if (conditionLandmarkFound.get(c.getCounter())) {
+            //Already find the landmark for this condition, no need to do it again
+            return conditionLandmark.get(c.getCounter());
+        }
+
+        //Start: Anti-Cycle System
+        if (visitedCondition.contains(c)) {
+            //this condition has been visited but not has landmarks found, then it must be a cycle
+            conditionLandmark.get(c.getCounter()).add(c);
+            conditionLandmarkFound.put(c.getCounter(), true);
+            return conditionLandmark.get(c.getCounter());
+        }
+        visitedCondition.add(c); // this condition is now visited;
+        //End: Anti-Cycle System
+
+        Set<repetition_landmark> possibleAchievers = possible_achievers.get(c.getCounter());
+
+        for (repetition_landmark rl: possibleAchievers) {
+            GroundAction achiever = rl.gr;
+            Set<Conditions> landmarks = findActionLandmark(achiever);
+            conditionLandmark.get(c.getCounter()).retainAll(landmarks); //Keylar's Method
+        }
+        conditionLandmark.get(c.getCounter()).add(c);// Add itself
+        conditionLandmarkFound.put(c.getCounter(), true); // Prevent doing redundant computation
+        return conditionLandmark.get(c.getCounter());
+    }
+
+    protected Set<Conditions> findActionLandmark(GroundAction a) {
+        if (actionLandmark.get(a.counter).size() != 0) {
+            //Already find the landmark for this action, no need to do it again
+            return actionLandmark.get(a.counter);
+        }
+
+        Set<Conditions> preconditions = a.getPreconditions().sons;
+        Set<Conditions> union = new HashSet<>();
+
+        if (preconditions.size() == 0) {
+            return union;
+        }
+
+        for (Conditions precondition : preconditions) {
+            Set<Conditions> landmarks = findConditionLandmark(precondition);
+            if (landmarks.size() == 0) {
+                continue;
+            } // potential redundant
+            union.addAll(landmarks);
+        }
+        actionLandmark.get(a.counter).addAll(union); // Add landmark for this action into the map
+        return union;
+    }
+
+
+
+    protected void init_data_structure(State s) {
+
         possible_achievers = new HashMap<>();
-        actionAsFibNode = new HashMap<>();
-        reachable_at_this_stage = new LinkedHashSet<>();
         action_to_variable = new HashMap<>();
-//        achieved_goal_sons = new LinkedHashSet<>();
+        goalLandmark = new HashSet<>();
+        conditionsToConsider = new HashSet<>();
+        conditionLandmark = new HashMap<>();
+        actionLandmark = new HashMap<>();
+        actionNotApplicableYet = new HashSet<>();
+        conditionLandmarkFound = new HashMap<>();
+        reachable_at_this_stage = new LinkedHashSet<>();
+
+        //Anti-Cycle System
+        visitedCondition = new HashSet<>();
+
+        //New Approach
+        reachableActions = new LinkedList<>();
+        conditionReachable = new HashMap<>();
 
 
 
         all_conditions.forEach((c) -> {
-            Set<Conditions> lms = new LinkedHashSet();
-            lms.add(c);//add itself
-            landmark_of.put(c.getCounter(), lms);
+            conditionLandmark.put(c.getCounter(), new HashSet<>());
             possible_achievers.put(c.getCounter(), new HashSet<>());
             if (c.isSatisfied(s)) {
-                condition_level.put(c.getCounter(), 0);
-                dplus.put(c.getCounter(), 0);
-//                if (G.sons.contains(c)) {
-//                    achieved_goal_sons.add(c);
-//                }
+                conditionLandmarkFound.put(c.getCounter(), true);
+                conditionReachable.put(c.getCounter(), true);
             } else {
-                condition_level.put(c.getCounter(), Integer.MAX_VALUE);
-                dplus.put(c.getCounter(), Integer.MAX_VALUE);
+                conditionsToConsider.add(c); // Only consider condition that is not satisfied yet, ie, non-initial condition
+                conditionReachable.put(c.getCounter(), false);
             }
         });
-//        all_conditions.forEach((c) -> {
-//            if (c.isSatisfied(s)) {
-//                condition_level.put(c.getCounter(), 0);
-//                dplus.put(c.getCounter(), 0);
-//                if (G.sons.contains(c)) {
-//                    achieved_goal_sons.add(c);
-//                }
-//            } else {
-//                condition_level.put(c.getCounter(), Integer.MAX_VALUE);
-//                dplus.put(c.getCounter(), Integer.MAX_VALUE);
-//            }
-//
-//        });
 
-        reachable.forEach((GroundAction gr) -> {
+        //this is the Keyler approach to intersection, set landmark set for all condition with all non-initial conditions
+        for (Conditions c : conditionsToConsider) {
+            conditionLandmarkFound.put(c.getCounter(), false);
+            conditionLandmark.get(c.getCounter()).addAll(conditionsToConsider);
+        }
+
+
+        A.forEach((GroundAction gr) -> {
+            actionLandmark.put(gr.counter, new HashSet<>());
             if (gr.isApplicable(s)) {
-                action_level.put(gr.counter, 0);
-                FibonacciHeapNode<GroundAction> n = new FibonacciHeapNode<>(gr);
-                pq.insert(n, 0);
-                actionAsFibNode.put(gr.counter, n);
+                reachableActions.add(gr);
                 reachable_at_this_stage.add(gr);
-//                if (gr.getPreconditions() != null && !gr.getPreconditions().sons.isEmpty()) {
-//                    Set<Conditions> lms = new LinkedHashSet();
-//                    for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
-//                        lms.add(c);
-//                    }
-//                    landmark_of_action.put(gr.counter, lms);
-//                } else {
-//                    landmark_of_action.put(gr.counter, new LinkedHashSet<>());
-//                }
             } else {
-                action_level.put(gr.counter, Integer.MAX_VALUE);
-                //landmark_of_action.put(gr.counter, new LinkedHashSet<>());
-                FibonacciHeapNode<GroundAction> n = new FibonacciHeapNode<>(gr);
-                pq.insert(n, Integer.MAX_VALUE);
-                actionAsFibNode.put(gr.counter, n);
+                actionNotApplicableYet.add(gr);
             }
         });
-
-
     }
 
-    protected void update_landmark(Conditions c, GroundAction achiever) {
-        Set<Conditions> intersection = landmark_of.get(c.getCounter());
-        Set<Conditions> landmarkOfAchiever = this.getLandmarkOfAction(achiever);
-
-        if (intersection.size()-1 == 0) {
-            intersection.addAll(landmarkOfAchiever);
-        } else {
-            intersection.retainAll(landmarkOfAchiever);
-        }
-        intersection.add(c);
-        this.landmark_of.put(c.getCounter(), intersection);
-    }
-
-    protected void update_poss_achiever(Conditions c, repetition_landmark rl) {
-        possible_achievers.get(c.getCounter()).add(rl);
-    }
-
-    protected Set<Conditions> getLandmarkOfAction(GroundAction a) {
-        Set<Conditions> landmarkOfAction = new HashSet<>();
-        for (Conditions c : (Collection<Conditions>) a.getPreconditions().sons) {
-            landmarkOfAction.addAll(landmark_of.get(c.getCounter()));
-        }
-        return landmarkOfAction;
-    }
 
     public class repetition_landmark extends Object {
 
@@ -361,6 +328,61 @@ public class UniformCostSearch_LM extends Heuristic {
             int hash = 3;
             hash = 89 * hash + Objects.hashCode(this.gr.counter);
             return hash;
+        }
+    }
+    
+    protected void add_redundant_constrains(LinkedHashSet set) throws Exception {
+        ArrayList<Conditions> set_as_array = new ArrayList(set);
+
+        int counter = all_conditions.size();
+        ArrayList<Conditions> allConditionArray = new ArrayList<>(all_conditions);
+        Set<ExtendedNormExpression> exprSet = new HashSet<>();
+
+        for (int i=0; i<set_as_array.size(); i++) {
+            for (int j=i+1; j<set_as_array.size();j++) {
+                Conditions c1 = set_as_array.get(i);
+                Conditions c2 = set_as_array.get(j);
+
+                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
+                    //if (i<j) {
+                    Comparison a1 = (Comparison)c1;
+                    Comparison a2 = (Comparison)c2;
+                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+                    exprSet.add(lhs_a1);
+                    exprSet.add(lhs_a2);
+                    ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
+                    if (expr.summations.size() < 2) {
+                        continue;
+                    }
+
+                    if (exprSet.contains(expr)) {
+                        //already in the set
+                        continue;
+                    } else {
+                        exprSet.add(expr);
+                    }
+                    String new_comparator = ">=";
+                    if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
+                        new_comparator = ">";
+                    }
+                    Comparison cnew = new Comparison(new_comparator);
+                    cnew.setLeft(expr);
+                    cnew.setRight(new ExtendedNormExpression(new Float(0.0)));
+                    cnew.normalize();
+
+
+                    if (allConditionArray.contains(cnew)) {
+                        cnew.setCounter(allConditionArray.get(allConditionArray.indexOf(cnew)).getCounter());
+                        set.add(cnew);
+                    } else {
+                        counter += 1;
+                        cnew.setCounter(counter);
+                        set.add(cnew);
+                        all_conditions.add(cnew);
+                    }
+                }
+            }
         }
     }
 

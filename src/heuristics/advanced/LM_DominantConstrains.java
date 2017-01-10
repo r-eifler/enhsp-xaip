@@ -26,6 +26,8 @@ public class landmark_factory_DC extends landmarks_factory {
 
     @Override
     public Float compute_estimate(State s_0) {
+
+
         if (this.G.isSatisfied(s_0))
             return (float)0;
         this.init_data_structures(s_0);
@@ -103,9 +105,10 @@ public class landmark_factory_DC extends landmarks_factory {
         } while (update);
 
         for (Conditions c1: (Collection<Conditions>) this.G.sons) {
-            if (findImplicitLandmarks(c1)) {
-                System.out.println("Implicit Landmarks found");
-            }
+            findImplicitLandmarks(c1);
+//            if (findImplicitLandmarks(c1)) {
+//                System.out.println("Implicit Landmarks found");
+//            }
         }
 
         Set<Conditions> goal_landmark = new LinkedHashSet();
@@ -118,9 +121,9 @@ public class landmark_factory_DC extends landmarks_factory {
 
         findDominateConstrains(goal_landmark);
 
-
         float estimate = 0;
         if (compute_lp) {
+            n_lp_invocations++;
             try {
                 IloCplex lp = new IloCplex();
                 lp.setOut(null);
@@ -129,8 +132,6 @@ public class landmark_factory_DC extends landmarks_factory {
                 for (Conditions c : goal_landmark) {
                     if (!c.isSatisfied(s_0)) {
                         IloLinearNumExpr expr = lp.linearNumExpr();
-
-
                         for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                             IloNumVar action;
                             dlm.gr.setAction_cost(s_0);
@@ -153,6 +154,7 @@ public class landmark_factory_DC extends landmarks_factory {
                 lp.addMinimize(objective);
 
                 if (lp.solve()) {
+
                     if (lp.getStatus() == IloCplex.Status.Optimal) {
                         estimate = (float)lp.getObjValue();
                     } else {
@@ -164,6 +166,7 @@ public class landmark_factory_DC extends landmarks_factory {
                 }
                 lp.end();
 
+
             } catch (IloException ex) {
                 Logger.getLogger(landmarks_factory.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -174,7 +177,6 @@ public class landmark_factory_DC extends landmarks_factory {
                 estimate += dplus.get(c.getCounter());
             }
         }
-
 
         return estimate;
     }
@@ -258,6 +260,7 @@ public class landmark_factory_DC extends landmarks_factory {
             if (isLandmark) {
                 landmark_of.get(c.getCounter()).add(c1);
                 found = true;
+
             }
         }
         return found;
