@@ -196,10 +196,11 @@ public class UniformCostSearch_LM extends Heuristic {
             //Already find the landmark for this condition, no need to do it again
             return conditionLandmark.get(c.getCounter());
         }
-
+        
         //Start: Anti-Cycle System
         if (visitedCondition.contains(c)) {
             //this condition has been visited but not has landmarks found, then it must be a cycle
+            conditionLandmark.put(c.getCounter(), new HashSet<>());
             conditionLandmark.get(c.getCounter()).add(c);
             conditionLandmarkFound.put(c.getCounter(), true);
             return conditionLandmark.get(c.getCounter());
@@ -224,6 +225,7 @@ public class UniformCostSearch_LM extends Heuristic {
             //Already find the landmark for this action, no need to do it again
             return actionLandmark.get(a.counter);
         }
+
 
         Set<Conditions> preconditions = a.getPreconditions().sons;
         Set<Conditions> union = new HashSet<>();
@@ -330,7 +332,7 @@ public class UniformCostSearch_LM extends Heuristic {
             return hash;
         }
     }
-    
+
     protected void add_redundant_constrains(LinkedHashSet set) throws Exception {
         ArrayList<Conditions> set_as_array = new ArrayList(set);
 
