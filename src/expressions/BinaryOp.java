@@ -182,7 +182,7 @@ public class BinaryOp extends Expression {
                 bin.setOne(l);
                 bin.setRight(r);
                 
-                 ret = new ExtendedNormExpression(bin);
+                ret = new ExtendedNormExpression(bin);
                 ret.linear = false;
                 //System.out.println("Addendum:"+ret);
             } else {
@@ -243,12 +243,44 @@ public class BinaryOp extends Expression {
         ret.lhs = lhs.weakEval(s, invF);
         ret.rhs = rhs.weakEval(s, invF);
 
-        
-        
-        
         if (ret.lhs == null || ret.rhs == null) {
             return null;
         }
+        if (ret.lhs instanceof PDDLNumber && ret.rhs instanceof PDDLNumber){
+            PDDLNumber first = (PDDLNumber)ret.lhs;
+            PDDLNumber second = (PDDLNumber)ret.rhs;
+            PDDLNumber ret_val=null;
+            switch (this.getOperator()) {
+                case "+":
+                    ret_val = new PDDLNumber(first.getNumber() + second.getNumber());
+                    break;
+                case "-":
+                    ret_val = new PDDLNumber(first.getNumber() - second.getNumber());
+                    break;
+                case "*":
+                    ret_val = new PDDLNumber(first.getNumber() * second.getNumber());
+                    break;
+                case "/":
+                    //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
+                    ret_val = new PDDLNumber(first.getNumber() / second.getNumber());
+                    break;
+                case "min":
+                    //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+                    ret_val = new PDDLNumber(Math.min(first.getNumber(), second.getNumber()));
+                    break;
+                case "^":
+                    //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+                    ret_val = new PDDLNumber((float) Math.pow(first.getNumber(), second.getNumber()));
+                    break;
+                default:
+                    System.out.println(this.operator + " not supported");
+                    break;
+            }
+            return ret_val;
+        }
+        
+        
+
 
         return ret;
 

@@ -64,7 +64,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
-    private boolean reacheability_setting;
+    protected boolean reacheability_setting;
     private boolean all_paths = false;
     protected ArrayList<Integer> dist;
 
@@ -248,7 +248,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         return this.check_goal_conditions(s, G, dist, closed);
     }
 
-    private void generate_achievers() throws Exception {
+    protected void generate_achievers() throws Exception {
         interact_with = new HashMap();
         achieve = new HashMap();
         possible_achievers = new HashMap();

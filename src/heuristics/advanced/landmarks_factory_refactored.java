@@ -8,13 +8,16 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
-import heuristics.Heuristic;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
+import static java.lang.Float.MAX_VALUE;
+import static java.lang.System.out;
+import java.util.ArrayList;
 import java.util.Collection;
+import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -29,7 +32,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class landmarks_factory extends Heuristic {
+public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
 
     public HashMap<Integer, Set<Conditions>> landmark_of;
     public HashMap<Integer, Set<Conditions>> landmark_of_action;
@@ -39,10 +42,10 @@ public class landmarks_factory extends Heuristic {
     public HashMap<Integer, Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
     private LinkedHashSet<GroundAction> reachable_at_this_stage;
 
-    public HashMap<Integer, Set<repetition_landmark>> possible_achievers;
+    public HashMap<Integer, Set<repetition_landmark>> possible_achievers_2;
     public boolean compute_lp;
 
-    public landmarks_factory(Conditions goal, Set<GroundAction> A) {
+    public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
         
         this.build_integer_representation();
@@ -73,7 +76,7 @@ public class landmarks_factory extends Heuristic {
         reachable.stream().forEach((GroundAction gr) -> {
             if (gr.isApplicable(s_0)) {
                 action_level.put(gr.counter, 0);
-                landmarks_factory.this.reachable_at_this_stage.add(gr);
+                this.reachable_at_this_stage.add(gr);
                 if (gr.getPreconditions() != null && !gr.getPreconditions().sons.isEmpty()) {
                     Set<Conditions> lms = new LinkedHashSet();
                     for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
@@ -91,96 +94,58 @@ public class landmarks_factory extends Heuristic {
     }
 
     @Override
-    public Float setup(State s_0) {
-        //generate basic structures for landmarks
-
-        reachable.addAll(A);
-        Float ret = compute_estimate(s_0);//reachability analysis
-        reachable = new LinkedHashSet();
-        reachable.addAll(reachable_at_this_stage);
+    public Float setup(State s) {
+        build_integer_representation();
+        identify_complex_conditions(all_conditions, A);
+        try {
+            generate_achievers();
+        } catch (Exception ex) {
+            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        reacheability_setting = true;
+        this.dbg_print("Reachability Analysis Started");
+        Float ret = compute_estimate(s);
+        this.dbg_print("Reachability Analysis Terminated");
+        reacheability_setting = false;
+        sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
+        out.println("Hard Conditions: " + this.complex_conditions);
+        out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
         return ret;
     }
 
     @Override
     public Float compute_estimate(State s_0) {
-        if (this.G.isSatisfied(s_0))
-            return (float)0;
-        this.init_data_structures(s_0);
+        Set<GroundAction> a_plus = new LinkedHashSet();
+        HashMap<Integer,Set<Conditions>> lm = new HashMap();
+        HashMap<Integer,Boolean> never_active = new HashMap();
         HashMap<Integer, IloNumVar> action_to_variable = new HashMap();
-        boolean update;
-        Set<GroundAction> actions_to_consider = new LinkedHashSet();
-        actions_to_consider.addAll(reachable);
-        possible_achievers = new HashMap();
-        do {
-            update = false;
-            for (Conditions c : all_conditions) {
 
-                int l = condition_level.get(c.getCounter());
-                int old_dplus = dplus.get(c.getCounter());
-                Set<GroundAction> ach_of_conditions = new LinkedHashSet();
-                Set<repetition_landmark> ach_of_conditions_with_repetition = new LinkedHashSet();
+        for (GroundAction gr: this.A){
+            if (gr.isApplicable(s_0)){
+                a_plus.add(gr);
+                never_active.put(gr.counter, false);
+            }else
+                never_active.put(gr.counter, true);
+        }
+        ArrayList<Float> dist = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
+        for (Conditions c: all_conditions){
+            if (c.isSatisfied(s_0))
+                dist.set(c.getCounter(), 0f);
+            lm.put(c.getCounter(), null);
+            possible_achievers_2.put(c.getCounter(), new LinkedHashSet());
+        }
+        
+        Iterator<GroundAction> it = a_plus.iterator();
+        while (it.hasNext()){
+            GroundAction gr = it.next();
+            update_actions_conditions(s_0,gr,a_plus,never_active,lm);
+            it.remove();
+        }
 
-                if (c instanceof Predicate) {
-                    Predicate p = (Predicate) c;
-                    reachable_at_this_stage.stream().filter((gr) -> (gr.achieve(p))).map((gr) -> {
-                        dplus.put(c.getCounter(), Math.min(1, dplus.get(c.getCounter())));
-                        condition_level.put(p.getCounter(), Math.min(action_level.get(gr.counter) + 1, condition_level.get(p.getCounter())));
-                        return gr;
-                    }).forEach((gr) -> {
-                        ach_of_conditions.add(gr);
-                        ach_of_conditions_with_repetition.add(new repetition_landmark(gr, 1));
-                    });
-                } else if (c instanceof Comparison) {
-                    Comparison cmp = (Comparison) c;
-                    reachable_at_this_stage.stream().forEach((gr) -> {
-                        Float repetition_needed = gr.getNumberOfExecution(s_0, cmp);
-                        if (repetition_needed != Float.MAX_VALUE) {
-                            dplus.put(c.getCounter(), Math.min(repetition_needed.intValue(), dplus.get(c.getCounter())));
-                            condition_level.put(cmp.getCounter(), Math.min((action_level.get(gr.counter) + 1), condition_level.get(cmp.getCounter())));
-                            ach_of_conditions.add(gr);
-                            ach_of_conditions_with_repetition.add(new repetition_landmark(gr, repetition_needed.intValue()));
-
-                        }
-                    });
-                }
-                update_poss_achievers(c, ach_of_conditions_with_repetition);
-                if (update_landmarks(c, ach_of_conditions)){// || l != condition_level.get(c.getCounter()) || dplus.get(c.getCounter()) != old_dplus) {
-                    update = true;
-                }
-            }
-            if (update) {
-                Iterator<GroundAction> it = actions_to_consider.iterator();
-                while (it.hasNext()) {
-                    GroundAction gr = it.next();
-                    if (gr.getPreconditions() != null && !gr.getPreconditions().sons.isEmpty()) {
-                        int max = Integer.MIN_VALUE;
-                        boolean activated = true;
-                        Set<Conditions> candidate = new LinkedHashSet();
-                        for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
-                            if (condition_level.get(c.getCounter()) != Integer.MAX_VALUE) {
-                                max = Math.max(max, condition_level.get(c.getCounter()));
-                                candidate.addAll(landmark_of.get(c.getCounter()));
-                            } else {
-                                activated = false;
-                                break;
-                            }
-                        }
-                        if (activated) {
-                            action_level.put(gr.counter, max);
-                            reachable_at_this_stage.add(gr);
-                            landmark_of_action.put(gr.counter, candidate);
-                            it.remove();
-                        }
-
-                    }
-                }
-            }
-
-        } while (update);
-
+        
         Set<Conditions> goal_landmark = new LinkedHashSet();
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
-            if (condition_level.get(c.getCounter()) == Integer.MAX_VALUE) {
+            if (dist.get(c.getCounter()) == Float.MAX_VALUE) {
                 return Float.MAX_VALUE;
             }
             goal_landmark.addAll(landmark_of.get(c.getCounter()));
@@ -198,7 +163,7 @@ public class landmarks_factory extends Heuristic {
                         IloLinearNumExpr expr = lp.linearNumExpr();
 
                     
-                        for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
+                        for (repetition_landmark dlm : this.possible_achievers_2.get(c.getCounter())) {
                             IloNumVar action;
                             dlm.gr.setAction_cost(s_0);
                             Float action_cost = dlm.gr.getAction_cost();
@@ -232,7 +197,7 @@ public class landmarks_factory extends Heuristic {
                 lp.end();
 
             } catch (IloException ex) {
-                Logger.getLogger(landmarks_factory.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(landmarks_factory_refactored.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
@@ -272,11 +237,64 @@ public class landmarks_factory extends Heuristic {
         }
     }
 
-    private void update_poss_achievers(Conditions c, Set<repetition_landmark> ach_of_conditions) {
-        if (this.possible_achievers.get(c.getCounter()) == null) {
-            this.possible_achievers.put(c.getCounter(), new LinkedHashSet());
+
+
+    private boolean update_lm(Conditions p, GroundAction gr, HashMap<Integer, Set<Conditions>> lm) {
+
+        Set<Conditions> previous = lm.get(p.getCounter());
+        
+        if (previous == null){
+            previous = new LinkedHashSet();
+            previous.addAll((Set<Conditions>)gr.getPreconditions().sons);
+            return true;
+        }else{
+            int previous_size = previous.size();
+            previous.retainAll((Set<Conditions>)gr.getPreconditions().sons);
+            if (previous_size != previous.size())
+                return true;
         }
-        this.possible_achievers.get(c.getCounter()).addAll(ach_of_conditions);
+        return false;
+            
+    }
+
+    private void update_actions_conditions(State s_0, GroundAction gr, Set<GroundAction> a_plus, HashMap<Integer, Boolean> never_active, HashMap<Integer, Set<Conditions>> lm) {
+        for (Conditions comp: this.achieve.get(gr.counter)){
+            boolean changed;
+            if (dist.get(comp.getCounter())!= 0f){
+                changed = update_lm(comp,gr,lm);
+                Set<GroundAction> set = this.achievers_inverted.get(comp.getCounter());
+                for (GroundAction gr2: set){
+                    if (never_active.get(gr2.counter) || changed){
+                        a_plus.add(gr2);
+                        never_active.put(gr2.counter,false);
+                    }
+                }
+                Set<repetition_landmark> set2 = possible_achievers_2.get(comp.getCounter());
+                repetition_landmark dlm = new repetition_landmark(gr, 1);
+                set2.add(dlm);
+                possible_achievers_2.put(comp.getCounter(),set2);
+            }
+        }
+        for (Conditions comp: this.possible_achievers.get(gr.counter)){
+            Float rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp);
+            if (gr.getNumberOfExecution(s_0, (Comparison) comp) != Float.MAX_VALUE){
+                boolean changed;
+                if (dist.get(comp.getCounter())!= 0f){
+                    changed = update_lm(comp,gr,lm);
+                    Set<GroundAction> set = this.achievers_inverted.get(comp.getCounter());
+                    for (GroundAction gr2: set){
+                        if (never_active.get(gr2.counter) || changed){
+                            a_plus.add(gr2);
+                            never_active.put(gr2.counter,false);
+                        }
+                    }
+                Set<repetition_landmark> set2 = possible_achievers_2.get(comp.getCounter());
+                repetition_landmark dlm = new repetition_landmark(gr, rep_needed.intValue());
+                set2.add(dlm);
+                possible_achievers_2.put(comp.getCounter(),set2);
+                }
+            }
+        }
     }
 
     public class repetition_landmark extends Object {

@@ -69,7 +69,8 @@ public class ExtendedNormExpression extends Expression {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum(bin);
         this.summations.add(a);
-        linear = false;
+        
+        linear = true;
     }
 
     @Override
@@ -339,17 +340,24 @@ public class ExtendedNormExpression extends Expression {
 
                 ExtendedAddendum ele_to_add = new ExtendedAddendum();
                 boolean adding = true;
-                if (a.linear && a.f == null && b.linear && b.f == null) {
+                if ((a.linear && a.f == null && b.linear && b.f == null)) {
                     ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
                     if (ele_to_add.n.getNumber() == 0.0) {
                         adding = false;
                     }
+                                 
                 } else if (a.linear && b.linear && b.f == null) {
-                    ele_to_add.bin = new BinaryOp(a.f.clone(), "*", new PDDLNumber(a.n.getNumber() / b.n.getNumber()), true);
-                    ele_to_add.linear = false;
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
+                    ele_to_add.f = (NumFluent) a.f.clone();
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
                 } else if (a.linear && a.f == null && b.linear) {
-                    ele_to_add.bin = new BinaryOp(a.n, "/", new BinaryOp(b.n, "*", b.f, true), true);
-                    ele_to_add.linear = false;
+                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
+                    ele_to_add.f = (NumFluent) b.f.clone();
+                    if (ele_to_add.n.getNumber() == 0.0) {
+                        adding = false;
+                    }
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
                     ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new BinaryOp(a.f, "/", b.f, true), true);
                     ele_to_add.linear = false;
@@ -411,22 +419,24 @@ public class ExtendedNormExpression extends Expression {
 
     @Override
     public PDDLNumber eval(State s) {
-        PDDLNumber ret = new PDDLNumber(0);
+        //PDDLNumber ret = new PDDLNumber(0);
+        Float ret = 0.00000f;
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
 //                System.out.println(a.bin);
-                ret = new PDDLNumber(a.bin.eval(s).getNumber() + ret.getNumber());
+//                Float temp =  a.bin.eval(s).getNumber();
+                ret+= a.bin.eval(s).getNumber();
             } else if (a.f != null) {
                 if (s.functionValue(a.f) == null) {
                     return null;
                 }
-                ret = new PDDLNumber(ret.getNumber() + s.functionValue(a.f).getNumber() * a.n.getNumber());
+                ret+=  s.functionValue(a.f).getNumber() * a.n.getNumber();
             } else {
-                ret = new PDDLNumber(ret.getNumber() + a.n.getNumber());
+                ret+= a.n.getNumber();
             }
         }
-        return ret;
+        return new PDDLNumber(ret);
     }
 
     /**

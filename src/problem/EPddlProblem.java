@@ -270,7 +270,7 @@ public class EPddlProblem extends PddlProblem {
             GlobalConstraint constr = (GlobalConstraint) it.next();
             boolean keep = true;
 
-                keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
             
             if (!keep) {
                 //System.out.println("Pruning action:"+act.getName());
