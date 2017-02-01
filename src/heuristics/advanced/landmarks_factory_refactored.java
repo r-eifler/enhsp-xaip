@@ -44,6 +44,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
 
     public HashMap<Integer, Set<repetition_landmark>> possible_achievers_2;
     public boolean compute_lp;
+    private ArrayList<Float> dist_float;
 
     public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
@@ -127,10 +128,10 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             }else
                 never_active.put(gr.counter, true);
         }
-        ArrayList<Float> dist = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
+         dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
         for (Conditions c: all_conditions){
             if (c.isSatisfied(s_0))
-                dist.set(c.getCounter(), 0f);
+                dist_float.set(c.getCounter(), 0f);
             lm.put(c.getCounter(), null);
             possible_achievers_2.put(c.getCounter(), new LinkedHashSet());
         }
@@ -145,7 +146,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         
         Set<Conditions> goal_landmark = new LinkedHashSet();
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
-            if (dist.get(c.getCounter()) == Float.MAX_VALUE) {
+            if (dist_float.get(c.getCounter()) == Float.MAX_VALUE) {
                 return Float.MAX_VALUE;
             }
             goal_landmark.addAll(landmark_of.get(c.getCounter()));
@@ -211,31 +212,6 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         return estimate;
     }
 
-    private boolean update_landmarks(Conditions c, Set<GroundAction> achievers) {
-        if (achievers.isEmpty()) {
-            return false;
-        }
-        Set<Conditions> previous = this.landmark_of.get(c.getCounter());
-
-        Set<Conditions> intersection = null;
-        for (GroundAction gr : achievers) {
-            if (intersection == null) {
-                intersection = new LinkedHashSet();
-                intersection.addAll(landmark_of_action.get(gr.counter));
-            } else {
-                Set<Conditions> new_set = landmark_of_action.get(gr.counter);
-                intersection.retainAll(new_set);
-            }
-        }
-        intersection.add(c);
-
-        if (previous == null || !previous.equals(intersection)) {
-            this.landmark_of.put(c.getCounter(), intersection);
-            return true;
-        } else {
-            return false;
-        }
-    }
 
 
 
@@ -260,41 +236,47 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
     private void update_actions_conditions(State s_0, GroundAction gr, Set<GroundAction> a_plus, HashMap<Integer, Boolean> never_active, HashMap<Integer, Set<Conditions>> lm) {
         for (Conditions comp: this.achieve.get(gr.counter)){
             boolean changed;
-            if (dist.get(comp.getCounter())!= 0f){
-                changed = update_lm(comp,gr,lm);
-                Set<GroundAction> set = this.achievers_inverted.get(comp.getCounter());
-                for (GroundAction gr2: set){
-                    if (never_active.get(gr2.counter) || changed){
-                        a_plus.add(gr2);
-                        never_active.put(gr2.counter,false);
-                    }
-                }
-                Set<repetition_landmark> set2 = possible_achievers_2.get(comp.getCounter());
-                repetition_landmark dlm = new repetition_landmark(gr, 1);
-                set2.add(dlm);
-                possible_achievers_2.put(comp.getCounter(),set2);
+            Float rep_needed = 1f;
+            if (dist_float.get(comp.getCounter())!= 0f){
+                update_action_condition(gr,comp,lm,rep_needed,never_active,a_plus);
+
             }
         }
         for (Conditions comp: this.possible_achievers.get(gr.counter)){
             Float rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp);
             if (gr.getNumberOfExecution(s_0, (Comparison) comp) != Float.MAX_VALUE){
-                boolean changed;
-                if (dist.get(comp.getCounter())!= 0f){
-                    changed = update_lm(comp,gr,lm);
-                    Set<GroundAction> set = this.achievers_inverted.get(comp.getCounter());
-                    for (GroundAction gr2: set){
-                        if (never_active.get(gr2.counter) || changed){
-                            a_plus.add(gr2);
-                            never_active.put(gr2.counter,false);
-                        }
-                    }
-                Set<repetition_landmark> set2 = possible_achievers_2.get(comp.getCounter());
-                repetition_landmark dlm = new repetition_landmark(gr, rep_needed.intValue());
-                set2.add(dlm);
-                possible_achievers_2.put(comp.getCounter(),set2);
+                update_action_condition(gr,comp,lm,rep_needed,never_active,a_plus);
+            }
+        }
+    }
+
+    private void update_action_condition(GroundAction gr, Conditions comp, HashMap<Integer, Set<Conditions>> lm, Float rep_needed, HashMap<Integer, Boolean> never_active, Set<GroundAction> a_plus) {
+        boolean changed = update_lm(comp,gr,lm);
+        Set<GroundAction> set = this.achievers_inverted.get(comp.getCounter());
+        for (GroundAction gr2: set){
+            if (never_active.get(gr2.counter)){
+                if (check_conditions(gr2)){
+                    a_plus.add(gr2);
+                    never_active.put(gr2.counter,false);
+                }
+            }else{
+                if (changed){
+                    a_plus.add(gr2);
                 }
             }
         }
+        Set<repetition_landmark> set2 = possible_achievers_2.get(comp.getCounter());
+        repetition_landmark dlm = new repetition_landmark(gr, rep_needed);
+        set2.add(dlm);
+        possible_achievers_2.put(comp.getCounter(),set2);
+    }
+
+    private boolean check_conditions(GroundAction gr2) {
+        for (Conditions c: (Collection<Conditions>)gr2.getPreconditions().sons){
+            if (dist_float.get(c.getCounter())==Float.MAX_VALUE)
+                return false;            
+        }
+        return true;
     }
 
     public class repetition_landmark extends Object {
