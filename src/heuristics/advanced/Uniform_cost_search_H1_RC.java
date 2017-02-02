@@ -45,7 +45,6 @@ import problem.GroundAction;
  * @author enrico
  */
 public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
-    protected HashMap<Conditions, Boolean> redundant_constraints;
 
     public Uniform_cost_search_H1_RC(Conditions G, Set<GroundAction> A) {
         super(G, A);
