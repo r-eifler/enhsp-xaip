@@ -43,6 +43,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
     public boolean compute_lp;
     private ArrayList<Float> dist_float;
     public boolean red_constraints = false;
+    public boolean smart_intersection = false;
 
     public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
@@ -122,6 +123,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         if (this.reacheability_setting) {
             A = reachable;
         }
+        
 
         Set<Conditions> goal_landmark = new LinkedHashSet();
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
@@ -135,7 +137,10 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         }
         if (this.reacheability_setting) {
             System.out.println("Landmarks:" + goal_landmark.size());
+            this.dbg_print("Landmarks:"+goal_landmark+"\n");
+
         }
+
 
         float estimate = 0;
         if (compute_lp) {
@@ -217,7 +222,10 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                     temp.addAll(lm.get(c.getCounter()));
                 }
             }
-            previous.retainAll(temp);
+            if (smart_intersection)
+                metric_sensitive_intersection(previous,temp);
+            else
+                previous.retainAll(temp);
             lm.set(p.getCounter(), previous);
             previous.add(p);//adding itself again (the intersection may have removed this...
             if (previous_size != previous.size()) {
@@ -304,6 +312,17 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             }
             condition_to_action.set(c.getCounter(), set);
 
+        }
+    }
+    //TO-DO do the sensitive intersection to the metric
+    private void metric_sensitive_intersection(Set<Conditions> previous, Set<Conditions> temp) {
+        Set<Conditions> newset = new LinkedHashSet();
+        for (Conditions c: temp){
+            if (c instanceof Predicate){
+                
+            }else if (c instanceof Comparison){
+                
+            }
         }
     }
 
