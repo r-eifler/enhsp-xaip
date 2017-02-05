@@ -8,18 +8,16 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.ExtendedNormExpression;
+import expressions.NumFluent;
 import heuristics.Heuristic;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
@@ -36,11 +34,18 @@ public class landmarks_factory extends Heuristic {
 
     public HashMap<Integer, Integer> condition_level;
     public HashMap<Integer, Integer> action_level;
+//<<<<<<< HEAD
     public HashMap<Integer, Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
     private LinkedHashSet<GroundAction> reachable_at_this_stage;
+//=======
+//    public HashMap<Integer, Integer> dplus; //this is the minimum number of actions needed to achieve a given condition
+//    private LinkedHashSet<GroundAction> reacheable_at_this_stage;
+//>>>>>>> daan
 
     public HashMap<Integer, Set<repetition_landmark>> possible_achievers;
     public boolean compute_lp;
+
+    //protected LinkedHashSet<Comparison> redundant_constrains;
 
     public landmarks_factory(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
@@ -95,7 +100,7 @@ public class landmarks_factory extends Heuristic {
         //generate basic structures for landmarks
 
         reachable.addAll(A);
-        Float ret = compute_estimate(s_0);//reachability analysis
+        Float ret = compute_estimate(s_0);  //reachability analysis
         reachable = new LinkedHashSet();
         reachable.addAll(reachable_at_this_stage);
         return ret;
@@ -115,8 +120,8 @@ public class landmarks_factory extends Heuristic {
             update = false;
             for (Conditions c : all_conditions) {
 
-                int l = condition_level.get(c.getCounter());
-                int old_dplus = dplus.get(c.getCounter());
+                int l = condition_level.get(c.getCounter());    //didn't use later
+                int old_dplus = dplus.get(c.getCounter());      //didn't use later
                 Set<GroundAction> ach_of_conditions = new LinkedHashSet();
                 Set<repetition_landmark> ach_of_conditions_with_repetition = new LinkedHashSet();
 
@@ -222,10 +227,10 @@ public class landmarks_factory extends Heuristic {
                 if (lp.solve()) {
                     if (lp.getStatus() == IloCplex.Status.Optimal) {
                         estimate = (float)lp.getObjValue();
-                    }else{
+                    } else {
                         estimate = Float.MAX_VALUE;
                     }                
-                }else{
+                } else {
                     estimate = Float.MAX_VALUE;
 
                 }
@@ -311,5 +316,84 @@ public class landmarks_factory extends Heuristic {
             hash = 89 * hash + Objects.hashCode(this.gr.counter);
             return hash;
         }
+    }
+
+
+    protected void add_redundant_constrains(LinkedHashSet set) throws Exception {
+        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        //System.out.println("set:");
+        //System.out.println(set_as_array.toString());
+
+        int counter = all_conditions.size();
+
+        for (int i=0; i<set_as_array.size(); i++) {
+            for (int j=i+1; j<set_as_array.size();j++) {
+                Conditions c1 = set_as_array.get(i);
+                Conditions c2 = set_as_array.get(j);
+                //System.out.println("c1: "+c1);
+                //System.out.println("c2:" +c2);
+                /*
+                System.out.println("C1: "+c1);
+                if (c1 instanceof  Comparison) {
+
+                    System.out.println(((Comparison) c1).getComparator().toString());
+                }
+
+                if (c1 instanceof Comparison) {
+                    System.out.println(c1);
+                }
+                */
+                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
+                    //if (i<j) {
+                    Comparison a1 = (Comparison)c1;
+                    Comparison a2 = (Comparison)c2;
+                    //System.out.println("a1: " + a1);
+                    //System.out.println("a2: " + a2);
+                    //if (suitable_to_combine(a1, a2)){
+                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+                    if (suitable_to_combine(lhs_a1, lhs_a2)){
+                        ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
+                        String new_comparator = ">=";
+                        if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
+                            new_comparator = ">";
+                        }
+                        Comparison cnew = new Comparison(new_comparator);
+                        counter += 1;
+                        cnew.setLeft(expr);
+                        cnew.setRight(new ExtendedNormExpression(new Float(0.0)));
+                        cnew.normalize();
+                        cnew.setCounter(counter);
+                        //System.out.println("cnew: "+cnew);
+                            ///ExtendedNormExpression temp  (ExtendedNormExpression) cnew.getLeft();
+                        if (expr.summations.size()<2) {
+                            //System.out.println("inIF");
+                            continue;
+                        }
+                        //System.out.println("reach here");
+                        set.add(cnew);
+                        all_conditions.add(cnew);
+                    }
+                    //System.out.println("reach here");
+                    //}
+                }
+            }
+        }
+        //set.addAll(redundant_constrains);
+        //System.out.println(redundant_constrains);
+    }
+
+    private boolean suitable_to_combine(ExtendedNormExpression e1, ExtendedNormExpression e2) {
+        Set e1_fluent = e1.fluentsInvolved();
+        Set e2_fluent = e2.fluentsInvolved();
+
+        for (Object f1 : e1_fluent) {
+            for (Object f2: e2_fluent) {
+                if (f1.equals(f2)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

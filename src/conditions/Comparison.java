@@ -33,6 +33,7 @@ import expressions.Expression;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
+
 import java.util.Map;
 import problem.State;
 import expressions.PDDLNumber;
@@ -984,6 +985,7 @@ public class Comparison extends Conditions {
         return false;
     }
 
+//<<<<<<< HEAD
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         bui.append("(").append(getComparator()).append(" ");
@@ -992,4 +994,61 @@ public class Comparison extends Conditions {
         getRight().pddlPrint(typeInformation,bui);
         bui.append(")");
     }
+//=======
+    public boolean isDominantConstrainOf(Comparison other) {
+        ExtendedNormExpression e1 = (ExtendedNormExpression) this.getLeft();
+        ExtendedNormExpression e2 = (ExtendedNormExpression) other.getLeft();
+
+        ArrayList<ExtendedAddendum> sumC1 = e1.summations;
+        ArrayList<ExtendedAddendum> sumC2 = e2.summations;
+
+        int sizeOfSumC1 = sumC1.size();
+        int sizeOfSumC2 = sumC2.size();
+
+        if (Math.abs(sizeOfSumC1-sizeOfSumC2)>=2) {
+            return false;
+        }
+
+        if (sizeOfSumC1 > sizeOfSumC2) {
+            for (ExtendedAddendum ead1 : sumC1) {
+
+                if (ead1.f != null) {
+                    if (!sumC2.contains(ead1)) {return false;}
+                } else {
+                    if (ead1.n.getNumber()>0) {return false;}
+                }
+            }
+            return true;
+
+        } else if (sumC1.size() < sumC2.size()) {
+            for (ExtendedAddendum ead2 : sumC2) {
+                if (ead2.f != null) {
+                    if (!sumC1.contains(ead2)) {return false;}
+                } else {
+                    if (ead2.n.getNumber()>0) {return false;}
+                }
+            }
+            return true;
+
+        } else {
+            //they have same size
+            for (ExtendedAddendum ead1 : sumC1) {
+                if (ead1.f!=null) {
+                    if (!sumC2.contains(ead1)) {return false;}
+                } else {
+                    float constC1 = ead1.n.getNumber();
+                    for (ExtendedAddendum ead2: sumC2) {
+                        if (ead2.f == null) {
+                            if (constC1 > ead2.n.getNumber()) {return false;}
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+    }
+
+
+//>>>>>>> daan
 }
