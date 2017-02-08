@@ -186,7 +186,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
                 Comparison a1 = (Comparison) c1;
                 Comparison a2 = (Comparison) c2;
 
-                if (!a2.isDominantConstrainOf(a1) ) {
+                if (!a2.dominate(a1) ) {
                     isLandmark = false;
                     break;
                 }

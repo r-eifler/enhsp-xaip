@@ -671,6 +671,10 @@ public abstract class Heuristic {
                 Comparison comp = (Comparison) c;
                 new_condition.put(comp, false);
                 is_complex.put(comp, false);
+                if (!comp.isLinear()){
+                    is_complex.put(comp, true);
+                    complex_condition_set.add((Comparison) c);
+                }
                 for (GroundAction gr : A) {
                     if (gr.getNumericEffects() != null) {
                         AndCond effects = (AndCond) gr.getNumericEffects();

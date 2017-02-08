@@ -44,6 +44,8 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
     private ArrayList<Float> dist_float;
     public boolean red_constraints = false;
     public boolean smart_intersection = false;
+    private ArrayList<Float> target_value;
+    public boolean mip;
 
     public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
@@ -90,10 +92,12 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
 
     @Override
     public Float compute_estimate(State s_0) {
+        if (s_0.satisfy(G))
+            return 0f;
         LinkedList<GroundAction> a_plus = new LinkedList();//actions executable. Progressively updated
         ArrayList<Set<Conditions>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
         ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
-        HashMap<Integer, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
+        HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
         reachable_poss_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
             if (gr.isApplicable(s_0)) {
@@ -105,9 +109,35 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             }
         }
         dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));//keep track of conditions that have been reachead yet
+        target_value = new ArrayList<>(nCopies(all_conditions.size() + 1, 0f));//keep track of conditions that have been reachead yet
+
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 dist_float.set(c.getCounter(), 0f);
+                this.dbg_print("Condition that is already satisfied:"+c+"\n");
+                this.dbg_print("Counter is:"+c.getCounter()+"\n");
+
+            }else{
+                if (c instanceof Predicate){
+                    target_value.set(c.getCounter(), 1f);
+                }else{
+                    Comparison comp = (Comparison)c;
+                    if (debug>0)
+                        if (comp.getComparator().equals("<")||comp.getComparator().equals("<=") ||comp.getComparator().equals("=")){
+                            System.out.println("Expressions not normalized!!!");
+                            System.exit(-1);
+                        }
+                        
+                    Float t = comp.getLeft().eval(s_0).getNumber();
+                    target_value.set(c.getCounter(), -1*t);
+                    if (debug>0){
+                        System.out.println("Condition:"+c);
+                        System.out.println("Target Value:"+t);
+                        System.out.println("Neg Target Value:"+(-t));
+                    }
+
+                }
+                
             }
             lm.set(c.getCounter(), null);//this condition has no landmark yet. This structure is updated on the way
             reachable_poss_achievers.set(c.getCounter(), new LinkedHashSet());//this is a mapping between condition and its possible (reachable) achievers
@@ -132,12 +162,14 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                 return Float.MAX_VALUE;
             }
             if (distance != 0f) {
+                this.dbg_print("Landmark found!"+c+"\n");
                 goal_landmark.addAll(lm.get(c.getCounter()));
+                this.dbg_print("Counter is:"+c.getCounter()+"\n");
+                goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
             }
         }
         if (this.reacheability_setting) {
             System.out.println("Landmarks:" + goal_landmark.size());
-            this.dbg_print("Landmarks:"+goal_landmark+"\n");
 
         }
 
@@ -146,11 +178,14 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         if (compute_lp) {
             try {
                 IloCplex lp = new IloCplex();
-                lp.setOut(null);
+                if (debug==0)
+                   lp.setOut(null);
 
                 IloLinearNumExpr objective = lp.linearNumExpr();
                 for (Conditions c : goal_landmark) {
-                    if (!c.isSatisfied(s_0)) {
+                    if (dist_float.get(c.getCounter())!=0) {
+                        if (debug>0)
+                            System.out.println("Condition under analysis: "+c);
                         IloLinearNumExpr expr = lp.linearNumExpr();
 
                         for (repetition_landmark dlm : this.reachable_poss_achievers.get(c.getCounter())) {
@@ -160,18 +195,29 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                             if (action_cost.isNaN()) {
                                 continue;
                             }
-                            if (action_to_variable.get(dlm.gr.counter) != null) {
-                                action = action_to_variable.get(dlm.gr.counter);
+                            if (action_to_variable.get(dlm.gr) != null) {
+                                action = action_to_variable.get(dlm.gr);
                             } else {
-                                action = (IloNumVar) lp.numVar(0.0, Float.MAX_VALUE, IloNumVarType.Float);
-                                action_to_variable.put(dlm.gr.counter, action);
+                                if (mip){
+                                    action = (IloNumVar) lp.numVar(0.0, Integer.MAX_VALUE, IloNumVarType.Int);
+                                }else
+                                    action = (IloNumVar) lp.numVar(0.0, Float.MAX_VALUE, IloNumVarType.Float);
+                                action_to_variable.put(dlm.gr, action);
                                 objective.addTerm(action, action_cost);
                             }
-                            expr.addTerm(action, 1.0 / dlm.repetition);
+                            expr.addTerm(action, dlm.contribution);
+                            if (debug>0){
+                                System.out.println("Action Considered: "+dlm.toString());
+                                System.out.println("Expression generated: "+expr.toString());
+                            }
                         }
-                        lp.addGe(expr, 1);
+                        if (debug>0)
+                            System.out.println("Target Value:"+this.target_value.get(c.getCounter()));
+                        
+                        lp.addGe(expr, this.target_value.get(c.getCounter()));
                     }
                 }
+                
                 lp.addMinimize(objective);
 
                 if (lp.solve()) {
@@ -205,29 +251,46 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         Set<Conditions> previous = lm.get(p.getCounter());
 
         if (previous == null) {
+            if (debug >10){
+                System.out.println("First LM for:"+p);
+            }
             previous = new LinkedHashSet();
             for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
                 if (this.dist_float.get(c.getCounter()) != 0f) {
                     previous.addAll(lm.get(c.getCounter()));
+                    previous.add(c);
                 }
             }
-            previous.add(p);//adding itself
+            //previous.add(p);//adding itself
             lm.set(p.getCounter(), previous);
             return true;
         } else {
+            if (debug >10){
+                System.out.println("Revise LM for:"+p);
+            }
+
             int previous_size = previous.size();
             Set<Conditions> temp = new LinkedHashSet();
             for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
                 if (this.dist_float.get(c.getCounter()) != 0f) {
                     temp.addAll(lm.get(c.getCounter()));
+                    temp.add(c);
                 }
             }
             if (smart_intersection)
-                metric_sensitive_intersection(previous,temp);
-            else
+                previous = metric_sensitive_intersection(previous,temp);
+            else{
+                if (debug >10){
+                    System.out.println("Previous"+previous);
+                }
                 previous.retainAll(temp);
+                if (debug >10){
+                    System.out.println("after"+previous);
+                }            
+            }
+            
+            //previous.add(p);//adding itself again (the intersection may have removed this...
             lm.set(p.getCounter(), previous);
-            previous.add(p);//adding itself again (the intersection may have removed this...
             if (previous_size != previous.size()) {
                 return true;
             }
@@ -246,15 +309,17 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             }
         }
         for (Conditions comp : this.possible_achievers.get(gr.counter)) {
-            Float rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp);
-            if (rep_needed != Float.MAX_VALUE) {
-                dist_float.set(comp.getCounter(), rep_needed);
-                update_action_condition(gr, comp, lm, rep_needed, never_active, a_plus);
+            if (dist_float.get(comp.getCounter()) != 0f){
+                Float contribution = gr.getContribution(s_0, (Comparison) comp);
+                if (contribution != Float.MAX_VALUE) {
+                    dist_float.set(comp.getCounter(), contribution);
+                    update_action_condition(gr, comp, lm, contribution, never_active, a_plus);
+                }
             }
         }
     }
 
-    private void update_action_condition(GroundAction gr, Conditions comp, ArrayList<Set<Conditions>> lm, Float rep_needed, ArrayList<Boolean> never_active, LinkedList<GroundAction> a_plus) {
+    private void update_action_condition(GroundAction gr, Conditions comp, ArrayList<Set<Conditions>> lm, Float contribution, ArrayList<Boolean> never_active, LinkedList<GroundAction> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
@@ -286,7 +351,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         }
         //update set of possible achiever for the condition with new action.
         Set<repetition_landmark> set2 = reachable_poss_achievers.get(comp.getCounter());
-        repetition_landmark dlm = new repetition_landmark(gr, rep_needed);
+        repetition_landmark dlm = new repetition_landmark(gr, contribution);
         set2.add(dlm);
         reachable_poss_achievers.set(comp.getCounter(), set2);
     }
@@ -315,31 +380,49 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         }
     }
     //TO-DO do the sensitive intersection to the metric
-    private void metric_sensitive_intersection(Set<Conditions> previous, Set<Conditions> temp) {
+    private Set<Conditions> metric_sensitive_intersection(Set<Conditions> previous, Set<Conditions> temp) {
         Set<Conditions> newset = new LinkedHashSet();
+        if (debug>10){
+            System.out.println("Previous:"+previous);
+        }
         for (Conditions c: temp){
             if (c instanceof Predicate){
-                
+                if (previous.contains(c))
+                    newset.add(c);
             }else if (c instanceof Comparison){
-                
+                for (Conditions c1: previous){
+                    if (c1 instanceof Comparison){
+                        Comparison comp_c = (Comparison)c;
+                        Comparison comp_c1 = (Comparison)c1;
+                        if (comp_c.dominate(comp_c1)){
+                            newset.add(comp_c1);
+                        }
+                        
+                    }
+                    
+                }
             }
         }
+        if (debug>10){
+            System.out.println("after:"+newset);
+        }
+        return newset;
     }
 
     public class repetition_landmark extends Object {
 
         public GroundAction gr;
-        public float repetition;
+        public float contribution;
 
         public repetition_landmark(GroundAction gr_input, float repetition_input) {
             super();
             this.gr = gr_input;
-            this.repetition = repetition_input;
+            this.contribution = repetition_input;
         }
 
         @Override
         public String toString() {
-            return "(" + gr.toEcoString() + " " + repetition + ")";
+            return "(" + gr.toEcoString() + " " + contribution + ")";
         }
 
         @Override

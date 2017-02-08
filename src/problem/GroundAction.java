@@ -2602,4 +2602,12 @@ public class GroundAction extends GenericActionType implements Comparable {
         return or;
     }
 
+    public Float getContribution(State s_0, Comparison comp) {
+
+        Float b = comp.eval_affected(s_0, this);
+        if (b<=0)
+            return Float.MAX_VALUE; //the action is not a possible achiever
+        return b;
+    }
+
 }

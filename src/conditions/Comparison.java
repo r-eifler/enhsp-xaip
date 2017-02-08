@@ -56,6 +56,7 @@ public class Comparison extends Conditions {
 
     private Integer hash_code;
     private String string_representation;
+    private boolean linear;
 
     @Override
     public boolean equals(Object obj) {
@@ -87,6 +88,7 @@ public class Comparison extends Conditions {
         
         ExtendedNormExpression left_expr = (ExtendedNormExpression) left;
         ExtendedNormExpression left_expr2 = (ExtendedNormExpression) other.left;
+   
         if (!left_expr.equals(left_expr2)) {
             return false;
         }
@@ -121,6 +123,7 @@ public class Comparison extends Conditions {
         normalized = false;
         fatherFromRegression = null;
         maxDist = null;
+        linear = true;
     }
 
     @Override
@@ -443,6 +446,8 @@ public class Comparison extends Conditions {
         setRight(this.right.normalize());
         ExtendedNormExpression l = (ExtendedNormExpression) this.left;
         ExtendedNormExpression r = (ExtendedNormExpression) this.right;
+        if (!l.linear || !r.linear)
+            this.setLinear(false);
         //System.out.println(l);
         try {
             if (l.isNumber() && r.isNumber()) {
@@ -995,7 +1000,9 @@ public class Comparison extends Conditions {
         bui.append(")");
     }
 //=======
-    public boolean isDominantConstrainOf(Comparison other) {
+    //This function computes a domination analysis between the source (a) comparison and the objective one (b).
+    //If the satisfaction of a implies the satisfaction of b, then b is dominated by a.
+    public boolean dominate(Comparison other) {
         ExtendedNormExpression e1 = (ExtendedNormExpression) this.getLeft();
         ExtendedNormExpression e2 = (ExtendedNormExpression) other.getLeft();
 
@@ -1051,4 +1058,18 @@ public class Comparison extends Conditions {
 
 
 //>>>>>>> daan
+
+    /**
+     * @return the linear
+     */
+    public boolean isLinear() {
+        return linear;
+    }
+
+    /**
+     * @param linear the linear to set
+     */
+    public void setLinear(boolean linear) {
+        this.linear = linear;
+    }
 }
