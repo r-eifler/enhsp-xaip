@@ -1155,6 +1155,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //create init action from the initial state.
         GroundAction start = init.transformInAction();
         this.add(0, start);
+        System.out.println("DEBUG: Dummy Start Action"+start.toPDDL());
         //System.out.print("Building Validation Structure for : ");
         for (int i = 0; i < this.size(); i++) {
             GroundAction a = this.get(i);
@@ -1168,10 +1169,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
             getValidationStructures().put(a, validationStructure);
             //System.out.print(+i+",");
             AndCond conds = (AndCond) a.getPreconditions();
+            
+            
+
             if (conds != null) {
                 for (Object o : conds.sons) {
+                    
                     TreeSet<Integer> chain = new TreeSet();
                     Conditions c = (Conditions) o;
+                    if (c instanceof AndCond){//this is a hack!!!
+                        AndCond b = (AndCond)c;
+                        c = (Conditions)b.sons.iterator().next();
+                    }
                     //Finding the numeric justification. This requires a local search in the space of actions which have been planned to be executed before i
                     //System.out.println("Looking for!:" + c );
 //                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
@@ -1263,6 +1272,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                         } else if (c instanceof NotCond) {
 
                         } else {
+                            System.out.println("Condition under analysis:"+c);
                             System.out.println("Only Conjunctive Preconditions/Conditions are supported");
                             System.exit(-1);
                         }
@@ -2248,9 +2258,17 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (!chain.contains(k)) {
                 chain.add(k);
                 State tempInit = new State();
+//                System.out.println("DEBUG: New state created:"+tempInit);
                 for (Integer index : chain) {
-//                    System.out.println("Applicando:"+index);
-                    tempInit = this.get(index).apply(tempInit);
+//                    System.out.println("DEBUG:Applying from chain:"+index);
+//                    System.out.println("DEBUG:Content of the chain:"+chain);
+
+//                    System.out.println("DEBUG:Applying:"+this.get(index).toPDDL());
+//                    System.out.println("DEBUG:on the state:"+tempInit);
+                    if (this.get(index).hasApplicableEffects(tempInit)){
+                        tempInit = this.get(index).apply(tempInit);
+//                        System.out.println("DEBUG: After Modification"+tempInit);
+                    }
                 }
                 if (c.is_evaluable(tempInit)) {
                     Float current = tempInit.distance2(c);

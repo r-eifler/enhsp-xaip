@@ -108,7 +108,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                 }
             }
         }
-        dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));//keep track of conditions that have been reachead yet
+        dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         target_value = new ArrayList<>(nCopies(all_conditions.size() + 1, 0f));//keep track of conditions that have been reachead yet
 
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
@@ -154,7 +154,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             A = reachable;
         }
         
-
+        int not_trivial_landmarks = 0;
         Set<Conditions> goal_landmark = new LinkedHashSet();
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
             Float distance = dist_float.get(c.getCounter());
@@ -163,13 +163,18 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             }
             if (distance != 0f) {
                 this.dbg_print("Landmark found!"+c+"\n");
+                
                 goal_landmark.addAll(lm.get(c.getCounter()));
-                this.dbg_print("Counter is:"+c.getCounter()+"\n");
+                not_trivial_landmarks+=lm.get(c.getCounter()).size();
+                //this.dbg_print("Counter is:"+c.getCounter()+"\n");
                 goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
+                this.dbg_print(print_ordering(lm,c));
             }
         }
         if (this.reacheability_setting) {
             System.out.println("Landmarks:" + goal_landmark.size());
+
+            System.out.println("Not Trivial Landmarks:" + not_trivial_landmarks);
 
         }
 
@@ -241,8 +246,15 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
 
                 estimate += dplus.get(c.getCounter());
             }
-        }
 
+        }
+        if (debug>10 && (estimate==0.0f)){
+            System.out.println("Discrepancy between value heuristic and satisfability condition:"+estimate);
+            System.out.println("state:"+s_0);
+            System.out.println("goal:"+G);
+            System.out.println("IS satisfied?"+s_0.satisfy(G));
+            System.exit(-1);
+        }
         return estimate;
     }
 
@@ -261,20 +273,23 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                     previous.add(c);
                 }
             }
-            //previous.add(p);//adding itself
+            //previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
             lm.set(p.getCounter(), previous);
             return true;
         } else {
             if (debug >10){
                 System.out.println("Revise LM for:"+p);
             }
+//            if (p.toString().contains("poured")){
+//                System.out.println("Condition:"+p);
+//            }
 
             int previous_size = previous.size();
             Set<Conditions> temp = new LinkedHashSet();
             for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
                 if (this.dist_float.get(c.getCounter()) != 0f) {
                     temp.addAll(lm.get(c.getCounter()));
-                    temp.add(c);
+                    temp.add(c);//the lm as implemented in this code does not contain itself
                 }
             }
             if (smart_intersection)
@@ -289,7 +304,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                 }            
             }
             
-            //previous.add(p);//adding itself again (the intersection may have removed this...
+            //previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
             lm.set(p.getCounter(), previous);
             if (previous_size != previous.size()) {
                 return true;
@@ -407,6 +422,20 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             System.out.println("after:"+newset);
         }
         return newset;
+    }
+
+    private String print_ordering(ArrayList<Set<Conditions>> lm, Conditions c) {
+        
+        if (lm.get(c.getCounter())== null||lm.get(c.getCounter()).isEmpty()){
+            return "("+c.toString()+","+c.getCounter()+")";
+        }else{
+            String temp = "";
+            for (Conditions c1: lm.get(c.getCounter())){
+                temp += "("+c.toString()+","+c.getCounter()+")"+"<-"+print_ordering(lm,c1)+"\n";
+            }
+            return temp;
+        }
+                
     }
 
     public class repetition_landmark extends Object {

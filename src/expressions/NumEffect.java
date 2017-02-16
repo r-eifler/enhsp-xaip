@@ -508,6 +508,7 @@ public class NumEffect extends Expression implements PostCondition {
         if (this.operator.equals("increase")) {
             PDDLNumber current = s.functionValue(fluentAffected);
             if (current == null) {
+                System.out.println("State:"+s);
                 System.out.println("This effect cannot be applied!:" + this);
                 System.exit(-1);
             }

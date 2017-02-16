@@ -285,6 +285,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 }
             }
         }
+//        System.out.println("DEBUG: Subst within action application:"+subst);
         return s;
     }
 
@@ -2608,6 +2609,17 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (b<=0)
             return Float.MAX_VALUE; //the action is not a possible achiever
         return b;
+    }
+
+    public boolean hasApplicableEffects(State s) {
+        for (NumEffect e: this.getNumericEffectsAsCollection()){
+            if (e.getOperator().equalsIgnoreCase("increase") || e.getOperator().equalsIgnoreCase("decrease")){
+                
+                if (s.functionValue(e.getFluentAffected())==null)
+                    return false;
+            }
+        }
+        return true;
     }
 
 }

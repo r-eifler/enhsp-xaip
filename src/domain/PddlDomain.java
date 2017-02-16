@@ -1261,7 +1261,7 @@ public final class PddlDomain extends Object {
         }
     }
 
-    public void saveProblemWithObjectInterpretation(String file) throws IOException {
+    public void saveDomainWithInterpretationObjects(String file) throws IOException {
         PddlDomain domain = this;
         Writer f;
 

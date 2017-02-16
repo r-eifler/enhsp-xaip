@@ -184,7 +184,8 @@ public class ActionSchema extends GenericActionType {
 
         ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
-        ret += ":effect " + this.pddlEffectsWithExtraObject();
+        //ret += ":effect " + this.pddlEffectsWithExtraObject();
+        ret += ":effect " + this.pddlEffects()+"\n";
 
         return ret + ")";
     }
