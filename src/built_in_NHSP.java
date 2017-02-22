@@ -144,8 +144,8 @@ public class built_in_NHSP {
         }
         System.out.println("Grounding..");
 
-        problem.generateActionsAndProcesses();
-        problem.generateConstraints();
+        problem.grounding_plus_simplifications();
+        //problem.generateConstraints();
         if (config == null || !config.equals("exp1")) {
             problem.transform_numeric_condition();
         } else {

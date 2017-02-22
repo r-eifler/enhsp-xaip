@@ -33,12 +33,12 @@ import conditions.Conditions;
 import expressions.ExtendedNormExpression;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.GroundProcess;
 
 /**
  *
@@ -55,7 +55,7 @@ public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
         }
     }
 
-    public Uniform_cost_search_H1_RC(Conditions goals, Set actions, HashSet processesSet) {
+    public Uniform_cost_search_H1_RC(Conditions goals, Set actions, Set<GroundProcess> processesSet) {
         super(goals, actions,processesSet);
         try {
             this.add_redundant_constraints();

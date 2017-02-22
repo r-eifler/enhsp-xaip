@@ -465,6 +465,7 @@ public class ExtendedNormExpression extends Expression {
                     ret.summations.add(a);
                 }
             } else {
+//                System.out.println("BAaaaaa... c:"+c+"a:"+a);
                 c = new PDDLNumber(c.getNumber() + a.n.getNumber());
             }
         }

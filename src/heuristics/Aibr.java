@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.RelState;
 import problem.State;
 
@@ -53,7 +54,7 @@ public class Aibr extends Heuristic {
         generate_supporters(A);
     }
 
-    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundAction> processes) {
+    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         this.dbg_print("Generate Supporters\n");
         generate_supporters(A);

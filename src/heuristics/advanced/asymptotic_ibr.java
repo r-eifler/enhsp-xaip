@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.RelState;
 import problem.State;
 
@@ -47,7 +48,7 @@ public class asymptotic_ibr extends Heuristic {
         generate_supporters(A);
     }
 
-    public asymptotic_ibr(Conditions G, Set<GroundAction> actions, Set<GroundAction> processes) {
+    public asymptotic_ibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         generate_supporters(A);
     }

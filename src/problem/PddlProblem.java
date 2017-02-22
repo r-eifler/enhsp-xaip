@@ -173,11 +173,7 @@ public class PddlProblem {
             groundActions = false;
             validatedAgainstDomain = false;
             possStates = null;
-        } catch (IOException ex) {
-            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RecognitionException ex) {
-            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (org.antlr.runtime.RecognitionException ex) {
+        } catch (IOException | RecognitionException | org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
 

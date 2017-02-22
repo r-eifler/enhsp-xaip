@@ -57,6 +57,7 @@ import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 import org.ojalgo.optimisation.Variable;
+import problem.GroundProcess;
 
 /**
  *
@@ -129,7 +130,7 @@ public abstract class Heuristic {
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();

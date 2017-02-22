@@ -13,13 +13,11 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
-import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -27,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.State;
 
 /**
@@ -47,8 +46,8 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
     private ArrayList<Float> target_value;
     public boolean mip;
 
-    public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A) {
-        super(goal, A);
+    public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P) {
+        super(goal, A, P);
 
     }
 
@@ -292,8 +291,12 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                     temp.add(c);//the lm as implemented in this code does not contain itself
                 }
             }
-            if (smart_intersection)
+            if (smart_intersection){
+
                 previous = metric_sensitive_intersection(previous,temp);
+//                previous.retainAll(temp);
+
+            }
             else{
                 if (debug >10){
                     System.out.println("Previous"+previous);
@@ -397,8 +400,9 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
     //TO-DO do the sensitive intersection to the metric
     private Set<Conditions> metric_sensitive_intersection(Set<Conditions> previous, Set<Conditions> temp) {
         Set<Conditions> newset = new LinkedHashSet();
-        if (debug>10){
+        if (debug>0){
             System.out.println("Previous:"+previous);
+            System.out.println("Intersecting with:"+temp);
         }
         for (Conditions c: temp){
             if (c instanceof Predicate){
@@ -411,14 +415,14 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                         Comparison comp_c1 = (Comparison)c1;
                         if (comp_c.dominate(comp_c1)){
                             newset.add(comp_c1);
-                        }
-                        
+                        }else if (comp_c1.dominate(comp_c))
+                            newset.add(comp_c);
                     }
                     
                 }
             }
         }
-        if (debug>10){
+        if (debug>0){
             System.out.println("after:"+newset);
         }
         return newset;

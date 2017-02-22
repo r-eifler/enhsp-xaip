@@ -35,6 +35,7 @@ import conditions.Predicate;
 import domain.ParametersAsTerms;
 import domain.PddlDomain;
 import domain.SchemaGlobalConstraint;
+import domain.SchemaParameters;
 import expressions.NumFluent;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,11 +48,22 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
 
     public ParametersAsTerms grn_parameters;
     private boolean normalized;
-    private boolean reacheable;
+    private boolean reachable;
     public GlobalConstraint(String name) {
         super(name);
     }
 
+    @Override
+    public Object clone(){
+        GlobalConstraint cloned = new GlobalConstraint(this.name);
+        cloned.normalized = this.normalized;
+        cloned.reachable = this.reachable;
+        cloned.condition = this.condition.clone();
+        cloned.grn_parameters = (ParametersAsTerms) this.grn_parameters.clone();
+        cloned.parameters = (SchemaParameters) this.parameters.clone();
+        return cloned;
+    }
+    
     boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
         
       
@@ -102,14 +114,14 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
      * @return the reacheable
      */
     public boolean isReacheable() {
-        return reacheable;
+        return reachable;
     }
 
     /**
      * @param reacheable the reacheable to set
      */
     public void setReacheable(boolean reacheable) {
-        this.reacheable = reacheable;
+        this.reachable = reacheable;
     }
 
     public boolean isTautology(State reacheableState) {

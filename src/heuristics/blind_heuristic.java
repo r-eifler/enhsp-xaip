@@ -8,6 +8,7 @@ package heuristics;
 import conditions.Conditions;
 import java.util.Set;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.State;
 
 /**
@@ -16,7 +17,7 @@ import problem.State;
  */
 public class blind_heuristic extends Aibr{
 
-    public blind_heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+    public blind_heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
     }
     

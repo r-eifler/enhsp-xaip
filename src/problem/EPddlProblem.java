@@ -30,6 +30,7 @@ package problem;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.NotCond;
+import conditions.NumFluentValue;
 import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
@@ -58,8 +59,8 @@ import propositionalFactory.Instantiator;
  */
 public class EPddlProblem extends PddlProblem {
 
-    public HashSet globalConstraintSet;
-    public HashSet processesSet;
+    public HashSet<GlobalConstraint> globalConstraintSet;
+    public HashSet<GroundProcess> processesSet;
     private boolean globalConstraintGrounded;
     private boolean processesGround;
     public AndCond globalConstraints;
@@ -67,6 +68,25 @@ public class EPddlProblem extends PddlProblem {
 
     private boolean grounding;
 
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException{
+        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef,this.objects);
+        cloned.processesSet = new LinkedHashSet();
+        for (GroundAction gr: this.actions){
+            cloned.actions.add((GroundAction) gr.clone());
+        }
+        for (GroundProcess pr: this.processesSet){
+            cloned.processesSet.add((GroundProcess) pr.clone());
+        }
+        for (GlobalConstraint constr: this.globalConstraintSet){
+            cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
+        }
+        //cloned.globalConstraints = (AndCond) this.globalConstraints.clone();
+        return this;
+        
+    }
+    
     public EPddlProblem(String problemFile) {
         super(problemFile);
         globalConstraintSet = new LinkedHashSet();
@@ -88,8 +108,7 @@ public class EPddlProblem extends PddlProblem {
         try {
             if (grounding)
                 return;
-            this.generateActionsAndProcesses();
-            this.generateConstraints();
+            this.grounding_plus_simplifications();
             grounding = true;
         } catch (Exception ex) {
             Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
@@ -116,114 +135,27 @@ public class EPddlProblem extends PddlProblem {
             System.err.println("Please connect the domain of the problem via validation");
             System.exit(-1);
         }
-        Iterator it = getActions().iterator();
-        //System.out.println("prova");
-        System.out.println(getActions().size());
-        while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
-            boolean keep = true;
-            if (isSimplifyActions()) {
-                keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            }
-            if (!keep) {
-                //System.out.println("Pruning action:"+act.getName());
-                it.remove();
-            }
-        }
-        System.out.println(getActions().size());
 
-        setPropositionalTime(System.currentTimeMillis() - start);
-        this.setGroundedActions(true);
 
     }
     
     
-    public void generateActionsAndProcesses() throws Exception {
-        long start = System.currentTimeMillis();
-        if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
-            for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
-//                af.Propositionalize(act, objects);
-                if (!act.getPar().isEmpty()) {
-                    getActions().addAll(af.Propositionalize(act, getObjects()));
-                } else {
-                    GroundAction gr = act.ground();
-                    getActions().add(gr);
-
-                }
-            }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
-        processesSet = new LinkedHashSet();
-        if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
-            for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
-//                af.Propositionalize(act, objects);
-                if (process.getParameters().size() != 0) {
-                    processesSet.addAll(af.Propositionalize(process, getObjects()));
-                } else {
-                    GroundProcess gr = process.ground();
-                    processesSet.add(gr);
-                }
-            }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
-        this.getInvariantFluents();
+    public void grounding_plus_simplifications() throws Exception {
         
-        Iterator it = getActions().iterator();
-        //System.out.println("prova");
-//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
-        while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
-            boolean keep = true;
-            if (isSimplifyActions()) {
-                //System.out.println("Simplifying action");
-                //keep = act.simplifyModel(linkedDomain, this);
-                keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            }
-            if (!keep) {
-//                System.out.println("Pruning action:"+act.getName());
-                it.remove();
-            }
-        }
-//        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
-
-
-//        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
-
-        it = this.processesSet.iterator();
-        while (it.hasNext()) {
-            GroundProcess process = (GroundProcess) it.next();
-            boolean keep = true;
-
-                keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            
-            if (!keep) {
-//                System.out.println("Pruning process:"+process.toEcoString());
-                it.remove();
-            }
-        }
+        //simplification decoupled from the grounding
+        this.grounding_action_processes_constraints();
         
-//        unify_objects_names(this.getInit(),this.actions,this.processesSet);
+        this.simplifications_action_processes_constraints();
         
-        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        this.processesGround = true;
-        this.setGroundedActions(true);
-
-
+        this.transform_numeric_condition();
+        
     }
     
     @Override
     public HashMap getInvariantFluents() throws Exception {
         if (invariantFluents == null) {
             if ( (this.getActions() == null || this.getActions().isEmpty())&& (this.processesSet == null || this.processesSet.isEmpty())) {
-                this.generateActionsAndProcesses();
+                this.grounding_action_processes_constraints();
             }
             invariantFluents = new HashMap();
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
@@ -242,52 +174,7 @@ public class EPddlProblem extends PddlProblem {
         return invariantFluents;
     }
 
-    public void generateConstraints() throws Exception {
-        long start = System.currentTimeMillis();
-        if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
-            for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
-//                af.Propositionalize(act, objects);
-                
-                if (constr.parameters.size() != 0) {
-                    globalConstraintSet.addAll(af.Propositionalize(constr, getObjects()));
-                } else {
-                    GlobalConstraint gr = constr.ground();
-                    globalConstraintSet.add(gr);
-                }
-            }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
-        
-     
-        Iterator it = this.globalConstraintSet.iterator();
-        globalConstraints = new AndCond();
 
-        while (it.hasNext()) {
-            GlobalConstraint constr = (GlobalConstraint) it.next();
-            boolean keep = true;
-
-            keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            
-            if (!keep) {
-                //System.out.println("Pruning action:"+act.getName());
-                it.remove();
-            }else{
-                globalConstraints.addConditions(constr.condition);
-                globalConstraints.normalize();
-            }
-                
-        }
-        
-        
-        
-        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        this.globalConstraintGrounded = true;
-
-    }
     
     public void generateProcesses() throws Exception {
         long start = System.currentTimeMillis();
@@ -309,19 +196,6 @@ public class EPddlProblem extends PddlProblem {
             System.exit(-1);
         }
         
-     
-        Iterator it = this.processesSet.iterator();
-        while (it.hasNext()) {
-            GroundProcess process = (GroundProcess) it.next();
-            boolean keep = true;
-
-                keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            
-            if (!keep) {
-                //System.out.println("Pruning action:"+act.getName());
-                it.remove();
-            }
-        }
         
         
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
@@ -678,6 +552,115 @@ public class EPddlProblem extends PddlProblem {
         }
 
     }
+    
+    public void generateConstraints() throws Exception{
+	 if (this.isValidatedAgainstDomain()) {
+            Instantiator af = new Instantiator();
+            for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
+//                af.Propositionalize(act, objects);
+                
+                if (constr.parameters.size() != 0) {
+                    globalConstraintSet.addAll(af.Propositionalize(constr, getObjects()));
+                } else {
+                    GlobalConstraint gr = constr.ground();
+                    globalConstraintSet.add(gr);
+                }
+            }
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+         this.globalConstraintGrounded=true;
+    }
+
+    public void grounding_action_processes_constraints() throws Exception {
+        long start = System.currentTimeMillis();
+        this.generateActions();
+	this.generateProcesses();
+	this.generateConstraints();
+        this.setGroundedActions(true);
+        this.processesGround = true;
+        this.globalConstraintGrounded= true;
+        this.getInvariantFluents();
+        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
+       
+    }
+
+    public void simplifications_action_processes_constraints() throws Exception {
+        Iterator it = getActions().iterator();
+        //System.out.println("prova");
+//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
+        while (it.hasNext()) {
+            GroundAction act = (GroundAction) it.next();
+            boolean keep = true;
+            if (isSimplifyActions()) {
+                //System.out.println("Simplifying action");
+                //keep = act.simplifyModel(linkedDomain, this);
+                keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            }
+            if (!keep) {
+//                System.out.println("Pruning action:"+act.getName());
+                it.remove();
+            }
+        }
+//        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
+
+
+//        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
+
+        it = this.processesSet.iterator();
+        while (it.hasNext()) {
+            GroundProcess process = (GroundProcess) it.next();
+            boolean keep = true;
+
+                keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            
+            if (!keep) {
+//                System.out.println("Pruning process:"+process.toEcoString());
+                it.remove();
+            }
+        }
+        
+//        unify_objects_names(this.getInit(),this.actions,this.processesSet);
+        
+        
+        this.processesGround = true;
+        this.setGroundedActions(true);
+
+        
+        it = this.globalConstraintSet.iterator();
+        globalConstraints = new AndCond();
+
+        while (it.hasNext()) {
+            GlobalConstraint constr = (GlobalConstraint) it.next();
+            boolean keep = true;
+
+            keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            
+            if (!keep) {
+                //System.out.println("Pruning action:"+act.getName());
+                it.remove();
+            }else{
+                globalConstraints.addConditions(constr.condition);
+                globalConstraints.normalize();
+            }
+                
+        }
+        
+        
+        this.globalConstraintGrounded = true;
+
+    }
+
+    public void setDeltaTimeVariable(String delta_t) {
+            this.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t))); //this is the discretisation factor
+//          NumFluenew NumFluentValue("time_elapsed", 0);
+            this.getInit().addNumericFluent(new NumFluentValue("time_elapsed", 0));//this is the clock variable
+    }
+
+
+
 
 
     

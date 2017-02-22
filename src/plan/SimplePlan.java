@@ -2311,11 +2311,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundAction gr : raw_plan) {
             
             if (gr instanceof GroundProcess) {
-                gr.time = time;
+//                System.out.println("Waiting:"+gr.time);
+//                System.out.println("Current Time:"+time);
+                float temp = time;
+                time += gr.time;
+//                System.out.println("After Waiting:"+time);
+                gr.time = temp;
                 this.add(gr);
-                time += delta;
             } else {
+//                System.out.println("time before:"+gr.time);
                 gr.time = time;
+//                System.out.println("time after:"+gr.time);
+
                 this.add(gr);
                 time += epsilon;
             }
@@ -2330,7 +2337,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             resolution = delta;
         }
         int steps_number = (int) (delta / resolution);
-        System.out.println("steps number:" + steps_number);
+//        System.out.println("steps number:" + steps_number);
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
         this.cost = 0f;
