@@ -98,6 +98,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public boolean print_trace;
     public float cost;
     public JSONObject numeric_plan_trace;
+    public Float ending_time;
+    private ArrayList<GroundAction> inst_actions;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -514,24 +516,24 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return false;
 
     }
-    
-        public boolean saveConformantIPCPlan(String nFile) {
+
+    public boolean saveConformantIPCPlan(String nFile) {
         Writer output = null;
-        
+
         try {
             output = new BufferedWriter(new FileWriter(nFile));
-            output.write("0 \n %% \n "+this.size());
+            output.write("0 \n %% \n " + this.size());
             for (Object o : this) {
                 GroundAction a = (GroundAction) o;
                 output.write(a.toFileCompliant() + " ");
             }
-           output.write("\n %% \n linear "+this.size());
-           for(int i=0;i<this.size();i++){
-               output.write(" "+i);
-           }
+            output.write("\n %% \n linear " + this.size());
+            for (int i = 0; i < this.size(); i++) {
+                output.write(" " + i);
+            }
 
-           output.close();
-           return true;
+            output.close();
+            return true;
         } catch (IOException ex) {
             Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -1155,7 +1157,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //create init action from the initial state.
         GroundAction start = init.transformInAction();
         this.add(0, start);
-        System.out.println("DEBUG: Dummy Start Action"+start.toPDDL());
+        System.out.println("DEBUG: Dummy Start Action" + start.toPDDL());
         //System.out.print("Building Validation Structure for : ");
         for (int i = 0; i < this.size(); i++) {
             GroundAction a = this.get(i);
@@ -1169,17 +1171,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
             getValidationStructures().put(a, validationStructure);
             //System.out.print(+i+",");
             AndCond conds = (AndCond) a.getPreconditions();
-            
-            
 
             if (conds != null) {
                 for (Object o : conds.sons) {
-                    
+
                     TreeSet<Integer> chain = new TreeSet();
                     Conditions c = (Conditions) o;
-                    if (c instanceof AndCond){//this is a hack!!!
-                        AndCond b = (AndCond)c;
-                        c = (Conditions)b.sons.iterator().next();
+                    if (c instanceof AndCond) {//this is a hack!!!
+                        AndCond b = (AndCond) c;
+                        c = (Conditions) b.sons.iterator().next();
                     }
                     //Finding the numeric justification. This requires a local search in the space of actions which have been planned to be executed before i
                     //System.out.println("Looking for!:" + c );
@@ -1272,7 +1272,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                         } else if (c instanceof NotCond) {
 
                         } else {
-                            System.out.println("Condition under analysis:"+c);
+                            System.out.println("Condition under analysis:" + c);
                             System.out.println("Only Conjunctive Preconditions/Conditions are supported");
                             System.exit(-1);
                         }
@@ -2265,7 +2265,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
 //                    System.out.println("DEBUG:Applying:"+this.get(index).toPDDL());
 //                    System.out.println("DEBUG:on the state:"+tempInit);
-                    if (this.get(index).hasApplicableEffects(tempInit)){
+                    if (this.get(index).hasApplicableEffects(tempInit)) {
                         tempInit = this.get(index).apply(tempInit);
 //                        System.out.println("DEBUG: After Modification"+tempInit);
                     }
@@ -2304,12 +2304,12 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public void build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, Float epsilon) {
-        
-        System.out.println("Epsilon set to be:"+epsilon);
+    public Float build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, Float epsilon) {
+
+        System.out.println("Epsilon set to be:" + epsilon);
         Float time = 0.0000000000f;
+        inst_actions = new ArrayList();
         for (GroundAction gr : raw_plan) {
-            
             if (gr instanceof GroundProcess) {
 //                System.out.println("Waiting:"+gr.time);
 //                System.out.println("Current Time:"+time);
@@ -2322,21 +2322,31 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                System.out.println("time before:"+gr.time);
                 gr.time = time;
 //                System.out.println("time after:"+gr.time);
-
                 this.add(gr);
                 time += epsilon;
+                inst_actions.add(gr);
             }
 //             System.out.println(time);
         }
+        this.ending_time = time;
+        return time;//this is the time at which the plan achieves the goal. (There could be a bit of problems with epsilon though)
 
     }
 
-    public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, float delta, float resolution) throws CloneNotSupportedException {
+    public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
         }
-        int steps_number = (int) (delta / resolution);
+
+        ArrayList<GroundAction> inst_actions = new ArrayList();
+
+        for (GroundAction gr : this) {
+            if (!(gr instanceof GroundProcess)) {
+                inst_actions.add(gr);
+            }
+        }
+
 //        System.out.println("steps number:" + steps_number);
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
@@ -2348,55 +2358,48 @@ public class SimplePlan extends ArrayList<GroundAction> {
             numeric_plan_trace = new JSONObject();
             Iterator it = current.getNumericFluents().iterator();
             while (it.hasNext()) {
-
                 NumFluent nf = (NumFluent) it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
                 nf_traj.add(current.functionValue(nf).getNumber());
                 nf_trace.put(nf, nf_traj);
             }
         }
-        for (GroundAction gr : this) {
-            if (debug > 0) {
-                System.out.println(current.pddlPrint());
-            }
-            //System.out.println(gr.getClass());
-            gr.setAction_cost(current);
-            this.cost += gr.getAction_cost();
-            if (!(gr instanceof GroundProcess)) {
-                //current = advance_time(current, processesSet, current_time, gr.time, resolution);
-                if (gr.isApplicable(current)) {
-                    current = gr.apply(current);
-                    //current_time = gr.time;
-                } else {
-                    return current;
-                }
-            } else {
-                current = advance_time(current, processesSet, steps_number, resolution);
-
-            }
-
+        //current.addTimeFluent();
+        for (int i = 0; i < inst_actions.size(); i++) {
             if (print_trace) {
                 add_state_to_json(nf_trace, current);
             }
             if (!current.satisfy(GC)) {
                 System.out.println("Global Constraint is not satisfied:" + GC);
-
                 return current;
             }
-            // MRJ: Meant for debugging
-            //System.out.println(constr.condition.pddlPrint(false));
-
+            if (debug > 0) {
+                System.out.println(current.pddlPrint());
+            }
+            GroundAction gr = inst_actions.get(i);
+            current = advance_time(current, processesSet, resolution, gr.time);
+            if (gr.isApplicable(current)) {
+                current = gr.apply(current);
+                
+                //current_time = gr.time;
+            } else {
+                System.out.println("Precondition not satisfied. Action:" + gr);
+                return current;
+            }
         }
+        current = advance_time(current, processesSet, resolution, time);
+        
         return current;
 
     }
 
-    private State advance_time(State current, HashSet<GroundProcess> processesSet, int steps_number, float delta) {
+    private State advance_time(State current, HashSet<GroundProcess> processesSet, float delta, Float time) {
 
         //System.out.println("Advance time!");
-        GroundProcess waiting = new GroundProcess("waiting");
-        for (int i = 0; i < steps_number; i++) {
-
+        Float start_time = current.functionValue(new NumFluent("time_elapsed")).getNumber();
+        
+        while (start_time+delta<=time) {
+            GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
             waiting.add_time_effects(delta);
             for (GroundProcess act : processesSet) {
@@ -2411,9 +2414,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             }
             current = waiting.apply(current);
-//            if (print_trace)
-//                System.out.println(waiting.toPDDL());
-            //temp+=delta;
+            start_time+=delta;
         }
         return current;
     }
@@ -2423,6 +2424,22 @@ public class SimplePlan extends ArrayList<GroundAction> {
             nf_trace.get(nf).add(current.functionValue(nf).getNumber());
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
+    }
+
+    public String printPDDLPlusPlan() {
+        float start = 0f;
+        String ret="";
+        for (int i=0;i<this.inst_actions.size();i++){
+            GroundAction gr = this.inst_actions.get(i);
+            if (start+0.01<gr.time){
+                ret+="("+String.format("%.5f", start)+","+ String.format("%.5f",gr.time)+")------>waiting\n";
+            }
+            ret+=gr.toEcoString()+"\n";
+            start=gr.time;
+        }
+        if (start+0.01<this.ending_time)
+            ret+="("+String.format("%.5f", start)+","+String.format("%.5f",ending_time)+")------>waiting\n";
+        return ret;
     }
 
 }

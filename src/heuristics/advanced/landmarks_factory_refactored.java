@@ -158,16 +158,18 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
             Float distance = dist_float.get(c.getCounter());
             if (distance == Float.MAX_VALUE) {
-                return Float.MAX_VALUE;
-            }
-            if (distance != 0f) {
-                this.dbg_print("Landmark found!"+c+"\n");
-                
-                goal_landmark.addAll(lm.get(c.getCounter()));
-                not_trivial_landmarks+=lm.get(c.getCounter()).size();
-                //this.dbg_print("Counter is:"+c.getCounter()+"\n");
-                goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
-                this.dbg_print(print_ordering(lm,c));
+                if (!this.is_complex.get(c))
+                    return Float.MAX_VALUE;
+            }else{
+                if (distance != 0f) {
+                    this.dbg_print("Landmark found!"+c+"\n");
+
+                    goal_landmark.addAll(lm.get(c.getCounter()));
+                    not_trivial_landmarks+=lm.get(c.getCounter()).size();
+                    //this.dbg_print("Counter is:"+c.getCounter()+"\n");
+                    goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
+                    this.dbg_print(print_ordering(lm,c));
+                }
             }
         }
         if (this.reacheability_setting) {

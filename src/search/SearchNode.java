@@ -29,11 +29,13 @@ package search;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import problem.GroundAction;
+import problem.GroundProcess;
 import problem.State;
 
 /**
@@ -55,6 +57,7 @@ public class SearchNode {
     private boolean breakties_on_g = false; //this goes for larger g
     private boolean go_for_smaller_g = false; //this goes for smaller g
     private boolean bfs = true;
+    public ArrayList<GroundProcess> list_of_actions;
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
@@ -86,6 +89,84 @@ public class SearchNode {
                 json_rep.put("action", "init_state");
             } else {
                 json_rep.put("action", action.toString());
+            }
+            json_rep.put("distance", goal_distance);
+            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
+            if (father == null) {
+                json_rep.put("ancestor", "init_state");
+            } else {
+                json_rep.put("ancestor", father.json_rep.get("visited_step"));
+            }
+            json_rep.put("visited", false);
+            json_rep.put("visit_step", -1);
+            json_rep.put("descendants", new JSONArray());
+            json_rep.put("state", s1.pddlPrint());
+
+        } else {
+            json_rep = null;
+        }
+
+    }
+    
+        public SearchNode(State s1,  float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
+        s = s1;
+        this.action = null;
+        this.h_n = goal_distance;
+        this.father = null;
+        this.g_n = action_cost_to_get_here;
+        reacheable_condition = 0;
+
+        this.wh = wh;
+        this.wg = wg;
+        f = this.h_n*this.wh + this.g_n*this.wg;
+        //System.out.println("F:"+f);
+        if (saving_json) {
+            json_rep = new JSONObject();
+            if (action == null) {
+                json_rep.put("action", "init_state");
+            } else {
+                json_rep.put("action", action.toString());
+            }
+            json_rep.put("distance", goal_distance);
+            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
+            if (father == null) {
+                json_rep.put("ancestor", "init_state");
+            } else {
+                json_rep.put("ancestor", father.json_rep.get("visited_step"));
+            }
+            json_rep.put("visited", false);
+            json_rep.put("visit_step", -1);
+            json_rep.put("descendants", new JSONArray());
+            json_rep.put("state", s1.pddlPrint());
+
+        } else {
+            json_rep = null;
+        }
+
+    }
+    
+    public SearchNode(State s1, ArrayList<GroundProcess> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
+        s = s1;
+        this.action = null;
+        this.h_n = goal_distance;
+        this.father = father;
+        this.g_n = action_cost_to_get_here;
+        this.list_of_actions = list;
+        reacheable_condition = 0;
+
+        this.wh = wh;
+        this.wg = wg;
+        f = this.h_n*this.wh + this.g_n*this.wg;
+        //System.out.println("F:"+f);
+        if (saving_json) {
+            json_rep = new JSONObject();
+            if (action == null && this.list_of_actions == null) {
+                json_rep.put("action", "init_state");
+            } else {
+                json_rep.put("action", action.toString());
+            }
+            if (this.list_of_actions != null){
+                json_rep.put("list_of_actions", list);
             }
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);

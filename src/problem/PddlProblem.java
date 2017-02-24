@@ -288,7 +288,7 @@ public class PddlProblem {
         if (parser.invalidGrammar()) {
             System.out.println("Grammar is violated");
         }
-        System.out.println("Problem Parsed, building data structure now");
+        //System.out.println("Problem Parsed, building data structure now");
         CommonTree t = (CommonTree) root.getTree();
 //        System.out.println("tree:" + t.toStringTree());
 //        exploreTree(t);

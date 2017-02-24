@@ -210,9 +210,9 @@ public class GroundAction extends GenericActionType implements Comparable {
             }
         }
         if (this.time == null) {
-            return "Action Name:" + this.name + " Parameters: " + parametri;
+            return " " + this.name + " Parameters: " + parametri;
         } else {
-            return "(" + String.format("%.5f",time)  + " )Action Name:" + this.name + " Parameters: " + parametri;
+            return "(" + String.format("%.5f",time)  + ") " + this.name + " Parameters: " + parametri;
         }
 
     }

@@ -493,9 +493,9 @@ public class built_in_NHSP {
             System.out.println(sp);
             System.out.println("Plan-Length:" + sp.size());
         } else {
-            sp.build_pddl_plus_plan(raw_plan, Float.parseFloat(delta_t), 0.0000001f);
+            Float time = sp.build_pddl_plus_plan(raw_plan, Float.parseFloat(delta_t), 0.0000001f);
             sp.print_trace = print_trace;
-            State last_state = sp.execute(problem.getInit(), problem.globalConstraints, problem.processesSet, searchStrategies.delta, resolution_execution);
+            State last_state = sp.execute(problem.getInit(), problem.globalConstraints, problem.processesSet, searchStrategies.delta, resolution_execution,time);
             System.out.println("(Pddl+ semantic) Plan is valid:" + last_state.satisfy(problem.getGoals()));
             System.out.println(sp);
             System.out.println("Plan-Length:" + sp.size());

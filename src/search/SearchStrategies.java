@@ -32,6 +32,8 @@ import conditions.AndCond;
 import conditions.Conditions;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import expressions.PDDLNumber;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -85,30 +87,25 @@ public class SearchStrategies {
     private Collection<GroundProcess> reachable_processes;
     public float delta_max;
     public int constraints_violations;
+    private Collection<GroundAction> reachable_actions;
 
-    private Collection<GroundAction> set_reachable_actions(Heuristic heuristic, EPddlProblem problem) {
+    private Collection<GroundAction> set_reachable_actions(EPddlProblem problem) {
 
-        Collection<GroundAction> reachable_actions = new LinkedHashSet();
+        reachable_actions = new LinkedHashSet();
         for (GroundAction gr : getHeuristic().reachable) {
             Iterator<GroundAction> it = problem.getActions().iterator();
             while (it.hasNext()) {
                 GroundAction gr2 = it.next();
                 if (gr.equals(gr2)) {
                     reachable_actions.add(gr2);
-//                    System.out.println("DEBUG: The same A and B?: A:" +gr+" B:"+gr2);
-
-                }else{
-//                    System.out.println("DEBUG: Different A and B?: A:" +gr+" B:"+gr2);
                 }
-
             }
-
         }
         return reachable_actions;
     }
 
-    private Collection<GroundProcess> set_reachable_processes(Heuristic heuristic, EPddlProblem problem) {
-        Collection<GroundProcess> reachable_processes = new LinkedHashSet();
+    private Collection<GroundProcess> set_reachable_processes(EPddlProblem problem) {
+        reachable_processes = new LinkedHashSet();
         for (GroundAction gr3 : getHeuristic().reachable) {
             if (!(gr3 instanceof GroundProcess)) {
                 continue;
@@ -119,15 +116,46 @@ public class SearchStrategies {
                 GroundProcess gr2 = it.next();
                 if (gr.equals(gr2)) {
                     reachable_processes.add(gr2);
-//                    System.out.println("DEBUG: The same A and B?: A:" +gr+" B:"+gr2);
-                }else{
-//                    System.out.println("DEBUG: Different A and B?: A:" +gr+" B:"+gr2);
                 }
-
             }
-
         }
         return reachable_processes;
+    }
+
+    private void setup_reachable_actions_processes(EPddlProblem problem) {
+        reachable_actions = set_reachable_actions(problem);
+        reachable_processes = set_reachable_processes(problem);
+
+        System.out.println("Reachable Actions:" + reachable_actions.size());
+        System.out.println("Reachable Processes:" + reachable_processes.size());
+    }
+
+    /*
+    Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
+    */
+    private boolean queue_successor(PriorityQueue<SearchNode> frontier, State temp, SearchNode current_node, ArrayList<GroundProcess> waiting) {
+        g.put(temp, current_node.g_n + 1);//assume that it costs as much as the number of waitings to be done
+        setStates_evaluated(getStates_evaluated() + 1);
+        long start = System.currentTimeMillis();
+        Float d = 0f;
+        if (this.getHw() != 0) {
+            d = getHeuristic().compute_estimate(temp);
+        }
+        heuristic_time += System.currentTimeMillis() - start;
+        if (d != Float.MAX_VALUE) {
+            SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + 1), d, this.json_rep_saving, this.gw, this.hw);
+            //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
+            frontier.add(new_node);
+            //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
+            if (json_rep_saving) {
+                current_node.add_descendant(new_node);
+            }
+
+        } else {
+            num_dead_end_detected++;
+            return false;
+        }
+        return true;
     }
 
     public class FrontierOrder implements Comparator<SearchNode> {
@@ -181,11 +209,13 @@ public class SearchStrategies {
                     return 1;
                 }
             } else//dfs
-             if (a.f <= other.f) {
+            {
+                if (a.f <= other.f) {
                     return 1;
                 } else {
                     return -1;
                 }
+            }
         }
 
     }
@@ -198,12 +228,14 @@ public class SearchStrategies {
         setDecreasing_heuristic_pruning(false);
     }
 
-    public LinkedList enforced_hill_climbing(PddlProblem problem) throws Exception {
+    public LinkedList enforced_hill_climbing(EPddlProblem problem) throws Exception {
         long start_global = System.currentTimeMillis();
         LinkedHashSet rel_actions;
 
         getHeuristic().setup(problem.getInit());
         getHeuristic().preferred_operators = this.preferred_operators_active;
+        setup_reachable_actions_processes(problem);
+        setStates_evaluated(getStates_evaluated() + 1);
 
         State current = problem.getInit();
 
@@ -236,18 +268,7 @@ public class SearchStrategies {
         //System.out.println("Visited size:"+visited.size());
 
         PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
-        boolean strong_relaxation = false;
-        //int current_value = Heuristics.h1_recursion_memoization(current, goals,  actions, new HashMap(), 0, false,null,predAchievers);
         Float current_value = heuristic.compute_estimate(current);
-
-        LinkedHashSet<GroundAction> branching_actions;
-        if (this.preferred_operators_active) {
-            branching_actions = heuristic.relaxed_plan_actions;
-        } else {
-            branching_actions = (LinkedHashSet<GroundAction>) actions;
-        }
-
-        setStates_evaluated(getStates_evaluated() + 1);
 
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
         frontier.add(init);
@@ -259,10 +280,7 @@ public class SearchStrategies {
             if (processes) {
                 advance_time(frontier, node, (EPddlProblem) problem);
             }
-            for (GroundAction act : (LinkedHashSet<GroundAction>) branching_actions) {
-                if (act instanceof GroundProcess) {
-                    continue;
-                }
+            for (GroundAction act : this.reachable_actions) {
                 if (act.isApplicable(node.s)) {
                     State temp = act.apply(node.s.clone());
                     //act.normalize();
@@ -307,7 +325,7 @@ public class SearchStrategies {
             System.out.println("Initial State is not valid");
             return null;
         }
-        constraints_violations=0;
+        constraints_violations = 0;
         //problem.generateActions();
 
         //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
@@ -315,16 +333,17 @@ public class SearchStrategies {
             System.out.println("h(n = s_0)=inf");
             return null;
         }
-        System.out.println("After Reachability Actions:" + getHeuristic().reachable.size());
+        System.out.println("Reachable actions and processes: |A U P|:" + getHeuristic().reachable.size());
         //System.out.println("After Reachability Processes:" + getHeuristic().reachable.size());
 
 //        System.out.println(getHeuristic().reachable);
         Float current_value = getHeuristic().compute_estimate(current);
-        Float init_estimate = current_value;
+        setup_reachable_actions_processes(problem);
+
         //int current_value = Heuristics.h1_recursion_memoization(current, problem.getGoals(),  problem.getActions(), new HashMap(), 0, false,null,null)*hw;
         System.out.println("h(n = s_0)=" + current_value);
 
-        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving, this.gw, this.hw);
+        SearchNode init = new SearchNode((State) problem.getInit().clone(), 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -333,12 +352,7 @@ public class SearchStrategies {
             num_dead_end_detected++;
             return null;
         }
-        Collection<GroundAction> reachable_actions = set_reachable_actions(getHeuristic(), problem);
-        reachable_processes = set_reachable_processes(getHeuristic(), problem);
 
-        System.out.println("Reachable Actions:"+reachable_actions.size());
-        System.out.println("Reachable Processes:"+reachable_processes.size());
-        
         frontier.add(init);
         HashMap<State, Boolean> visited = new HashMap();
         heuristic_time = 0;
@@ -471,7 +485,7 @@ public class SearchStrategies {
         getHeuristic().setup(current);
         System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
         Float current_value = 0f;
-        SearchNode init = new SearchNode((State) problem.getInit().clone(), null, null, 0, current_value, this.json_rep_saving, this.gw, this.hw);
+        SearchNode init = new SearchNode((State) problem.getInit().clone(),  0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -584,7 +598,7 @@ public class SearchStrategies {
             num_dead_end_detected++;
             return null;
         }
-        SearchNode init = new SearchNode((State) problem.getInit(), null, null, 0, current_value, json_rep_saving, this.gw, this.hw);
+        SearchNode init = new SearchNode((State) problem.getInit(),  0, current_value, json_rep_saving, this.gw, this.hw);
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -699,27 +713,24 @@ public class SearchStrategies {
 
     private static LinkedList extract_plan(SearchNode c) {
         LinkedList plan = new LinkedList();
-        while (c.action != null) {
+        while (c.action != null || c.list_of_actions != null) {
             try {
-                GroundAction gr = null;
-                if (c.action instanceof GroundProcess) {
-                    gr = (GroundProcess) c.action.clone();
-                } else {
-                    gr = (GroundAction) c.action.clone();
+                PDDLNumber time = c.father.s.functionValue(new NumFluent("time_elapsed"));
+                if (c.action != null){//this is an action
+                    GroundAction gr = (GroundAction) c.action.clone();
+                    if (time != null)
+                        gr.time = time.getNumber();
+                    else
+                        gr.time = 0f;
+                    plan.addFirst(gr);
+                }else{//this is a process
+                    for (int k = c.list_of_actions.size()-1;k>=0;k-- ){
+                        GroundProcess w = c.list_of_actions.get(k);
+                        w.setName("--------->waiting");
+                        w.time = c.list_of_actions.get(k).time;
+                        plan.addFirst(w);
+                    }
                 }
-
-                if (c.father.s.functionValue(new NumFluent("time_elapsed")) != null) {
-                    if (!(gr instanceof GroundProcess))
-                        gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
-                } else {
-                    gr.time = 0f;
-                }
-                if (c.action instanceof GroundProcess) {
-                    gr.setName("--------->waiting");
-                    gr.time = c.action.time;
-                }//else{
-                plan.addFirst(gr);
-                //}
                 c = c.father;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(SearchStrategies.class.getName()).log(Level.SEVERE, null, ex);
@@ -803,22 +814,17 @@ public class SearchStrategies {
         try {
             float i = 0f;
             State temp = current_node.s.clone();
-//            System.out.println("Waiting operation");
+            ArrayList<GroundProcess> waiting_list = new ArrayList();
             while (i <= delta_max) {
                 i += delta;
-//                System.out.println("Current micro_delta="+i);
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
                 waiting.add_time_effects(delta);
-                waiting.time = i;//this is the waiting time....
-//                System.out.println("Time associated to this waiting for now"+waiting.time);
+                waiting.time = delta;//this is the waiting time associated with this step
                 for (GroundAction act : this.reachable_processes) {
-
                     if (act instanceof GroundProcess) {
                         GroundProcess gp = (GroundProcess) act;
-//                    System.out.println("DEBUG: Current waiting"+waiting.toPDDL());
-//                    System.out.println("DEBUG: Adding process"+gp.toPDDL());
                         if (gp.isActive(current_node.s)) {
                             AndCond precondition = (AndCond) waiting.getPreconditions();
                             precondition.addConditions(gp.getPreconditions());
@@ -829,41 +835,27 @@ public class SearchStrategies {
                         }
                     }
                 }
+                waiting_list.add(waiting);
                 State temp_temp = temp.clone();
                 temp_temp = waiting.apply(temp_temp);
+                
                 boolean valid = temp_temp.satisfy(problem.globalConstraints);//zero crossing?!?!?
-                if (!valid){
-//                    System.out.println("violation??!?!");
+                if (!valid) {
                     constraints_violations++;
+                }else{
+                    if (temp_temp.satisfy(problem.getGoals())){//very very easy zero crossing for opportunities. This should include also action preconditions
+                        queue_successor(frontier, temp_temp, current_node, waiting_list);
+                        //System.out.println("Debug: goal while waiting!!");
+                    }
                 }
-                if (!valid || i >=delta_max) {
-                    if (i >=delta_max && valid)
+                if (!valid || i >= delta_max) {
+                    if (i >= delta_max && valid) {
                         temp = temp_temp;
-                    g.put(temp, current_node.g_n + 1);
-
-                    setStates_evaluated(getStates_evaluated() + 1);
-                    long start = System.currentTimeMillis();
-                    Float d = 0f;
-                    if (this.getHw() != 0) {
-                        d = getHeuristic().compute_estimate(temp);
+                    }else{
+//                        System.out.println("smaller jump here?");
+//                        System.out.println("Waiting at this time for:"+i);
                     }
-                    heuristic_time += System.currentTimeMillis() - start;
-                    //System.out.print("Reacheable Conditions:"+reacheable_conditions);
-                    if (d != Float.MAX_VALUE) {
-                        waiting.setAction_cost(temp);
-                        SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + waiting.getAction_cost()), d, this.json_rep_saving, this.gw, this.hw);
-                        //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
-
-                        frontier.add(new_node);
-                        //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
-                        if (json_rep_saving) {
-                            current_node.add_descendant(new_node);
-                        }
-
-                    } else {
-                        num_dead_end_detected++;
-                        break;
-                    }
+                    boolean outcome = queue_successor(frontier, temp, current_node, waiting_list);//this could be done in a smarter way
                     break;
                 } else {
                     temp = temp_temp;
