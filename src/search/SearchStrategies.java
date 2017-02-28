@@ -815,6 +815,7 @@ public class SearchStrategies {
             float i = 0f;
             State temp = current_node.s.clone();
             ArrayList<GroundProcess> waiting_list = new ArrayList();
+            boolean at_least_one = false;
             while (i <= delta_max) {
                 i += delta;
                 GroundProcess waiting = new GroundProcess("waiting");
@@ -843,6 +844,7 @@ public class SearchStrategies {
                 if (!valid) {
                     constraints_violations++;
                 }else{
+                    at_least_one = true;
                     if (temp_temp.satisfy(problem.getGoals())){//very very easy zero crossing for opportunities. This should include also action preconditions
                         queue_successor(frontier, temp_temp, current_node, waiting_list);
                         //System.out.println("Debug: goal while waiting!!");
@@ -855,7 +857,8 @@ public class SearchStrategies {
 //                        System.out.println("smaller jump here?");
 //                        System.out.println("Waiting at this time for:"+i);
                     }
-                    boolean outcome = queue_successor(frontier, temp, current_node, waiting_list);//this could be done in a smarter way
+                    if (at_least_one)
+                        queue_successor(frontier, temp, current_node, waiting_list);//this could be done in a smarter way
                     break;
                 } else {
                     temp = temp_temp;

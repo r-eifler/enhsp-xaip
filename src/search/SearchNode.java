@@ -163,11 +163,12 @@ public class SearchNode {
             if (action == null && this.list_of_actions == null) {
                 json_rep.put("action", "init_state");
             } else {
-                json_rep.put("action", action.toString());
+                if (action == null)
+                    json_rep.put("list_of_actions", "waiting");
+                else
+                    json_rep.put("action", action.toString());
             }
-            if (this.list_of_actions != null){
-                json_rep.put("list_of_actions", list);
-            }
+
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
             if (father == null) {

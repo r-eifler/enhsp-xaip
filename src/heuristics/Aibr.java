@@ -285,12 +285,17 @@ public class Aibr extends Heuristic {
         Float counter = 0f;
         Float layer_counter = 0f;
         while (counter <= horizon) {
+            if (debug>10){
+                System.out.println("L("+layer_counter+")Relaxed State: "+rs2);
+            }
+            
             boolean fix_point = true;
             layer_counter++;
             for (GroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    
+                    if (debug>10)
+                        System.out.println("L("+layer_counter+")Action/Process: "+gr);
                     //counter++;//=
                     if (cost_oriented){
                         gr.setAction_cost(s);
