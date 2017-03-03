@@ -30,6 +30,7 @@ import domain.Variable;
 import expressions.NumFluent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -89,11 +90,6 @@ public class  Predicate extends Conditions implements PostCondition {
         }
         ret = ret.concat(" ?x)");
         return ret;    
-    }
-
-    @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        return this.terms;
     }
 
     @Override
@@ -635,5 +631,10 @@ public class  Predicate extends Conditions implements PostCondition {
             }
         }
         bui.append(")");
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        vars.addAll(this.terms);
     }
 }

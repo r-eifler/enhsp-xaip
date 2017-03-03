@@ -207,32 +207,25 @@ public abstract class Conditions extends Object {
         return ret;
     }
 
-    public abstract ArrayList<Variable> getInvolvedVariables();
-//    {
-//        ArrayList<Variable> ret = new ArrayList();
-//        if (this instanceof Predicate) {
-//            Predicate p = (Predicate) this;
-//            ret.addAll(p.getTerms());
-//            return ret;
-//        } else if (this instanceof NotCond) {
-//            NotCond temp = (NotCond) this;
-//            Conditions temp2 = (Conditions) temp.son.iterator().next();
-//            ret.addAll(temp2.getInvolvedVariables());
-//            return ret;
-//        }else if (this instanceof AndCond) {
-//            NotCond temp = (NotCond) this;
-//            Conditions temp2 = (Conditions) temp.son.iterator().next();
-//            ret.addAll(temp2.getInvolvedVariables());
-//            return ret;
-//        }
-//        //from here it can only be an AndCond or a Or. Other cases are not considered
-//        if (this.sons != null) {
-//            for (Conditions c : (Collection<Conditions>) this.sons) {
-//                ret.addAll(c.getInvolvedPredicates());
-//            }
-//        }
-//        return ret;
-//    }
+    /**
+     * Returns the list of variables involved in this conditions.  
+     * 
+     * @return the list of variables in this conditions.  
+     */
+    public final ArrayList<Variable> getInvolvedVariables() {
+        // TODO: not sure whether the result should be a list or a set.
+        final ArrayList<Variable> result = new ArrayList<>();
+        storeInvolvedVariables(result);
+        return result;
+    }
+    
+    /**
+     * Stores in the specified collection the list of variables involved in this conditions.  
+     * 
+     * @param vars the list where the variables involved in this condition 
+     * are to be stored.  
+     */
+    public abstract void storeInvolvedVariables(Collection<Variable> vars);
 
     /**
      * Returns a string representation of this condition in PDDL format.  

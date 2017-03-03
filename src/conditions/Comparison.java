@@ -953,14 +953,6 @@ public class Comparison extends Conditions {
         return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
     }
 
-    public ArrayList<Variable> getInvolvedVariables() {
-        ArrayList ret = new ArrayList();
-        for (NumFluent nf:this.getInvolvedFluents()){
-            ret.addAll(nf.getTerms());
-        }
-        return ret;
-    }
-
     @Override
     public boolean can_be_false(RelState s) {
 
@@ -999,6 +991,7 @@ public class Comparison extends Conditions {
         getRight().pddlPrint(typeInformation,bui);
         bui.append(")");
     }
+
 //=======
     //This function computes a domination analysis between the source (a) comparison and the objective one (b).
     //If the satisfaction of a implies the satisfaction of b, then b is dominated by a.
@@ -1071,5 +1064,17 @@ public class Comparison extends Conditions {
      */
     public void setLinear(boolean linear) {
         this.linear = linear;
+        return;
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        for (NumFluent nf:this.getInvolvedFluents()){
+            for (final Object o: nf.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
+
     }
 }
