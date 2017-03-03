@@ -1678,7 +1678,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     private boolean numericEffectUndefined(RelState current) {
 
-        if (numeric_effect_undefined == null) {//there is no action that can make a numeric fluent undefined. So this can be considered an invariant
+        //if (numeric_effect_undefined == null) {//there is no action that can make a numeric fluent undefined. So this can be considered an invariant
 
             if (this.numericEffects == null) {
                 return false;
@@ -1692,7 +1692,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     return e.getRight().eval(current).getInf().getNumber().isNaN();
                 }
             });
-        }
+        //}
         return numeric_effect_undefined;
 //            
 

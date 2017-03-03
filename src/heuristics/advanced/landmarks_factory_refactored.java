@@ -8,6 +8,7 @@ package heuristics.advanced;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.PDDLNumber;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -126,13 +127,17 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                             System.out.println("Expressions not normalized!!!");
                             System.exit(-1);
                         }
-                        
-                    Float t = comp.getLeft().eval(s_0).getNumber();
-                    target_value.set(c.getCounter(), -1*t);
-                    if (debug>0){
-                        System.out.println("Condition:"+c);
-                        System.out.println("Target Value:"+t);
-                        System.out.println("Neg Target Value:"+(-t));
+                    PDDLNumber number = comp.getLeft().eval(s_0);
+                    if (number == null){
+                        target_value.set(c.getCounter(), null);
+                    }else{
+                        Float t = comp.getLeft().eval(s_0).getNumber();
+                        target_value.set(c.getCounter(), -1*t);
+                        if (debug>0){
+                            System.out.println("Condition:"+c);
+                            System.out.println("Target Value:"+t);
+                            System.out.println("Neg Target Value:"+(-t));
+                        }
                     }
 
                 }
@@ -158,8 +163,12 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
             Float distance = dist_float.get(c.getCounter());
             if (distance == Float.MAX_VALUE) {
-                if (!this.is_complex.get(c))
+                Boolean outcome = this.is_complex.get(c);
+                if (outcome == null)
+                    continue;
+                if (outcome == false){
                     return Float.MAX_VALUE;
+                }
             }else{
                 if (distance != 0f) {
                     this.dbg_print("Landmark found!"+c+"\n");

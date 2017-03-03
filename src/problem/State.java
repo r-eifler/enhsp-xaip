@@ -383,6 +383,10 @@ public class State extends Object {
 //                System.out.println("Error!!:"+ass_init.getNFluent());
                 continue;
             }
+            if (other.functionValue(nf)==null)
+                continue;
+            if (this.numericFs.get(nf)==null)
+                continue;
             if (!this.numericFs.get(nf).getNumber().equals(other.functionValue(nf).getNumber())) 
             {
                 return false;

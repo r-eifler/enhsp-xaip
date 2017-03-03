@@ -352,12 +352,10 @@ public class ExtendedNormExpression extends Expression {
                     if (ele_to_add.n.getNumber() == 0.0) {
                         adding = false;
                     }
-                } else if (a.linear && a.f == null && b.linear) {
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
-                    ele_to_add.f = (NumFluent) b.f.clone();
-                    if (ele_to_add.n.getNumber() == 0.0) {
-                        adding = false;
-                    }
+                } else if (a.linear && a.f == null && b.linear && b.f != null) {
+                    ele_to_add.bin = new BinaryOp(a.n, "/", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.linear = false;
+                    
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
                     ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new BinaryOp(a.f, "/", b.f, true), true);
                     ele_to_add.linear = false;

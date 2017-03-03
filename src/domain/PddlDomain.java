@@ -213,6 +213,10 @@ public final class PddlDomain extends Object {
                     boolean found = false;
                     while (it.hasNext()) {
                         Type ele = it.next();
+                        if (t==null){
+                            System.out.println("Null Object? "+t);
+                            return false;
+                        }
                         if (ele.equals(t.getType())) {
                             t.setType(ele);
                             found = true;

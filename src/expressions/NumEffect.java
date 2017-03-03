@@ -536,10 +536,13 @@ public class NumEffect extends Expression implements PostCondition {
         final Interval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
+//            System.out.println(this);
 //            System.out.println(current);
+//            System.out.println(eval);
             after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
             after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
         } else if (getOperator().equals("decrease")) {
+            
             after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
             after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
