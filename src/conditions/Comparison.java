@@ -1105,6 +1105,7 @@ public class Comparison extends Conditions {
         achiever_set s = new achiever_set();
         s.cost = cond_dist.get(this.getCounter());
         s.actions.add(established_achiever.get(this.getCounter()));
+        s.target_cond.add(this);
         return s;
 
     }

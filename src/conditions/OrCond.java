@@ -572,6 +572,7 @@ public class OrCond extends Conditions {
                     if (s.cost>s1.cost){
                         s.actions = s1.actions;
                         s.cost = s1.cost;
+                        s.target_cond.addAll(s1.target_cond);
                     }
                 }
             }

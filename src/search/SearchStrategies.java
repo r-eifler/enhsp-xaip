@@ -160,6 +160,10 @@ public class SearchStrategies {
         if (d != Float.MAX_VALUE) {
             SearchNode new_node = new SearchNode(temp, waiting, current_node, (current_node.g_n + 1), d, this.json_rep_saving, this.gw, this.hw);
             //SearchNode new_node = new SearchNode(temp, waiting, current_node, 0, d * getHw(), this.json_rep_saving);
+            if (this.only_relaxed_plan_actions){
+                new_node.relaxed_plan_from_heuristic = getHeuristic().relaxed_plan_actions;
+            }
+            
             frontier.add(new_node);
             //frontier.add(new_node);  //this can be substituted by looking whether the element was already present. In that case its weight has to be updated
             if (json_rep_saving) {

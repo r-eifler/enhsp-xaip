@@ -902,6 +902,7 @@ public class AndCond extends Conditions implements PostCondition {
                 if (additive_h){
                     s.cost+=s1.cost;
                     s.actions.addAll(s1.actions);
+                    s.target_cond.addAll(s1.target_cond);
                 }else{
                     s.cost = Math.max(s1.cost, s.cost);
                 }

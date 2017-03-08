@@ -205,7 +205,7 @@ public abstract class Heuristic {
                     }
                     temp.add(c_1);
                 }
-                a.getPreconditions().sons = temp;
+                //a.getPreconditions().sons = temp;
             }
         }
 //        System.out.println("Repetions:"+repetition);
