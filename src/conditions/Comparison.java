@@ -38,10 +38,12 @@ import java.util.Map;
 import problem.State;
 import expressions.PDDLNumber;
 import expressions.Interval;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -1075,6 +1077,35 @@ public class Comparison extends Conditions {
                 vars.add(var);
             }
         }
+
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        Set ret = new LinkedHashSet();
+        ret.add(this);
+        return ret;
+    }
+    
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return cond_dist.get(this.getCounter());
+    }
+    
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.addConditions(this);
+        return and;
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        achiever_set s = new achiever_set();
+        s.cost = cond_dist.get(this.getCounter());
+        s.actions.add(established_achiever.get(this.getCounter()));
+        return s;
 
     }
 }

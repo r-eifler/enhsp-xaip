@@ -31,6 +31,7 @@ import domain.Variable;
 import expressions.NumEffect;
 import expressions.Expression;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -846,5 +847,66 @@ public class AndCond extends Conditions implements PostCondition {
             }
 
         }
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        LinkedHashSet ret = new LinkedHashSet();
+        if (this.sons==null)
+            return new LinkedHashSet();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            ret.addAll(c.getTerminalConditions());
+        }
+        return ret;
+    }
+
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        if (this.sons == null)
+            return 0f;
+        Float ret = 0f;
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (c.estimate_cost(cond_dist,additive_h)==Float.MAX_VALUE)
+                    return Float.MAX_VALUE;
+            if (additive_h)
+                ret+=c.estimate_cost(cond_dist,additive_h);
+            else
+                ret = Math.max(c.estimate_cost(cond_dist,additive_h),ret);
+        }
+        return ret;
+    }
+    
+
+
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.sons.addAll(this.sons);
+        return and;
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        achiever_set s = new achiever_set();
+        if (this.sons == null){
+            s.cost=0f;
+        }else{
+             s.cost=0f;
+            for (Conditions c: (Collection<Conditions>)this.sons){
+                achiever_set s1=c.estimate_cost(cond_dist,additive_h,established_achiever);
+                if (s1.cost==Float.MAX_VALUE){
+                        s.cost = Float.MAX_VALUE;
+                        return s;
+                }
+                if (additive_h){
+                    s.cost+=s1.cost;
+                    s.actions.addAll(s1.actions);
+                }else{
+                    s.cost = Math.max(s1.cost, s.cost);
+                }
+            }
+        }
+        return s;
     }
 }

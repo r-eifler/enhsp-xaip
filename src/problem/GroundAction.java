@@ -86,6 +86,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public Float time = null;
     private Boolean has_state_dependent_effects;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
+    public boolean dummy_goal;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -2149,12 +2150,12 @@ public class GroundAction extends GenericActionType implements Comparable {
      * @return the action_cost
      */
     public float getAction_cost() {
-
+        
         return action_cost;
     }
 
     public void setAction_cost(State s_0) {
-        //if (action_cost == null) {//this would assume state independent cost
+        if (action_cost == null) {//this would assume state independent cost
             if (this.getNumericEffects() != null) {
                 AndCond temp = (AndCond) this.getNumericEffects();
                 for (NumEffect e : (LinkedHashSet<NumEffect>) temp.sons) {
@@ -2165,7 +2166,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 }
             }
             action_cost = 1f;
-        //}
+        }
 
     }
 

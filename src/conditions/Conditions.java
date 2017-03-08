@@ -30,6 +30,7 @@ package conditions;
 
 import domain.Variable;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -248,6 +249,15 @@ public abstract class Conditions extends Object {
      * @param bui the string builder where this condition is printed.  
      */
     public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
+
+    public abstract Set<Conditions> getTerminalConditions();
+
+    public abstract Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h);
+
+    public abstract Conditions and(Conditions precondition);
+
+    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+        
 
 
 }

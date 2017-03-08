@@ -113,7 +113,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
         FibonacciHeap<Conditions> q = new FibonacciHeap();
 
-        relaxed_plan_actions = new LinkedHashSet();
+//        relaxed_plan_actions = new LinkedHashSet();
         //setting up the initial values
         ArrayList<Boolean> closed = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
         ArrayList<Float> dist = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
@@ -404,9 +404,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
                     ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
                     String new_comparator = ">=";
-                    if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
+                    if (a1.getComparator().equals(">") || a2.getComparator().equals(">")) {
                         new_comparator = ">";
                     }
+                    
                     Comparison newC = new Comparison(new_comparator);
                     newC.setLeft(expr);
                     newC.setRight(new ExtendedNormExpression(new Float(0.0)));

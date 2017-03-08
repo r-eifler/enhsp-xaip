@@ -31,10 +31,12 @@ package conditions;
 import conditions.Predicate.true_false;
 import domain.Variable;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -381,5 +383,29 @@ public class NotCond extends Conditions implements PostCondition {
                 vars.add(var);
             }
         }
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        Set ret = new LinkedHashSet();
+        ret.addAll(this.son.getTerminalConditions());
+        return ret;
+    }
+
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return cond_dist.get(this.getCounter());
+    }
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.addConditions(this);
+        return and;
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

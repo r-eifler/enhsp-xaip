@@ -42,12 +42,12 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.GroundProcess;
-import problem.PddlProblem;
 import problem.State;
 
 /**
@@ -88,11 +88,18 @@ public class SearchStrategies {
     public float delta_max;
     public int constraints_violations;
     private Collection<GroundAction> reachable_actions;
+    public boolean only_relaxed_plan_actions;
 
     private Collection<GroundAction> set_reachable_actions(EPddlProblem problem) {
 
         reachable_actions = new LinkedHashSet();
-        for (GroundAction gr : getHeuristic().reachable) {
+        
+        Set<GroundAction> to_consider;
+        if (only_relaxed_plan_actions)
+            to_consider = new HashSet(getHeuristic().relaxed_plan_actions);
+        else
+            to_consider = getHeuristic().reachable;
+        for (GroundAction gr : to_consider) {
             Iterator<GroundAction> it = problem.getActions().iterator();
             while (it.hasNext()) {
                 GroundAction gr2 = it.next();
@@ -106,7 +113,15 @@ public class SearchStrategies {
 
     private Collection<GroundProcess> set_reachable_processes(EPddlProblem problem) {
         reachable_processes = new LinkedHashSet();
-        for (GroundAction gr3 : getHeuristic().reachable) {
+        
+        Set<GroundAction> to_consider;
+//        if (only_relaxed_plan_actions)
+//            to_consider = getHeuristic().relaxed_plan_actions;
+//        else
+            to_consider = getHeuristic().reachable;
+        
+        
+        for (GroundAction gr3 : to_consider) {
             if (!(gr3 instanceof GroundProcess)) {
                 continue;
             }
@@ -344,6 +359,10 @@ public class SearchStrategies {
         System.out.println("h(n = s_0)=" + current_value);
 
         SearchNode init = new SearchNode((State) problem.getInit().clone(), 0, current_value, this.json_rep_saving, this.gw, this.hw);
+        if (this.only_relaxed_plan_actions)
+            init.relaxed_plan_from_heuristic = getHeuristic().relaxed_plan_actions;
+        
+        
         if (json_rep_saving) {
             search_space_handle = init;
         }
@@ -402,6 +421,10 @@ public class SearchStrategies {
                 }
 
                 visited.put(current_node.s, Boolean.TRUE);
+                
+                
+                if (this.only_relaxed_plan_actions)
+                    reachable_actions = current_node.relaxed_plan_from_heuristic;
                 for (GroundAction act : reachable_actions) {
                     if (act instanceof GroundProcess) {
                         continue;
@@ -426,7 +449,6 @@ public class SearchStrategies {
                                     node_reopened++;
                                     //                                System.out.println("Previous Value:"+g.get(temp));
                                     //                                System.out.println("New Value:"+(current_node.g_n+act.getAction_cost()));
-
                                 }
                             }
                         }
@@ -453,6 +475,9 @@ public class SearchStrategies {
 //                        if (d!=Float.MAX_VALUE && ( d <= current_value ) ){
                                 SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving, this.gw, this.hw);
                                 //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
+                                if (this.only_relaxed_plan_actions){
+                                    new_node.relaxed_plan_from_heuristic = getHeuristic().relaxed_plan_actions;
+                                }
                                 if (json_rep_saving) {
                                     current_node.add_descendant(new_node);
                                 }

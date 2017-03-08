@@ -51,6 +51,8 @@ import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -152,7 +154,7 @@ public class Uniform_cost_search_HM extends Heuristic {
 //            generate_lp(A,s);
 //        else
 //            generate_lp(this.reachable,s);
-        relaxed_plan_actions = new LinkedHashSet();
+//        relaxed_plan_actions = new LinkedHashSet();
         //setting up the initial values
         ArrayList<Boolean> closed = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
         ArrayList<Float> distance = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));

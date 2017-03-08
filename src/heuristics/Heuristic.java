@@ -93,7 +93,7 @@ public abstract class Heuristic {
     protected boolean sat_test_within_cost = true;
     protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
 
-    public LinkedHashSet<GroundAction> relaxed_plan_actions;
+    public LinkedList<GroundAction> relaxed_plan_actions;
     public HashMap<Integer, GroundAction> final_achiever;
     public boolean preferred_operators;
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
@@ -191,24 +191,21 @@ public abstract class Heuristic {
             a.counter = counter_actions++;
             LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
-
-                if (a.getPreconditions() != null && a.getPreconditions().sons != null) {
-                    for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
-                        int index = conditions.indexOf(c_1);
-                        if (index != -1) {
-                            //c_1 = (Conditions) conditions.get(index);
-                            Conditions c = (Conditions) conditions.get(index);
-                            c_1.setCounter(c.getCounter());
-                        } else {
-                            counter2++;
-                            c_1.setCounter(counter2);
-                            //System.out.println(c_1+"->"+counter2);
-                            conditions.add(c_1);
-                        }
-                        temp.add(c_1);
+                for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
+                    int index = conditions.indexOf(c_1);
+                    if (index != -1) {
+                        //c_1 = (Conditions) conditions.get(index);
+                        Conditions c = (Conditions) conditions.get(index);
+                        c_1.setCounter(c.getCounter());
+                    } else {
+                        counter2++;
+                        c_1.setCounter(counter2);
+                        //System.out.println(c_1+"->"+counter2);
+                        conditions.add(c_1);
                     }
-                    a.getPreconditions().sons = temp;
+                    temp.add(c_1);
                 }
+                a.getPreconditions().sons = temp;
             }
         }
 //        System.out.println("Repetions:"+repetition);

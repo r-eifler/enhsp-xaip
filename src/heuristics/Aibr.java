@@ -105,7 +105,8 @@ public class Aibr extends Heuristic {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs, i);
-
+            this.dbg_print("Relaxed State:"+rs+"\n");
+            this.dbg_print("Applicable Supporter:"+S+"\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
                     if (reachability){
@@ -122,9 +123,13 @@ public class Aibr extends Heuristic {
             }
             this.supporters_exec_at_time_index.put(i, (LinkedHashSet<GroundAction>) S);
 
+            
             if (reachability || extract_plan){
 //            if (true){
-                S.stream().forEach((GroundAction a) -> a.apply(rs));
+                for (GroundAction gr: S){
+                    gr.apply(rs);
+                }
+                //S.stream().forEach((GroundAction a) -> a.apply(rs));
                 supporters_counter += S.size();
             }else{
                 for(GroundAction gr: S){
@@ -187,35 +192,33 @@ public class Aibr extends Heuristic {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     effect.additive_relaxation = true;
                     if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
-                        supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions(), gr));
+                        supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(),  gr.getPreconditions(), gr));
                     } else {
-                        supporters.add(generate_plus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions(), gr));
-                        supporters.add(generate_minus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions(), gr));
+                        supporters.add(generate_plus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr));
+                        supporters.add(generate_minus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(),  gr.getPreconditions(), gr));
                     }
                 }
             }
             if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty())||(gr.getDelList()!=null && !gr.getDelList().sons.isEmpty())) {
-                supporters.add(generate_propositional_action(gr.toFileCompliant() + "prop", (AndCond) gr.getPreconditions(), gr));
+                supporters.add(generate_propositional_action(gr.toFileCompliant() + "prop", gr.getPreconditions(), gr));
             }
 
         }
 
     }
 
-    private GroundAction generate_constant_supporter(NumEffect effect, String name, AndCond precondition, GroundAction gr) {
+    private GroundAction generate_constant_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name + "constantassign");
         NumEffect assign = new NumEffect("assign");
         assign.setFluentAffected(effect.getFluentAffected());
         assign.setRight(effect.getRight());
         ret.getNumericEffects().sons.add(assign);
-        if (precondition != null && !precondition.sons.isEmpty()) {
-            ret.getPreconditions().sons.addAll(precondition.sons);
-        }
+        ret.setPreconditions(ret.getPreconditions().and(precondition));
         this.supp_to_action.put(ret, gr);
         return ret;
     }
 
-    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name, AndCond precondition, GroundAction gr) {
+    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
         String disequality = "";
         Float asymptote = Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -232,7 +235,7 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "plusinf", precondition, gr);
     }
 
-    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, AndCond precondition, GroundAction gr) {
+    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, Conditions precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(inequality);
         if (effect.getOperator().equals("assign")) {
@@ -245,15 +248,13 @@ public class Aibr extends Heuristic {
         NumEffect eff = new NumEffect("assign");
         eff.setFluentAffected(effect.getFluentAffected());
         eff.setRight(new PDDLNumber(asymptote));
+        ret.setPreconditions(ret.getPreconditions().and(precondition));
         ret.getNumericEffects().sons.add(eff);
-        if (precondition != null && !precondition.sons.isEmpty()) {
-            ret.getPreconditions().sons.addAll(precondition.sons);
-        }
         this.supp_to_action.put(ret, gr);
         return ret;
     }
 
-    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name, AndCond precondition, GroundAction gr) {
+    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
         String disequality = "";
         Float asymptote = -Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -271,9 +272,9 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition, gr);
     }
 
-    private GroundAction generate_propositional_action(String name, AndCond andCond, GroundAction gr) {
+    private GroundAction generate_propositional_action(String name, Conditions cond, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
-        ret.setPreconditions(andCond);
+        ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
         ret.setDelList(gr.getDelList());
         this.supp_to_action.put(ret, gr);
