@@ -672,4 +672,9 @@ public class Predicate extends Conditions implements PostCondition {
         return s;
 
     }
+    
+    @Override
+    public Conditions push_not_to_terminals() {
+        return this;
+    }
 }

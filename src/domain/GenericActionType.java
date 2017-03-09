@@ -132,4 +132,8 @@ public abstract class GenericActionType extends Object {
     public void setParameters(SchemaParameters parameters) {
         this.parameters = parameters;
     }
+
+    protected void push_not_to_terminals() {
+        this.setPreconditions(this.getPreconditions().push_not_to_terminals());
+    }
 }

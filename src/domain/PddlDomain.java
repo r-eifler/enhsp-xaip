@@ -344,6 +344,7 @@ public final class PddlDomain extends Object {
 //                    break; 
             }
         }
+        push_not_at_the_terminals();
 
     }
 
@@ -353,6 +354,9 @@ public final class PddlDomain extends Object {
     public void prettyPrint() {
         System.out.println("Requirements: " + this.Requirements);
         System.out.println("Actions Domain: " + this.ActionsSchema);
+        if (this.ProcessesSchema!=null)
+            System.out.println("Process Domain: " + this.ProcessesSchema);
+
         System.out.println("Predicates: " + this.predicates);
         System.out.println("Functions: " + this.functions);
         System.out.println("Global Constraints: " + this.getSchemaGlobalConstraints());
@@ -1291,6 +1295,16 @@ public final class PddlDomain extends Object {
         f.write("\n)");
         f.close();
         f.close();
+    }
+
+    private void push_not_at_the_terminals() {
+        for (ActionSchema a: this.ActionsSchema){
+            a.push_not_to_terminals();
+        }
+        
+        for (ProcessSchema a: this.ProcessesSchema){
+            a.push_not_to_terminals();
+        }
     }
 
 }

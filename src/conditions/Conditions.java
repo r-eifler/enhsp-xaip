@@ -257,6 +257,11 @@ public abstract class Conditions extends Object {
     public abstract Conditions and(Conditions precondition);
 
     public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+
+    public abstract Conditions push_not_to_terminals();
+        
+
+    
         
 
 

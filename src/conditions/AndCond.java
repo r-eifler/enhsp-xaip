@@ -910,4 +910,25 @@ public class AndCond extends Conditions implements PostCondition {
         }
         return s;
     }
+
+    @Override
+    public Conditions push_not_to_terminals() {
+        if (this.sons==null)
+            return this;
+        AndCond res = new AndCond();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            Conditions c1 = c.push_not_to_terminals();
+            res.addConditions(c1);
+        }
+        return res;
+    }
+
+    OrCond push_negation_demorgan() {
+        OrCond res = new OrCond();
+        for (Conditions c:(Collection<Conditions>) this.sons){
+            NotCond nc = new NotCond(c);
+            res.addConditions(nc);
+        }
+        return res;
+    }
 }

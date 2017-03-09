@@ -1109,4 +1109,39 @@ public class Comparison extends Conditions {
         return s;
 
     }
+    
+    @Override
+    public Conditions push_not_to_terminals() {
+        return this;
+    }
+
+    Conditions invertOperator() {
+        if (this.getComparator().equals("=")){
+            AndCond a = new AndCond();
+            Comparison c1 = (Comparison) this.clone();
+            Comparison c2 = (Comparison) this.clone();
+            c1.setComparator("<");
+            c2.setComparator(">");
+            a.addConditions(c2);
+            a.addConditions(c1);
+            return a;
+        }else{
+            Comparison c1 = (Comparison) this.clone();
+            switch(this.getComparator()){
+                case "<":
+                    c1.setComparator(">=");
+                    break;
+                case "<=":
+                    c1.setComparator(">");
+                    break;
+                case ">=":
+                    c1.setComparator("<");
+                    break;
+                case ">":
+                    c1.setComparator("<=");
+                    break;                    
+            }
+            return c1;  
+        }
+    }
 }

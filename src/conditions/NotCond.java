@@ -387,8 +387,12 @@ public class NotCond extends Conditions implements PostCondition {
 
     @Override
     public Set<Conditions> getTerminalConditions() {
-        Set ret = new LinkedHashSet();
-        ret.addAll(this.son.getTerminalConditions());
+        if (!this.isTerminal()){
+            System.out.println("This should be a terminal!"+this);
+            System.exit(-1);
+        }
+        LinkedHashSet ret = new LinkedHashSet();
+        ret.add(this);
         return ret;
     }
 
@@ -406,6 +410,44 @@ public class NotCond extends Conditions implements PostCondition {
 
     @Override
     public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        achiever_set s = new achiever_set();
+        s.cost = cond_dist.get(this.getCounter());
+        s.actions.add(established_achiever.get(this.getCounter()));
+        s.target_cond.add(this);
+        return s;
+    }
+    
+    @Override
+    public Conditions push_not_to_terminals() {
+        if (son instanceof Predicate)
+            return this;
+        else if (son instanceof Comparison){
+            Comparison c1 = (Comparison)son;
+            Conditions c2 = c1.invertOperator();
+            return c2;
+        }
+        else if (son instanceof AndCond){
+            AndCond and = (AndCond)son;
+            OrCond or = and.push_negation_demorgan();
+            Conditions c=or.push_not_to_terminals();
+            return c;
+        }
+        else if (son instanceof OrCond){
+            OrCond or = (OrCond)son;
+            AndCond and = or.push_negation_demorgan();
+            Conditions c=and.push_not_to_terminals();
+            return c;
+        }
+        else{
+            System.out.println("Condition Not Supported:"+son);
+            System.exit(-1);
+        }
+        return null;
+    }
+
+    public boolean isTerminal() {
+        if (this.son instanceof Predicate)
+            return true;
+        return false;
     }
 }

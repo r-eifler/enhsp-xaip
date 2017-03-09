@@ -581,10 +581,31 @@ public class OrCond extends Conditions {
     }
     
     @Override
+    public Conditions push_not_to_terminals() {
+        if (this.sons==null)
+            return this;
+        AndCond res = new AndCond();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            Conditions c1 = c.push_not_to_terminals();
+            res.addConditions(c1);
+        }
+        return res;
+    }
+    
+    @Override
     public Conditions and(Conditions precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
         return and;
+    }
+
+    AndCond push_negation_demorgan() {
+        AndCond res = new AndCond();
+        for (Conditions c:(Collection<Conditions>) this.sons){
+            NotCond nc = new NotCond(c);
+            res.addConditions(nc);
+        }
+        return res;
     }
 }

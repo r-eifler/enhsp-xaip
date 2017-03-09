@@ -29,6 +29,7 @@ package heuristics.advanced;
 
 import conditions.Comparison;
 import conditions.Conditions;
+import conditions.NotCond;
 import conditions.Predicate;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -52,7 +53,6 @@ import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -60,7 +60,7 @@ import static java.util.logging.Logger.getLogger;
  */
 public class Uniform_cost_search_H1 extends Heuristic {
 
-    protected HashMap<Integer, LinkedHashSet<Predicate>> achieve;
+    protected HashMap<Integer, LinkedHashSet<Conditions>> achieve;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<Comparison>> interact_with;
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
@@ -177,9 +177,9 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     actions_for_complex_condition.add(gr);
 
                     //for (GroundAction gr : edges) {//this can be optimized a lot
-                    Collection<Predicate> predicates = this.achieve.get(gr.counter);
+                    Collection<Conditions> predicates = this.achieve.get(gr.counter);
                     Collection<Comparison> comparisons = this.possible_achievers.get(gr.counter);
-                    for (Predicate p : predicates) {
+                    for (Conditions p : predicates) {
                         if (closed.get(p.getCounter())) {
                             continue;
                         }
@@ -264,7 +264,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
-            LinkedHashSet<Predicate> predicates = new LinkedHashSet();
+            LinkedHashSet<Conditions> literals = new LinkedHashSet();
             for (Conditions c : this.all_conditions) {
                 if (precondition_mapping.get(c.getCounter()) == null) {
                     precondition_mapping.put(c.getCounter(), new LinkedHashSet());
@@ -292,7 +292,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 } else if (c instanceof Predicate) {
                     Predicate p = (Predicate) c;
                     if (gr.achieve(p)) {
-                        predicates.add(p);
+                        literals.add(p);
                         action_list.add(gr);
                     }
                     if (this.achievers_inverted.get(p.getCounter()) == null) {
@@ -301,6 +301,25 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(p.getCounter());
                         temp.addAll(action_list);
                         this.achievers_inverted.put(p.getCounter(), temp);
+                    }
+
+                }else if (c instanceof NotCond) {
+                    NotCond c1 =(NotCond)c;
+                    if (!c1.isTerminal()){
+                        System.out.println("Not formula has to be used as a terminal, and it is not:"+c1);
+                        System.exit(-1);
+                    }
+                    Predicate p = (Predicate) c1.getSon();
+                    if (gr.delete(p)) {
+                        literals.add(c1);
+                        action_list.add(gr);
+                    }
+                    if (this.achievers_inverted.get(c1.getCounter()) == null) {
+                        this.achievers_inverted.put(c1.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(c1.getCounter());
+                        temp.addAll(action_list);
+                        this.achievers_inverted.put(c1.getCounter(), temp);
                     }
 
                 }
@@ -319,7 +338,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 }
 
             }
-            achieve.put(gr.counter, predicates);
+            achieve.put(gr.counter, literals);
             interact_with.put(gr.counter, comparisons);
             possible_achievers.put(gr.counter, reacheable_comparisons);
         }
