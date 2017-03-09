@@ -437,6 +437,8 @@ public class NotCond extends Conditions implements PostCondition {
             AndCond and = or.push_negation_demorgan();
             Conditions c=and.push_not_to_terminals();
             return c;
+        }else if (son instanceof PDDLObjectsEquality){
+            return this;
         }
         else{
             System.out.println("Condition Not Supported:"+son);
