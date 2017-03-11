@@ -314,8 +314,27 @@ public class SearchStrategies {
 
     public static long heuristic_time;
     public static long overall_search_time;
-
+    
+    /**
+     * The method implements weighted-A*-like search algorithms systematically.
+     * 
+     * Solve the problem by using weighted-A* or A* or Uniform Cost Search (UCS)
+     * depending on the evaluation function f the frontier is prioritized by, 
+     * where f = wg * g(n) + wh * h(n)
+     *      wg = 1, wh = 0, UCS,
+     *      wg = 1, wh = 1, A*,
+     *      wg > 1, wg > 1, weighted-A*.
+     * The weights wg and wh should be set by SearchStrategies.set_w_g() and 
+     * SearchStrategies.set_w_h() before the method is called. Heuristics
+     * function should also be setup.
+     * 
+     * @param problem   the problem to be solved.
+     * @return null if the problem is unsolvable, a linked list of the plan 
+     *         otherwise.
+     * @throws Exception 
+     */
     public LinkedList wa_star(EPddlProblem problem) throws Exception {
+        // TODO change variable name 'temp' -> 'successor_node'. 
         num_dead_end_detected = 0;
 
         long start_global = System.currentTimeMillis();
