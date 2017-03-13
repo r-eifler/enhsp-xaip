@@ -1305,6 +1305,8 @@ public final class PddlDomain extends Object {
         for (ProcessSchema a: this.ProcessesSchema){
             a.push_not_to_terminals();
         }
+        
+        
     }
 
 }

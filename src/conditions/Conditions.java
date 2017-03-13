@@ -165,6 +165,7 @@ public abstract class Conditions extends Object {
      * @param counter the counter to set
      */
     public void setCounter(int counter) {
+//        System.out.println(this+ "Setting counter to"+counter);
         this.counter = counter;
     }
 

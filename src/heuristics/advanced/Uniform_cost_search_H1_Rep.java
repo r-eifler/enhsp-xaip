@@ -74,7 +74,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
             Logger.getLogger(Uniform_cost_search_H1_Rep.class.getName()).log(Level.SEVERE, null, ex);
         }
         build_integer_representation();
-        identify_complex_conditions(all_conditions, A);
+        identify_complex_conditions(A);
         generate_self_precondition_delete_sets();
         generate_achievers();
         reacheability_setting = true;
@@ -101,7 +101,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                     //System.out.println("redundant_constraints:"+redundant_constraints);
                     Comparison comp = (Comparison) c;
 
-                    if (is_complex.get(c)) {
+                    if (is_complex.get(c.getCounter())) {
                         continue;
                     }
                     float b = comp.eval_affected(s_0, gr);
@@ -137,7 +137,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
 
                             new_comp.setCounter(conditions_set.size() + 1);
                             new_condition.put(new_comp, true);
-                            this.is_complex.put(new_comp, false);
+                            this.is_complex.set(new_comp.getCounter(), false);
                             //this.index_of_last_static_atom++;s
                             if (!conditions_set.add(new_comp)) {
                                 for (Conditions c3 : conditions_set) {
@@ -262,7 +262,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                     if (closed.get(comp.getCounter()) || dist.get(comp.getCounter()) == 0) {
                         continue;
                     }
-                    if (!this.is_complex.get(comp)) {
+                    if (!this.is_complex.get(comp.getCounter())) {
                         boolean applicable = true;
                         Float number_of_execution = gr.getNumberOfExecution(s, comp);
                         Float additional_cost = 0f;
@@ -354,7 +354,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                         } catch (Exception ex) {
                             Logger.getLogger(Uniform_cost_search_H1_Rep.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        if (this.is_complex.get(comp)) {
+                        if (this.is_complex.get(comp.getCounter())) {
                             reacheable_comparisons.add(comp);
                         }
                     }

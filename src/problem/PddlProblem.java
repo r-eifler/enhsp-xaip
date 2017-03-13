@@ -325,6 +325,7 @@ public class PddlProblem {
 
             }
         }
+        this.goals =this.goals.push_not_to_terminals();
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 

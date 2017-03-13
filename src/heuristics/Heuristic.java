@@ -40,6 +40,7 @@ import expressions.Interval;
 import extraUtils.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
+import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -86,14 +87,14 @@ public abstract class Heuristic {
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
-    protected HashMap<Conditions, Boolean> is_complex;
+    protected ArrayList<Boolean> is_complex;
     protected HashMap<Conditions, Boolean> new_condition;
     protected int complex_conditions;
     protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
     protected boolean sat_test_within_cost = true;
     protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
 
-    public LinkedList<GroundAction> relaxed_plan_actions;
+    public LinkedList<GroundAction> helpful_actions;
     public HashMap<Integer, GroundAction> final_achiever;
     public boolean preferred_operators;
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
@@ -113,6 +114,7 @@ public abstract class Heuristic {
     protected HashMap<Integer, GroundAction> cond_action;
     public boolean integer_actions = false;
     private boolean cost_oriented_ibr = false;
+    private HashMap<Conditions, Integer> integer_ref;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
@@ -178,96 +180,43 @@ public abstract class Heuristic {
 //        //this.build_integer_representation();//this could reduce the number of predicate/comparison but it has been considered useless overhead
     public void build_integer_representation() {
         all_conditions = new LinkedHashSet();
-        int counter2 = 0;
+        int counter_conditions = 0;
 
+        integer_ref = new HashMap();
         int counter_actions = 0;
-        ArrayList conditions = new ArrayList();
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         if (this.supporters != null) {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
-
             a.counter = counter_actions++;
-            LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
                 for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
-                    int index = conditions.indexOf(c_1);
-                    if (index != -1) {
-                        //c_1 = (Conditions) conditions.get(index);
-                        Conditions c = (Conditions) conditions.get(index);
-                        c_1.setCounter(c.getCounter());
-                    } else {
-                        counter2++;
-                        c_1.setCounter(counter2);
-                        //System.out.println(c_1+"->"+counter2);
-                        conditions.add(c_1);
-                    }
-                    temp.add(c_1);
+                    this.dbg_print("Condition added to the set:"+c_1+"\n");
+                    counter_conditions = update_index_conditions(c_1, counter_conditions);
+                    this.dbg_print("Identifier:"+c_1.getCounter()+"\n");
                 }
-                //a.getPreconditions().sons = temp;
             }
         }
-//        System.out.println("Repetions:"+repetition);
-//        System.out.println("Number of conditions given by the action:"+(repetition+counter2));
-
-        //System.out.println("Now action effects:");
         for (GroundAction a : actions_to_consider) {
-            LinkedHashSet temp = new LinkedHashSet();
-
             if (a.getAddList() != null && a.getAddList().sons != null) {
                 for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
-                    int index = conditions.indexOf(c_1);
-                    if (index != -1) {
-                        Conditions c = (Conditions) conditions.get(index);
-                        c_1.setCounter(c.getCounter());
-                    } else {
-                        counter2++;
-                        c_1.setCounter(counter2);
-                        //System.out.println(c_1+"->"+counter);
-                        conditions.add(c_1);
-                    }
-                    temp.add(c_1);
-
+                    counter_conditions = update_index_conditions(c_1,  counter_conditions);
                 }
-                a.getAddList().sons = temp;
             }
-
         }
 
-        LinkedHashSet temp = new LinkedHashSet();
+//        LinkedHashSet temp = new LinkedHashSet();
+        for (Conditions c_1 : G.getTerminalConditions()) {
+            this.dbg_print("Condition added to the set:"+c_1+"\n");
+            counter_conditions = update_index_conditions(c_1,  counter_conditions);
+            this.dbg_print("Identifier:"+c_1.getCounter()+"\n");
 
-        if (G instanceof Comparison || G instanceof Predicate) {
-            Conditions c_1 = (Conditions) G;
-            int index = conditions.indexOf(c_1);
-            if (index != -1) {
-                c_1 = (Conditions) conditions.get(index);
-            } else {
-                counter2++;
-                c_1.setCounter(counter2);
-                //                    System.out.println(c_1+"->"+counter);
-                conditions.add(c_1);
-            }
-            temp.add(c_1);
-        } else {
-
-            for (Conditions c_1 : (Set<Conditions>) G.sons) {
-                int index = conditions.indexOf(c_1);
-                if (index != -1) {
-                    c_1 = (Conditions) conditions.get(index);
-                } else {
-                    counter2++;
-                    c_1.setCounter(counter2);
-                    //                    System.out.println(c_1+"->"+counter);
-                    conditions.add(c_1);
-                }
-                temp.add(c_1);
-            }
+//            temp.add(c_1);
         }
-        G.sons = temp;
-        //System.out.println(conditions);
-        index_of_last_static_atom = counter2;//index of the last atom
-        this.all_conditions.addAll(conditions);
+//        System.out.println("Conditions found:"+all_conditions.size());
+//        System.out.println("Last condition counter:"+counter_conditions);
+        index_of_last_static_atom = counter_conditions;//index of the last atom
 
     }
 
@@ -648,19 +597,21 @@ public abstract class Heuristic {
         }
     }
 
-    protected void identify_complex_conditions(Collection<Conditions> conds, Collection<GroundAction> A) {
+    protected void identify_complex_conditions(Collection<GroundAction> A) {
         //For each condition, identify whether there is at least an action whose effects are not simple. This condition
         // will be considered complex in that checking its satisfaction is hard
-        is_complex = new HashMap();
+        is_complex = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
+
         new_condition = new HashMap();
         complex_condition_set = new LinkedHashSet();
-        for (Conditions c : conds) {
+        for (Conditions c : all_conditions) {
+//            System.out.println("This is condition number:"+c.getCounter());
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
                 new_condition.put(comp, false);
-                is_complex.put(comp, false);
+                is_complex.set(comp.getCounter(), false);
                 if (!comp.isLinear()) {
-                    is_complex.put(comp, true);
+                    is_complex.set(comp.getCounter(), true);
                     complex_condition_set.add((Comparison) c);
                 }
                 for (GroundAction gr : A) {
@@ -670,7 +621,7 @@ public abstract class Heuristic {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
                                 if (!ne.fluentsInvolved().isEmpty() && !ne.isPseudo_num_effect()) {
-                                    is_complex.put(comp, true);
+                                    is_complex.set(comp.getCounter(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
                                 }
@@ -678,7 +629,7 @@ public abstract class Heuristic {
                         }
                     }
                 }
-                if (is_complex.get(comp)) {
+                if (is_complex.get(comp.getCounter())) {
                     complex_conditions++;
                 }
             }
@@ -962,6 +913,29 @@ public abstract class Heuristic {
             return Float.MAX_VALUE;
         }
         //        System.out.println(opt.Check());
+    }
+
+    private int update_index_conditions(Conditions c_1, int counter) {
+
+        if (integer_ref.get(c_1) == null) {
+//            System.out.println("This happens then");
+            
+            integer_ref.put(c_1, counter);
+            c_1.setCounter(counter);
+            all_conditions.add(c_1);
+            counter++;
+        } else if (integer_ref.get(c_1) == null) {
+//            System.out.println("bug in java");
+            
+            integer_ref.put(c_1, counter);
+            c_1.setCounter(counter);
+            all_conditions.add(c_1);
+            counter++;
+        } else {
+            c_1.setCounter(integer_ref.get(c_1));
+        }
+        return counter;
+
     }
 
 }

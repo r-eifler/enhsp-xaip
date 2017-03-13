@@ -7,9 +7,9 @@ package heuristics.advanced;
 
 import conditions.Comparison;
 import conditions.Conditions;
+import heuristics.Aibr;
 import static java.lang.System.out;
 import java.util.ArrayList;
-import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -40,10 +40,12 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
     public boolean mip;
     private ArrayList<GroundAction> established_achiever;
     private ArrayList<achiever_set> action_achievers;
-    public boolean relaxed_plan_extraction = true;
+    public boolean relaxed_plan_extraction = false;
     private GroundAction goal;
     private ArrayList<LinkedHashSet<GroundAction>> all_achievers;
-    public boolean only_helpful_actions = true;
+    public boolean only_helpful_actions = false;
+    private Set<GroundAction> reachable_here;
+    private Aibr aibr_handler;
 
     public ucs_h1_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
@@ -65,7 +67,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         goal.setPreconditions(G);
         A.add(goal);
         build_integer_representation();
-        identify_complex_conditions(all_conditions, A);
+        identify_complex_conditions(A);
         this.generate_link_precondition_action();
         try {
             generate_achievers();
@@ -80,16 +82,6 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
         out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
-
-        //redo construction of integer to avoid spurious actions
-        build_integer_representation();
-        identify_complex_conditions(all_conditions, A);
-        this.generate_link_precondition_action();
-        try {
-            generate_achievers();
-        } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return ret;
     }
 
@@ -120,17 +112,25 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                 }
             }
         }
+        
+        this.dbg_print("Total Number of conditions:"+all_conditions.size()+"\n");
 
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 cond_dist.set(c.getCounter(), 0f);
                 this.dbg_print("Condition that is already satisfied:" + c + "\n");
                 this.dbg_print("Counter is:" + c.getCounter() + "\n");
+            }else{
+                this.dbg_print("Condition that is NOT already satisfied:" + c + "\n");
+                this.dbg_print("Counter is:" + c.getCounter() + "\n");
             }
+            
         }
-
+        reachable_here = new LinkedHashSet();
         while (!a_plus.isEmpty()) {//keep going till no action is in the list. Look that here actions can be re-added
+
             GroundAction gr = a_plus.removeMin().getData();
+            reachable_here.add(gr);
             this.dbg_print("Action Evaluated:" + gr + "\n");
             this.dbg_print("Cost:" + action_dist.get(gr.counter) + "\n");
             if (gr.dummy_goal) {
@@ -150,7 +150,6 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
 
         extract_helpful_actions_or_relaxed_plan();
-
 
         return estimate;
     }
@@ -172,20 +171,50 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             }
         }
         for (Conditions comp : this.possible_achievers.get(gr.counter)) {
-            Float current_distance = cond_dist.get(comp.getCounter());
-            if (current_distance != 0f) {
-                Float rep_needed;
-                if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1) {
-                    rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * gr.getAction_cost();
-                } else {
-                    rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * gr.getAction_cost();
-                }
+            if (!this.is_complex.get(comp.getCounter())) {
+                Float current_distance = cond_dist.get(comp.getCounter());
+                if (current_distance != 0f) {
+                    Float rep_needed;
+//                    System.out.println(is_complex);
+//                    System.out.println(comp);
+//                    System.out.println(comp.getCounter());
+//                    System.out.println(this.possible_achievers_inverted);
+                    if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1) {
+                        rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * gr.getAction_cost();
+                    } else {
+                        rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * gr.getAction_cost();
+                    }
 
-                if (rep_needed != Float.MAX_VALUE) {
-                    rep_needed += this.action_dist.get(gr.counter);
+                    if (rep_needed != Float.MAX_VALUE) {
+                        rep_needed += this.action_dist.get(gr.counter);
+                        update_achiever(comp, gr);
+                        if (rep_needed < current_distance) {
+                            cond_dist.set(comp.getCounter(), rep_needed);
+                            established_achiever.set(comp.getCounter(), gr);
+                            update_reachable_actions(gr, comp, a_plus, never_active);
+                        }
+
+                    }
+
+                }
+            } else {
+                Aibr aibr_handle = new Aibr(comp, this.reachable_here);
+                
+                //aibr_handle
+                aibr_handle.light_setup(s_0,this);
+                
+                if (comp.getCounter()>all_conditions.size()){
+                    System.out.println("Condition not intercepted!"+comp);
+                    System.out.println("Identifier:"+comp.getCounter());
+                    System.exit(-1);
+                }
+                Float current_distance = cond_dist.get(comp.getCounter());
+                Float new_distance = aibr_handle.compute_estimate(s_0);
+                if (new_distance != Float.MAX_VALUE) {
+                    new_distance += this.action_dist.get(gr.counter);
                     update_achiever(comp, gr);
-                    if (rep_needed < current_distance) {
-                        cond_dist.set(comp.getCounter(), rep_needed);
+                    if (new_distance < current_distance) {
+                        cond_dist.set(comp.getCounter(), new_distance);
                         established_achiever.set(comp.getCounter(), gr);
                         update_reachable_actions(gr, comp, a_plus, never_active);
                     }
@@ -194,6 +223,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
             }
         }
+
     }
 
     private void update_reachable_actions(GroundAction gr, Conditions comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
@@ -252,29 +282,29 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
     private void compute_helpful_actions() {
         LinkedList<GroundAction> list = new LinkedList();
-        relaxed_plan_actions = new LinkedList();
+        helpful_actions = new LinkedList();
         achiever_set s = this.action_achievers.get(goal.counter);
-        getHelpfulActions(list,s);
+        getHelpfulActions(list, s);
         while (!list.isEmpty()) {
             GroundAction gr2 = list.pollLast();
 //            System.out.println(gr);
             s = this.action_achievers.get(gr2.counter);
-            getHelpfulActions(list,s);
+            getHelpfulActions(list, s);
         }
-        this.dbg_print("HelpfulActions: "+relaxed_plan_actions.toString() + "\n");
+        this.dbg_print("HelpfulActions: " + helpful_actions.toString() + "\n");
     }
 
     private void compute_relaxed_plan() {
 
         LinkedList<GroundAction> list = new LinkedList();
-        relaxed_plan_actions = new LinkedList();
+        helpful_actions = new LinkedList();
         achiever_set s = this.action_achievers.get(goal.counter);
         if (s != null) {
             for (Object o : s.actions) {
                 LinkedList level = new LinkedList();
                 if (o != null) {
                     list.addFirst((GroundAction) o);
-                    relaxed_plan_actions.add((GroundAction) o);
+                    helpful_actions.add((GroundAction) o);
                 }
 //                rp.addFirst(level);
             }
@@ -288,13 +318,13 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                 for (Object o : s.actions) {
                     if (o != null) {
                         list.addFirst((GroundAction) o);
-                        relaxed_plan_actions.add((GroundAction) o);
+                        helpful_actions.add((GroundAction) o);
                     }
                 }
 //                rp.addFirst(level);
             }
         }
-        this.dbg_print("Relaxed Plan: "+relaxed_plan_actions.toString() + "\n");
+        this.dbg_print("Relaxed Plan: " + helpful_actions.toString() + "\n");
     }
 
     private void update_achiever(Conditions comp, GroundAction gr) {
@@ -317,21 +347,21 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
     }
 
-    private void getHelpfulActions(LinkedList<GroundAction>list,achiever_set s) {
-       if (s != null) {
+    private void getHelpfulActions(LinkedList<GroundAction> list, achiever_set s) {
+        if (s != null) {
             for (Conditions o : s.target_cond) {
                 if (o != null) {
-                    if (this.all_achievers.get(o.getCounter())!=null){
+                    if (this.all_achievers.get(o.getCounter()) != null) {
                         for (GroundAction gr : this.all_achievers.get(o.getCounter())) {
                             if (this.action_dist.get(gr.counter) == 0) {
-                                this.relaxed_plan_actions.add(gr);
-                            }   
+                                this.helpful_actions.add(gr);
+                            }
                         }
                     }
                 }
             }
-            for (GroundAction gr : s.actions){
-                if (gr!=null){
+            for (GroundAction gr : s.actions) {
+                if (gr != null) {
                     list.addFirst(gr);
                 }
             }

@@ -5,7 +5,6 @@
  */
 package heuristics;
 
-import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
@@ -13,6 +12,7 @@ import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
+import heuristics.advanced.ucs_h1_refactored;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
@@ -79,6 +79,12 @@ public class Aibr extends Heuristic {
         Float ret = compute_estimate(s_0);
         reachability = false;
         return ret;
+    }
+    
+    public void light_setup(State s_0, ucs_h1_refactored aThis) {
+        this.all_conditions = aThis.all_conditions;
+        reachability = false;
+        
     }
 
     @Override
@@ -482,17 +488,19 @@ public class Aibr extends Heuristic {
 
     private boolean check_goal_condition(Conditions G, int i, RelState rs) {
         boolean goal_satisfied = true;
-        for (Conditions c : (Collection<Conditions>) G.sons) {
-            if (c.can_be_true(rs)) {
-                if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
-                    this.dist.set(c.getCounter(), i);
-                    this.conditions_sat_at_time_index.get(i).add(c);
-                }
-            } else {
-                goal_satisfied = false;
-            }
-        }
-        return goal_satisfied;
+        
+        return rs.satisfy(G);
+//        for (Conditions c : (Collection<Conditions>) G.sons) {
+//            if (c.can_be_true(rs)) {
+//                if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
+//                    this.dist.set(c.getCounter(), i);
+//                    this.conditions_sat_at_time_index.get(i).add(c);
+//                }
+//            } else {
+//                goal_satisfied = false;
+//            }
+//        }
+//        return goal_satisfied;
     }
 
     private boolean achiever(GroundAction gr, RelState rs2, Conditions g) {
@@ -520,6 +528,11 @@ public class Aibr extends Heuristic {
         return ret;
               
     }
+
+
+
+
+
 
 
 }

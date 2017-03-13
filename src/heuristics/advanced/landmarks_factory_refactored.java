@@ -62,7 +62,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             }
         }
         build_integer_representation();
-        identify_complex_conditions(all_conditions, A);
+        identify_complex_conditions(A);
         this.generate_link_precondition_action();
         try {
             generate_achievers();
@@ -80,7 +80,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
 
         //redo construction of integer to avoid spurious actions
         build_integer_representation();
-        identify_complex_conditions(all_conditions, A);
+        identify_complex_conditions( A);
         this.generate_link_precondition_action();
         try {
             generate_achievers();
@@ -163,7 +163,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
             Float distance = dist_float.get(c.getCounter());
             if (distance == Float.MAX_VALUE) {
-                Boolean outcome = this.is_complex.get(c);
+                Boolean outcome = this.is_complex.get(c.getCounter());
                 if (outcome == null)
                     continue;
                 if (outcome == false){

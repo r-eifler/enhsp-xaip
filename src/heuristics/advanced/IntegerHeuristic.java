@@ -157,6 +157,7 @@ public abstract class IntegerHeuristic {
                         c_1 = (Conditions) conditions.get(index);
                     } else {
                         counter2++;
+                        //System.out.println("Am I here?!?!?");
                         c_1.setCounter(counter2);
 //                        System.out.println(c_1.toString());
                         //System.out.println(c_1+"->"+counter2);

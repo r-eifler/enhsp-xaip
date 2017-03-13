@@ -53,6 +53,7 @@ import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
@@ -91,7 +92,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
         
         build_integer_representation();
-        identify_complex_conditions(all_conditions, A);
+        identify_complex_conditions(A);
         try {
             generate_achievers();
         } catch (Exception ex) {
@@ -191,7 +192,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         if (closed.get(comp.getCounter())) {
                             continue;
                         }
-                        if (!this.is_complex.get(comp)) {
+                        if (!this.is_complex.get(comp.getCounter())) {
                             Float number_of_execution = null;
                             boolean super_simple_numeric_condition = (this.possible_achievers_inverted.get(comp.getCounter()).size()<=1);
                             if ((this.additive_h && integer_actions) || super_simple_numeric_condition)
@@ -266,16 +267,19 @@ public class Uniform_cost_search_H1 extends Heuristic {
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Conditions> literals = new LinkedHashSet();
             for (Conditions c : this.all_conditions) {
+                
                 if (precondition_mapping.get(c.getCounter()) == null) {
                     precondition_mapping.put(c.getCounter(), new LinkedHashSet());
                 }
                 LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
                 if (c instanceof Comparison) {
+//                    System.out.println("Condition under analysis:"+c);
+//                    System.out.println("Counter is:"+c.getCounter());
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
                         comparisons.add(comp);
 
-                        if (this.is_complex.get(comp)) {
+                        if (this.is_complex.get(comp.getCounter())) {
                             reacheable_comparisons.add(comp);
                         }else if (gr.is_possible_achiever_of(comp)) {
                             reacheable_comparisons.add(comp);
