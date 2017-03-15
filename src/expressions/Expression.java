@@ -81,7 +81,7 @@ public abstract class Expression extends Object {
 
     public abstract Expression subst(Conditions numeric);
 
-    public abstract Set<NumFluent> fluentsInvolved();
+    public abstract Set<NumFluent> rhsFluents();
 
     public abstract boolean isUngroundVersionOf(Expression expr);
 

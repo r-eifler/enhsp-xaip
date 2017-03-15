@@ -351,7 +351,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         for (GroundAction gr : A) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
+                    if (effect.getOperator().equals("assign") && effect.getRight().rhsFluents().isEmpty()) {
                         supporters.add(generate_constant_supporter(effect,gr.getName()+effect.getFluentAffected()));
                     } else  {
                         supporters.add(generate_plus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));

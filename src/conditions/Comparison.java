@@ -766,8 +766,8 @@ public class Comparison extends Conditions {
         this.left = this.left.susbtFluentsWithTheirInvariants(j);
         this.right = this.right.susbtFluentsWithTheirInvariants(++j);
         ArrayList ret = new ArrayList();
-        ret.addAll(this.left.fluentsInvolved());
-        ret.addAll(this.right.fluentsInvolved());
+        ret.addAll(this.left.rhsFluents());
+        ret.addAll(this.right.rhsFluents());
         return ret;
     }
 
@@ -776,8 +776,8 @@ public class Comparison extends Conditions {
         this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
         this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
         ArrayList ret = new ArrayList();
-        ret.addAll(this.left.fluentsInvolved());
-        ret.addAll(this.right.fluentsInvolved());
+        ret.addAll(this.left.rhsFluents());
+        ret.addAll(this.right.rhsFluents());
         return ret;
     }
 
@@ -845,8 +845,8 @@ public class Comparison extends Conditions {
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new HashSet();
 
-        ret.addAll(this.getLeft().fluentsInvolved());
-        ret.addAll(this.getRight().fluentsInvolved());
+        ret.addAll(this.getLeft().rhsFluents());
+        ret.addAll(this.getRight().rhsFluents());
         //System.out.println("Here we are:"+this);
         return ret;
     }

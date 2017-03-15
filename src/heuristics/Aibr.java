@@ -12,6 +12,8 @@ import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
+import extraUtils.Utils;
+import static extraUtils.Utils.dbg_print;
 import heuristics.advanced.ucs_h1_refactored;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,25 +45,24 @@ public class Aibr extends Heuristic {
     private HashMap<GroundAction, Integer> supporter_level;
     private HashMap<Integer, LinkedHashSet<GroundAction>> supporters_exec_at_time_index;
     private HashMap<Integer, LinkedHashSet<Conditions>> conditions_sat_at_time_index;
-    private HashMap<Integer,GroundAction> supp_to_actions;
+    private HashMap<Integer, GroundAction> supp_to_actions;
     protected ArrayList<Integer> dist;
     public boolean layers_counter;
     private boolean cost_oriented = true;
 
     public Aibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
-        this.dbg_print("Generate Supporters\n");
+        Utils.dbg_print(debug,"Generate Supporters\n");
         generate_supporters(A);
     }
 
     public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
-        this.dbg_print("Generate Supporters\n");
+        Utils.dbg_print(debug,"Generate Supporters\n");
         generate_supporters(A);
-        this.dbg_print("Supporters Generated\n");
-        
-        //this.build_integer_representation();
+        Utils.dbg_print(debug,"Supporters Generated\n");
 
+        //this.build_integer_representation();
     }
 
     public void set(boolean counting_layers_active, boolean greedy_relaxed_plan_active) {
@@ -72,19 +73,21 @@ public class Aibr extends Heuristic {
     @Override
     public Float setup(State s_0) {
         reachability = true;
-        
-        this.dbg_print("Computing Internal Data Structure\n");
+
+        Utils.dbg_print(debug,"Computing Internal Data Structure\n");
         this.build_integer_representation();
-        this.dbg_print("Computing Reachable Actions\n");
+        Utils.dbg_print(debug,"Computing Reachable Actions\n");
         Float ret = compute_estimate(s_0);
         reachability = false;
         return ret;
     }
-    
+
     public void light_setup(State s_0, ucs_h1_refactored aThis) {
         this.all_conditions = aThis.all_conditions;
+
         reachability = false;
-        
+        this.reachable = A;
+
     }
 
     @Override
@@ -94,7 +97,7 @@ public class Aibr extends Heuristic {
         int supporters_counter = 0;
         //dist = new HashMap();
 //        if (extract_plan){
-        dist = new ArrayList<>(nCopies(index_of_last_static_atom+1, Integer.MAX_VALUE));
+        dist = new ArrayList<>(nCopies(index_of_last_static_atom + 1, Integer.MAX_VALUE));
         this.supporters_exec_at_time_index = new HashMap();
 
         this.cond_level = new HashMap();
@@ -111,11 +114,11 @@ public class Aibr extends Heuristic {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs, i);
-            this.dbg_print("Relaxed State:"+rs+"\n");
-            this.dbg_print("Applicable Supporter:"+S+"\n");
+            Utils.dbg_print(debug,"Relaxed State:" + rs + "\n");
+            Utils.dbg_print(debug,"Applicable Supporter:" + S + "\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
-                    if (reachability){
+                    if (reachability) {
                         reacheable_state = rs.clone();
                         this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
                     }
@@ -129,36 +132,33 @@ public class Aibr extends Heuristic {
             }
             this.supporters_exec_at_time_index.put(i, (LinkedHashSet<GroundAction>) S);
 
-            
-            if (reachability || extract_plan){
+            if (reachability || extract_plan) {
 //            if (true){
-                for (GroundAction gr: S){
+                for (GroundAction gr : S) {
                     gr.apply(rs);
                 }
                 //S.stream().forEach((GroundAction a) -> a.apply(rs));
                 supporters_counter += S.size();
-            }else{
-                for(GroundAction gr: S){
+            } else {
+                for (GroundAction gr : S) {
                     supporters_counter += S.size();
                     gr.apply(rs);
-                    if (check_goal_condition(G, i, rs)){
+                    if (check_goal_condition(G, i, rs)) {
                         exit = true;
                         break;
                     }
                 }
             }
- 
-            
 
             i++;
         }
-        dbg_print("Rechability finished");
-        
+        Utils.dbg_print(debug,"Rechability finished");
+
         if (reachability) {
             //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             this.supporters = new LinkedHashSet(supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
-            return (float)i;
+            return (float) i;
         }
         if (layers_counter) {
             return (float) i;
@@ -172,23 +172,21 @@ public class Aibr extends Heuristic {
 
         RelState rs2 = s.relaxState();
         if (!extract_plan) {
-            return fix_point_computation(s,rs2);
+            return fix_point_computation(s, rs2);
         } else {
-            return extract_plan(rs2, i,s);
+            return extract_plan(rs2, i, s);
         }
 
     }
 
-    
-    
     private void generate_supporters(Set<GroundAction> actions) {
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
         Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {
-            if (gr.cond_effects != null){
-                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(),gr.cond_effects));
+            if (gr.cond_effects != null) {
+                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(), gr.cond_effects));
             }
         }
         //System.out.println(actions_plus_action_for_supporters);
@@ -197,15 +195,15 @@ public class Aibr extends Heuristic {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     effect.additive_relaxation = true;
-                    if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
-                        supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(),  gr.getPreconditions(), gr));
+                    if (effect.getOperator().equals("assign") && effect.getRight().rhsFluents().isEmpty()) {
+                        supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr));
                     } else {
                         supporters.add(generate_plus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr));
-                        supporters.add(generate_minus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(),  gr.getPreconditions(), gr));
+                        supporters.add(generate_minus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr));
                     }
                 }
             }
-            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty())||(gr.getDelList()!=null && !gr.getDelList().sons.isEmpty())) {
+            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
                 supporters.add(generate_propositional_action(gr.toFileCompliant() + "prop", gr.getPreconditions(), gr));
             }
 
@@ -292,22 +290,23 @@ public class Aibr extends Heuristic {
         Float counter = 0f;
         Float layer_counter = 0f;
         while (counter <= horizon) {
-            if (debug>10){
-                System.out.println("L("+layer_counter+")Relaxed State: "+rs2);
+            if (debug > 10) {
+                System.out.println("L(" + layer_counter + ")Relaxed State: " + rs2);
             }
-            
+
             boolean fix_point = true;
             layer_counter++;
             for (GroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    if (debug>10)
-                        System.out.println("L("+layer_counter+")Action/Process: "+gr);
+                    if (debug > 10) {
+                        System.out.println("L(" + layer_counter + ")Action/Process: " + gr);
+                    }
                     //counter++;//=
-                    if (cost_oriented){
+                    if (cost_oriented) {
                         gr.setAction_cost(s);
-                        counter+=gr.getAction_cost();
-                    }else{
+                        counter += gr.getAction_cost();
+                    } else {
                         counter++;
                     }
                     fix_point = false;
@@ -341,7 +340,7 @@ public class Aibr extends Heuristic {
     }
 
     //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
-    private Float extract_plan(RelState rs2, int i,State s) {
+    private Float extract_plan(RelState rs2, int i, State s) {
         HashMap<Integer, LinkedHashSet<GroundAction>> to_add = new HashMap();
 
         for (int t = 0; t <= i; t++) {
@@ -350,17 +349,17 @@ public class Aibr extends Heuristic {
         }
 
         for (Conditions c : (Collection<Conditions>) G.sons) {
-            dbg_print("[" + dist.get(c.getCounter()) + "]Goal atom:" + c + "\n");
+            Utils.dbg_print(debug,"[" + dist.get(c.getCounter()) + "]Goal atom:" + c + "\n");
             this.conditions_sat_at_time_index.get(dist.get(c.getCounter())).add(c);
         }
 
         HashMap<Integer, LinkedHashSet<GroundAction>> index_to_actual_actions = new HashMap();
         int k = i;
 
-        dbg_print("Layer(goals):" + i);
+        Utils.dbg_print(debug,"Layer(goals):" + i);
         while (k > 0) {
             LinkedHashSet<Conditions> g_new = new LinkedHashSet();
-            dbg_print("\nLayer " + k + ":");
+            Utils.dbg_print(debug,"\nLayer " + k + ":");
 
             for (Conditions g : this.conditions_sat_at_time_index.get(k)) {
                 //System.out.println("Open goals:"+g);
@@ -373,7 +372,7 @@ public class Aibr extends Heuristic {
                             for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
                                 //System.out.println("Precondition level:"+dist.get(c));
 //                                dbg_print("instances of"+c.getClass());
-                                dbg_print("Candidate implications:[" + this.dist.get(c.getCounter()) + "]" + c);
+                                Utils.dbg_print(debug,"Candidate implications:[" + this.dist.get(c.getCounter()) + "]" + c);
                                 this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                             }
 
@@ -398,7 +397,7 @@ public class Aibr extends Heuristic {
                                     this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                                 }
                             }
-                            to_add.get(k-1).add(this.supp_to_action.get(gr));
+                            to_add.get(k - 1).add(this.supp_to_action.get(gr));
                             if (temp.satisfy(g)) {
                                 t = -1;
                                 break;
@@ -407,20 +406,20 @@ public class Aibr extends Heuristic {
                         t--;
 
                     }
-                    dbg_print(" " + g.toString() + " ,Supporter (already in action) set:" + to_add.get(t));
+                    Utils.dbg_print(debug," " + g.toString() + " ,Supporter (already in action) set:" + to_add.get(t));
                 } else {
                     //System.out.println("Supporter to action:"+ this.supp_to_action.get(candidate));
                     to_add.get(k - 1).add(this.supp_to_action.get(candidate));
                     //GroundAction actual_gr = this.supp_to_action.get(candidate);
                     //relaxed_plan.addAll(count(rs2,actual_gr,g));
-                    dbg_print(" " + g.toString() + " ,Supporter:" + candidate + "\n        ");
+                    Utils.dbg_print(debug," " + g.toString() + " ,Supporter:" + candidate + "\n        ");
 
                 }
             }
             //index_to_actual_actions.put(i,to_add);
             k--;
         }
-        dbg_print("\nAction under analysis:" + to_add);
+        Utils.dbg_print(debug,"\nAction under analysis:" + to_add);
         Float counter = 0f;
         while (k < i) {
 
@@ -434,24 +433,25 @@ public class Aibr extends Heuristic {
                 }
                 if (go_ahead) {
                     k++;
-                }else{
+                } else {
                     rs2 = gr.apply_with_generalized_interval_based_relaxation(rs2);
-                    if (cost_oriented){
+                    if (cost_oriented) {
                         gr.setAction_cost(s);
-                        counter+=gr.getAction_cost();
-                    }else{
+                        counter += gr.getAction_cost();
+                    } else {
                         counter++;
                     }
                 }
                 if (counter > horizon) {
                     return counter;
                 }
-                if (k==i)
+                if (k == i) {
                     break;
+                }
                 //System.out.println("Applying:"+gr);
                 //}             
             }
-            
+
         }
 
         return counter;
@@ -463,22 +463,8 @@ public class Aibr extends Heuristic {
         Iterator<GroundAction> it = temp_supporters.iterator();
         while (it.hasNext()) {
             GroundAction gr = it.next();
-            boolean add_action = true;
-            if (gr.getPreconditions().sons != null) {
-                for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
-                    if (c.can_be_true(rs)) {
-                        if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
-                            this.dist.set(c.getCounter(), i);
-                            this.conditions_sat_at_time_index.get(i).add(c);
-                        }
-                    } else {
-                        add_action = false;
-                    }
-                }
-            }
-            if (add_action) {
+            if (rs.satisfy(gr.getPreconditions())) {
                 ret.add(gr);
-//                this.reachable.add();
                 it.remove();
             }
         }
@@ -488,7 +474,7 @@ public class Aibr extends Heuristic {
 
     private boolean check_goal_condition(Conditions G, int i, RelState rs) {
         boolean goal_satisfied = true;
-        
+
         return rs.satisfy(G);
 //        for (Conditions c : (Collection<Conditions>) G.sons) {
 //            if (c.can_be_true(rs)) {
@@ -512,27 +498,21 @@ public class Aibr extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name,Conditions cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Conditions cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
-        for (Object o: cond_effects.sons){
-            if (o instanceof ConditionalEffect){
-                ConditionalEffect cond = (ConditionalEffect)o;
-                GroundAction a = new GroundAction(name+counter);
+        for (Object o : cond_effects.sons) {
+            if (o instanceof ConditionalEffect) {
+                ConditionalEffect cond = (ConditionalEffect) o;
+                GroundAction a = new GroundAction(name + counter);
                 a.getPreconditions().sons.add(cond.activation_condition);
-                PddlDomain.create_effects_by_cases(cond.effect,a);
+                PddlDomain.create_effects_by_cases(cond.effect, a);
                 ret.add(a);
                 counter++;
             }
         }
         return ret;
-              
+
     }
-
-
-
-
-
-
 
 }

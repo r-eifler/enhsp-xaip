@@ -363,10 +363,10 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         Set ret = new HashSet();
-        ret.addAll(this.lhs.fluentsInvolved());
-        ret.addAll(this.rhs.fluentsInvolved());
+        ret.addAll(this.lhs.rhsFluents());
+        ret.addAll(this.rhs.rhsFluents());
         return ret;
     }
 

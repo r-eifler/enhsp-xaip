@@ -129,7 +129,7 @@ public class asymptotic_ibr extends Heuristic {
         for (GroundAction gr : actions) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (effect.getOperator().equals("assign") && effect.getRight().fluentsInvolved().isEmpty()) {
+                    if (effect.getOperator().equals("assign") && effect.getRight().rhsFluents().isEmpty()) {
                         supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions()));
                     } else {
                         supporters.add(generate_plus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions()));

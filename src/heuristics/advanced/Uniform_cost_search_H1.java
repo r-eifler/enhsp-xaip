@@ -33,6 +33,7 @@ import conditions.NotCond;
 import conditions.Predicate;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
+import extraUtils.Utils;
 import heuristics.Heuristic;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
@@ -52,7 +53,6 @@ import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
-import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 
 /**
@@ -99,9 +99,9 @@ public class Uniform_cost_search_H1 extends Heuristic {
             Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
         }
         reacheability_setting = true;
-        this.dbg_print("Reachability Analysis Started");
+        Utils.dbg_print(debug,"Reachability Analysis Started");
         Float ret = compute_estimate(s);
-        this.dbg_print("Reachability Analysis Terminated");
+        Utils.dbg_print(debug,"Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
@@ -155,7 +155,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 }
             }
 
-            this.dbg_print("Round"+iteration++);
+            Utils.dbg_print(debug,"Round"+iteration++);
             //trigger actions
 //            Iterator<GroundAction> it = this.precondition_mapping.get(cn.getCounter()).iterator();
             first = false;
@@ -225,7 +225,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                             update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
 
                         } else {
-                            this.dbg_print("interval based relaxation starting\n");
+                            Utils.dbg_print(debug,"interval based relaxation starting\n");
                             try {
                                 Float current_cost = 1f;
                                 if (this.additive_h) {
@@ -239,7 +239,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
 //                            catch (IOException ex) {
 //                                Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
 //                            }
-                            this.dbg_print("interval based relaxation finished\n");
+                            Utils.dbg_print(debug,"interval based relaxation finished\n");
 
 
                         }
@@ -347,7 +347,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
             possible_achievers.put(gr.counter, reacheable_comparisons);
         }
         
-        this.dbg_print("Identify complex achievers");
+        Utils.dbg_print(debug,"Identify complex achievers");
 
         for (Comparison comp : this.complex_condition_set) {
             HashSet<NumEffect> num_effects = new LinkedHashSet();
@@ -375,7 +375,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
             }
 
         }
-        this.dbg_print("Complex achievers identified");
+        Utils.dbg_print(debug,"Complex achievers identified");
 
     }
 

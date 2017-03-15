@@ -114,7 +114,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

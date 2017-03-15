@@ -423,6 +423,7 @@ public class SearchStrategies {
 //                System.out.println("Action:"+current_node.action);
                 if (current_node.s.satisfy(problem.getGoals())) {
                     overall_search_time = System.currentTimeMillis() - start_global;
+//                    Utils.dbg_print(1,"Final State:"+current_node.s+"\n");
                     return extract_plan(current_node);
                 }
                 if (processes) {
@@ -860,7 +861,8 @@ public class SearchStrategies {
                 for (GroundAction act : this.reachable_processes) {
                     if (act instanceof GroundProcess) {
                         GroundProcess gp = (GroundProcess) act;
-                        if (gp.isActive(current_node.s)) {
+                        if (gp.isActive(temp)) {
+                            //System.out.println(gp.toEcoString());
                             AndCond precondition = (AndCond) waiting.getPreconditions();
                             precondition.addConditions(gp.getPreconditions());
                             for (NumEffect eff : gp.getNumericEffectsAsCollection()) {

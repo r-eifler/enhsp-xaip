@@ -32,6 +32,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.NumFluent;
+import extraUtils.Utils;
 import heuristics.Heuristic;
 import ilog.concert.IloException;
 import static java.lang.Float.MAX_VALUE;
@@ -49,13 +50,6 @@ import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 
 /**
@@ -107,9 +101,9 @@ public class Uniform_cost_search_HM extends Heuristic {
             Logger.getLogger(Uniform_cost_search_HM.class.getName()).log(Level.SEVERE, null, ex);
         }
         reacheability_setting = true;
-        this.dbg_print("Reachability Analysis Started");
+        Utils.dbg_print(debug,"Reachability Analysis Started");
         Float ret = compute_estimate(s);
-        this.dbg_print("Reachability Analysis Terminated");
+        Utils.dbg_print(debug,"Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.hard_conditions);

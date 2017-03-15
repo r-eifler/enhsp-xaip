@@ -1379,7 +1379,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 for (Object o : c.sons) {
                     NumEffect eff = (NumEffect) o;
                     if (eff.getFluentAffected().equals(nf)) {
-                        return eff.getRight().fluentsInvolved();
+                        return eff.getRight().rhsFluents();
                     }
 
                 }
@@ -2251,17 +2251,21 @@ public class GroundAction extends GenericActionType implements Comparable {
                         }
                         if (ne.isPseudo_num_effect())
                             return true;
-                        if (ne.fluentsInvolved().isEmpty()) {
+                        if (ne.rhsFluents().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
                             
                             if (!rhs.linear) {
                                 return false;
                             }
                             if (ne.getOperator().equals("increase")) {
-                                try {
-                                    positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
-                                } catch (Exception ex) {
-                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                if (ne.isPseudo_num_effect()){
+                                    
+                                }else{
+                                    try {
+                                        positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {

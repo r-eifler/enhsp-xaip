@@ -729,12 +729,12 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         Set ret = new HashSet();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
-                ret.addAll(a.bin.fluentsInvolved());
+                ret.addAll(a.bin.rhsFluents());
             } else if (a.f != null) {
                 ret.add(a.f);
             }

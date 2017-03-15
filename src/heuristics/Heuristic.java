@@ -38,6 +38,7 @@ import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
 import extraUtils.Pair;
+import extraUtils.Utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
@@ -192,9 +193,9 @@ public abstract class Heuristic {
             a.counter = counter_actions++;
             if (a.getPreconditions() != null) {
                 for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
-                    this.dbg_print("Condition added to the set:"+c_1+"\n");
+                    Utils.dbg_print(debug,"Condition added to the set:"+c_1+"\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
-                    this.dbg_print("Identifier:"+c_1.getCounter()+"\n");
+                    Utils.dbg_print(debug,"Identifier:"+c_1.getCounter()+"\n");
                 }
             }
         }
@@ -208,9 +209,9 @@ public abstract class Heuristic {
 
 //        LinkedHashSet temp = new LinkedHashSet();
         for (Conditions c_1 : G.getTerminalConditions()) {
-            this.dbg_print("Condition added to the set:"+c_1+"\n");
+            Utils.dbg_print(debug,"Condition added to the set:"+c_1+"\n");
             counter_conditions = update_index_conditions(c_1,  counter_conditions);
-            this.dbg_print("Identifier:"+c_1.getCounter()+"\n");
+            Utils.dbg_print(debug,"Identifier:"+c_1.getCounter()+"\n");
 
 //            temp.add(c_1);
         }
@@ -484,7 +485,7 @@ public abstract class Heuristic {
         if (proven_reachable == null) {
             proven_reachable = false;
         }
-        this.dbg_print("Starting the reacheability analysis. Is it Reachable? :" + proven_reachable);
+        Utils.dbg_print(debug,"Starting the reacheability analysis. Is it Reachable? :" + proven_reachable);
         //the bound here is only to capture really unlikely instances. Should be domain independent though
         while (iteration < 100 || proven_reachable) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
@@ -620,7 +621,7 @@ public abstract class Heuristic {
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
-                                if (!ne.fluentsInvolved().isEmpty() && !ne.isPseudo_num_effect()) {
+                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect())|| ne.getOperator().equals("assign")) {
                                     is_complex.set(comp.getCounter(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
@@ -686,11 +687,7 @@ public abstract class Heuristic {
         return additional_cost;
     }
 
-    protected void dbg_print(String string) {
-        if (debug > 0) {
-            System.out.print(string);
-        }
-    }
+
 
     protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h) {
 

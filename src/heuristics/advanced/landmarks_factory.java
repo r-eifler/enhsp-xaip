@@ -384,8 +384,8 @@ public class landmarks_factory extends Heuristic {
     }
 
     private boolean suitable_to_combine(ExtendedNormExpression e1, ExtendedNormExpression e2) {
-        Set e1_fluent = e1.fluentsInvolved();
-        Set e2_fluent = e2.fluentsInvolved();
+        Set e1_fluent = e1.rhsFluents();
+        Set e2_fluent = e2.rhsFluents();
 
         for (Object f1 : e1_fluent) {
             for (Object f2: e2_fluent) {

@@ -9,6 +9,7 @@ import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
 import expressions.PDDLNumber;
+import extraUtils.Utils;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
@@ -70,9 +71,9 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
             Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
         }
         reacheability_setting = true;
-        this.dbg_print("Reachability Analysis Started");
+        Utils.dbg_print(debug,"Reachability Analysis Started");
         Float ret = compute_estimate(s);
-        this.dbg_print("Reachability Analysis Terminated");
+        Utils.dbg_print(debug,"Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
@@ -114,8 +115,8 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 dist_float.set(c.getCounter(), 0f);
-                this.dbg_print("Condition that is already satisfied:"+c+"\n");
-                this.dbg_print("Counter is:"+c.getCounter()+"\n");
+                Utils.dbg_print(debug,"Condition that is already satisfied:"+c+"\n");
+                Utils.dbg_print(debug,"Counter is:"+c.getCounter()+"\n");
 
             }else{
                 if (c instanceof Predicate){
@@ -171,13 +172,13 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                 }
             }else{
                 if (distance != 0f) {
-                    this.dbg_print("Landmark found!"+c+"\n");
+                    Utils.dbg_print(debug,"Landmark found!"+c+"\n");
 
                     goal_landmark.addAll(lm.get(c.getCounter()));
                     not_trivial_landmarks+=lm.get(c.getCounter()).size();
-                    //this.dbg_print("Counter is:"+c.getCounter()+"\n");
+                    //Utils.dbg_print(debug,"Counter is:"+c.getCounter()+"\n");
                     goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
-                    this.dbg_print(print_ordering(lm,c));
+                    Utils.dbg_print(debug,print_ordering(lm,c));
                 }
             }
         }

@@ -320,7 +320,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         Set ret = new HashSet();
         ret.add(this);
         return ret;

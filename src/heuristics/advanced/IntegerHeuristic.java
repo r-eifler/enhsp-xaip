@@ -1213,7 +1213,7 @@ public abstract class IntegerHeuristic {
                         AndCond effects = (AndCond) gr.getNumericEffects();
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
-                                if (!ne.fluentsInvolved().isEmpty()) {
+                                if (!ne.rhsFluents().isEmpty()) {
                                     is_complex.put(comp, true);
                                     complex_conditions++;
                                     //System.out.println("Complex condition:"+comp);

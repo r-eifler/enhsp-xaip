@@ -310,8 +310,8 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Set fluentsInvolved() {
-        return this.right.fluentsInvolved();
+    public Set rhsFluents() {
+        return this.right.rhsFluents();
     }
 
     @Override
@@ -407,7 +407,7 @@ public class NumEffect extends Expression implements PostCondition {
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new LinkedHashSet();
         ret.add(this.getFluentAffected());
-        ret.addAll(this.getRight().fluentsInvolved());
+        ret.addAll(this.getRight().rhsFluents());
         return ret;
     }
 
@@ -541,7 +541,7 @@ public class NumEffect extends Expression implements PostCondition {
 
         } else if (getOperator().equals("assign")) {
             if (additive_relaxation) {
-                if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                if (this.getRight().rhsFluents().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
                     if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
                         after.setInf(new PDDLNumber(eval.getInf().getNumber()));
                         after.setSup(new PDDLNumber(eval.getSup().getNumber()));

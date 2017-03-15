@@ -43,6 +43,7 @@ import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import extraUtils.Utils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -392,10 +393,10 @@ public class EPddlProblem extends PddlProblem {
         else if (a instanceof NumEffect){
             NumEffect n_eff = (NumEffect)a;
             //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            if (n_eff.getRight().fluentsInvolved().isEmpty()){
+            if (n_eff.getRight().rhsFluents().isEmpty()){
                 subst.add(new HashMap());
             }else{
-                for (NumFluent nf :n_eff.getRight().fluentsInvolved()){
+                for (NumFluent nf :n_eff.getRight().rhsFluents()){
                     if (subst.isEmpty())
                         subst = this.find_substs(nf, s);
                     else{
@@ -539,6 +540,7 @@ public class EPddlProblem extends PddlProblem {
                     if (neff.getOperator().equals("assign") ){     
                         ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
                         if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
+                            Utils.dbg_print(3,neff.toString());
                             neff.setOperator("increase");
                             neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
                             neff.setPseudo_num_effect(true);
@@ -656,7 +658,7 @@ public class EPddlProblem extends PddlProblem {
     public void setDeltaTimeVariable(String delta_t) {
             this.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t))); //this is the discretisation factor
 //          NumFluenew NumFluentValue("time_elapsed", 0);
-            this.getInit().addNumericFluent(new NumFluentValue("time_elapsed", 0));//this is the clock variable
+            this.getInit().addNumericFluent(new NumFluentValue("time_elapsed", 0f));//this is the clock variable
     }
 
 

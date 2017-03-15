@@ -146,7 +146,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         return new HashSet(); //To change body of generated methods, choose Tools | Templates.
     }
 
