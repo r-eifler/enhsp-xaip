@@ -47,7 +47,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class Predicate extends Conditions implements PostCondition {
+public class Predicate extends Terminal implements PostCondition {
 
     private String predicateName;
     //private ArrayList variables;
@@ -677,4 +677,6 @@ public class Predicate extends Conditions implements PostCondition {
     public Conditions push_not_to_terminals() {
         return this;
     }
+    
+    
 }

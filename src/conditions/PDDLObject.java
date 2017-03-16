@@ -44,7 +44,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class PDDLObject extends Conditions implements ActionParameter {
+public class PDDLObject extends Terminal implements ActionParameter {
 
     private String name;
     private Type type;

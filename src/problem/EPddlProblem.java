@@ -540,7 +540,7 @@ public class EPddlProblem extends PddlProblem {
                     if (neff.getOperator().equals("assign") ){     
                         ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
                         if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
-                            Utils.dbg_print(3,neff.toString());
+                            //Utils.dbg_print(3,neff.toString());
                             neff.setOperator("increase");
                             neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
                             neff.setPseudo_num_effect(true);

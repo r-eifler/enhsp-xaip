@@ -54,7 +54,7 @@ import problem.RelState;
  *
  * @author enrico
  */
-public class Comparison extends Conditions {
+public class Comparison extends Terminal {
 
     private Integer hash_code;
     private String string_representation;
@@ -1144,4 +1144,6 @@ public class Comparison extends Conditions {
             return c1;  
         }
     }
+    
+    
 }

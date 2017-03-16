@@ -49,7 +49,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class NotCond extends Conditions implements PostCondition {
+public class NotCond extends Terminal implements PostCondition {
     
     /**
      * The condition that is negated in this condition.  
@@ -452,4 +452,6 @@ public class NotCond extends Conditions implements PostCondition {
             return true;
         return false;
     }
+    
+    
 }

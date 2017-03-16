@@ -608,4 +608,15 @@ public class OrCond extends Conditions {
         }
         return res;
     }
+    
+    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+        if (this.sons==null)
+            return true;
+        boolean ret = false;
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (c.isSatisfied(rs, dist, i))
+                ret=true;
+        }
+        return ret;
+    }
 }

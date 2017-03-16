@@ -260,6 +260,12 @@ public abstract class Conditions extends Object {
     public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
 
     public abstract Conditions push_not_to_terminals();
+
+    public boolean isSatisfied(RelState rs) {
+        return rs.satisfy(this);
+    }
+
+    public abstract boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i);
         
 
     

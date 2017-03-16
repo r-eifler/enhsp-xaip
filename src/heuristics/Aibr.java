@@ -41,11 +41,8 @@ public class Aibr extends Heuristic {
     public boolean extract_plan = false;
     private boolean reversing = false;
     private HashMap<GroundAction, GroundAction> supp_to_action;
-    private HashMap<Conditions, Integer> cond_level;
-    private HashMap<GroundAction, Integer> supporter_level;
     private HashMap<Integer, LinkedHashSet<GroundAction>> supporters_exec_at_time_index;
     private HashMap<Integer, LinkedHashSet<Conditions>> conditions_sat_at_time_index;
-    private HashMap<Integer, GroundAction> supp_to_actions;
     protected ArrayList<Integer> dist;
     public boolean layers_counter;
     private boolean cost_oriented = true;
@@ -100,8 +97,8 @@ public class Aibr extends Heuristic {
         dist = new ArrayList<>(nCopies(index_of_last_static_atom + 1, Integer.MAX_VALUE));
         this.supporters_exec_at_time_index = new HashMap();
 
-        this.cond_level = new HashMap();
-        this.supporter_level = new HashMap();
+//        this.cond_level = new HashMap();
+//        this.supporter_level = new HashMap();
         this.conditions_sat_at_time_index = new HashMap();
 //        }
         //System.out.println("Supporter to action:"+this.supp_to_action);
@@ -110,11 +107,12 @@ public class Aibr extends Heuristic {
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
             this.conditions_sat_at_time_index.put(i, new LinkedHashSet());
+            Utils.dbg_print(debug,"Relaxed State:" + rs + "\n");
+
             if (check_goal_condition(G, i, rs) && !reachability) {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs, i);
-            Utils.dbg_print(debug,"Relaxed State:" + rs + "\n");
             Utils.dbg_print(debug,"Applicable Supporter:" + S + "\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
@@ -339,7 +337,9 @@ public class Aibr extends Heuristic {
         return counter;
     }
 
-    //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
+    //The following is too weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
+    
+    //this is obsolete, meaning that it does not work!
     private Float extract_plan(RelState rs2, int i, State s) {
         HashMap<Integer, LinkedHashSet<GroundAction>> to_add = new HashMap();
 
@@ -463,7 +463,7 @@ public class Aibr extends Heuristic {
         Iterator<GroundAction> it = temp_supporters.iterator();
         while (it.hasNext()) {
             GroundAction gr = it.next();
-            if (rs.satisfy(gr.getPreconditions())) {
+            if (gr.getPreconditions().isSatisfied(rs,dist,i)) {
                 ret.add(gr);
                 it.remove();
             }
@@ -473,20 +473,7 @@ public class Aibr extends Heuristic {
     }
 
     private boolean check_goal_condition(Conditions G, int i, RelState rs) {
-        boolean goal_satisfied = true;
-
-        return rs.satisfy(G);
-//        for (Conditions c : (Collection<Conditions>) G.sons) {
-//            if (c.can_be_true(rs)) {
-//                if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
-//                    this.dist.set(c.getCounter(), i);
-//                    this.conditions_sat_at_time_index.get(i).add(c);
-//                }
-//            } else {
-//                goal_satisfied = false;
-//            }
-//        }
-//        return goal_satisfied;
+        return G.isSatisfied(rs, dist, i);
     }
 
     private boolean achiever(GroundAction gr, RelState rs2, Conditions g) {

@@ -44,7 +44,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class PDDLObjectsEquality extends Conditions {
+public class PDDLObjectsEquality extends Terminal {
 
     private PDDLObject left;
     private PDDLObject right;

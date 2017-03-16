@@ -213,4 +213,9 @@ public class OneOf extends Conditions{
     public Conditions push_not_to_terminals() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

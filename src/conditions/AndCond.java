@@ -931,4 +931,16 @@ public class AndCond extends Conditions implements PostCondition {
         }
         return res;
     }
+
+    @Override
+    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+        if (this.sons==null)
+            return true;
+        boolean ret = true;
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (!c.isSatisfied(rs, dist, i))
+                ret=false;
+        }
+        return ret;
+    }
 }

@@ -45,7 +45,7 @@ import problem.State;
  *
  * @author Enrico Scala
  */
-public class NumFluentValue extends Conditions {
+public class NumFluentValue extends Terminal {
 
     private String operator; //it must be equal to =
     private NumFluent nFluent;

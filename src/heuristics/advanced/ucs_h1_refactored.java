@@ -44,7 +44,6 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
     public boolean relaxed_plan_extraction = false;
     private GroundAction goal;
     private ArrayList<LinkedHashSet<GroundAction>> all_achievers;
-    public boolean only_helpful_actions = false;
     private Set<GroundAction> reachable_here;
     private Aibr aibr_handler;
 
@@ -94,13 +93,13 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             return 0f;
         }
         established_achiever = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        action_achievers = new ArrayList<>(nCopies(A.size() + 1, null));
+        action_achievers = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
         all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
         Float estimate = Float.MAX_VALUE;
         FibonacciHeap<GroundAction> a_plus = new FibonacciHeap();//actions executable. Progressively updated
-        ArrayList<FibonacciHeapNode> action_to_fib_node = new ArrayList<>(nCopies(A.size() + 1, null));//mapping between action and boolean. True if action has not been activated yet
+        ArrayList<FibonacciHeapNode> action_to_fib_node = new ArrayList<>(nCopies(total_number_of_actions + 1, null));//mapping between action and boolean. True if action has not been activated yet
         cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
-        action_dist = new ArrayList<>(nCopies(A.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
+        action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
 
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
             gr.setAction_cost(s_0);
@@ -211,6 +210,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                 Aibr aibr_handle = new Aibr(comp, this.reachable_here);
                 
                 //aibr_handle
+                aibr_handle.set(false, true);
                 aibr_handle.light_setup(s_0,this);
                 
                 if (comp.getCounter()>all_conditions.size()){
@@ -267,7 +267,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
     }
 
     private Float check_conditions(GroundAction gr2) {
-        if (relaxed_plan_extraction) {
+        if (relaxed_plan_extraction || this.helpful_actions_computation) {
             achiever_set s = gr2.getPreconditions().estimate_cost(cond_dist, additive_h, established_achiever);
             action_achievers.set(gr2.counter, s);
             return s.cost;
@@ -349,8 +349,8 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
     }
 
     private void extract_helpful_actions_or_relaxed_plan() {
-        if (this.relaxed_plan_extraction) {
-            if (only_helpful_actions) {
+        if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
+            if (helpful_actions_computation) {
                 this.compute_helpful_actions();
             } else {
                 compute_relaxed_plan();

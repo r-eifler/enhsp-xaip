@@ -116,6 +116,8 @@ public abstract class Heuristic {
     public boolean integer_actions = false;
     private boolean cost_oriented_ibr = false;
     private HashMap<Conditions, Integer> integer_ref;
+    public boolean helpful_actions_computation = false;
+    protected int total_number_of_actions;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
@@ -184,13 +186,13 @@ public abstract class Heuristic {
         int counter_conditions = 0;
 
         integer_ref = new HashMap();
-        int counter_actions = 0;
+        total_number_of_actions = 0;
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         if (this.supporters != null) {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
-            a.counter = counter_actions++;
+            a.counter = total_number_of_actions++;
             if (a.getPreconditions() != null) {
                 for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug,"Condition added to the set:"+c_1+"\n");
