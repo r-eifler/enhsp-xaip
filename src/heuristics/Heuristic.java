@@ -95,7 +95,7 @@ public abstract class Heuristic {
     protected boolean sat_test_within_cost = true;
     protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
 
-    public LinkedList<GroundAction> helpful_actions;
+    public Set<GroundAction> helpful_actions;
     public HashMap<Integer, GroundAction> final_achiever;
     public boolean preferred_operators;
     protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;

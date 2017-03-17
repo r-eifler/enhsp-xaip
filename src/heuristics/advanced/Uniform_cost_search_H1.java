@@ -91,7 +91,6 @@ public class Uniform_cost_search_H1 extends Heuristic {
     @Override
     public Float setup(State s) {
 
-        
         build_integer_representation();
         identify_complex_conditions(A);
         try {
@@ -100,9 +99,9 @@ public class Uniform_cost_search_H1 extends Heuristic {
             Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
         }
         reacheability_setting = true;
-        Utils.dbg_print(debug,"Reachability Analysis Started");
+        Utils.dbg_print(debug, "Reachability Analysis Started");
         Float ret = compute_estimate(s);
-        Utils.dbg_print(debug,"Reachability Analysis Terminated");
+        Utils.dbg_print(debug, "Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
@@ -143,7 +142,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         HashMap<GroundAction, Float> action_to_cost = new HashMap();
         ArrayList<GroundAction> actions_for_complex_condition = new ArrayList();
         boolean first = true;
-        Integer iteration=0;
+        Integer iteration = 0;
         while (!q.isEmpty() || first) {
             if (!first) {
                 Conditions cn = q.removeMin().getData();
@@ -156,7 +155,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 }
             }
 
-            Utils.dbg_print(debug,"Round"+iteration++);
+            Utils.dbg_print(debug, "Round" + iteration++);
             //trigger actions
 //            Iterator<GroundAction> it = this.precondition_mapping.get(cn.getCounter()).iterator();
             first = false;
@@ -167,7 +166,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 //the condition just extracted and the action depending on it
                 GroundAction gr = it.next();
                 Float action_precondition_cost = this.compute_precondition_cost(s, dist, gr, closed);
-                
+
                 if (action_precondition_cost != MAX_VALUE) {
                     if (reacheability_setting) {
                         this.reachable.add(gr);
@@ -195,11 +194,12 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         }
                         if (!this.is_complex.get(comp.getCounter())) {
                             Float number_of_execution = null;
-                            boolean super_simple_numeric_condition = (this.possible_achievers_inverted.get(comp.getCounter()).size()<=1);
-                            if ((this.additive_h && integer_actions) || super_simple_numeric_condition)
+                            boolean super_simple_numeric_condition = (this.possible_achievers_inverted.get(comp.getCounter()).size() <= 1);
+                            if ((this.additive_h && integer_actions) || super_simple_numeric_condition) {
                                 number_of_execution = gr.getNumberOfExecutionInt(s, comp);
-                            else
+                            } else {
                                 number_of_execution = gr.getNumberOfExecution(s, comp);
+                            }
                             if (number_of_execution == Float.MAX_VALUE) {
                                 continue;
                             }
@@ -226,22 +226,21 @@ public class Uniform_cost_search_H1 extends Heuristic {
                             update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
 
                         } else {
-                            Utils.dbg_print(debug,"interval based relaxation starting\n");
+                            Utils.dbg_print(debug, "interval based relaxation starting\n");
                             try {
                                 Float current_cost = 1f;
                                 if (this.additive_h) {
                                     current_cost = this.interval_based_relaxation_actions_with_cost(s, comp, actions_for_complex_condition, action_to_cost);
                                 }
                                 update_cost_if_necessary(open_list, dist, comp, q, cond_to_entry, current_cost);
-                                
+
                             } catch (CloneNotSupportedException ex) {
                                 getLogger(Uniform_cost_search_H1.class.getName()).log(SEVERE, null, ex);
-                            } 
+                            }
 //                            catch (IOException ex) {
 //                                Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
 //                            }
-                            Utils.dbg_print(debug,"interval based relaxation finished\n");
-
+                            Utils.dbg_print(debug, "interval based relaxation finished\n");
 
                         }
                     }
@@ -268,7 +267,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Conditions> literals = new LinkedHashSet();
             for (Conditions c : this.all_conditions) {
-                
+
                 if (precondition_mapping.get(c.getCounter()) == null) {
                     precondition_mapping.put(c.getCounter(), new LinkedHashSet());
                 }
@@ -282,7 +281,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
                         if (this.is_complex.get(comp.getCounter())) {
                             reacheable_comparisons.add(comp);
-                        }else if (gr.is_possible_achiever_of(comp)) {
+                        } else if (gr.is_possible_achiever_of(comp)) {
                             reacheable_comparisons.add(comp);
                             action_list.add(gr);
                         }
@@ -308,10 +307,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
                         this.achievers_inverted.put(p.getCounter(), temp);
                     }
 
-                }else if (c instanceof NotCond) {
-                    NotCond c1 =(NotCond)c;
-                    if (!c1.isTerminal()){
-                        System.out.println("Not formula has to be used as a terminal, and it is not:"+c1);
+                } else if (c instanceof NotCond) {
+                    NotCond c1 = (NotCond) c;
+                    if (!c1.isTerminal()) {
+                        System.out.println("Not formula has to be used as a terminal, and it is not:" + c1);
                         System.exit(-1);
                     }
                     Predicate p = (Predicate) c1.getSon();
@@ -347,8 +346,8 @@ public class Uniform_cost_search_H1 extends Heuristic {
             interact_with.put(gr.counter, comparisons);
             possible_achievers.put(gr.counter, reacheable_comparisons);
         }
-        
-        Utils.dbg_print(debug,"Identify complex achievers");
+
+        Utils.dbg_print(debug, "Identify complex achievers");
 
         for (Comparison comp : this.complex_condition_set) {
             HashSet<NumEffect> num_effects = new LinkedHashSet();
@@ -363,20 +362,31 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 }
             }
             for (NumEffect a : num_effects) {
-                if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected())))
+                if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected()))) {
                     visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
+                }
             }
+            LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
             for (GroundAction gr : A) {
                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+
                     if (sorted_nodes.contains(neff)) {
                         possible_achievers.get(gr.counter).add(comp);
+                        action_list.add(gr);
                     }
 
                 }
             }
+            if (this.possible_achievers_inverted.get(comp.getCounter()) == null) {
+                this.possible_achievers_inverted.put(comp.getCounter(), action_list);
+            } else {
+                LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getCounter());
+                temp.addAll(action_list);
+                this.possible_achievers_inverted.put(comp.getCounter(), temp);
+            }
 
         }
-        Utils.dbg_print(debug,"Complex achievers identified");
+        Utils.dbg_print(debug, "Complex achievers identified");
 
     }
 
@@ -398,7 +408,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
             reacheable_conditions++;
         }
     }
-    
+
     protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 
@@ -411,7 +421,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
         compute_redundant_constraint((Set<Conditions>) G.sons);
     }
-    
+
     protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
         LinkedHashSet temp = new LinkedHashSet();
         ArrayList<Conditions> set_as_array = new ArrayList(set);
@@ -431,7 +441,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     if (a1.getComparator().equals(">") || a2.getComparator().equals(">")) {
                         new_comparator = ">";
                     }
-                    
+
                     Comparison newC = new Comparison(new_comparator);
                     newC.setLeft(expr);
                     newC.setRight(new ExtendedNormExpression(new Float(0.0)));

@@ -30,7 +30,7 @@ package search;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
@@ -59,7 +59,7 @@ public class SearchNode {
     private boolean go_for_smaller_g = false; //this goes for smaller g
     private boolean bfs = true;
     public ArrayList<GroundProcess> list_of_actions;
-    public List<GroundAction> relaxed_plan_from_heuristic;
+    public Set<GroundAction> relaxed_plan_from_heuristic;
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
