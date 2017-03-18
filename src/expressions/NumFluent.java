@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import problem.RelState;
 import problem.State;
@@ -45,7 +46,7 @@ import problem.State;
  */
 public class NumFluent extends Expression {
 
-    final private String name;
+    private String name;
     private ArrayList<ActionParameter> terms;
     private String beforeReformulation;
     private Boolean has_to_be_tracked;
@@ -77,16 +78,28 @@ public class NumFluent extends Expression {
         } else {
             return false;
         }
+        this.name = objF.getName();
+        this.terms = objF.getTerms();
+        
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 53 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.terms);
         return hash;
     }
+
+
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        //hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
+//        //hash = 53 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+//        return hash;
+//    }
 
     public NumFluent(String name) {
         super();

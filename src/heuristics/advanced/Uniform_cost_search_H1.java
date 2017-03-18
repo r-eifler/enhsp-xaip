@@ -384,6 +384,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 temp.addAll(action_list);
                 this.possible_achievers_inverted.put(comp.getCounter(), temp);
             }
+            if (debug == 1) {
+                System.out.println("Comparison:"+comp);
+                System.out.println("Achievers Set"+this.possible_achievers_inverted.get(comp.getCounter()));
+            }
 
         }
         Utils.dbg_print(debug, "Complex achievers identified");

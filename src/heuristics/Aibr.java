@@ -46,15 +46,21 @@ public class Aibr extends Heuristic {
 
     public Aibr(Conditions G, Set<GroundAction> actions) {
         super(G, actions);
-        Utils.dbg_print(debug,"Generate Supporters\n");
+        this.supp_to_action = new HashMap();
+
+        supporters = new LinkedHashSet();
+        Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
     }
 
     public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
-        Utils.dbg_print(debug,"Generate Supporters\n");
+        this.supp_to_action = new HashMap();
+
+        supporters = new LinkedHashSet();
+        Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
-        Utils.dbg_print(debug,"Supporters Generated\n");
+        Utils.dbg_print(debug, "Supporters Generated\n");
 
         //this.build_integer_representation();
     }
@@ -68,9 +74,9 @@ public class Aibr extends Heuristic {
     public Float setup(State s_0) {
         reachability = true;
 
-        Utils.dbg_print(debug,"Computing Internal Data Structure\n");
+        Utils.dbg_print(debug, "Computing Internal Data Structure\n");
         this.build_integer_representation();
-        Utils.dbg_print(debug,"Computing Reachable Actions\n");
+        Utils.dbg_print(debug, "Computing Reachable Actions\n");
         Float ret = compute_estimate(s_0);
         reachability = false;
         return ret;
@@ -94,13 +100,13 @@ public class Aibr extends Heuristic {
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-            Utils.dbg_print(debug,"Relaxed State:" + rs + "\n");
+            Utils.dbg_print(debug, "Relaxed State:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs);
-            Utils.dbg_print(debug,"Applicable Supporter:" + S + "\n");
+            Utils.dbg_print(debug, "Applicable Supporter:" + S + "\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
                     if (reachability) {
@@ -136,7 +142,7 @@ public class Aibr extends Heuristic {
 
             i++;
         }
-        Utils.dbg_print(debug,"Rechability finished");
+        Utils.dbg_print(debug, "Rechability finished");
 
         if (reachability) {
             //reacheable_state = rs.clone();
@@ -156,15 +162,12 @@ public class Aibr extends Heuristic {
 
         RelState rs2 = s.relaxState();
 
-       return fix_point_computation(s, rs2);
-
+        return fix_point_computation(s, rs2);
 
     }
 
     private void generate_supporters(Set<GroundAction> actions) {
-        this.supp_to_action = new HashMap();
 
-        supporters = new LinkedHashSet();
         Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {
             if (gr.cond_effects != null) {
@@ -322,8 +325,6 @@ public class Aibr extends Heuristic {
     }
 
     //The following is too weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
-    
-
     private LinkedHashSet<GroundAction> get_applicable_supporters(Collection<GroundAction> temp_supporters, RelState rs) {
         LinkedHashSet<GroundAction> ret = new LinkedHashSet();
         Iterator<GroundAction> it = temp_supporters.iterator();
@@ -338,7 +339,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private boolean check_goal_condition(Conditions G,  RelState rs) {
+    private boolean check_goal_condition(Conditions G, RelState rs) {
         return G.isSatisfied(rs);
     }
 

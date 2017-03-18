@@ -220,17 +220,18 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
                 }
             } else {
-                LinkedHashSet<GroundAction> s = new LinkedHashSet();
-                for (GroundAction gr2 : this.possible_achievers_inverted.get(comp.getCounter())) {
-                    if (action_dist.get(gr2.counter) != Float.MAX_VALUE) {
-                        s.add(gr2);
-                    }
-                }
-
-                Aibr aibr_handle = new Aibr(comp, s);
+                
+                //This can be cached with a map, so that supporters are kept, and only the new ones are added
+                Aibr aibr_handle = new Aibr(comp, reachable_here);
+//                System.out.println(s);
+//                System.out.println(this.reachable_here);
+                
+                //Use this temporary, but it has to be fixed, probvably in the achievers set
+//                Aibr aibr_handle = new Aibr(comp, this.reachable_here);
 
                 //aibr_handle
                 aibr_handle.set(false, true);
+                
                 aibr_handle.light_setup(s_0, this);
 
                 if (comp.getCounter() > all_conditions.size()) {
