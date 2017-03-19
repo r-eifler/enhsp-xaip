@@ -58,9 +58,9 @@ public class Aibr extends Heuristic {
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
-        Utils.dbg_print(debug, "Generate Supporters\n");
+//        Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
-        Utils.dbg_print(debug, "Supporters Generated\n");
+//        Utils.dbg_print(debug, "Supporters Generated\n");
 
         //this.build_integer_representation();
     }
@@ -74,9 +74,9 @@ public class Aibr extends Heuristic {
     public Float setup(State s_0) {
         reachability = true;
 
-        Utils.dbg_print(debug, "Computing Internal Data Structure\n");
+//        Utils.dbg_print(debug, "Computing Internal Data Structure\n");
         this.build_integer_representation();
-        Utils.dbg_print(debug, "Computing Reachable Actions\n");
+//        Utils.dbg_print(debug, "Computing Reachable Actions\n");
         Float ret = compute_estimate(s_0);
         reachability = false;
         return ret;
@@ -100,13 +100,13 @@ public class Aibr extends Heuristic {
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-            Utils.dbg_print(debug, "Relaxed State:" + rs + "\n");
+//            Utils.dbg_print(debug, "Relaxed State:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs);
-            Utils.dbg_print(debug, "Applicable Supporter:" + S + "\n");
+//            Utils.dbg_print(debug, "Applicable Supporter:" + S + "\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
                     if (reachability) {
@@ -142,7 +142,7 @@ public class Aibr extends Heuristic {
 
             i++;
         }
-        Utils.dbg_print(debug, "Rechability finished");
+//        Utils.dbg_print(debug, "Rechability finished");
 
         if (reachability) {
             //reacheable_state = rs.clone();

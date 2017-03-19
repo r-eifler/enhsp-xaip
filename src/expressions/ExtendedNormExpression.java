@@ -426,10 +426,11 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret+= a.bin.eval(s).getNumber();
             } else if (a.f != null) {
-                if (s.functionValue(a.f) == null) {
+                PDDLNumber n = s.functionValue(a.f);
+                if (n == null) {
                     return null;
                 }
-                ret+=  s.functionValue(a.f).getNumber() * a.n.getNumber();
+                ret+=  n.getNumber() * a.n.getNumber();
             } else {
                 ret+= a.n.getNumber();
             }

@@ -120,16 +120,16 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             }
         }
 
-        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
+//        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
 
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 cond_dist.set(c.getCounter(), 0f);
-                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
-                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
+//                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
+//                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
             } else {
-                Utils.dbg_print(debug - 10, "Condition that is NOT already satisfied:" + c + "\n");
-                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
+//                Utils.dbg_print(debug - 10, "Condition that is NOT already satisfied:" + c + "\n");
+//                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
             }
 
         }
@@ -138,8 +138,8 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
             GroundAction gr = a_plus.removeMin().getData();
             reachable_here.add(gr);
-            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
-            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
+//            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
+//            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
             if (gr.dummy_goal) {
                 estimate = action_dist.get(gr.counter);
                 if (!this.reacheability_setting) {
@@ -188,7 +188,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             }
         }
         for (Conditions comp : this.possible_achievers.get(gr.counter)) {
-            Utils.dbg_print(debug - 10, "Condition under analysis:" + comp + "\n");
+//            Utils.dbg_print(debug - 10, "Condition under analysis:" + comp + "\n");
             if (!this.is_complex.get(comp.getCounter())) {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
@@ -202,7 +202,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                     } else {
                         rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * gr.getAction_cost();
                     }
-                    Utils.dbg_print(debug - 10, "Action under consideration and number of needed execution:" + gr + " " + rep_needed + "\n");
+//                    Utils.dbg_print(debug - 10, "Action under consideration and number of needed execution:" + gr + " " + rep_needed + "\n");
                     if (rep_needed != Float.MAX_VALUE) {
                         rep_needed += this.action_dist.get(gr.counter);
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
@@ -253,7 +253,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                     }
 
                 }
-                Utils.dbg_print(debug - 10, "(Complex) Action under consideration and number of needed execution:" + gr + " " + current_distance + "\n");
+//                Utils.dbg_print(debug - 10, "(Complex) Action under consideration and number of needed execution:" + gr + " " + current_distance + "\n");
 
             }
         }
@@ -325,7 +325,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             s = this.action_achievers.get(gr2.counter);
             getHelpfulActions(list, s);
         }
-        Utils.dbg_print(debug, "HelpfulActions: " + helpful_actions.toString() + "\n");
+//        Utils.dbg_print(debug, "HelpfulActions: " + helpful_actions.toString() + "\n");
     }
 
     private void compute_relaxed_plan() {
@@ -358,7 +358,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 //                rp.addFirst(level);
             }
         }
-        Utils.dbg_print(debug, "Relaxed Plan: " + helpful_actions.toString() + "\n");
+//        Utils.dbg_print(debug, "Relaxed Plan: " + helpful_actions.toString() + "\n");
     }
 
     private void update_achiever(Conditions comp, GroundAction gr) {

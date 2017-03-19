@@ -943,4 +943,9 @@ public class AndCond extends Conditions implements PostCondition {
         }
         return ret;
     }
+
+//    @Override
+//    public Conditions unify_num_fluent(State init) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 }

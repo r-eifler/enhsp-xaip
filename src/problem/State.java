@@ -892,4 +892,20 @@ public class State extends Object {
         return new LinkedHashSet(this.propositions.keySet());
     }
 
+    public NumFluent getNumericFluent(NumFluent fluentAffected) {
+        for (NumFluent f2 : this.getNumericFluents()){
+            if (f2.equals(fluentAffected))
+                return f2;
+        }
+        return fluentAffected;
+    }
+
+    public Conditions getProposition(Predicate aThis) {
+        for (Predicate p : this.getPropositions()){
+            if (p.equals(aThis))
+                return p;
+        }
+        return aThis;    
+    }
+
 }

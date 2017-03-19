@@ -363,6 +363,8 @@ public class Predicate extends Terminal implements PostCondition {
             return false;
         }
 
+        if (this == obj)
+            return true;
         final Predicate other = (Predicate) obj;
         if ((this.predicateName == null) ? (other.predicateName != null) : !this.predicateName.equals(other.predicateName)) {
             return false;
@@ -511,7 +513,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
-        return this;
+        return s.getProposition(this);    
     }
 
     @Override
