@@ -383,7 +383,7 @@ public class State extends Object {
             if (!nf.has_to_be_tracked())
                 continue;
             
-            if (!nf.getName().equals("time_elapsed"))
+            if (nf.getName().equals("time_elapsed"))
                 continue;
             
             if (other.functionValue(nf)==null && this.numericFs.get(nf)==null){
