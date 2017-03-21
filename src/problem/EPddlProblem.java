@@ -658,7 +658,7 @@ public class EPddlProblem extends PddlProblem {
     public void setDeltaTimeVariable(String delta_t) {
             this.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t))); //this is the discretisation factor
 //          NumFluenew NumFluentValue("time_elapsed", 0);
-            this.getInit().addNumericFluent(new NumFluentValue("time_elapsed", 0f));//this is the clock variable
+            this.getInit().addTimeFluent();
     }
 
 
