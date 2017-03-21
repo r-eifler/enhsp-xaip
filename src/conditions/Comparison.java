@@ -1117,7 +1117,7 @@ public class Comparison extends Terminal {
 
     Conditions invertOperator() {
         if (this.getComparator().equals("=")){
-            AndCond a = new AndCond();
+            OrCond a = new OrCond();
             Comparison c1 = (Comparison) this.clone();
             Comparison c2 = (Comparison) this.clone();
             c1.setComparator("<");

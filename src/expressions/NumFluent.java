@@ -52,6 +52,7 @@ public class NumFluent extends Expression {
     private Boolean has_to_be_tracked;
     private String terms_as_string;
     Integer hash_code;
+    public int index;
 
     @Override
     public boolean equals(Object obj) {
@@ -151,7 +152,7 @@ public class NumFluent extends Expression {
     @Override
     public NumFluent ground(Map<Variable, PDDLObject> substitution) {
         NumFluent ret = new NumFluent(getName());
-
+        ret.index = this.index;
         for (final ActionParameter param : terms) {
             ret.addTerms(param.ground(substitution));
         }
@@ -163,7 +164,7 @@ public class NumFluent extends Expression {
     @Override
     public Expression unGround(Map substitution) {
         NumFluent ret = new NumFluent(getName());
-
+        ret.index = this.index;
         for (Object o : terms) {
             if (o instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o;
@@ -257,7 +258,9 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
-
+     
+        
+        
         if (this.name.equals("#t")) {
             //return this;
             return s.functionValue(this);
@@ -390,6 +393,7 @@ public class NumFluent extends Expression {
     @Override
     public Expression susbtFluentsWithTheirInvariants(int j) {
         NumFluent ret = new NumFluent(this.name + j);
+        ret.index = this.index;
         ret.setTerms(terms);
         ret.grounded = false;
         return ret;
@@ -400,6 +404,7 @@ public class NumFluent extends Expression {
 
         if (invariantFluent.get(this) != null) {
             NumFluent ret = new NumFluent(this.name + j);
+            ret.index = this.index;
             ret.setTerms(terms);
             ret.grounded = false;
             ret.setBeforeReformulation(this.pddlPrint(true));
