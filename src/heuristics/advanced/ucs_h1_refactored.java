@@ -98,9 +98,9 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
             established_achiever = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             action_achievers = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
-            all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-            
+
         }
+        all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
 
         Float estimate = Float.MAX_VALUE;
         FibonacciHeap<GroundAction> a_plus = new FibonacciHeap();//actions executable. Progressively updated
@@ -122,7 +122,6 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
 
 //        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
-
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 cond_dist.set(c.getCounter(), 0f);
@@ -136,7 +135,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
         reachable_here = new LinkedHashSet();
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
-            
+
             GroundAction gr = a_plus.removeMin().getData();
             closed.set(gr.counter, true);
             reachable_here.add(gr);
@@ -206,14 +205,15 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                     }
 //                    Utils.dbg_print(debug - 10, "Action under consideration and number of needed execution:" + gr + " " + rep_needed + "\n");
                     if (rep_needed != Float.MAX_VALUE) {
-                        if (this.additive_h){
+                        if (this.additive_h) {
                             rep_needed += this.action_dist.get(gr.counter);
-                        }else{
+                        } else {
+                            update_achiever(comp, gr);
                             rep_needed += min_over_possible_achievers(comp);
                         }
-                        if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
-                            update_achiever(comp, gr);
-                        }
+//                        if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
+                        
+//                        }
                         if (rep_needed < current_distance) {
                             cond_dist.set(comp.getCounter(), rep_needed);
                             if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
@@ -231,9 +231,9 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                     continue;
                 }
                 Float new_distance = Float.MAX_VALUE;
-                if (!this.additive_h){
-                    new_distance = action_dist.get(gr.counter)+gr.getAction_cost();//this is a very conservative measure.
-                }else{
+                if (!this.additive_h) {
+                    new_distance = action_dist.get(gr.counter) + gr.getAction_cost();//this is a very conservative measure.
+                } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
                     Aibr aibr_handle = new Aibr(comp, reachable_here);
                     //aibr_handle
@@ -250,7 +250,9 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                 }
                 if (new_distance != Float.MAX_VALUE) {
                     //new_distance += this.action_dist.get(gr.counter);
-                    if (this.relaxed_plan_extraction || this.helpful_actions_computation) {update_achiever(comp, gr);}
+                    if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
+                        update_achiever(comp, gr);
+                    }
                     if (new_distance < current_distance) {
                         cond_dist.set(comp.getCounter(), new_distance);
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
@@ -273,7 +275,9 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         Set<GroundAction> set = condition_to_action.get(comp.getCounter());
         //this mapping contains action that need to be triggered becasue of condition comp
         for (GroundAction gr2 : set) {
-            if (closed.get(gr2.counter)) continue;
+            if (closed.get(gr2.counter)) {
+                continue;
+            }
             Float c = check_conditions(gr2);
 
             if (c < action_dist.get(gr2.counter)) {//are conditions all reached, and is this a better path?
@@ -440,12 +444,13 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
     }
 
     private Float min_over_possible_achievers(Conditions comp) {
-        Set<GroundAction> set = this.possible_achievers_inverted.get(comp.getCounter());
+        Set<GroundAction> set = this.all_achievers.get(comp.getCounter());
         Float min = Float.MAX_VALUE;
-        for (GroundAction gr : set){
+        for (GroundAction gr : set) {
             min = Math.min(action_dist.get(gr.counter), min);
-            if (min==0)
+            if (min == 0) {
                 return 0f;
+            }
         }
         return min;
     }
