@@ -347,7 +347,25 @@ public class SearchStrategies {
 
     public static long heuristic_time;
     public static long overall_search_time;
-
+    
+    /**
+     * The method implements weighted-A*-like search algorithms systematically.
+     * 
+     * Solve the problem by using weighted-A* or A* or Uniform Cost Search (UCS)
+     * depending on the evaluation function f the frontier is prioritized by, 
+     * where f = wg * g(n) + wh * h(n)
+     *      wg = 1, wh = 0, UCS,
+     *      wg = 1, wh = 1, A*,
+     *      wg > 1, wg > 1, weighted-A*.
+     * The weights wg and wh should be set by SearchStrategies.set_w_g() and 
+     * SearchStrategies.set_w_h() before the method is called. Heuristics
+     * function should also be setup.
+     * 
+     * @param problem   the problem to be solved.
+     * @return null if the problem is unsolvable, a linked list of the plan 
+     *         otherwise.
+     * @throws Exception 
+     */
     public LinkedList wa_star(EPddlProblem problem) throws Exception {
         num_dead_end_detected = 0;
 
@@ -449,19 +467,19 @@ public class SearchStrategies {
                         continue;
                     }
                     if (act.isApplicable(current_node.s)) {
-                        State temp = act.apply(current_node.s.clone());
+                        State successor_state = act.apply(current_node.s.clone());
                         //act.normalize();
-                        act.setAction_cost(temp);
+                        act.setAction_cost(successor_state);
 
-                        if (!temp.satisfy(problem.globalConstraints)) {
+                        if (!successor_state.satisfy(problem.globalConstraints)) {
                             continue;
                         }
                         boolean to_visit = true;
-                        if (visited.get(temp) != null) {
+                        if (visited.get(successor_state) != null) {
                             if (!can_reopen_nodes) {
                                 to_visit = false;
-                            } else if (g.get(temp) != null) {
-                                if (g.get(temp) <= current_node.g_n + act.getAction_cost()) {
+                            } else if (g.get(successor_state) != null) {
+                                if (g.get(successor_state) <= current_node.g_n + act.getAction_cost()) {
 
                                     to_visit = false;
                                 } else {
@@ -473,7 +491,7 @@ public class SearchStrategies {
                         }
 
                         if (to_visit) {
-                            g.put(temp, current_node.g_n + act.getAction_cost());
+                            g.put(successor_state, current_node.g_n + act.getAction_cost());
                             setStates_evaluated(getStates_evaluated() + 1);
 
                             long start = System.currentTimeMillis();
@@ -487,12 +505,12 @@ public class SearchStrategies {
 ////                                return extract_plan(current_node);
 ////                            }
 //                        }else
-                            d = getHeuristic().compute_estimate(temp);
+                            d = getHeuristic().compute_estimate(successor_state);
                             heuristic_time += System.currentTimeMillis() - start;
                             //System.out.print(d+" ");
                             if (d != Float.MAX_VALUE) {// && (!this.isDecreasing_heuristic_pruning() || d <= current_value)) {
 //                        if (d!=Float.MAX_VALUE && ( d <= current_value ) ){
-                                SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving, this.gw, this.hw);
+                                SearchNode new_node = new SearchNode(successor_state, act, current_node, current_node.g_n + act.getAction_cost(), d, this.json_rep_saving, this.gw, this.hw);
                                 //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                                 if (this.helpful_actions_pruning) {
                                     new_node.relaxed_plan_from_heuristic = getHeuristic().helpful_actions;
