@@ -356,7 +356,7 @@ public class SearchStrategies {
      * where f = wg * g(n) + wh * h(n)
      *      wg = 1, wh = 0, UCS,
      *      wg = 1, wh = 1, A*,
-     *      wg > 1, wg > 1, weighted-A*.
+     *      wg = 1, wh > 1, weighted-A*.
      * The weights wg and wh should be set by SearchStrategies.set_w_g() and 
      * SearchStrategies.set_w_h() before the method is called. Heuristics
      * function should also be setup.
