@@ -30,6 +30,7 @@ package conditions;
 
 import domain.Variable;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -164,6 +165,7 @@ public abstract class Conditions extends Object {
      * @param counter the counter to set
      */
     public void setCounter(int counter) {
+//        System.out.println(this+ "Setting counter to"+counter);
         this.counter = counter;
     }
 
@@ -207,32 +209,25 @@ public abstract class Conditions extends Object {
         return ret;
     }
 
-    public abstract ArrayList<Variable> getInvolvedVariables();
-//    {
-//        ArrayList<Variable> ret = new ArrayList();
-//        if (this instanceof Predicate) {
-//            Predicate p = (Predicate) this;
-//            ret.addAll(p.getTerms());
-//            return ret;
-//        } else if (this instanceof NotCond) {
-//            NotCond temp = (NotCond) this;
-//            Conditions temp2 = (Conditions) temp.son.iterator().next();
-//            ret.addAll(temp2.getInvolvedVariables());
-//            return ret;
-//        }else if (this instanceof AndCond) {
-//            NotCond temp = (NotCond) this;
-//            Conditions temp2 = (Conditions) temp.son.iterator().next();
-//            ret.addAll(temp2.getInvolvedVariables());
-//            return ret;
-//        }
-//        //from here it can only be an AndCond or a Or. Other cases are not considered
-//        if (this.sons != null) {
-//            for (Conditions c : (Collection<Conditions>) this.sons) {
-//                ret.addAll(c.getInvolvedPredicates());
-//            }
-//        }
-//        return ret;
-//    }
+    /**
+     * Returns the list of variables involved in this conditions.  
+     * 
+     * @return the list of variables in this conditions.  
+     */
+    public final ArrayList<Variable> getInvolvedVariables() {
+        // TODO: not sure whether the result should be a list or a set.
+        final ArrayList<Variable> result = new ArrayList<>();
+        storeInvolvedVariables(result);
+        return result;
+    }
+    
+    /**
+     * Stores in the specified collection the list of variables involved in this conditions.  
+     * 
+     * @param vars the list where the variables involved in this condition 
+     * are to be stored.  
+     */
+    public abstract void storeInvolvedVariables(Collection<Variable> vars);
 
     /**
      * Returns a string representation of this condition in PDDL format.  
@@ -255,6 +250,28 @@ public abstract class Conditions extends Object {
      * @param bui the string builder where this condition is printed.  
      */
     public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
+
+    public abstract Set<Conditions> getTerminalConditions();
+
+    public abstract Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h);
+
+    public abstract Conditions and(Conditions precondition);
+
+    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+
+    public abstract Conditions push_not_to_terminals();
+
+    public boolean isSatisfied(RelState rs) {
+        return rs.satisfy(this);
+    }
+
+    public abstract boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i);
+
+//    public abstract Conditionss unify_num_fluent(State init);
+        
+
+    
+        
 
 
 }

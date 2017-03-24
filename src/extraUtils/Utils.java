@@ -16,6 +16,11 @@ import java.util.Collection;
  */
 public class Utils {
 
+    public static void dbg_print(int debug, String string) {
+        if (debug > 0) {
+            System.out.print(string);
+        }
+    }
     public static String toPDDLSet(Collection c) {
         String ret = "";
         for (Object o : c) {

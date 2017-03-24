@@ -352,12 +352,10 @@ public class ExtendedNormExpression extends Expression {
                     if (ele_to_add.n.getNumber() == 0.0) {
                         adding = false;
                     }
-                } else if (a.linear && a.f == null && b.linear) {
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
-                    ele_to_add.f = (NumFluent) b.f.clone();
-                    if (ele_to_add.n.getNumber() == 0.0) {
-                        adding = false;
-                    }
+                } else if (a.linear && a.f == null && b.linear && b.f != null) {
+                    ele_to_add.bin = new BinaryOp(a.n, "/", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.linear = false;
+                    
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
                     ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new BinaryOp(a.f, "/", b.f, true), true);
                     ele_to_add.linear = false;
@@ -428,10 +426,11 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret+= a.bin.eval(s).getNumber();
             } else if (a.f != null) {
-                if (s.functionValue(a.f) == null) {
+                PDDLNumber n = s.functionValue(a.f);
+                if (n == null) {
                     return null;
                 }
-                ret+=  s.functionValue(a.f).getNumber() * a.n.getNumber();
+                ret+=  n.getNumber() * a.n.getNumber();
             } else {
                 ret+= a.n.getNumber();
             }
@@ -731,12 +730,12 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         Set ret = new HashSet();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
-                ret.addAll(a.bin.fluentsInvolved());
+                ret.addAll(a.bin.rhsFluents());
             } else if (a.f != null) {
                 ret.add(a.f);
             }

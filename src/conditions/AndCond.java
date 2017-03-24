@@ -31,6 +31,7 @@ import domain.Variable;
 import expressions.NumEffect;
 import expressions.Expression;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -687,31 +688,6 @@ public class AndCond extends Conditions implements PostCondition {
     }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        ArrayList<Variable> ret = new ArrayList();
-        if (this.sons != null) {
-            for (Object o : this.sons) {
-                    if (o instanceof Conditions) {
-                        Conditions c = (Conditions) o;
-                        if (c.getInvolvedVariables() != null) {
-                            ret.addAll(c.getInvolvedVariables());
-                        }
-                    } else if (o instanceof NumEffect) {
-                        NumEffect c = (NumEffect) o;
-                        if (c.getInvolvedVariables() != null) {
-                            ret.addAll(c.getInvolvedVariables());
-                        }
-                    } else {
-                        System.out.println("Error in getting involved variables");
-                    }
-                }
-            
-        }
-
-        return ret;    
-    }
-
-    @Override
     public boolean can_be_false(RelState s) {
         for (Object o : this.sons) {
             if (o instanceof Conditions) {
@@ -852,4 +828,124 @@ public class AndCond extends Conditions implements PostCondition {
         }
         bui.append(")");
     }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    c.storeInvolvedVariables(vars);
+                } else if (o instanceof NumEffect) {
+                    NumEffect c = (NumEffect) o;
+                    if (c.getInvolvedVariables() != null) {
+                        c.storeInvolvedVariables(vars);
+                    }
+                } else {
+                    System.out.println("Error in getting involved variables");
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        LinkedHashSet ret = new LinkedHashSet();
+        if (this.sons==null)
+            return new LinkedHashSet();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            ret.addAll(c.getTerminalConditions());
+        }
+        return ret;
+    }
+
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        if (this.sons == null)
+            return 0f;
+        Float ret = 0f;
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (c.estimate_cost(cond_dist,additive_h)==Float.MAX_VALUE)
+                    return Float.MAX_VALUE;
+            if (additive_h)
+                ret+=c.estimate_cost(cond_dist,additive_h);
+            else
+                ret = Math.max(c.estimate_cost(cond_dist,additive_h),ret);
+        }
+        return ret;
+    }
+    
+
+
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.sons.addAll(this.sons);
+        return and;
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        achiever_set s = new achiever_set();
+        if (this.sons == null){
+            s.cost=0f;
+        }else{
+             s.cost=0f;
+            for (Conditions c: (Collection<Conditions>)this.sons){
+                achiever_set s1=c.estimate_cost(cond_dist,additive_h,established_achiever);
+                if (s1.cost==Float.MAX_VALUE){
+                        s.cost = Float.MAX_VALUE;
+                        return s;
+                }
+                if (additive_h){
+                    s.cost+=s1.cost;
+                    s.actions.addAll(s1.actions);
+                    s.target_cond.addAll(s1.target_cond);
+                }else{
+                    s.cost = Math.max(s1.cost, s.cost);
+                }
+            }
+        }
+        return s;
+    }
+
+    @Override
+    public Conditions push_not_to_terminals() {
+        if (this.sons==null)
+            return this;
+        AndCond res = new AndCond();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            Conditions c1 = c.push_not_to_terminals();
+            res.addConditions(c1);
+        }
+        return res;
+    }
+
+    OrCond push_negation_demorgan() {
+        OrCond res = new OrCond();
+        for (Conditions c:(Collection<Conditions>) this.sons){
+            NotCond nc = new NotCond(c);
+            res.addConditions(nc);
+        }
+        return res;
+    }
+
+    @Override
+    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+        if (this.sons==null)
+            return true;
+        boolean ret = true;
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (!c.isSatisfied(rs, dist, i))
+                ret=false;
+        }
+        return ret;
+    }
+
+//    @Override
+//    public Conditions unify_num_fluent(State init) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 }

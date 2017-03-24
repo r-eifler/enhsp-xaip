@@ -38,10 +38,12 @@ import java.util.Map;
 import problem.State;
 import expressions.PDDLNumber;
 import expressions.Interval;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +54,7 @@ import problem.RelState;
  *
  * @author enrico
  */
-public class Comparison extends Conditions {
+public class Comparison extends Terminal {
 
     private Integer hash_code;
     private String string_representation;
@@ -764,8 +766,8 @@ public class Comparison extends Conditions {
         this.left = this.left.susbtFluentsWithTheirInvariants(j);
         this.right = this.right.susbtFluentsWithTheirInvariants(++j);
         ArrayList ret = new ArrayList();
-        ret.addAll(this.left.fluentsInvolved());
-        ret.addAll(this.right.fluentsInvolved());
+        ret.addAll(this.left.rhsFluents());
+        ret.addAll(this.right.rhsFluents());
         return ret;
     }
 
@@ -774,8 +776,8 @@ public class Comparison extends Conditions {
         this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
         this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
         ArrayList ret = new ArrayList();
-        ret.addAll(this.left.fluentsInvolved());
-        ret.addAll(this.right.fluentsInvolved());
+        ret.addAll(this.left.rhsFluents());
+        ret.addAll(this.right.rhsFluents());
         return ret;
     }
 
@@ -843,8 +845,8 @@ public class Comparison extends Conditions {
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new HashSet();
 
-        ret.addAll(this.getLeft().fluentsInvolved());
-        ret.addAll(this.getRight().fluentsInvolved());
+        ret.addAll(this.getLeft().rhsFluents());
+        ret.addAll(this.getRight().rhsFluents());
         //System.out.println("Here we are:"+this);
         return ret;
     }
@@ -953,14 +955,6 @@ public class Comparison extends Conditions {
         return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
     }
 
-    public ArrayList<Variable> getInvolvedVariables() {
-        ArrayList ret = new ArrayList();
-        for (NumFluent nf:this.getInvolvedFluents()){
-            ret.addAll(nf.getTerms());
-        }
-        return ret;
-    }
-
     @Override
     public boolean can_be_false(RelState s) {
 
@@ -999,6 +993,7 @@ public class Comparison extends Conditions {
         getRight().pddlPrint(typeInformation,bui);
         bui.append(")");
     }
+
 //=======
     //This function computes a domination analysis between the source (a) comparison and the objective one (b).
     //If the satisfaction of a implies the satisfaction of b, then b is dominated by a.
@@ -1071,5 +1066,84 @@ public class Comparison extends Conditions {
      */
     public void setLinear(boolean linear) {
         this.linear = linear;
+        return;
     }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        for (NumFluent nf:this.getInvolvedFluents()){
+            for (final Object o: nf.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
+
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        Set ret = new LinkedHashSet();
+        ret.add(this);
+        return ret;
+    }
+    
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return cond_dist.get(this.getCounter());
+    }
+    
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.addConditions(this);
+        return and;
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        achiever_set s = new achiever_set();
+        s.cost = cond_dist.get(this.getCounter());
+        s.actions.add(established_achiever.get(this.getCounter()));
+        s.target_cond.add(this);
+        return s;
+
+    }
+    
+    @Override
+    public Conditions push_not_to_terminals() {
+        return this;
+    }
+
+    Conditions invertOperator() {
+        if (this.getComparator().equals("=")){
+            OrCond a = new OrCond();
+            Comparison c1 = (Comparison) this.clone();
+            Comparison c2 = (Comparison) this.clone();
+            c1.setComparator("<");
+            c2.setComparator(">");
+            a.addConditions(c2);
+            a.addConditions(c1);
+            return a;
+        }else{
+            Comparison c1 = (Comparison) this.clone();
+            switch(this.getComparator()){
+                case "<":
+                    c1.setComparator(">=");
+                    break;
+                case "<=":
+                    c1.setComparator(">");
+                    break;
+                case ">=":
+                    c1.setComparator("<");
+                    break;
+                case ">":
+                    c1.setComparator("<=");
+                    break;                    
+            }
+            return c1;  
+        }
+    }
+    
+    
 }

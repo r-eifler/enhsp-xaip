@@ -436,8 +436,8 @@ public class NumericKernel extends HashMap {
             for (Object o1: kernel.sons){
                 if (o1 instanceof Comparison){
                     Comparison c = (Comparison)o1;
-                    involvedFluents.addAll(c.getLeft().fluentsInvolved());
-                    involvedFluents.addAll(c.getRight().fluentsInvolved());
+                    involvedFluents.addAll(c.getLeft().rhsFluents());
+                    involvedFluents.addAll(c.getRight().rhsFluents());
                 }
             }
         }

@@ -31,10 +31,12 @@ package conditions;
 import conditions.Predicate.true_false;
 import domain.Variable;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -47,7 +49,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class NotCond extends Conditions implements PostCondition {
+public class NotCond extends Terminal implements PostCondition {
     
     /**
      * The condition that is negated in this condition.  
@@ -263,18 +265,6 @@ public class NotCond extends Conditions implements PostCondition {
         return ret_val;
     }
     
-    public ArrayList<Variable> getInvolvedVariables() {
-        
-        ArrayList ret = new ArrayList();
-        for (NumFluent nf : this.getInvolvedFluents()) {
-            ret.addAll(nf.getTerms());
-        }
-        for (Predicate p : this.getInvolvedPredicates()) {
-            ret.addAll(p.getTerms());
-        }
-        return ret;
-    }
-    
     @Override
     public boolean can_be_false(RelState s) {
         return son.can_be_true(s);
@@ -378,4 +368,90 @@ public class NotCond extends Conditions implements PostCondition {
         son.pddlPrint(typeInformation,bui);
         bui.append(")");
     }
+    
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        for (NumFluent nf : this.getInvolvedFluents()) {
+            for (final Object o: nf.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
+        for (Predicate p : this.getInvolvedPredicates()) {
+            for (final Object o: p.getTerms()) {
+                final Variable var = (Variable)o;
+                vars.add(var);
+            }
+        }
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        if (!this.isTerminal()){
+            System.out.println("This should be a terminal!"+this);
+            System.exit(-1);
+        }
+        LinkedHashSet ret = new LinkedHashSet();
+        ret.add(this);
+        return ret;
+    }
+
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return cond_dist.get(this.getCounter());
+    }
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.addConditions(this);
+        return and;
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        achiever_set s = new achiever_set();
+        s.cost = cond_dist.get(this.getCounter());
+        s.actions.add(established_achiever.get(this.getCounter()));
+        s.target_cond.add(this);
+        return s;
+    }
+    
+    @Override
+    public Conditions push_not_to_terminals() {
+        if (son instanceof Predicate)
+            return this;
+        else if (son instanceof Comparison){
+            Comparison c1 = (Comparison)son;
+            Conditions c2 = c1.invertOperator();
+            return c2;
+        }
+        else if (son instanceof AndCond){
+            AndCond and = (AndCond)son;
+            OrCond or = and.push_negation_demorgan();
+            Conditions c=or.push_not_to_terminals();
+            return c;
+        }
+        else if (son instanceof OrCond){
+            OrCond or = (OrCond)son;
+            AndCond and = or.push_negation_demorgan();
+            Conditions c=and.push_not_to_terminals();
+            return c;
+        }else if (son instanceof PDDLObjectsEquality){
+            return this;
+        }
+        else{
+            System.out.println("Condition Not Supported:"+son);
+            System.exit(-1);
+        }
+        return null;
+    }
+
+    public boolean isTerminal() {
+        if (this.son instanceof Predicate)
+            return true;
+        return false;
+    }
+    
+    
 }

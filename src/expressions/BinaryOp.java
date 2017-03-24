@@ -176,7 +176,7 @@ public class BinaryOp extends Expression {
         ExtendedNormExpression r = (ExtendedNormExpression)this.getRight();
 
         try {
-            if ((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && (this.getOperator().equals("*") || this.getOperator().equals("/")))) {
+            if ((!r.isNumber() && this.getOperator().equals("/"))||((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && ((this.getOperator().equals("*") || this.getOperator().equals("/")))))) {
                 BinaryOp bin = new BinaryOp();
                 bin.setOperator(this.getOperator());
                 bin.setOne(l);
@@ -363,10 +363,10 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         Set ret = new HashSet();
-        ret.addAll(this.lhs.fluentsInvolved());
-        ret.addAll(this.rhs.fluentsInvolved());
+        ret.addAll(this.lhs.rhsFluents());
+        ret.addAll(this.rhs.rhsFluents());
         return ret;
     }
 

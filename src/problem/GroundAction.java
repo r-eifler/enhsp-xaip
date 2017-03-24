@@ -86,6 +86,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     public Float time = null;
     private Boolean has_state_dependent_effects;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
+    public boolean dummy_goal;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -1378,7 +1379,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 for (Object o : c.sons) {
                     NumEffect eff = (NumEffect) o;
                     if (eff.getFluentAffected().equals(nf)) {
-                        return eff.getRight().fluentsInvolved();
+                        return eff.getRight().rhsFluents();
                     }
 
                 }
@@ -1678,7 +1679,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     private boolean numericEffectUndefined(RelState current) {
 
-        if (numeric_effect_undefined == null) {//there is no action that can make a numeric fluent undefined. So this can be considered an invariant
+        //if (numeric_effect_undefined == null) {//there is no action that can make a numeric fluent undefined. So this can be considered an invariant
 
             if (this.numericEffects == null) {
                 return false;
@@ -1692,7 +1693,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     return e.getRight().eval(current).getInf().getNumber().isNaN();
                 }
             });
-        }
+        //}
         return numeric_effect_undefined;
 //            
 
@@ -2149,12 +2150,12 @@ public class GroundAction extends GenericActionType implements Comparable {
      * @return the action_cost
      */
     public float getAction_cost() {
-
+        
         return action_cost;
     }
 
     public void setAction_cost(State s_0) {
-        //if (action_cost == null) {//this would assume state independent cost
+        if (action_cost == null) {//this would assume state independent cost
             if (this.getNumericEffects() != null) {
                 AndCond temp = (AndCond) this.getNumericEffects();
                 for (NumEffect e : (LinkedHashSet<NumEffect>) temp.sons) {
@@ -2165,7 +2166,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 }
             }
             action_cost = 1f;
-        //}
+        }
 
     }
 
@@ -2250,17 +2251,21 @@ public class GroundAction extends GenericActionType implements Comparable {
                         }
                         if (ne.isPseudo_num_effect())
                             return true;
-                        if (ne.fluentsInvolved().isEmpty()) {
+                        if (ne.rhsFluents().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
                             
                             if (!rhs.linear) {
                                 return false;
                             }
                             if (ne.getOperator().equals("increase")) {
-                                try {
-                                    positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
-                                } catch (Exception ex) {
-                                    Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                if (ne.isPseudo_num_effect()){
+                                    
+                                }else{
+                                    try {
+                                        positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {

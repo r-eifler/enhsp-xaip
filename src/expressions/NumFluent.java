@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import problem.RelState;
 import problem.State;
@@ -45,13 +46,19 @@ import problem.State;
  */
 public class NumFluent extends Expression {
 
-    final private String name;
+    private String name;
     private ArrayList<ActionParameter> terms;
     private String beforeReformulation;
     private Boolean has_to_be_tracked;
+    private String terms_as_string;
+    Integer hash_code;
+    public int index;
 
     @Override
     public boolean equals(Object obj) {
+        if (obj==this)
+            return true;
+            
         NumFluent objF = (NumFluent) obj;
 
         if (objF.getName().equalsIgnoreCase(this.getName())) {
@@ -77,22 +84,45 @@ public class NumFluent extends Expression {
         } else {
             return false;
         }
+        this.name = objF.getName();
+        this.terms = objF.getTerms();
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 53 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+        
+//        if (this.hash_code == null) {
+//            int hash = 7;
+//            hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
+//            hash = 79 * hash + (this.terms_as_string != null ? this.terms_as_string.hashCode() : 0);
+//            this.hash_code = hash;
+//        }
+//
+//        return this.hash_code;
+        int hash = 5;
+        
+        hash = 97 * hash + Objects.hashCode(this.name);
+        if (terms_as_string == null)
+            terms_as_string = this.terms.toString();
+        hash = 97 * hash + Objects.hashCode(this.terms_as_string);
         return hash;
     }
 
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        //hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
+//        //hash = 53 * hash + (this.terms != null ? this.terms.hashCode() : 0);
+//        return hash;
+//    }
     public NumFluent(String name) {
         super();
         this.name = name;
         //variables = new ArrayList();
         terms = new ArrayList<>();
+        
         this.beforeReformulation = null;
     }
 
@@ -120,20 +150,21 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public NumFluent ground(Map<Variable,PDDLObject> substitution) {
+    public NumFluent ground(Map<Variable, PDDLObject> substitution) {
         NumFluent ret = new NumFluent(getName());
-
+        ret.index = this.index;
         for (final ActionParameter param : terms) {
             ret.addTerms(param.ground(substitution));
         }
         ret.grounded = true;
+        terms_as_string = this.terms.toString();
         return ret;
     }
 
     @Override
     public Expression unGround(Map substitution) {
         NumFluent ret = new NumFluent(getName());
-
+        ret.index = this.index;
         for (Object o : terms) {
             if (o instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o;
@@ -180,7 +211,6 @@ public class NumFluent extends Expression {
 //    public void setName(String name) {
 //        this.name = name;
 //    }
-
     @Override
     public PDDLNumber eval(State s) {
         if (s == null) {
@@ -196,10 +226,10 @@ public class NumFluent extends Expression {
         ret.setSup(s.functionSupValue(this));
         if (ret.getInf() == null) {
             ret.is_not_a_number = true;
-            
+
             return ret;
         }
-        
+
         return ret;
     }
 
@@ -215,46 +245,54 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public void changeVar(Map<Variable,PDDLObject> substitution) {
+    public void changeVar(Map<Variable, PDDLObject> substitution) {
         final ArrayList<ActionParameter> newVar = new ArrayList();
 
         for (final ActionParameter o : terms) {
             final PDDLObject sub = o.ground(substitution);
             newVar.add(sub);
         }
-        
+
         terms = newVar;
     }
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
+     
         
-        if (this.name.equals("#t")){
+        
+        if (this.name.equals("#t")) {
             //return this;
             return s.functionValue(this);
         }
-        
-        if ((invF.get(this) == null) ){//this means that the fluent can be in principle assigned
+
+        if ((invF.get(this) == null)) {//this means that the fluent can be in principle assigned
             return s.functionValue(this);
         }
-        if (invF.get(this)!= null){
-            if ((Boolean)invF.get(this)){
-                if (invF.get(this.getName()) == null)
+        if (invF.get(this) != null) {
+            if ((Boolean) invF.get(this)) {
+                if (invF.get(this.getName()) == null) {
                     return s.functionValue(this);
-                if ((Boolean)invF.get(this.getName()))
+                }
+                if ((Boolean) invF.get(this.getName())) {
                     return s.functionValue(this);
-                else
-                    return this;
-            }else
-                return this;
+                }
+                return s.getNumericFluent(this);
+
+            } else {
+                return s.getNumericFluent(this);
+            }
         }
-        if (invF.get(this.getName())!= null){
-            if ((Boolean)invF.get(this.getName()))
-               return s.functionValue(this);
-            else
-               return this;
+        if (invF.get(this.getName()) != null) {
+            if ((Boolean) invF.get(this.getName())) {
+                return s.functionValue(this);
+            } else {
+                return s.getNumericFluent(this);
+
+            }
         }
-        return this;
+        return s.getNumericFluent(this);
+
     }
 
     @Override
@@ -268,10 +306,10 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent,Boolean> map) {
-        return map.get(this)!=null;
+    public boolean involve(HashMap<NumFluent, Boolean> map) {
+        return map.get(this) != null;
     }
-    
+
     @Override
     public boolean involve(NumFluent nf) {
         return nf.equals(this);
@@ -320,7 +358,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Set fluentsInvolved() {
+    public Set rhsFluents() {
         Set ret = new HashSet();
         ret.add(this);
         return ret;
@@ -355,6 +393,7 @@ public class NumFluent extends Expression {
     @Override
     public Expression susbtFluentsWithTheirInvariants(int j) {
         NumFluent ret = new NumFluent(this.name + j);
+        ret.index = this.index;
         ret.setTerms(terms);
         ret.grounded = false;
         return ret;
@@ -362,12 +401,10 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
-        
-        
- 
-       
+
         if (invariantFluent.get(this) != null) {
             NumFluent ret = new NumFluent(this.name + j);
+            ret.index = this.index;
             ret.setTerms(terms);
             ret.grounded = false;
             ret.setBeforeReformulation(this.pddlPrint(true));
@@ -397,27 +434,28 @@ public class NumFluent extends Expression {
         String ret = "";
         ret = ret.concat(this.getName());
         for (Object o1 : this.getTerms()) {
-            if (o1 instanceof PDDLObject){
+            if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
-            }else{
+            } else {
                 Variable obj = (Variable) o1;
                 ret = ret.concat(" " + obj.getName());
-                
+
             }
-            
+
         }
-        ret+="-"+i;
+        ret += "-" + i;
         //ret = ret.concat(")");
-        return ret.replaceAll("\\s+","");
+        return ret.replaceAll("\\s+", "");
     }
 
     public boolean has_to_be_tracked() {
-        if (has_to_be_tracked == null){
-            if (this.getName().equals("total-cost"))
+        if (has_to_be_tracked == null) {
+            if (this.getName().equals("total-cost")) {
                 has_to_be_tracked = Boolean.FALSE;
-            else
+            } else {
                 has_to_be_tracked = Boolean.TRUE;
+            }
         }
         return has_to_be_tracked;
     }

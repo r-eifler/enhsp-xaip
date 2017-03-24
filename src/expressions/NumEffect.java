@@ -34,6 +34,7 @@ import conditions.PostCondition;
 import conditions.Predicate;
 import domain.Variable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -232,6 +233,7 @@ public class NumEffect extends Expression implements PostCondition {
             }
         }
 //        System.out.println(this);
+        this.setFluentAffected(s.getNumericFluent(this.getFluentAffected()));
         return this;
     }
 
@@ -309,8 +311,8 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Set fluentsInvolved() {
-        return this.right.fluentsInvolved();
+    public Set rhsFluents() {
+        return this.right.rhsFluents();
     }
 
     @Override
@@ -406,7 +408,7 @@ public class NumEffect extends Expression implements PostCondition {
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new LinkedHashSet();
         ret.add(this.getFluentAffected());
-        ret.addAll(this.getRight().fluentsInvolved());
+        ret.addAll(this.getRight().rhsFluents());
         return ret;
     }
 
@@ -444,14 +446,6 @@ public class NumEffect extends Expression implements PostCondition {
     @Override
     public String pddlPrintWithExtraObject() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public ArrayList<Variable> getInvolvedVariables()  {
-        // It is assumed that this method will be called only when the terms are ungrounded.  
-        // Here be dragon.  
-        final ArrayList list = (ArrayList)this.fluentAffected.getTerms();
-        final ArrayList<Variable> result = (ArrayList<Variable>)list;
-        return result;
     }
 
     /**
@@ -536,16 +530,19 @@ public class NumEffect extends Expression implements PostCondition {
         final Interval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
+//            System.out.println(this);
 //            System.out.println(current);
+//            System.out.println(eval);
             after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
             after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
         } else if (getOperator().equals("decrease")) {
+            
             after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
             after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
 
         } else if (getOperator().equals("assign")) {
             if (additive_relaxation) {
-                if (this.getRight().fluentsInvolved().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                if (this.getRight().rhsFluents().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
                     if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
                         after.setInf(new PDDLNumber(eval.getInf().getNumber()));
                         after.setSup(new PDDLNumber(eval.getSup().getNumber()));
@@ -583,5 +580,22 @@ public class NumEffect extends Expression implements PostCondition {
         bui.append(" ");
         getRight().pddlPrint(typeInformation,bui);
         bui.append(")");
+    }
+
+    public ArrayList<Variable> getInvolvedVariables()  {
+        // It is assumed that this method will be called only when the terms are ungrounded.  
+        // Here be dragon.  
+        final ArrayList list = (ArrayList)this.fluentAffected.getTerms();
+        final ArrayList<Variable> result = (ArrayList<Variable>)list;
+        return result;
+    }
+
+    public void storeInvolvedVariables(Collection<Variable> vars)  {
+        // It is assumed that this method will be called only when the terms are ungrounded.  
+        // Here be dragon.  
+        for (final Object o: this.fluentAffected.getTerms()) {
+            final Variable var = (Variable)o;
+            vars.add(var);
+        }
     }
 }

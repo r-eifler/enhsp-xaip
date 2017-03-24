@@ -15,6 +15,7 @@ import search.SearchStrategies;
 import heuristics.advanced.Uniform_cost_search_H1;
 import heuristics.advanced.asymptotic_ibr;
 import heuristics.Aibr;
+import heuristics.Aibr_rp;
 import heuristics.advanced.Bellman_Ford_Hm;
 import heuristics.advanced.Uniform_cost_search_H1_RC;
 import heuristics.advanced.Uniform_cost_search_HM;
@@ -201,10 +202,9 @@ public class built_in_NHSP {
                     raw_plan = searchStrategies.greedy_best_first_search(problem);
                     break;
                 case "hp_rp":
-                    searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet));
-                    Aibr heur = (Aibr) searchStrategies.getHeuristic();
+                    searchStrategies.setup_heuristic(new Aibr_rp(problem.getGoals(), problem.getActions(), problem.processesSet));
+                    Aibr_rp heur = (Aibr_rp) searchStrategies.getHeuristic();
                     heur.set(false, false);
-                    heur.extract_plan = true;
                     searchStrategies.set_w_g(1);
                     searchStrategies.set_w_h(1);
                     raw_plan = searchStrategies.greedy_best_first_search(problem);
@@ -301,7 +301,6 @@ public class built_in_NHSP {
                 searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet));
                 Aibr h = (Aibr) searchStrategies.getHeuristic();
                 h.set(false, true);
-                h.extract_plan = true;
                 searchStrategies.set_w_g(1);
                 searchStrategies.set_w_h(1);
             } else if (config.equals("12")) {
@@ -309,7 +308,6 @@ public class built_in_NHSP {
                 searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet));
                 Aibr h = (Aibr) searchStrategies.getHeuristic();
                 h.set(false, true);
-                h.extract_plan = false;
                 searchStrategies.set_w_g(1);
                 searchStrategies.set_w_h(1);
             } else if (config.equals("13")) {//counting_layers_heuristic(h_max)
@@ -333,7 +331,6 @@ public class built_in_NHSP {
             } else if (config.equals("16")) {
                 searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet));
                 Aibr h = (Aibr) searchStrategies.getHeuristic();
-                h.extract_plan = true;
                 searchStrategies.set_w_g(1);
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp")) {

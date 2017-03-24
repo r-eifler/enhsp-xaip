@@ -30,6 +30,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,7 +104,7 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
@@ -113,7 +114,7 @@ public class OrCond extends Conditions {
         ret.grounded = true;
         return ret;
     }
-    
+
     @Override
     public Conditions ground(Map substitution, int c) {
         Conditions ret = this.ground(substitution);
@@ -256,17 +257,15 @@ public class OrCond extends Conditions {
 //                System.out.println("Testing with:"+o);
                 if (o instanceof NumFluent) {
                     ret.add((NumFluent) o);
-                } else {
-                    if (o instanceof Conditions) {
+                } else if (o instanceof Conditions) {
 
-                        Conditions c = (Conditions) o;
-                        //System.out.println(c);
-                        if (c.getInvolvedFluents() != null) {
-                            ret.addAll(c.getInvolvedFluents());
-                        }
-                    } else {
-                        System.out.println("Error in getting involved fluents");
+                    Conditions c = (Conditions) o;
+                    //System.out.println(c);
+                    if (c.getInvolvedFluents() != null) {
+                        ret.addAll(c.getInvolvedFluents());
                     }
+                } else {
+                    System.out.println("Error in getting involved fluents");
                 }
             }
         }
@@ -305,6 +304,7 @@ public class OrCond extends Conditions {
         }
         return false;
     }
+
     public boolean involveReacheablePredicates(Collection<Predicate> possibleState) {
 
         if (this.sons != null) {
@@ -336,7 +336,7 @@ public class OrCond extends Conditions {
         }
         return false;
     }
-    
+
     @Override
     public Conditions weakEval(State s, HashMap invF) {
         if (this.sons != null) {
@@ -368,14 +368,14 @@ public class OrCond extends Conditions {
             for (Object o : this.sons) {
                 if (o instanceof Predicate) {
                     Predicate p = (Predicate) o;
-                    ret += " " + p.toSmtVariableString(k,gr,var);
+                    ret += " " + p.toSmtVariableString(k, gr, var);
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
-                    ret += " " + nc.toSmtVariableString(k,gr,var);
+                    ret += " " + nc.toSmtVariableString(k, gr, var);
                 } else if (o instanceof Conditions) {
                     //System.out.println(o.getClass());
                     Conditions c = (Conditions) o;
-                    ret += " " + c.toSmtVariableString(k,gr,var);
+                    ret += " " + c.toSmtVariableString(k, gr, var);
                 } else {
                     System.err.println("Not Supported" + o.getClass());
                 }
@@ -389,8 +389,9 @@ public class OrCond extends Conditions {
 
     @Override
     public Conditions transform_equality() {
-        if (this.sons == null)
+        if (this.sons == null) {
             return this;
+        }
         OrCond ret = new OrCond();
         for (Conditions c1 : (Collection<Conditions>) this.sons) {
             ret.addConditions(c1.transform_equality());
@@ -400,15 +401,16 @@ public class OrCond extends Conditions {
 
     @Override
     public boolean is_affected_by(GroundAction gr) {
-        if (this.sons!= null && !this.sons.isEmpty()){
-            
-            for (Conditions c:(Collection<Conditions>) this.sons){
-                if (c.is_affected_by(gr))
+        if (this.sons != null && !this.sons.isEmpty()) {
+
+            for (Conditions c : (Collection<Conditions>) this.sons) {
+                if (c.is_affected_by(gr)) {
                     return true;
+                }
             }
-            
+
         }
-        
+
         return false;
     }
 
@@ -419,14 +421,15 @@ public class OrCond extends Conditions {
             if (o instanceof Conditions) {
                 Conditions t = (Conditions) o;
                 Conditions temp = t.regress(gr);
-                if (!temp.isValid()){//needs to be satisfied
-                    if (!temp.isUnsatisfiable()){
-                        if (temp instanceof OrCond)
+                if (!temp.isValid()) {//needs to be satisfied
+                    if (!temp.isUnsatisfiable()) {
+                        if (temp instanceof OrCond) {
                             con.sons.addAll(((OrCond) temp).sons);
-                        else
+                        } else {
                             con.sons.add(temp);
+                        }
                     }
-                }else{
+                } else {
                     return new Predicate(Predicate.true_false.TRUE);
                 }
             } else {
@@ -434,7 +437,7 @@ public class OrCond extends Conditions {
                 System.exit(-1);
             }
         }
-        return con;   
+        return con;
     }
 
     @Override
@@ -453,31 +456,7 @@ public class OrCond extends Conditions {
             }
         }
         ret_val = ret_val.concat(")");
-        return ret_val;    }
-
-    @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-        ArrayList<Variable> ret = new ArrayList();
-        if (this.sons != null) {
-            for (Object o : this.sons) {
-                    if (o instanceof Conditions) {
-                        Conditions c = (Conditions) o;
-                        if (c.getInvolvedVariables() != null) {
-                            ret.addAll(c.getInvolvedVariables());
-                        }
-                    } else if (o instanceof NumEffect) {
-                        NumEffect c = (NumEffect) o;
-                        if (c.getInvolvedVariables() != null) {
-                            ret.addAll(c.getInvolvedVariables());
-                        }
-                    } else {
-                        System.out.println("Error in getting involved variables");
-                    }
-                }
-            
-        }
-
-        return ret;    
+        return ret_val;
     }
 
     @Override
@@ -492,33 +471,33 @@ public class OrCond extends Conditions {
         return true;
     }
 
-    @Override 
+    @Override
     public int hashCode() {
         final int sonHash = sons.hashCode();
         final int result = sonHash + 12;
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (!(obj instanceof OrCond)) {
             return false;
         }
-        
-        final OrCond other = (OrCond)obj;
-        
+
+        final OrCond other = (OrCond) obj;
+
         if (!this.sons.equals(other.sons)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -535,5 +514,110 @@ public class OrCond extends Conditions {
             }
         }
         bui.append(")");
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    c.storeInvolvedVariables(vars);
+                } else if (o instanceof NumEffect) {
+                    NumEffect c = (NumEffect) o;
+                    c.storeInvolvedVariables(vars);
+                } else {
+                    System.out.println("Error in getting involved variables");
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        LinkedHashSet ret = new LinkedHashSet();
+        if (this.sons == null) {
+            return new LinkedHashSet();
+        }
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            ret.addAll(c.getTerminalConditions());
+        }
+        return ret;
+    }
+
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        if (this.sons == null) {
+            return 0f;
+        }
+        Float ret = Float.MAX_VALUE;
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            if (c.estimate_cost(cond_dist,additive_h)!=Float.MAX_VALUE)
+                ret = Math.min(c.estimate_cost(cond_dist, additive_h), ret);
+        }
+        return ret;
+    }
+    
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        achiever_set s = new achiever_set();
+        s.cost=Float.MAX_VALUE;
+        if (this.sons == null){
+            s.cost=0f;
+        }else{
+            for (Conditions c : (Collection<Conditions>) this.sons) {
+                achiever_set s1=c.estimate_cost(cond_dist,additive_h,established_achiever);
+                if (s1.cost!=Float.MAX_VALUE){
+                    if (s.cost>s1.cost){
+                        s.actions = s1.actions;
+                        s.cost = s1.cost;
+                        s.target_cond.addAll(s1.target_cond);
+                    }
+                }
+            }
+        }
+        return s;
+    }
+    
+    @Override
+    public Conditions push_not_to_terminals() {
+        if (this.sons==null)
+            return this;
+        OrCond res = new OrCond();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            c = c.push_not_to_terminals();
+            res.addConditions(c);
+        }
+
+        return res;
+    }
+    
+    @Override
+    public Conditions and(Conditions precondition) {
+        AndCond and = new AndCond();
+        and.addConditions(precondition);
+        and.addConditions(this);
+        return and;
+    }
+
+    AndCond push_negation_demorgan() {
+        AndCond res = new AndCond();
+        for (Conditions c:(Collection<Conditions>) this.sons){
+            NotCond nc = new NotCond(c);
+            res.addConditions(nc);
+        }
+        return res;
+    }
+    
+    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+        if (this.sons==null)
+            return true;
+        boolean ret = false;
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (c.isSatisfied(rs, dist, i))
+                ret=true;
+        }
+        return ret;
     }
 }

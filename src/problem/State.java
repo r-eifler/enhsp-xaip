@@ -96,7 +96,7 @@ public class State extends Object {
         //ret_val.propositions = (HashSet) this.propositions.clone();
 
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
-
+        ret_val.time = this.time;
         return ret_val;
     }
 
@@ -379,10 +379,21 @@ public class State extends Object {
 //            {
 //                return false;
 //            }
+            
+            if (!nf.has_to_be_tracked())
+                continue;
+            
+            if (!nf.getName().equals("time_elapsed"))
+                continue;
+            
             if (other.functionValue(nf)==null && this.numericFs.get(nf)==null){
 //                System.out.println("Error!!:"+ass_init.getNFluent());
                 continue;
             }
+            if (other.functionValue(nf)==null)
+                return false;
+            if (this.numericFs.get(nf)==null)
+                return false;
             if (!this.numericFs.get(nf).getNumber().equals(other.functionValue(nf).getNumber())) 
             {
                 return false;
@@ -886,6 +897,26 @@ public class State extends Object {
 
     public Collection<Predicate> getPropositionsAsSet() {
         return new LinkedHashSet(this.propositions.keySet());
+    }
+
+    public NumFluent getNumericFluent(NumFluent fluentAffected) {
+        for (NumFluent f2 : this.getNumericFluents()){
+            if (f2.equals(fluentAffected))
+                return f2;
+        }
+        return fluentAffected;
+    }
+
+    public Conditions getProposition(Predicate aThis) {
+        for (Predicate p : this.getPropositions()){
+            if (p.equals(aThis))
+                return p;
+        }
+        return aThis;    
+    }
+
+    void addTime(NumFluentValue numFluentValue) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -129,8 +129,8 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Set fluentsInvolved() {
-        return this.getArg().fluentsInvolved();
+    public Set rhsFluents() {
+        return this.getArg().rhsFluents();
     }
 
     @Override

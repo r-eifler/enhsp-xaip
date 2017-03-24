@@ -29,7 +29,9 @@ package conditions;
 
 import domain.Variable;
 import expressions.NumFluent;
+import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,7 +44,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class PDDLObjectsEquality extends Conditions {
+public class PDDLObjectsEquality extends Terminal {
 
     private PDDLObject left;
     private PDDLObject right;
@@ -312,16 +314,6 @@ public class PDDLObjectsEquality extends Conditions {
     }
 
     @Override
-    public ArrayList<Variable> getInvolvedVariables() {
-
-        ArrayList<Variable> ret = new ArrayList();
-        ret.add(this.leftV);
-        ret.add(this.rightV);
-        return ret;
-
-    }
-
-    @Override
     public boolean can_be_false(RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -407,5 +399,36 @@ public class PDDLObjectsEquality extends Conditions {
             getRightV().pddlPrint(typeInformation,bui);
             bui.append(")");
         }
+    }
+
+    @Override
+    public void storeInvolvedVariables(Collection<Variable> vars) {
+        vars.add(this.leftV);
+        vars.add(this.rightV);
+    }
+
+    @Override
+    public Set<Conditions> getTerminalConditions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Conditions and(Conditions precondition) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Conditions push_not_to_terminals() {
+        return this;
     }
 }

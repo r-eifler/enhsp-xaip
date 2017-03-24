@@ -1367,8 +1367,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
                             } else if (o instanceof Comparison) {
                                 Comparison c = (Comparison) o;
-                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
-                                toTest.addAll(c.getRight().fluentsInvolved());
+                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().rhsFluents());
+                                toTest.addAll(c.getRight().rhsFluents());
                                 if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
                                     preserveOrderConstraint = true;
                                     orderingByNumericThreatBack++;
@@ -1407,8 +1407,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                     TreeSet<Integer> chain = (TreeSet) validationStructure.get(c);
                                     if (chain != null) {
                                         if (chain.contains(j)) {
-                                            HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
-                                            toTest.addAll(c.getRight().fluentsInvolved());
+                                            HashSet<NumFluent> toTest = new HashSet(c.getLeft().rhsFluents());
+                                            toTest.addAll(c.getRight().rhsFluents());
                                             if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
                                                 preserveOrderConstraint = true;
                                                 orderingByThreatNumericForward++;
@@ -1489,8 +1489,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             } //
             else {
-                HashSet<NumFluent> toTest = new HashSet(c.getLeft().fluentsInvolved());
-                toTest.addAll(c.getRight().fluentsInvolved());
+                HashSet<NumFluent> toTest = new HashSet(c.getLeft().rhsFluents());
+                toTest.addAll(c.getRight().rhsFluents());
                 if (c.isDirectlyOrIndirectlyAffected(computeFluentDependencePlanDependant(toTest), this.get(j))) {
 
                     //State temp = (State) tempInit.clone();
@@ -2307,7 +2307,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public Float build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, Float epsilon) {
 
         System.out.println("Epsilon set to be:" + epsilon);
-        Float time = 0.0000000000f;
+        Float time = 0f;
         inst_actions = new ArrayList();
         for (GroundAction gr : raw_plan) {
             if (gr instanceof GroundProcess) {
@@ -2328,6 +2328,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
 //             System.out.println(time);
         }
+        
         this.ending_time = time;
         return time;//this is the time at which the plan achieves the goal. (There could be a bit of problems with epsilon though)
 
@@ -2351,7 +2352,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         System.out.println("Resolution for validation:" + resolution);
         State current = init.clone();
         this.cost = 0f;
-        current.addNumericFluent(new NumFluentValue("#t", resolution));
+        //current.addNumericFluent(new NumFluentValue("#t", resolution));
         HashMap<NumFluent, ArrayList<Float>> nf_trace = new HashMap();
         numeric_plan_trace = null;
         if (print_trace) {
@@ -2377,6 +2378,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 System.out.println(current.pddlPrint());
             }
             GroundAction gr = inst_actions.get(i);
+            //Execute till next action
             current = advance_time(current, processesSet, resolution, gr.time);
             if (gr.isApplicable(current)) {
                 current = gr.apply(current);
@@ -2387,8 +2389,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 return current;
             }
         }
+        //Execute remaining time
+//        System.out.println("Time here:"+current);
+//        System.out.println("Simulate till:"+time);
+//        System.out.println("With a time of:"+resolution);
+//        System.out.println(current.functionValue(new NumFluent("time_elapsed")));
         current = advance_time(current, processesSet, resolution, time);
-        
+//        System.out.println(current.functionValue(new NumFluent("time_elapsed")));
         return current;
 
     }
@@ -2396,9 +2403,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private State advance_time(State current, HashSet<GroundProcess> processesSet, float delta, Float time) {
 
         //System.out.println("Advance time!");
-        Float start_time = current.functionValue(new NumFluent("time_elapsed")).getNumber();
-        
-        while (start_time+delta<=time) {
+//        System.out.println("StartTime:");
+        while(current.functionValue(new NumFluent("time_elapsed")).getNumber()<time) {
+//            System.out.println("StartTime:"+start_time);
             GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
             waiting.add_time_effects(delta);
@@ -2413,9 +2420,14 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
 
             }
+            
             current = waiting.apply(current);
-            start_time+=delta;
-        }
+//            System.out.println(current);    
+//            System.out.println(current);
+//            System.out.println("StartTime:"+start_time);
+        };
+//        System.out.println((start_time+delta));
+//        System.out.println((time));
         return current;
     }
 
