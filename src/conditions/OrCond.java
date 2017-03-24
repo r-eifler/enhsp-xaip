@@ -553,23 +553,24 @@ public class OrCond extends Conditions {
         }
         Float ret = Float.MAX_VALUE;
         for (Conditions c : (Collection<Conditions>) this.sons) {
-            if (c.estimate_cost(cond_dist,additive_h)!=Float.MAX_VALUE)
+            if (c.estimate_cost(cond_dist, additive_h) != Float.MAX_VALUE) {
                 ret = Math.min(c.estimate_cost(cond_dist, additive_h), ret);
+            }
         }
         return ret;
     }
-    
+
     @Override
     public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         achiever_set s = new achiever_set();
-        s.cost=Float.MAX_VALUE;
-        if (this.sons == null){
-            s.cost=0f;
-        }else{
+        s.cost = Float.MAX_VALUE;
+        if (this.sons == null) {
+            s.cost = 0f;
+        } else {
             for (Conditions c : (Collection<Conditions>) this.sons) {
-                achiever_set s1=c.estimate_cost(cond_dist,additive_h,established_achiever);
-                if (s1.cost!=Float.MAX_VALUE){
-                    if (s.cost>s1.cost){
+                achiever_set s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
+                if (s1.cost != Float.MAX_VALUE) {
+                    if (s.cost > s1.cost) {
                         s.actions = s1.actions;
                         s.cost = s1.cost;
                         s.target_cond.addAll(s1.target_cond);
@@ -579,20 +580,21 @@ public class OrCond extends Conditions {
         }
         return s;
     }
-    
+
     @Override
     public Conditions push_not_to_terminals() {
-        if (this.sons==null)
+        if (this.sons == null) {
             return this;
+        }
         OrCond res = new OrCond();
-        for (Conditions c: (Collection<Conditions>)this.sons){
+        for (Conditions c : (Collection<Conditions>) this.sons) {
             c = c.push_not_to_terminals();
             res.addConditions(c);
         }
 
         return res;
     }
-    
+
     @Override
     public Conditions and(Conditions precondition) {
         AndCond and = new AndCond();
@@ -603,21 +605,36 @@ public class OrCond extends Conditions {
 
     AndCond push_negation_demorgan() {
         AndCond res = new AndCond();
-        for (Conditions c:(Collection<Conditions>) this.sons){
+        for (Conditions c : (Collection<Conditions>) this.sons) {
             NotCond nc = new NotCond(c);
             res.addConditions(nc);
         }
         return res;
     }
-    
+
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
-        if (this.sons==null)
+        if (this.sons == null) {
             return true;
+        }
         boolean ret = false;
-        for (Conditions c: (Collection<Conditions>)this.sons){
-            if (c.isSatisfied(rs, dist, i))
-                ret=true;
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            if (c.isSatisfied(rs, dist, i)) {
+                ret = true;
+            }
         }
         return ret;
     }
+
+    @Override
+    public Conditions introduce_red_constraints() {
+        if (this.sons == null) {
+            return this;
+        }
+        OrCond ret = new OrCond();
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            ret.addConditions(c.introduce_red_constraints());
+        }
+        return ret;
+    }
+
 }

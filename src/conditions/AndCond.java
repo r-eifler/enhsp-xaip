@@ -30,6 +30,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumEffect;
 import expressions.Expression;
+import expressions.ExtendedNormExpression;
 import expressions.NumFluent;
 import heuristics.advanced.achiever_set;
 import java.util.ArrayList;
@@ -948,4 +949,49 @@ public class AndCond extends Conditions implements PostCondition {
 //    public Conditions unify_num_fluent(State init) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
+
+    @Override
+    public Conditions introduce_red_constraints() {
+        ArrayList<Comparison> to_mix = new ArrayList();
+        AndCond ret = new AndCond();
+        for (Conditions c: (Collection<Conditions>)this.sons){
+            if (c instanceof Comparison){
+                to_mix.add((Comparison) c);
+            }else{
+                ret.addConditions(c.introduce_red_constraints());
+            }
+        }
+        for (int i = 0; i < to_mix.size(); i++) {
+            for (int j = i + 1; j < to_mix.size(); j++) {            
+                try {
+                    Comparison a1 = to_mix.get(i);
+                    Comparison a2 = to_mix.get(j);
+                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+                    ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
+                    String new_comparator = ">=";
+                    if (!a1.getComparator().equals(a2.getComparator())) {
+                        new_comparator = ">=";
+                    }else{
+                        new_comparator = a1.getComparator();
+                    }
+
+                    Comparison newC = new Comparison(new_comparator);
+                    newC.setLeft(expr);
+                    newC.setRight(new ExtendedNormExpression(new Float(0.0)));
+                    newC.normalize();
+
+                    ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
+
+                    if (tempLeft.summations.size() < 2) {
+                        continue;
+                    }
+                    ret.addConditions(newC);
+                } catch (Exception ex) {
+                    Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return ret;
+    }
 }

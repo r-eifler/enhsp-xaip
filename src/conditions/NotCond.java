@@ -452,6 +452,8 @@ public class NotCond extends Terminal implements PostCondition {
             return true;
         return false;
     }
+
+
     
     
 }

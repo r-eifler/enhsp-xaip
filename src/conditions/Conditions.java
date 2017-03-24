@@ -268,6 +268,8 @@ public abstract class Conditions extends Object {
     public abstract boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i);
 
 //    public abstract Conditionss unify_num_fluent(State init);
+
+    public abstract Conditions introduce_red_constraints();
         
 
     

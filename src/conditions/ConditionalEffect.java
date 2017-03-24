@@ -310,4 +310,9 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public Conditions introduce_red_constraints() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

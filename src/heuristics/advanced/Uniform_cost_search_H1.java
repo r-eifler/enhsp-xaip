@@ -417,13 +417,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
         redundant_constraints = new HashMap();
 
         for (GroundAction a : A) {
-            if (a.getPreconditions() != null) {
-                compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
-            }
-            //System.out.println(a.toPDDL());
+            a.setPreconditions(a.getPreconditions().introduce_red_constraints());
         }
 
-        compute_redundant_constraint((Set<Conditions>) G.sons);
+        G = G.introduce_red_constraints();
     }
 
     protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
@@ -442,8 +439,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
                     ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
                     String new_comparator = ">=";
-                    if (a1.getComparator().equals(">") || a2.getComparator().equals(">")) {
-                        new_comparator = ">";
+                    if (!a1.getComparator().equals(a2.getComparator())) {
+                        new_comparator = ">=";
+                    }else{
+                        new_comparator = a1.getComparator();
                     }
 
                     Comparison newC = new Comparison(new_comparator);

@@ -28,4 +28,9 @@ public abstract class Terminal extends Conditions {
         return false;
     }
     
+    @Override
+    public Conditions introduce_red_constraints() {
+        return this;
+    }
+    
 }

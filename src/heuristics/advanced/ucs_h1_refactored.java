@@ -48,6 +48,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 //    private Aibr aibr_handler;
     private boolean all_achievers_to_consider = false;
     private Boolean weak_helpful_actions_pruning = false;
+    private ArrayList<Boolean> closed;
 
     public ucs_h1_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
@@ -98,6 +99,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             established_achiever = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             action_achievers = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
             all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
+            
         }
 
         Float estimate = Float.MAX_VALUE;
@@ -105,7 +107,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         ArrayList<FibonacciHeapNode> action_to_fib_node = new ArrayList<>(nCopies(total_number_of_actions + 1, null));//mapping between action and boolean. True if action has not been activated yet
         cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
-
+        closed = new ArrayList<>(nCopies(total_number_of_actions + 1, false));
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
             gr.setAction_cost(s_0);
             if (gr.isApplicable(s_0)) {
@@ -113,7 +115,6 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                 action_to_fib_node.set(gr.counter, node);
                 a_plus.insert(node, 0f);//add such an action
                 action_dist.set(gr.counter, 0f);
-
                 if (this.reacheability_setting) {
                     this.reachable.add(gr);
                 }
@@ -135,8 +136,9 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
         reachable_here = new LinkedHashSet();
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
-
+            
             GroundAction gr = a_plus.removeMin().getData();
+            closed.set(gr.counter, true);
             reachable_here.add(gr);
 //            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
 //            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
@@ -204,7 +206,11 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                     }
 //                    Utils.dbg_print(debug - 10, "Action under consideration and number of needed execution:" + gr + " " + rep_needed + "\n");
                     if (rep_needed != Float.MAX_VALUE) {
-                        rep_needed += this.action_dist.get(gr.counter);
+                        if (this.additive_h){
+                            rep_needed += this.action_dist.get(gr.counter);
+                        }else{
+                            rep_needed += min_over_possible_achievers(comp);
+                        }
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                             update_achiever(comp, gr);
                         }
@@ -220,27 +226,28 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
                 }
             } else {
-                
-                //This can be cached with a map, so that supporters are kept, and only the new ones are added
-                Aibr aibr_handle = new Aibr(comp, reachable_here);
-//                System.out.println(s);
-//                System.out.println(this.reachable_here);
-                
-                //Use this temporary, but it has to be fixed, probvably in the achievers set
-//                Aibr aibr_handle = new Aibr(comp, this.reachable_here);
-
-                //aibr_handle
-                aibr_handle.set(false, true);
-                
-                aibr_handle.light_setup(s_0, this);
-
-                if (comp.getCounter() > all_conditions.size()) {
-                    System.out.println("Condition not intercepted!" + comp + "\n");
-                    System.out.println("Identifier:" + comp.getCounter());
-                    System.exit(-1);
-                }
                 Float current_distance = cond_dist.get(comp.getCounter());
-                Float new_distance = aibr_handle.compute_estimate(s_0);
+                if (current_distance == 0f) {
+                    continue;
+                }
+                Float new_distance = Float.MAX_VALUE;
+                if (!this.additive_h){
+                    new_distance = action_dist.get(gr.counter)+gr.getAction_cost();//this is a very conservative measure.
+                }else{
+                    //This can be cached with a map, so that supporters are kept, and only the new ones are added
+                    Aibr aibr_handle = new Aibr(comp, reachable_here);
+                    //aibr_handle
+                    aibr_handle.set(false, true);
+
+                    aibr_handle.light_setup(s_0, this);
+
+                    if (comp.getCounter() > all_conditions.size()) {
+                        System.out.println("Condition not intercepted!" + comp + "\n");
+                        System.out.println("Identifier:" + comp.getCounter());
+                        System.exit(-1);
+                    }
+                    new_distance = aibr_handle.compute_estimate(s_0);
+                }
                 if (new_distance != Float.MAX_VALUE) {
                     //new_distance += this.action_dist.get(gr.counter);
                     if (this.relaxed_plan_extraction || this.helpful_actions_computation) {update_achiever(comp, gr);}
@@ -266,9 +273,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         Set<GroundAction> set = condition_to_action.get(comp.getCounter());
         //this mapping contains action that need to be triggered becasue of condition comp
         for (GroundAction gr2 : set) {
-            if (gr2.counter == gr.counter) {//avoids self-loop. Thanks god I have integer mapping here.
-                continue;
-            }
+            if (closed.get(gr2.counter)) continue;
             Float c = check_conditions(gr2);
 
             if (c < action_dist.get(gr2.counter)) {//are conditions all reached, and is this a better path?
@@ -432,6 +437,17 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             }
         }
 
+    }
+
+    private Float min_over_possible_achievers(Conditions comp) {
+        Set<GroundAction> set = this.possible_achievers_inverted.get(comp.getCounter());
+        Float min = Float.MAX_VALUE;
+        for (GroundAction gr : set){
+            min = Math.min(action_dist.get(gr.counter), min);
+            if (min==0)
+                return 0f;
+        }
+        return min;
     }
 
 }
