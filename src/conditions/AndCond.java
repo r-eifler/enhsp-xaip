@@ -87,7 +87,7 @@ public class AndCond extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution) {
         AndCond ret = new AndCond();
 
         //System.out.println(this.toString());
@@ -104,7 +104,7 @@ public class AndCond extends Conditions implements PostCondition {
             }
             ret.sons.add(groundedO);
         }
-        
+
         ret.grounded = true;
         return ret;
     }
@@ -204,7 +204,7 @@ public class AndCond extends Conditions implements PostCondition {
         }
 
     }
-    
+
     public String pddlPrintWithExtraObject() {
         String ret_val = "(and ";
         for (Object o : sons) {
@@ -256,7 +256,7 @@ public class AndCond extends Conditions implements PostCondition {
             } else if (o instanceof NumEffect) {
                 NumEffect a = (NumEffect) o;
                 ret.sons.add(a.clone());
-            }else if (o instanceof ConditionalEffect) {
+            } else if (o instanceof ConditionalEffect) {
                 ConditionalEffect a = (ConditionalEffect) o;
                 ret.sons.add(a.clone());
             }
@@ -266,8 +266,6 @@ public class AndCond extends Conditions implements PostCondition {
         return ret;
 
     }
-
-
 
     /**
      *
@@ -354,10 +352,8 @@ public class AndCond extends Conditions implements PostCondition {
                 if (comp == null) {
 
                     it.remove();
-                } else {
-                    if (comp.isUnsatisfiable()) {
-                        this.setUnsatisfiable(true);
-                    }
+                } else if (comp.isUnsatisfiable()) {
+                    this.setUnsatisfiable(true);
                 }
             } else if (o instanceof AndCond) {
                 AndCond temp = (AndCond) o;
@@ -516,20 +512,18 @@ public class AndCond extends Conditions implements PostCondition {
             for (Object o : this.sons) {
                 if (o instanceof NumFluent) {
                     ret.add((NumFluent) o);
-                } else {
-                    if (o instanceof Conditions) {
-                        Conditions c = (Conditions) o;
-                        if (c.getInvolvedFluents() != null) {
-                            ret.addAll(c.getInvolvedFluents());
-                        }
-                    } else if (o instanceof NumEffect) {
-                        NumEffect c = (NumEffect) o;
-                        if (c.getInvolvedFluents() != null) {
-                            ret.addAll(c.getInvolvedFluents());
-                        }
-                    } else {
-                        System.out.println("Error in getting involved fluents");
+                } else if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    if (c.getInvolvedFluents() != null) {
+                        ret.addAll(c.getInvolvedFluents());
                     }
+                } else if (o instanceof NumEffect) {
+                    NumEffect c = (NumEffect) o;
+                    if (c.getInvolvedFluents() != null) {
+                        ret.addAll(c.getInvolvedFluents());
+                    }
+                } else {
+                    System.out.println("Error in getting involved fluents");
                 }
             }
         }
@@ -543,7 +537,7 @@ public class AndCond extends Conditions implements PostCondition {
         Map<Conditions, Boolean> toRemove = new HashMap();
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 Object o2 = it.next();
 
                 if (o2 instanceof Conditions) {
@@ -555,7 +549,7 @@ public class AndCond extends Conditions implements PostCondition {
                     }
                     if (c.isValid()) {
                         it.remove();
-                    }else if (c.isUnsatisfiable()) {
+                    } else if (c.isUnsatisfiable()) {
                         this.setUnsatisfiable(true);
                     }
 
@@ -624,32 +618,35 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public Conditions transform_equality() {
-        if (this.sons == null)
+        if (this.sons == null) {
             return this;
+        }
         AndCond ret = new AndCond();
         for (Conditions c1 : (Collection<Conditions>) this.sons) {
             Conditions res = c1.transform_equality();
-            if (res instanceof AndCond)
+            if (res instanceof AndCond) {
                 ret.sons.addAll(res.sons);
-            else
+            } else {
                 ret.addConditions(res);
-            
+            }
+
         }
         return ret;
     }
 
     @Override
     public boolean is_affected_by(GroundAction gr) {
-        
-        if (this.sons!= null && !this.sons.isEmpty()){
-            
-            for (Conditions c:(Collection<Conditions>) this.sons){
-                if (c.is_affected_by(gr))
+
+        if (this.sons != null && !this.sons.isEmpty()) {
+
+            for (Conditions c : (Collection<Conditions>) this.sons) {
+                if (c.is_affected_by(gr)) {
                     return true;
+                }
             }
-            
+
         }
-        
+
         return false;
     }
 
@@ -661,14 +658,13 @@ public class AndCond extends Conditions implements PostCondition {
                 Conditions t = (Conditions) o;
                 Conditions temp = t.regress(gr);
 //                System.out.println(temp);
-                if (!temp.isValid()){//needs to be satisfied
-                    if (temp.isUnsatisfiable()){
+                if (!temp.isValid()) {//needs to be satisfied
+                    if (temp.isUnsatisfiable()) {
                         return new Predicate(Predicate.true_false.FALSE);
-                    }else{
-                        if (temp instanceof AndCond)
-                            con.sons.addAll(((AndCond) temp).sons);
-                        else
-                            con.sons.add(temp);
+                    } else if (temp instanceof AndCond) {
+                        con.sons.addAll(((AndCond) temp).sons);
+                    } else {
+                        con.sons.add(temp);
                     }
                 }//else do not add the condition at all
 //                System.out.println("DEBUG: Condition before regression"+t);
@@ -681,11 +677,11 @@ public class AndCond extends Conditions implements PostCondition {
         }
 //        System.out.println(this);
 
-        if (con.sons.isEmpty()){
+        if (con.sons.isEmpty()) {
 //            System.out.println("Always valid");
             return new Predicate(Predicate.true_false.TRUE);
         }
-        return con;   
+        return con;
     }
 
     @Override
@@ -699,15 +695,17 @@ public class AndCond extends Conditions implements PostCondition {
                 }
             }
         }
-        return false;    
+        return false;
     }
 
     @Override
     public Conditions achieve(Predicate p) {
-        for (Conditions p1: (Collection<Conditions>)this.sons ){
-            if (p1 instanceof Predicate)
-                if (p1.equals(p))
+        for (Conditions p1 : (Collection<Conditions>) this.sons) {
+            if (p1 instanceof Predicate) {
+                if (p1.equals(p)) {
                     return new Predicate(Predicate.true_false.TRUE);
+                }
+            }
         }
         return null;
 
@@ -715,44 +713,45 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public Conditions delete(Predicate p) {
-        for (Conditions p1: (Collection<Conditions>)this.sons ){
-            if (p1 instanceof NotCond){
-                NotCond nc = (NotCond)p1;
-                Predicate p2 = (Predicate)nc.getSon();
-                if (p2.equals(p))
+        for (Conditions p1 : (Collection<Conditions>) this.sons) {
+            if (p1 instanceof NotCond) {
+                NotCond nc = (NotCond) p1;
+                Predicate p2 = (Predicate) nc.getSon();
+                if (p2.equals(p)) {
                     return new Predicate(Predicate.true_false.TRUE);
+                }
             }
         }
-        return null;    
+        return null;
     }
 
-    @Override 
+    @Override
     public int hashCode() {
         final int sonHash = sons.hashCode();
         final int result = sonHash + 7;
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (!(obj instanceof AndCond)) {
             return false;
         }
-        
-        final AndCond other = (AndCond)obj;
-        
+
+        final AndCond other = (AndCond) obj;
+
         if (!this.sons.equals(other.sons)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -780,7 +779,7 @@ public class AndCond extends Conditions implements PostCondition {
 //                    || (o instanceof ConditionalEffect)
 //                    ) {
             if (o instanceof PostCondition) {
-                final PostCondition pc = (PostCondition)o;
+                final PostCondition pc = (PostCondition) o;
                 pc.apply(s, modifications);
             } else {
                 sonHasIncorrectType(o);
@@ -798,27 +797,27 @@ public class AndCond extends Conditions implements PostCondition {
 //                    || (o instanceof ConditionalEffect)
 //                    ) {
             if (o instanceof PostCondition) {
-                final PostCondition pc = (PostCondition)o;
+                final PostCondition pc = (PostCondition) o;
                 pc.apply(s, modifications);
             } else {
                 sonHasIncorrectType(o);
             }
         }
     }
-    
+
     private void sonHasIncorrectType(Object son) {
-        System.out.println("Effect " + son + " is not valid. Its class is" 
+        System.out.println("Effect " + son + " is not valid. Its class is"
                 + son.getClass() + ".  Please revise your action model.");
         System.exit(-1);
     }
-    
+
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         bui.append("(and ");
         for (Object o : sons) {
             if (o instanceof Conditions) {
                 Conditions c = (Conditions) o;
-                c.pddlPrint(typeInformation,bui);
+                c.pddlPrint(typeInformation, bui);
 //            } else if (o instanceof Comparison) { // ??? a Comparison is already a Conditions
 //                Comparison comp = (Comparison) o;
 //                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
@@ -853,9 +852,10 @@ public class AndCond extends Conditions implements PostCondition {
     @Override
     public Set<Conditions> getTerminalConditions() {
         LinkedHashSet ret = new LinkedHashSet();
-        if (this.sons==null)
+        if (this.sons == null) {
             return new LinkedHashSet();
-        for (Conditions c: (Collection<Conditions>)this.sons){
+        }
+        for (Conditions c : (Collection<Conditions>) this.sons) {
             ret.addAll(c.getTerminalConditions());
         }
         return ret;
@@ -863,21 +863,23 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
-        if (this.sons == null)
+        if (this.sons == null) {
             return 0f;
+        }
         Float ret = 0f;
-        for (Conditions c: (Collection<Conditions>)this.sons){
-            if (c.estimate_cost(cond_dist,additive_h)==Float.MAX_VALUE)
-                    return Float.MAX_VALUE;
-            if (additive_h)
-                ret+=c.estimate_cost(cond_dist,additive_h);
-            else
-                ret = Math.max(c.estimate_cost(cond_dist,additive_h),ret);
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            Float estimate = c.estimate_cost(cond_dist, additive_h);
+            if (estimate == Float.MAX_VALUE) {
+                return Float.MAX_VALUE;
+            }
+            if (additive_h) {
+                ret += estimate;
+            } else {
+                ret = Math.max(estimate, ret);
+            }
         }
         return ret;
     }
-    
-
 
     @Override
     public Conditions and(Conditions precondition) {
@@ -890,21 +892,21 @@ public class AndCond extends Conditions implements PostCondition {
     @Override
     public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         achiever_set s = new achiever_set();
-        if (this.sons == null){
-            s.cost=0f;
-        }else{
-             s.cost=0f;
-            for (Conditions c: (Collection<Conditions>)this.sons){
-                achiever_set s1=c.estimate_cost(cond_dist,additive_h,established_achiever);
-                if (s1.cost==Float.MAX_VALUE){
-                        s.cost = Float.MAX_VALUE;
-                        return s;
+        if (this.sons == null) {
+            s.cost = 0f;
+        } else {
+            s.cost = 0f;
+            for (Conditions c : (Collection<Conditions>) this.sons) {
+                achiever_set s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
+                if (s1.cost == Float.MAX_VALUE) {
+                    s.cost = Float.MAX_VALUE;
+                    return s;
                 }
-                if (additive_h){
-                    s.cost+=s1.cost;
+                if (additive_h) {
+                    s.cost += s1.cost;
                     s.actions.addAll(s1.actions);
                     s.target_cond.addAll(s1.target_cond);
-                }else{
+                } else {
                     s.cost = Math.max(s1.cost, s.cost);
                 }
             }
@@ -914,10 +916,11 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public Conditions push_not_to_terminals() {
-        if (this.sons==null)
+        if (this.sons == null) {
             return this;
+        }
         AndCond res = new AndCond();
-        for (Conditions c: (Collection<Conditions>)this.sons){
+        for (Conditions c : (Collection<Conditions>) this.sons) {
             Conditions c1 = c.push_not_to_terminals();
             res.addConditions(c1);
         }
@@ -926,7 +929,7 @@ public class AndCond extends Conditions implements PostCondition {
 
     OrCond push_negation_demorgan() {
         OrCond res = new OrCond();
-        for (Conditions c:(Collection<Conditions>) this.sons){
+        for (Conditions c : (Collection<Conditions>) this.sons) {
             NotCond nc = new NotCond(c);
             res.addConditions(nc);
         }
@@ -935,12 +938,14 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
-        if (this.sons==null)
+        if (this.sons == null) {
             return true;
+        }
         boolean ret = true;
-        for (Conditions c: (Collection<Conditions>)this.sons){
-            if (!c.isSatisfied(rs, dist, i))
-                ret=false;
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            if (!c.isSatisfied(rs, dist, i)) {
+                ret = false;
+            }
         }
         return ret;
     }
@@ -949,20 +954,18 @@ public class AndCond extends Conditions implements PostCondition {
 //    public Conditions unify_num_fluent(State init) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
-
     @Override
     public Conditions introduce_red_constraints() {
         ArrayList<Comparison> to_mix = new ArrayList();
         AndCond ret = new AndCond();
-        for (Conditions c: (Collection<Conditions>)this.sons){
-            if (c instanceof Comparison){
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            if (c instanceof Comparison) {
                 to_mix.add((Comparison) c);
-            }else{
-                ret.addConditions(c.introduce_red_constraints());
             }
+            ret.addConditions(c.introduce_red_constraints());
         }
         for (int i = 0; i < to_mix.size(); i++) {
-            for (int j = i + 1; j < to_mix.size(); j++) {            
+            for (int j = i + 1; j < to_mix.size(); j++) {
                 try {
                     Comparison a1 = to_mix.get(i);
                     Comparison a2 = to_mix.get(j);
@@ -972,7 +975,7 @@ public class AndCond extends Conditions implements PostCondition {
                     String new_comparator = ">=";
                     if (!a1.getComparator().equals(a2.getComparator())) {
                         new_comparator = ">=";
-                    }else{
+                    } else {
                         new_comparator = a1.getComparator();
                     }
 
@@ -982,11 +985,12 @@ public class AndCond extends Conditions implements PostCondition {
                     newC.normalize();
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
-
+                    
                     if (tempLeft.summations.size() < 2) {
                         continue;
                     }
                     ret.addConditions(newC);
+
                 } catch (Exception ex) {
                     Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
                 }

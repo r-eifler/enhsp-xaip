@@ -35,6 +35,7 @@ import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionSchema;
+import domain.EventSchema;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
 import domain.Variable;
@@ -42,8 +43,6 @@ import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import expressions.PDDLNumber;
-import extraUtils.Utils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,6 +61,8 @@ public class EPddlProblem extends PddlProblem {
 
     public HashSet<GlobalConstraint> globalConstraintSet;
     public HashSet<GroundProcess> processesSet;
+    public HashSet<GroundEvent> eventsSet;
+
     private boolean globalConstraintGrounded;
     private boolean processesGround;
     public AndCond globalConstraints;
@@ -92,6 +93,8 @@ public class EPddlProblem extends PddlProblem {
         super(problemFile);
         globalConstraintSet = new LinkedHashSet();
         processesSet = new LinkedHashSet();
+                eventsSet = new LinkedHashSet();
+
         globalConstraintGrounded = false;
         processesGround = false;
         grounding = false;
@@ -102,6 +105,8 @@ public class EPddlProblem extends PddlProblem {
         super(problemFile, po);
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
+        eventsSet = new LinkedHashSet();
+
         grounding = false;
     }
 
@@ -167,6 +172,14 @@ public class EPddlProblem extends PddlProblem {
             if (this.processesSet != null){
                 for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
                     for (NumFluent nf : pr.getNumericFluentAffected().keySet()) {
+                        invariantFluents.put(nf, Boolean.FALSE);
+                    }
+                }
+            }
+            
+            if (this.eventsSet != null){
+                for (GroundEvent ev : (Collection<GroundEvent>) this.eventsSet) {
+                    for (NumFluent nf : ev.getNumericFluentAffected().keySet()) {
                         invariantFluents.put(nf, Boolean.FALSE);
                     }
                 }
@@ -581,7 +594,8 @@ public class EPddlProblem extends PddlProblem {
         this.generateActions();
 	this.generateProcesses();
 	this.generateConstraints();
-        this.setGroundedActions(true);
+        this.generateEvents();
+        this.setGroundedRepresentation(true);
         this.processesGround = true;
         this.globalConstraintGrounded= true;
         this.getInvariantFluents();
@@ -624,11 +638,26 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         
+        //Event
+        
+        it = this.eventsSet.iterator();
+        while (it.hasNext()) {
+            GroundEvent event = (GroundEvent) it.next();
+            boolean keep = true;
+
+                keep = event.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+            
+            if (!keep) {
+//                System.out.println("Pruning process:"+process.toEcoString());
+                it.remove();
+            }
+        }
+        
 //        unify_objects_names(this.getInit(),this.actions,this.processesSet);
         
         
         this.processesGround = true;
-        this.setGroundedActions(true);
+        this.setGroundedRepresentation(true);
 
         
         it = this.globalConstraintSet.iterator();
@@ -659,6 +688,32 @@ public class EPddlProblem extends PddlProblem {
             this.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t))); //this is the discretisation factor
 //          NumFluenew NumFluentValue("time_elapsed", 0);
             this.getInit().addTimeFluent();
+    }
+
+    private void generateEvents() {
+        long start = System.currentTimeMillis();
+        if (this.isValidatedAgainstDomain()) {
+            Instantiator af = new Instantiator();
+            for (EventSchema event_schema : (Set<EventSchema>) linkedDomain.getEventSchema()) {
+//                af.Propositionalize(act, objects);
+                if (!event_schema.getPar().isEmpty()) {
+                    try {
+                        getActions().addAll(af.Propositionalize(event_schema, getObjects()));
+                    } catch (Exception ex) {
+                        Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    GroundEvent event = event_schema.ground();
+                    this.eventsSet.add(event);
+
+                }
+            }
+            //pruneActions();
+        } else {
+            System.err.println("Please connect the domain of the problem via validation");
+            System.exit(-1);
+        }
+
     }
 
 

@@ -99,7 +99,7 @@ public class PddlProblem {
     protected boolean validatedAgainstDomain;
     protected Set<GroundAction> actions;
     protected long propositionalTime;
-    protected boolean groundActions;
+    protected boolean grounded_representation;
     protected RelState possStates;
     public int counterNumericFluents = 0;
     protected boolean simplifyActions;
@@ -119,7 +119,7 @@ public class PddlProblem {
      * @return the value of groundedActions
      */
     public boolean isGroundedActions() {
-        return groundActions;
+        return grounded_representation;
     }
 
     /**
@@ -127,8 +127,8 @@ public class PddlProblem {
      *
      * @param groundedActions new value of groundedActions
      */
-    public void setGroundedActions(boolean groundedActions) {
-        this.groundActions = groundedActions;
+    public void setGroundedRepresentation(boolean groundedActions) {
+        this.grounded_representation = groundedActions;
     }
 
     public PddlProblem(String problemFile, PDDLObjects po) {
@@ -144,7 +144,7 @@ public class PddlProblem {
             linkedDomain = null;
             actions = new LinkedHashSet();
             this.parseProblem(problemFile);
-            groundActions = false;
+            grounded_representation = false;
             validatedAgainstDomain = false;
             possStates = null;
             simplifyActions = true;
@@ -170,7 +170,7 @@ public class PddlProblem {
             linkedDomain = null;
             actions = new HashSet();
             this.parseProblem(problemFile);
-            groundActions = false;
+            grounded_representation = false;
             validatedAgainstDomain = false;
             possStates = null;
         } catch (IOException | RecognitionException | org.antlr.runtime.RecognitionException ex) {
@@ -264,7 +264,7 @@ public class PddlProblem {
         metric = new Metric("NO");
         linkedDomain = null;
         actions = new HashSet();
-        groundActions = false;
+        grounded_representation = false;
 
     }
 
@@ -762,7 +762,7 @@ public class PddlProblem {
         System.out.println("|A| just after simplification:" + getActions().size());
 
         setPropositionalTime(System.currentTimeMillis() - start);
-        this.setGroundedActions(true);
+        this.setGroundedRepresentation(true);
 
     }
 

@@ -13,17 +13,15 @@ import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
-import static extraUtils.Utils.dbg_print;
 import heuristics.advanced.ucs_h1_refactored;
-import java.util.ArrayList;
 import java.util.Collection;
-import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
+import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.RelState;
 import problem.State;
@@ -55,6 +53,18 @@ public class Aibr extends Heuristic {
 
     public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
+        this.supp_to_action = new HashMap();
+
+        supporters = new LinkedHashSet();
+//        Utils.dbg_print(debug, "Generate Supporters\n");
+        generate_supporters(A);
+//        Utils.dbg_print(debug, "Supporters Generated\n");
+
+        //this.build_integer_representation();
+    }
+    
+    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes,Set<GroundEvent> events) {
+        super(G, actions, processes,events);
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();

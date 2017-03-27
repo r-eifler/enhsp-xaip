@@ -47,6 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.GroundAction;
+import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.State;
 
@@ -85,12 +86,14 @@ public class SearchStrategies {
 
     private boolean can_reopen_nodes = true;
     private Collection<GroundProcess> reachable_processes;
+    private Collection<GroundEvent> reachable_events;
+
     public float delta_max;
     public int constraints_violations;
     private Collection<GroundAction> reachable_actions;
     public boolean helpful_actions_pruning;
 
-    private Collection<GroundAction> set_reachable_actions(EPddlProblem problem) {
+    private void set_reachable_actions(EPddlProblem problem) {
 
         reachable_actions = new LinkedHashSet();
 
@@ -111,11 +114,12 @@ public class SearchStrategies {
                 }
             }
         }
-        return reachable_actions;
     }
 
-    private Collection<GroundProcess> set_reachable_processes(EPddlProblem problem) {
+    private void set_reachable_processes_events(EPddlProblem problem) {
         reachable_processes = new LinkedHashSet();
+        reachable_events = new LinkedHashSet();
+
 
         Set<GroundAction> to_consider;
 //        if (only_relaxed_plan_actions)
@@ -135,13 +139,25 @@ public class SearchStrategies {
                     reachable_processes.add(gr2);
                 }
             }
+        }        
+        for (GroundAction gr3 : to_consider) {
+            if (!(gr3 instanceof GroundEvent)) {
+                continue;
+            }
+            GroundEvent gr = (GroundEvent) gr3;
+            Iterator<GroundEvent> it = problem.eventsSet.iterator();
+            while (it.hasNext()) {
+                GroundEvent gr2 = it.next();
+                if (gr.equals(gr2)) {
+                    reachable_events.add(gr2);
+                }
+            }
         }
-        return reachable_processes;
     }
 
     private void setup_reachable_actions_processes(EPddlProblem problem) {
-        reachable_actions = set_reachable_actions(problem);
-        reachable_processes = set_reachable_processes(problem);
+        set_reachable_actions(problem);
+        set_reachable_processes_events(problem);
 
         System.out.println("Reachable Actions:" + reachable_actions.size());
         System.out.println("Reachable Processes:" + reachable_processes.size());
@@ -177,6 +193,13 @@ public class SearchStrategies {
             return false;
         }
         return true;
+    }
+
+    private void apply_events(State s) {
+        for (GroundEvent ev: this.reachable_events){
+            //it has to be decided in which order events are to be evaluated
+        }
+        
     }
 
     public class FrontierOrder implements Comparator<SearchNode> {
@@ -880,6 +903,7 @@ public class SearchStrategies {
             ArrayList<GroundProcess> waiting_list = new ArrayList();
             boolean at_least_one = false;
             while (i <= delta_max) {
+                apply_events(temp);
                 i += delta;
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());

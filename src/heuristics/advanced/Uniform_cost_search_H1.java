@@ -55,6 +55,8 @@ import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import problem.GroundEvent;
+import problem.GroundProcess;
 
 /**
  *
@@ -87,6 +89,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
     public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
     }
+    public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet,Set events) {
+        super(G, A, processesSet,events);
+    }
+
 
     @Override
     public Float setup(State s) {
@@ -418,9 +424,12 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
         for (GroundAction a : A) {
             a.setPreconditions(a.getPreconditions().introduce_red_constraints());
+            
         }
+        
 
         G = G.introduce_red_constraints();
+        System.out.println(G.toString());
     }
 
     protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {

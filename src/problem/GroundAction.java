@@ -669,7 +669,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 //              (located ?p ?c)
 //		(decrease (onboard ?a) 1)))
 
-    private String pddlEffects() {
+    protected String pddlEffects() {
         String ret = "(and ";
         if (this.getAddList() != null && this.getAddList().sons != null) {
 

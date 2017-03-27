@@ -193,6 +193,9 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             if (!this.is_complex.get(comp.getCounter())) {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
+                    
+//                    System.out.println("Simple condition reasoning");
+
                     Float rep_needed;
 //                    System.out.println(is_complex);
 //                    System.out.println(comp);
@@ -204,12 +207,15 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
                         rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * gr.getAction_cost();
                     }
 //                    Utils.dbg_print(debug - 10, "Action under consideration and number of needed execution:" + gr + " " + rep_needed + "\n");
+//                    System.out.println("Action cost considere here"+gr.getAction_cost());
+//                    System.out.println("Number of repetition"+rep_needed);
                     if (rep_needed != Float.MAX_VALUE) {
                         if (this.additive_h) {
                             rep_needed += this.action_dist.get(gr.counter);
                         } else {
                             update_achiever(comp, gr);
-                            rep_needed += min_over_possible_achievers(comp);
+                            rep_needed += this.action_dist.get(gr.counter);
+                            //rep_needed += min_over_possible_achievers(comp);
                         }
 //                        if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                         
@@ -226,6 +232,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
                 }
             } else {
+//                System.out.println("Complex condition reasoning");
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance == 0f) {
                     continue;

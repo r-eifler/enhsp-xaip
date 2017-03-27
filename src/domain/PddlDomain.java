@@ -82,6 +82,8 @@ public final class PddlDomain extends Object {
     private String name;
     protected Set<ActionSchema> ActionsSchema;
     private Set<ProcessSchema> ProcessesSchema;
+    private Set<EventSchema> eventsSchema;
+
     private PredicateSet predicates;
     private List<Type> types;
     private PDDLObjects constants;
@@ -116,6 +118,8 @@ public final class PddlDomain extends Object {
         constants = new PDDLObjects();
         SchemaGlobalConstraints = new LinkedHashSet();
         ProcessesSchema = new LinkedHashSet();
+                eventsSchema = new LinkedHashSet();
+
 
     }
 
@@ -131,6 +135,8 @@ public final class PddlDomain extends Object {
             Requirements = new ArrayList<>();
             constants = new PDDLObjects();
             ProcessesSchema = new LinkedHashSet();
+            eventsSchema = new LinkedHashSet();
+
             this.parseDomain(domainFile);
         } catch (IOException | RecognitionException ex) {
             Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
@@ -321,6 +327,9 @@ public final class PddlDomain extends Object {
                 case PddlParser.ACTION:
                     addActions(c);
                     break;
+                case PddlParser.EVENT:
+                    addEvent(c);
+                    break;
                 case PddlParser.REQUIREMENTS:
                     addRequirements(c);
                     break;
@@ -485,55 +494,7 @@ public final class PddlDomain extends Object {
     }
 
     private void addActions(Tree c) {
-
-        ActionSchema a = new ActionSchema();
-        Tree action = (Tree) c.getChild(0);
-        a.setName(action.getText());
-        //System.out.println("Adding:"+a.getName());
-        this.ActionsSchema.add(a);
-
-        for (int i = 1; i < c.getChildCount(); i++) {
-            Tree infoAction = (Tree) c.getChild(i);
-            int type = infoAction.getType();
-
-            switch (type) {
-                case (PddlParser.PRECONDITION):
-                    Conditions con = createPreconditions(infoAction.getChild(0), a.parameters);
-                    if ((con instanceof Comparison) || (con instanceof Predicate)) {
-                        AndCond and = new AndCond();
-                        and.addConditions(con);
-                        a.setPreconditions(and);
-                    } else if (con != null) {
-                        a.setPreconditions(con);
-                    }
-                    break;
-                case (PddlParser.VARIABLE):
-                    if (infoAction.getChild(0) == null) {
-                        break;
-                    }
-                    Type t = new Type(infoAction.getChild(0).getText());
-                    boolean found = false;
-                    for (Object o : this.getTypes()) {
-                        if (t.equals(o)) {
-                            t = (Type) o;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
-                        System.exit(-1);
-                    } else {
-                        a.addParameter(new Variable(infoAction.getText(), t));
-                    }
-                    break;
-                case (PddlParser.EFFECT):
-                    add_effects(a, infoAction);
-//                    System.out.println(a);
-                    break;
-            }
-
-        }
+        this.addGenericActionSchemas(c, new ActionSchema());
     }
 
     private Conditions createPreconditions(Tree infoAction, SchemaParameters parTable) {
@@ -1307,6 +1268,78 @@ public final class PddlDomain extends Object {
         }
         
         
+    }
+
+    private void addEvent(Tree c){
+        this.addGenericActionSchemas(c, new EventSchema());
+    }
+    
+    private void addGenericActionSchemas(Tree c,ActionSchema a){
+
+        Tree action = (Tree) c.getChild(0);
+        a.setName(action.getText());
+        //System.out.println("Adding:"+a.getName());
+        if (a instanceof EventSchema)
+            this.getEventSchema().add((EventSchema)a);
+        else if (a instanceof ActionSchema){
+            this.ActionsSchema.add(a);
+        }
+        for (int i = 1; i < c.getChildCount(); i++) {
+            Tree infoAction = (Tree) c.getChild(i);
+            int type = infoAction.getType();
+
+            switch (type) {
+                case (PddlParser.PRECONDITION):
+                    Conditions con = createPreconditions(infoAction.getChild(0), a.parameters);
+                    if ((con instanceof Comparison) || (con instanceof Predicate)) {
+                        AndCond and = new AndCond();
+                        and.addConditions(con);
+                        a.setPreconditions(and);
+                    } else if (con != null) {
+                        a.setPreconditions(con);
+                    }
+                    break;
+                case (PddlParser.VARIABLE):
+                    if (infoAction.getChild(0) == null) {
+                        break;
+                    }
+                    Type t = new Type(infoAction.getChild(0).getText());
+                    boolean found = false;
+                    for (Object o : this.getTypes()) {
+                        if (t.equals(o)) {
+                            t = (Type) o;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                        System.exit(-1);
+                    } else {
+                        a.addParameter(new Variable(infoAction.getText(), t));
+                    }
+                    break;
+                case (PddlParser.EFFECT):
+                    add_effects(a, infoAction);
+//                    System.out.println(a);
+                    break;
+            }
+
+        }
+    }
+
+    /**
+     * @return the EventSchema
+     */
+    public Set<EventSchema> getEventSchema() {
+        return eventsSchema;
+    }
+
+    /**
+     * @param EventSchema the EventSchema to set
+     */
+    public void setEventSchema(Set<EventSchema> EventSchema) {
+        this.eventsSchema = EventSchema;
     }
 
 }

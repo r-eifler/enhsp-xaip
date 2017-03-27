@@ -58,6 +58,7 @@ import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 import org.ojalgo.optimisation.Variable;
+import problem.GroundEvent;
 import problem.GroundProcess;
 
 /**
@@ -142,6 +143,23 @@ public abstract class Heuristic {
         this.A = new LinkedHashSet();
         this.A.addAll(A);
         this.A.addAll(P);
+        reacheable_predicates = new LinkedHashSet();
+        reachable = new LinkedHashSet();
+        max_depth = 10;
+        all_conditions = new ArrayList();
+        def_num_fluents = new LinkedHashSet();
+        //build_integer_representation(A,G);
+    }
+    
+    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+        super();
+        achievers = new HashMap();
+        add_achievers = new HashMap();
+        this.G = G;
+        this.A = new LinkedHashSet();
+        this.A.addAll(A);
+        this.A.addAll(P);
+        this.A.addAll(E);
         reacheable_predicates = new LinkedHashSet();
         reachable = new LinkedHashSet();
         max_depth = 10;
