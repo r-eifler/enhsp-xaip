@@ -365,7 +365,8 @@ public final class PddlDomain extends Object {
         System.out.println("Actions Domain: " + this.ActionsSchema);
         if (this.ProcessesSchema!=null)
             System.out.println("Process Domain: " + this.ProcessesSchema);
-
+        //if (!this.eventsSchema.isEmpty())
+        System.out.println("Events Domain: " + this.eventsSchema);
         System.out.println("Predicates: " + this.predicates);
         System.out.println("Functions: " + this.functions);
         System.out.println("Global Constraints: " + this.getSchemaGlobalConstraints());
@@ -1279,9 +1280,10 @@ public final class PddlDomain extends Object {
         Tree action = (Tree) c.getChild(0);
         a.setName(action.getText());
         //System.out.println("Adding:"+a.getName());
-        if (a instanceof EventSchema)
+        if (a instanceof EventSchema){
             this.getEventSchema().add((EventSchema)a);
-        else if (a instanceof ActionSchema){
+            
+        }else if (a instanceof ActionSchema){
             this.ActionsSchema.add(a);
         }
         for (int i = 1; i < c.getChildCount(); i++) {

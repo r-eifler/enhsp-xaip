@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
+import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.State;
 
@@ -55,9 +56,20 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
     }
 
+    public ucs_h1_refactored(Conditions G, Set A, Set processesSet,Set events) {
+        super(G, A, processesSet,events);
+    }
+
     @Override
     public Float setup(State s) {
 
+        Aibr first_reachH = new Aibr(this.G,this.A);
+        first_reachH.setup(s);
+        first_reachH.set(true, true);
+        Float ret = first_reachH.compute_estimate(s);
+        if (ret == Float.MAX_VALUE)
+            return ret;
+        A = first_reachH.reachable;
         if (red_constraints) {
             try {
                 this.add_redundant_constraints();
@@ -81,12 +93,14 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
         reacheability_setting = true;
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
-        Float ret = compute_estimate(s);
+        ret = compute_estimate(s);
         Utils.dbg_print(debug - 10, "Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
         out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
+        Utils.dbg_print(10, this.complex_condition_set.toString());
+
         return ret;
     }
 

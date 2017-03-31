@@ -30,6 +30,7 @@ package propositionalFactory;
 
 import conditions.PDDLObject;
 import domain.ActionSchema;
+import domain.EventSchema;
 import domain.ParametersAsTerms;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
@@ -43,10 +44,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import problem.GlobalConstraint;
 import problem.GroundAction;
+import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PDDLObjects;
 
@@ -212,9 +213,16 @@ public class Instantiator {
         for (Object o : combo) {
 
             if (o instanceof ParametersAsTerms) {
-                GroundAction toAdd = a.ground((ParametersAsTerms) o);
-                toAdd.generateAffectedNumFluents();
-                ret.add(toAdd);
+                if (a instanceof EventSchema) {
+                    EventSchema b = (EventSchema)a;
+                    GroundEvent toAdd = b.ground((ParametersAsTerms) o);
+                    toAdd.generateAffectedNumFluents();
+                    ret.add(toAdd);
+                } else {
+                    GroundAction toAdd = a.ground((ParametersAsTerms) o);
+                    toAdd.generateAffectedNumFluents();
+                    ret.add(toAdd);
+                }
             }
         }
 

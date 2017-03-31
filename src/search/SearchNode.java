@@ -58,7 +58,7 @@ public class SearchNode {
     private boolean breakties_on_g = false; //this goes for larger g
     private boolean go_for_smaller_g = false; //this goes for smaller g
     private boolean bfs = true;
-    public ArrayList<GroundProcess> list_of_actions;
+    public ArrayList<GroundAction> list_of_actions;
     public Set<GroundAction> relaxed_plan_from_heuristic;
 
     public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
@@ -147,7 +147,7 @@ public class SearchNode {
 
     }
     
-    public SearchNode(State s1, ArrayList<GroundProcess> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
+    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
         s = s1;
         this.action = null;
         this.h_n = goal_distance;

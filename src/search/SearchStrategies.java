@@ -103,6 +103,7 @@ public class SearchStrategies {
             to_consider = new HashSet(getHeuristic().helpful_actions);
         } else {
             System.out.println("Take all reachable actions");
+            
             to_consider = getHeuristic().reachable;
         }
         for (GroundAction gr : to_consider) {
@@ -161,12 +162,14 @@ public class SearchStrategies {
 
         System.out.println("Reachable Actions:" + reachable_actions.size());
         System.out.println("Reachable Processes:" + reachable_processes.size());
+        System.out.println("Reachable Events:" + reachable_events.size());
+
     }
 
     /*
     Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
      */
-    private boolean queue_successor(PriorityQueue<SearchNode> frontier, State temp, SearchNode current_node, ArrayList<GroundProcess> waiting) {
+    private boolean queue_successor(PriorityQueue<SearchNode> frontier, State temp, SearchNode current_node, ArrayList<GroundAction> waiting) {
         g.put(temp, current_node.g_n + 1);//assume that it costs as much as the number of waitings to be done
         setStates_evaluated(getStates_evaluated() + 1);
         long start = System.currentTimeMillis();
@@ -195,9 +198,23 @@ public class SearchStrategies {
         return true;
     }
 
-    private void apply_events(State s) {
-        for (GroundEvent ev: this.reachable_events){
-            //it has to be decided in which order events are to be evaluated
+    private Set<GroundEvent> apply_events(State s, float delta1) throws CloneNotSupportedException {
+        Set<GroundEvent> ret = new LinkedHashSet();
+        while(true){
+            boolean at_least_one = false;
+            for (GroundEvent ev: this.reachable_events){
+
+                if (ev.isApplicable(s)){
+                    at_least_one = true;
+                    s = ev.apply(s);
+                    GroundEvent ev1 = (GroundEvent) ev.clone();
+                    ev1.time = delta1;
+                    ret.add(ev1);
+    //                System.out.println("Applying event"+ev1);
+                }
+            }
+            if (!at_least_one)
+                return ret;
         }
         
     }
@@ -332,6 +349,7 @@ public class SearchStrategies {
                 advance_time(frontier, node, (EPddlProblem) problem);
             }
             for (GroundAction act : reachable_actions) {
+                
                 if (act.isApplicable(node.s)) {
                     State temp = act.apply(node.s.clone());
 //                    System.out.println("Depth:"+node.g_n);
@@ -407,7 +425,7 @@ public class SearchStrategies {
             System.out.println("h(n = s_0)=inf");
             return null;
         }
-        System.out.println("Reachable actions and processes: |A U P|:" + getHeuristic().reachable.size());
+        System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().reachable.size());
         //System.out.println("After Reachability Processes:" + getHeuristic().reachable.size());
 
 //        System.out.println(getHeuristic().reachable);
@@ -419,6 +437,7 @@ public class SearchStrategies {
 
         SearchNode init = new SearchNode((State) problem.getInit().clone(), 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (this.helpful_actions_pruning) {
+            System.out.println("Selection actions from the helpful actions list");
             init.relaxed_plan_from_heuristic = getHeuristic().helpful_actions;
         }
 
@@ -486,10 +505,11 @@ public class SearchStrategies {
                     reachable_actions = current_node.relaxed_plan_from_heuristic;
                 }
                 for (GroundAction act : reachable_actions) {
-                    if (act instanceof GroundProcess) {
+                    if ((act instanceof GroundProcess)||(act instanceof GroundEvent)) {
                         continue;
                     }
                     if (act.isApplicable(current_node.s)) {
+//                        System.out.println("Action explored:"+act);
                         State successor_state = act.apply(current_node.s.clone());
                         //act.normalize();
                         act.setAction_cost(successor_state);
@@ -809,12 +829,18 @@ public class SearchStrategies {
                         gr.time = 0f;
                     }
                     plan.addFirst(gr);
-                } else {//this is a process
+                } else {//this is a process or an event
                     for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
-                        GroundProcess w = c.list_of_actions.get(k);
-                        w.setName("--------->waiting");
-                        w.time = c.list_of_actions.get(k).time;
-                        plan.addFirst(w);
+                        GroundAction w = c.list_of_actions.get(k);
+                        if (w instanceof GroundProcess){
+                            w.setName("--------->waiting");
+                            w.time = c.list_of_actions.get(k).time;
+                            plan.addFirst(w);
+                        }else{
+                            //w.setName("--------->waiting");
+                            w.time = c.list_of_actions.get(k).time;
+                            plan.addFirst(w);
+                        }
                     }
                 }
                 c = c.father;
@@ -900,10 +926,10 @@ public class SearchStrategies {
         try {
             float i = 0f;
             State temp = current_node.s.clone();
-            ArrayList<GroundProcess> waiting_list = new ArrayList();
+            ArrayList<GroundAction> waiting_list = new ArrayList();
             boolean at_least_one = false;
             while (i <= delta_max) {
-                apply_events(temp);
+                waiting_list.addAll(apply_events(temp,delta));
                 i += delta;
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());

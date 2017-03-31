@@ -193,7 +193,7 @@ public class ActionSchema extends GenericActionType {
         return ret + ")";
     }
 
-    private String pddlEffects() {
+    protected String pddlEffects() {
         String ret = "(and ";
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {

@@ -31,7 +31,6 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionSchema;
@@ -54,6 +53,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +67,7 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
 import problem.GroundAction;
+import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PddlProblem;
 import problem.State;
@@ -100,6 +101,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public JSONObject numeric_plan_trace;
     public Float ending_time;
     private ArrayList<GroundAction> inst_actions;
+    private HashMap<NumFluent, ArrayList<Float>> nf_trace;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -2318,7 +2320,17 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                System.out.println("After Waiting:"+time);
                 gr.time = temp;
                 this.add(gr);
-            } else {
+            } else if (gr instanceof GroundEvent){
+                //                System.out.println("Waiting:"+gr.time);
+                //System.out.println("Event Captured:"+gr);
+                float temp = time;
+                time += gr.time;
+//                System.out.println("After Waiting:"+time);
+                gr.time = temp;
+                                inst_actions.add(gr);
+
+                this.add(gr);
+            }else{
 //                System.out.println("time before:"+gr.time);
                 gr.time = time;
 //                System.out.println("time after:"+gr.time);
@@ -2334,7 +2346,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, float delta, float resolution, Float time) throws CloneNotSupportedException {
+    public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
@@ -2353,7 +2365,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         State current = init.clone();
         this.cost = 0f;
         //current.addNumericFluent(new NumFluentValue("#t", resolution));
-        HashMap<NumFluent, ArrayList<Float>> nf_trace = new HashMap();
+         nf_trace = new HashMap();
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
@@ -2378,15 +2390,20 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 System.out.println(current.pddlPrint());
             }
             GroundAction gr = inst_actions.get(i);
+            
             //Execute till next action
-            current = advance_time(current, processesSet, resolution, gr.time);
-            if (gr.isApplicable(current)) {
-                current = gr.apply(current);
+            current = advance_time(current, processesSet,reachable_events, resolution, gr.time);
+            if (gr instanceof GroundEvent){
                 
-                //current_time = gr.time;
-            } else {
-                System.out.println("Precondition not satisfied. Action:" + gr);
-                return current;
+            }else{
+                if (gr.isApplicable(current)) {
+                    current = gr.apply(current);
+
+                    //current_time = gr.time;
+                } else {
+                    System.out.println("Precondition not satisfied. Action:" + gr);
+                    return current;
+                }
             }
         }
         //Execute remaining time
@@ -2394,27 +2411,47 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //        System.out.println("Simulate till:"+time);
 //        System.out.println("With a time of:"+resolution);
 //        System.out.println(current.functionValue(new NumFluent("time_elapsed")));
-        current = advance_time(current, processesSet, resolution, time);
+        current = advance_time(current, processesSet,reachable_events, resolution, time);
 //        System.out.println(current.functionValue(new NumFluent("time_elapsed")));
         return current;
 
     }
 
-    private State advance_time(State current, HashSet<GroundProcess> processesSet, float delta, Float time) {
+        private Set<GroundEvent> apply_events(State s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
+        Set<GroundEvent> ret = new LinkedHashSet();
+        for (GroundEvent ev: reachable_events){
+            
+            if (ev.isApplicable(s)){
+                s = ev.apply(s);
+                GroundEvent ev1 = (GroundEvent) ev.clone();
+                ret.add(ev1);
+//                System.out.println("Applying event"+ev1);
+            }
+        }
+        return ret;
+        
+    }
+    
+    private State advance_time(State current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
         while(current.functionValue(new NumFluent("time_elapsed")).getNumber()<time) {
+            
+            if (print_trace) {
+                add_state_to_json(nf_trace, current);
+            }
+            this.apply_events(current, reachable_events);
 //            System.out.println("StartTime:"+start_time);
             GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
             waiting.add_time_effects(delta);
+//            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
                 if (gp.isActive(current)) {
 //                    System.out.println("---Active Process:" + gp.toPDDL());
                     for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
-
                         waiting.add_numeric_effect(eff);
                     }
                 }

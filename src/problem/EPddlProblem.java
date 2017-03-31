@@ -231,6 +231,12 @@ public class EPddlProblem extends PddlProblem {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
         }
+        
+        for (GroundEvent pr : (Collection<GroundEvent>) this.eventsSet) {
+            if (pr.getPreconditions() != null) {
+                pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
+            }
+        }
         //globalConstraints.normalize();
         //globalConstraints = (AndCond)globalConstraints.transform_equality();
         
@@ -565,6 +571,26 @@ public class EPddlProblem extends PddlProblem {
             gr.normalize();
             
         }
+        
+        for (GroundEvent gr: this.eventsSet){
+            if (gr.getNumericEffects()!= null && !gr.getNumericEffects().sons.isEmpty()){
+                for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                    NumEffect neff = (NumEffect)it.next();
+                    if (neff.getOperator().equals("assign") ){     
+                        ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
+                        if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
+                            //Utils.dbg_print(3,neff.toString());
+                            neff.setOperator("increase");
+                            neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
+                            neff.setPseudo_num_effect(true);
+                        }
+                    }
+                    
+                }
+            }
+            gr.normalize();
+            
+        }
 
     }
     
@@ -698,7 +724,7 @@ public class EPddlProblem extends PddlProblem {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
                     try {
-                        getActions().addAll(af.Propositionalize(event_schema, getObjects()));
+                        this.eventsSet.addAll(af.Propositionalize(event_schema, getObjects()));
                     } catch (Exception ex) {
                         Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
                     }

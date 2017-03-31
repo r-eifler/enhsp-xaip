@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.State;
 
@@ -50,6 +51,10 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
 
     public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P) {
         super(goal, A, P);
+
+    }
+    public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P,Set<GroundEvent> E) {
+        super(goal, A, P,E);
 
     }
 
@@ -115,8 +120,8 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
         for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 dist_float.set(c.getCounter(), 0f);
-                Utils.dbg_print(debug,"Condition that is already satisfied:"+c+"\n");
-                Utils.dbg_print(debug,"Counter is:"+c.getCounter()+"\n");
+//                Utils.dbg_print(debug,"Condition that is already satisfied:"+c+"\n");
+//                Utils.dbg_print(debug,"Counter is:"+c.getCounter()+"\n");
 
             }else{
                 if (c instanceof Predicate){
@@ -172,20 +177,19 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                 }
             }else{
                 if (distance != 0f) {
-                    Utils.dbg_print(debug,"Landmark found!"+c+"\n");
+//                    Utils.dbg_print(debug,"Landmark found!"+c+"\n");
 
                     goal_landmark.addAll(lm.get(c.getCounter()));
-                    not_trivial_landmarks+=lm.get(c.getCounter()).size();
                     //Utils.dbg_print(debug,"Counter is:"+c.getCounter()+"\n");
                     goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
-                    Utils.dbg_print(debug,print_ordering(lm,c));
+//                    Utils.dbg_print(debug,print_ordering(lm,c));
                 }
             }
         }
         if (this.reacheability_setting) {
             System.out.println("Landmarks:" + goal_landmark.size());
 
-            System.out.println("Not Trivial Landmarks:" + not_trivial_landmarks);
+            System.out.println("Not Trivial Landmarks:" + (goal_landmark.size()-G.getTerminalConditions().size()));
 
         }
 
