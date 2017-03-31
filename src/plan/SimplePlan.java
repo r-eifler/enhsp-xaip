@@ -2323,13 +2323,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
             } else if (gr instanceof GroundEvent){
                 //                System.out.println("Waiting:"+gr.time);
                 //System.out.println("Event Captured:"+gr);
-                float temp = time;
-                time += gr.time;
-//                System.out.println("After Waiting:"+time);
-                gr.time = temp;
-                                inst_actions.add(gr);
-
+                gr.time = time;
+//                System.out.println("time after:"+gr.time);
                 this.add(gr);
+                time += epsilon;
+                inst_actions.add(gr);
             }else{
 //                System.out.println("time before:"+gr.time);
                 gr.time = time;

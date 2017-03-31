@@ -92,6 +92,7 @@ public class SearchStrategies {
     public int constraints_violations;
     private Collection<GroundAction> reachable_actions;
     public boolean helpful_actions_pruning;
+    public int debug;
 
     private void set_reachable_actions(EPddlProblem problem) {
 
@@ -198,8 +199,8 @@ public class SearchStrategies {
         return true;
     }
 
-    private Set<GroundEvent> apply_events(State s, float delta1) throws CloneNotSupportedException {
-        Set<GroundEvent> ret = new LinkedHashSet();
+    private ArrayList<GroundEvent> apply_events(State s, float delta1) throws CloneNotSupportedException {
+        ArrayList<GroundEvent> ret = new ArrayList();
         while(true){
             boolean at_least_one = false;
             for (GroundEvent ev: this.reachable_events){
@@ -210,6 +211,9 @@ public class SearchStrategies {
                     GroundEvent ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
+                    if (debug == 111){
+                         System.out.println("Event Applied ("+delta1+s.getNumericFluent(s.getTime())+"): "+ev);
+                    }
     //                System.out.println("Applying event"+ev1);
                 }
             }
@@ -924,13 +928,15 @@ public class SearchStrategies {
 
     private void advance_time(PriorityQueue<SearchNode> frontier, SearchNode current_node, EPddlProblem problem) throws Exception {
         try {
-            float i = 0f;
+            float i = 0.00000f;
             State temp = current_node.s.clone();
             ArrayList<GroundAction> waiting_list = new ArrayList();
             boolean at_least_one = false;
-            while (i <= delta_max) {
-                waiting_list.addAll(apply_events(temp,delta));
+            while (i < delta_max) {
+                State temp_temp = temp.clone();
+                waiting_list.addAll(apply_events(temp_temp,i));
                 i += delta;
+                
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
@@ -939,8 +945,11 @@ public class SearchStrategies {
                 for (GroundAction act : this.reachable_processes) {
                     if (act instanceof GroundProcess) {
                         GroundProcess gp = (GroundProcess) act;
-                        if (gp.isActive(temp)) {
+                        if (gp.isActive(temp_temp)) {
                             //System.out.println(gp.toEcoString());
+                            if (debug == 111){
+                                System.out.println("Process Applied ("+i+temp_temp.getNumericFluent(temp_temp.getTime())+"): "+gp);
+                            }
                             AndCond precondition = (AndCond) waiting.getPreconditions();
                             precondition.addConditions(gp.getPreconditions());
                             for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
@@ -951,7 +960,7 @@ public class SearchStrategies {
                     }
                 }
                 waiting_list.add(waiting);
-                State temp_temp = temp.clone();
+                
                 temp_temp = waiting.apply(temp_temp);
 
                 boolean valid = temp_temp.satisfy(problem.globalConstraints);//zero crossing?!?!?
@@ -961,7 +970,7 @@ public class SearchStrategies {
                     at_least_one = true;
                     if (temp_temp.satisfy(problem.getGoals())) {//very very easy zero crossing for opportunities. This should include also action preconditions
                         queue_successor(frontier, temp_temp, current_node, waiting_list);
-                        //System.out.println("Debug: goal while waiting!!");
+                        if (debug == 111)System.out.println("Debug: goal while waiting!!");
                     }
                 }
                 if (!valid || i >= delta_max) {
