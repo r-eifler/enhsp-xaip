@@ -2240,7 +2240,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getNumericEffectsAsCollection().isEmpty()) {
             return false;
         }
-
         if (comp.getLeft() instanceof ExtendedNormExpression) {
             ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
             for (ExtendedAddendum ad : left.summations) {

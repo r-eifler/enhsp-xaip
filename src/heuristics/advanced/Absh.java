@@ -19,15 +19,16 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.GroundProcess;
 
 /**
  *
  * @author dxli
  */
-public class Absh extends Uniform_cost_search_H1_RC{
+public class Absh extends ucs_h1_refactored{
     
-    public Absh(Conditions G, Set<GroundAction> A) {
-        super(G, A);
+    public Absh(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+        super(G, A, P);
         this.supporters = new LinkedHashSet();
         
         add_supportes(A);
@@ -36,6 +37,8 @@ public class Absh extends Uniform_cost_search_H1_RC{
     private void add_supportes(Set<GroundAction> A) {
         System.out.println("Generating supporters.");
         generate_supporters();
+//        if(this.supporters != null){ this.A = (LinkedHashSet <GroundAction>)this.supporters;}
+
         if(this.supporters != null){ this.A.addAll(this.supporters);}
         System.out.println("Generating supporters finished.");
         System.out.println("|A U Sup|: " + this.A.size() +"\n\n");
@@ -45,7 +48,7 @@ public class Absh extends Uniform_cost_search_H1_RC{
         for (GroundAction gr : A) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (!effect.getOperator().equals("assign") || !effect.getRight().rhsFluents().isEmpty()) {
+                    if (!effect.getOperator().equals("assign") && !effect.getRight().rhsFluents().isEmpty()) {
                       generate_abstract_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr);    
                     }
                 }
@@ -92,6 +95,8 @@ public class Absh extends Uniform_cost_search_H1_RC{
             
             // add new supporter
             this.supporters.add(ret);
+            
+            
         }
     }
 
@@ -106,8 +111,8 @@ public class Absh extends Uniform_cost_search_H1_RC{
         ArrayList<Float> b1 = new ArrayList<>(Arrays.asList(0f,5f));
         ArrayList<Float> b2 = new ArrayList<>(Arrays.asList(5f,10f));
         
-        ret.put(b1, 1f);
-        ret.put(b2, 5f);
+        ret.put(b1, 2f);
+        ret.put(b2, 6f);
 //        ret.put(b3, 6f);
         
         return ret;

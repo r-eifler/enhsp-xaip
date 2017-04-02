@@ -76,7 +76,6 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             } catch (Exception ex) {
                 Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
         goal.setPreconditions(G);
@@ -90,6 +89,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
             generate_achievers();
         } catch (Exception ex) {
             Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         reacheability_setting = true;
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");

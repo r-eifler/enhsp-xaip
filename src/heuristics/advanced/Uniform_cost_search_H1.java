@@ -54,9 +54,6 @@ import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
-import static java.util.logging.Logger.getLogger;
-import problem.GroundEvent;
-import problem.GroundProcess;
 
 /**
  *
@@ -160,7 +157,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     return goal_dist;
                 }
             }
-
+             
             Utils.dbg_print(debug, "Round" + iteration++);
             //trigger actions
 //            Iterator<GroundAction> it = this.precondition_mapping.get(cn.getCounter()).iterator();
@@ -261,9 +258,13 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
     protected void generate_achievers() throws Exception {
         interact_with = new HashMap();
+        // map action a to a set of propositional conditions it can achieve
         achieve = new HashMap();
+        // map action a to a set of numeric conditions (comparisons) it can achieve
         possible_achievers = new HashMap();
+        // map a comparison to a set of actions can achieve the comparison.
         this.possible_achievers_inverted = new HashMap();
+        // map a propositinal condition to a set of actions can make it true
         achievers_inverted = new HashMap();
         precondition_mapping = new HashMap();
 
@@ -284,7 +285,9 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
                         comparisons.add(comp);
-
+                        
+//                      Only try to find achievers for simple numeric condition
+//                      Leave complex conditions alone
                         if (this.is_complex.get(comp.getCounter())) {
                             reacheable_comparisons.add(comp);
                         } else if (gr.is_possible_achiever_of(comp)) {
