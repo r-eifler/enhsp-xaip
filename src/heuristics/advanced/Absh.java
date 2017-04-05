@@ -33,6 +33,7 @@ public class Absh extends ucs_h1_refactored{
         this.supporters = new LinkedHashSet();
         
         generate_supporters();
+        
         ucs_h1 = new ucs_h1_refactored(G, (Set<GroundAction>) this.supporters, P);
         ucs_h1.additive_h = true;
         ucs_h1.red_constraints = true;
@@ -56,10 +57,15 @@ public class Absh extends ucs_h1_refactored{
         for (GroundAction gr : A) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (!effect.getOperator().equals("assign") || !effect.getRight().rhsFluents().isEmpty()) {
+                    if (!effect.getOperator().equals("assign") && !effect.getRight().rhsFluents().isEmpty()) {
                       generate_abstract_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr);    
+                    } else if (effect.getRight().rhsFluents().isEmpty()) {
+                      generate_constant_supporter(effect, gr.toFileCompliant(), gr.getPreconditions(), gr);
                     }
                 }
+            } else {
+                // add actions with propositional effects to supporters
+                this.supporters.add(gr);
             }
         }
         
@@ -77,7 +83,7 @@ public class Absh extends ucs_h1_refactored{
             Float upper_bound = bounds.get(1);
             Float increment = entry.getValue();
             
-            GroundAction ret = new GroundAction(name + '-' + increment);
+            GroundAction ret = new GroundAction(name + ' ' + increment);
             
             // setup effect
             NumEffect abs_eff = new NumEffect(effect.getOperator());
@@ -88,8 +94,8 @@ public class Absh extends ucs_h1_refactored{
             ret.getNumericEffects().sons.add(abs_eff);
             
             // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
-            Comparison indirect_precondition_gt = new Comparison(">=");
-            Comparison indirect_precondition_lt = new Comparison("<");
+            Comparison indirect_precondition_gt = new Comparison(">");
+            Comparison indirect_precondition_lt = new Comparison("<=");
             indirect_precondition_gt.setLeft(effect.getRight());
             indirect_precondition_gt.setRight(new PDDLNumber(lower_bound));
             indirect_precondition_lt.setLeft(effect.getRight());
@@ -98,7 +104,9 @@ public class Absh extends ucs_h1_refactored{
             // set pre-conditions for supporters
             ret.getPreconditions().sons.add(indirect_precondition_lt);
             ret.getPreconditions().sons.add(indirect_precondition_gt);
-            ret.setPreconditions(ret.getPreconditions().and(preconditions));
+            if (!preconditions.sons.isEmpty()){
+                ret.setPreconditions(ret.getPreconditions().and(preconditions));
+            }
             
             // add new supporter
             this.supporters.add(ret);
@@ -107,18 +115,45 @@ public class Absh extends ucs_h1_refactored{
         }
     }
 
+    private void generate_constant_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {
+        GroundAction ret = new GroundAction(name + ' ' + effect.getFluentAffected().getName() + ' ' + effect.getOperator());
+        
+        // setup effect
+        NumEffect abs_eff = new NumEffect(effect.getOperator());
+        abs_eff.setFluentAffected(effect.getFluentAffected());
+        abs_eff.setRight(effect.getRight());
+       
+        // add effect
+        ret.getNumericEffects().sons.add(abs_eff);
+        
+        // add preconditions
+        if(!preconditions.sons.isEmpty()){
+            ret.setPreconditions(preconditions);
+        }
+        
+        this.supporters.add(ret);
+//        System.out.println(ret.toPDDL() + "\n");
+    }
+
     private LinkedHashMap<ArrayList<Float>, Float> partition(NumEffect effect, Conditions preconditions, GroundAction gr) {
         LinkedHashMap<ArrayList<Float>, Float> ret = new LinkedHashMap();
         
-        ArrayList<Float> b1 = new ArrayList<>(Arrays.asList(0f,2f));
+        ArrayList<Float> b1 = new ArrayList<>(Arrays.asList(0f,1f));
         ArrayList<Float> b2 = new ArrayList<>(Arrays.asList(2f,8f));
+//        ArrayList<Float> b3 = new ArrayList<>(Arrays.asList(3f,4f));
+//        ArrayList<Float> b4 = new ArrayList<>(Arrays.asList(4f,5f));
+//        ArrayList<Float> b5 = new ArrayList<>(Arrays.asList(5f,6f));
+//        ArrayList<Float> b6 = new ArrayList<>(Arrays.asList(6f,12f));
         
         
 //        ArrayList<Float> b1 = new ArrayList<>(Arrays.asList(0f,2f));
 //        ArrayList<Float> b2 = new ArrayList<>(Arrays.asList(2f,4f));
         
         ret.put(b1, 1f);
-        ret.put(b2, 3f);
+        ret.put(b2, 2f);
+//        ret.put(b3, 3f);
+//        ret.put(b4, 4f);
+//        ret.put(b5, 5f);
         
         return ret;
     }
