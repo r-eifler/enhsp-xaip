@@ -56,6 +56,7 @@ public class Absh extends ucs_h1_refactored{
         
         for (GroundAction gr : A) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                // generate supporters for actions with numeric effects
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (!effect.getOperator().equals("assign") && !effect.getRight().rhsFluents().isEmpty()) {
                       generate_abstract_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr);    
