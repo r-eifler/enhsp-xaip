@@ -10,6 +10,7 @@ import conditions.Conditions;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
+import heuristics.Heuristic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,8 +26,9 @@ import problem.State;
  *
  * @author dxli
  */
-public class Absh extends ucs_h1_refactored{
-    private ucs_h1_refactored ucs_h1;
+public class Absh extends Heuristic{
+    public boolean red_constraints;
+    private final ucs_h1_refactored ucs_h1;
     
     public Absh(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
@@ -36,7 +38,7 @@ public class Absh extends ucs_h1_refactored{
         
         ucs_h1 = new ucs_h1_refactored(G, (Set<GroundAction>) this.supporters, P);
         ucs_h1.additive_h = true;
-        ucs_h1.red_constraints = true;
+//        ucs_h1.red_constraints = true;
     }
     
     @Override
