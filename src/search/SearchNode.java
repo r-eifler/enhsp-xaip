@@ -242,6 +242,8 @@ public class SearchNode {
         }
         System.out.println("Successfully Copied JSON Object to File...");
     }
+    
+
 
     @Override
     public boolean equals(Object obj) {

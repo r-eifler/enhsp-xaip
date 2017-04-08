@@ -42,6 +42,8 @@ public abstract class planningTool {
     protected boolean failed = false;
         private boolean timeoutFail = false;
     private boolean plannerError;
+    protected String domain_file_option = " -o ";
+    protected String problem_file_option = " -f ";
 
     /**
      * Get the value of timeoutFail
@@ -78,8 +80,9 @@ public abstract class planningTool {
             Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
 
-            System.out.println("Executing: " + planningExec + " -o " + domainFile + " -f " + problemFile + " " + this.getOption1() + " " + option2);
-            process = runtime.exec(planningExec + " -o " + domainFile + " -f " + problemFile + " " + option1 + " " + option2);
+            System.out.println("This is what I am running");
+            System.out.println("Executing: " + planningExec + domain_file_option  + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
+            process = runtime.exec(planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             /* Set up process I/O. */
 
             Worker worker = new Worker(process);
