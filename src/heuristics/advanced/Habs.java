@@ -35,8 +35,8 @@ import problem.State;
 public class Habs extends Heuristic{
     
     private HashMap<GroundAction, GroundAction> supporter_to_action = new HashMap<>();
-    private LinkedList<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> supportersTable = new LinkedList<>();
-    private LinkedHashSet propositional_actions = new LinkedHashSet();
+    private LinkedList<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> linearSupporters = new LinkedList<>();
+    private LinkedHashSet other_supporters = new LinkedHashSet(); // this includes supporters for propositional effect, assignment, and constant numeric effects.
     
     private final Adaptive_Ucs_h1 adaptive_ucs_h1;
     
@@ -45,13 +45,13 @@ public class Habs extends Heuristic{
         supporters = new LinkedHashSet<>();
         
         generate_supporters();
-        supporters.addAll(propositional_actions);
+        supporters.addAll(other_supporters);
 //        System.out.println("|prop A|: " + propositional_actions.size());
         
         adaptive_ucs_h1 = new Adaptive_Ucs_h1(G, (Set<GroundAction>) this.supporters, P);
         adaptive_ucs_h1.additive_h = true;
-        adaptive_ucs_h1.setSupportersTable(supportersTable);
-        adaptive_ucs_h1.setPropositional_actions(propositional_actions);
+        adaptive_ucs_h1.setLinearSupporters(linearSupporters);
+        adaptive_ucs_h1.setOtherSupporters(other_supporters);
     }
     
     @Override
@@ -78,7 +78,7 @@ public class Habs extends Heuristic{
         System.out.println("Generating supporters.");
         
         for (GroundAction gr : A) {
-            supportersTable.add(new HashMap<>());
+            linearSupporters.add(new HashMap<>());
             
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
 //                System.out.println(gr.getNumericEffects());
@@ -91,11 +91,12 @@ public class Habs extends Heuristic{
                       generate_constant_supporter(effect, gr.toFileCompliant(), gr.getPreconditions(), gr);
                     } else {
                       // TODO what are supporters for assignment?
+                        this.other_supporters.add(gr);
+                        supporter_to_action.put(gr, gr);
                     }
                 }
             } else {
-                System.out.println(gr.toString());
-                this.propositional_actions.add(gr);
+                this.other_supporters.add(gr);
                 supporter_to_action.put(gr, gr);
             }
         }
@@ -106,13 +107,13 @@ public class Habs extends Heuristic{
 
     private void generate_linear_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {
         // for an action, each numeric effect has a unique fluent affected
-        supportersTable.get(supportersTable.size()-1).put(effect.getRight(), new HashMap<>());
+        linearSupporters.get(linearSupporters.size()-1).put(effect.getRight(), new HashMap<>());
         
         // partitioning
         ArrayList<RealInterval> realIntervals = partition(preconditions, gr);
         
         for(RealInterval realInterval : realIntervals){
-            supportersTable.get(supportersTable.size()-1).get(effect.getRight()).put(realInterval, new ArrayList<>());
+            linearSupporters.get(linearSupporters.size()-1).get(effect.getRight()).put(realInterval, new ArrayList<>());
             
             Float lo = (float) realInterval.lo();
             Float hi = (float) realInterval.hi();
@@ -136,7 +137,7 @@ public class Habs extends Heuristic{
                 sup.getNumericEffects().sons.add(abs_eff);
 
                 // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
-                Comparison indirect_precondition_gt = new Comparison(">");
+                Comparison indirect_precondition_gt = new Comparison(">=");
                 Comparison indirect_precondition_lt = new Comparison("<=");
                 indirect_precondition_gt.setLeft(effect.getRight());
                 indirect_precondition_gt.setRight(new PDDLNumber(lo));
@@ -153,18 +154,12 @@ public class Habs extends Heuristic{
                 // add new supporter
                 supporters.add(sup);
                 supporter_to_action.put(sup, gr);
-     
-                supportersTable.get(supportersTable.size()-1).get(effect.getRight()).get(realInterval).add(sup);
+                linearSupporters.get(linearSupporters.size()-1).get(effect.getRight()).get(realInterval).add(sup);
             }
         }
     }
 
-    private void generate_constant_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {
-        RealInterval temp_interval = new RealInterval();
-        
-        supportersTable.get(supportersTable.size()-1).put(effect.getRight(), new HashMap<>());
-        supportersTable.get(supportersTable.size()-1).get(effect.getRight()).put(temp_interval, new ArrayList<>());
-           
+    private void generate_constant_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {     
         GroundAction sup = new GroundAction(name + ' ' + effect.getFluentAffected().getName());
         
         // setup effect
@@ -180,11 +175,10 @@ public class Habs extends Heuristic{
             sup.setPreconditions(preconditions);
         }
         
-        this.supporters.add(sup);
+        supporters.add(sup);
         supporter_to_action.put(sup, gr);
-        
-        supportersTable.get(supportersTable.size()-1).get(effect.getRight()).get(temp_interval).add(sup);
-    }
+        other_supporters.add(sup);
+   }
 
     private ArrayList<RealInterval> partition(Conditions preconditions, GroundAction gr) {
         ArrayList<RealInterval> ret = new ArrayList<>();
@@ -196,7 +190,6 @@ public class Habs extends Heuristic{
         ret.add(realInterval1);
         ret.add(realInterval2);
         ret.add(realInterval3);
-//        ret.add(realInterval4);
         
         return ret;
     }
@@ -206,7 +199,7 @@ public class Habs extends Heuristic{
         return adaptive_ucs_h1.compute_estimate(s);
     }
     
-    // remove this later on
+    // only for debugging
     public static void logging(String content){
         String FILENAME = "/home/dxli/workspace/NetBeansProjects/expressive-numeric-heuristic-search-planner-enhsp-planner/abs_experiments/log.txt";
 

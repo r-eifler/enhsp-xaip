@@ -32,8 +32,8 @@ public class Adaptive_Ucs_h1 extends ucs_h1_refactored{
     
     private boolean setting_up = true;
     
-    private List<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> supportersTable;
-    private LinkedHashSet propositional_actions = new LinkedHashSet();
+    private List<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> linearSupporters;
+    private LinkedHashSet otherSupporters = new LinkedHashSet();
     private LinkedHashSet<GroundAction> stateDependentSupporters;
 
     
@@ -42,23 +42,19 @@ public class Adaptive_Ucs_h1 extends ucs_h1_refactored{
         stateDependentSupporters = new LinkedHashSet<>();
     }
 
-    public void setSupportersTable(List<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> supportersTable) {
-        this.supportersTable = supportersTable;
+    public void setLinearSupporters(List<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> supportersTable) {
+        this.linearSupporters = supportersTable;
     }
     
-    public void setPropositional_actions(LinkedHashSet propositional_actions) {
-        this.propositional_actions = propositional_actions;
+    public void setOtherSupporters(LinkedHashSet otherSupporters) {
+        this.otherSupporters = otherSupporters;
     }
     
     @Override
     public Float setup(State s){
         addStateDependentSupporters(s);
-        this.A = this.stateDependentSupporters;
+        A = stateDependentSupporters;
         
-//        Habs.logging(s.toString() + "\n\n");
-//        for (GroundAction gr : this.A){
-//            Habs.logging(gr.toPDDL() + "\n\n");
-//        }
         return super.setup(s);
     }
     
@@ -75,7 +71,7 @@ public class Adaptive_Ucs_h1 extends ucs_h1_refactored{
     }
     
     private void addStateDependentSupporters(State s){
-        Iterator action_iterator = supportersTable.iterator();
+        Iterator action_iterator = linearSupporters.iterator();
         Iterator <Entry<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> expr_iterator;
         Iterator <Entry<RealInterval, ArrayList<GroundAction>>> interval_iterator;
         
@@ -92,40 +88,35 @@ public class Adaptive_Ucs_h1 extends ucs_h1_refactored{
             while (expr_iterator.hasNext()){
                 exprEntry = expr_iterator.next();
                 interval_iterator = exprEntry.getValue().entrySet().iterator();
-                
+
                 Float eval = exprEntry.getKey().eval(s).getNumber();
-                
                 while (interval_iterator.hasNext()){
                     intervalEntry = interval_iterator.next();
                     possible_supporters = intervalEntry.getValue();
                     
-                    if (possible_supporters.size() > 1){ 
-                        // any linear increase/decrease effect will have 3 supporters (lo, hi, exact_value)
-                        Float lo = (float) intervalEntry.getKey().lo();
-                        Float hi = (float) intervalEntry.getKey().hi();
-                        
-                        // System.out.println(exprMap.getKey() + " = " + eval);
-                        if (eval < lo){
-                            stateDependentSupporters.add(possible_supporters.get(LOW));
-                        } else if (eval <= hi) {
-                            GroundAction temp_supporter = possible_supporters.get(EXACT_VALUE);
-                            NumEffect temp_num_eff =  (NumEffect) temp_supporter.getNumericEffects().sons.iterator().next();
-                            temp_num_eff.setRight(new ExtendedNormExpression(temp_num_eff.getRight().eval(s).getNumber()));
-                            temp_supporter.getNumericEffects().sons.clear();
-                            temp_supporter.getNumericEffects().sons.add(temp_num_eff);
-                            
-                            stateDependentSupporters.add(temp_supporter);
-                        } else {
-                            stateDependentSupporters.add(possible_supporters.get(HIGH));
-                        }
+                    // any linear increase/decrease effect will have 3 supporters (lo, hi, exact_value)
+                    Float lo = (float) intervalEntry.getKey().lo();
+                    Float hi = (float) intervalEntry.getKey().hi();
+
+                    // System.out.println(exprMap.getKey() + " = " + eval);
+                    if (eval < lo){
+                        stateDependentSupporters.add(possible_supporters.get(LOW));
+                    } else if (eval <= hi) {
+                        GroundAction temp_supporter = possible_supporters.get(EXACT_VALUE);
+                        NumEffect temp_num_eff =  (NumEffect) temp_supporter.getNumericEffects().sons.iterator().next();
+                        temp_num_eff.setRight(new ExtendedNormExpression(temp_num_eff.getRight().eval(s).getNumber()));
+                        temp_supporter.getNumericEffects().sons.clear();
+                        temp_supporter.getNumericEffects().sons.add(temp_num_eff);
+
+                        stateDependentSupporters.add(temp_supporter);
                     } else {
-                        // constant numeric effect, assignment have themselves as supporters
-                        stateDependentSupporters.add(possible_supporters.get(0));
-                    }
-                }
+                        stateDependentSupporters.add(possible_supporters.get(HIGH));
+                    }    
+                } 
             }
         }
         // propositional effect
-        stateDependentSupporters.addAll(propositional_actions);
-    }
+        stateDependentSupporters.addAll(otherSupporters);       
+    }    
 }
+    
