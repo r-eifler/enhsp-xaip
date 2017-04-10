@@ -14,6 +14,7 @@ import heuristics.Heuristic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -26,11 +27,12 @@ import problem.State;
  *
  * @author dxli
  */
-public class Absh extends Heuristic{
-    public boolean red_constraints;
-    private final ucs_h1_refactored ucs_h1;
+public class Habs extends Heuristic{
     
-    public Absh(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    private final ucs_h1_refactored ucs_h1;
+    private HashMap<GroundAction, GroundAction> supporter_to_action = new HashMap<>();
+    
+    public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
         this.supporters = new LinkedHashSet();
         
@@ -38,7 +40,6 @@ public class Absh extends Heuristic{
         
         ucs_h1 = new ucs_h1_refactored(G, (Set<GroundAction>) this.supporters, P);
         ucs_h1.additive_h = true;
-//        ucs_h1.red_constraints = true;
     }
     
     @Override
@@ -47,13 +48,21 @@ public class Absh extends Heuristic{
         Float ret = ucs_h1.setup(s);
         if (ret == Float.MAX_VALUE){  return ret; }
         
-        // TODO: How to set up reachable actions initially??
-        this.reachable = A;
+        // find reachable actions in the original problem
+        LinkedHashSet<GroundAction> reachable_supporters = ucs_h1.reachable;
+        for(GroundAction sup : reachable_supporters){
+            GroundAction gr = supporter_to_action.get(sup);
+            if (!reachable.contains(gr) && gr != null){
+                reachable.add(gr);
+            }
+        }
         
         return ret;
     }
     
     private void generate_supporters(){
+        build_integer_representation();
+        
         System.out.println("Generating supporters.");
         
         for (GroundAction gr : A) {
@@ -69,6 +78,7 @@ public class Absh extends Heuristic{
             } else {
                 // add actions with propositional effects to supporters
                 this.supporters.add(gr);
+                supporter_to_action.put(gr, gr);
             }
         }
         
@@ -112,9 +122,9 @@ public class Absh extends Heuristic{
             }
             
             // add new supporter
-            this.supporters.add(ret);
+            supporters.add(ret);
+            supporter_to_action.put(ret, gr);
            
-//            System.out.println(ret.toPDDL() + "\n");
         }
     }
 
@@ -135,28 +145,23 @@ public class Absh extends Heuristic{
         }
         
         this.supporters.add(ret);
-//        System.out.println(ret.toPDDL() + "\n");
+        supporter_to_action.put(ret, gr);
     }
 
     private LinkedHashMap<ArrayList<Float>, Float> partition(NumEffect effect, Conditions preconditions, GroundAction gr) {
         LinkedHashMap<ArrayList<Float>, Float> ret = new LinkedHashMap();
         
         ArrayList<Float> b1 = new ArrayList<>(Arrays.asList(0f,1f));
-        ArrayList<Float> b2 = new ArrayList<>(Arrays.asList(2f,8f));
-//        ArrayList<Float> b3 = new ArrayList<>(Arrays.asList(3f,4f));
-//        ArrayList<Float> b4 = new ArrayList<>(Arrays.asList(4f,5f));
-//        ArrayList<Float> b5 = new ArrayList<>(Arrays.asList(5f,6f));
-//        ArrayList<Float> b6 = new ArrayList<>(Arrays.asList(6f,12f));
+        ArrayList<Float> b2 = new ArrayList<>(Arrays.asList(1f,5f));
+        ArrayList<Float> b3 = new ArrayList<>(Arrays.asList(5f,8f));
         
         
 //        ArrayList<Float> b1 = new ArrayList<>(Arrays.asList(0f,2f));
 //        ArrayList<Float> b2 = new ArrayList<>(Arrays.asList(2f,4f));
         
-        ret.put(b1, 1f);
-        ret.put(b2, 2f);
-//        ret.put(b3, 3f);
-//        ret.put(b4, 4f);
-//        ret.put(b5, 5f);
+        ret.put(b1, 0.01f);
+        ret.put(b2, 0.4f);
+        ret.put(b3, 9f);
         
         return ret;
     }
