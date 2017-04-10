@@ -93,6 +93,7 @@ public class SearchStrategies {
     private Collection<GroundAction> reachable_actions;
     public boolean helpful_actions_pruning;
     public int debug;
+    public boolean json_eco_rep_saving;
 
     private void set_reachable_actions(EPddlProblem problem) {
 
