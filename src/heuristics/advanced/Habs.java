@@ -91,18 +91,18 @@ public class Habs extends Heuristic{
                       generate_constant_supporter(effect, gr.toFileCompliant(), gr.getPreconditions(), gr);
                     } else {
                       // TODO what are supporters for assignment?
-                        this.other_supporters.add(gr);
+                        other_supporters.add(gr);
                         supporter_to_action.put(gr, gr);
                     }
                 }
             } else {
-                this.other_supporters.add(gr);
+                other_supporters.add(gr);
                 supporter_to_action.put(gr, gr);
             }
         }
         
         System.out.println("Generating supporters finished.");
-        System.out.println("|Sup|: " + this.supporters.size());
+        System.out.println("|Sup|: " + supporters.size());
     }
 
     private void generate_linear_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {
