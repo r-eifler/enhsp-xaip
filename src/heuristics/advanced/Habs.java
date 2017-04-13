@@ -34,24 +34,28 @@ import problem.State;
  */
 public class Habs extends Heuristic{
     
-    private HashMap<GroundAction, GroundAction> supporter_to_action = new HashMap<>();
-    private LinkedList<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> linearSupporters = new LinkedList<>();
-    private LinkedHashSet other_supporters = new LinkedHashSet(); // this includes supporters for propositional effect, assignment, and constant numeric effects.
+    private final HashMap<GroundAction, GroundAction> supporter_to_action;
+    private final LinkedList<HashMap<Expression, HashMap<RealInterval, ArrayList<GroundAction>>>> linearSupporters;
+    // this includes supporters for propositional effect, assignment, and constant numeric effects.
+    private final LinkedHashSet otherSupporters; 
     
     private final Adaptive_Ucs_h1 adaptive_ucs_h1;
     
     public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
-        supporters = new LinkedHashSet<>();
         
-        generate_supporters();
-        supporters.addAll(other_supporters);
-//        System.out.println("|prop A|: " + propositional_actions.size());
+        this.supporters = new LinkedHashSet<>();
+        this.otherSupporters = new LinkedHashSet();
+        this.linearSupporters = new LinkedList<>();
+        this.supporter_to_action = new HashMap<>();
+        
+        this.generate_supporters();
+        this.supporters.addAll(this.otherSupporters);
         
         adaptive_ucs_h1 = new Adaptive_Ucs_h1(G, (Set<GroundAction>) this.supporters, P);
         adaptive_ucs_h1.additive_h = true;
         adaptive_ucs_h1.setLinearSupporters(linearSupporters);
-        adaptive_ucs_h1.setOtherSupporters(other_supporters);
+        adaptive_ucs_h1.setOtherSupporters(otherSupporters);
     }
     
     @Override
@@ -72,45 +76,79 @@ public class Habs extends Heuristic{
         return ret;
     }
     
+    /**
+     * <p>Add supporters for each single effect of each action. Also
+     * build the mapping from supporters to actions. 
+     * 
+     * <p>This mapping is important because reachability analysis is done by 
+     * adaptive_ucs_h1, thus Habs needs this mapping to know what are the 
+     * reachable actions for the original problem.
+     */
     private void generate_supporters(){
         build_integer_representation();
         
         System.out.println("Generating supporters.");
         
         for (GroundAction gr : A) {
-            linearSupporters.add(new HashMap<>());
             
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-//                System.out.println(gr.getNumericEffects());
+                linearSupporters.add(new HashMap<>());
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (!effect.getOperator().equals("assign") && !effect.getRight().rhsFluents().isEmpty()) {
                       // generate supporters for actions with linear numeric effects
-                      generate_linear_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr);    
+                      generate_linear_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr);    
                     } else if (effect.getRight().rhsFluents().isEmpty()) {
-                      // generate supporters for actions with constant effect
-                      generate_constant_supporter(effect, gr.toFileCompliant(), gr.getPreconditions(), gr);
+                      // generate supporters for actions with constant effects
+                      generate_constant_supporter(effect, gr.toFileCompliant(), gr);
+                    } else if (effect.getOperator().equals("assign")) {
+                      // generate supporters for assignment effects
+                    
                     } else {
-                      // TODO what are supporters for assignment?
-                        other_supporters.add(gr);
+                        otherSupporters.add(gr);
                         supporter_to_action.put(gr, gr);
                     }
                 }
             } else {
-                other_supporters.add(gr);
+                otherSupporters.add(gr);
                 supporter_to_action.put(gr, gr);
             }
         }
         
         System.out.println("Generating supporters finished.");
-        System.out.println("|Sup|: " + supporters.size());
+        System.out.println("|Sup + goal|: " + supporters.size());
     }
-
-    private void generate_linear_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {
-        // for an action, each numeric effect has a unique fluent affected
+    
+    /**
+     * <p>Add supporters for linear effects. The data structure to store
+     * linear supporters is a LinkedList of hashMaps from Expression to
+     * hashMaps of RealInterval to ArrayList.
+     * 
+     * <p>Each element in the LinkedList corresponding to all the possible
+     * supporters of an action. That's to say the size of the list equals
+     * to |A|.
+     * 
+     * <p>The first nested hashMap is keyed by the right-hand side of each effect,
+     * an Expression instance. This key will be later evaluated to decide which
+     * supporter to take. 
+     * 
+     * <p>For each effect we have a set of supporters on each partition. For each 
+     * partition, there are 3 possible supporters. Which supporter to take is 
+     * "state-dependent":
+     *      <br> &nbsp &nbsp 1. if rhs &le lo, constant eff = lo;
+     *      <br> &nbsp &nbsp 2. if lo &le rhs &le hi, constant eff = rhs;
+     *      <br> &nbsp &nbsp 3. if hi &le rhs, constant eff = hi;
+     * These are put in the ArrayList, keyed by RealInterval [lo, hi].
+     * 
+     * @param effect linear effect to generate supporters for.
+     * @param name a string used to distinguish between supporters for effects.
+     * @param gr the grounded action. 
+     */
+    private void generate_linear_supporter(NumEffect effect, String name, GroundAction gr) {
+        // for an action, each atomic numeric effect has a unique right-hand affected
         linearSupporters.get(linearSupporters.size()-1).put(effect.getRight(), new HashMap<>());
         
         // partitioning
-        ArrayList<RealInterval> realIntervals = partition(preconditions, gr);
+        ArrayList<RealInterval> realIntervals = partition(gr.getPreconditions(), gr);
         
         for(RealInterval realInterval : realIntervals){
             linearSupporters.get(linearSupporters.size()-1).get(effect.getRight()).put(realInterval, new ArrayList<>());
@@ -118,23 +156,23 @@ public class Habs extends Heuristic{
             Float lo = (float) realInterval.lo();
             Float hi = (float) realInterval.hi();
             
-            // which supporter to use is dependent on the current state.
-            ArrayList<Expression> supporter_effects = new ArrayList<>();
-            supporter_effects.add(new ExtendedNormExpression(lo));
-            supporter_effects.add(new ExtendedNormExpression(hi));
-            supporter_effects.add(effect.getRight());
+            // all three possible effects
+            ArrayList<Expression> constantIncrements = new ArrayList<>();
+            constantIncrements.add(new ExtendedNormExpression(lo));
+            constantIncrements.add(new ExtendedNormExpression(hi));
+            constantIncrements.add(effect.getRight());
             
-            for (Expression sup_effect : supporter_effects){
+            for (Expression constantInc : constantIncrements){
                                     
-                GroundAction sup = new GroundAction(name + " (" + lo.toString() + ',' + hi.toString() + ") " + sup_effect.toString());
+                GroundAction sup = new GroundAction(name + " (" + lo.toString() + ',' + hi.toString() + ") " + constantInc.toString() + " for " + effect.getFluentAffected().toString());
 
-                // setup effect
-                NumEffect abs_eff = new NumEffect(effect.getOperator());
-                abs_eff.setFluentAffected(effect.getFluentAffected());
-                abs_eff.setRight(sup_effect);
+                // set up effect
+                NumEffect supEff = new NumEffect(effect.getOperator());
+                supEff.setFluentAffected(effect.getFluentAffected());
+                supEff.setRight(constantInc);
 
                 // set effects for supporters
-                sup.getNumericEffects().sons.add(abs_eff);
+                sup.getNumericEffects().sons.add(supEff);
 
                 // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
                 Comparison indirect_precondition_gt = new Comparison(">=");
@@ -147,9 +185,7 @@ public class Habs extends Heuristic{
                 // set pre-conditions for supporters
                 sup.getPreconditions().sons.add(indirect_precondition_lt);
                 sup.getPreconditions().sons.add(indirect_precondition_gt);
-                if (!preconditions.sons.isEmpty()){
-                    sup.setPreconditions(sup.getPreconditions().and(preconditions));
-                }
+                sup.setPreconditions(sup.getPreconditions().and(gr.getPreconditions()));
 
                 // add new supporter
                 supporters.add(sup);
@@ -159,33 +195,39 @@ public class Habs extends Heuristic{
         }
     }
 
-    private void generate_constant_supporter(NumEffect effect, String name, Conditions preconditions, GroundAction gr) {     
-        GroundAction sup = new GroundAction(name + ' ' + effect.getFluentAffected().getName());
+    /**
+     * <p> Add supporters for constant numeric effect. Keep the
+     * right-hand side as it is.
+     * 
+     * @param effect constant effect to generate supporters for.
+     * @param name a string to distinguish between effects.
+     * @param gr the grounded action.
+     */
+    private void generate_constant_supporter(NumEffect effect, String name, GroundAction gr) {     
+        GroundAction sup = new GroundAction(name + ' ' + effect.getRight().toString() + " for " + effect.getFluentAffected().toString());
         
         // setup effect
-        NumEffect abs_eff = new NumEffect(effect.getOperator());
-        abs_eff.setFluentAffected(effect.getFluentAffected());
-        abs_eff.setRight(effect.getRight());
+        NumEffect supEff = new NumEffect(effect.getOperator());
+        supEff.setFluentAffected(effect.getFluentAffected());
+        supEff.setRight(effect.getRight());
        
         // add effect
-        sup.getNumericEffects().sons.add(abs_eff);
+        sup.getNumericEffects().sons.add(supEff);
         
         // add preconditions
-        if(!preconditions.sons.isEmpty()){
-            sup.setPreconditions(preconditions);
-        }
+        sup.setPreconditions(gr.getPreconditions());
         
         supporters.add(sup);
         supporter_to_action.put(sup, gr);
-        other_supporters.add(sup);
+        otherSupporters.add(sup);
    }
 
     private ArrayList<RealInterval> partition(Conditions preconditions, GroundAction gr) {
         ArrayList<RealInterval> ret = new ArrayList<>();
         
-        RealInterval realInterval1 = new RealInterval(1f,2f);
-        RealInterval realInterval2 = new RealInterval(2f,3f);
-        RealInterval realInterval3 = new RealInterval(3f,8f);
+        RealInterval realInterval1 = new RealInterval(0f, 2f);
+        RealInterval realInterval2 = new RealInterval(2f,5f);
+        RealInterval realInterval3 = new RealInterval(5f,12f);
         
         ret.add(realInterval1);
         ret.add(realInterval2);
