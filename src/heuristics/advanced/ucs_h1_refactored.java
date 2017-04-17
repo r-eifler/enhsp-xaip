@@ -32,11 +32,11 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
-    private ArrayList<Set<GroundAction>> condition_to_action;
+    public ArrayList<Set<GroundAction>> condition_to_action;
 
     public boolean compute_lp;
     private ArrayList<Float> cond_dist;
-    private ArrayList<Float> action_dist;
+    public ArrayList<Float> action_dist;
 
     public boolean red_constraints = false;
     public boolean mip;
@@ -49,11 +49,10 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 //    private Aibr aibr_handler;
     private boolean all_achievers_to_consider = false;
     private Boolean weak_helpful_actions_pruning = false;
-    private ArrayList<Boolean> closed;
+    public ArrayList<Boolean> closed;
 
     public ucs_h1_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
-
     }
 
     public ucs_h1_refactored(Conditions G, Set A, Set processesSet,Set events) {
@@ -100,9 +99,34 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
         out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
-        Utils.dbg_print(10, this.complex_condition_set.toString());
+//        Utils.dbg_print(10, this.complex_condition_set.toString());
 
         return ret;
+    }
+    
+    public void light_setup(State s){
+        if (red_constraints) {
+            try {
+                this.add_redundant_constraints();
+            } catch (Exception ex) {
+                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        goal = new GroundAction("goal");
+        goal.dummy_goal = true;
+        goal.setPreconditions(G);
+        A.add(goal);
+        build_integer_representation();
+        identify_complex_conditions(A);
+
+        Utils.dbg_print(debug - 10, "Complex Condition set:" + this.complex_condition_set + "\n");
+        this.generate_link_precondition_action();
+        try {
+            generate_achievers();
+        } catch (Exception ex) {
+            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -291,7 +315,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
     }
 
-    private void update_reachable_actions(GroundAction gr, Conditions comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
+    public void update_reachable_actions(GroundAction gr, Conditions comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
         Set<GroundAction> set = condition_to_action.get(comp.getCounter());
@@ -320,7 +344,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
     }
 
-    private Float check_conditions(GroundAction gr2) {
+    public Float check_conditions(GroundAction gr2) {
         if (relaxed_plan_extraction || this.helpful_actions_computation) {
             achiever_set s = gr2.getPreconditions().estimate_cost(cond_dist, additive_h, established_achiever);
             action_achievers.set(gr2.counter, s);
