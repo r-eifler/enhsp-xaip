@@ -18,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -35,7 +34,6 @@ import problem.State;
 public class Habs extends Heuristic{
     
     private Boolean setting_up = true;
-    private final HashMap<GroundAction, GroundAction> supporter_to_action;
     private Set<GroundProcess> processSet;
     
     private ucs_h1_refactored abs_h;
@@ -44,7 +42,6 @@ public class Habs extends Heuristic{
         super(G, A, P);
         
         this.supporters = new LinkedHashSet<>();
-        this.supporter_to_action = new HashMap<>();
         this.processSet = P;
     }
     
@@ -79,7 +76,6 @@ public class Habs extends Heuristic{
      */
     public void light_setup(State s){
         this.supporters.clear();
-        this.supporter_to_action.clear();
 
         generate_supporters(s);
         abs_h = new ucs_h1_refactored(G, (Set<GroundAction>) this.supporters, this.processSet);
@@ -103,20 +99,18 @@ public class Habs extends Heuristic{
         for (GroundAction gr : reachable) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (!effect.getRight().rhsFluents().isEmpty()) {
+                    if (gr.getNumericEffects() != null && !effect.getRight().rhsFluents().isEmpty()) {
                       // generate supporters for actions with linear numeric effects
                       generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr);    
                     } else if (effect.getRight().rhsFluents().isEmpty()) {
                       // generate supporters for actions with constant effects
                       generate_constant_supporter(effect, gr.toFileCompliant(), gr);
-                    } else {
-                        supporters.add(gr);
-                        supporter_to_action.put(gr, gr);
                     }
                 }
-            } else {
-                supporters.add(gr);
-                supporter_to_action.put(gr, gr);
+            }
+                
+            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
+                 generate_propositional_action(gr.toFileCompliant() + "prop", gr.getPreconditions(), gr);
             }
         }
         
@@ -183,7 +177,6 @@ public class Habs extends Heuristic{
 
             // add new supporter
             supporters.add(sup);
-            supporter_to_action.put(sup, gr);
         }
     }
 
@@ -210,8 +203,16 @@ public class Habs extends Heuristic{
         sup.setPreconditions(gr.getPreconditions());
         
         supporters.add(sup);
-        supporter_to_action.put(sup, gr);
-   }
+    }
+    
+    private void generate_propositional_action(String name, Conditions cond, GroundAction gr) {
+        GroundAction ret = new GroundAction(name);
+        ret.setPreconditions(cond);
+        ret.setAddList(gr.getAddList());
+        ret.setDelList(gr.getDelList());
+
+        supporters.add(ret);
+    }
 
     private ArrayList<RealInterval> partition(Conditions preconditions, GroundAction gr) {
         ArrayList<RealInterval> ret = new ArrayList<>();
