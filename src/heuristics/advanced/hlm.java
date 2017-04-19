@@ -5,6 +5,8 @@
  */
 package heuristics.advanced;
 
+import heuristics.old.Uniform_cost_search_H1;
+import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
@@ -35,7 +37,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
+public class hlm extends Uniform_cost_search_H1 {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
@@ -49,11 +51,11 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
     private ArrayList<Float> target_value;
     public boolean mip;
 
-    public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P) {
+    public hlm(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P) {
         super(goal, A, P);
 
     }
-    public landmarks_factory_refactored(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P,Set<GroundEvent> E) {
+    public hlm(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P,Set<GroundEvent> E) {
         super(goal, A, P,E);
 
     }
@@ -253,7 +255,7 @@ public class landmarks_factory_refactored extends Uniform_cost_search_H1 {
                 lp.end();
 
             } catch (IloException ex) {
-                Logger.getLogger(landmarks_factory_refactored.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(hlm.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             for (Conditions c : goal_landmark) {//these are the landmarks for the planning task

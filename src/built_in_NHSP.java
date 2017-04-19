@@ -12,14 +12,14 @@ import plan.SimplePlan;
 import problem.EPddlProblem;
 import problem.State;
 import search.SearchStrategies;
-import heuristics.advanced.Uniform_cost_search_H1;
-import heuristics.advanced.asymptotic_ibr;
+import heuristics.old.Uniform_cost_search_H1;
+import heuristics.old.asymptotic_ibr;
 import heuristics.Aibr;
 import heuristics.Aibr_rp;
-import heuristics.advanced.Bellman_Ford_Hm;
-import heuristics.advanced.Uniform_cost_search_H1_RC;
-import heuristics.advanced.Uniform_cost_search_HM;
-import heuristics.advanced.landmarks_factory;
+import heuristics.old.Bellman_Ford_Hm;
+import heuristics.old.Uniform_cost_search_H1_RC;
+import heuristics.advanced.quasi_hm;
+import heuristics.old.landmarks_factory;
 
 /**
  *
@@ -339,51 +339,51 @@ public class built_in_NHSP {
                 h.additive_h = false;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp2")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions()));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 h.additive_h = false;
                 h.integer_variables = false;
 
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp3")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions()));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 h.additive_h = true;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp4")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions()));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 //h.additive_h = true;
                 h.additive_h = false;
                 h.integer_variables = true;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp5")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions()));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions()));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 //h.additive_h = true;
                 h.additive_h = true;
                 h.integer_variables = false;
                 h.greedy = true;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp_gc")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 //h.additive_h = true;
                 h.additive_h = false;
                 h.integer_variables = false;
                 h.greedy = false;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp_gc_cplex")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 //h.additive_h = true;
                 h.additive_h = false;
                 h.integer_variables = false;
                 h.greedy = false;
                 searchStrategies.set_w_h(1);
             } else if (config.equals("exp_gc2")) {
-                searchStrategies.setup_heuristic(new Uniform_cost_search_HM(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
-                Uniform_cost_search_HM h = (Uniform_cost_search_HM) searchStrategies.getHeuristic();
+                searchStrategies.setup_heuristic(new quasi_hm(problem.getGoals(), problem.getActions(), problem.processesSet, problem.globalConstraints));
+                quasi_hm h = (quasi_hm) searchStrategies.getHeuristic();
                 //h.additive_h = true;
                 h.additive_h = false;
                 h.integer_variables = true;

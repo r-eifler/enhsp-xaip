@@ -1,4 +1,4 @@
-package heuristics.advanced;
+package heuristics.utils;
 /***********************************************************************
  * File: FibonacciHeap.java
  * Author: Keith Schwarz (htiek@cs.stanford.edu)

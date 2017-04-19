@@ -13,7 +13,7 @@ import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
-import heuristics.advanced.ucs_h1_refactored;
+import heuristics.advanced.h1;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -92,7 +92,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    public void light_setup(State s_0, ucs_h1_refactored aThis) {
+    public void light_setup(State s_0, h1 aThis) {
         this.all_conditions = aThis.all_conditions;
 
         reachability = false;

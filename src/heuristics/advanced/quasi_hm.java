@@ -34,6 +34,9 @@ import conditions.Predicate;
 import expressions.NumFluent;
 import extraUtils.Utils;
 import heuristics.Heuristic;
+import heuristics.utils.LpInterface;
+import heuristics.utils.cplex_interface;
+import heuristics.utils.ojalgo_interface;
 import ilog.concert.IloException;
 import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
@@ -52,12 +55,18 @@ import problem.GroundAction;
 import problem.State;
 import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *
  * @author enrico
  */
-public class Uniform_cost_search_HM extends Heuristic {
+public class quasi_hm extends Heuristic {
 
     protected HashMap<Integer, LinkedHashSet<Conditions>> poss_achiever;
     private boolean reacheability_setting;
@@ -65,7 +74,7 @@ public class Uniform_cost_search_HM extends Heuristic {
     private boolean cplex = true;
     public HashMap<Integer,LpInterface> lps;
 
-    public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A) {
+    public quasi_hm(Conditions G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -75,13 +84,13 @@ public class Uniform_cost_search_HM extends Heuristic {
      * @param actions
      * @param processesSet
      */
-    public Uniform_cost_search_HM(Conditions G, Set A, Set processesSet) {
+    public quasi_hm(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
         
 
     }
 
-    public Uniform_cost_search_HM(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
+    public quasi_hm(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
         super(G, A, processesSet, GC);
     }
 
@@ -90,7 +99,7 @@ public class Uniform_cost_search_HM extends Heuristic {
         try {
             //this.add_redundant_constraints();
         } catch (Exception ex) {
-            getLogger(Uniform_cost_search_HM.class.getName()).log(SEVERE, null, ex);
+            getLogger(quasi_hm.class.getName()).log(SEVERE, null, ex);
         }
         this.cond_action = new HashMap();
         build_integer_representation();
@@ -99,7 +108,7 @@ public class Uniform_cost_search_HM extends Heuristic {
         try {
             this.generate_linear_programs(A, s);
         } catch (IloException ex) {
-            Logger.getLogger(Uniform_cost_search_HM.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(quasi_hm.class.getName()).log(Level.SEVERE, null, ex);
         }
         reacheability_setting = true;
         Utils.dbg_print(debug,"Reachability Analysis Started");

@@ -26,30 +26,29 @@
  *
  ********************************************************************
  */
-package heuristics;
+package heuristics.utils;
 
-import java.util.Set;
+import java.util.Comparator;
 import problem.GroundAction;
+import problem.State;
 
 /**
  *
  * @author enrico
  */
-public class HeuristicSearchNode implements Comparable{
-
+public class RegressedSearchNode implements Comparable{
     public GroundAction action;
-    public int goal_distance;
-    public HeuristicSearchNode father;
-    public int action_cost_to_get_here;
-    public Set orderings;
-    
-    public HeuristicSearchNode(GroundAction action,HeuristicSearchNode father,int action_cost_to_get_here,int goal_distance){
 
+    public RegressedSearchNode father;
+    public int action_cost_to_get_here;
+    public RegressedSearchNode(GroundAction action, int action_cost_to_get_here){
         this.action = action;
-        this.goal_distance = goal_distance;
         this.father = father;
         this.action_cost_to_get_here= action_cost_to_get_here;
     }
+
+
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -58,25 +57,37 @@ public class HeuristicSearchNode implements Comparable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final HeuristicSearchNode other = (HeuristicSearchNode) obj;
+        final RegressedSearchNode other = (RegressedSearchNode) obj;
         
-        if (!this.action.equals(other.action) || this.action_cost_to_get_here != other.action_cost_to_get_here ) {
+        if (!this.action.equals(other.action)) {
             return false;
         }
         return true;
     }
-//
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
+        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
+        hash = 29 * hash + this.action_cost_to_get_here;
+        return hash;
+    }
+
 //    @Override
 //    public int hashCode() {
-//        int hash = 7;
-//        hash = 89 * hash + (this.action != null ? this.action.hashCode() : 0);
+//        int hash = 5;
+//        hash = 43 * hash + (this.s != null ? this.s.hashCode() : 0);
+//        hash = 43 * hash + (this.action != null ? this.action.hashCode() : 0);
+//        hash = 43 * hash + this.goal_distance;
+//        hash = 43 * hash + (this.father != null ? this.father.hashCode() : 0);
+//        hash = 43 * hash + this.action_cost_to_get_here;
 //        return hash;
 //    }
 
-
     @Override
     public int compareTo(Object o) {
-        final HeuristicSearchNode other = (HeuristicSearchNode) o;
+        final RegressedSearchNode other = (RegressedSearchNode) o;
         if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here))
             return 0;
         if ((this.action_cost_to_get_here) < (other.action_cost_to_get_here))
@@ -84,4 +95,6 @@ public class HeuristicSearchNode implements Comparable{
         else
             return +1;
     }
+    
+    
 }

@@ -30,7 +30,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import heuristics.advanced.achiever_set;
+import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

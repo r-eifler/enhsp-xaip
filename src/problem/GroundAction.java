@@ -61,7 +61,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plan.SimplePlan;
-import heuristics.RegressedSearchNode;
+import heuristics.utils.RegressedSearchNode;
 
 public class GroundAction extends GenericActionType implements Comparable {
 
@@ -1731,7 +1731,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         Conditions eff = a.getNumericEffects();
         eff.setFreeVarSemantic(true);
         eff = eff.weakEval(problem.getInit(), invariantFluents);
-
+        
         if (eff == null) {
 //            System.out.println("Pruning because of the effect");
             return false;
@@ -2625,6 +2625,31 @@ public class GroundAction extends GenericActionType implements Comparable {
             }
         }
         return true;
+    }
+
+    void setAction_cost(State init, Metric metric) {
+        ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
+        float cont = expr.eval_affected(init, this);
+        if (cont == 0){
+            this.action_cost = 0f;
+            return ;
+        }
+        if (metric.getOptimization().equals("maximise")){
+            if (cont<0){
+                this.action_cost = cont;
+            }else{
+                this.action_cost = 0f;
+            }
+        }else{
+            if (cont>0){
+                this.action_cost = cont;
+            }else{
+                this.action_cost = 0f;
+            }
+        }
+//        System.out.println("DEBUG:"+this);
+//        System.out.println("DEBUG:"+this.action_cost);
+        
     }
 
 }
