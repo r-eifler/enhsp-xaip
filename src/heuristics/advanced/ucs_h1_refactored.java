@@ -131,13 +131,14 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 
     @Override
     public Float compute_estimate(State s_0) {
+        long start_computing = System.currentTimeMillis();
+        
         if (s_0.satisfy(G)) {
             return 0f;
         }
         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
             established_achiever = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             action_achievers = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
-
         }
         all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
 
@@ -203,7 +204,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
         }
 
         extract_helpful_actions_or_relaxed_plan();
-
+        
         return estimate;
     }
 
