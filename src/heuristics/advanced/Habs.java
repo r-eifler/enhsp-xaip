@@ -17,6 +17,7 @@ import heuristics.Heuristic;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import static java.lang.System.exit;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -36,7 +37,7 @@ import problem.State;
 public class Habs extends Heuristic{
     private static final Integer TYPE_UCSH1 = 1;
     
-    private Integer numOfPartitions = 2;
+    private Integer numOfPartitions = 1;
 
     private Boolean setting_up = true;
     private Set<GroundProcess> processSet;
@@ -53,7 +54,6 @@ public class Habs extends Heuristic{
     
     @Override
     public Float setup(State s){
-        build_integer_representation();
         
         // reachability analysis on original problem
         Aibr first_reachH = new Aibr(this.G,this.A);
@@ -65,17 +65,22 @@ public class Habs extends Heuristic{
         A = first_reachH.reachable;
         reachable = first_reachH.reachable;
         
+        for (GroundAction gr: A){
+            gr.setAction_cost(s);
+        }
+        
         // partitioning
         buildPartitions(A, G, s);
         
         // estimation for initial state
         setup_habs(s);
-        ret = abs_h.compute_estimate(s);
         
-        for (GroundAction gr : abs_h.A){
-            Habs.logging(gr.toPDDL() + "\n\n");
-        }
-    
+//        Habs.logging(s.toString() + "\n\n");
+//        for (GroundAction gr : this.supporters){
+//            Habs.logging(gr.toPDDL() + "\n\n");
+//        }
+        
+        ret = abs_h.compute_estimate(s);
         
         setting_up = false;
         return ret;
@@ -88,24 +93,10 @@ public class Habs extends Heuristic{
      */
     public void setup_habs(State s){
         this.supporters.clear();
-        
-//        long start_setting_up = System.currentTimeMillis();
-                
         generate_supporters(s);
         
-//        System.out.println("generating supporters takes " + (System.currentTimeMillis() - start_setting_up));
-        
-//        Habs.logging(s.toString());
-//        for (GroundAction gr : this.supporters){
-//            Habs.logging(gr.toPDDL() + "\n\n");
-//        }
-        
         abs_h = (ucs_h1_refactored) habsFactory(TYPE_UCSH1, G, (Set<GroundAction>) this.supporters, processSet);
-        
-        long start_light_up = System.currentTimeMillis();
-        abs_h.light_setup(s);        
-//        System.out.println("light set up takes " + (System.currentTimeMillis() - start_light_up));
-     
+        abs_h.light_setup(s);
     }
     
     private static Heuristic habsFactory(Integer heuristicType, Conditions G, Set<GroundAction> A, Set<GroundProcess> P){
@@ -135,7 +126,10 @@ public class Habs extends Heuristic{
         for (GroundAction gr : reachable) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (gr.getNumericEffects() != null && !effect.getRight().rhsFluents().isEmpty()) {
+                    if (effect.getFluentAffected().getName().equals("total-cost")){
+                        continue;
+                    }
+                    if (!effect.getRight().rhsFluents().isEmpty()) {
                       // generate supporters for actions with linear numeric effects
                       generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr);    
                     } else if (effect.getRight().rhsFluents().isEmpty()) {
@@ -181,11 +175,11 @@ public class Habs extends Heuristic{
             
             // three possible effects
             Float eval = (float) effect.getRight().eval(s).getNumber();
-            
+            String operator = effect.getOperator();
             if (eval < inf){
                 constantIncrement = new ExtendedNormExpression(inf);
-            } else if (eval <= sup){
-                constantIncrement = effect.getRight();
+            } else if (eval < sup){
+                constantIncrement = new ExtendedNormExpression(eval);
             } else {
                 constantIncrement = new ExtendedNormExpression(sup);
             }
@@ -193,7 +187,7 @@ public class Habs extends Heuristic{
             GroundAction supporter = new GroundAction(name + " (" + inf.toString() + ',' + sup.toString() + ") " + constantIncrement.toString() + " for " + effect.getFluentAffected().toString());
 
             // set up effect
-            NumEffect supEff = new NumEffect(effect.getOperator());
+            NumEffect supEff = new NumEffect(operator);
             supEff.setFluentAffected(effect.getFluentAffected());
             supEff.setRight(constantIncrement);
 
@@ -203,16 +197,23 @@ public class Habs extends Heuristic{
             // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
             Comparison indirect_precondition_gt = new Comparison(">");
             Comparison indirect_precondition_lt = new Comparison("<=");
-            indirect_precondition_gt.setLeft(effect.getRight());
+                     
             indirect_precondition_gt.setRight(new PDDLNumber(inf));
-            indirect_precondition_lt.setLeft(effect.getRight());
             indirect_precondition_lt.setRight(new PDDLNumber(sup));
+            indirect_precondition_gt.setLeft(effect.getRight());
+            indirect_precondition_lt.setLeft(effect.getRight());
+            
+            indirect_precondition_gt.normalize();
+            indirect_precondition_lt.normalize();
 
             // set pre-conditions for supporters
             supporter.getPreconditions().sons.add(indirect_precondition_lt);
             supporter.getPreconditions().sons.add(indirect_precondition_gt);
             supporter.setPreconditions(supporter.getPreconditions().and(gr.getPreconditions()));
-
+            
+            // set action cost to supporter
+            supporter.setAction_cost(gr.getAction_cost());
+            
             // add new supporter
             supporters.add(supporter);
         }
@@ -240,6 +241,9 @@ public class Habs extends Heuristic{
         // add preconditions
         sup.setPreconditions(gr.getPreconditions());
         
+        // set action cost to supporter
+        sup.setAction_cost(gr.getAction_cost());
+            
         supporters.add(sup);
     }
     
@@ -248,7 +252,8 @@ public class Habs extends Heuristic{
         ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
         ret.setDelList(gr.getDelList());
-
+        
+        ret.setAction_cost(gr.getAction_cost());
         supporters.add(ret);
     }
 
@@ -273,7 +278,7 @@ public class Habs extends Heuristic{
                     tempMap = partitionMap.get(gr);
                 }
                 
-                for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
+                for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {        
                     Expression rhs = effect.getRight();
                     
                     if (!rhs.rhsFluents().isEmpty()) {
@@ -282,51 +287,34 @@ public class Habs extends Heuristic{
                         rhsInterval = effect.getRight().eval(rs);
                         inf = rhsInterval.getInf().getNumber();
                         sup = rhsInterval.getSup().getNumber();
-                        if (Math.abs(Math.abs(inf) - Math.abs(sup)) < 1e-6){
-                            partForEffect.add(rhsInterval);
-                        } else {
-                            diff = sup - inf;
-                            strip = diff / numOfPartitions;
-                            
-                            for(int i=0;i<numOfPartitions;i++){
-                               temp = new Interval();
-                               temp.setInf(new PDDLNumber(inf + strip * i));
-                               temp.setSup(new PDDLNumber(inf+ strip*(i+1)));
-                               
-                               partForEffect.add(temp);
-                            }
-                        }
-                                                    
-                        temp = new Interval();
-                        temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
-                        temp.setSup(new PDDLNumber(inf));
-
-                        partForEffect.add(temp);
-
-                        temp = new Interval();
-                        temp.setInf(new PDDLNumber(sup));
-                        temp.setSup(new PDDLNumber(Float.MAX_VALUE));
+                        diff = sup - inf;
+                        strip = diff / numOfPartitions;
                         
-                        partForEffect.add(temp);
                             
+                        for(int i=0;i<numOfPartitions;i++){
+                           temp = new Interval();
+                           temp.setInf(new PDDLNumber(inf + strip * i));
+                           temp.setSup(new PDDLNumber(inf+ strip*(i+1)));
+
+                           partForEffect.add(temp);
+                        }
+                        
                         tempMap.put(rhs, partForEffect);
+                    
                     }
                 }
+                
                 partitionMap.put(gr, tempMap);
             }
         }
-        
-        Habs.logging(rs.toString() + "\n\n");
     }
     
     @Override
     public Float compute_estimate(State s) {
         if (!setting_up){ setup_habs(s);}
         
-        long start_comp_estimate = System.currentTimeMillis();
         Float ret = abs_h.compute_estimate(s);      
-//        System.out.println("compute estimate takes " + (System.currentTimeMillis() - start_comp_estimate));
-     
+        
         return ret;
     }
 
