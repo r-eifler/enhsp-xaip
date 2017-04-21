@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -26,27 +25,38 @@
  *
  ********************************************************************
  */
-package heuristics.advanced;
+package heuristics.old;
 
 import conditions.Comparison;
 import conditions.Conditions;
+import conditions.Predicate;
+import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
+import expressions.PDDLNumber;
+import extraUtils.Pair;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
-import problem.GroundProcess;
+import problem.State;
 
 /**
  *
  * @author enrico
  */
-public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
+public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
 
-    public Uniform_cost_search_H1_RC(Conditions G, Set<GroundAction> A) {
+    protected HashMap<Conditions, Boolean> redundant_constraints;
+
+
+    public Uniform_cost_search_H1_RC_Rep(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
@@ -54,16 +64,7 @@ public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
             Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public Uniform_cost_search_H1_RC(Conditions goals, Set actions, Set<GroundProcess> processesSet) {
-        super(goals, actions,processesSet);
-        try {
-            this.add_redundant_constraints();
-        } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    protected void add_redundant_constraints() throws Exception {
+        protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 
         for (GroundAction a : A) {
@@ -115,5 +116,9 @@ public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
         set.addAll(temp);
 //        System.out.println("Set after:"+set.size());
     }
+
+
+    
+
 
 }

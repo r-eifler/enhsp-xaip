@@ -625,6 +625,12 @@ public class EPddlProblem extends PddlProblem {
         this.processesGround = true;
         this.globalConstraintGrounded= true;
         this.getInvariantFluents();
+        if (this.metric!=null && this.metric.getMetExpr()!=null){
+            this.metric.setMetExpr(this.metric.getMetExpr().normalize());
+        }else{
+            this.metric = null;
+        }
+            
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
        
     }
@@ -644,6 +650,12 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
+            }else{
+                if (this.getMetric()!=null){
+                    act.setAction_cost(init,this.getMetric());
+                }else{
+                    act.setAction_cost(init);
+                }
             }
         }
 //        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());

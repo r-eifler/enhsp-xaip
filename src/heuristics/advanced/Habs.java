@@ -43,7 +43,7 @@ public class Habs extends Heuristic{
     private Set<GroundProcess> processSet;
     private HashMap<GroundAction, HashMap<Expression, LinkedList<Interval>>> partitionMap = new HashMap();
     
-    private ucs_h1_refactored abs_h;
+    private h1 abs_h;
     
     public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
@@ -95,14 +95,14 @@ public class Habs extends Heuristic{
         this.supporters.clear();
         generate_supporters(s);
         
-        abs_h = (ucs_h1_refactored) habsFactory(TYPE_UCSH1, G, (Set<GroundAction>) this.supporters, processSet);
+        abs_h = (h1) habsFactory(TYPE_UCSH1, G, (Set<GroundAction>) this.supporters, processSet);
         abs_h.light_setup(s);
     }
     
     private static Heuristic habsFactory(Integer heuristicType, Conditions G, Set<GroundAction> A, Set<GroundProcess> P){
         switch (heuristicType){
             case (1): {
-                return new ucs_h1_refactored(G, A, P);
+                return new h1(G, A, P);
             }
             default :
                 return null;

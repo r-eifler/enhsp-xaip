@@ -25,7 +25,7 @@
  *
  ********************************************************************
  */
-package heuristics.advanced;
+package heuristics.old;
 
 import conditions.Comparison;
 import conditions.Conditions;
@@ -432,7 +432,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         
 
         G = G.introduce_red_constraints();
-        System.out.println(G.toString());
+        //System.out.println(G.toString());
     }
 
     protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {

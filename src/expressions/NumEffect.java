@@ -502,18 +502,20 @@ public class NumEffect extends Expression implements PostCondition {
         if (this.operator.equals("increase")) {
             PDDLNumber current = s.functionValue(fluentAffected);
             if (current == null) {
-                System.out.println("State:"+s);
-                System.out.println("This effect cannot be applied!:" + this);
-                System.exit(-1);
+                //System.out.println("State:"+s);
+                //System.out.println("This effect cannot be applied!:" + this);
+                //System.exit(-1);
+            }else{
+                after = new PDDLNumber(current.getNumber() + eval.getNumber());
             }
-            after = new PDDLNumber(current.getNumber() + eval.getNumber());
         } else if (this.operator.equals("decrease")) {
             PDDLNumber current = s.functionValue(fluentAffected);
             if (current == null) {
-                System.out.println("This effect cannot be applied!:" + this);
-                System.exit(-1);
+                //System.out.println("This effect cannot be applied!:" + this);
+                //System.exit(-1);
+            }else{
+                after = new PDDLNumber(current.getNumber() - eval.getNumber());
             }
-            after = new PDDLNumber(current.getNumber() - eval.getNumber());
         } else if (this.operator.equals("assign")) {
             after = eval;
         }
@@ -527,19 +529,22 @@ public class NumEffect extends Expression implements PostCondition {
             return;
         final Interval after = new Interval();
         final Interval current = s.functionValues(fluentAffected);
+        
         final Interval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
 //            System.out.println(this);
 //            System.out.println(current);
 //            System.out.println(eval);
-            after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-            after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
+            if (!current.is_not_a_number){
+                after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
+            }
         } else if (getOperator().equals("decrease")) {
-            
-            after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
-            after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
-
+            if (!current.is_not_a_number){
+                after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
+            }
         } else if (getOperator().equals("assign")) {
             if (additive_relaxation) {
                 if (this.getRight().rhsFluents().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {

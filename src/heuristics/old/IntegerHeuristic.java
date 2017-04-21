@@ -25,9 +25,9 @@
  *
  ********************************************************************
  */
-package heuristics.advanced;
+package heuristics.old;
 
-import heuristics.HeuristicSearchNode;
+import heuristics.utils.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;

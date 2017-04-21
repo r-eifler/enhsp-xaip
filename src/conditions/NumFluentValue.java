@@ -30,7 +30,7 @@ import domain.Variable;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
-import heuristics.advanced.achiever_set;
+import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

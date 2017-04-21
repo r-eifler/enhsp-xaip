@@ -32,7 +32,7 @@ import expressions.NumEffect;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
 import expressions.NumFluent;
-import heuristics.advanced.achiever_set;
+import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

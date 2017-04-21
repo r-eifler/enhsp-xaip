@@ -25,7 +25,7 @@
  *
  ********************************************************************
  */
-package heuristics.advanced;
+package heuristics.old;
 
 import conditions.Conditions;
 import java.util.LinkedHashSet;

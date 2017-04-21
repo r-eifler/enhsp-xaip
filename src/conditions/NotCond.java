@@ -31,7 +31,7 @@ package conditions;
 import conditions.Predicate.true_false;
 import domain.Variable;
 import expressions.NumFluent;
-import heuristics.advanced.achiever_set;
+import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

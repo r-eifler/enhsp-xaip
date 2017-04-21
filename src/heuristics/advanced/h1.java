@@ -5,6 +5,9 @@
  */
 package heuristics.advanced;
 
+import heuristics.utils.achiever_set;
+import heuristics.old.Uniform_cost_search_H1;
+import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
 import conditions.Conditions;
 import extraUtils.Utils;
@@ -28,7 +31,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class ucs_h1_refactored extends Uniform_cost_search_H1 {
+public class h1 extends Uniform_cost_search_H1 {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
@@ -51,11 +54,11 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
     private Boolean weak_helpful_actions_pruning = false;
     public ArrayList<Boolean> closed;
 
-    public ucs_h1_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public h1(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
     }
 
-    public ucs_h1_refactored(Conditions G, Set A, Set processesSet,Set events) {
+    public h1(Conditions G, Set A, Set processesSet,Set events) {
         super(G, A, processesSet,events);
     }
 
@@ -241,7 +244,7 @@ public class ucs_h1_refactored extends Uniform_cost_search_H1 {
 //                    System.out.println(comp);
 //                    System.out.println(comp.getCounter());
 
-                    if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1) {
+                    if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
                         rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * gr.getAction_cost();
                     } else {
                         rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * gr.getAction_cost();

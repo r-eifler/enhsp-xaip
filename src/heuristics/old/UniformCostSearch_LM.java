@@ -1,4 +1,4 @@
-package heuristics.advanced;
+package heuristics.old;
 
 import conditions.Comparison;
 import conditions.Conditions;
