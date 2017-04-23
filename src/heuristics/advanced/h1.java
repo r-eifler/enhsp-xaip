@@ -134,7 +134,6 @@ public class h1 extends Uniform_cost_search_H1 {
 
     @Override
     public Float compute_estimate(State s_0) {
-        long start_computing = System.currentTimeMillis();
         
         if (s_0.satisfy(G)) {
             return 0f;

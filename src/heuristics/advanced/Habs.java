@@ -17,7 +17,6 @@ import heuristics.Heuristic;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import static java.lang.System.exit;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -37,7 +36,7 @@ import problem.State;
 public class Habs extends Heuristic{
     private static final Integer TYPE_UCSH1 = 1;
     
-    private Integer numOfPartitions = 1;
+    private Integer numOfPartitions = 2;
 
     private Boolean setting_up = true;
     private Set<GroundProcess> processSet;
@@ -127,12 +126,13 @@ public class Habs extends Heuristic{
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getFluentAffected().getName().equals("total-cost")){
+                      // makes no sense to add supporters for these actions
                         continue;
                     }
                     if (!effect.getRight().rhsFluents().isEmpty()) {
                       // generate supporters for actions with linear numeric effects
                       generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr);    
-                    } else if (effect.getRight().rhsFluents().isEmpty()) {
+                    } else {
                       // generate supporters for actions with constant effects
                       generate_constant_supporter(effect, gr.toFileCompliant(), gr);
                     }
@@ -248,13 +248,13 @@ public class Habs extends Heuristic{
     }
     
     private void generate_propositional_action(String name, Conditions cond, GroundAction gr) {
-        GroundAction ret = new GroundAction(name);
-        ret.setPreconditions(cond);
-        ret.setAddList(gr.getAddList());
-        ret.setDelList(gr.getDelList());
+        GroundAction sup = new GroundAction(name);
+        sup.setPreconditions(cond);
+        sup.setAddList(gr.getAddList());
+        sup.setDelList(gr.getDelList());
         
-        ret.setAction_cost(gr.getAction_cost());
-        supporters.add(ret);
+        sup.setAction_cost(gr.getAction_cost());
+        supporters.add(sup);
     }
 
     private void buildPartitions(Set<GroundAction> A, Conditions G, State s) {
