@@ -17,6 +17,7 @@ import heuristics.Heuristic;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -36,7 +37,7 @@ import problem.State;
 public class Habs extends Heuristic{
     private static final Integer TYPE_UCSH1 = 1;
     
-    private Integer numOfPartitions = 2;
+    private Integer numOfPartitions = 1;
 
     private Boolean setting_up = true;
     private Set<GroundProcess> processSet;
@@ -74,10 +75,10 @@ public class Habs extends Heuristic{
         // estimation for initial state
         setup_habs(s);
         
-//        Habs.logging(s.toString() + "\n\n");
-//        for (GroundAction gr : this.supporters){
-//            Habs.logging(gr.toPDDL() + "\n\n");
-//        }
+        Habs.logging(s.toString() + "\n\n");
+        for (GroundAction gr : this.supporters){
+            Habs.logging(gr.toPDDL() + "\n\n");
+        }
         
         ret = abs_h.compute_estimate(s);
         
@@ -122,7 +123,10 @@ public class Habs extends Heuristic{
             System.out.println("Generating supporters.");
         }
         
+        ArrayList<NumEffect> allConstantEffects = new ArrayList();
+        
         for (GroundAction gr : reachable) {
+            allConstantEffects.clear();
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getFluentAffected().getName().equals("total-cost")){
@@ -133,9 +137,13 @@ public class Habs extends Heuristic{
                       // generate supporters for actions with linear numeric effects
                       generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr);    
                     } else {
-                      // generate supporters for actions with constant effects
-                      generate_constant_supporter(effect, gr.toFileCompliant(), gr);
+//                        System.out.println(effect.toString() + "\n");
+                        allConstantEffects.add(effect);
                     }
+                }
+                // generate supporters for actions with constant effects
+                if (!allConstantEffects.isEmpty()){
+                    generate_constant_supporter(allConstantEffects, gr.toFileCompliant(), gr);    
                 }
             }
             
@@ -227,23 +235,20 @@ public class Habs extends Heuristic{
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
      */
-    private void generate_constant_supporter(NumEffect effect, String name, GroundAction gr) {     
-        GroundAction sup = new GroundAction(name + ' ' + effect.getRight().toString() + " for " + effect.getFluentAffected().toString());
+    private void generate_constant_supporter(ArrayList<NumEffect> allConstantEffects, String name, GroundAction gr) {     
+        GroundAction sup = new GroundAction(name + " constant ");
         
-        // setup effect
-        NumEffect supEff = new NumEffect(effect.getOperator());
-        supEff.setFluentAffected(effect.getFluentAffected());
-        supEff.setRight(effect.getRight());
-       
-        // add effect
-        sup.getNumericEffects().sons.add(supEff);
+        for (NumEffect effect : allConstantEffects){
+            // add effect
+            sup.getNumericEffects().sons.add(effect);
+        }
         
         // add preconditions
         sup.setPreconditions(gr.getPreconditions());
-        
+
         // set action cost to supporter
         sup.setAction_cost(gr.getAction_cost());
-            
+        
         supporters.add(sup);
     }
     
