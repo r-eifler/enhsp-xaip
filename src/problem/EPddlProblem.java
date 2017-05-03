@@ -67,33 +67,32 @@ public class EPddlProblem extends PddlProblem {
     private boolean processesGround;
     public AndCond globalConstraints;
 
-
     private boolean grounding;
+    private boolean action_cost_from_metric=true;
 
-    
     @Override
-    public Object clone() throws CloneNotSupportedException{
-        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef,this.objects);
+    public Object clone() throws CloneNotSupportedException {
+        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects);
         cloned.processesSet = new LinkedHashSet();
-        for (GroundAction gr: this.actions){
+        for (GroundAction gr : this.actions) {
             cloned.actions.add((GroundAction) gr.clone());
         }
-        for (GroundProcess pr: this.processesSet){
+        for (GroundProcess pr : this.processesSet) {
             cloned.processesSet.add((GroundProcess) pr.clone());
         }
-        for (GlobalConstraint constr: this.globalConstraintSet){
+        for (GlobalConstraint constr : this.globalConstraintSet) {
             cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
         }
         //cloned.globalConstraints = (AndCond) this.globalConstraints.clone();
         return this;
-        
+
     }
-    
+
     public EPddlProblem(String problemFile) {
         super(problemFile);
         globalConstraintSet = new LinkedHashSet();
         processesSet = new LinkedHashSet();
-                eventsSet = new LinkedHashSet();
+        eventsSet = new LinkedHashSet();
 
         globalConstraintGrounded = false;
         processesGround = false;
@@ -112,8 +111,9 @@ public class EPddlProblem extends PddlProblem {
 
     public void grounding() {
         try {
-            if (grounding)
+            if (grounding) {
                 return;
+            }
             this.grounding_plus_simplifications();
             grounding = true;
         } catch (Exception ex) {
@@ -142,54 +142,46 @@ public class EPddlProblem extends PddlProblem {
             System.exit(-1);
         }
 
-
     }
-    
-    
+
     public void grounding_plus_simplifications() throws Exception {
-        
+
         //simplification decoupled from the grounding
         this.grounding_action_processes_constraints();
-        
+
         this.simplifications_action_processes_constraints();
-        
+
         this.transform_numeric_condition();
-        
+
     }
-    
+
     @Override
-    public HashMap getInvariantFluents() throws Exception {
-        if (invariantFluents == null) {
-            if ( (this.getActions() == null || this.getActions().isEmpty())&& (this.processesSet == null || this.processesSet.isEmpty())) {
+    public HashMap getVariantFluents() throws Exception {
+        if (staticFluents == null) {
+            if ((this.getActions() == null || this.getActions().isEmpty()) && (this.processesSet == null || this.processesSet.isEmpty())) {
                 this.grounding_action_processes_constraints();
             }
-            invariantFluents = new HashMap();
+            staticFluents = new HashMap();
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
-                for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
-                    invariantFluents.put(nf, Boolean.FALSE);
-                }
+                staticFluents = gr.update_invariant_fluents(staticFluents);
+
             }
-            if (this.processesSet != null){
+            if (this.processesSet != null) {
                 for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
-                    for (NumFluent nf : pr.getNumericFluentAffected().keySet()) {
-                        invariantFluents.put(nf, Boolean.FALSE);
-                    }
+                    staticFluents = pr.update_invariant_fluents(staticFluents);
+
                 }
             }
-            
-            if (this.eventsSet != null){
+            if (this.eventsSet != null) {
                 for (GroundEvent ev : (Collection<GroundEvent>) this.eventsSet) {
-                    for (NumFluent nf : ev.getNumericFluentAffected().keySet()) {
-                        invariantFluents.put(nf, Boolean.FALSE);
-                    }
+                    staticFluents = ev.update_invariant_fluents(staticFluents);
+
                 }
             }
         }
-        return invariantFluents;
+        return staticFluents;
     }
 
-
-    
     public void generateProcesses() throws Exception {
         long start = System.currentTimeMillis();
         processesSet = new LinkedHashSet();
@@ -209,14 +201,12 @@ public class EPddlProblem extends PddlProblem {
             System.err.println("Please connect the domain of the problem via validation");
             System.exit(-1);
         }
-        
-        
-        
+
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.processesGround = true;
 
     }
-    
+
     @Override
     public void transform_numeric_condition() throws Exception {
 
@@ -225,13 +215,13 @@ public class EPddlProblem extends PddlProblem {
                 gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
             }
         }
-        
+
         for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
             if (pr.getPreconditions() != null) {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
         }
-        
+
         for (GroundEvent pr : (Collection<GroundEvent>) this.eventsSet) {
             if (pr.getPreconditions() != null) {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
@@ -239,11 +229,11 @@ public class EPddlProblem extends PddlProblem {
         }
         //globalConstraints.normalize();
         //globalConstraints = (AndCond)globalConstraints.transform_equality();
-        
+
         goals.normalize();
         this.goals = generate_inequalities(goals);
     }
-    
+
     public void normalize_conditions() throws Exception {
 
         for (GroundAction gr : (Collection<GroundAction>) this.actions) {
@@ -251,7 +241,7 @@ public class EPddlProblem extends PddlProblem {
                 gr.getPreconditions().normalize();
             }
         }
-        
+
         for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
             if (pr.getPreconditions() != null) {
                 pr.getPreconditions().normalize();
@@ -259,65 +249,62 @@ public class EPddlProblem extends PddlProblem {
         }
         //globalConstraints.normalize();
         //globalConstraints = (AndCond)globalConstraints.transform_equality();
-        
+
         goals.normalize();
     }
 
     private void unify_objects_names(State init, Set<GroundAction> actions, Set<GroundProcess> processesSet) {
         this.predicates_universe = new LinkedHashSet();
         this.num_fluent_universe = new LinkedHashSet();
-        for (GroundAction gr: actions){
-            Collection involved_nf= gr.getInvolvedNumFluents();
-            Collection involved_predicates= gr.getInvolvedPredicates();
-            add_if_necessary(involved_nf,this.num_fluent_universe);
-            add_if_necessary(involved_predicates,this.predicates_universe);
+        for (GroundAction gr : actions) {
+            Collection involved_nf = gr.getInvolvedNumFluents();
+            Collection involved_predicates = gr.getInvolvedPredicates();
+            add_if_necessary(involved_nf, this.num_fluent_universe);
+            add_if_necessary(involved_predicates, this.predicates_universe);
         }
-        
-        for (GroundProcess gr: processesSet){
-            Collection involved_nf= gr.getInvolvedNumFluents();
-            Collection involved_predicates= gr.getInvolvedPredicates();
-            add_if_necessary(involved_nf,this.num_fluent_universe);
-            add_if_necessary(involved_predicates,this.predicates_universe);
-        }
-        
-        for(Predicate p: this.predicates_universe){
-            for (GroundAction gr: actions){
-                gr.subst_predicate(p);
-            }
-            for (GroundProcess gr: processesSet){
-                gr.subst_predicate(p);
-            }
-        }
-        
-                for(Predicate p: this.predicates_universe){
-            for (GroundAction gr: actions){
-                gr.subst_predicate(p);
-            }
-            for (GroundProcess gr: processesSet){
-                gr.subst_predicate(p);
-            }
-        }
-        
-        
-        
 
-        
+        for (GroundProcess gr : processesSet) {
+            Collection involved_nf = gr.getInvolvedNumFluents();
+            Collection involved_predicates = gr.getInvolvedPredicates();
+            add_if_necessary(involved_nf, this.num_fluent_universe);
+            add_if_necessary(involved_predicates, this.predicates_universe);
+        }
+
+        for (Predicate p : this.predicates_universe) {
+            for (GroundAction gr : actions) {
+                gr.subst_predicate(p);
+            }
+            for (GroundProcess gr : processesSet) {
+                gr.subst_predicate(p);
+            }
+        }
+
+        for (Predicate p : this.predicates_universe) {
+            for (GroundAction gr : actions) {
+                gr.subst_predicate(p);
+            }
+            for (GroundProcess gr : processesSet) {
+                gr.subst_predicate(p);
+            }
+        }
+
     }
 
-    private void add_if_necessary(Collection to_be_modified,Collection set) {
-        for (Object nf : to_be_modified){
-                Iterator it = set.iterator();
-                boolean to_add = true;
-                while(it.hasNext()){
-                    Object target = it.next();
-                    if (target.equals(nf)){
-                        to_add = false;
-                        break;
-                    }
+    private void add_if_necessary(Collection to_be_modified, Collection set) {
+        for (Object nf : to_be_modified) {
+            Iterator it = set.iterator();
+            boolean to_add = true;
+            while (it.hasNext()) {
+                Object target = it.next();
+                if (target.equals(nf)) {
+                    to_add = false;
+                    break;
                 }
-                if (to_add)
-                    set.add(nf);
             }
+            if (to_add) {
+                set.add(nf);
+            }
+        }
 
     }
 
@@ -325,176 +312,177 @@ public class EPddlProblem extends PddlProblem {
         HashSet<GroundAction> reachable = new LinkedHashSet();
         RelState s = this.init.relaxState();
         System.out.println("Intelligent Grounding");
-        while(true){
+        while (true) {
             HashSet<GroundAction> A_primo = new LinkedHashSet();
-            for (ActionSchema a:this.linkedDomain.getActionsSchema()){
-                A_primo.addAll(ground(a,s));
+            for (ActionSchema a : this.linkedDomain.getActionsSchema()) {
+                A_primo.addAll(ground(a, s));
                 A_primo.removeAll(reachable);
-                
+
             }
 //            for (ActionSchema a:this.linkedDomain.getProcessesSchema()){
 //                A_primo.addAll(ground(a,s));
 //                A_primo.removeAll(reachable);
 //                
 //            }
-            if (A_primo.isEmpty()){
-                System.out.println("Reachable("+ reachable.size()+ "):");
+            if (A_primo.isEmpty()) {
+                System.out.println("Reachable(" + reachable.size() + "):");
                 return;
             }
-            
+
             reachable.addAll(A_primo);
-            for (GroundAction a: reachable){
+            for (GroundAction a : reachable) {
                 s = a.apply_with_generalized_interval_based_relaxation(s);
             }
-            
+
         }
-        
-        
+
     }
-    public Set<GroundAction> ground(ActionSchema a, RelState s) throws Exception{
-        
-        Set<HashMap<Variable,PDDLObject>> subst = new LinkedHashSet();
-        
-        subst = find_substs(a,s);
+
+    public Set<GroundAction> ground(ActionSchema a, RelState s) throws Exception {
+
+        Set<HashMap<Variable, PDDLObject>> subst = new LinkedHashSet();
+
+        subst = find_substs(a, s);
         Set<GroundAction> ret = new LinkedHashSet();
-        for (HashMap<Variable,PDDLObject> ele : subst){
+        for (HashMap<Variable, PDDLObject> ele : subst) {
             ret.add(a.ground(ele));
         }
         return ret;
     }
 
-    private Set<HashMap<Variable,PDDLObject>> find_substs(Object a, RelState s) throws Exception {
-        Set<HashMap<Variable,PDDLObject>> subst = new HashSet();
-        if (a == null)
+    private Set<HashMap<Variable, PDDLObject>> find_substs(Object a, RelState s) throws Exception {
+        Set<HashMap<Variable, PDDLObject>> subst = new HashSet();
+        if (a == null) {
             return null;
-        if (a instanceof Predicate){
-            Predicate p1 = (Predicate)a;
-            for (Predicate p: s.getPropositions()){
+        }
+        if (a instanceof Predicate) {
+            Predicate p1 = (Predicate) a;
+            for (Predicate p : s.getPropositions()) {
 
                 boolean conflict = false;
-                if (p1.isUngroundVersionOf(p)){
-                    HashMap<Variable,PDDLObject> subst_p = new HashMap();
+                if (p1.isUngroundVersionOf(p)) {
+                    HashMap<Variable, PDDLObject> subst_p = new HashMap();
 
-                    for (int i=0;i<p1.getTerms().size();i++){
-                            subst_p.put((Variable) p1.getTerms().get(i), (PDDLObject) p.getTerms().get(i));   
+                    for (int i = 0; i < p1.getTerms().size(); i++) {
+                        subst_p.put((Variable) p1.getTerms().get(i), (PDDLObject) p.getTerms().get(i));
                     }
-                    if (!conflict)
+                    if (!conflict) {
                         subst.add(subst_p);
+                    }
                 }
             }
-        }
-        else if (a instanceof NumFluent){
-            NumFluent nf = (NumFluent)a;
-            for (NumFluent p: s.getNumericFluents()){
+        } else if (a instanceof NumFluent) {
+            NumFluent nf = (NumFluent) a;
+            for (NumFluent p : s.getNumericFluents()) {
                 boolean conflict = false;
-                if (nf.isUngroundVersionOf(p)){
-                    HashMap<Variable,PDDLObject> subst_p = new HashMap();
+                if (nf.isUngroundVersionOf(p)) {
+                    HashMap<Variable, PDDLObject> subst_p = new HashMap();
 
-                    for (int i=0;i<nf.getTerms().size();i++){
-                        subst_p.put((Variable) nf.getTerms().get(i), (PDDLObject) p.getTerms().get(i));    
+                    for (int i = 0; i < nf.getTerms().size(); i++) {
+                        subst_p.put((Variable) nf.getTerms().get(i), (PDDLObject) p.getTerms().get(i));
                     }
                     subst.add(subst_p);
                 }
             }
-        }
-        else if (a instanceof Comparison){
-            Comparison comp = (Comparison)a;
+        } else if (a instanceof Comparison) {
+            Comparison comp = (Comparison) a;
             //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            for (NumFluent nf :comp.getInvolvedFluents()){
-                if (subst.isEmpty())
+            for (NumFluent nf : comp.getInvolvedFluents()) {
+                if (subst.isEmpty()) {
                     subst = this.find_substs(nf, s);
-                else{
-                    subst = intersect(subst,this.find_substs(nf, s));
+                } else {
+                    subst = intersect(subst, this.find_substs(nf, s));
                 }
             }
-            
-        }
-        else if (a instanceof NumEffect){
-            NumEffect n_eff = (NumEffect)a;
+
+        } else if (a instanceof NumEffect) {
+            NumEffect n_eff = (NumEffect) a;
             //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            if (n_eff.getRight().rhsFluents().isEmpty()){
+            if (n_eff.getRight().rhsFluents().isEmpty()) {
                 subst.add(new HashMap());
-            }else{
-                for (NumFluent nf :n_eff.getRight().rhsFluents()){
-                    if (subst.isEmpty())
+            } else {
+                for (NumFluent nf : n_eff.getRight().rhsFluents()) {
+                    if (subst.isEmpty()) {
                         subst = this.find_substs(nf, s);
-                    else{
-                        subst = intersect(subst,this.find_substs(nf, s));
+                    } else {
+                        subst = intersect(subst, this.find_substs(nf, s));
                     }
                 }
             }
-            
-        }
-        else if (a instanceof AndCond){
-            AndCond comp = (AndCond)a;
+
+        } else if (a instanceof AndCond) {
+            AndCond comp = (AndCond) a;
             //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            if (comp.sons.isEmpty())
+            if (comp.sons.isEmpty()) {
                 return null;//universal assignment
-            for (Object o: comp.sons){
-                if (subst.isEmpty())
+            }
+            for (Object o : comp.sons) {
+                if (subst.isEmpty()) {
                     subst = this.find_substs(o, s);
-                else{
-                    subst = intersect(subst,this.find_substs(o, s));
+                } else {
+                    subst = intersect(subst, this.find_substs(o, s));
                 }
             }
-            
-        }
-        else if (a instanceof OrCond){
-            OrCond comp = (OrCond)a;
+
+        } else if (a instanceof OrCond) {
+            OrCond comp = (OrCond) a;
             //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            if (comp.sons.isEmpty())
+            if (comp.sons.isEmpty()) {
                 return null;//universal assignment
-            for (Object o: comp.sons){
-                    subst.addAll(this.find_substs(o, s));
             }
-            
-        }
-        else if (a instanceof NotCond){//this is problematique.
-            NotCond nc = (NotCond)a;
+            for (Object o : comp.sons) {
+                subst.addAll(this.find_substs(o, s));
+            }
+
+        } else if (a instanceof NotCond) {//this is problematique.
+            NotCond nc = (NotCond) a;
             subst = Instantiator.substitutions(nc.getInvolvedVariables(), objects);
 //            for (Object o: nc.son){
-                    subst.removeAll(this.find_substs(nc.getSon(), s));
+            subst.removeAll(this.find_substs(nc.getSon(), s));
 //            }           
-        }
-        else if (a instanceof ActionSchema){
-            ActionSchema gr = (ActionSchema)a;
-            if (gr.getPar()== null || gr.getPar().isEmpty())
-               subst.add(new HashMap());
-            else
-                subst = this.find_substs_effects(gr,s,this.find_substs(gr.getPreconditions(), s));  
-            
+        } else if (a instanceof ActionSchema) {
+            ActionSchema gr = (ActionSchema) a;
+            if (gr.getPar() == null || gr.getPar().isEmpty()) {
+                subst.add(new HashMap());
+            } else {
+                subst = this.find_substs_effects(gr, s, this.find_substs(gr.getPreconditions(), s));
+            }
+
         }
         return subst;
-        
+
     }
 
     //to chech thoroghously!!
-    public Set<HashMap<Variable,PDDLObject>> intersect(Set<HashMap<Variable,PDDLObject>> a,Set<HashMap<Variable,PDDLObject>> b){
-        Set<HashMap<Variable,PDDLObject>> ret = new LinkedHashSet();
-        if (a == null)
+    public Set<HashMap<Variable, PDDLObject>> intersect(Set<HashMap<Variable, PDDLObject>> a, Set<HashMap<Variable, PDDLObject>> b) {
+        Set<HashMap<Variable, PDDLObject>> ret = new LinkedHashSet();
+        if (a == null) {
             return b;
-        if (b == null)
+        }
+        if (b == null) {
             return a;
-        for (HashMap<Variable,PDDLObject> grounding :a){
+        }
+        for (HashMap<Variable, PDDLObject> grounding : a) {
             Set<Variable> all_vars = new LinkedHashSet();
             all_vars.addAll(grounding.keySet());
-            for (HashMap<Variable,PDDLObject> grounding2 :b){
+            for (HashMap<Variable, PDDLObject> grounding2 : b) {
                 all_vars.addAll(grounding2.keySet());
                 boolean conflict = false;
-                HashMap<Variable,PDDLObject> t = new HashMap();
-                for (Variable v: all_vars){
+                HashMap<Variable, PDDLObject> t = new HashMap();
+                for (Variable v : all_vars) {
                     PDDLObject o1 = grounding.get(v);
                     PDDLObject o2 = grounding2.get(v);
-                    if (o1 != null && o2 != null && !o1.equals(o2)){
+                    if (o1 != null && o2 != null && !o1.equals(o2)) {
                         conflict = true;
                         break;
                     }
-                    if (o1 == null)
+                    if (o1 == null) {
                         t.put(v, o2);
-                    else
+                    } else {
                         t.put(v, o1);
+                    }
                 }
-                if (!conflict){
+                if (!conflict) {
                     ret.add(t);
                 }
             }
@@ -503,21 +491,17 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private Set<HashMap<Variable, PDDLObject>> find_substs_effects(ActionSchema gr, RelState s, Set<HashMap<Variable, PDDLObject>> subst) throws Exception {
-    
-        
+
         /*In this setting here, you have to generate a number of substitutions. Each one of them is a possible grounding of the
         action according to its effect. This has to be intersected with what we have discovered so far, but still it has to be done*/
         //add list
+        subst = intersect(subst, Instantiator.substitutions(gr.getAddList().getInvolvedVariables(), objects));
+        subst = intersect(subst, Instantiator.substitutions(gr.getDelList().getInvolvedVariables(), objects));
 
-        subst = intersect(subst,Instantiator.substitutions(gr.getAddList().getInvolvedVariables(), objects));
-        subst = intersect(subst,Instantiator.substitutions(gr.getDelList().getInvolvedVariables(), objects));
-        
-        subst = intersect(subst,this.find_substs(gr.getNumericEffects(), s));
-        
-        
-        subst = intersect(subst,Instantiator.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
+        subst = intersect(subst, this.find_substs(gr.getNumericEffects(), s));
 
-        
+        subst = intersect(subst, Instantiator.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
+
         //the following is a (failed) attempt to optimise the thing
 //        
 //                ArrayList<Variable> alread_assigned = new ArrayList();
@@ -542,64 +526,66 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private boolean conflicting(PDDLObject get, PDDLObject get0) {
-        if (get0.getName().equals("#Universe#"))
+        if (get0.getName().equals("#Universe#")) {
             return false;
-        if (get0.equals(get))
+        }
+        if (get0.equals(get)) {
             return false;
+        }
         return true;
-        
+
     }
 
     public void transform_constant_effect() throws Exception {
 
-        for (GroundAction gr: this.actions){
-            if (gr.getNumericEffects()!= null && !gr.getNumericEffects().sons.isEmpty()){
+        for (GroundAction gr : this.actions) {
+            if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
-                    NumEffect neff = (NumEffect)it.next();
-                    if (neff.getOperator().equals("assign") ){     
-                        ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
+                    NumEffect neff = (NumEffect) it.next();
+                    if (neff.getOperator().equals("assign")) {
+                        ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
                             neff.setOperator("increase");
-                            neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
+                            neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
                             neff.setPseudo_num_effect(true);
                         }
                     }
-                    
+
                 }
             }
             gr.normalize();
-            
+
         }
-        
-        for (GroundEvent gr: this.eventsSet){
-            if (gr.getNumericEffects()!= null && !gr.getNumericEffects().sons.isEmpty()){
+
+        for (GroundEvent gr : this.eventsSet) {
+            if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
-                    NumEffect neff = (NumEffect)it.next();
-                    if (neff.getOperator().equals("assign") ){     
-                        ExtendedNormExpression right= (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init)!= null){//constant effect
+                    NumEffect neff = (NumEffect) it.next();
+                    if (neff.getOperator().equals("assign")) {
+                        ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
                             neff.setOperator("increase");
-                            neff.setRight(new BinaryOp(neff.getRight(),"-",neff.getFluentAffected(),true).normalize());
+                            neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
                             neff.setPseudo_num_effect(true);
                         }
                     }
-                    
+
                 }
             }
             gr.normalize();
-            
+
         }
 
     }
-    
-    public void generateConstraints() throws Exception{
-	 if (this.isValidatedAgainstDomain()) {
+
+    public void generateConstraints() throws Exception {
+        if (this.isValidatedAgainstDomain()) {
             Instantiator af = new Instantiator();
             for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
-                
+
                 if (constr.parameters.size() != 0) {
                     globalConstraintSet.addAll(af.Propositionalize(constr, getObjects()));
                 } else {
@@ -612,27 +598,27 @@ public class EPddlProblem extends PddlProblem {
             System.err.println("Please connect the domain of the problem via validation");
             System.exit(-1);
         }
-         this.globalConstraintGrounded=true;
+        this.globalConstraintGrounded = true;
     }
 
     public void grounding_action_processes_constraints() throws Exception {
         long start = System.currentTimeMillis();
         this.generateActions();
-	this.generateProcesses();
-	this.generateConstraints();
+        this.generateProcesses();
+        this.generateConstraints();
         this.generateEvents();
         this.setGroundedRepresentation(true);
         this.processesGround = true;
-        this.globalConstraintGrounded= true;
-        this.getInvariantFluents();
-        if (this.metric!=null && this.metric.getMetExpr()!=null){
+        this.globalConstraintGrounded = true;
+        this.getVariantFluents();
+        if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().normalize());
-        }else{
+        } else {
             this.metric = null;
         }
-            
+
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-       
+
     }
 
     public void simplifications_action_processes_constraints() throws Exception {
@@ -650,54 +636,46 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            }else{
-                if (this.getMetric()!=null){
-                    act.setAction_cost(init,this.getMetric());
-                }else{
-                    act.setAction_cost(init);
-                }
+            } else if (this.getMetric() != null && action_cost_from_metric){// &&  !this.getMetric().pddlPrint().contains("total-time")) {
+                act.setAction_cost(init, this.getMetric());
+            } else {
+                act.setAction_cost(init);
             }
         }
 //        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
-
 //        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
-
         it = this.processesSet.iterator();
         while (it.hasNext()) {
             GroundProcess process = (GroundProcess) it.next();
             boolean keep = true;
 
-                keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            
+            keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+
             if (!keep) {
 //                System.out.println("Pruning process:"+process.toEcoString());
                 it.remove();
             }
         }
-        
+
         //Event
-        
         it = this.eventsSet.iterator();
         while (it.hasNext()) {
             GroundEvent event = (GroundEvent) it.next();
             boolean keep = true;
 
-                keep = event.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            
+            keep = event.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+
             if (!keep) {
 //                System.out.println("Pruning process:"+process.toEcoString());
                 it.remove();
             }
         }
-        
+
 //        unify_objects_names(this.getInit(),this.actions,this.processesSet);
-        
-        
         this.processesGround = true;
         this.setGroundedRepresentation(true);
 
-        
         it = this.globalConstraintSet.iterator();
         globalConstraints = new AndCond();
 
@@ -706,26 +684,29 @@ public class EPddlProblem extends PddlProblem {
             boolean keep = true;
 
             keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-            
+
             if (!keep) {
                 //System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            }else{
+            } else {
                 globalConstraints.addConditions(constr.condition);
                 globalConstraints.normalize();
             }
-                
+
         }
-        
-        
+
         this.globalConstraintGrounded = true;
+        goals  = goals.weakEval(init, staticFluents);
+        goals.normalize();
+        remove_static_part_of_state();
+        remove_num_fluents_not_involved_in_preconditions();
 
     }
 
     public void setDeltaTimeVariable(String delta_t) {
-            this.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t))); //this is the discretisation factor
+        this.getInit().addNumericFluent(new NumFluentValue("#t", Float.parseFloat(delta_t))); //this is the discretisation factor
 //          NumFluenew NumFluentValue("time_elapsed", 0);
-            this.getInit().addTimeFluent();
+        this.getInit().addTimeFluent();
     }
 
     private void generateEvents() {
@@ -754,10 +735,71 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
+    private void remove_static_part_of_state() throws Exception {
+        //invariant fluents
+        State s = this.getInit();
+        LinkedHashSet<Predicate> to_remove = new LinkedHashSet();
+        for (Predicate p : s.getPropositions()) {
+            if (this.getVariantFluents().get((Object)p)==null) {
+//                System.out.println("Proposition to remove"+p);
+                to_remove.add(p);
+            }
+        }
+        LinkedHashSet<NumFluent> n_fluents_to_remove = new LinkedHashSet();
+        for (NumFluent p : s.getNumericFluents()) {
+            if (this.getVariantFluents().get((Object)p)==null) {
+//                System.out.println("Fluent to remove"+p);
+                n_fluents_to_remove.add(p);
+            }
+        }
+//        System.out.println(this.getVariantFluents());
+        s.removeNumericFluents(n_fluents_to_remove);
+        s.removePropositions(to_remove);
 
+        //cost-related fluents
+    }
 
+    private void remove_num_fluents_not_involved_in_preconditions() {
+        
+        Set<NumFluent> involved_fluents = new LinkedHashSet();
+        
+        for (ActionSchema a: this.linkedDomain.getActionsSchema()){
+            involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
+            involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
+        }
+        for (ProcessSchema a: this.linkedDomain.getProcessesSchema()){
+            involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
+            involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
+        }
+        for (EventSchema a: this.linkedDomain.getEventSchema()){
+            involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
+            involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
-    
+        }
+        for (SchemaGlobalConstraint a: this.linkedDomain.getSchemaGlobalConstraints()){
+            involved_fluents.addAll(a.condition.getInvolvedFluents());
+        }
+        involved_fluents.addAll(goals.getInvolvedFluents());
+
+        Iterator<NumFluent> it =this.init.numericFs.keySet().iterator();
+        while (it.hasNext()){
+            NumFluent nf2 = it.next();
+            if (!nf2.getName().equals("time_elapsed")){
+
+                boolean keep_it = false;
+                for (NumFluent nf : involved_fluents){
+                    if (nf.getName().equals(nf2.getName())){
+                        keep_it = true;
+                        break;
+                    }
+                }
+                if (!keep_it){
+                    it.remove();
+                }
+            }
+        }
+        
+    }
 
 }

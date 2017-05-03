@@ -440,8 +440,12 @@ public class NotCond extends Terminal implements PostCondition {
         }else if (son instanceof PDDLObjectsEquality){
             return this;
         }
-        else{
-            System.out.println("Condition Not Supported:"+son);
+        else if (son instanceof NotCond){
+            NotCond nc = (NotCond)son;
+//            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
+            return nc.son.push_not_to_terminals();
+        }else{
+            System.out.println("Condition "+son.getClass()+" not supported");
             System.exit(-1);
         }
         return null;

@@ -495,6 +495,7 @@ public class NumEffect extends Expression implements PostCondition {
         PDDLNumber after = null;
         PDDLNumber eval = this.getRight().eval(s);
         if (eval == null) {
+            System.out.print("State:"+s);
             System.out.println("Applying a not applicable effect!:" + this);
             System.exit(-1);
         }
@@ -536,12 +537,12 @@ public class NumEffect extends Expression implements PostCondition {
 //            System.out.println(this);
 //            System.out.println(current);
 //            System.out.println(eval);
-            if (!current.is_not_a_number){
+            if (!current.is_not_a_number && current.getInf().getNumber()!=null &&  current.getSup().getNumber()!=null){
                 after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
                 after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
             }
         } else if (getOperator().equals("decrease")) {
-            if (!current.is_not_a_number){
+            if (!current.is_not_a_number && current.getInf().getNumber()!=null &&  current.getSup().getNumber()!=null){
                 after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
                 after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
             }

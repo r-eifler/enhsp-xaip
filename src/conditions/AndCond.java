@@ -922,7 +922,10 @@ public class AndCond extends Conditions implements PostCondition {
         AndCond res = new AndCond();
         for (Conditions c : (Collection<Conditions>) this.sons) {
             Conditions c1 = c.push_not_to_terminals();
-            res.addConditions(c1);
+            if (c1 instanceof AndCond)
+                res.sons.addAll(((AndCond) c1).sons);
+            else
+                res.addConditions(c1);
         }
         return res;
     }

@@ -67,7 +67,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
     boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
         
       
-        HashMap invariantFluents = problem.getInvariantFluents();
+        HashMap invariantFluents = problem.getVariantFluents();
         //add invariantFluents because free variable
         for (NumFluent nf : (Collection<NumFluent>)domain.get_derived_variables()){
             invariantFluents.put(nf.getName(),Boolean.FALSE);
@@ -81,13 +81,17 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         //System.out.println(con);
         //con.normalize();
         //System.out.println(con);
+        
+        //This needs to be fixed. The semantics of global constraints is different
+        //from that of the actions. 
         con = con.weakEval(problem.getInit(), invariantFluents);
  
+        this.condition = con;
         
         
-        if (con == null || con.isUnsatisfiable()){
-            return false;
-        }
+        //if (con == null || con.isUnsatisfiable()){
+        //    return false;
+        //}
 
         //System.out.println(a.toPDDL());
 //        System.out.println(constr);

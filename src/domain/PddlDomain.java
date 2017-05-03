@@ -93,7 +93,7 @@ public final class PddlDomain extends Object {
     private List<String> Requirements;
     private String pddlReferenceFile;
     private HashMap abstractInvariantFluents;
-    private LinkedHashSet SchemaGlobalConstraints;
+    private LinkedHashSet<SchemaGlobalConstraint> SchemaGlobalConstraints;
 
     private PddlDomain(Set<ActionSchema> ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List<String> Requirements) {
         this.ActionsSchema = ActionsSchema;
@@ -1113,7 +1113,7 @@ public final class PddlDomain extends Object {
     /**
      * @return the SchemaGlobalConstraints
      */
-    public LinkedHashSet getSchemaGlobalConstraints() {
+    public LinkedHashSet<SchemaGlobalConstraint> getSchemaGlobalConstraints() {
         return SchemaGlobalConstraints;
     }
 
@@ -1178,7 +1178,7 @@ public final class PddlDomain extends Object {
     /**
      * @return the ProcessesSchema
      */
-    public Set getProcessesSchema() {
+    public Set<ProcessSchema> getProcessesSchema() {
         return ProcessesSchema;
     }
 
