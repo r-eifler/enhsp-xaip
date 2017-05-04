@@ -84,7 +84,7 @@ public class SearchStrategies {
     public Conditions goal;
     HashMap<State, Float> g = new HashMap();
 
-    private boolean can_reopen_nodes = true;
+    private boolean optimality = true;
     private Collection<GroundProcess> reachable_processes;
     private Collection<GroundEvent> reachable_events;
 
@@ -292,11 +292,13 @@ public class SearchStrategies {
                     return 1;
                 }
             } else//dfs
-             if (a.f <= other.f) {
+            {
+                if (a.f <= other.f) {
                     return 1;
                 } else {
                     return -1;
                 }
+            }
         }
 
     }
@@ -491,18 +493,23 @@ public class SearchStrategies {
                 current_node.set_visited(nodes_expanded);
             }
 
-            if (bestf < current_node.g_n + current_node.h_n) {
-                bestf = current_node.g_n + current_node.h_n;
-                System.out.println("f(n) = "+ bestf +" (Expanded Nodes: "+nodes_expanded+
-                        ", Evaluated States: "+states_evaluated+", Time: "+(float)((System.currentTimeMillis() - start_global))/1000.0+")");
-                //System.out.println("Expansion is: "+ nodes_expanded);
-                //if (bestf == 9)
-                //   return null;
-            }
             float previous_g = g.get(current_node.s);
             float g_node = current_node.g_n;
 
             if (g_node == previous_g) {
+                if (optimality && (bestf < current_node.g_n + current_node.h_n)) {
+                    bestf = current_node.g_n + current_node.h_n;
+                    System.out.println("f(n) = " + bestf + " (Expanded Nodes: " + nodes_expanded
+                            + ", Evaluated States: " + states_evaluated + ", Time: " + (float) ((System.currentTimeMillis() - start_global)) / 1000.0 + ")");
+                    //System.out.println("Expansion is: "+ nodes_expanded);
+                    //if (bestf == 9)
+                    //   return null;
+                }
+                if (!optimality && (current_value > current_node.h_n || current_g < current_node.g_n)) {
+                    System.out.println(" g(n)= " + current_node.g_n + " h(n)=" + current_node.h_n);
+                    current_value = current_node.h_n;
+                    current_g = current_node.g_n;
+                }
 //                if (g_node < previous_g && this.can_reopen_nodes){
 //                    System.out.println("This is not possible!!!");
 //                    System.exit(-1);
@@ -524,14 +531,7 @@ public class SearchStrategies {
                 priority_queue_size = frontier.size();
                 //System.out.println("Current Distance:"+current_node.g_n);
                 //System.out.println("Current Cost:"+current_node.g_n);
-//                if (current_value > current_node.h_n || current_g < current_node.g_n) {
-//                    System.out.println(" g(n)= " + current_node.g_n + " h(n)=" + current_node.h_n);
-//                    current_value = current_node.h_n;
-//                    current_g = current_node.g_n;
-////                if (current_value == 1){
-////                    System.out.println(current_node.s);
-////                }
-//                }
+
 //                if (nodes_expanded % 10000 == 0 || ((System.currentTimeMillis() - start_global) - previous_check) > 10000) {
 //                    System.out.println("Stats so far. Expanded nodes:" + nodes_expanded + " States Evaluated:" + this.getStates_evaluated());
 //                    previous_check = (System.currentTimeMillis() - start_global);
@@ -692,7 +692,7 @@ public class SearchStrategies {
     }
 
     public LinkedList greedy_best_first_search(EPddlProblem problem) throws Exception {
-        this.can_reopen_nodes = false;
+        this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.wa_star(problem);
     }

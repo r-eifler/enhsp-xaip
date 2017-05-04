@@ -166,7 +166,8 @@ public class h1 extends Uniform_cost_search_H1 {
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
 
             GroundAction gr = a_plus.removeMin().getData();
-            closed.set(gr.counter, true);
+            //if (!conservativehmax || this.additive_h)
+                closed.set(gr.counter, true);
             reachable_here.add(gr);
 //            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
 //            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
@@ -318,7 +319,8 @@ public class h1 extends Uniform_cost_search_H1 {
         //this mapping contains action that need to be triggered becasue of condition comp
         for (GroundAction gr2 : set) {
             if (closed.get(gr2.counter)) {
-                continue;
+                if (this.additive_h || !this.conservativehmax)
+                    continue;
             }
             Float c = check_conditions(gr2);
 
@@ -329,7 +331,12 @@ public class h1 extends Uniform_cost_search_H1 {
                     a_plus.insert(n, c);//push in the set of actions to consider. 
                     action_to_fib_node.set(gr2.counter, n);
                 } else {
-                    a_plus.decreaseKey(action_to_fib_node.get(gr2.counter), c);//push in the set of actions to consider. 
+                    if (closed.get(gr2.counter)){
+                        a_plus.insert(action_to_fib_node.get(gr2.counter), c);
+                        closed.set(gr2.counter, false);
+                    }else{
+                        a_plus.decreaseKey(action_to_fib_node.get(gr2.counter), c);//push in the set of actions to consider. 
+                    }
                 }
                 //Need to understand whether is worth to do check on the list to see if action already is there.
                 if (this.reacheability_setting) {
