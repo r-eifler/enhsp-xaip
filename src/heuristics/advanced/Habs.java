@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -41,10 +42,10 @@ public class Habs extends Heuristic{
     private Integer numOfPartitions = 2;
     private Boolean settingUp = true;
     
-    private Set<GroundProcess> processSet;
-    private HashMap<GroundAction, HashMap<Expression, LinkedList<Interval>>> partitionMap = new HashMap();
-    private LinkedList<HashMap<Expression, HashMap<Interval, GroundAction>>> linearSupporters = new LinkedList<>();
-
+    private final Set<GroundProcess> processSet;
+    private final HashMap<GroundAction, HashMap<Expression, LinkedList<Interval>>> partitionMap = new HashMap();
+    private final LinkedList<HashMap<Expression, HashMap<Interval, GroundAction>>> linearSupporters = new LinkedList<>();
+   
     private h1 habs;
     
     public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
@@ -175,36 +176,43 @@ public class Habs extends Heuristic{
      * reachable actions for the original problem.
      */
     private void generate_supporters(State s){
+        NumEffect effectOnCost = null;
+        
         System.out.println("Generating supporters.");
         
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
         
         for (GroundAction gr : reachable) {
+            for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
+                if (effect.getFluentAffected().getName().equals("total-cost")){
+                    effectOnCost = (NumEffect) effect.clone();
+                }
+            }
+            
             allConstantEffects.clear();
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 linearSupporters.add(new HashMap<>());
                 
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getFluentAffected().getName().equals("total-cost")){
-                      // action costs are set in each call for compute_estimate()
                         continue;
                     }
                     if (!effect.getRight().rhsFluents().isEmpty()) {
                       // generate supporters for actions with linear numeric effects
-                      generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr);    
+                      generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr, effectOnCost);    
                     } else {
                         allConstantEffects.add(effect);
                     }
                 }
                 // generate supporters for actions with constant effects
                 if (!allConstantEffects.isEmpty()){
-                    generate_constant_supporter(allConstantEffects, gr.toFileCompliant(), gr);    
+                    generate_constant_supporter(allConstantEffects, gr.toFileCompliant(), gr, effectOnCost);    
                 }
             }
             
             // add propositional actions
             if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
-                 generate_propositional_action(gr.toFileCompliant() + "prop", gr.getPreconditions(), gr);
+                 generate_propositional_action(gr.toFileCompliant() + " prop", gr.getPreconditions(), gr);
             }
         }
         
@@ -225,8 +233,8 @@ public class Habs extends Heuristic{
      * @param name a string used to distinguish between supporters for effects.
      * @param gr the grounded action. 
      */
-    private void generate_linear_supporter(State s, NumEffect effect, String name, GroundAction gr) {
-        // for an action, each atomic numeric effect has a unique right-hand affected
+    private void generate_linear_supporter(State s, NumEffect effect, String name, GroundAction gr, NumEffect effectOnCost) {
+        // for an action, each numeric effect has a unique right-hand
         linearSupporters.get(linearSupporters.size()-1).put(effect.getRight(), new HashMap<>());
 
         // partitioning
@@ -258,6 +266,9 @@ public class Habs extends Heuristic{
 
             // set effects for supporters
             supporter.getNumericEffects().sons.add(supEff);
+            if (effectOnCost != null){
+                supporter.getNumericEffects().sons.add(effectOnCost);
+            }
 
             // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
             Comparison indirect_precondition_gt = new Comparison(">");
@@ -276,9 +287,6 @@ public class Habs extends Heuristic{
             supporter.getPreconditions().sons.add(indirect_precondition_gt);
             supporter.setPreconditions(supporter.getPreconditions().and(gr.getPreconditions()));
             
-            // set action cost to supporter
-            supporter.setAction_cost(gr.getAction_cost());
-            
             // add new supporter
             supporters.add(supporter);
             linearSupporters.get(linearSupporters.size()-1).get(effect.getRight()).put(interval, supporter);
@@ -293,7 +301,7 @@ public class Habs extends Heuristic{
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
      */
-    private void generate_constant_supporter(ArrayList<NumEffect> allConstantEffects, String name, GroundAction gr) {     
+    private void generate_constant_supporter(ArrayList<NumEffect> allConstantEffects, String name, GroundAction gr, NumEffect effectOnCost) {     
         GroundAction sup = new GroundAction(name + " constant ");
         
         // add preconditions
@@ -303,10 +311,13 @@ public class Habs extends Heuristic{
             // add effect
             sup.getNumericEffects().sons.add(effect);
         }
-
-        // set action cost to supporter
-        sup.setAction_cost(gr.getAction_cost());
+        
+        if (effectOnCost != null){
+            sup.getNumericEffects().sons.add(effectOnCost);
+        }
+        
         supporters.add(sup);
+        
     }
     
     private void generate_propositional_action(String name, Conditions cond, GroundAction gr) {
@@ -327,12 +338,12 @@ public class Habs extends Heuristic{
         
         updateActionCosts(s);
         Float ret = habs.compute_estimate(s);      
-        
         return ret;
     }
     
     private void updateActionCosts(State s){    
         for (GroundAction gr : habs.A){
+            gr.clearActionCost();
             gr.setAction_cost(s);
         }    
     }
