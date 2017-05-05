@@ -2169,6 +2169,10 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
 
     }
+    
+    public void clearActionCost(){
+        action_cost = null;
+    }
 
     /**
      * @param action_cost the action_cost to set
