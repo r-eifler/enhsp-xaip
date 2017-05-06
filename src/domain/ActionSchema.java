@@ -36,6 +36,8 @@ import conditions.NotCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumEffect;
+import expressions.NumFluent;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,7 +56,7 @@ public class ActionSchema extends GenericActionType {
     public ActionSchema() {
         super();
         parameters = new SchemaParameters();
-        numericFluentAffected = new HashSet();
+//        numericFluentAffected = new HashSet();
         this.addList = new AndCond();
         this.delList = new AndCond();
         this.numericEffects = new AndCond();
@@ -306,16 +308,20 @@ public class ActionSchema extends GenericActionType {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 numEff.sons.add(nf.subst(a.getNumericEffects()));
-                ab.getNumericFluentAffected().add(nf.getFluentAffected());
+                System.out.println("TODO: redo the numeric affected fluents");
+                System.exit(-1);
+//                ab.getNumericFluentAffected().add(nf.getFluentAffected());
             }
         }
         if (a.getNumericEffects() != null) {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
-                if (!ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
-                    numEff.sons.add(o);
-                    ab.getNumericFluentAffected().add(nf.getFluentAffected());
-                }
+                System.out.println("TODO: redo the numeric affected fluents");
+                System.exit(-1);
+//                if (!ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
+//                    numEff.sons.add(o);
+//                    ab.getNumericFluentAffected().add(nf.getFluentAffected());
+//                }
             }
         }
 
@@ -325,16 +331,9 @@ public class ActionSchema extends GenericActionType {
     /**
      * @return the numericFluentAffected
      */
-    public HashSet getNumericFluentAffected() {
-        return numericFluentAffected;
-    }
 
-    /**
-     * @param numericFluentAffected the numericFluentAffected to set
-     */
-    public void setNumericFluentAffected(HashSet numericFluentAffected) {
-        this.numericFluentAffected = numericFluentAffected;
-    }
+
+
 
     private Conditions regress(ActionSchema b, ActionSchema a) {
         /*Propositional Part first*/
@@ -403,6 +402,7 @@ public class ActionSchema extends GenericActionType {
 
         return ret + ")";
     }
+
 
     
     

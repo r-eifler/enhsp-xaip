@@ -334,7 +334,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         return this.check_goal_conditions(s, G, dist,closed);
     }
 
-    protected void generate_achievers() {
+    protected boolean generate_achievers() {
         interact_with = new HashMap();
         achieve = new HashMap();
         possible_achievers = new HashMap();
@@ -370,6 +370,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
             interact_with.put(gr, comparisons);
             possible_achievers.put(gr, reacheable_comparisons);
         }
+        return false;
     }
 
     private void update_achievers(Collection<Conditions> conds, Collection<GroundAction> actions) {

@@ -150,7 +150,7 @@ public final class cplex_interface extends LpInterface {
 
         try {
 //            lp.solveFixed();
-            lp.setParam (IloCplex.IntParam.NodeAlg, IloCplex.Algorithm.Dual);
+            //lp.setParam (IloCplex.IntParam.NodeAlg, IloCplex.Algorithm.Dual);
             
 //            System.out.println(lp.isMIP());
 
@@ -171,6 +171,7 @@ public final class cplex_interface extends LpInterface {
         return Float.MAX_VALUE;
     }
 
+    @Override
     protected void init_condition(Collection<GroundAction> pool, State s_0) {
 
         action_to_variable = new HashMap();

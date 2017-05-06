@@ -114,10 +114,9 @@ public abstract class Heuristic {
     public boolean integer_variables;
     public boolean greedy = false;
     public Conditions gC;
-    protected HashMap<Integer, GroundAction> cond_action;
     public boolean integer_actions = false;
     private boolean cost_oriented_ibr = false;
-    private HashMap<Conditions, Integer> integer_ref;
+    protected HashMap<Conditions, Integer> integer_ref;
     public boolean helpful_actions_computation = false;
     protected int total_number_of_actions;
 
@@ -933,7 +932,7 @@ public abstract class Heuristic {
         //        System.out.println(opt.Check());
     }
 
-    private int update_index_conditions(Conditions c_1, int counter) {
+    protected int update_index_conditions(Conditions c_1, int counter) {
 
         if (integer_ref.get(c_1) == null) {
 //            System.out.println("This happens then");

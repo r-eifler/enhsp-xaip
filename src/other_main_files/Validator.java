@@ -95,7 +95,7 @@ public class Validator {
             sp.parseSolution(planFile);
         }
         
-        sp.setInvariantFluents(prob.getInvariantFluents());
+        sp.setInvariantFluents(prob.getVariantFluents());
         System.out.println(sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
         if (last_state_file != null)
             save_last_state_to_a_file(last_state_file,sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
