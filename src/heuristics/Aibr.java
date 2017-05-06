@@ -8,6 +8,7 @@ package heuristics;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
+import conditions.Predicate;
 import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
@@ -87,6 +88,7 @@ public class Aibr extends Heuristic {
 //        Utils.dbg_print(debug, "Computing Internal Data Structure\n");
         this.build_integer_representation();
 //        Utils.dbg_print(debug, "Computing Reachable Actions\n");
+
         Float ret = compute_estimate(s_0);
         reachability = false;
         return ret;
@@ -155,6 +157,14 @@ public class Aibr extends Heuristic {
 //        Utils.dbg_print(debug, "Rechability finished");
 
         if (reachability) {
+//            int counter_predicates = 0;
+//            for (Predicate p : rs.poss_interpretation.keySet()){
+//                if (rs.poss_interpretation.get(p) >0)
+//                    counter_predicates++;
+//            }
+//            s.consolidate_propositions(rs);
+//            System.out.println("Total Number of Predicates which makes sense"+counter_predicates);
+            
             //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             this.supporters = new LinkedHashSet(supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));

@@ -103,7 +103,7 @@ public class PddlProblem {
     protected RelState possStates;
     public int counterNumericFluents = 0;
     protected boolean simplifyActions;
-    protected HashMap invariantFluents;
+    protected HashMap staticFluents;
     public Conditions belief;
     public Collection<Predicate> unknonw_predicates;
     public Collection<OneOf> one_of_s;
@@ -1060,19 +1060,19 @@ public class PddlProblem {
         this.simplifyActions = simplifyActions;
     }
 
-    public HashMap getInvariantFluents() throws Exception {
-        if (invariantFluents == null) {
-            invariantFluents = new HashMap();
+    public HashMap getVariantFluents() throws Exception {
+        if (staticFluents == null) {
+            staticFluents = new HashMap();
             if (this.getActions() == null || this.getActions().isEmpty() ) {
                 this.generateActions();
             }
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
                 for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
-                    invariantFluents.put(nf, Boolean.FALSE);
+                    staticFluents.put(nf, Boolean.FALSE);
                 }
             }
         }
-        return invariantFluents;
+        return staticFluents;
     }
 
     public void transform_numeric_condition() throws Exception {

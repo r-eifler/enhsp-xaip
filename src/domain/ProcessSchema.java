@@ -56,7 +56,6 @@ public class ProcessSchema extends GenericActionType {
     public ProcessSchema() {
         super();
         parameters = new SchemaParameters();
-        numericFluentAffected = new HashSet();
         this.addList = new AndCond();
         this.delList = new AndCond();
         this.numericEffects = new AndCond();
@@ -299,35 +298,27 @@ public class ProcessSchema extends GenericActionType {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 numEff.sons.add(nf.subst(a.getNumericEffects()));
-                ab.getNumericFluentAffected().add(nf.getFluentAffected());
+                                System.out.println("TODO: redo the numeric affected fluents");
+                System.exit(-1);
+//                ab.getNumericFluentAffected().add(nf.getFluentAffected());
             }
         }
         if (a.getNumericEffects() != null) {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
-                if (!ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
-                    numEff.sons.add(o);
-                    ab.getNumericFluentAffected().add(nf.getFluentAffected());
-                }
+                System.out.println("TODO: redo the numeric affected fluents");
+                System.exit(-1);
+//                if (!ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
+//                    numEff.sons.add(o);
+//                    ab.getNumericFluentAffected().add(nf.getFluentAffected());
+//                }
             }
         }
 
         ab.setNumericEffects(numEff);
     }
 
-    /**
-     * @return the numericFluentAffected
-     */
-    public HashSet getNumericFluentAffected() {
-        return numericFluentAffected;
-    }
 
-    /**
-     * @param numericFluentAffected the numericFluentAffected to set
-     */
-    public void setNumericFluentAffected(HashSet numericFluentAffected) {
-        this.numericFluentAffected = numericFluentAffected;
-    }
 
     private Conditions regress(ProcessSchema b, ProcessSchema a) {
         /*Propositional Part first*/

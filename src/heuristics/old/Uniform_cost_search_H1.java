@@ -256,7 +256,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         return this.check_goal_conditions(s, G, dist, closed);
     }
 
-    protected void generate_achievers() throws Exception {
+    protected boolean generate_achievers() throws Exception {
         interact_with = new HashMap();
         // map action a to a set of propositional conditions it can achieve
         achieve = new HashMap();
@@ -269,10 +269,12 @@ public class Uniform_cost_search_H1 extends Heuristic {
         precondition_mapping = new HashMap();
 
         //this should also include the indirect dependencies, otherwise does not work!!
+        Set<GroundAction> useless_actions = new HashSet();
         for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Conditions> literals = new LinkedHashSet();
+            boolean at_least_one_service = false;
             for (Conditions c : this.all_conditions) {
 
                 if (precondition_mapping.get(c.getCounter()) == null) {
@@ -289,8 +291,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
 //                      Only try to find achievers for simple numeric condition
 //                      Leave complex conditions alone
                         if (this.is_complex.get(comp.getCounter())) {
+                            at_least_one_service = true;
                             reacheable_comparisons.add(comp);
                         } else if (gr.is_possible_achiever_of(comp)) {
+                            at_least_one_service = true;
                             reacheable_comparisons.add(comp);
                             action_list.add(gr);
                         }
@@ -305,6 +309,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 } else if (c instanceof Predicate) {
                     Predicate p = (Predicate) c;
                     if (gr.achieve(p)) {
+                        at_least_one_service = true;
                         literals.add(p);
                         action_list.add(gr);
                     }
@@ -324,6 +329,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     }
                     Predicate p = (Predicate) c1.getSon();
                     if (gr.delete(p)) {
+                        at_least_one_service = true;
                         literals.add(c1);
                         action_list.add(gr);
                     }
@@ -336,6 +342,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     }
 
                 }
+                
                 if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
 //                    System.out.println("Gr:"+ gr);
 //                    try {
@@ -351,10 +358,17 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 }
 
             }
-            achieve.put(gr.counter, literals);
-            interact_with.put(gr.counter, comparisons);
-            possible_achievers.put(gr.counter, reacheable_comparisons);
+//            if (at_least_one_service){
+                achieve.put(gr.counter, literals);
+                interact_with.put(gr.counter, comparisons);
+                possible_achievers.put(gr.counter, reacheable_comparisons);
+//            }else{
+//                useless_actions.add(gr);
+//            }
         }
+//        boolean ret = !useless_actions.isEmpty();
+            
+//        A.removeAll(useless_actions);
 
         Utils.dbg_print(debug, "Identify complex achievers");
 
@@ -400,7 +414,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
         }
         Utils.dbg_print(debug, "Complex achievers identified");
-
+        return false;//to fix at some point
     }
 
     private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Conditions p, FibonacciHeap<Conditions> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {

@@ -5,10 +5,11 @@
  */
 package heuristics.utils;
 
+import conditions.AndCond;
 import conditions.Conditions;
 import java.util.ArrayList;
 import java.util.Collection;
-import org.ojalgo.optimisation.ExpressionsBasedModel;
+import java.util.Set;
 import problem.GroundAction;
 import problem.State;
 
@@ -23,6 +24,13 @@ public abstract class LpInterface {
     public boolean additive_h;
     public Conditions gc;
     public Conditions c;
+    
+    //this is for set of conditions
+    public LpInterface(Set<Conditions> cond, Conditions global_constraint) {
+        super();
+        AndCond c = new AndCond();
+        c.sons.addAll(cond);
+    }
     
     public LpInterface(Conditions cond, Conditions global_constraint) {
         super();

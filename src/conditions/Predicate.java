@@ -513,7 +513,15 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
-        return s.getProposition(this);    
+        //if it is a static predicate (not invariant) and is satisfied in the init state,
+        //then remove it in the upper level since it is valid for any state
+        if (invF.get(this)==null && s.satisfy(this)){
+            this.setValid(true);
+            this.setUnsatisfiable(false);
+            return this;
+        }else{//this is meant to couple all the predicates in a unique representation
+            return s.getProposition(this);    
+        }
     }
 
     @Override

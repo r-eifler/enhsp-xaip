@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -318,8 +319,12 @@ public class State extends Object {
         RelState ret_val = new RelState();
 
         for (NumFluent o : this.numericFs.keySet()) {
+            //System.out.println(o);
 
-            ret_val.poss_numericFs.put(o, new Interval(this.numericFs.get(o).getNumber()));
+            //System.out.println(this.numericFs.get(o));
+            if (this.numericFs.get(o)!=null){
+                ret_val.poss_numericFs.put(o, new Interval(this.numericFs.get(o).getNumber()));
+            }
         }
 
         for (Object o : this.propositions.keySet()) {
@@ -366,12 +371,15 @@ public class State extends Object {
             return false;
         }
         if (getClass() != obj.getClass()) {
+//            System.out.println(this);
+//            System.out.println(obj);
             return false;
         }
         final State other = (State) obj;
 
         
         for (NumFluent nf : this.getNumericFluents()) {
+//            System.out.println("really?");
 //            if (!ass_init.getTwo().equals(other.functionValue(ass_init.getNFluent()))) {
 //                return false;
 //            }
@@ -403,21 +411,34 @@ public class State extends Object {
             Predicate p = (Predicate) o;
             if (this.is_true(p)) {
                 if (!other.is_true(p)) {
-
+//                    System.out.println("Checking if they are really different");
+//                    if (this.pddlPrint().equals(other.pddlPrint())){
+//                        System.out.println("Wait a moment");
+//                        System.out.println(this);
+//                        System.out.println(other);
+//                    }
                     return false;
                 }
             }
 
         }
-
+        
         return true;
     }
 
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 89 * hash + (this.propositions != null ? this.propositions.hashCode() : 0);
+//        hash = 89 * hash + (this.numericFs != null ? this.numericFs.hashCode() : 0);
+//        return hash;
+//    }
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + (this.propositions != null ? this.propositions.hashCode() : 0);
-        hash = 89 * hash + (this.numericFs != null ? this.numericFs.hashCode() : 0);
+        int hash = 3;
+        hash = 31 * hash + Objects.hashCode(this.propositions);
+        hash = 31 * hash + Objects.hashCode(this.numericFs);
         return hash;
     }
 
@@ -917,6 +938,34 @@ public class State extends Object {
 
     void addTime(NumFluentValue numFluentValue) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    void removeNumericFluents(LinkedHashSet<NumFluent> n_fluents_to_remove) {
+        for (NumFluent nf: n_fluents_to_remove){
+            if (!nf.getName().equals("time_elapsed"))
+                this.numericFs.remove(nf);
+        }
+    }
+
+    void removePropositions(LinkedHashSet<Predicate> to_remove) {
+        for (Predicate p: to_remove){
+//            System.out.println("Trying to remove p:"+p);
+//            System.out.println("from:"+this.propositions);
+
+            this.propositions.remove(p);
+//            System.out.println("result:"+this.propositions);
+        }    
+    }
+
+    public void consolidate_propositions(RelState rs) {
+        Iterator<Predicate> it = this.propositions.keySet().iterator();
+//        System.out.println("Consolidation");
+        while(it.hasNext()){
+            Predicate p = it.next();
+            if (rs.poss_interpretation.get(p)==0){
+                this.propositions.put(p, Boolean.FALSE);
+            }
+        }
     }
 
 }

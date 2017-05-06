@@ -12,10 +12,12 @@ import conditions.Conditions;
 import conditions.Predicate;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
+import heuristics.Aibr;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
+import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 import static java.lang.System.out;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
@@ -50,6 +53,12 @@ public class hlm extends Uniform_cost_search_H1 {
     public boolean smart_intersection = false;
     private ArrayList<Float> target_value;
     public boolean mip;
+//    private IloCplex lp;
+    private IloCplex lp_global;
+    private IloLinearNumExpr objective_function;
+    private HashMap<Integer,IloNumVar> action_to_variable;
+    private HashMap<Integer,IloRange> condition_to_cplex_constraint;
+    
 
     public hlm(Conditions goal, Set<GroundAction> A,Set<GroundProcess> P) {
         super(goal, A, P);
@@ -62,6 +71,14 @@ public class hlm extends Uniform_cost_search_H1 {
 
     @Override
     public Float setup(State s) {
+        Aibr first_reachH = new Aibr(this.G, this.A);
+        first_reachH.setup(s);
+        first_reachH.set(true, true);
+        Float ret2 = first_reachH.compute_estimate(s);
+        if (ret2 == Float.MAX_VALUE) {
+            return ret2;
+        }
+        A = first_reachH.reachable;
         if (red_constraints) {
             try {
                 this.add_redundant_constraints();
@@ -85,16 +102,18 @@ public class hlm extends Uniform_cost_search_H1 {
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
         out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
-
-        //redo construction of integer to avoid spurious actions
-        build_integer_representation();
-        identify_complex_conditions( A);
-        this.generate_link_precondition_action();
-        try {
-            generate_achievers();
-        } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        
+        init_lp(A,all_conditions,s);
+//        redo construction of integer to avoid spurious actions
+//        build_integer_representation();
+//        identify_complex_conditions( A);
+//        this.generate_link_precondition_action();
+//        try {
+//            generate_achievers();
+//        } catch (Exception ex) {
+//            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         return ret;
     }
 
@@ -102,20 +121,12 @@ public class hlm extends Uniform_cost_search_H1 {
     public Float compute_estimate(State s_0) {
         if (s_0.satisfy(G))
             return 0f;
-        LinkedList<GroundAction> a_plus = new LinkedList();//actions executable. Progressively updated
+        Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
         ArrayList<Set<Conditions>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
         ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
         HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
         reachable_poss_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        for (GroundAction gr : this.A) {//see which actions are executable at the current state
-            if (gr.isApplicable(s_0)) {
-                a_plus.add(gr);//add such an action
-                never_active.set(gr.counter, false);
-                if (this.reacheability_setting) {
-                    this.reachable.add(gr);
-                }
-            }
-        }
+
         dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         target_value = new ArrayList<>(nCopies(all_conditions.size() + 1, 0f));//keep track of conditions that have been reachead yet
 
@@ -154,9 +165,19 @@ public class hlm extends Uniform_cost_search_H1 {
             lm.set(c.getCounter(), null);//this condition has no landmark yet. This structure is updated on the way
             reachable_poss_achievers.set(c.getCounter(), new LinkedHashSet());//this is a mapping between condition and its possible (reachable) achievers
         }
+        
+        for (GroundAction gr : this.A) {//see which actions are executable at the current state
+            if (this.check_conditions(gr)) {
+                a_plus.add(gr);//add such an action
+                never_active.set(gr.counter, false);
+                if (this.reacheability_setting) {
+                    this.reachable.add(gr);
+                }
+            }
+        }
 
         while (!a_plus.isEmpty()) {//keep going till no action is in the list. Look that here actions can be re-added
-            GroundAction gr = a_plus.poll();
+            GroundAction gr = a_plus.pop();
             update_actions_conditions(s_0, gr, a_plus, never_active, lm);//this procedure updates
             //all the conditions that can be reached by using action gr. 
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
@@ -166,7 +187,7 @@ public class hlm extends Uniform_cost_search_H1 {
             A = reachable;
         }
         
-        int not_trivial_landmarks = 0;
+        int goal_not_true_in_init = 0;
         Set<Conditions> goal_landmark = new LinkedHashSet();
         for (Conditions c : (Collection<Conditions>) this.G.sons) {
             Float distance = dist_float.get(c.getCounter());
@@ -179,6 +200,7 @@ public class hlm extends Uniform_cost_search_H1 {
                 }
             }else{
                 if (distance != 0f) {
+                    goal_not_true_in_init++;
 //                    Utils.dbg_print(debug,"Landmark found!"+c+"\n");
 
                     goal_landmark.addAll(lm.get(c.getCounter()));
@@ -191,18 +213,22 @@ public class hlm extends Uniform_cost_search_H1 {
         if (this.reacheability_setting) {
             System.out.println("Landmarks:" + goal_landmark.size());
 
-            System.out.println("Not Trivial Landmarks:" + (goal_landmark.size()-G.getTerminalConditions().size()));
+            System.out.println("Not Trivial Landmarks:" + (goal_landmark.size()-goal_not_true_in_init));
 
+        }
+        if (debug == 5){
+            System.out.println("Landmarks:"+goal_landmark);
         }
 
 
         float estimate = 0;
+        
+       
+        
         if (compute_lp) {
             try {
-                IloCplex lp = new IloCplex();
-                if (debug==0)
-                   lp.setOut(null);
-
+                //if (lp == null){ lp = new IloCplex(); lp.setOut(null);}
+                IloCplex lp = new IloCplex(); lp.setOut(null);
                 IloLinearNumExpr objective = lp.linearNumExpr();
                 for (Conditions c : goal_landmark) {
                     if (dist_float.get(c.getCounter())!=0) {
@@ -243,7 +269,8 @@ public class hlm extends Uniform_cost_search_H1 {
                 lp.addMinimize(objective);
 
                 if (lp.solve()) {
-                    if (lp.getStatus() == IloCplex.Status.Optimal) {
+                    
+                    if (lp.isPrimalFeasible()) {
                         estimate = (float) lp.getObjValue();
                     } else {
                         estimate = Float.MAX_VALUE;
@@ -272,7 +299,7 @@ public class hlm extends Uniform_cost_search_H1 {
             System.out.println("IS satisfied?"+s_0.satisfy(G));
             System.exit(-1);
         }
-        return estimate;
+        return Math.max(0.0001f, estimate);
     }
 
     private boolean update_lm(Conditions p, GroundAction gr, ArrayList<Set<Conditions>> lm) {
@@ -290,7 +317,8 @@ public class hlm extends Uniform_cost_search_H1 {
                     previous.add(c);
                 }
             }
-            //previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
+            //experimental
+//            previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
             lm.set(p.getCounter(), previous);
             return true;
         } else {
@@ -302,6 +330,9 @@ public class hlm extends Uniform_cost_search_H1 {
 //            }
 
             int previous_size = previous.size();
+            if (previous_size == 0){
+                return false;
+            }
             Set<Conditions> temp = new LinkedHashSet();
             for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
                 if (this.dist_float.get(c.getCounter()) != 0f) {
@@ -324,8 +355,8 @@ public class hlm extends Uniform_cost_search_H1 {
                     System.out.println("after"+previous);
                 }            
             }
-            
-            //previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
+            //experimental
+//            previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
             lm.set(p.getCounter(), previous);
             if (previous_size != previous.size()) {
                 return true;
@@ -335,27 +366,34 @@ public class hlm extends Uniform_cost_search_H1 {
 
     }
 
-    private void update_actions_conditions(State s_0, GroundAction gr, LinkedList<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Conditions>> lm) {
+    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Conditions>> lm) {
         for (Conditions comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
-            Float rep_needed = 1f;
+           // Float rep_needed = 1f;
             if (dist_float.get(comp.getCounter()) != 0f) {//if this isn't in the init state yet
-                dist_float.set(comp.getCounter(), rep_needed);//update distance. Meant only to keep track of whether condition reachead or not, and "how"
-                update_action_condition(gr, comp, lm, rep_needed, never_active, a_plus);
+//                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
+////                    System.out.println("happen!");
+//                    continue;
+//                }
+                dist_float.set(comp.getCounter(), 1f);//update distance. Meant only to keep track of whether condition reachead or not, and "how"
+                update_action_condition(gr, comp, lm, 1f, never_active, a_plus);
                 //for this specific condition check implications of having it reached.
             }
         }
         for (Conditions comp : this.possible_achievers.get(gr.counter)) {
             if (dist_float.get(comp.getCounter()) != 0f){
+//                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
+//                    continue;
+//                }
                 Float contribution = gr.getContribution(s_0, (Comparison) comp);
                 if (contribution != Float.MAX_VALUE) {
-                    dist_float.set(comp.getCounter(), contribution);
+                    dist_float.set(comp.getCounter(), 1f);
                     update_action_condition(gr, comp, lm, contribution, never_active, a_plus);
                 }
             }
         }
     }
 
-    private void update_action_condition(GroundAction gr, Conditions comp, ArrayList<Set<Conditions>> lm, Float contribution, ArrayList<Boolean> never_active, LinkedList<GroundAction> a_plus) {
+    private void update_action_condition(GroundAction gr, Conditions comp, ArrayList<Set<Conditions>> lm, Float contribution, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
@@ -371,7 +409,8 @@ public class hlm extends Uniform_cost_search_H1 {
 //                continue;
             if (never_active.get(gr2.counter)) {//if this action has never been used before..
                 if (check_conditions(gr2)) {//are conditions all reached?
-                    a_plus.push(gr2);//push in the set of actions to consider. 
+//                    if (!a_plus.contains(gr2))
+                        a_plus.push(gr2);//push in the set of actions to consider. 
                     //Need to understand whether is worth to do check on the list to see if action already is there.
                     never_active.set(gr2.counter, false);//now is not never active anymore (just pushed in the a_plus)_
                     if (this.reacheability_setting) {
@@ -380,16 +419,20 @@ public class hlm extends Uniform_cost_search_H1 {
                 }
             } else if (changed) {//if the lm of the condition has changed,
                 //we need to reconsider all the possible paths using this condition. Meaning all the possible actions
-//                if (!a_plus.contains(gr2)) {
-                a_plus.push(gr2);//see above for the eventual checking
+//                if (!a_plus.contains(gr2)) 
+//                  if (!a_plus.contains(gr2))
+                        a_plus.push(gr2);//see above for the eventual checking
 //                }
             }
         }
         //update set of possible achiever for the condition with new action.
+//        if (!lm.get(comp.getCounter()).isEmpty()){
+            
         Set<repetition_landmark> set2 = reachable_poss_achievers.get(comp.getCounter());
         repetition_landmark dlm = new repetition_landmark(gr, contribution);
         set2.add(dlm);
         reachable_poss_achievers.set(comp.getCounter(), set2);
+//        }s
     }
 
     private boolean check_conditions(GroundAction gr2) {
@@ -458,6 +501,56 @@ public class hlm extends Uniform_cost_search_H1 {
             return temp;
         }
                 
+    }
+
+    private void init_lp(LinkedHashSet<GroundAction> A, Collection<Conditions> all_conditions, State s_0) {
+        try {
+            lp_global = new IloCplex();
+            objective_function = lp_global.linearNumExpr();
+            action_to_variable = new HashMap();
+            condition_to_cplex_constraint = new HashMap();
+            for (Conditions c: all_conditions){
+                IloLinearNumExpr expr = lp_global.linearNumExpr();
+                if (c instanceof Predicate){
+                    for (GroundAction gr: this.condition_to_action.get(c.getCounter())){
+                        
+                    }
+                }else if (c instanceof Comparison){
+                    
+                    for (GroundAction gr: this.condition_to_action.get(c.getCounter())){
+                            IloNumVar action;
+                            gr.setAction_cost(s_0);
+                            Float action_cost = gr.getAction_cost();
+                            if (action_cost.isNaN()) {
+                                continue;
+                            }
+                            if (action_to_variable.get(gr.counter) != null) {
+                                action = action_to_variable.get(gr.counter);
+                            } else {
+                                if (mip){
+                                    action = (IloNumVar) lp_global.numVar(0.0, Integer.MAX_VALUE, IloNumVarType.Int);
+                                }else
+                                    action = (IloNumVar) lp_global.numVar(0.0, Float.MAX_VALUE, IloNumVarType.Float);
+                                action_to_variable.put(gr.counter, action);
+                                objective_function.addTerm(action, action_cost);
+                            }
+                            expr.addTerm(action, gr.getContribution(s_0, (Comparison)c));
+                    }
+                    
+                    
+                }else{
+                    System.out.println("This class not supported at the moment"+c.getClass());
+                    System.exit(-1);
+                }
+                condition_to_cplex_constraint.put(c.getCounter(),lp_global.addGe(expr, this.target_value.get(c.getCounter())));
+            }
+            
+            
+            
+            
+        } catch (IloException ex) {
+            Logger.getLogger(hlm.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public class repetition_landmark extends Object {
