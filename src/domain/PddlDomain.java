@@ -56,6 +56,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1343,5 +1344,31 @@ public final class PddlDomain extends Object {
     public void setEventSchema(Set<EventSchema> EventSchema) {
         this.eventsSchema = EventSchema;
     }
+
+    public boolean can_be_abstract_dominant_constraints() {
+        Set<Conditions> set = new HashSet();
+        for (ActionSchema as :this.ActionsSchema){
+            set.addAll(as.getPreconditions().getTerminalConditions());
+        }
+         
+        for (int i=0;i<set.toArray().length;i++){
+            for (int j=i+1;j<set.toArray().length;j++){
+                Conditions c1 = (Conditions) set.toArray()[i];
+                Conditions c2 = (Conditions) set.toArray()[j];
+                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)){
+                    Comparison comp_c1 = (Comparison)c1;
+                    Comparison comp_c2 = (Comparison)c2;
+                    if (comp_c1.getInvolvedFluents().equals(comp_c2.getInvolvedFluents())){
+                        //System.out.println(comp_c1+" "+comp_c2);
+                        return true;
+                    }
+                }
+            }
+           
+        }
+        return false;
+    }
+
+
 
 }

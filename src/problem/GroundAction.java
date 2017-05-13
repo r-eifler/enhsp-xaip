@@ -2585,7 +2585,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return or;
     }
     
-    public Float getContribution(State s_0, Conditions c) {
+    public Float getStaticContribution(State s_0, Conditions c) {
 
         if (c instanceof Predicate){
             if (this.achieve((Predicate)c))
@@ -2705,6 +2705,22 @@ public class GroundAction extends GenericActionType implements Comparable {
 //        System.out.println("DEBUG:"+this);
 //        System.out.println("DEBUG:"+this.action_cost);
 
+    }
+
+    public boolean has_pseudo_numeric_effect_on(Conditions c) {
+        if (c instanceof Predicate)
+            return false;
+        Comparison comp = (Comparison)c;
+        for (NumEffect eff : this.getNumericEffectsAsCollection()){
+            if (eff.isPseudo_num_effect()){
+                if (comp.getLeft().involve(eff.getFluentAffected())){
+                    return true;
+                }
+            }
+                 
+        }
+        return false;
+                   
     }
 
 }

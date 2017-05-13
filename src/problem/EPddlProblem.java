@@ -68,7 +68,7 @@ public class EPddlProblem extends PddlProblem {
     public AndCond globalConstraints;
 
     private boolean grounding;
-    private boolean action_cost_from_metric=true;
+    private boolean action_cost_from_metric = true;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -538,17 +538,21 @@ public class EPddlProblem extends PddlProblem {
 
     public void transform_constant_effect() throws Exception {
 
+//        HashSet to_readd = new HashSet();
         for (GroundAction gr : this.actions) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                int number_numericEffects = gr.getNumericEffects().sons.size();
                 for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && number_numericEffects==1) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
-                            neff.setOperator("increase");
-                            neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
-                            neff.setPseudo_num_effect(true);
+//                            if (number_numericEffects == 1) {
+                                neff.setOperator("increase");
+                                neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                                neff.setPseudo_num_effect(true);
+//                            }
                         }
                     }
 
@@ -557,18 +561,37 @@ public class EPddlProblem extends PddlProblem {
             gr.normalize();
 
         }
+//        this.actions.addAll(to_readd);
+//        to_readd = new HashSet();
 
         for (GroundEvent gr : this.eventsSet) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                int number_numericEffects = gr.getNumericEffects().sons.size();
                 for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
+
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && number_numericEffects==1) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
-                            neff.setOperator("increase");
-                            neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
-                            neff.setPseudo_num_effect(true);
+//                            if (number_numericEffects == 1) {
+                                neff.setOperator("increase");
+                                neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                                neff.setPseudo_num_effect(true);
+//                            } else {
+//                                GroundAction gr2 = (GroundAction) gr.clone();
+//                                gr2.setNumericEffects(new AndCond());
+//                                gr2.setName("pseudo_increase"+gr.getName());
+//
+//                                NumEffect newEffect = new NumEffect("increase");
+//                                newEffect.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+//                                newEffect.setPseudo_num_effect(true);
+//                                gr2.getNumericEffects().sons.add(newEffect);
+//                                gr2.normalize();
+//                                to_readd.add(gr2);
+//                                it.remove();
+//
+//                            }
                         }
                     }
 
@@ -577,6 +600,7 @@ public class EPddlProblem extends PddlProblem {
             gr.normalize();
 
         }
+//        this.eventsSet.addAll(to_readd);
 
     }
 
@@ -636,7 +660,7 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            } else if (this.getMetric() != null && action_cost_from_metric){// &&  !this.getMetric().pddlPrint().contains("total-time")) {
+            } else if (this.getMetric() != null && action_cost_from_metric) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
                 act.setAction_cost(init, this.getMetric());
             } else {
                 act.setAction_cost(init);
@@ -696,7 +720,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         this.globalConstraintGrounded = true;
-        goals  = goals.weakEval(init, staticFluents);
+        goals = goals.weakEval(init, staticFluents);
         goals.normalize();
         remove_static_part_of_state();
         remove_num_fluents_not_involved_in_preconditions();
@@ -740,14 +764,14 @@ public class EPddlProblem extends PddlProblem {
         State s = this.getInit();
         LinkedHashSet<Predicate> to_remove = new LinkedHashSet();
         for (Predicate p : s.getPropositions()) {
-            if (this.getVariantFluents().get((Object)p)==null) {
+            if (this.getVariantFluents().get((Object) p) == null) {
 //                System.out.println("Proposition to remove"+p);
                 to_remove.add(p);
             }
         }
         LinkedHashSet<NumFluent> n_fluents_to_remove = new LinkedHashSet();
         for (NumFluent p : s.getNumericFluents()) {
-            if (this.getVariantFluents().get((Object)p)==null) {
+            if (this.getVariantFluents().get((Object) p) == null) {
 //                System.out.println("Fluent to remove"+p);
                 n_fluents_to_remove.add(p);
             }
@@ -760,46 +784,46 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private void remove_num_fluents_not_involved_in_preconditions() {
-        
+
         Set<NumFluent> involved_fluents = new LinkedHashSet();
-        
-        for (ActionSchema a: this.linkedDomain.getActionsSchema()){
+
+        for (ActionSchema a : this.linkedDomain.getActionsSchema()) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
         }
-        for (ProcessSchema a: this.linkedDomain.getProcessesSchema()){
+        for (ProcessSchema a : this.linkedDomain.getProcessesSchema()) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
         }
-        for (EventSchema a: this.linkedDomain.getEventSchema()){
+        for (EventSchema a : this.linkedDomain.getEventSchema()) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
         }
-        for (SchemaGlobalConstraint a: this.linkedDomain.getSchemaGlobalConstraints()){
+        for (SchemaGlobalConstraint a : this.linkedDomain.getSchemaGlobalConstraints()) {
             involved_fluents.addAll(a.condition.getInvolvedFluents());
         }
         involved_fluents.addAll(goals.getInvolvedFluents());
 
-        Iterator<NumFluent> it =this.init.numericFs.keySet().iterator();
-        while (it.hasNext()){
+        Iterator<NumFluent> it = this.init.numericFs.keySet().iterator();
+        while (it.hasNext()) {
             NumFluent nf2 = it.next();
-            if (!nf2.getName().equals("time_elapsed")){
+            if (!nf2.getName().equals("time_elapsed")) {
 
                 boolean keep_it = false;
-                for (NumFluent nf : involved_fluents){
-                    if (nf.getName().equals(nf2.getName())){
+                for (NumFluent nf : involved_fluents) {
+                    if (nf.getName().equals(nf2.getName())) {
                         keep_it = true;
                         break;
                     }
                 }
-                if (!keep_it){
+                if (!keep_it) {
                     it.remove();
                 }
             }
         }
-        
+
     }
 
 }

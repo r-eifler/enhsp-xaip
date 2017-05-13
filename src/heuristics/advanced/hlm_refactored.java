@@ -15,6 +15,7 @@ import extraUtils.Utils;
 import heuristics.Aibr;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
+import ilog.concert.IloLinearNumExprIterator;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.concert.IloRange;
@@ -47,7 +48,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
     private ArrayList<Set<GroundAction>> condition_to_action;
 
 //    public ArrayList<Set<repetition_landmark>> reachable_poss_achievers;
-    public boolean compute_lp;
+    public boolean lp_cost_partinioning;
     private ArrayList<Float> cond_dist;
     public boolean red_constraints = false;
     public boolean smart_intersection = false;
@@ -58,6 +59,8 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
     private ArrayList<IloNumVar> action_to_variable;
     private ArrayList<IloRange> condition_to_cplex_constraint;
     private ArrayList<Set<GroundAction>> reach_achievers;
+    private HashMap<Integer, Boolean> has_state_dependent_achievers;
+    private boolean needs_checking_state_dependent_constraints;
 
     public hlm_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
@@ -79,7 +82,8 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             return ret2;
         }
         A = first_reachH.reachable;
-        
+        needs_checking_state_dependent_constraints = false;
+
         if (red_constraints) {
             try {
                 this.add_redundant_constraints();
@@ -88,7 +92,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             }
         }
         boolean reconstruct = false;
-        do{
+        do {
             build_integer_representation();
             identify_complex_conditions(A);
             this.generate_link_precondition_action();
@@ -97,8 +101,11 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             } catch (Exception ex) {
                 Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }while(reconstruct);
+        } while (reconstruct);
 
+        if (smart_intersection)
+            smart_intersection = check_if_smark_intersection_needed();
+        System.out.println("Smart Metric Intersection: "+smart_intersection);
         init_lp(s);
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");
@@ -138,7 +145,9 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
                 IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
                 //Initially, all the conditions are assumed achieved. I am going to change only the ones that really need to be satisfied
-                if (ilo!= null) ilo.setLB(0f);
+                if (ilo != null) {
+                    ilo.setLB(0f);
+                }
                 //System.out.println(c);
                 if (c.isSatisfied(s_0)) {
                     cond_dist.set(c.getCounter(), 0f);
@@ -146,12 +155,6 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                     target_value.set(c.getCounter(), 1f);
                 } else {
                     Comparison comp = (Comparison) c;
-                    if (debug > 0) {
-                        if (comp.getComparator().equals("<") || comp.getComparator().equals("<=") || comp.getComparator().equals("=")) {
-                            System.out.println("Expressions not normalized!!!");
-                            System.exit(-1);
-                        }
-                    }
                     PDDLNumber number = comp.getLeft().eval(s_0);
                     if (number == null) {
                     } else {
@@ -164,9 +167,9 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                 //reachable_poss_achievers.set(c.getCounter(), new LinkedHashSet());//this is a mapping between condition and its possible (reachable) achievers
             }
             //Iterator it = this.A.iterator();
-            for (GroundAction gr : this.A) {//see which actions are executable at the current state
+            for (GroundAction gr : this.A) {//see which actions are executable in the current state
                 IloNumVar var = this.action_to_variable.get(gr.counter);
-                if (var == null){
+                if (var == null) {
                     never_active.set(gr.counter, null);
                     //System.out.println("Useless Action detected");
                     continue;
@@ -182,8 +185,9 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             }
             while (!a_plus.isEmpty()) {//keep going till no action is in the list. Look that here actions can be re-added
                 GroundAction gr = a_plus.pop();
-                if (never_active.get(gr.counter)==null)
+                if (never_active.get(gr.counter) == null) {
                     continue;
+                }
                 update_actions_conditions(s_0, gr, a_plus, never_active, lm);//this procedure updates
                 //all the conditions that can be reached by using action gr. 
                 //This also changes the set a_plus whenever some new action becomes active becasue of gr
@@ -210,41 +214,49 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                 System.out.println("Not Trivial Landmarks:" + (goal_landmark.size() - goal_not_true_in_init));
 
             }
-            if (debug == 5) {
-                System.out.println("Landmarks:" + goal_landmark);
-            }
-
-            float estimate = 0;
-
-            if (compute_lp) {
-                try {
-                    for (Conditions c : goal_landmark) {
-                        IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
-                        if (ilo== null) return Float.MAX_VALUE;
-                        ilo.setLB(target_value.get(c.getCounter()));
-                        Set<GroundAction> set = reach_achievers.get(c.getCounter());
-                        for (GroundAction gr : set) {
-                            IloNumVar action_var = this.action_to_variable.get(gr.counter);
-                            action_var.setUB(Float.MAX_VALUE);//add only useful actions
-                        }
-                    }
-                    if (debug == 5) {
-                        System.out.println(lp_global);
-                    }
-                    if (this.lp_global.solve()) {
-//                        System.out.println(lp_global);
-                        return (float) this.lp_global.getObjValue();
-
-                    } else {
+   
+            if (lp_cost_partinioning) {
+                for (Conditions c : goal_landmark) {
+//                        System.out.println("DEBUG: condition:"+c);
+                    IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
+                    if (ilo == null) {
                         return Float.MAX_VALUE;
                     }
-                } catch (IloException ex) {
-                    Logger.getLogger(hlm_refactored.class.getName()).log(Level.SEVERE, null, ex);
+                    ilo.setLB(target_value.get(c.getCounter()));
+                    Set<GroundAction> set = reach_achievers.get(c.getCounter());
+                    boolean revise_terms = false;
+
+                    //the following ask whether the condition depends on some action whose positiveness of the effects depend on the current state
+                    //this happens for the special case of pseudo increase effects that are simulating the assignment operation
+                    if (this.needs_checking_state_dependent_constraints) {
+//                            System.out.println("DEBUG: There is need to check...");
+                        if (this.has_state_dependent_achievers.get(c.getCounter())) {
+//                                System.out.println("this one is one of them...");
+                            revise_terms = true;
+                        }
+                    }
+                    for (GroundAction gr : set) {
+                        free_variable_modify_contribution_if_needed(s_0, c, revise_terms, gr);
+
+                    }
                 }
+                if (debug == 5) {
+                    System.out.println(lp_global);
+                }
+                if (this.lp_global.solve()) {
+//                        System.out.println(lp_global);
+                    return (float) this.lp_global.getObjValue();
+
+                } else {
+                    return Float.MAX_VALUE;
+                }
+
             } else {
+                float estimate = 0f;
                 for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
                     estimate += dplus.get(c.getCounter());
                 }
+                return estimate;
 
             }
         } catch (IloException ex) {
@@ -303,26 +315,29 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                     System.out.println("Previous" + previous);
                 }
                 Iterator<Conditions> it = previous.iterator();
-                while (it.hasNext()){
+                while (it.hasNext()) {
                     boolean found = false;
-                    Conditions prev = (Conditions)it.next();
+                    Conditions prev = (Conditions) it.next();
                     for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
                         if (this.cond_dist.get(c.getCounter()) != 0f) {
-                            if (prev.getCounter() == c.getCounter()){
+                            if (prev.getCounter() == c.getCounter()) {
                                 found = true;
                                 break;
                             }
-                            for (Conditions c1: lm.get(c.getCounter())){
-                                if (prev.getCounter() == c1.getCounter()){
+                            for (Conditions c1 : lm.get(c.getCounter())) {
+                                if (prev.getCounter() == c1.getCounter()) {
                                     found = true;
                                     break;
                                 }
                             }
-                            if (found) break;    
+                            if (found) {
+                                break;
+                            }
                         }
                     }
-                    if (!found)
+                    if (!found) {
                         it.remove();
+                    }
                 }
 
                 if (debug > 10) {
@@ -377,8 +392,10 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             if (gr2.counter == gr.counter) {//avoids self-loop. Thanks god I have integer mapping here.
                 continue;
             }
-            if (never_active.get(gr2.counter)==null)//this is for useless actions
+            if (never_active.get(gr2.counter) == null)//this is for useless actions
+            {
                 continue;
+            }
 
 //            System.out.println(never_active);
 //            if (!A.contains(gr2))
@@ -488,8 +505,9 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             objective_function = lp_global.linearNumExpr();
             action_to_variable = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
             condition_to_cplex_constraint = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-
+            has_state_dependent_achievers = new HashMap();
             for (Conditions c : all_conditions) {
+                has_state_dependent_achievers.put(c.getCounter(), false);
 //                System.out.println("Condition under analysis" + c);
                 IloLinearNumExpr expr = lp_global.linearNumExpr();;
                 Set<GroundAction> set = null;
@@ -501,7 +519,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                 if (set != null) {
 //                    System.out.println("Possible achievers...");
                     for (GroundAction gr : set) {
-                        
+
                         IloNumVar action;
                         gr.setAction_cost(s_0);
                         Float action_cost = gr.getAction_cost();
@@ -521,7 +539,14 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                             objective_function.addTerm(action, action_cost);
                         }
 //                        System.out.println("Condition under evaluation:" + c);
-                        expr.addTerm(action, gr.getContribution(s_0, c));
+
+                        //Conservative: if at least one effect is pseudo numeric effect, the
+                        //constraint has to be built on the fly: if this condition becomes a lm
+                        if (gr.has_pseudo_numeric_effect_on(c)) {
+                            has_state_dependent_achievers.put(c.getCounter(), true);
+                            needs_checking_state_dependent_constraints = true;
+                        }
+                        expr.addTerm(action, gr.getStaticContribution(s_0, c));
 //                        System.out.println("ACtion Contribution:" + gr.getContribution(s_0, c));
                     }
                 }
@@ -542,7 +567,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                     }
 
                 }
-                if (set!=null){
+                if (set != null) {
                     IloRange ilo = lp_global.addGe(expr, trg_value);
                     if (ilo == null) {
                         System.out.println("something seriously wrong");
@@ -556,6 +581,43 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
         } catch (IloException ex) {
             Logger.getLogger(hlm_refactored.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void free_variable_modify_contribution_if_needed(State s_0, Conditions c, boolean revise_terms, GroundAction gr) throws IloException {
+
+        IloNumVar action_var = this.action_to_variable.get(gr.counter);
+        action_var.setUB(Float.MAX_VALUE);//add only useful actions
+        if (revise_terms) {
+            IloRange ilo2 = condition_to_cplex_constraint.get(c.getCounter());
+            IloLinearNumExpr expr = (IloLinearNumExpr) ilo2.getExpr();
+            IloLinearNumExprIterator it = expr.linearIterator();
+            while (it.hasNext()) {
+                IloNumVar var = it.nextNumVar();
+                if (var.equals(action_var)) {
+                    it.setValue(gr.getContribution(s_0, (Comparison) c));
+                }
+            }
+            ilo2.setExpr(expr);
+        }
+    }
+
+    private boolean check_if_smark_intersection_needed() {
+        for (int i=0;i<all_conditions.toArray().length;i++){
+            for (int j=i+1;j<all_conditions.toArray().length;j++){
+                Conditions c1 = (Conditions) all_conditions.toArray()[i];
+                Conditions c2 = (Conditions) all_conditions.toArray()[j];
+                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)){
+                    Comparison comp_c1 = (Comparison)c1;
+                    Comparison comp_c2 = (Comparison)c2;
+                    if (comp_c1.getInvolvedFluents().equals(comp_c2.getInvolvedFluents())){
+//                        System.out.println(comp_c1+" "+comp_c2);
+                        return true;
+                    }
+                }
+            }
+           
+        }
+        return false;
     }
 
 }
