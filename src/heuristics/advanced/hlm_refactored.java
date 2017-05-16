@@ -61,6 +61,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
     private ArrayList<Set<GroundAction>> reach_achievers;
     private HashMap<Integer, Boolean> has_state_dependent_achievers;
     private boolean needs_checking_state_dependent_constraints;
+    public boolean debug_landmarks_counting = false;
 
     public hlm_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
@@ -216,30 +217,37 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             }
    
             if (lp_cost_partinioning) {
+                int lm_considered = 0;
                 for (Conditions c : goal_landmark) {
-//                        System.out.println("DEBUG: condition:"+c);
-                    IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
-                    if (ilo == null) {
-                        return Float.MAX_VALUE;
-                    }
-                    ilo.setLB(target_value.get(c.getCounter()));
-                    Set<GroundAction> set = reach_achievers.get(c.getCounter());
-                    boolean revise_terms = false;
+                    if (cond_dist.get(c.getCounter())!=0f){
+                        lm_considered++;
+    //                        System.out.println("DEBUG: condition:"+c);
+                        IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
+                        if (ilo == null) {
+                            return Float.MAX_VALUE;
+                        }
+                        ilo.setLB(target_value.get(c.getCounter()));
+                        Set<GroundAction> set = reach_achievers.get(c.getCounter());
+                        boolean revise_terms = false;
 
-                    //the following ask whether the condition depends on some action whose positiveness of the effects depend on the current state
-                    //this happens for the special case of pseudo increase effects that are simulating the assignment operation
-                    if (this.needs_checking_state_dependent_constraints) {
-//                            System.out.println("DEBUG: There is need to check...");
-                        if (this.has_state_dependent_achievers.get(c.getCounter())) {
-//                                System.out.println("this one is one of them...");
-                            revise_terms = true;
+                        //the following ask whether the condition depends on some action whose positiveness of the effects depend on the current state
+                        //this happens for the special case of pseudo increase effects that are simulating the assignment operation
+                        if (this.needs_checking_state_dependent_constraints) {
+    //                            System.out.println("DEBUG: There is need to check...");
+                            if (this.has_state_dependent_achievers.get(c.getCounter())) {
+    //                                System.out.println("this one is one of them...");
+                                revise_terms = true;
+                            }
+                        }
+                        for (GroundAction gr : set) {
+                            free_variable_modify_contribution_if_needed(s_0, c, revise_terms, gr);
+
                         }
                     }
-                    for (GroundAction gr : set) {
-                        free_variable_modify_contribution_if_needed(s_0, c, revise_terms, gr);
-
-                    }
                 }
+//                System.out.println("LM to Satisfy:"+lm_considered);
+                if (this.debug_landmarks_counting)
+                    System.exit(-1);
                 if (debug == 5) {
                     System.out.println(lp_global);
                 }
