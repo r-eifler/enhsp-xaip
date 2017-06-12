@@ -33,6 +33,7 @@ import conditions.Conditions;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -42,6 +43,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -171,7 +173,7 @@ public class SearchStrategies {
     /*
     Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
      */
-    private boolean queue_successor(PriorityQueue<SearchNode> frontier, State successor_state, SearchNode current_node, Object action_s, Float prev_cost, float succ_g) {
+    private boolean queue_successor(Queue<SearchNode> frontier, State successor_state, SearchNode current_node, Object action_s, Float prev_cost, float succ_g) {
 
         if (prev_cost == null || succ_g < prev_cost) {
             setStates_evaluated(getStates_evaluated() + 1);
@@ -205,7 +207,7 @@ public class SearchStrategies {
         }
     }
 
-    private boolean queue_successor(PriorityQueue<SearchNode> frontier, State successor_state, SearchNode current_node, Object action_s) {
+    private boolean queue_successor(Queue<SearchNode> frontier, State successor_state, SearchNode current_node, Object action_s) {
         float succ_g = current_node.g_n + 1;
         Float prev_cost = g.get(successor_state);
         //The node is put in the priority queue whenever one of the following holds
@@ -238,7 +240,7 @@ public class SearchStrategies {
 
     }
 
-    private void add_frontier(PriorityQueue<SearchNode> frontier, SearchNode new_node) {
+    private void add_frontier(Queue<SearchNode> frontier, SearchNode new_node) {
 
         //frontier.
 //        frontier.re
@@ -354,7 +356,7 @@ public class SearchStrategies {
         HashMap<State, Boolean> visited = new HashMap();
         //System.out.println("Visited size:"+visited.size());
 
-        PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
+        ArrayDeque<SearchNode> frontier = new ArrayDeque();
         Float current_value = heuristic.compute_estimate(current);
 
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
@@ -371,7 +373,9 @@ public class SearchStrategies {
                 reachable_actions = node.relaxed_plan_from_heuristic;
             }
             if (processes) {
+                //System.out.println("Enforced Hill Climbing not supporting autonomous processes yet");
                 advance_time(frontier, node, (EPddlProblem) problem);
+                //System.exit(-1);
             }
             for (GroundAction act : reachable_actions) {
 
@@ -391,13 +395,13 @@ public class SearchStrategies {
                         setStates_evaluated(getStates_evaluated() + 1);
                         if (d != Float.MAX_VALUE) {// && d <= current_value) {
                             SearchNode new_node = new SearchNode(temp, act, node, node.g_n + 1, 0);
-                            frontier.add(new_node);
+                            frontier.push(new_node);
                             if (this.helpful_actions_pruning) {
                                 new_node.relaxed_plan_from_heuristic = heuristic.helpful_actions;
                             }
                             if (d < current_value) {
                                 nodes_expanded++;
-                                System.out.println("Distance:" + d);
+                                System.out.println("h(n):" + d);
                                 return new_node;
                             }
                         } else {
@@ -772,7 +776,7 @@ public class SearchStrategies {
         this.states_evaluated = states_evaluated;
     }
 
-    private void advance_time(PriorityQueue<SearchNode> frontier, SearchNode current_node, EPddlProblem problem) throws Exception {
+    private void advance_time(Queue<SearchNode> frontier, SearchNode current_node, EPddlProblem problem) throws Exception {
         try {
             float i = 0.00000f;
             State temp = current_node.s.clone();

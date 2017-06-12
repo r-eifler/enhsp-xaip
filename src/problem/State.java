@@ -371,22 +371,12 @@ public class State extends Object {
             return false;
         }
         if (getClass() != obj.getClass()) {
-//            System.out.println(this);
-//            System.out.println(obj);
             return false;
         }
         final State other = (State) obj;
 
         
         for (NumFluent nf : this.getNumericFluents()) {
-//            System.out.println("really?");
-//            if (!ass_init.getTwo().equals(other.functionValue(ass_init.getNFluent()))) {
-//                return false;
-//            }
-//            if (Math.abs(ass_init.getTwo().getNumber() - other.functionValue(ass_init.getNFluent()).getNumber()) > 0.0001) 
-//            {
-//                return false;
-//            }
             
             if (!nf.has_to_be_tracked())
                 continue;
@@ -411,12 +401,6 @@ public class State extends Object {
             Predicate p = (Predicate) o;
             if (this.is_true(p)) {
                 if (!other.is_true(p)) {
-//                    System.out.println("Checking if they are really different");
-//                    if (this.pddlPrint().equals(other.pddlPrint())){
-//                        System.out.println("Wait a moment");
-//                        System.out.println(this);
-//                        System.out.println(other);
-//                    }
                     return false;
                 }
             }
@@ -426,21 +410,17 @@ public class State extends Object {
         return true;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 89 * hash + (this.propositions != null ? this.propositions.hashCode() : 0);
-//        hash = 89 * hash + (this.numericFs != null ? this.numericFs.hashCode() : 0);
-//        return hash;
-//    }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 31 * hash + Objects.hashCode(this.propositions);
-        hash = 31 * hash + Objects.hashCode(this.numericFs);
+        int hash = 5;
+        if (!this.propositions.keySet().isEmpty())
+            hash = 19 * hash + Objects.hashCode(this.propositions);
+        if (!this.numericFs.keySet().isEmpty())
+            hash = 19 * hash + Objects.hashCode(this.numericFs);
         return hash;
     }
+
 
 
 

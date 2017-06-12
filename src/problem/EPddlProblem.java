@@ -69,6 +69,7 @@ public class EPddlProblem extends PddlProblem {
 
     private boolean grounding;
     private boolean action_cost_from_metric = true;
+    private boolean risky = true;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -156,11 +157,11 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public HashMap getVariantFluents() throws Exception {
+    public HashMap getActualFluents() throws Exception {
         if (staticFluents == null) {
-            if ((this.getActions() == null || this.getActions().isEmpty()) && (this.processesSet == null || this.processesSet.isEmpty())) {
-                this.grounding_action_processes_constraints();
-            }
+//            if ((this.getActions() == null || this.getActions().isEmpty()) && (this.processesSet == null || this.processesSet.isEmpty())) {
+//                this.grounding_action_processes_constraints();
+//            }
             staticFluents = new HashMap();
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
                 staticFluents = gr.update_invariant_fluents(staticFluents);
@@ -546,7 +547,7 @@ public class EPddlProblem extends PddlProblem {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && number_numericEffects==1) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects==1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
 //                            if (number_numericEffects == 1) {
                                 neff.setOperator("increase");
@@ -572,7 +573,7 @@ public class EPddlProblem extends PddlProblem {
                     if (neff.getOperator().equals("assign")) {
 
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && number_numericEffects==1) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects==1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
 //                            if (number_numericEffects == 1) {
                                 neff.setOperator("increase");
@@ -634,7 +635,7 @@ public class EPddlProblem extends PddlProblem {
         this.setGroundedRepresentation(true);
         this.processesGround = true;
         this.globalConstraintGrounded = true;
-        this.getVariantFluents();
+        this.getActualFluents();
         if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().normalize());
         } else {
@@ -764,14 +765,14 @@ public class EPddlProblem extends PddlProblem {
         State s = this.getInit();
         LinkedHashSet<Predicate> to_remove = new LinkedHashSet();
         for (Predicate p : s.getPropositions()) {
-            if (this.getVariantFluents().get((Object) p) == null) {
+            if (this.getActualFluents().get((Object) p) == null) {
 //                System.out.println("Proposition to remove"+p);
                 to_remove.add(p);
             }
         }
         LinkedHashSet<NumFluent> n_fluents_to_remove = new LinkedHashSet();
         for (NumFluent p : s.getNumericFluents()) {
-            if (this.getVariantFluents().get((Object) p) == null) {
+            if (this.getActualFluents().get((Object) p) == null) {
 //                System.out.println("Fluent to remove"+p);
                 n_fluents_to_remove.add(p);
             }

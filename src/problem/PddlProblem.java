@@ -1060,7 +1060,7 @@ public class PddlProblem {
         this.simplifyActions = simplifyActions;
     }
 
-    public HashMap getVariantFluents() throws Exception {
+    public HashMap getActualFluents() throws Exception {
         if (staticFluents == null) {
             staticFluents = new HashMap();
             if (this.getActions() == null || this.getActions().isEmpty() ) {

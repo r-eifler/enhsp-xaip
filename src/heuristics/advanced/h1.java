@@ -1,4 +1,24 @@
-/*
+
+
+/**
+ * *******************************************************************
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ *//*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -122,6 +142,7 @@ public class h1 extends Uniform_cost_search_H1 {
     @Override
     public Float compute_estimate(State s_0) {
         if (s_0.satisfy(G)) {
+//            System.out.println("Goal satisfied??");
             return 0f;
         }
         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
@@ -177,6 +198,8 @@ public class h1 extends Uniform_cost_search_H1 {
 //                    System.out.println(this.additive_h);
 //                    System.out.println(this.conservativehmax);
                     extract_helpful_actions_or_relaxed_plan();
+                    if (estimate == 0f)
+                        return 0.1f;
                     return estimate;
                 }
             }
