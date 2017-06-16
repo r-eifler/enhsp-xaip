@@ -342,7 +342,7 @@ public class SearchStrategies {
             if (this.helpful_actions_pruning) {
                 reachable_actions = new LinkedHashSet(succ.relaxed_plan_from_heuristic);
             }
-            plan.addAll(add_actions(succ));
+            plan.addAll(extract_plan(succ));
             //System.out.println(plan);
         }
         overall_search_time = System.currentTimeMillis() - start_global;
@@ -378,7 +378,9 @@ public class SearchStrategies {
                 //System.exit(-1);
             }
             for (GroundAction act : reachable_actions) {
-
+                if ((act instanceof GroundProcess) || (act instanceof GroundEvent)) {
+                    continue;
+                }
                 if (act.isApplicable(node.s)) {
                     State temp = act.apply(node.s.clone());
 //                    System.out.println("Depth:"+node.g_n);
@@ -645,6 +647,32 @@ public class SearchStrategies {
     }
 
     private static LinkedList add_actions(SearchNode c) throws CloneNotSupportedException {
+        LinkedList temp = new LinkedList();
+        while (c.father != null) {
+            GroundAction gr = null;
+
+            if (c.action instanceof GroundProcess) {
+                gr = (GroundProcess) c.action.clone();
+            } else {
+                gr = (GroundAction) c.action.clone();
+            }
+//
+            if (c.father.s.functionValue(new NumFluent("time_elapsed")) != null) {
+                gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+            } else {
+                gr.time = 0f;
+            }
+            if (c.action instanceof GroundProcess) {
+                gr.setName("--------->waiting");
+            }//else{
+            temp.addFirst(gr);
+            //}
+            c = c.father;
+        }
+        return temp;
+    }
+    
+    private static LinkedList add_actions_old(SearchNode c) throws CloneNotSupportedException {
         LinkedList temp = new LinkedList();
         while (c.father != null) {
             GroundAction gr = null;

@@ -208,8 +208,11 @@ public class h1 extends Uniform_cost_search_H1 {
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
         }
 
+        
+//        System.out.println("Estimate: "+estimate);
         if (reacheability_setting) {
             if (estimate == Float.MAX_VALUE) {
+                System.out.println("Goal unreachable from init state. Please revise model or instance file");
                 find_reasons_of_unsat(cond_dist, this.goal);
             }
         }
@@ -217,9 +220,10 @@ public class h1 extends Uniform_cost_search_H1 {
         if (this.reacheability_setting) {
             A = reachable;
         }
+        
 
         extract_helpful_actions_or_relaxed_plan();
-//        System.out.println("Conservative Setting");
+        //System.out.println("Conservative Setting");
         return estimate;
     }
 

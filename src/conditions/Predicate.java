@@ -508,7 +508,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Set<NumFluent> getInvolvedFluents() {
-        return null;
+        return new HashSet();
     }
 
     @Override
