@@ -29,6 +29,7 @@ import heuristics.old.Uniform_cost_search_H1;
 import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
 import conditions.Conditions;
+import conditions.NotCond;
 import conditions.Predicate;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
@@ -173,6 +174,8 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                 if (c.isSatisfied(s_0)) {
                     cond_dist.set(c.getCounter(), 0f);
                 } else if (c instanceof Predicate) {
+                    target_value.set(c.getCounter(), 1f);
+                } else if (c instanceof NotCond) {
                     target_value.set(c.getCounter(), 1f);
                 } else {
                     Comparison comp = (Comparison) c;
@@ -582,6 +585,8 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                 if (c.isSatisfied(s_0)) {
 
                 } else if (c instanceof Predicate) {
+                    trg_value = 1f;
+                } else if (c instanceof NotCond) {//assumption that only propositional predicates can be negated 
                     trg_value = 1f;
                 } else {
                     Comparison comp = (Comparison) c;

@@ -457,6 +457,11 @@ public class NotCond extends Terminal implements PostCondition {
         return false;
     }
 
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        return new HashSet();
+    }
+
 
     
     

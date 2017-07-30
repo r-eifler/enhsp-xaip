@@ -25,8 +25,10 @@
  */
 package conditions;
 
+import expressions.NumFluent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import problem.RelState;
 import problem.State;
 
@@ -82,5 +84,6 @@ public interface PostCondition {
     public abstract String pddlPrintWithExtraObject();
     public abstract Conditions achieve(Predicate p);
     public abstract Conditions delete(Predicate p);
+    public abstract Set<NumFluent> affectedNumericFluents();
 
 }

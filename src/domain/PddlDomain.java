@@ -231,9 +231,13 @@ public final class PddlDomain extends Object {
                 }
             }
         }
+        
         for (Object o : p.getInit().getNumericFluents()) {
+            
             if (o instanceof NumFluent) {
+                
                 NumFluent nf = (NumFluent) o;
+//                System.out.println(nf.getName());
                 for (Object o1 : nf.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator<Type> it = types.iterator();
@@ -241,7 +245,8 @@ public final class PddlDomain extends Object {
                     while (it.hasNext()) {
                         Type ele = it.next();
                         if (t==null){
-                            System.out.println("Null Object? "+t);
+                            System.out.println("Type error; Probably you are using an object in a numeric fluent which is not specified..");
+                            System.out.println("    It happened when dealing with: "+nf);
                             return false;
                         }
                         if (ele.equals(t.getType())) {
@@ -1288,6 +1293,10 @@ public final class PddlDomain extends Object {
         for (ProcessSchema a: this.ProcessesSchema){
             a.push_not_to_terminals();
         }
+        for (EventSchema a: this.eventsSchema){
+            a.push_not_to_terminals();
+        }
+        
         
         
     }

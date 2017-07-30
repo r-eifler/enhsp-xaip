@@ -2457,6 +2457,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
             
             current = waiting.apply(current);
+            this.apply_events(current, reachable_events);
 //            System.out.println(current);    
 //            System.out.println(current);
 //            System.out.println("StartTime:"+start_time);

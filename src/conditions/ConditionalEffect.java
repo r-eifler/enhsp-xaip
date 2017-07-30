@@ -32,6 +32,7 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
@@ -323,7 +324,9 @@ public class ConditionalEffect extends Conditions implements PostCondition{
 
     @Override
     public Conditions push_not_to_terminals() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.activation_condition = this.activation_condition.push_not_to_terminals();
+        return this;
+                //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -334,5 +337,10 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public Conditions introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        return this.effect.affectedNumericFluents();
     }
 }

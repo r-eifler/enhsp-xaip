@@ -1,5 +1,3 @@
-
-
 /**
  * *******************************************************************
  *
@@ -30,11 +28,14 @@ import heuristics.old.Uniform_cost_search_H1;
 import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
 import conditions.Conditions;
+import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.Aibr;
 import static java.lang.System.out;
 import java.util.ArrayList;
 import static java.util.Collections.nCopies;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -43,7 +44,6 @@ import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
-import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.State;
 
@@ -71,12 +71,12 @@ public class h1 extends Uniform_cost_search_H1 {
     private Set<GroundAction> reachable_here;
 //    private Aibr aibr_handler;
     private boolean all_achievers_to_consider = false;
-    private Boolean weak_helpful_actions_pruning = false;
     private ArrayList<Boolean> closed;
     private float min_cost_action;
-    public boolean conservativehmax =  true;
-    
-    
+    public boolean conservativehmax = true;
+    public boolean ibr_deactivated = false;
+    private LinkedList<Pair<GroundAction, Float>> relaxed_plan;
+    private ArrayList<Float> established_local_cost;
 
     public h1(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
@@ -95,6 +95,7 @@ public class h1 extends Uniform_cost_search_H1 {
         first_reachH.set(true, true);
         Float ret = first_reachH.compute_estimate(s);
         if (ret == Float.MAX_VALUE) {
+            System.out.println("Goal Unreachable: This is the fix point in relaxation: " + first_reachH.reacheable_state);
             return ret;
         }
         A = first_reachH.reachable;
@@ -116,7 +117,7 @@ public class h1 extends Uniform_cost_search_H1 {
         A.add(goal);
         //System.out.println("Building integer representation");
         boolean reconstruct = false;
-        do{
+        do {
             build_integer_representation();
             identify_complex_conditions(A);
             this.generate_link_precondition_action();
@@ -125,7 +126,7 @@ public class h1 extends Uniform_cost_search_H1 {
             } catch (Exception ex) {
                 Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }while(reconstruct);
+        } while (reconstruct);
         reacheability_setting = true;
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
         ret = compute_estimate(s);
@@ -148,6 +149,7 @@ public class h1 extends Uniform_cost_search_H1 {
         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
             established_achiever = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             action_achievers = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
+            established_local_cost = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
 
         }
         all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
@@ -188,18 +190,22 @@ public class h1 extends Uniform_cost_search_H1 {
 
             GroundAction gr = a_plus.removeMin().getData();
             //if (!conservativehmax || this.additive_h)
-                closed.set(gr.counter, true);
+            closed.set(gr.counter, true);
             reachable_here.add(gr);
 //            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
 //            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
             if (gr.dummy_goal) {
                 estimate = action_dist.get(gr.counter);
-                if (!this.reacheability_setting && (this.additive_h || !conservativehmax )) {
+                if (!this.reacheability_setting && (this.additive_h || !conservativehmax)) {
 //                    System.out.println(this.additive_h);
 //                    System.out.println(this.conservativehmax);
                     extract_helpful_actions_or_relaxed_plan();
-                    if (estimate == 0f)
+                    if (estimate == 0f) {
                         return 0.1f;
+                    }
+                    if (this.relaxed_plan_extraction) {
+                        return this.extract_tot_cost(relaxed_plan);
+                    }
                     return estimate;
                 }
             }
@@ -208,9 +214,8 @@ public class h1 extends Uniform_cost_search_H1 {
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
         }
 
-        
 //        System.out.println("Estimate: "+estimate);
-        if (reacheability_setting) {
+        if (reacheability_setting || why_not_active) {
             if (estimate == Float.MAX_VALUE) {
                 System.out.println("Goal unreachable from init state. Please revise model or instance file");
                 find_reasons_of_unsat(cond_dist, this.goal);
@@ -220,9 +225,16 @@ public class h1 extends Uniform_cost_search_H1 {
         if (this.reacheability_setting) {
             A = reachable;
         }
-        
+
+        if (estimate == Float.MAX_VALUE) {
+            return estimate;
+        }
 
         extract_helpful_actions_or_relaxed_plan();
+        if (this.relaxed_plan_extraction) {
+            return this.extract_tot_cost(relaxed_plan);
+        }
+
         //System.out.println("Conservative Setting");
         return estimate;
     }
@@ -242,6 +254,7 @@ public class h1 extends Uniform_cost_search_H1 {
                         cond_dist.set(comp.getCounter(), cond_dist_comp);//update distance. Meant only to keep track of whether condition reachead or not, and "how"
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                             established_achiever.set(comp.getCounter(), gr);
+                            established_local_cost.set(comp.getCounter(), 1f);
                         }
                         update_reachable_actions(gr, comp, a_plus, never_active);
 
@@ -255,38 +268,35 @@ public class h1 extends Uniform_cost_search_H1 {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
 
-//                    System.out.println("Simple condition reasoning");
                     Float rep_needed;
-//                    System.out.println(is_complex);
-//                    System.out.println(comp);
-//                    System.out.println(comp.getCounter());
+
                     if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
 
                         rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
                     } else {
                         rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
                     }
-//                    Utils.dbg_print(debug - 10, "Action under consideration and number of needed execution:" + gr + " " + rep_needed + "\n");
-//                    System.out.println("Action cost considere here"+gr.getAction_cost());
-//                    System.out.println("Number of repetition"+rep_needed);
                     if (rep_needed != Float.MAX_VALUE) {
-                        if (this.additive_h) {
-                            rep_needed += this.action_dist.get(gr.counter);
-                        } else {
+                        if (this.relaxed_plan_extraction || this.helpful_actions_computation || !this.additive_h) {
                             update_achiever(comp, gr);
+                        }
+                        Float new_distance = rep_needed;
+                        if (this.additive_h) {
+                            new_distance += this.action_dist.get(gr.counter);
+                        } else {
+
                             //rep_needed += this.action_dist.get(gr.counter);
-                            rep_needed += min_over_possible_achievers(comp);
+                            new_distance += min_over_possible_achievers(comp);
                             /*
                             This preserves admissibility.  
-                            */
+                             */
                         }
-//                        if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
 
-//                        }
-                        if (rep_needed < current_distance) {
-                            cond_dist.set(comp.getCounter(), rep_needed);
+                        if (new_distance < current_distance) {
+                            cond_dist.set(comp.getCounter(), new_distance);
                             if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                                 established_achiever.set(comp.getCounter(), gr);
+                                established_local_cost.set(comp.getCounter(), rep_needed);
                             }
                             update_reachable_actions(gr, comp, a_plus, never_active);
                         }
@@ -301,7 +311,7 @@ public class h1 extends Uniform_cost_search_H1 {
                     continue;
                 }
                 Float new_distance = Float.MAX_VALUE;
-                if (!this.additive_h) {
+                if (!this.additive_h || ibr_deactivated) {
                     new_distance = action_dist.get(gr.counter) + c_a;//this is a very conservative measure.
                 } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
@@ -327,6 +337,8 @@ public class h1 extends Uniform_cost_search_H1 {
                         cond_dist.set(comp.getCounter(), new_distance);
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                             established_achiever.set(comp.getCounter(), gr);
+                            established_local_cost.set(comp.getCounter(), new_distance);//this does not really work!!
+
                         }
                         update_reachable_actions(gr, comp, a_plus, never_active);
                     }
@@ -346,8 +358,9 @@ public class h1 extends Uniform_cost_search_H1 {
         //this mapping contains action that need to be triggered becasue of condition comp
         for (GroundAction gr2 : set) {
             if (closed.get(gr2.counter)) {
-                if (this.additive_h || !this.conservativehmax)
+                if (this.additive_h || !this.conservativehmax) {
                     continue;
+                }
             }
             Float c = check_conditions(gr2);
 
@@ -357,13 +370,11 @@ public class h1 extends Uniform_cost_search_H1 {
                     FibonacciHeapNode n = new FibonacciHeapNode(gr2);
                     a_plus.insert(n, c);//push in the set of actions to consider. 
                     action_to_fib_node.set(gr2.counter, n);
+                } else if (closed.get(gr2.counter)) {
+                    a_plus.insert(action_to_fib_node.get(gr2.counter), c);
+                    closed.set(gr2.counter, false);
                 } else {
-                    if (closed.get(gr2.counter)){
-                        a_plus.insert(action_to_fib_node.get(gr2.counter), c);
-                        closed.set(gr2.counter, false);
-                    }else{
-                        a_plus.decreaseKey(action_to_fib_node.get(gr2.counter), c);//push in the set of actions to consider. 
-                    }
+                    a_plus.decreaseKey(action_to_fib_node.get(gr2.counter), c);//push in the set of actions to consider. 
                 }
                 //Need to understand whether is worth to do check on the list to see if action already is there.
                 if (this.reacheability_setting) {
@@ -413,37 +424,42 @@ public class h1 extends Uniform_cost_search_H1 {
 //        Utils.dbg_print(debug, "HelpfulActions: " + helpful_actions.toString() + "\n");
     }
 
-    private void compute_relaxed_plan() {
+    private void compute_relaxed_plan() {//this should be updated!
 
-        LinkedList<GroundAction> list = new LinkedList();
+        LinkedList<Conditions> list = new LinkedList();
+        relaxed_plan = new LinkedList();
+
         helpful_actions = new LinkedHashSet();
         achiever_set s = this.action_achievers.get(goal.counter);
-        if (s != null) {
-            for (Object o : s.actions) {
-                LinkedList level = new LinkedList();
-                if (o != null) {
-                    list.addFirst((GroundAction) o);
-                    helpful_actions.add((GroundAction) o);
-                }
-//                rp.addFirst(level);
-            }
+        HashSet<Integer> visited = new HashSet();
+        for (Conditions c : s.target_cond) {
+            list.add(c);
+            visited.add(c.getCounter());
         }
         while (!list.isEmpty()) {
-            GroundAction gr = list.pollLast();
-//            System.out.println(gr);
-            s = this.action_achievers.get(gr.counter);
-            if (s != null) {
-                LinkedList level = new LinkedList();
-                for (Object o : s.actions) {
-                    if (o != null) {
-                        list.addFirst((GroundAction) o);
-                        helpful_actions.add((GroundAction) o);
+            Conditions c = list.pollLast();
+            Float cost = this.cond_dist.get(c.getCounter());
+            if (cost != 0) {
+                GroundAction gr = this.established_achiever.get(c.getCounter());
+                this.update_relaxed_plan(relaxed_plan, gr, this.established_local_cost.get(c.getCounter()));
+                if (this.action_dist.get(gr.counter) == 0) {
+                    this.helpful_actions.add(gr);
+                } else {
+                    achiever_set ach_set = this.action_achievers.get(gr.counter);
+                    if (ach_set != null) {
+                        for (Conditions c1 : ach_set.target_cond) {
+                            if (!visited.contains(c1.getCounter())) {
+                                list.add(c1);
+                                visited.add(c1.getCounter());
+                            }
+                        }
                     }
                 }
-//                rp.addFirst(level);
             }
+//            System.out.println("List:"+list);
         }
-//        Utils.dbg_print(debug, "Relaxed Plan: " + helpful_actions.toString() + "\n");
+
+//      
     }
 
     private void update_achiever(Conditions comp, GroundAction gr) {
@@ -457,13 +473,13 @@ public class h1 extends Uniform_cost_search_H1 {
     }
 
     private void extract_helpful_actions_or_relaxed_plan() {
-        if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
-            if (helpful_actions_computation) {
-                this.compute_helpful_actions();
-            } else {
-                compute_relaxed_plan();
-            }
+
+        if (this.relaxed_plan_extraction) {
+            compute_relaxed_plan();
+        } else if (this.helpful_actions_computation) {
+            this.compute_helpful_actions();
         }
+
     }
 
     private void getHelpfulActions(LinkedList<GroundAction> list, achiever_set s) {
@@ -481,7 +497,8 @@ public class h1 extends Uniform_cost_search_H1 {
                             }
                         }
                     }
-                } else {
+                } else {//Add helpful action if this action is an established achiever of any condition in the target condition and is applicable
+                    //in the initial state
                     GroundAction gr = this.established_achiever.get(o.getCounter());
 //                        if (gr==null && cond_dist.get(o.getCounter())!=0){
 //                            System.out.println("this is bizzare");
@@ -529,6 +546,48 @@ public class h1 extends Uniform_cost_search_H1 {
             }
         }
         return min;
+    }
+
+    private void update_relaxed_plan(LinkedList<Pair<GroundAction, Float>> plan, GroundAction g, Float cost) {
+
+        for (int i = plan.size() - 1; i >= 0; i--) {
+            Pair<GroundAction, Float> gr_pair = plan.get(i);
+//            System.out.println(g.getClass());
+            if (gr_pair.getFirst().equals(g)) {
+//                System.out.println("DEBUG!");
+                gr_pair.setSecond(Math.max(cost, gr_pair.getSecond()));
+                plan.set(i, gr_pair);
+                return;
+            }
+            
+            if (only_mutual_exclusion_processes){//work from here to have hff sensible to process structure!
+                if (g instanceof problem.GroundProcess || g instanceof problem.GroundEvent) {//very very conservative
+                    if (gr_pair.getFirst() instanceof problem.GroundProcess || gr_pair.getFirst() instanceof problem.GroundEvent) {
+                        if (!gr_pair.getFirst().getPreconditions().mutual_exclusion_guaranteed(g.getPreconditions())){
+                            //Float current_cost = gr_pair.getSecond();
+//                            if (cost > current_cost){
+//                                gr_pair.setSecond(cost);
+//                                gr_pair.setFirst(g);
+//                                return;
+//                            }
+                            gr_pair.setSecond(Math.max(cost, gr_pair.getSecond()));
+                            plan.set(i, gr_pair);
+                            return;
+                        }
+                    }
+                }
+            }
+
+        }
+        plan.addFirst(new Pair(g, cost));
+    }
+
+    private Float extract_tot_cost(LinkedList<Pair<GroundAction, Float>> plan) {
+        Float cost = 0f;
+        for (Pair<GroundAction, Float> p : plan) {
+            cost += p.getSecond();
+        }
+        return cost;
     }
 
 }

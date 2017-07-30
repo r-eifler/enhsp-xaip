@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -66,6 +67,7 @@ public class State extends Object {
     HashMap<NumFluent,PDDLNumber> numericFs;
     HashSet timedLiterals;
     private NumFluent time;
+    private Integer hash;
 
     public State() {
         super();
@@ -375,25 +377,39 @@ public class State extends Object {
         }
         final State other = (State) obj;
 
+//        System.out.println("Checking equality!!!");
         
         for (NumFluent nf : this.getNumericFluents()) {
             
             if (!nf.has_to_be_tracked())
                 continue;
             
-            if (nf.getName().equals("time_elapsed"))//if they have different time elapsed doesn't matter at this stage
+            if (nf.getName().equals("time_elapsed")){//if they have different time elapsed doesn't matter at this stage{
+//                System.out.println("Time comparison");
                 continue;
+            }else{
+//                System.out.println(nf);
+            }
             
             if (other.functionValue(nf)==null && this.numericFs.get(nf)==null){
 //                System.out.println("Error!!:"+ass_init.getNFluent());
                 continue;
             }
-            if (other.functionValue(nf)==null)
+            if (other.functionValue(nf)==null){
+//                System.out.println(nf);
+//                System.out.println("(other is null)These two are different?a:"+this+"\nb:"+obj);
                 return false;
-            if (this.numericFs.get(nf)==null)
+            }
+            if (this.numericFs.get(nf)==null){
+//                System.out.println(nf);
+//                System.out.println("(this is null) These two are different?a:"+this+"\nb:"+obj);
                 return false;
+            }
+                
             if (!this.numericFs.get(nf).getNumber().equals(other.functionValue(nf).getNumber())) 
             {
+//                System.out.println(nf);
+//                System.out.println("These two are different?a:"+this+"\nb:"+obj);
                 return false;
             }
         }
@@ -401,23 +417,43 @@ public class State extends Object {
             Predicate p = (Predicate) o;
             if (this.is_true(p)) {
                 if (!other.is_true(p)) {
+//                    System.out.println("These two are different?a:"+this+"\nb:"+obj);
                     return false;
                 }
             }
 
         }
+//        System.out.println("These two are the same?a:"+this+"\nb:"+obj);
         
         return true;
     }
 
 
+//    @Override
+//    public int hashCode() {
+//        int hash = 5;
+//        if (!this.propositions.keySet().isEmpty())
+//            hash = 19 * hash + Objects.hashCode(this.propositions);
+//        if (!this.numericFs.keySet().isEmpty())
+//            hash = 19 * hash + Objects.hashCode(this.numericFs);
+//        return hash;
+//    }
+
     @Override
     public int hashCode() {
-        int hash = 5;
-        if (!this.propositions.keySet().isEmpty())
+        if (hash == null){
+            hash = 5;
             hash = 19 * hash + Objects.hashCode(this.propositions);
-        if (!this.numericFs.keySet().isEmpty())
-            hash = 19 * hash + Objects.hashCode(this.numericFs);
+            int hash2 = 0;
+            for (Entry<NumFluent,PDDLNumber> nf : this.numericFs.entrySet()){
+            
+                if (nf.getKey().has_to_be_tracked() && !nf.getKey().getName().equals("time_elapsed")){
+                    //hash2+=nf.hashCode();
+                    hash2+=nf.hashCode();
+                }
+            }
+            hash = 19*hash+hash2;
+        }
         return hash;
     }
 

@@ -126,6 +126,11 @@ public class Predicate extends Terminal implements PostCondition {
     public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getCounter());
     }
+    
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        return new HashSet();
+    }
 
     public enum true_false {
         TRUE, FALSE

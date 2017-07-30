@@ -176,6 +176,8 @@ public class SearchStrategies {
     private boolean queue_successor(Queue<SearchNode> frontier, State successor_state, SearchNode current_node, Object action_s, Float prev_cost, float succ_g) {
 
         if (prev_cost == null || succ_g < prev_cost) {
+//            System.out.println(prev_cost);
+//            System.out.println(succ_g);
             setStates_evaluated(getStates_evaluated() + 1);
             long start = System.currentTimeMillis();
             Float d = getHeuristic().compute_estimate(successor_state);
@@ -210,6 +212,9 @@ public class SearchStrategies {
     private boolean queue_successor(Queue<SearchNode> frontier, State successor_state, SearchNode current_node, Object action_s) {
         float succ_g = current_node.g_n + 1;
         Float prev_cost = g.get(successor_state);
+//        System.out.println("G:"+g.keySet());
+//        System.out.println("Current State:"+successor_state);
+//        System.out.println("Cost: "+prev_cost);
         //The node is put in the priority queue whenever one of the following holds
         //if prev_cost == null, then I have never seen this state before
         // if the new cost is better (which can happen in case of inconsistent heuristics or new state evaluation from some other paths
@@ -455,8 +460,12 @@ public class SearchStrategies {
         Float current_value = getHeuristic().compute_estimate(current);
         setup_reachable_actions_processes(problem);//this maps actions in the heuristic with the action in the execution model
 
+        getHeuristic().why_not_active = true;
+        
         System.out.println("h(n = s_0)=" + current_value);//debugging information
 
+        getHeuristic().why_not_active = false;
+        
         SearchNode init = new SearchNode((State) problem.getInit().clone(), 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (this.helpful_actions_pruning) {
             System.out.println("Selection actions from the helpful actions list");
@@ -840,6 +849,7 @@ public class SearchStrategies {
                 waiting_list.add(waiting);
 
                 temp_temp = waiting.apply(temp_temp);
+                waiting_list.addAll(apply_events(temp_temp, i));
 
                 //the next has to be written better!!!! Spend a bit of time on that!
                 boolean valid = temp_temp.satisfy(problem.globalConstraints);//zero crossing?!?!?

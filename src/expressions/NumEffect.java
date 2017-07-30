@@ -36,6 +36,7 @@ import domain.Variable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -603,5 +604,12 @@ public class NumEffect extends Expression implements PostCondition {
             final Variable var = (Variable)o;
             vars.add(var);
         }
+    }
+    
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        Set<NumFluent> ret = new HashSet();
+        ret.add(fluentAffected);
+        return ret;
     }
 }

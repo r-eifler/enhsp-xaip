@@ -1001,4 +1001,21 @@ public class AndCond extends Conditions implements PostCondition {
         }
         return ret;
     }
+
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        Set<NumFluent> ret = new HashSet();
+        if (this.sons.isEmpty())
+            return ret;
+        else{
+            
+            for (Object con: this.sons){
+                if (con instanceof NumEffect){
+                    NumEffect temp = (NumEffect)con;
+                    ret.add(temp.getFluentAffected());
+                }
+            }
+        }
+        return ret;
+    }
 }
