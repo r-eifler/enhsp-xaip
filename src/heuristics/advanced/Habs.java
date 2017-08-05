@@ -303,15 +303,7 @@ public class Habs extends Heuristic {
             Expression constantIncrement;
 
             // three possible effects
-            Float eval = (float) effect.getRight().eval(s).getNumber();
             String operator = effect.getOperator();
-//            if (eval < inf) {
-//                constantIncrement = new ExtendedNormExpression(inf);
-//            } else if (eval <= sup) {
-//                constantIncrement = new ExtendedNormExpression((inf + sup) / 2);
-//            } else {
-//                constantIncrement = new ExtendedNormExpression(sup);
-//            }
             
             constantIncrement = new ExtendedNormExpression((inf + sup) / 2);
             GroundAction supporter = new GroundAction(name + " (" + inf.toString() + ',' + sup.toString() + ") " + " for " + effect.getFluentAffected().toString());
@@ -388,14 +380,6 @@ public class Habs extends Heuristic {
 
     @Override
     public Float compute_estimate(State s) {
-//        if (!settingUp) {
-//            if (UPDATE_PARTITONMAP) {
-//                updatePartitionMap(s);
-//                updateSupporters(s);
-//            } else if (UPDATE_SUPPORTERS) {
-//                updateSupporters(s);
-//            }
-//        }
         
         if (UPDATE_COST){
             updateActionCosts(s);
@@ -448,129 +432,6 @@ public class Habs extends Heuristic {
             gr.setAction_cost(s);
         }
     }
-    
-//
-//    private void updatePartitionMap(State s) {
-//
-//        for (GroundAction gr : partitionMap.keySet()) {
-//            HashMap<Expression, HashMap<Interval, GroundAction>> supMap = partitionMap.get(gr);
-//
-//            for (Expression rhs : supMap.keySet()) {
-//                HashMap<Interval, GroundAction> intervalMap = supMap.get(rhs);
-//                Float tempInf, tempSup;
-//                Float inf = Float.MAX_VALUE;
-//                Float sup = -Float.MAX_VALUE;
-//
-//                for (Interval interval : intervalMap.keySet()) {
-//                    tempInf = interval.getInf().getNumber();
-//                    tempSup = interval.getSup().getNumber();
-//
-//                    if (tempInf < inf) {
-//                        inf = tempInf;
-//                    }
-//
-//                    if (tempSup > sup) {
-//                        sup = tempSup;
-//                    }
-//                }
-//
-//                Float rhsEval = rhs.eval(s).getNumber();
-//                if (rhsEval < inf || rhsEval > sup) {
-//
-//                    // update reachable interval
-//                    if (rhsEval < inf) {
-//                        inf = rhsEval;
-//                        
-//                    } else {
-//                        sup = rhsEval;
-//                    }
-//
-//                    // get updated partition as a list
-//                    LinkedList<Interval> tempIntervalList;
-//                    if (inf * sup >= 0) {
-//                        tempIntervalList = addPartitionForSinglePolarInterval(sup, inf, new HashMap<>());
-//                    } else {
-//                        tempIntervalList = addPartitionForDualPolarsInterval(sup, inf, new HashMap<>());
-//                    }
-//
-//                    int i = 0;
-//                    for (Interval interval : intervalMap.keySet()) {
-//                        Interval newInterval = tempIntervalList.get(i);
-//                        GroundAction tempSupporter = intervalMap.get(interval);
-//                        
-//                        interval.setInf(new PDDLNumber(newInterval.getInf().getNumber()));
-//                        interval.setSup(new PDDLNumber(newInterval.getSup().getNumber()));
-//                        
-//                        Iterator it = tempSupporter.getPreconditions().sons.iterator();
-//                        LinkedList<Object> sons = new LinkedList<>();
-//                        while(it.hasNext()){
-//                            sons.add(it.next());
-//                        }
-//                        tempSupporter.getPreconditions().sons.clear();
-//                        
-//                        for (Object cond : sons){
-//                            if (cond instanceof AndCond){
-//                                tempSupporter.getPreconditions().sons.add(cond);
-//                            } else {
-//                                Comparison c = (Comparison) cond;
-//                                
-//                                if (c.getComparator().equals(">")){
-//                                    c.setRight(newInterval.getInf());
-//                                    tempSupporter.getPreconditions().sons.add(c);
-//                                } else {
-//                                    // "<=" is normalized, so it's hard to directly change the right side, instead just add a new one.
-//                                    Comparison indirect_precondition_lt = new Comparison("<=");
-//                                    indirect_precondition_lt.setLeft(rhs);
-//                                    indirect_precondition_lt.setRight(newInterval.getSup());
-//                                    indirect_precondition_lt.normalize();
-//                                    
-//                                    // IMPORTANT! Otherwise will NOT work!!
-//                                    indirect_precondition_lt.setCounter(c.getCounter());
-//                                    tempSupporter.getPreconditions().sons.add(indirect_precondition_lt);
-//                                }
-//                            }
-//                        }
-//                        
-//                        i++;
-//                    }
-//                }
-//            }
-//        }
-//    }
-    
-//
-//    private void updateSupporters(State s) {
-//        for (GroundAction gr: partitionMap.keySet()) {
-//            HashMap<Expression, HashMap<Interval, GroundAction>> actionMap = partitionMap.get(gr);
-//            
-//            for (Expression rhs : actionMap.keySet()) {
-//                HashMap<Interval, GroundAction> intervalsMap = actionMap.get(rhs);
-//                for (Interval interval : intervalsMap.keySet()) {
-//
-//                    Float inf = interval.getInf().getNumber();
-//                    Float sup = interval.getSup().getNumber();
-//                    
-//                    Expression constantIncrement;
-//
-//                    // three possible effects
-//                    Float eval = (float) rhs.eval(s).getNumber();
-//                    if (eval < inf) {
-//                        constantIncrement = new ExtendedNormExpression(inf);
-//                    } else if (eval < sup) {
-//                        constantIncrement = new ExtendedNormExpression((inf+sup)/2);
-//                    } else {
-//                        constantIncrement = new ExtendedNormExpression(sup);
-//                    }
-//                    
-//                    GroundAction tempSup = intervalsMap.get(interval);
-//                    // Safe to assume the first effect is the one we want, sons is a LinkedHashMap
-//                    NumEffect tempEff = (NumEffect) tempSup.getNumericEffects().sons.iterator().next();
-//                    tempEff.setRight(constantIncrement);
-//                }
-//            }
-//        }
-//    }
-
     // only for debugging
     public static void logging(String content) {
         String FILENAME = "/home/dxli/workspace/NetBeansProjects/expressive-numeric-heuristic-search-planner-enhsp-planner/abs_experiments/log.txt";
