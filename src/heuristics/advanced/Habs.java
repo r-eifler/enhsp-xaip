@@ -160,15 +160,25 @@ public class Habs extends Heuristic {
         // decomposition
         HashSet<Interval> subdomains = decomposeRhs(effect, rs);
         
-        for (Interval subdomain : subdomains) {
-            Expression repSample;
+        Expression repSample;
+        String subactionName;
+        Float domain_inf = Float.MAX_VALUE;
+        Float domain_sup = - Float.MAX_VALUE;
 
+        for (Interval subdomain : subdomains) {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
             
+            if (inf < domain_inf){
+                domain_inf = inf;
+            }
+            if (sup > domain_sup){
+                domain_sup = sup;
+            }
+            
             if (inf * sup >= 0){
                 repSample = new ExtendedNormExpression((inf + sup) / 2);
-                String subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
+                subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
                 GroundAction subaction = generatePiecewiseSubaction(subactionName, 
                         repSample, 
                         inf, 
@@ -181,7 +191,7 @@ public class Habs extends Heuristic {
                 
             } else if (inf * sup < 0){ // theorem 2, ensuring asymptotic reachability
                 repSample = new ExtendedNormExpression(sup/2);
-                String subactionName = name + " (0," + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
+                subactionName = name + " (0," + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
                 GroundAction subaction = generatePiecewiseSubaction(subactionName, 
                         repSample, 
                         0f, 
@@ -204,6 +214,31 @@ public class Habs extends Heuristic {
                 
             }
         }
+        
+        // add plus infinity subdomain
+        repSample = new ExtendedNormExpression(domain_sup);
+        subactionName = name + " (" + domain_sup.toString() + ",+inf) " + " for " + effect.getFluentAffected().toString();
+        GroundAction subaction = generatePiecewiseSubaction(subactionName, 
+                repSample,  
+                domain_sup,
+                Float.MAX_VALUE,
+                effect, 
+                effectOnCost, 
+                gr);
+        supporters.add(subaction);
+        
+        // add minus infinity subdomain
+        repSample = new ExtendedNormExpression(domain_inf);
+        subactionName = name + " (-inf," + domain_inf.toString() + ") " + " for " + effect.getFluentAffected().toString();
+        subaction = generatePiecewiseSubaction(subactionName, 
+                repSample, 
+                -Float.MAX_VALUE,
+                domain_inf, 
+                effect, 
+                effectOnCost, 
+                gr);
+        supporters.add(subaction);
+        
     }
     
     private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
