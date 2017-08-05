@@ -206,8 +206,6 @@ public class Habs extends Heuristic {
     
     private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
         Interval rhsInterval = effect.getRight().eval(rs);
-        // DEBUG
-        rhsInterval.setInf(new PDDLNumber(-5f));
         
         Float inf, sup, strip;
         HashSet<Interval> subdomains = new HashSet<>();
