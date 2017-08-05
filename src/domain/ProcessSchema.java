@@ -40,7 +40,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundProcess;
-import problem.GroundProcess;
+import problem.PDDLObjects;
 import problem.PddlProblem;
 
 /**
@@ -91,7 +91,7 @@ public class ProcessSchema extends GenericActionType {
 
     }
 
-    public GroundProcess ground(Map substitution) {
+    public GroundProcess ground(Map substitution,PDDLObjects po) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -101,10 +101,10 @@ public class ProcessSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution));
-        ret.setAddList(this.addList.ground(substitution));
-        ret.setDelList(this.delList.ground(substitution));
-        ret.setPreconditions(this.preconditions.ground(substitution));
+        ret.setNumericEffects(this.numericEffects.ground(substitution,po));
+        ret.setAddList(this.addList.ground(substitution,po));
+        ret.setDelList(this.delList.ground(substitution,po));
+        ret.setPreconditions(this.preconditions.ground(substitution,po));
 
 
 
@@ -130,7 +130,7 @@ public class ProcessSchema extends GenericActionType {
         return ret;
     }
 
-    public GroundProcess ground(ParametersAsTerms par) {
+    public GroundProcess ground(ParametersAsTerms par,PDDLObjects po) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         int i = 0;
@@ -147,15 +147,15 @@ public class ProcessSchema extends GenericActionType {
         //System.out.println(this);
         if (numericEffects!= null || !numericEffects.sons.isEmpty()){
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution));
+            ret.setNumericEffects(this.numericEffects.ground(substitution,po));
         }if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution));
+            ret.setAddList(this.addList.ground(substitution,po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution));
+            ret.setDelList(this.delList.ground(substitution,po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution));
+            ret.setPreconditions(this.preconditions.ground(substitution,po));
         }
 
         return ret;

@@ -183,7 +183,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             System.out.println("Action not found in the domain theory!!" + actionName);
         }
         //System.out.println(par);
-        GroundAction grAction = action.ground(par);
+        GroundAction grAction = action.ground(par,this.pp.getObjects());
         grAction.generateAffectedNumFluents();
         //grAction.normalizeAndCopy();
         this.add(grAction);

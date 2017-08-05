@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -120,13 +121,13 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public PDDLObject ground(Map<Variable,PDDLObject> substitution) {
+    public PDDLObject ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         return new PDDLObject(name, type); // TODO: Why not return this?
     }
     
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }
@@ -256,4 +257,10 @@ public class PDDLObject extends Terminal implements ActionParameter {
     public Conditions push_not_to_terminals() {
         return this;
     }
+
+    @Override
+    public PDDLObject ground(Map<Variable, PDDLObject> substitution) {
+        return new PDDLObject(name, type); // TODO: Why not return this?
+    }
+
 }

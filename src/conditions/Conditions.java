@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -91,10 +92,11 @@ public abstract class Conditions extends Object {
      * 
      * @param substitution the map that indicates what object 
      * should replace the specified variable.  
+     * @param objects These are the objects of the problem
      * @return a copy of this conditions where each variable 
      * is replaced to the object according to the specified mapping.  
      */
-    public abstract Conditions ground(Map<Variable,PDDLObject> substitution);
+    public abstract Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects objects);
 
     public abstract Conditions ground(Map substitution, int c);
 
@@ -294,6 +296,10 @@ public abstract class Conditions extends Object {
             }
         }
         return false;
+    }
+
+    public void addConditions(Conditions c) {
+        sons.add(c);
     }
         
 

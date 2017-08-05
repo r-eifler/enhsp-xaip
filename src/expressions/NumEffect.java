@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -125,10 +126,10 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a new Grounded NumEffect object
      */
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         NumEffect ret = new NumEffect(this.operator);
-        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution);
-        ret.right = this.right.ground(substitution);
+        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution,po);
+        ret.right = this.right.ground(substitution,po);
         ret.grounded = true;
         return ret;
     }

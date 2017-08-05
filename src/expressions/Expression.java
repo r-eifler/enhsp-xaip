@@ -32,6 +32,7 @@ import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -59,7 +60,7 @@ public abstract class Expression extends Object {
      * @return a copy of this expression where each variable 
      * is replaced to the object according to the specified mapping.  
      */
-    public abstract Expression ground(Map<Variable,PDDLObject> substitution);
+    public abstract Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po);
     
     public abstract Expression unGround(Map substitution);
 

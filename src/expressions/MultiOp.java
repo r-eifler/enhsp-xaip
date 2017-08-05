@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -117,11 +118,11 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         MultiOp ret = new MultiOp();
         for (Object o : expr) { // TODO: If all objects are expressions, there should be a cast to Expression
             Expression e = (Expression) o;
-            ret.addExpression(e.ground(substitution));
+            ret.addExpression(e.ground(substitution,po));
         }
         ret.grounded = true;
         return ret;

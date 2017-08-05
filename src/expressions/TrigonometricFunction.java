@@ -31,6 +31,7 @@ import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -47,11 +48,11 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;
-        ret.setArg(getArg().ground(substitution));
+        ret.setArg(getArg().ground(substitution,po));
 
         ret.grounded = true;
 

@@ -30,13 +30,13 @@ package expressions;
 import conditions.Conditions;
 import conditions.PDDLObject;
 import domain.Variable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -115,12 +115,12 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
-        ret.lhs = lhs.ground(substitution);
-        ret.rhs = rhs.ground(substitution);
+        ret.lhs = lhs.ground(substitution,po);
+        ret.rhs = rhs.ground(substitution,po);
 
         ret.grounded = true;
 

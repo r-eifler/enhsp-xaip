@@ -28,8 +28,8 @@ package domain;
 import conditions.PDDLObject;
 import java.util.HashMap;
 import java.util.Map;
-import problem.GroundAction;
 import problem.GroundEvent;
+import problem.PDDLObjects;
 
 /**
  *
@@ -59,7 +59,7 @@ public class EventSchema extends ActionSchema{
 //        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
 //    }
 
-        String ret = "(:action " + this.name + "\n";
+        String ret = "(:event " + this.name + "\n";
 
         ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
@@ -69,7 +69,7 @@ public class EventSchema extends ActionSchema{
         return ret + ")";
     }
     
-    public GroundEvent ground(ParametersAsTerms par) {
+    public GroundEvent ground(ParametersAsTerms par,PDDLObjects po) {
         GroundEvent ret = new GroundEvent(this.name);
         int i = 0;
 
@@ -85,19 +85,19 @@ public class EventSchema extends ActionSchema{
 //        System.out.println(this);
         if (numericEffects!= null || !numericEffects.sons.isEmpty()){
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution));
+            ret.setNumericEffects(this.numericEffects.ground(substitution,po));
         }if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution));
+            ret.setAddList(this.addList.ground(substitution,po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution));
+            ret.setDelList(this.delList.ground(substitution,po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution));
+            ret.setPreconditions(this.preconditions.ground(substitution,po));
         }
         if (cond_effects != null) {
 //            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution);
+            ret.cond_effects = this.cond_effects.ground(substitution,po);
 //            System.out.println("DEBUG: after:"+cond_effects);
        
         }

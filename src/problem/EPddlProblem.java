@@ -54,7 +54,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import propositionalFactory.Instantiator;
+import propositionalFactory.grounder;
 
 /**
  *
@@ -129,16 +129,16 @@ public class EPddlProblem extends PddlProblem {
     public void generateActions() throws Exception {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
+            grounder af = new grounder();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
-                if (act.getPar().size() != 0) {
+                //if (act.getPar().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
-                } else {
-                    GroundAction gr = act.ground();
-                    getActions().add(gr);
+                //} else {
+                //    GroundAction gr = act.ground();
+                //    getActions().add(gr);
 
-                }
+                //
             }
             //pruneActions();
         } else {
@@ -190,7 +190,7 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         processesSet = new LinkedHashSet();
         if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
+            grounder af = new grounder();
             for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
                 if (process.getParameters().size() != 0) {
@@ -349,7 +349,7 @@ public class EPddlProblem extends PddlProblem {
         subst = find_substs(a, s);
         Set<GroundAction> ret = new LinkedHashSet();
         for (HashMap<Variable, PDDLObject> ele : subst) {
-            ret.add(a.ground(ele));
+            ret.add(a.ground(ele,this.getObjects()));
         }
         return ret;
     }
@@ -440,7 +440,7 @@ public class EPddlProblem extends PddlProblem {
 
         } else if (a instanceof NotCond) {//this is problematique.
             NotCond nc = (NotCond) a;
-            subst = Instantiator.substitutions(nc.getInvolvedVariables(), objects);
+            subst = grounder.substitutions(nc.getInvolvedVariables(), objects);
 //            for (Object o: nc.son){
             subst.removeAll(this.find_substs(nc.getSon(), s));
 //            }           
@@ -499,12 +499,12 @@ public class EPddlProblem extends PddlProblem {
         /*In this setting here, you have to generate a number of substitutions. Each one of them is a possible grounding of the
         action according to its effect. This has to be intersected with what we have discovered so far, but still it has to be done*/
         //add list
-        subst = intersect(subst, Instantiator.substitutions(gr.getAddList().getInvolvedVariables(), objects));
-        subst = intersect(subst, Instantiator.substitutions(gr.getDelList().getInvolvedVariables(), objects));
+        subst = intersect(subst, grounder.substitutions(gr.getAddList().getInvolvedVariables(), objects));
+        subst = intersect(subst, grounder.substitutions(gr.getDelList().getInvolvedVariables(), objects));
 
         subst = intersect(subst, this.find_substs(gr.getNumericEffects(), s));
 
-        subst = intersect(subst, Instantiator.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
+        subst = intersect(subst, grounder.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
 
         //the following is a (failed) attempt to optimise the thing
 //        
@@ -610,7 +610,7 @@ public class EPddlProblem extends PddlProblem {
 
     public void generateConstraints() throws Exception {
         if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
+            grounder af = new grounder();
             for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
 
@@ -753,7 +753,7 @@ public class EPddlProblem extends PddlProblem {
     private void generateEvents() {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
+            grounder af = new grounder();
             for (EventSchema event_schema : (Set<EventSchema>) linkedDomain.getEventSchema()) {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {

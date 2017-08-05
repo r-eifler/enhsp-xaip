@@ -30,7 +30,6 @@ import conditions.AndCond;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
-import conditions.PostCondition;
 import conditions.Predicate;
 
 import expressions.NumEffect;

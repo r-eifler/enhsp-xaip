@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -135,7 +136,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public NumFluent ground(Map<Variable, PDDLObject> substitution) {
+    public NumFluent ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
         NumFluent ret = new NumFluent(getName());
         ret.index = this.index;
         for (final ActionParameter param : terms) {

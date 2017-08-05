@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -59,9 +60,6 @@ public class OrCond extends Conditions {
         sons = new LinkedHashSet();
     }
 
-    public void addConditions(Conditions c) {
-        sons.add(c);
-    }
 
     @Override
     public String toString() {
@@ -105,12 +103,12 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
             Conditions el = (Conditions) o;
-            ret.sons.add(el.ground(substitution));
+            ret.sons.add(el.ground(substitution,po));
         }
         ret.grounded = true;
         return ret;
@@ -118,7 +116,7 @@ public class OrCond extends Conditions {
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }

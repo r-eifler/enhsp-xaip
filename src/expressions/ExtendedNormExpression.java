@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -385,7 +386,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -393,7 +394,7 @@ public class ExtendedNormExpression extends Expression {
 //            System.out.println(substitution);
 //            System.out.println(a);
             if (a.f != null) {
-                newA.f = (NumFluent) a.f.ground(substitution);
+                newA.f = (NumFluent) a.f.ground(substitution,po);
             }
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);

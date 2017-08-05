@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 
 /**
@@ -182,18 +183,18 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         Comparison ret = new Comparison(comparator);
 
-        ret.left = left.ground(substitution);
-        ret.right = right.ground(substitution);
+        ret.left = left.ground(substitution,po);
+        ret.right = right.ground(substitution,po);
         ret.grounded = true;
         return ret;
     }
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }

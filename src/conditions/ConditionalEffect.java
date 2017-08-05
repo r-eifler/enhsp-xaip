@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -84,19 +85,19 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         return this;
     }
 
-    public ConditionalEffect ground(Map<Variable,PDDLObject> substitution) {
+    public ConditionalEffect ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         ConditionalEffect ret = new ConditionalEffect();
-        ret.activation_condition = this.activation_condition.ground(substitution);
+        ret.activation_condition = this.activation_condition.ground(substitution,po);
         
         if (this.effect instanceof Conditions){
             Conditions con = (Conditions)this.effect;
-            ret.effect = (PostCondition) con.ground(substitution);
+            ret.effect = (PostCondition) con.ground(substitution,po);
         }else if (this.effect instanceof ConditionalEffect){
             ConditionalEffect sub = (ConditionalEffect)this.effect;
-            ret.effect = sub.ground(substitution);
+            ret.effect = sub.ground(substitution,po);
         }else if (this.effect instanceof NumEffect){
             NumEffect ne = (NumEffect)this.effect;
-            ret.effect = (NumEffect)ne.ground(substitution);
+            ret.effect = (NumEffect)ne.ground(substitution,po);
         }
         ret.grounded = true;
         return ret;    
