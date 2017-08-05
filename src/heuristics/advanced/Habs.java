@@ -37,6 +37,8 @@ public class Habs extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
     private static final Boolean UPDATE_COST = false;
+    private static final Boolean COST_SENSITIVE = false;
+    
     private final Set<GroundProcess> processSet;
     private final Integer numOfSubdomains = 2;
     private h1 habs;
@@ -237,7 +239,7 @@ public class Habs extends Heuristic {
         // set effects for subactions
         subaction.getNumericEffects().sons.add(supEff);
         
-        if (effectOnCost != null) {
+        if (COST_SENSITIVE && effectOnCost != null) {
             subaction.getNumericEffects().sons.add(effectOnCost);
         }
 
@@ -294,7 +296,7 @@ public class Habs extends Heuristic {
         sup.setDelList(gr.getDelList());
         
 //         add effect on metric
-        if (effectOnCost != null) {
+        if (COST_SENSITIVE && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
         }
         
