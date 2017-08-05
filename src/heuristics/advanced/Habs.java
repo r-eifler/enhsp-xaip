@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -39,17 +40,9 @@ import problem.State;
 public class Habs extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
-    private static final Boolean UPDATE_SUPPORTERS = false;
-    private static final Boolean UPDATE_PARTITONMAP = false;
     private static final Boolean UPDATE_COST = false;
-
     private final Set<GroundProcess> processSet;
-
-    private Integer numOfPartitions = 2;
-    private Boolean settingUp = true;
-
-    private HashMap<GroundAction, HashMap<Expression, HashMap<Interval, GroundAction>>> partitionMap = new HashMap();
-
+    private final Integer numOfSubdomains = 2;
     private h1 habs;
 
     public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
@@ -66,17 +59,13 @@ public class Habs extends Heuristic {
         if (ret == Float.MAX_VALUE) {
             return ret;
         }
-
-        // decomposition step
-        buildPartitions(A, G, s);
         
-        // subactioning step
-        generate_supporters(s);
+        // abstraction step
+        generate_subactions(s);
         
         // estimation for initial state
         setup_habs(s);
         ret = habs.compute_estimate(s);
-        settingUp = false;
         
         return ret;
     }
@@ -93,116 +82,11 @@ public class Habs extends Heuristic {
         return ret;
     }
 
-    private void buildPartitions(Set<GroundAction> A, Conditions G, State s) {
-        RelState rs = getRelaxedGoal(A, G, s);
-
-        HashMap<Expression, HashMap<Interval, GroundAction>> tempMap;
-
-        for (GroundAction gr : reachable) {
-            Boolean has_linear_effect = false;
-
-            if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-                if (!partitionMap.containsKey(gr)) {
-                    tempMap = new HashMap<>();
-                } else {
-                    tempMap = partitionMap.get(gr);
-                }
-
-                for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (effect.getFluentAffected().getName().equals("total-cost")) {
-                        continue;
-                    }
-                    
-                    Expression rhs = effect.getRight();
-                    if (!rhs.rhsFluents().isEmpty()) {
-                        has_linear_effect = true;
-
-                        HashMap<Interval, GroundAction> partForEffect = new HashMap<>();
-                        addPartitions(partForEffect, effect, rs);
-                        tempMap.put(rhs, partForEffect);
-                    }
-                }
-                if (has_linear_effect) {
-                    partitionMap.put(gr, tempMap);
-                }
-            }
-        }
-    }
-
     private RelState getRelaxedGoal(Set<GroundAction> A, Conditions G, State s) {
         Aibr aibr_handle = new Aibr(G, A);
         //aibr_handle
         aibr_handle.setup(s);
         return aibr_handle.get_reachable_state(s, s.relaxState());
-    }
-
-    private void addPartitions(HashMap<Interval, GroundAction> partForEffect, NumEffect effect, RelState rs) {
-        Interval rhsInterval = effect.getRight().eval(rs);
-        Float inf, sup;
-
-        inf = rhsInterval.getInf().getNumber();
-        sup = rhsInterval.getSup().getNumber();
-
-        if (inf * sup >= 0) {
-            // the reachable values contain negative or positive numbers only
-            addPartitionForSinglePolarInterval(sup, inf, partForEffect);
-        } else {
-            // the reachable values contain both negative and positive numbers
-            addPartitionForDualPolarsInterval(sup, inf, partForEffect);
-        }
-    }
-
-    private LinkedList<Interval> addPartitionForSinglePolarInterval(Float sup, Float inf, HashMap<Interval, GroundAction> partForEffect) {
-        Float strip;
-        Interval temp;
-        LinkedList<Interval> ret = new LinkedList<>();
-        
-        strip = (sup - inf) / numOfPartitions;
-        for (int i = 0; i < numOfPartitions; i++) {
-            
-            temp = new Interval();
-            temp.setInf(new PDDLNumber(inf + strip * i));
-            temp.setSup(new PDDLNumber(inf + strip * (i + 1)));
-
-            partForEffect.put(temp, null);
-
-            ret.add(temp);
-        }
-
-        return ret;
-    }
-
-    private LinkedList<Interval> addPartitionForDualPolarsInterval(Float sup, Float inf, HashMap<Interval, GroundAction> partForEffect) {
-
-        Interval temp;
-        LinkedList<Interval> ret = new LinkedList<>();
-        // TODO having 1 interval risks of unsolvability (e.g. counter). Is there any other way to do this? 
-        Double numOfPartitionForEachPolarity = Math.ceil(numOfPartitions.doubleValue() / 2.0);
-//        System.out.println(numOfPartitionForEachPolarity);
-//        Double numOfPatitionForEachPolarity = 2.0;
-
-        Float strip_neg = ((Double) (-inf / numOfPartitionForEachPolarity)).floatValue();
-        Float strip_pos = ((Double) (sup / numOfPartitionForEachPolarity)).floatValue();
-
-        for (int i = 0; i < numOfPartitionForEachPolarity; i++) {
-            temp = new Interval();
-            temp.setInf(new PDDLNumber(inf + strip_neg * i));
-            temp.setSup(new PDDLNumber(inf + strip_neg * (i + 1)));
-
-            partForEffect.put(temp, null);
-            ret.add(temp);
-        }
-
-        for (int i = 0; i < numOfPartitionForEachPolarity; i++) {
-            temp = new Interval();
-            temp.setInf(new PDDLNumber(strip_pos * i));
-            temp.setSup(new PDDLNumber(strip_pos * (i + 1)));
-
-            partForEffect.put(temp, null);
-            ret.add(temp);
-        }
-
-        return ret;
     }
 
     /**
@@ -224,21 +108,17 @@ public class Habs extends Heuristic {
                 return null;
         }
     }
-
+    
     /**
      * <p>
-     * Add supporters for each single effect of each action. Also build the
-     * mapping from supporters to actions.
-     *
+     * 
      * <p>
-     * This mapping is important because reachability analysis is done by
-     * adaptive_ucs_h1, thus Habs needs this mapping to know what are the
-     * reachable actions for the original problem.
      */
-    private void generate_supporters(State s) {
+    private void generate_subactions(State s) {
+        RelState rs = getRelaxedGoal(A, G, s);
         NumEffect effectOnCost = null;
 
-        System.out.println("Generating supporters.");
+        System.out.println("Generating subactions.");
 
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
@@ -255,91 +135,142 @@ public class Habs extends Heuristic {
                     if (effect.getFluentAffected().getName().equals("total-cost")) {
                         continue;
                     }
-                    // this is assuming linear effects at the moment.
+                    // this is assuming no non-linear effects at the moment.
                     if (!effect.getRight().rhsFluents().isEmpty()) {
-                        // generate supporters for actions with linear numeric effects
-                        generate_linear_supporter(s, effect, gr.toFileCompliant() + effect.getFluentAffected(), gr, effectOnCost);
-                    } else {
+                        addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs);
+                    } else { // constant numeric effects
                         allConstantEffects.add(effect);
                     }
                 }
-                // generate supporters for actions with constant effects
-                if (!allConstantEffects.isEmpty()) {
-                    generate_constant_supporter(allConstantEffects, gr.toFileCompliant(), gr, effectOnCost);
-                }
             }
-
-            // add propositional actions
-            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
-                generate_propositional_action(gr.toFileCompliant() + " prop", gr.getPreconditions(), gr);
+            
+            if (!allConstantEffects.isEmpty() 
+                    || (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) 
+                    || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
+                addConstantSubaction(allConstantEffects, gr.toFileCompliant() + " const", gr, effectOnCost);
             }
         }
 
-        System.out.println("Generating supporters finished.");
+        System.out.println("Generating subactions finished.");
         System.out.println("|Sup + goal|: " + supporters.size());
     }
 
     /**
      * <p>
-     * For each effect we have a set of supporters on each partition. For each
-     * partition, there are 3 possible supporters. Which supporter to take is
-     * "state-dependent":
-     * <br> &nbsp &nbsp 1. if rhs &le lo, constant eff = lo;
-     * <br> &nbsp &nbsp 2. if lo &le rhs &le hi, constant eff = rhs;
-     * <br> &nbsp &nbsp 3. if hi &le rhs, constant eff = hi.
-     *
-     * @param effect linear effect to generate supporters for.
-     * @param name a string used to distinguish between supporters for effects.
-     * @param gr the grounded action.
      */
-    private void generate_linear_supporter(State s, NumEffect effect, String name, GroundAction gr, NumEffect effectOnCost) {
-        // partitioning
-        HashMap<Interval, GroundAction> intervals = partitionMap.get(gr).get(effect.getRight());
-
-        for (Interval interval : intervals.keySet()) {
-            
-            Float inf = interval.getInf().getNumber();
-            Float sup = interval.getSup().getNumber();
-            Expression constantIncrement;
-
-            // three possible effects
+    private void addPiecewiseSubactions(String name, 
+            GroundAction gr, 
+            NumEffect effect, 
+            NumEffect effectOnCost, 
+            RelState rs) {
+        
+        // decomposition
+        HashSet<Interval> subdomains = decomposeRhs(effect, rs);
+        
+        for (Interval subdomain : subdomains) {
             String operator = effect.getOperator();
+            Expression repSample;
+
+            Float inf = subdomain.getInf().getNumber();
+            Float sup = subdomain.getSup().getNumber();
             
-            constantIncrement = new ExtendedNormExpression((inf + sup) / 2);
-            GroundAction supporter = new GroundAction(name + " (" + inf.toString() + ',' + sup.toString() + ") " + " for " + effect.getFluentAffected().toString());
-
-            // set up effect
-            NumEffect supEff = new NumEffect(operator);
-            supEff.setFluentAffected(effect.getFluentAffected());
-            supEff.setRight(constantIncrement);
-
-            // set effects for supporters
-            supporter.getNumericEffects().sons.add(supEff);
-            if (effectOnCost != null) {
-                supporter.getNumericEffects().sons.add(effectOnCost);
+            if (inf * sup >= 0){
+                repSample = new ExtendedNormExpression((inf + sup) / 2);
+                String subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
+                GroundAction subaction = generatePiecewiseSubaction(subactionName, 
+                        repSample, operator, inf, sup, 
+                        effect, effectOnCost, gr);
+                
+                supporters.add(subaction);
+                
+            } else if (inf * sup < 0){ // theorem 2, ensuring asymptotic reachability
+                repSample = new ExtendedNormExpression(sup/2);
+                String subactionName = name + " (0," + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
+                GroundAction subaction = generatePiecewiseSubaction(subactionName, 
+                        repSample, operator, 0f, sup, 
+                        effect, effectOnCost, gr);
+                supporters.add(subaction);
+                
+                repSample = new ExtendedNormExpression(inf/2);
+                subactionName = name + " (" + inf.toString() + ",0) " + " for " + effect.getFluentAffected().toString();
+                subaction = generatePiecewiseSubaction(subactionName, 
+                        repSample, operator, inf, 0f, 
+                        effect, effectOnCost, gr);
+                supporters.add(subaction);
+                
             }
-
-            // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
-            Comparison indirect_precondition_gt = new Comparison(">");
-            Comparison indirect_precondition_lt = new Comparison("<=");
-
-            indirect_precondition_gt.setRight(new PDDLNumber(inf));
-            indirect_precondition_lt.setRight(new PDDLNumber(sup));
-            indirect_precondition_gt.setLeft(effect.getRight());
-            indirect_precondition_lt.setLeft(effect.getRight());
-
-            indirect_precondition_gt.normalize();
-            indirect_precondition_lt.normalize();
-
-            // set pre-conditions for supporters
-            supporter.getPreconditions().sons.add(indirect_precondition_lt);
-            supporter.getPreconditions().sons.add(indirect_precondition_gt);
-            supporter.setPreconditions(supporter.getPreconditions().and(gr.getPreconditions()));
-
-            // add new supporter
-            supporters.add(supporter);
-            partitionMap.get(gr).get(effect.getRight()).put(interval, supporter);
         }
+    }
+    
+    private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
+        Interval rhsInterval = effect.getRight().eval(rs);
+        Float inf, sup, strip;
+        HashSet<Interval> subdomains = new HashSet<>();
+
+        inf = rhsInterval.getInf().getNumber();
+        sup = rhsInterval.getSup().getNumber();
+        
+        // uniform decomposition
+        strip = (sup - inf) / numOfSubdomains;
+        for (int i = 0; i < numOfSubdomains; i++) {
+            Interval subdomain = new Interval();
+            subdomain.setInf(new PDDLNumber(inf + strip * i));
+            subdomain.setSup(new PDDLNumber(inf + strip * (i + 1)));
+            
+            subdomains.add(subdomain);
+        }
+        
+        return subdomains;
+    }
+
+    private GroundAction generatePiecewiseSubaction(String subactionName, 
+            Expression repSample, 
+            String operator, 
+            Float inf, 
+            Float sup, 
+            NumEffect effect, 
+            NumEffect effectOnCost, 
+            GroundAction gr) {    
+        GroundAction subaction = new GroundAction(subactionName);
+
+        // set up effect
+        NumEffect supEff = new NumEffect(operator);
+        supEff.setFluentAffected(effect.getFluentAffected());
+        supEff.setRight(repSample);
+
+        // set effects for subactions
+        subaction.getNumericEffects().sons.add(supEff);
+        
+        if (effectOnCost != null) {
+            subaction.getNumericEffects().sons.add(effectOnCost);
+        }
+
+        // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
+        Comparison indirect_precondition_gt;
+        Comparison indirect_precondition_lt;
+        
+        if (inf <= 0){
+            indirect_precondition_gt = new Comparison(">=");
+            indirect_precondition_lt = new Comparison("<");
+        } else {
+            indirect_precondition_gt = new Comparison(">");
+            indirect_precondition_lt = new Comparison("<=");
+        }
+        
+        indirect_precondition_gt.setRight(new PDDLNumber(inf));
+        indirect_precondition_lt.setRight(new PDDLNumber(sup));
+        indirect_precondition_gt.setLeft(effect.getRight());
+        indirect_precondition_lt.setLeft(effect.getRight());
+
+        indirect_precondition_gt.normalize();
+        indirect_precondition_lt.normalize();
+
+        // set pre-conditions for supporters
+        subaction.getPreconditions().sons.add(indirect_precondition_lt);
+        subaction.getPreconditions().sons.add(indirect_precondition_gt);
+        subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
+
+        return subaction;
     }
 
     /**
@@ -351,30 +282,26 @@ public class Habs extends Heuristic {
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
      */
-    private void generate_constant_supporter(ArrayList<NumEffect> allConstantEffects, String name, GroundAction gr, NumEffect effectOnCost) {
-        GroundAction sup = new GroundAction(name + " constant ");
+    private void addConstantSubaction(ArrayList<NumEffect> allConstantEffects, String name, GroundAction gr, NumEffect effectOnCost) {
+        GroundAction sup = new GroundAction(name);
 
         // add preconditions
         sup.setPreconditions(gr.getPreconditions());
 
-        // add effect
+        // add constant numeric effect
         for (NumEffect effect : allConstantEffects) {
             sup.getNumericEffects().sons.add(effect);
         }
-
+        
+        // add propositional effects
+        sup.setAddList(gr.getAddList());
+        sup.setDelList(gr.getDelList());
+        
+        // add effect on metric
         if (effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
         }
-
-        supporters.add(sup);
-    }
-
-    private void generate_propositional_action(String name, Conditions cond, GroundAction gr) {
-        GroundAction sup = new GroundAction(name);
-        sup.setPreconditions(cond);
-        sup.setAddList(gr.getAddList());
-        sup.setDelList(gr.getDelList());
-
+        
         supporters.add(sup);
     }
 
