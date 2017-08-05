@@ -316,12 +316,6 @@ public class Habs extends Heuristic {
         
 //        System.exit(0);
         
-//        for(GroundAction gr : habs.A){
-//            System.out.println("Supporter: " + gr.counter + " " + gr.toPDDL());
-//            System.out.println();
-//        }
-//        System.exit(0);
-        
 //        for(Map.Entry<Integer, LinkedHashSet<Comparison>> a : habs.possible_achievers.entrySet()){
 //            System.out.print("Action: " + a.getKey() + " achieves: ");
 //            for (Conditions c : a.getValue()){
