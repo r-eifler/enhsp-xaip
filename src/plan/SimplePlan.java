@@ -2434,7 +2434,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
-        while(current.functionValue(new NumFluent("time_elapsed")).getNumber()<time) {
+        while(current.functionValue(current.getTime()).getNumber()<time) {
             
             if (print_trace) {
                 add_state_to_json(nf_trace, current);
@@ -2443,7 +2443,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //            System.out.println("StartTime:"+start_time);
             GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
-            waiting.add_time_effects(delta);
+            waiting.add_time_effects(current.getTime(),delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;

@@ -57,6 +57,12 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.logging.Logger.getLogger;
 import problem.GroundEvent;
 import problem.GroundProcess;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
+import static java.util.logging.Logger.getLogger;
 
 /**
  *

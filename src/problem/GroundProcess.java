@@ -210,9 +210,10 @@ public class GroundProcess extends GroundAction implements Comparable {
     
     }
 
-    public void add_time_effects(float delta) {
+    public void add_time_effects(NumFluent time_nf,float delta) {
+        
         NumEffect time = new NumEffect("increase");
-        time.setFluentAffected(new NumFluent("time_elapsed"));
+        time.setFluentAffected(time_nf);
         time.setRight(new PDDLNumber(delta));
         time.getRight().normalize();
         this.numericEffects.sons.add(time);

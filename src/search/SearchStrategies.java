@@ -182,7 +182,7 @@ public class SearchStrategies {
             long start = System.currentTimeMillis();
             Float d = getHeuristic().compute_estimate(successor_state);
             heuristic_time += System.currentTimeMillis() - start;
-            if (d != Float.MAX_VALUE) {
+            if (d != Float.MAX_VALUE && (d+succ_g) < this.depth_limit) {
                 SearchNode new_node = null;
                 if (action_s instanceof Collection) {
                     new_node = new SearchNode(successor_state, (ArrayList<GroundAction>) action_s, current_node, succ_g, d, this.json_rep_saving, this.gw, this.hw);
@@ -234,7 +234,7 @@ public class SearchStrategies {
                     ev1.time = delta1;
                     ret.add(ev1);
                     if (debug == 111) {
-                        System.out.println("Event Applied (" + delta1 + s.getNumericFluent(s.getTime()) + "): " + ev);
+                        System.out.println("Event Applied (" + delta1 + s.findCorrespondenceIfAny(s.getTime()) + "): " + ev);
                     }
                 }
             }
@@ -512,10 +512,14 @@ public class SearchStrategies {
                     
 
                 }
-                if (!optimality && (current_value > current_node.h_n || current_g < current_node.g_n)) {
+                if (!optimality && current_value > current_node.h_n ) {
                     System.out.println(" g(n)= " + current_node.g_n + " h(n)=" + current_node.h_n);
                     current_value = current_node.h_n;
                     current_g = current_node.g_n;
+                }
+                
+                if (debug == 20 && nodes_expanded % 5000 ==0){
+                    System.out.println("Expanded Nodes / sec:"+(new Float(nodes_expanded)*1000.0/((System.currentTimeMillis() - start_global))));
                 }
 
                 nodes_expanded++;
@@ -827,7 +831,7 @@ public class SearchStrategies {
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
-                waiting.add_time_effects(delta);
+                waiting.add_time_effects(temp.getTime(),delta);
                 waiting.time = delta;//this is the waiting time associated with this step
                 for (GroundAction act : this.reachable_processes) {
                     if (act instanceof GroundProcess) {
@@ -835,7 +839,7 @@ public class SearchStrategies {
                         if (gp.isActive(temp_temp)) {
                             //System.out.println(gp.toEcoString());
                             if (debug == 111) {
-                                System.out.println("Process Applied (" + i + temp_temp.getNumericFluent(temp_temp.getTime()) + "): " + gp);
+                                System.out.println("Process Applied (" + i + temp_temp.findCorrespondenceIfAny(temp_temp.getTime()) + "): " + gp);
                             }
                             AndCond precondition = (AndCond) waiting.getPreconditions();
                             precondition.addConditions(gp.getPreconditions());

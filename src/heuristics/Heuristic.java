@@ -122,7 +122,7 @@ public abstract class Heuristic {
     protected HashMap<Conditions, Integer> integer_ref;
     public boolean helpful_actions_computation = false;
     protected int total_number_of_actions;
-    public Boolean weak_helpful_actions_pruning = false;
+    public Boolean weak_helpful_actions_pruning = true;
     public boolean only_mutual_exclusion_processes = false;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {

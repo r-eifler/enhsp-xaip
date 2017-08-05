@@ -442,6 +442,16 @@ public class h1 extends Uniform_cost_search_H1 {
             if (cost != 0) {
                 GroundAction gr = this.established_achiever.get(c.getCounter());
                 this.update_relaxed_plan(relaxed_plan, gr, this.established_local_cost.get(c.getCounter()));
+                if (this.is_complex.get(c.getCounter()) || weak_helpful_actions_pruning) {
+                    if (this.all_achievers.get(c.getCounter()) != null) {
+                        //System.out.println("Getting all the achievers as helpful actions..");
+                        for (GroundAction gr2 : this.all_achievers.get(c.getCounter())) {
+                            if (this.action_dist.get(gr2.counter) == 0) {
+                                this.helpful_actions.add(gr2);
+                            }
+                        }
+                    }
+                }
                 if (this.action_dist.get(gr.counter) == 0) {
                     this.helpful_actions.add(gr);
                 } else {
@@ -477,6 +487,7 @@ public class h1 extends Uniform_cost_search_H1 {
         if (this.relaxed_plan_extraction) {
             compute_relaxed_plan();
         } else if (this.helpful_actions_computation) {
+            //System.out.println("Computing helpful actions");
             this.compute_helpful_actions();
         }
 
@@ -489,8 +500,10 @@ public class h1 extends Uniform_cost_search_H1 {
                     continue;
                 }
 //                if (o != null) {
+                //System.out.println("Helpful actions extraction");
                 if (this.is_complex.get(o.getCounter()) || weak_helpful_actions_pruning) {
                     if (this.all_achievers.get(o.getCounter()) != null) {
+                        //System.out.println("Getting all the achievers as helpful actions..");
                         for (GroundAction gr : this.all_achievers.get(o.getCounter())) {
                             if (this.action_dist.get(gr.counter) == 0) {
                                 this.helpful_actions.add(gr);

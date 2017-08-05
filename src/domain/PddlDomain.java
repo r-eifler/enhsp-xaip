@@ -47,6 +47,7 @@
  */
 package domain;
 
+import conditions.ForAll;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
@@ -591,9 +592,10 @@ public final class PddlDomain extends Object {
                     equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
                 }
                 return equality;
+            case PddlParser.FORALL_GD:
+                ForAll forall = new ForAll();
             case PddlParser.IMPLY_GD:
-                System.out.println("Implication:" + infoAction.getText());
-
+                System.out.println("Implication not supported yet:" + infoAction.getText());
                 return null;
             //Create an equality structure for comparing Objects
             default:
