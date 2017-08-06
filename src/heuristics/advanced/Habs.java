@@ -79,6 +79,49 @@ public class Habs extends Heuristic {
 
         return ret;
     }
+    
+        
+    /**
+     * <p>
+     * 
+     * <p>
+     */
+    private void generate_subactions(State s) {
+        RelState rs = getRelaxedGoal(A, G, s);
+        NumEffect effectOnCost = null;
+
+        System.out.println("Generating subactions.");
+        
+        // a holder for constant numeric effects
+        ArrayList<NumEffect> allConstantEffects = new ArrayList();
+
+        for (GroundAction gr : reachable) {
+            allConstantEffects.clear();
+            
+            for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
+                if (effect.getFluentAffected().getName().equals("total-cost")) {
+                    effectOnCost = (NumEffect) effect.clone();
+                    continue;
+                }
+                // this is assuming no non-linear effects at the moment.
+                if (!effect.getRight().rhsFluents().isEmpty()) {
+                    addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs);
+                } else { // constant numeric effects
+                    allConstantEffects.add(effect);
+                }
+            }
+            
+            // aggregate constant numeric effects and propositional effects into one "constant subaction".
+            if (!allConstantEffects.isEmpty() 
+                    || (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) 
+                    || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
+                addConstantSubaction(gr.toFileCompliant() + " const", gr, allConstantEffects, effectOnCost);
+            }
+        }
+
+        System.out.println("Generating subactions finished.");
+        System.out.println("|Sup + goal|: " + supporters.size());
+    }
 
     private RelState getRelaxedGoal(Set<GroundAction> A, Conditions G, State s) {
         Aibr aibr_handle = new Aibr(G, A);
@@ -105,52 +148,6 @@ public class Habs extends Heuristic {
             default:
                 return null;
         }
-    }
-    
-    /**
-     * <p>
-     * 
-     * <p>
-     */
-    private void generate_subactions(State s) {
-        RelState rs = getRelaxedGoal(A, G, s);
-        NumEffect effectOnCost = null;
-
-        System.out.println("Generating subactions.");
-
-        ArrayList<NumEffect> allConstantEffects = new ArrayList();
-
-        for (GroundAction gr : reachable) {
-            for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                if (effect.getFluentAffected().getName().equals("total-cost")) {
-                    effectOnCost = (NumEffect) effect.clone();
-                }
-            }
-
-            allConstantEffects.clear();
-            if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-                for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                    if (effect.getFluentAffected().getName().equals("total-cost")) {
-                        continue;
-                    }
-                    // this is assuming no non-linear effects at the moment.
-                    if (!effect.getRight().rhsFluents().isEmpty()) {
-                        addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs);
-                    } else { // constant numeric effects
-                        allConstantEffects.add(effect);
-                    }
-                }
-            }
-            
-            if (!allConstantEffects.isEmpty() 
-                    || (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) 
-                    || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
-                addConstantSubaction(allConstantEffects, gr.toFileCompliant() + " const", gr, effectOnCost);
-            }
-        }
-
-        System.out.println("Generating subactions finished.");
-        System.out.println("|Sup + goal|: " + supporters.size());
     }
 
     /**
@@ -308,14 +305,12 @@ public class Habs extends Heuristic {
 
     /**
      * <p>
-     * Add supporters for constant numeric effect. Keep the right-hand side as
-     * it is.
      *
      * @param effect constant effect to generate supporters for.
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
      */
-    private void addConstantSubaction(ArrayList<NumEffect> allConstantEffects, String name, GroundAction gr, NumEffect effectOnCost) {
+    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost) {
         GroundAction sup = new GroundAction(name);
 
         // add preconditions
@@ -330,7 +325,7 @@ public class Habs extends Heuristic {
         sup.setAddList(gr.getAddList());
         sup.setDelList(gr.getDelList());
         
-//         add effect on metric
+        // add effect on metric
         if (COST_SENSITIVE && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
         }
