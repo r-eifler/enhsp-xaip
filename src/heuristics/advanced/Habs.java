@@ -98,16 +98,18 @@ public class Habs extends Heuristic {
         for (GroundAction gr : reachable) {
             allConstantEffects.clear();
             
-            for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-                if (effect.getFluentAffected().getName().equals("total-cost")) {
-                    effectOnCost = (NumEffect) effect.clone();
-                    continue;
-                }
-                // this is assuming no non-linear effects at the moment.
-                if (!effect.getRight().rhsFluents().isEmpty()) {
-                    addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs);
-                } else { // constant numeric effects
-                    allConstantEffects.add(effect);
+            if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
+                    if (effect.getFluentAffected().getName().equals("total-cost")) {
+                        effectOnCost = (NumEffect) effect.clone();
+                        continue;
+                    }
+                    // this is assuming no non-linear effects at the moment.
+                    if (!effect.getRight().rhsFluents().isEmpty()) {
+                        addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs);
+                    } else { // constant numeric effects
+                        allConstantEffects.add(effect);
+                    }
                 }
             }
             
