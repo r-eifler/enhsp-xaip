@@ -2173,7 +2173,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-            gr.setAction_cost(current);
+            gr.setAction_cost(current,this.pp.getMetric());
+            
             this.cost += gr.getAction_cost();
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                 System.out.println("Global Constraint is not satisfied:" + globalConstraints);

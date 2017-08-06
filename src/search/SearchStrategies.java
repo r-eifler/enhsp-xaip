@@ -164,9 +164,7 @@ public class SearchStrategies {
         set_reachable_actions(problem);
         set_reachable_processes_events(problem);
 
-        System.out.println("Reachable Actions:" + reachable_actions.size());
-        System.out.println("Reachable Processes:" + reachable_processes.size());
-        System.out.println("Reachable Events:" + reachable_events.size());
+        System.out.println("Actions used at init:" + reachable_actions.size());
 
     }
 

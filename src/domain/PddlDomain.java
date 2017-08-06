@@ -51,6 +51,7 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
+import conditions.Existential;
 import conditions.NotCond;
 import conditions.NumFluentValue;
 import conditions.OrCond;
@@ -629,10 +630,51 @@ public final class PddlDomain extends Object {
                             break;
 
                     }
-                    
 
                 }
                 return forall;
+            case PddlParser.EXISTS_GD:
+                Existential exist = new Existential();
+
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Tree child = infoAction.getChild(i);
+                    switch (child.getType()) {
+                        case PddlParser.VARIABLE:
+                            if (child.getChild(0) == null) {
+                                break;
+                            }
+                            Type t = new Type(child.getChild(0).getText());
+                            boolean found = false;
+                            for (Object o : this.getTypes()) {
+                                if (t.equals(o)) {
+                                    t = (Type) o;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                                System.exit(-1);
+                            } else {
+                                exist.addParameter(new Variable(child.getText(), t));
+                            }
+                            break;
+                        case PddlParser.PRED_HEAD:
+                            //at this point I should have collected all the parameters for grounding
+                            //the variable into constants
+                            SchemaParameters aug_par_table = new SchemaParameters();
+                            aug_par_table.addAll(parTable);
+                            aug_par_table.addAll(exist.getParameters());
+                            Conditions ret_val = createPreconditions(child, aug_par_table);
+                            if (ret_val != null) {
+                                exist.addConditions(ret_val);
+                            }
+                            break;
+
+                    }
+
+                }
+                return exist;
             case PddlParser.IMPLY_GD:
                 System.out.println("Implication not supported yet:" + infoAction.getText());
                 return null;

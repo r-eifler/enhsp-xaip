@@ -649,6 +649,23 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
+    public void set_cost_from_metric(){
+        Iterator it = getActions().iterator();
+        
+        //System.out.println("prova");
+//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
+        while (it.hasNext()) {
+            GroundAction act = (GroundAction) it.next();
+            if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
+                act.setAction_cost(init, this.getMetric());
+            } else {
+                act.setAction_cost(init);
+            }
+        }
+
+
+    }
+    
     public void simplifications_action_processes_constraints() throws Exception {
         Iterator it = getActions().iterator();
         
@@ -665,7 +682,7 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            } else if (this.getMetric() != null && action_cost_from_metric) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
+            } else if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
                 act.setAction_cost(init, this.getMetric());
             } else {
                 act.setAction_cost(init);
@@ -864,6 +881,20 @@ public class EPddlProblem extends PddlProblem {
 
     private void add_possible_numeric_fluents_from_assignments() {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @return the action_cost_from_metric
+     */
+    public boolean isAction_cost_from_metric() {
+        return action_cost_from_metric;
+    }
+
+    /**
+     * @param action_cost_from_metric the action_cost_from_metric to set
+     */
+    public void setAction_cost_from_metric(boolean action_cost_from_metric) {
+        this.action_cost_from_metric = action_cost_from_metric;
     }
 
 }
