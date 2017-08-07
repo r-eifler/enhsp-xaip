@@ -36,14 +36,14 @@ import conditions.NotCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumEffect;
-import expressions.NumFluent;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.PddlProblem;
+import propositionalFactory.grounder;
 
 /**
  *
@@ -85,7 +85,7 @@ public class ActionSchema extends GenericActionType {
         return ret + ")";
     }
 
-    public GroundAction ground(Map substitution) {
+    public GroundAction ground(Map substitution,PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -95,11 +95,11 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution));
-        ret.setAddList(this.addList.ground(substitution));
-        ret.setDelList(this.delList.ground(substitution));
-        ret.setPreconditions(this.preconditions.ground(substitution));
-        ret.cond_effects = this.cond_effects.ground(substitution);
+        ret.setNumericEffects(this.numericEffects.ground(substitution,po));
+        ret.setAddList(this.addList.ground(substitution,po));
+        ret.setDelList(this.delList.ground(substitution,po));
+        ret.setPreconditions(this.preconditions.ground(substitution,po));
+        ret.cond_effects = this.cond_effects.ground(substitution,po);
 
 
 
@@ -124,35 +124,29 @@ public class ActionSchema extends GenericActionType {
         return ret;
     }
 
-    public GroundAction ground(ParametersAsTerms par) {
+    public GroundAction ground(ParametersAsTerms par,PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         int i = 0;
-
-        Map substitution = new HashMap();
-        for (Object o : parameters) {
-            Variable el = (Variable) o;
-            substitution.put(el, par.get(i));
-            PDDLObject t = (PDDLObject) substitution.get(el);
-            i++;
-        }
+        grounder g = new grounder();
+        Map substitution = g.obtain_sub_from_instance(parameters, par);
         ret.setParameters(par);
 
 //        System.out.println(this);
         if (numericEffects!= null || !numericEffects.sons.isEmpty()){
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution));
+            ret.setNumericEffects(this.numericEffects.ground(substitution,po));
         }if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution));
+            ret.setAddList(this.addList.ground(substitution,po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution));
+            ret.setDelList(this.delList.ground(substitution,po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution));
+            ret.setPreconditions(this.preconditions.ground(substitution,po));
         }
         if (cond_effects != null) {
 //            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution);
+            ret.cond_effects = this.cond_effects.ground(substitution,po);
 //            System.out.println("DEBUG: after:"+cond_effects);
        
         }

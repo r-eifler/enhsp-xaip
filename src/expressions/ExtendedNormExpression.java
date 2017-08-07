@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -385,7 +386,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -393,7 +394,7 @@ public class ExtendedNormExpression extends Expression {
 //            System.out.println(substitution);
 //            System.out.println(a);
             if (a.f != null) {
-                newA.f = (NumFluent) a.f.ground(substitution);
+                newA.f = (NumFluent) a.f.ground(substitution,po);
             }
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
@@ -418,7 +419,7 @@ public class ExtendedNormExpression extends Expression {
     @Override
     public PDDLNumber eval(State s) {
         //PDDLNumber ret = new PDDLNumber(0);
-        Float ret = 0.00000f;
+        float ret = 0f;
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
@@ -427,6 +428,7 @@ public class ExtendedNormExpression extends Expression {
                 ret+= a.bin.eval(s).getNumber();
             } else if (a.f != null) {
                 PDDLNumber n = s.functionValue(a.f);
+                
                 if (n == null) {
                     return null;
                 }
@@ -457,10 +459,11 @@ public class ExtendedNormExpression extends Expression {
 //                }
                 
                 if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
-                    if (a.f.eval(s).getNumber().isNaN())
+                    if (s.static_function_value(a.f).getNumber().isNaN())
                         return null;
-                    c = new PDDLNumber(c.getNumber() + a.f.eval(s).getNumber() * a.n.getNumber());
+                    c = new PDDLNumber(c.getNumber() + s.static_function_value(a.f).getNumber() * a.n.getNumber());
                 } else {
+                    a.f = s.findCorrespondenceIfAny(a.f);
                     ret.summations.add(a);
                 }
             } else {

@@ -28,11 +28,10 @@
 package domain;
 
 import conditions.Conditions;
-import conditions.PDDLObject;
 import java.util.HashMap;
 import java.util.Map;
 import problem.GlobalConstraint;
-import problem.GroundAction;
+import problem.PDDLObjects;
 
 /**
  *
@@ -54,7 +53,7 @@ public class SchemaGlobalConstraint {
         return "SchemaGlobalConstraint{" + "parameters=" + parameters + ", condition=" + condition + ", name=" + name + '}';
     }
 
-    public GlobalConstraint ground(ParametersAsTerms par) {
+    public GlobalConstraint ground(ParametersAsTerms par,PDDLObjects po) {
         GlobalConstraint ret = new GlobalConstraint(this.name);
         int i = 0;
 
@@ -67,7 +66,7 @@ public class SchemaGlobalConstraint {
         ret.grn_parameters = par;
 
         if (this.condition != null) {
-            ret.condition = this.condition.ground(substitution);
+            ret.condition = this.condition.ground(substitution,po);
         }
 
         return ret;

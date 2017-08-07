@@ -29,6 +29,7 @@
 package expressions;
 
 import conditions.Conditions;
+import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;
@@ -36,9 +37,11 @@ import domain.Variable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -123,10 +126,10 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a new Grounded NumEffect object
      */
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         NumEffect ret = new NumEffect(this.operator);
-        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution);
-        ret.right = this.right.ground(substitution);
+        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution,po);
+        ret.right = this.right.ground(substitution,po);
         ret.grounded = true;
         return ret;
     }
@@ -233,7 +236,13 @@ public class NumEffect extends Expression implements PostCondition {
             }
         }
 //        System.out.println(this);
-        this.setFluentAffected(s.getNumericFluent(this.getFluentAffected()));
+        NumFluent nf = s.getNumericFluent(this.getFluentAffected());
+        if (nf!=null)
+            this.setFluentAffected(nf);
+        else{//this can become a state variable; so conservatively keeps track of it
+            //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
+            s.getNum_fluents_value().put(fluentAffected,null);
+        }
         return this;
     }
 
@@ -603,5 +612,12 @@ public class NumEffect extends Expression implements PostCondition {
             final Variable var = (Variable)o;
             vars.add(var);
         }
+    }
+    
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        Set<NumFluent> ret = new HashSet();
+        ret.add(fluentAffected);
+        return ret;
     }
 }

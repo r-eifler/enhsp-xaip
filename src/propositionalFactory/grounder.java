@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import problem.GlobalConstraint;
 import problem.GroundAction;
@@ -51,9 +52,9 @@ import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PDDLObjects;
 
-public class Instantiator {
+public class grounder {
 
-    public Instantiator() {
+    public grounder() {
         super();
     }
 
@@ -80,6 +81,11 @@ public class Instantiator {
         int n_parametri = constr.parameters.size();
 
         return sub(param, n_parametri, po);
+
+    }
+    
+    public Set Substitutions(SchemaParameters param, PDDLObjects po) throws Exception {
+        return sub(param, param.size(), po);
 
     }
 
@@ -210,21 +216,24 @@ public class Instantiator {
         Set ret = new LinkedHashSet();
 
         Set combo = Substitutions(a, po);
+        if (a.getPar().isEmpty())
+            combo.add(new ParametersAsTerms());
         for (Object o : combo) {
 
             if (o instanceof ParametersAsTerms) {
                 if (a instanceof EventSchema) {
                     EventSchema b = (EventSchema)a;
-                    GroundEvent toAdd = b.ground((ParametersAsTerms) o);
+                    GroundEvent toAdd = b.ground((ParametersAsTerms) o,po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 } else {
-                    GroundAction toAdd = a.ground((ParametersAsTerms) o);
+                    GroundAction toAdd = a.ground((ParametersAsTerms) o,po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 }
             }
         }
+        
 
         return ret;
 
@@ -236,7 +245,7 @@ public class Instantiator {
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
-                GroundProcess toAdd = a.ground((ParametersAsTerms) o);
+                GroundProcess toAdd = a.ground((ParametersAsTerms) o,po);
                 toAdd.generateAffectedNumFluents();
                 ret.add(toAdd);
             }
@@ -252,7 +261,7 @@ public class Instantiator {
         Set combo = Substitutions(constr, po);
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
-                GlobalConstraint toAdd = constr.ground((ParametersAsTerms) o);
+                GlobalConstraint toAdd = constr.ground((ParametersAsTerms) o,po);
                 ret.add(toAdd);
             }
         }
@@ -260,6 +269,7 @@ public class Instantiator {
         return ret;
 
     }
+
 
     public static Set sub(ArrayList param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
@@ -404,5 +414,19 @@ public class Instantiator {
 
         return combo;
     }
-
+    
+    
+    public Map obtain_sub_from_instance(SchemaParameters parameters, ParametersAsTerms par){
+    
+        int i = 0;
+        Map substitution = new HashMap();
+        for (Object o : parameters) {
+            Variable el = (Variable) o;
+            substitution.put(el, par.get(i));
+            PDDLObject t = (PDDLObject) substitution.get(el);
+            i++;
+        }
+        return substitution;
+        
+    }
 }

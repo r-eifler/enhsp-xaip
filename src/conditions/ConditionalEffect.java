@@ -1,3 +1,23 @@
+
+/**
+ * *******************************************************************
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,9 +32,11 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -63,19 +85,19 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         return this;
     }
 
-    public ConditionalEffect ground(Map<Variable,PDDLObject> substitution) {
+    public ConditionalEffect ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         ConditionalEffect ret = new ConditionalEffect();
-        ret.activation_condition = this.activation_condition.ground(substitution);
+        ret.activation_condition = this.activation_condition.ground(substitution,po);
         
         if (this.effect instanceof Conditions){
             Conditions con = (Conditions)this.effect;
-            ret.effect = (PostCondition) con.ground(substitution);
+            ret.effect = (PostCondition) con.ground(substitution,po);
         }else if (this.effect instanceof ConditionalEffect){
             ConditionalEffect sub = (ConditionalEffect)this.effect;
-            ret.effect = sub.ground(substitution);
+            ret.effect = sub.ground(substitution,po);
         }else if (this.effect instanceof NumEffect){
             NumEffect ne = (NumEffect)this.effect;
-            ret.effect = (NumEffect)ne.ground(substitution);
+            ret.effect = (NumEffect)ne.ground(substitution,po);
         }
         ret.grounded = true;
         return ret;    
@@ -303,7 +325,9 @@ public class ConditionalEffect extends Conditions implements PostCondition{
 
     @Override
     public Conditions push_not_to_terminals() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.activation_condition = this.activation_condition.push_not_to_terminals();
+        return this;
+                //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -314,5 +338,10 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public Conditions introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        return this.effect.affectedNumericFluents();
     }
 }

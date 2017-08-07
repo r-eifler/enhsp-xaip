@@ -1,70 +1,92 @@
-
-/**
- * *******************************************************************
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2017 enrico.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
+import domain.ParametersAsTerms;
+import domain.SchemaParameters;
 import domain.Variable;
+import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
+import propositionalFactory.grounder;
 
 /**
  *
  * @author enrico
  */
-public class double_implication extends Conditions{
-    
-    Conditions left;
-    Conditions right;
+public class Existential extends Conditions {
+    private SchemaParameters parameters;
 
-    public double_implication(Conditions left_input, Conditions right_input){
-        this.left = left_input;
-        this.right = right_input;
+    public Existential(){
+        this.parameters = new SchemaParameters();
+        this.sons = new LinkedHashSet();
     }
+
+
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Existential)) {
+            return false;
+        }
+
+        final Existential other = (Existential) obj;
+        return other.sons.equals(this.sons) && this.parameters.equals(other.parameters);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + Objects.hashCode(this.parameters);
+        hash = 83 * hash + Objects.hashCode(this.sons);
+        return hash;
+    }
+
+   
 
     @Override
     public Conditions regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Conditions ground(Map substitution, int c) {
@@ -128,13 +150,33 @@ public class double_implication extends Conditions{
 
     @Override
     public String toSmtVariableString(int i) {
-        return "( = ("+this.left.toSmtVariableString(i)+") "+"("+this.right.toSmtVariableString(i)+")";
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Set<NumFluent> getInvolvedFluents() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        Set<NumFluent> ret = new HashSet();
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                if (o instanceof NumFluent) {
+                    ret.add((NumFluent) o);
+                } else if (o instanceof Conditions) {
+                    Conditions c = (Conditions) o;
+                    if (c.getInvolvedFluents() != null) {
+                        ret.addAll(c.getInvolvedFluents());
+                    }
+                } else if (o instanceof NumEffect) {
+                    NumEffect c = (NumEffect) o;
+                    if (c.getInvolvedFluents() != null) {
+                        ret.addAll(c.getInvolvedFluents());
+                    }
+                } else {
+                    System.out.println("Error in getting involved fluents");
+                }
+            }
+        }
+
+        return ret;    }
 
     @Override
     public Conditions transform_equality() {
@@ -147,23 +189,13 @@ public class double_implication extends Conditions{
     }
 
     @Override
-    public int hashCode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean equals(Object obj) {
+    public void storeInvolvedVariables(Collection<Variable> vars) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("(exist "+this.parameters.toString()+" "+this.sons.toString());
     }
 
     @Override
@@ -188,8 +220,19 @@ public class double_implication extends Conditions{
 
     @Override
     public Conditions push_not_to_terminals() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        if (this.sons == null) {
+            return this;
+        }
+        Existential res = new Existential();
+        res.parameters = this.parameters;
+        for (Conditions c : (Collection<Conditions>) this.sons) {
+            Conditions c1 = c.push_not_to_terminals();
+            if (c1 instanceof OrCond)
+                res.sons.addAll(((OrCond) c1).sons);
+            else
+                res.addConditions(c1);
+        }
+        return res;    }
 
     @Override
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
@@ -200,4 +243,49 @@ public class double_implication extends Conditions{
     public Conditions introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    public void addParameter(Variable variable) {
+        this.getParameters().add(variable);
+    }
+
+    /**
+     * @return the parameters
+     */
+    public SchemaParameters getParameters() {
+        return parameters;
+    }
+
+    /**
+     * @param parameters the parameters to set
+     */
+    public void setParameters(SchemaParameters parameters) {
+        this.parameters = parameters;
+    }
+
+    @Override
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
+        try {
+            grounder g = new grounder();
+            Set<ParametersAsTerms> combo = g.Substitutions(this.parameters,objects);
+            OrCond or = new OrCond();
+            for (ParametersAsTerms ele : combo){
+                 Map sub = g.obtain_sub_from_instance(parameters, ele);
+                 sub.putAll(substitution);
+                 Conditions son = (Conditions) this.sons.iterator().next();
+                 or.addConditions(son.ground(sub, objects));
+            }
+            return or;
+            
+        } catch (Exception ex) {
+            Logger.getLogger(Existential.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
+    }
+
+    @Override
+    public Conditions weakEval(State s, HashMap invF) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -75,7 +76,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         return new PDDLNumber(getNumber());
     }
     

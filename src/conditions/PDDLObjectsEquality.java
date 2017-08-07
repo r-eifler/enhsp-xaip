@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -72,7 +73,7 @@ public class PDDLObjectsEquality extends Terminal {
      * @return a grounded copy of the condition
      */
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         // TODO: Couldn't one of the objects be already grounded?
         
         PDDLObjectsEquality ret = null;
@@ -92,7 +93,7 @@ public class PDDLObjectsEquality extends Terminal {
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }
