@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -46,6 +47,8 @@ import problem.State;
  */
 public class NumFluent extends Expression {
 
+
+
     private String name;
     private ArrayList<ActionParameter> terms;
     private String beforeReformulation;
@@ -53,6 +56,8 @@ public class NumFluent extends Expression {
     private String terms_as_string;
     Integer hash_code;
     public int index;
+    private Integer id;
+    private Integer actual_hash;
 
     @Override
     public boolean equals(Object obj) {
@@ -61,33 +66,12 @@ public class NumFluent extends Expression {
             
         NumFluent objF = (NumFluent) obj;
 
-        if (objF.getName().equalsIgnoreCase(this.getName())) {
-            // TODO: Why not simply write if (!objF.terms.equals(this.terms)) { return false; }
-            if (objF.terms.size() != this.terms.size()) {
-                return false;
-            }
-            for (int i = 0; i < objF.terms.size(); i++) {
-                if (objF.terms.get(i) instanceof PDDLObject) {
-                    PDDLObject ogg = (PDDLObject) objF.terms.get(i);
-                    PDDLObject ogg2 = (PDDLObject) this.terms.get(i);
-                    if (!(ogg.equals(ogg2))) {
-                        return false;
-                    }
-                } else if (objF.terms.get(i) instanceof Variable) {
-                    Variable ogg = (Variable) objF.terms.get(i);
-                    Variable ogg2 = (Variable) this.terms.get(i);
-                    if (!(ogg.equals(ogg2))) {
-                        return false;
-                    }
-                }
-            }
-        } else {
-            return false;
-        }
-        this.name = objF.getName();
-        this.terms = objF.getTerms();
 
-        return true;
+        
+        if (objF.getName().equalsIgnoreCase(this.getName()) && this.getTermsAsString().equalsIgnoreCase(objF.getTermsAsString())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -101,13 +85,15 @@ public class NumFluent extends Expression {
 //        }
 //
 //        return this.hash_code;
-        int hash = 5;
-        
-        hash = 97 * hash + Objects.hashCode(this.name);
-        if (terms_as_string == null)
-            terms_as_string = this.terms.toString();
-        hash = 97 * hash + Objects.hashCode(this.terms_as_string);
-        return hash;
+        if (actual_hash == null){
+            actual_hash = 5;
+
+            actual_hash = 97 * actual_hash + Objects.hashCode(this.name);
+            if (terms_as_string == null)
+                terms_as_string = this.terms.toString();
+            actual_hash = 97 * actual_hash + Objects.hashCode(this.terms_as_string);
+        }
+        return actual_hash;
     }
 
 //    @Override
@@ -150,7 +136,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public NumFluent ground(Map<Variable, PDDLObject> substitution) {
+    public NumFluent ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
         NumFluent ret = new NumFluent(getName());
         ret.index = this.index;
         for (final ActionParameter param : terms) {
@@ -263,35 +249,35 @@ public class NumFluent extends Expression {
         
         if (this.name.equals("#t")) {
             //return this;
-            return s.functionValue(this);
+            return s.static_function_value(this);
         }
 
         if ((invF.get(this) == null)) {//this means that the fluent can be in principle assigned
-            return s.functionValue(this);
+            return s.static_function_value(this);
         }
         if (invF.get(this) != null) {
             if ((Boolean) invF.get(this)) {
                 if (invF.get(this.getName()) == null) {
-                    return s.functionValue(this);
+                    return s.static_function_value(this);
                 }
                 if ((Boolean) invF.get(this.getName())) {
-                    return s.functionValue(this);
+                    return s.static_function_value(this);
                 }
-                return s.getNumericFluent(this);
+                return s.findCorrespondenceIfAny(this);
 
             } else {
-                return s.getNumericFluent(this);
+                return s.findCorrespondenceIfAny(this);
             }
         }
         if (invF.get(this.getName()) != null) {
             if ((Boolean) invF.get(this.getName())) {
-                return s.functionValue(this);
+                return s.static_function_value(this);
             } else {
-                return s.getNumericFluent(this);
+                return s.findCorrespondenceIfAny(this);
 
             }
         }
-        return s.getNumericFluent(this);
+        return s.findCorrespondenceIfAny(this);
 
     }
 
@@ -452,9 +438,9 @@ public class NumFluent extends Expression {
     public boolean has_to_be_tracked() {
         if (has_to_be_tracked == null) {
             if (this.getName().equals("total-cost")) {
-                has_to_be_tracked = Boolean.FALSE;
+                setHas_to_be_tracked(Boolean.FALSE);
             } else {
-                has_to_be_tracked = Boolean.TRUE;
+                setHas_to_be_tracked(Boolean.TRUE);
             }
         }
         return has_to_be_tracked;
@@ -479,5 +465,32 @@ public class NumFluent extends Expression {
             }
         }
         bui.append(")");
+    }
+
+    private String getTermsAsString() {
+        if (terms_as_string == null)
+                terms_as_string = this.terms.toString(); //To change body of generated methods, choose Tools | Templates.
+        return terms_as_string;
+    }
+
+    /**
+     * @return the id
+     */
+    public Integer getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    /**
+     * @param has_to_be_tracked the has_to_be_tracked to set
+     */
+    public void setHas_to_be_tracked(Boolean has_to_be_tracked) {
+        this.has_to_be_tracked = has_to_be_tracked;
     }
 }

@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -77,8 +78,8 @@ public class NotCond extends Terminal implements PostCondition {
     }
     
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution) {
-        final Conditions groundedSon = son.ground(substitution);
+    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+        final Conditions groundedSon = son.ground(substitution,po);
         NotCond ret = new NotCond(groundedSon);
         ret.grounded = true;
         return ret;
@@ -86,7 +87,7 @@ public class NotCond extends Terminal implements PostCondition {
     
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }
@@ -455,6 +456,11 @@ public class NotCond extends Terminal implements PostCondition {
         if (this.son instanceof Predicate)
             return true;
         return false;
+    }
+
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        return new HashSet();
     }
 
 

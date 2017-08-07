@@ -183,7 +183,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             System.out.println("Action not found in the domain theory!!" + actionName);
         }
         //System.out.println(par);
-        GroundAction grAction = action.ground(par);
+        GroundAction grAction = action.ground(par,this.pp.getObjects());
         grAction.generateAffectedNumFluents();
         //grAction.normalizeAndCopy();
         this.add(grAction);
@@ -2173,7 +2173,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-            gr.setAction_cost(current);
+            gr.setAction_cost(current,this.pp.getMetric());
+            
             this.cost += gr.getAction_cost();
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                 System.out.println("Global Constraint is not satisfied:" + globalConstraints);
@@ -2434,7 +2435,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
-        while(current.functionValue(new NumFluent("time_elapsed")).getNumber()<time) {
+        while(current.functionValue(current.getTime()).getNumber()<time) {
             
             if (print_trace) {
                 add_state_to_json(nf_trace, current);
@@ -2443,7 +2444,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //            System.out.println("StartTime:"+start_time);
             GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
-            waiting.add_time_effects(delta);
+            waiting.add_time_effects(current.getTime(),delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
@@ -2457,6 +2458,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
             
             current = waiting.apply(current);
+            this.apply_events(current, reachable_events);
 //            System.out.println(current);    
 //            System.out.println(current);
 //            System.out.println("StartTime:"+start_time);

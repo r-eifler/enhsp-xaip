@@ -676,7 +676,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public boolean simplifyModel(PddlDomain domain, PddlProblem problem) throws Exception {
 
-        HashMap invariantFluents = problem.getVariantFluents();
+        HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
         for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
@@ -1673,7 +1673,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
 
-        HashMap invariantFluents = problem.getVariantFluents();
+        HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
         for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
@@ -2583,16 +2583,17 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
         return or;
     }
-    
-    public Float getContribution(State s_0, Conditions c) {
 
-        if (c instanceof Predicate){
-            if (this.achieve((Predicate)c))
+    public Float getStaticContribution(State s_0, Conditions c) {
+
+        if (c instanceof Predicate) {
+            if (this.achieve((Predicate) c)) {
                 return 1f;
-            else
+            } else {
                 return 0f;
-        }else {
-            return this.getStaticContribution((Comparison)c);
+            }
+        } else {
+            return this.getStaticContribution((Comparison) c);
         }
 
     }
@@ -2673,36 +2674,57 @@ public class GroundAction extends GenericActionType implements Comparable {
         return true;
     }
 
-    void setAction_cost(State init, Metric metric) {
-        NumEffect neff = new NumEffect("increase");
+    public void setAction_cost(State init, Metric metric) {
 
-        neff.setFluentAffected(new NumFluent("total-time"));
-        PDDLNumber n = new PDDLNumber(1.0f);
-        ExtendedNormExpression expr1 = n.normalize();
-        neff.setRight(expr1);
-        //neff.normalize();
-        this.numericEffects.sons.add(neff);
-        this.forcedGenerateAffectedNumFluents();
+        if (metric != null && metric.getMetExpr() != null) {
+            NumEffect neff = new NumEffect("increase");
 
-        ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
-        float cont = expr.eval_affected(init, this);
-        this.getNumericEffects().sons.remove(neff);
-        this.forcedGenerateAffectedNumFluents();
-        if (cont == 0) {
-            this.action_cost = 0f;
-        } else if (metric.getOptimization().equals("maximise")) {
-            if (cont < 0) {
+            neff.setFluentAffected(new NumFluent("total-time"));
+            PDDLNumber n = new PDDLNumber(1.0f);
+            ExtendedNormExpression expr1 = n.normalize();
+            neff.setRight(expr1);
+            //neff.normalize();
+            this.numericEffects.sons.add(neff);
+            this.forcedGenerateAffectedNumFluents();
+            ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
+            float cont = expr.eval_affected(init, this);
+            this.getNumericEffects().sons.remove(neff);
+            this.forcedGenerateAffectedNumFluents();
+            if (cont == 0) {
+                this.action_cost = 0f;
+            } else if (metric.getOptimization().equals("maximise")) {
+                if (cont < 0) {
+                    this.action_cost = cont;
+                } else {
+                    this.action_cost = 0f;
+                }
+            } else if (cont > 0) {
                 this.action_cost = cont;
             } else {
                 this.action_cost = 0f;
             }
-        } else if (cont > 0) {
-            this.action_cost = cont;
         } else {
-            this.action_cost = 0f;
+            this.setAction_cost(init);
         }
 //        System.out.println("DEBUG:"+this);
 //        System.out.println("DEBUG:"+this.action_cost);
+
+    }
+
+    public boolean has_pseudo_numeric_effect_on(Conditions c) {
+        if (c instanceof Predicate) {
+            return false;
+        }
+        Comparison comp = (Comparison) c;
+        for (NumEffect eff : this.getNumericEffectsAsCollection()) {
+            if (eff.isPseudo_num_effect()) {
+                if (comp.getLeft().involve(eff.getFluentAffected())) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
 
     }
 

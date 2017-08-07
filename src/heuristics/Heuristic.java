@@ -1,3 +1,4 @@
+
 /**
  * *******************************************************************
  *
@@ -90,6 +91,8 @@ public abstract class Heuristic {
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
+    
+    public boolean why_not_active = false;
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Conditions, Boolean> new_condition;
     protected int complex_conditions;
@@ -119,6 +122,8 @@ public abstract class Heuristic {
     protected HashMap<Conditions, Integer> integer_ref;
     public boolean helpful_actions_computation = false;
     protected int total_number_of_actions;
+    public Boolean weak_helpful_actions_pruning = true;
+    public boolean only_mutual_exclusion_processes = false;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();

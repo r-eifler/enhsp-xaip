@@ -77,7 +77,7 @@ import org.antlr.runtime.tree.Tree;
 
 import parser.PddlLexer;
 import parser.PddlParser;
-import propositionalFactory.Instantiator;
+import propositionalFactory.grounder;
 
 /**
  *
@@ -728,7 +728,7 @@ public class PddlProblem {
         
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            Instantiator af = new Instantiator();
+            grounder af = new grounder();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
                 if (act.getPar().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
@@ -1060,7 +1060,7 @@ public class PddlProblem {
         this.simplifyActions = simplifyActions;
     }
 
-    public HashMap getVariantFluents() throws Exception {
+    public HashMap getActualFluents() throws Exception {
         if (staticFluents == null) {
             staticFluents = new HashMap();
             if (this.getActions() == null || this.getActions().isEmpty() ) {
@@ -1232,22 +1232,22 @@ public class PddlProblem {
         this.num_fluent_universe = new LinkedHashSet();
         this.predicates_universe = new LinkedHashSet();
         for (Predicate p: predicates){
-            Set<ParametersAsTerms> combos =  Instantiator.sub(p.getTerms(), p.getTerms().size(), objects);
+            Set<ParametersAsTerms> combos =  grounder.sub(p.getTerms(), p.getTerms().size(), objects);
 //            System.out.println("Combo Found:"+combos);
 
             for (ParametersAsTerms ele : combos){
                 HashMap subst = create_subst(ele,p.getTerms());
 //                System.out.println("Current substitution:"+subst);
-                predicates_universe.add((Predicate)p.ground(subst));
+                predicates_universe.add((Predicate)p.ground(subst,this.objects));
             }
             if (p.getTerms().isEmpty())
                 predicates_universe.add(p);
         }
         for (NumFluent nf: functions){
-            Set<ParametersAsTerms> combos =  Instantiator.sub(nf.getTerms(), nf.getTerms().size(), objects);
+            Set<ParametersAsTerms> combos =  grounder.sub(nf.getTerms(), nf.getTerms().size(), objects);
             for (ParametersAsTerms ele : combos){
                 HashMap subst = create_subst(ele,nf.getTerms());
-                num_fluent_universe.add((NumFluent)nf.ground(subst));
+                num_fluent_universe.add((NumFluent)nf.ground(subst,this.objects));
             }
             if (nf.getTerms().isEmpty())
                 num_fluent_universe.add(nf);

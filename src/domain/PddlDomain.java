@@ -19,6 +19,25 @@
  */
 /**
  * *******************************************************************
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
  *
  * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
@@ -27,10 +46,12 @@
  */
 package domain;
 
+import conditions.ForAll;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
 import conditions.Conditions;
+import conditions.Existential;
 import conditions.NotCond;
 import conditions.NumFluentValue;
 import conditions.OrCond;
@@ -56,6 +77,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -118,8 +140,7 @@ public final class PddlDomain extends Object {
         constants = new PDDLObjects();
         SchemaGlobalConstraints = new LinkedHashSet();
         ProcessesSchema = new LinkedHashSet();
-                eventsSchema = new LinkedHashSet();
-
+        eventsSchema = new LinkedHashSet();
 
     }
 
@@ -210,17 +231,22 @@ public final class PddlDomain extends Object {
                 }
             }
         }
+
         for (Object o : p.getInit().getNumericFluents()) {
+
             if (o instanceof NumFluent) {
+
                 NumFluent nf = (NumFluent) o;
+//                System.out.println(nf.getName());
                 for (Object o1 : nf.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator<Type> it = types.iterator();
                     boolean found = false;
                     while (it.hasNext()) {
                         Type ele = it.next();
-                        if (t==null){
-                            System.out.println("Null Object? "+t);
+                        if (t == null) {
+                            System.out.println("Type error; Probably you are using an object in a numeric fluent which is not specified..");
+                            System.out.println("    It happened when dealing with: " + nf);
                             return false;
                         }
                         if (ele.equals(t.getType())) {
@@ -276,11 +302,10 @@ public final class PddlDomain extends Object {
 
         p.setDomain(this);
         p.setValidatedAgainstDomain(true);
-        
+
 //        p.generate_universe_of_variables(this.getPredicates(),this.getFunctions(),this.derived_variables);
 //        System.out.println(p.num_fluent_universe);
 //        System.out.println(p.predicates_universe);
-
         return true;
     }
 
@@ -363,8 +388,9 @@ public final class PddlDomain extends Object {
     public void prettyPrint() {
         System.out.println("Requirements: " + this.Requirements);
         System.out.println("Actions Domain: " + this.ActionsSchema);
-        if (this.ProcessesSchema!=null)
+        if (this.ProcessesSchema != null) {
             System.out.println("Process Domain: " + this.ProcessesSchema);
+        }
         //if (!this.eventsSchema.isEmpty())
         System.out.println("Events Domain: " + this.eventsSchema);
         System.out.println("Predicates: " + this.predicates);
@@ -565,9 +591,92 @@ public final class PddlDomain extends Object {
                     equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
                 }
                 return equality;
-            case PddlParser.IMPLY_GD:
-                System.out.println("Implication:" + infoAction.getText());
+            case PddlParser.FORALL_GD:
+                ForAll forall = new ForAll();
 
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Tree child = infoAction.getChild(i);
+                    switch (child.getType()) {
+                        case PddlParser.VARIABLE:
+                            if (child.getChild(0) == null) {
+                                break;
+                            }
+                            Type t = new Type(child.getChild(0).getText());
+                            boolean found = false;
+                            for (Object o : this.getTypes()) {
+                                if (t.equals(o)) {
+                                    t = (Type) o;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                                System.exit(-1);
+                            } else {
+                                forall.addParameter(new Variable(child.getText(), t));
+                            }
+                            break;
+                        case PddlParser.PRED_HEAD:
+                            //at this point I should have collected all the parameters for grounding
+                            //the variable into constants
+                            SchemaParameters aug_par_table = new SchemaParameters();
+                            aug_par_table.addAll(parTable);
+                            aug_par_table.addAll(forall.getParameters());
+                            Conditions ret_val = createPreconditions(child, aug_par_table);
+                            if (ret_val != null) {
+                                forall.addConditions(ret_val);
+                            }
+                            break;
+
+                    }
+
+                }
+                return forall;
+            case PddlParser.EXISTS_GD:
+                Existential exist = new Existential();
+
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Tree child = infoAction.getChild(i);
+                    switch (child.getType()) {
+                        case PddlParser.VARIABLE:
+                            if (child.getChild(0) == null) {
+                                break;
+                            }
+                            Type t = new Type(child.getChild(0).getText());
+                            boolean found = false;
+                            for (Object o : this.getTypes()) {
+                                if (t.equals(o)) {
+                                    t = (Type) o;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                                System.exit(-1);
+                            } else {
+                                exist.addParameter(new Variable(child.getText(), t));
+                            }
+                            break;
+                        case PddlParser.PRED_HEAD:
+                            //at this point I should have collected all the parameters for grounding
+                            //the variable into constants
+                            SchemaParameters aug_par_table = new SchemaParameters();
+                            aug_par_table.addAll(parTable);
+                            aug_par_table.addAll(exist.getParameters());
+                            Conditions ret_val = createPreconditions(child, aug_par_table);
+                            if (ret_val != null) {
+                                exist.addConditions(ret_val);
+                            }
+                            break;
+
+                    }
+
+                }
+                return exist;
+            case PddlParser.IMPLY_GD:
+                System.out.println("Implication not supported yet:" + infoAction.getText());
                 return null;
             //Create an equality structure for comparing Objects
             default:
@@ -686,9 +795,9 @@ public final class PddlDomain extends Object {
                 }
                 return and;
             case PddlParser.NOT_EFFECT:
-                Conditions ret_val = (Conditions)createPostCondition(parTable,infoAction.getChild(0));
+                Conditions ret_val = (Conditions) createPostCondition(parTable, infoAction.getChild(0));
                 NotCond not = new NotCond(ret_val);
-                
+
                 return not;
             //Crea un and e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di and
@@ -749,9 +858,9 @@ public final class PddlDomain extends Object {
 
     //
     /**
-     * Returns the action with specified name.  
-     * Notice that this method is rather inefficient if there are many actions, 
-     * and that a table that maps names to action schemas could be more effective.  
+     * Returns the action with specified name. Notice that this method is rather
+     * inefficient if there are many actions, and that a table that maps names
+     * to action schemas could be more effective.
      *
      * @param name the name of the action
      * @return an ActionSchema object (if any) with the name in input this
@@ -759,13 +868,13 @@ public final class PddlDomain extends Object {
      * cannot have different actions with the same name
      */
     public ActionSchema getActionByName(String name) {
-        for (final ActionSchema el: ActionsSchema) {
+        for (final ActionSchema el : ActionsSchema) {
             final String elname = el.getName();
             if (elname.equalsIgnoreCase(name)) {
                 return el;
             }
         }
-        
+
         return null;
     }
 
@@ -992,9 +1101,9 @@ public final class PddlDomain extends Object {
                             NotCond nc = (NotCond) o;
                             //System.out.println(nc);
 //                            for (Object o1 : nc.son) {
-                                Predicate p = (Predicate) nc.getSon();
-                                Predicate pDef = this.getPredicates().findAssociated(p);
-                                ret.put(pDef, Boolean.FALSE);
+                            Predicate p = (Predicate) nc.getSon();
+                            Predicate pDef = this.getPredicates().findAssociated(p);
+                            ret.put(pDef, Boolean.FALSE);
 //                            }
 
                         }
@@ -1260,30 +1369,32 @@ public final class PddlDomain extends Object {
     }
 
     private void push_not_at_the_terminals() {
-        for (ActionSchema a: this.ActionsSchema){
+        for (ActionSchema a : this.ActionsSchema) {
             a.push_not_to_terminals();
         }
-        
-        for (ProcessSchema a: this.ProcessesSchema){
+
+        for (ProcessSchema a : this.ProcessesSchema) {
             a.push_not_to_terminals();
         }
-        
-        
+        for (EventSchema a : this.eventsSchema) {
+            a.push_not_to_terminals();
+        }
+
     }
 
-    private void addEvent(Tree c){
+    private void addEvent(Tree c) {
         this.addGenericActionSchemas(c, new EventSchema());
     }
-    
-    private void addGenericActionSchemas(Tree c,ActionSchema a){
+
+    private void addGenericActionSchemas(Tree c, ActionSchema a) {
 
         Tree action = (Tree) c.getChild(0);
         a.setName(action.getText());
         //System.out.println("Adding:"+a.getName());
-        if (a instanceof EventSchema){
-            this.getEventSchema().add((EventSchema)a);
-            
-        }else if (a instanceof ActionSchema){
+        if (a instanceof EventSchema) {
+            this.getEventSchema().add((EventSchema) a);
+
+        } else if (a instanceof ActionSchema) {
             this.ActionsSchema.add(a);
         }
         for (int i = 1; i < c.getChildCount(); i++) {
@@ -1293,7 +1404,7 @@ public final class PddlDomain extends Object {
             switch (type) {
                 case (PddlParser.PRECONDITION):
                     Conditions con = createPreconditions(infoAction.getChild(0), a.parameters);
-                    if ((con instanceof Comparison) || (con instanceof Predicate)) {
+                    if ((con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
                         a.setPreconditions(and);
@@ -1342,6 +1453,30 @@ public final class PddlDomain extends Object {
      */
     public void setEventSchema(Set<EventSchema> EventSchema) {
         this.eventsSchema = EventSchema;
+    }
+
+    public boolean can_be_abstract_dominant_constraints() {
+        Set<Conditions> set = new HashSet();
+        for (ActionSchema as : this.ActionsSchema) {
+            set.addAll(as.getPreconditions().getTerminalConditions());
+        }
+
+        for (int i = 0; i < set.toArray().length; i++) {
+            for (int j = i + 1; j < set.toArray().length; j++) {
+                Conditions c1 = (Conditions) set.toArray()[i];
+                Conditions c2 = (Conditions) set.toArray()[j];
+                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
+                    Comparison comp_c1 = (Comparison) c1;
+                    Comparison comp_c2 = (Comparison) c2;
+                    if (comp_c1.getInvolvedFluents().equals(comp_c2.getInvolvedFluents())) {
+                        //System.out.println(comp_c1+" "+comp_c2);
+                        return true;
+                    }
+                }
+            }
+
+        }
+        return false;
     }
 
 }

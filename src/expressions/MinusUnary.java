@@ -30,10 +30,10 @@ package expressions;
 import conditions.Conditions;
 import conditions.PDDLObject;
 import domain.Variable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -55,10 +55,10 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution) {
+    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         MinusUnary ret = new MinusUnary();
 
-        ret.element = element.ground(substitution);
+        ret.element = element.ground(substitution,po);
         ret.grounded = true;
         return ret;
     }

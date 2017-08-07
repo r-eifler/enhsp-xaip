@@ -1,3 +1,4 @@
+
 /*********************************************************************
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +27,7 @@
 package domain;
 
 import conditions.AndCond;
+import conditions.ConditionalEffect;
 import conditions.Conditions;
 import conditions.NotCond;
 import conditions.Predicate;
@@ -150,6 +152,10 @@ public abstract class GenericActionType extends Object {
         }else{
             this.setPreconditions(c);
         }
+        if (this.cond_effects != null)
+            this.cond_effects.push_not_to_terminals();
+                
+       
     }
 
     protected Collection<Predicate> getPropositionAffected() {
@@ -212,6 +218,15 @@ public abstract class GenericActionType extends Object {
                 }
             }
         }
+        
+        if (this.cond_effects != null){
+            for (ConditionalEffect c_eff: (Collection<ConditionalEffect>)this.cond_effects.sons){
+                for (NumFluent nf : c_eff.affectedNumericFluents()){
+                    this.numericFluentAffected.put(nf, Boolean.TRUE);
+                }
+            }
+        }
+      
     }
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {

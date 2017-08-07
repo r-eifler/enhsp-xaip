@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -63,14 +64,7 @@ public class AndCond extends Conditions implements PostCondition {
         sons = new LinkedHashSet();
     }
 
-    /**
-     *
-     * @param c a condition to be added
-     */
-    public void addConditions(Conditions c) {
-        sons.add(c);
 
-    }
 
     /**
      *
@@ -87,7 +81,7 @@ public class AndCond extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
         AndCond ret = new AndCond();
 
         //System.out.println(this.toString());
@@ -95,14 +89,17 @@ public class AndCond extends Conditions implements PostCondition {
             final Object groundedO;
             if (o instanceof NumEffect) {
                 NumEffect el = (NumEffect) o;
-                groundedO = el.ground(substitution);
+                groundedO = el.ground(substitution,po);
 
             } else {
                 Conditions el = (Conditions) o;
                 //System.out.println(el);
-                groundedO = el.ground(substitution);
+                groundedO = el.ground(substitution,po);
             }
-            ret.sons.add(groundedO);
+            if (groundedO instanceof AndCond){
+                ret.sons.addAll(((AndCond) groundedO).sons);
+            }else
+                ret.sons.add(groundedO);
         }
 
         ret.grounded = true;
@@ -578,7 +575,7 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }
@@ -996,6 +993,23 @@ public class AndCond extends Conditions implements PostCondition {
 
                 } catch (Exception ex) {
                     Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
+        Set<NumFluent> ret = new HashSet();
+        if (this.sons.isEmpty())
+            return ret;
+        else{
+            
+            for (Object con: this.sons){
+                if (con instanceof NumEffect){
+                    NumEffect temp = (NumEffect)con;
+                    ret.add(temp.getFluentAffected());
                 }
             }
         }

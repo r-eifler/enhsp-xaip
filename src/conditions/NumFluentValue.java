@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
+import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
 
@@ -139,16 +140,16 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution) {
+    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
         NumFluentValue ret = new NumFluentValue(operator);
-        ret.nFluent = (NumFluent) nFluent.ground(substitution);
+        ret.nFluent = (NumFluent) nFluent.ground(substitution,po);
         ret.grounded = true;
         return ret;
     }
     
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution);
+        Conditions ret = this.ground(substitution,null);
         ret.setCounter(c);
         return ret;
     }
