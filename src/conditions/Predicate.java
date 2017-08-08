@@ -127,7 +127,7 @@ public class Predicate extends Terminal implements PostCondition {
     public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getCounter());
     }
-    
+
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         return new HashSet();
@@ -264,7 +264,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
         ret.grounded = true;
@@ -289,7 +289,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution,null);
+        Conditions ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -369,8 +369,9 @@ public class Predicate extends Terminal implements PostCondition {
             return false;
         }
 
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
         final Predicate other = (Predicate) obj;
         if ((this.predicateName == null) ? (other.predicateName != null) : !this.predicateName.equals(other.predicateName)) {
             return false;
@@ -521,12 +522,19 @@ public class Predicate extends Terminal implements PostCondition {
     public Conditions weakEval(State s, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
-        if (invF.get(this)==null && s.satisfy(this)){
-            this.setValid(true);
-            this.setUnsatisfiable(false);
+
+        if (invF.get(this) == null) {//this means it is a static predicate
+            if (s.satisfy(this)) {
+                this.setValid(true);
+                this.setUnsatisfiable(false);
+
+            } else {
+                this.setValid(false);
+                this.setUnsatisfiable(true);
+            }
             return this;
-        }else{//this is meant to couple all the predicates in a unique representation
-            return s.getProposition(this);    
+        } else {//this is meant to couple all the predicates in a unique representation
+            return s.getProposition(this);
         }
     }
 
@@ -688,11 +696,10 @@ public class Predicate extends Terminal implements PostCondition {
         return s;
 
     }
-    
+
     @Override
     public Conditions push_not_to_terminals() {
         return this;
     }
-    
-    
+
 }

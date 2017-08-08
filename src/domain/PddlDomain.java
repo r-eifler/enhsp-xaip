@@ -617,15 +617,19 @@ public final class PddlDomain extends Object {
                                 forall.addParameter(new Variable(child.getText(), t));
                             }
                             break;
-                        case PddlParser.PRED_HEAD:
+                        default:
                             //at this point I should have collected all the parameters for grounding
                             //the variable into constants
                             SchemaParameters aug_par_table = new SchemaParameters();
                             aug_par_table.addAll(parTable);
                             aug_par_table.addAll(forall.getParameters());
                             Conditions ret_val = createPreconditions(child, aug_par_table);
+                            //System.out.println("ret_val for forall condition is:"+ret_val);
                             if (ret_val != null) {
                                 forall.addConditions(ret_val);
+                            } else {
+                                System.out.println("Something fishy here.." + child);
+                                System.exit(-1);
                             }
                             break;
 
@@ -659,7 +663,7 @@ public final class PddlDomain extends Object {
                                 exist.addParameter(new Variable(child.getText(), t));
                             }
                             break;
-                        case PddlParser.PRED_HEAD:
+                        default:
                             //at this point I should have collected all the parameters for grounding
                             //the variable into constants
                             SchemaParameters aug_par_table = new SchemaParameters();

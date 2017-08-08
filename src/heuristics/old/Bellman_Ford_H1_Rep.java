@@ -118,7 +118,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                     if (!this.is_complex.get(c)) {
                         for (HeuristicSearchNode gr : pool) {
                             //GroundAction temp = (GroundAction)gr.action;
-                            
+
 //                            if (!this.new_condition.get(c) && this.num_achiever.get(new Pair(gr,(Comparison)c))!= null){
 //                                if (!this.num_achiever.get(new Pair(gr,(Comparison)c)))
 //                                    continue;
@@ -128,7 +128,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                             if (number_of_repetition != Integer.MAX_VALUE) {
                                 float additional_cost = 0;
                                 boolean possible_achiever = true;
-                                if (this.rep_costs.get(gr.action) != null && number_of_repetition>1) {
+                                if (this.rep_costs.get(gr.action) != null && number_of_repetition > 1) {
 
                                     LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr.action);
                                     for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
@@ -142,24 +142,21 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                                             if (rpc == Integer.MAX_VALUE) {
                                                 possible_achiever = false;
                                                 break;
-                                            } else {
-                                                if (too_optimistic) {
-                                                    if (inc_rpc == Integer.MAX_VALUE && number_of_repetition > p.getSecond() + 1) {
-                                                        possible_achiever = false;
-                                                        break;
-                                                    }
-                                                    Comparison ancestor_comp = (Comparison) this.generator.get(p.getFirst().getFirst());
-                                                    //System.out.println(generator);
-                                                    int pc = h.get(ancestor_comp.getCounter());
-                                                    if (number_of_repetition > p.getSecond() + 1) {
-                                                        additional_cost += (number_of_repetition - p.getSecond() - 2) * (inc_rpc - rpc) + rpc - pc;
-                                                    } else {
-                                                        additional_cost += rpc - pc;
-                                                    }
-                                                } else {
-                                                    additional_cost += (number_of_repetition - p.getSecond() - 1) * (rpc);
+                                            } else if (too_optimistic) {
+                                                if (inc_rpc == Integer.MAX_VALUE && number_of_repetition > p.getSecond() + 1) {
+                                                    possible_achiever = false;
+                                                    break;
                                                 }
-
+                                                Comparison ancestor_comp = (Comparison) this.generator.get(p.getFirst().getFirst());
+                                                //System.out.println(generator);
+                                                int pc = h.get(ancestor_comp.getCounter());
+                                                if (number_of_repetition > p.getSecond() + 1) {
+                                                    additional_cost += (number_of_repetition - p.getSecond() - 2) * (inc_rpc - rpc) + rpc - pc;
+                                                } else {
+                                                    additional_cost += rpc - pc;
+                                                }
+                                            } else {
+                                                additional_cost += (number_of_repetition - p.getSecond() - 1) * (rpc);
                                             }
                                         }
                                         if (possible_achiever && (number_of_repetition > 1)) {//add precondition cost violation
@@ -178,11 +175,9 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                                     if (update_value(h, c, number_of_repetition * gr.action_cost_to_get_here + number_of_repetition)) {
                                         update = true;
                                     }
-                                } else {
-                                    if (update_value(h, c, number_of_repetition + gr.action_cost_to_get_here + (int) additional_cost)) {
+                                } else if (update_value(h, c, number_of_repetition + gr.action_cost_to_get_here + (int) additional_cost)) {
 //                                        System.out.println("")
-                                        update = true;
-                                    }
+                                    update = true;
                                 }
                             }
                         }
@@ -223,9 +218,10 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                         }
                     }
                     Comparison comp = (Comparison) c;
-                    
-                    if (this.num_achiever.get(new Pair(gr,comp)) || is_complex.get(c))
+
+                    if (this.num_achiever.get(new Pair(gr, comp)) || is_complex.get(c)) {
                         continue;
+                    }
                     float b = comp.eval_affected(s_0, gr);
                     float a = comp.eval_not_affected(s_0, gr);
                     Integer u_b;
@@ -258,8 +254,8 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                             new_comp.normalize();
 
                             new_comp.setCounter(conditions_set.size() + 1);
-                            new_condition.put(new_comp,true);
-                            this.is_complex.put(new_comp,false);
+                            new_condition.put(new_comp, true);
+                            this.is_complex.put(new_comp, false);
                             //this.index_of_last_static_atom++;s
                             if (!conditions_set.add(new_comp)) {
                                 for (Conditions c3 : conditions_set) {
@@ -270,10 +266,10 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                                         }
                                     }
                                 }
-                            }else{
+                            } else {
                                 //new_condition.put(new_comp,true);
                                 //this.num_achiever.put(new Pair(gr,new_comp), false);
-                                
+
                             }
                             if (too_optimistic) {
                                 this.generator.put(new_comp, comp);

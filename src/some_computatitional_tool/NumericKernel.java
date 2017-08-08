@@ -46,6 +46,7 @@ import problem.RelState;
  * @author Enrico Scala
  */
 public class NumericKernel extends HashMap {
+
     private HashSet involvedFluents;
 
     /**
@@ -98,13 +99,13 @@ public class NumericKernel extends HashMap {
         for (Object o : this.values()) {
             Conditions con = (Conditions) o;
             con.normalize();
-            
+
         }
 
         for (int i = pianoClonato.size(); i >= 0; i--) {
             Conditions con = (Conditions) this.get(i);
             //System.out.println(con);
-            
+
             if (con instanceof AndCond) {
                 for (Object o : con.sons) {
                     if (o instanceof Comparison) {
@@ -115,10 +116,9 @@ public class NumericKernel extends HashMap {
 
                             Float num = new Float(0.0);
                             Float den = new Float(0.0);
-                            if (comp.fatherFromRegression == null ) {
-                                
-                                
-                                comp.maxDist = maximizationBound(lExpr,numericFleuntsBoundaries);
+                            if (comp.fatherFromRegression == null) {
+
+                                comp.maxDist = maximizationBound(lExpr, numericFleuntsBoundaries);
 //                                System.out.println(comp);
 //                                System.out.println(comp.maxDist);
 //
@@ -136,7 +136,7 @@ public class NumericKernel extends HashMap {
                                 //System.out.println("UNO CHE HA IL PADRE C'E'");
                                 comp.maxDist = comp.fatherFromRegression.maxDist;
                             }
-                        }else{
+                        } else {
                             System.out.println("Something is not normalized!!");
                             System.exit(-1);
                         }
@@ -163,7 +163,6 @@ public class NumericKernel extends HashMap {
         }
         //System.exit(-1);
     }
-    
 
     /**
      *
@@ -243,31 +242,32 @@ public class NumericKernel extends HashMap {
         return con;
     }
 
-    protected Float maximizationBound(ExtendedNormExpression lExpr,RelState numericFleuntsBoundaries) {
+    protected Float maximizationBound(ExtendedNormExpression lExpr, RelState numericFleuntsBoundaries) {
 
         Float b = new Float(0.0);
         ArrayList<ExtendedAddendum> variables = new ArrayList();
-        for(Object o: lExpr.summations){
-            ExtendedAddendum add = (ExtendedAddendum)o;
-            if (add.f == null)
-                b=add.n.getNumber();
-            else
+        for (Object o : lExpr.summations) {
+            ExtendedAddendum add = (ExtendedAddendum) o;
+            if (add.f == null) {
+                b = add.n.getNumber();
+            } else {
                 variables.add(add);
+            }
         }
-        
-        if (variables.size()==0)
-            return (float)0.000000000000000000000001;
-        
-        
+
+        if (variables.size() == 0) {
+            return (float) 0.000000000000000000000001;
+        }
+
         Float max = -Float.MIN_VALUE;
-        int i=0;
-        while (i < Math.pow(2, variables.size() )){
+        int i = 0;
+        while (i < Math.pow(2, variables.size())) {
             Float temp = new Float(0.0);
             String bit = Integer.toBinaryString(i);
             //System.out.println(bit);
-            
-            while(variables.size() > bit.length()){
-                bit = '0'+bit;
+
+            while (variables.size() > bit.length()) {
+                bit = '0' + bit;
             }
 
 //            for (int j = 0; j < bit.length();j++){
@@ -275,39 +275,36 @@ public class NumericKernel extends HashMap {
 //                System.out.println(bit.charAt(j));
 //            }
             System.out.println("Candidate:");
-            for (int j = 0; j<variables.size();j++){
-                if (bit.length()>j){
-                    if (bit.charAt(j) =='0'){
+            for (int j = 0; j < variables.size(); j++) {
+                if (bit.length() > j) {
+                    if (bit.charAt(j) == '0') {
                         temp += variables.get(j).n.getNumber() * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
                         //System.out.println("Inf:"+j);
-                    }else{
+                    } else {
                         temp += variables.get(j).n.getNumber() * numericFleuntsBoundaries.functionSupValue(variables.get(j).f).getNumber();
                         //System.out.println("sup:"+j);
                     }
-                }else{
+                } else {
 //                    System.out.println("inf:"+j);
                     temp += variables.get(j).n.getNumber() * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
                 }
             }
-            if (Math.abs((double)temp+(double)b) > max){
-                max = (float)Math.abs((double)temp+(double)b);
+            if (Math.abs((double) temp + (double) b) > max) {
+                max = (float) Math.abs((double) temp + (double) b);
             }
             i++;
-            
+
         }
         return max;
-    
-        
-    
+
     }
 
     public void computeMaxDistViaPlanBounds(SimplePlan sp, Conditions g, HashMap higherNFValues, HashMap lowerNFValues) {
-        
-        
+
         for (int i = sp.size(); i >= 0; i--) {
             Conditions con = (Conditions) this.get(i);
             //System.out.println(con);
-            
+
             if (con instanceof AndCond) {
                 for (Object o : con.sons) {
                     if (o instanceof Comparison) {
@@ -318,10 +315,10 @@ public class NumericKernel extends HashMap {
 
                             Float num = new Float(0.0);
                             Float den = new Float(0.0);
-                            if (comp.fatherFromRegression == null ) {
-                                
+                            if (comp.fatherFromRegression == null) {
+
                                 //System.out.println(lExpr);
-                                comp.maxDist = maximizationBoundViaPlanBounds(lExpr,  higherNFValues, lowerNFValues);
+                                comp.maxDist = maximizationBoundViaPlanBounds(lExpr, higherNFValues, lowerNFValues);
 //                                System.out.println(comp);
 //                                System.out.println(comp.maxDist);
 //
@@ -339,7 +336,7 @@ public class NumericKernel extends HashMap {
                                 //System.out.println("UNO CHE HA IL PADRE C'E'");
                                 comp.maxDist = comp.fatherFromRegression.maxDist;
                             }
-                        }else{
+                        } else {
                             System.out.println("Something is not normalized!!");
                             System.exit(-1);
                         }
@@ -367,29 +364,30 @@ public class NumericKernel extends HashMap {
     }
 
     protected Float maximizationBoundViaPlanBounds(ExtendedNormExpression lExpr, HashMap higherNFValues, HashMap lowerNFValues) {
-         Float b = new Float(0.0);
+        Float b = new Float(0.0);
         ArrayList<ExtendedAddendum> variables = new ArrayList();
-        for(Object o: lExpr.summations){
-            ExtendedAddendum add = (ExtendedAddendum)o;
-            if (add.f == null)
-                b=add.n.getNumber();
-            else
+        for (Object o : lExpr.summations) {
+            ExtendedAddendum add = (ExtendedAddendum) o;
+            if (add.f == null) {
+                b = add.n.getNumber();
+            } else {
                 variables.add(add);
+            }
         }
-        
-        if (variables.size()==0)
-            return (float)0.000000000000000000000001;
-        
-        
+
+        if (variables.size() == 0) {
+            return (float) 0.000000000000000000000001;
+        }
+
         Float max = -Float.MIN_VALUE;
-        int i=0;
-        while (i < Math.pow(2, variables.size() )){
+        int i = 0;
+        while (i < Math.pow(2, variables.size())) {
             Float temp = new Float(0.0);
             String bit = Integer.toBinaryString(i);
             //System.out.println(bit);
-            
-            while(variables.size() > bit.length()){
-                bit = '0'+bit;
+
+            while (variables.size() > bit.length()) {
+                bit = '0' + bit;
             }
 
 //            for (int j = 0; j < bit.length();j++){
@@ -397,45 +395,46 @@ public class NumericKernel extends HashMap {
 //                System.out.println(bit.charAt(j));
 //            }
 //            System.out.println("Candidate:");
-            for (int j = 0; j<variables.size();j++){
-                if (bit.length()>j){
-                    if (bit.charAt(j) =='0'){
+            for (int j = 0; j < variables.size(); j++) {
+                if (bit.length() > j) {
+                    if (bit.charAt(j) == '0') {
                         //System.out.println((Float)lowerNFValues.get(variables.get(j).f));
-                        
-                        temp += variables.get(j).n.getNumber() * (Float)lowerNFValues.get(variables.get(j).f);
+
+                        temp += variables.get(j).n.getNumber() * (Float) lowerNFValues.get(variables.get(j).f);
 //                        System.out.println("Inf:"+j);
-                    }else{
-                        temp += variables.get(j).n.getNumber() * (Float)higherNFValues.get(variables.get(j).f);
+                    } else {
+                        temp += variables.get(j).n.getNumber() * (Float) higherNFValues.get(variables.get(j).f);
 //                        System.out.println("sup:"+j);
                     }
-                }else{
+                } else {
 //                    System.out.println("inf:"+j);
-                    temp += variables.get(j).n.getNumber() * (Float)lowerNFValues.get(variables.get(j).f);
+                    temp += variables.get(j).n.getNumber() * (Float) lowerNFValues.get(variables.get(j).f);
                 }
             }
-            if (Math.abs((double)temp+(double)b) > max){
-                max = (float)Math.abs((double)temp+(double)b);
+            if (Math.abs((double) temp + (double) b) > max) {
+                max = (float) Math.abs((double) temp + (double) b);
             }
             i++;
-            
+
         }
         return max;
-        
+
     }
 
     public Set getInvolvedFluents() {
-        
-        if (involvedFluents!=null)
+
+        if (involvedFluents != null) {
             return involvedFluents;
-                    
+        }
+
         involvedFluents = new HashSet();
-        
-        for (Object o: this.values()){
+
+        for (Object o : this.values()) {
             //System.out.println(o.getClass());
-            AndCond kernel = (AndCond)o;
-            for (Object o1: kernel.sons){
-                if (o1 instanceof Comparison){
-                    Comparison c = (Comparison)o1;
+            AndCond kernel = (AndCond) o;
+            for (Object o1 : kernel.sons) {
+                if (o1 instanceof Comparison) {
+                    Comparison c = (Comparison) o1;
                     involvedFluents.addAll(c.getLeft().rhsFluents());
                     involvedFluents.addAll(c.getRight().rhsFluents());
                 }
@@ -443,7 +442,5 @@ public class NumericKernel extends HashMap {
         }
         return involvedFluents;
     }
-
-
 
 }

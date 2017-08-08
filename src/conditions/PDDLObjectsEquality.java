@@ -73,9 +73,9 @@ public class PDDLObjectsEquality extends Terminal {
      * @return a grounded copy of the condition
      */
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         // TODO: Couldn't one of the objects be already grounded?
-        
+
         PDDLObjectsEquality ret = null;
 
         PDDLObject t1 = substitution.get(getLeftV());
@@ -93,7 +93,7 @@ public class PDDLObjectsEquality extends Terminal {
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution,null);
+        Conditions ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -308,7 +308,7 @@ public class PDDLObjectsEquality extends Terminal {
 //        if (grounded) {
 //            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRight().pddlPrintWithExtraObject() + ")";
 //        } else {
-            ret += "( = " + this.getLeftV().pddlPrint(false) + " " + this.getRightV().pddlPrint(false) + ")";
+        ret += "( = " + this.getLeftV().pddlPrint(false) + " " + this.getRightV().pddlPrint(false) + ")";
 
 //        }
         return ret;
@@ -319,11 +319,11 @@ public class PDDLObjectsEquality extends Terminal {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override 
+    @Override
     public int hashCode() {
         final int pddlObjectsHash, variablesHash;
         {
-            final int h1,h2;
+            final int h1, h2;
             if (left == null) {
                 h1 = 0;
             } else {
@@ -337,7 +337,7 @@ public class PDDLObjectsEquality extends Terminal {
             pddlObjectsHash = (h1 * h2) + h1;
         }
         {
-            final int h1,h2;
+            final int h1, h2;
             if (leftV == null) {
                 h1 = 0;
             } else {
@@ -350,27 +350,27 @@ public class PDDLObjectsEquality extends Terminal {
             }
             variablesHash = (h1 * h2) + h1;
         }
-        
+
         final int result = (pddlObjectsHash * variablesHash) + variablesHash;
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (!(obj instanceof PDDLObjectsEquality)) {
             return false;
         }
-        
-        final PDDLObjectsEquality other = (PDDLObjectsEquality)obj;
-        
+
+        final PDDLObjectsEquality other = (PDDLObjectsEquality) obj;
+
         if (left != right) { // they should differ from null
             if (!left.equals(right)) {
                 return false;
@@ -381,7 +381,7 @@ public class PDDLObjectsEquality extends Terminal {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -389,15 +389,15 @@ public class PDDLObjectsEquality extends Terminal {
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         if (grounded) {
             bui.append("( = ");
-            getLeft().pddlPrint(typeInformation,bui);
+            getLeft().pddlPrint(typeInformation, bui);
             bui.append(" ");
-            getRight().pddlPrint(typeInformation,bui);
+            getRight().pddlPrint(typeInformation, bui);
             bui.append(")");
         } else {
             bui.append("( = ");
-            getLeftV().pddlPrint(typeInformation,bui);
+            getLeftV().pddlPrint(typeInformation, bui);
             bui.append(" ");
-            getRightV().pddlPrint(typeInformation,bui);
+            getRightV().pddlPrint(typeInformation, bui);
             bui.append(")");
         }
     }

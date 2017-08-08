@@ -63,26 +63,25 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
     protected HashMap<Conditions, Boolean> redundant_constraints;
     protected HashMap<Pair<GroundAction, Comparison>, Boolean> num_achiever;
 
-    protected HashMap<Pair<Conditions,GroundAction>,Boolean> achvs;
-
+    protected HashMap<Pair<Conditions, GroundAction>, Boolean> achvs;
 
     public Bellman_Ford_H1(Conditions G, Set<GroundAction> A) {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
         complex_conditions = 0;
-        
+
         //System.out.println(this.orderings);
         //build_integer_representation();
     }
-    
+
     public Bellman_Ford_H1(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
         this.A.addAll(P);
         complex_conditions = 0;
-        
+
         //System.out.println(this.orderings);
         //build_integer_representation();
     }
@@ -151,9 +150,10 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
             if (h.get(c.getCounter()) != 0) {
                 if (c instanceof Predicate) {
                     for (HeuristicSearchNode gr : pool) {
-                        
-                        if (this.achvs.get(new Pair(c,gr.action)) == false)
+
+                        if (this.achvs.get(new Pair(c, gr.action)) == false) {
                             continue;
+                        }
                         if (gr.action.achieve((Predicate) c)) {
                             if (update_value(h, c, gr.action_cost_to_get_here + 1)) {
                                 update = true;
@@ -164,18 +164,17 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
                     if (!this.is_complex.get(c)) {
                         for (HeuristicSearchNode gr : pool) {
-                            if (this.achvs.get(new Pair(c,gr.action))== false)
+                            if (this.achvs.get(new Pair(c, gr.action)) == false) {
                                 continue;
+                            }
                             int number_of_repetition = gr.action.getNumberOfExecution(s_0, (Comparison) c).intValue();
                             if (number_of_repetition != Integer.MAX_VALUE) {
                                 if (this.full_regression) {
                                     if (update_value(h, c, gr.action_cost_to_get_here * number_of_repetition + number_of_repetition)) {
                                         update = true;
                                     }
-                                } else {
-                                    if (update_value(h, c, gr.action_cost_to_get_here + number_of_repetition)) {
-                                        update = true;
-                                    }
+                                } else if (update_value(h, c, gr.action_cost_to_get_here + number_of_repetition)) {
+                                    update = true;
                                 }
                             }
                         }
@@ -261,7 +260,6 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 //        System.out.println("Set after:"+set.size());
     }
 
-
     private void generate_numeric_achievers(State s_0) {
         this.num_achiever = new HashMap();
         for (Conditions c : this.all_conditions) {
@@ -285,21 +283,21 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
         for (Conditions c : this.all_conditions) {
             for (GroundAction gr : this.A) {
-                achvs.put(new Pair(c,gr), false);
+                achvs.put(new Pair(c, gr), false);
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
                         if (gr.is_possible_achiever_of(comp)) {
-                            achvs.put(new Pair(c,gr), true);
+                            achvs.put(new Pair(c, gr), true);
                         }
                         if (this.is_complex.get(comp)) {
-                            achvs.put(new Pair(c,gr), true);
+                            achvs.put(new Pair(c, gr), true);
                         }
                     }
                 } else if (c instanceof Predicate) {
                     Predicate p = (Predicate) c;
                     if (gr.achieve(p)) {
-                        achvs.put(new Pair(c,gr), true);
+                        achvs.put(new Pair(c, gr), true);
                     }
 
                 }

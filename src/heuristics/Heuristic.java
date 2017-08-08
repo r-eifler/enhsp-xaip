@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -91,7 +90,7 @@ public abstract class Heuristic {
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
-    
+
     public boolean why_not_active = false;
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Conditions, Boolean> new_condition;
@@ -155,7 +154,7 @@ public abstract class Heuristic {
         def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
     }
-    
+
     public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super();
         achievers = new HashMap();
@@ -218,25 +217,25 @@ public abstract class Heuristic {
             a.counter = total_number_of_actions++;
             if (a.getPreconditions() != null) {
                 for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
-                    Utils.dbg_print(debug,"Condition added to the set:"+c_1+"\n");
+                    Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
-                    Utils.dbg_print(debug,"Identifier:"+c_1.getCounter()+"\n");
+                    Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
                 }
             }
         }
         for (GroundAction a : actions_to_consider) {
             if (a.getAddList() != null && a.getAddList().sons != null) {
                 for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
-                    counter_conditions = update_index_conditions(c_1,  counter_conditions);
+                    counter_conditions = update_index_conditions(c_1, counter_conditions);
                 }
             }
         }
 
 //        LinkedHashSet temp = new LinkedHashSet();
         for (Conditions c_1 : G.getTerminalConditions()) {
-            Utils.dbg_print(debug,"Condition added to the set:"+c_1+"\n");
-            counter_conditions = update_index_conditions(c_1,  counter_conditions);
-            Utils.dbg_print(debug,"Identifier:"+c_1.getCounter()+"\n");
+            Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
+            counter_conditions = update_index_conditions(c_1, counter_conditions);
+            Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
 
 //            temp.add(c_1);
         }
@@ -510,7 +509,7 @@ public abstract class Heuristic {
         if (proven_reachable == null) {
             proven_reachable = false;
         }
-        Utils.dbg_print(debug,"Starting the reacheability analysis. Is it Reachable? :" + proven_reachable);
+        Utils.dbg_print(debug, "Starting the reacheability analysis. Is it Reachable? :" + proven_reachable);
         //the bound here is only to capture really unlikely instances. Should be domain independent though
         while (iteration < 100 || proven_reachable) {
             LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
@@ -646,7 +645,7 @@ public abstract class Heuristic {
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
-                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect())|| ne.getOperator().equals("assign")) {
+                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect()) || ne.getOperator().equals("assign")) {
                                     is_complex.set(comp.getCounter(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
@@ -711,8 +710,6 @@ public abstract class Heuristic {
         }
         return additional_cost;
     }
-
-
 
     protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h) {
 
@@ -941,14 +938,14 @@ public abstract class Heuristic {
 
         if (integer_ref.get(c_1) == null) {
 //            System.out.println("This happens then");
-            
+
             integer_ref.put(c_1, counter);
             c_1.setCounter(counter);
             all_conditions.add(c_1);
             counter++;
         } else if (integer_ref.get(c_1) == null) {
 //            System.out.println("bug in java");
-            
+
             integer_ref.put(c_1, counter);
             c_1.setCounter(counter);
             all_conditions.add(c_1);

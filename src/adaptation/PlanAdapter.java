@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package adaptation;
 
 import antlr.RecognitionException;
@@ -67,27 +69,27 @@ public class PlanAdapter {
 
     //wrapper for external planning tool
     protected planningTool planner;
-    
+
     //statistics informations
     private long kernelConstructionTime;
     protected int plannerTime;
     private long adaptationTime;
     private long heuristicComputationTime;
     protected long macroActionsConstructionTime;
-    
+
     //if true, use kernel heuristic repair instead of greedy repair. See AIXIA 2013, Enrico Scala article
     private boolean kernelHeuristicRepair;
-    
+
     //The solution container
     protected SimplePlan solution;
     //public boolean debuggingMacrioActionConstructionBench;
-    
+
     //number of macro actions exploited for performing the repair
     private int employedMacros;
-    
+
     //upper bound on the number of primitives to use
     private int max_primitives;
-    
+
     //reacheable States
     private RelState poss_state;
     private int connectedComponentsNumber;
@@ -110,7 +112,6 @@ public class PlanAdapter {
     public void setEmployedMacros(int employedMacros) {
         this.employedMacros = employedMacros;
     }
-
 
     /**
      * Get the value of solution
@@ -143,15 +144,17 @@ public class PlanAdapter {
      * Set the value of macroActionsConstructionTime
      *
      * @param macroActionsConstructionTime new value of
- macroActionsConstructionTime
+     * macroActionsConstructionTime
      */
     public void setMacroActionsConstructionTime(long macroActionsConstructionTime) {
         this.macroActionsConstructionTime = macroActionsConstructionTime;
     }
 
     /**
-     * Constructor for the plan adapter. 
-     * @param planner: the planner used as black box for performing specific local repair tasks
+     * Constructor for the plan adapter.
+     *
+     * @param planner: the planner used as black box for performing specific
+     * local repair tasks
      */
     public PlanAdapter(planningTool planner) {
         this.planner = planner;
@@ -162,10 +165,12 @@ public class PlanAdapter {
 
     /**
      * Adapt the plan by using the Greedy Repair Strategy
+     *
      * @param domain The PDDL domain of reference
      * @param problem The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
-     * @return the plan repaired or null in case of no solution (for any reasons...the motivation is due to the planning tool)
+     * @return the plan repaired or null in case of no solution (for any
+     * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
@@ -179,9 +184,9 @@ public class PlanAdapter {
         try {
             //Kernel Construction; mandatory for both strategies
             NumericKernel nk = new NumericKernel();
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             nk.construct(sp, prob.getGoals());
-            /**/            setKernelConstructionTime(System.currentTimeMillis() - start);
+            /**/ setKernelConstructionTime(System.currentTimeMillis() - start);
 
             //Selecting the best kernel!
             int i = 0;
@@ -200,17 +205,17 @@ public class PlanAdapter {
             //Computing the patch toward the kernel by means of a general purpose planner
             SimplePlan sp2 = new SimplePlan(dom, tempProblem);
             String solutionString = planner.plan(dom.getPddlFilRef(), "temp.pddl");
-            
+
             //delete the temporary problem...a kind of garbage collector
             new File("temp.pddl").delete();
             if (solutionString == null) {
                 return null;
             }
-            
+
             //parse the solution patch and after delete it
             sp2.parseSolution(solutionString);
             new File(solutionString).delete();
-            
+
             setPlannerTime(planner.getPlannerTime());
             if (kernelHeuristicRepair) {
                 setAdaptationTime(this.plannerTime + this.kernelConstructionTime + this.heuristicComputationTime);
@@ -221,7 +226,7 @@ public class PlanAdapter {
             //concatenation with the previous solution
             //in case of greedyrepair, the index i=0
             sp2.addAll(sp.subList(i, sp.size()));
-            
+
             //storing the solution "permanently" within this object
             solution = sp2;
             return sp2;
@@ -240,8 +245,7 @@ public class PlanAdapter {
 
     //function to evaluate which is the best kernel. This function exploits a variant of numeric kernel heuristic to support multiple conditions
     private int findBestKernel(PddlProblem problem, NumericKernel kerns, int i) throws CloneNotSupportedException {
-        
-        
+
         NumericPlanningGraph gr;
         int closer = i;
         int closerDistance = Integer.MAX_VALUE;
@@ -268,10 +272,12 @@ public class PlanAdapter {
 
     /**
      * Adapt the plan by using the Heuristic Kernel Repair Strategy
+     *
      * @param domain The PDDL domain of reference
      * @param problem The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
-     * @return the plan repaired or null in case of no solution (for any reasons...the motivation is due to the planning tool)
+     * @return the plan repaired or null in case of no solution (for any
+     * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
@@ -282,28 +288,33 @@ public class PlanAdapter {
     }
 
     /**
-     * Adapt the plan by using Macro Action Repair; the input plan is considered as a single macro action
+     * Adapt the plan by using Macro Action Repair; the input plan is considered
+     * as a single macro action
+     *
      * @param domain The PDDL domain of reference
      * @param problem The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
-     * @return the plan repaired or null in case of no solution (for any reasons...the motivation is due to the planning tool)
+     * @return the plan repaired or null in case of no solution (for any
+     * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
     public SimplePlan adaptViaMacroAction(PddlDomain domain, PddlProblem problem, SimplePlan input_plan) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             GroundAction macro = input_plan.generateMacro(0, input_plan.size() - 1);
             //System.out.println("Dist(macro,problem):"+macro.computeDistance(prob));
-            
+
             //the model of the action is simplified according to the domain and the problem at hand
             macro.simplifyModel(domain, problem);
-            
+
             //the domain is reformulated by adding the plan as macro action; this yelds the enhanced domain representation
             dEnh.addMacroOperator(domain, macro);
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
 
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
@@ -313,7 +324,7 @@ public class PlanAdapter {
                 return null;
             }
             temp_new_plan.parseSolution(solutionString);
-            
+
             new File(solutionString).delete();
             //new File(dEnh.getDomainEnhancedFileName()).delete();
 
@@ -416,11 +427,13 @@ public class PlanAdapter {
     }
 
     /**
-     *Get the outcome of the plan adaption task
-     * @return the outcome of the plan-adaptation process; one of "success", "failure" and "timeout"
+     * Get the outcome of the plan adaption task
+     *
+     * @return the outcome of the plan-adaptation process; one of "success",
+     * "failure" and "timeout"
      */
     public String getOutcome() {
-        if (!this.getPlanner().isFailed() && ! this.getPlanner().isTimeoutFail()) {
+        if (!this.getPlanner().isFailed() && !this.getPlanner().isTimeoutFail()) {
             return "success";
         } else if (this.getPlanner().isTimeoutFail()) {
             return "timeout";
@@ -431,6 +444,7 @@ public class PlanAdapter {
 
     /**
      * Adapt the plan by using the LPG-ADAPT subsystem.
+     *
      * @param domain
      * @param problem
      * @param input_plan
@@ -441,7 +455,6 @@ public class PlanAdapter {
 
         try {
 
-            
             input_plan.savePlan("plan.sol");
             String solutionString = planner.adapt(domain.getPddlFilRef(), problem.getPddlFileReference(), "plan.sol");
             if (solutionString == null) {
@@ -463,6 +476,7 @@ public class PlanAdapter {
 
     /**
      * Replanning from scratch
+     *
      * @param domain
      * @param problem
      * @return a new plan in case of success
@@ -491,18 +505,22 @@ public class PlanAdapter {
 
     /**
      * Adapt the plan by using macro actions, but only suffixes
+     *
      * @param domain The PDDL domain of reference
      * @param problem The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
-     * @return the plan repaired or null in case of no solution (for any reasons...the motivation is due to the planning tool)
+     * @return the plan repaired or null in case of no solution (for any
+     * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
     @Deprecated
     public SimplePlan adaptViaMacroActionsSuffixes(PddlDomain domain, PddlProblem problem, SimplePlan input_plan) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             ArrayList macros = new ArrayList();
             GroundAction macro = null;
@@ -525,10 +543,9 @@ public class PlanAdapter {
                 }
             }
 
-
             System.out.println("Macro Actions: " + macros.size());
             dEnh.addMacroActions(domain, macros);
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
 
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
@@ -564,22 +581,26 @@ public class PlanAdapter {
             Logger.getLogger(PlanAdapter.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
-    }    
+    }
 
     /**
      * Adapt the plan by using Macro Actions but only prefixes
+     *
      * @param domain The PDDL domain of reference
      * @param problem The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
-     * @return the plan repaired or null in case of no solution (for any reasons...the motivation is due to the planning tool)
+     * @return the plan repaired or null in case of no solution (for any
+     * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
     @Deprecated
     public SimplePlan adaptViaMacroActionPrefixes(PddlDomain domain, PddlProblem problem, SimplePlan input_plan) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             ArrayList macros = new ArrayList();
             GroundAction macro = null;
@@ -602,10 +623,9 @@ public class PlanAdapter {
                 }
             }
 
-
             System.out.println("Macro Actions: " + macros.size());
             dEnh.addMacroActions(domain, macros);
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
 
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
@@ -632,31 +652,35 @@ public class PlanAdapter {
         return null;
     }
 
-    
-        /**
-     * Adapt the plan by using Macro Actions with prefixes and suffixes (maximum number of elements of these two set is given by maximumNumberOfMacroActions)
+    /**
+     * Adapt the plan by using Macro Actions with prefixes and suffixes (maximum
+     * number of elements of these two set is given by
+     * maximumNumberOfMacroActions)
+     *
      * @param domain The PDDL domain of reference
      * @param problem The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
      * @param maximumNumberOfMacroActions
-     * @return the plan repaired or null in case of no solution (for any reasons...the motivation is due to the planning tool)
+     * @return the plan repaired or null in case of no solution (for any
+     * reasons...the motivation is due to the planning tool)
      */
     public SimplePlan adaptViaSufPrefMacroActions(PddlDomain domain, PddlProblem problem, SimplePlan input_plan, int maximumNumberOfMacroActions) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             Set macros = input_plan.generateMacrosSuffandPref();
             System.out.println("Macro Actions: " + macros.size());
-            
+
             //make an arbitrary order among objects in macros
             ArrayList macrosList = new ArrayList(macros);
             Map m = dEnh.addMacroActions(domain, macrosList.subList(0, maximumNumberOfMacroActions));
-            
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
             //debugging breakpoint
 
-            
             //planning using the enhanced domain
             //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
             SimplePlan new_plan = new SimplePlan(new PddlDomain(dEnh.getDomainEnhancedFileName()), problem, false);
@@ -678,7 +702,8 @@ public class PlanAdapter {
     }
 
     /**
-     *Old Function: do not use this
+     * Old Function: do not use this
+     *
      * @param domain
      * @param problem
      * @param new_plan
@@ -689,8 +714,10 @@ public class PlanAdapter {
     @Deprecated
     public SimplePlan adaptViaInternalMacroActions(PddlDomain domain, PddlProblem problem, SimplePlan new_plan, float tolerance) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             Set macros = new_plan.generateInfissMacros();
             //System.out.println("Macro Actions: "+ macros.size());
@@ -700,7 +727,7 @@ public class PlanAdapter {
             Map m = dEnh.addMacroActions(domain, macroList.subList(0, 10));
             System.out.println("time for adding in the file:" + (System.currentTimeMillis() - start4));
 
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
 
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
@@ -726,9 +753,10 @@ public class PlanAdapter {
     public SimplePlan adaptViaPrefixSuffix(PddlDomain dom, PddlProblem prob, SimplePlan sp, int maxMacros, boolean consideringNumericInformationInDistance) {
         try {
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/long start = System.currentTimeMillis();
+            /**/
+            long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
-            Set macros = sp.generateMacrosSuffPref(maxMacros,consideringNumericInformationInDistance);
+            Set macros = sp.generateMacrosSuffPref(maxMacros, consideringNumericInformationInDistance);
             //System.out.println("Macro Actions: "+ macros.size());
             maxMacros = Math.min(maxMacros, macros.size());
             long start4 = System.currentTimeMillis();
@@ -741,9 +769,8 @@ public class PlanAdapter {
             macroActionsConstructionTime = System.currentTimeMillis() - start;
             System.out.println("time for adding in the file:" + (System.currentTimeMillis() - start4));
 
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
             System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
-
 
             //planning using the enhanced domain
             SimplePlan sp1 = new SimplePlan(dom, prob, false);
@@ -767,8 +794,10 @@ public class PlanAdapter {
     @Deprecated
     public SimplePlan adaptViaAllMacros(PddlDomain dom, PddlProblem prob, SimplePlan sp, int maxMacros, int maxLength) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             Set<GroundAction> macros = sp.generateEverySubMacros(maxMacros, maxLength);
             //System.out.println("Macro Actions: "+ macros.size());
@@ -782,9 +811,8 @@ public class PlanAdapter {
             Map m = dEnh.addMacroActions(dom, macroList.subList(0, maxMacros));
             System.out.println("time for adding in the file:" + (System.currentTimeMillis() - start4));
 
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
             System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
-
 
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
@@ -808,8 +836,10 @@ public class PlanAdapter {
 
     public SimplePlan adaptViaMixedStrategy(PddlDomain dom, PddlProblem prob, SimplePlan sp, int maxMacros, int maxLength) {
         try {
+
+
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
-            /**/            long start = System.currentTimeMillis();
+            /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             Set<GroundAction> macros = sp.generateEverySubMacros(maxMacros, maxLength);
             Set<GroundAction> macros2 = sp.generateMacrosSuffPrefInfiss(maxLength + 1);
@@ -827,9 +857,8 @@ public class PlanAdapter {
             Map m = dEnh.addMacroActions(dom, toADD);
             System.out.println("time for adding in the file:" + (System.currentTimeMillis() - start4));
 
-            /**/            macroActionsConstructionTime = System.currentTimeMillis() - start;
+            /**/ macroActionsConstructionTime = System.currentTimeMillis() - start;
             System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
-
 
             //planning using the enhanced domain
             PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
@@ -852,10 +881,13 @@ public class PlanAdapter {
     }
 
     /**
-     * Adaping the plan by building macro actions from the causal links structure of the starting plan
+     * Adaping the plan by building macro actions from the causal links
+     * structure of the starting plan
+     *
      * @param domain The Pddl domain of reference
      * @param problem The new Pddl Problem the plan has to be adapted to
-     * @param input_plan the starting initial plan (hopefully) similar to a solution for problem
+     * @param input_plan the starting initial plan (hopefully) similar to a
+     * solution for problem
      * @param maxMacros The maximum number of macros to take into account
      * @param shortActions If selected, compute only actions of small dimension
      * @return the new adapted plan
@@ -865,35 +897,33 @@ public class PlanAdapter {
     public SimplePlan adaptViaCausalLinkMacroActions(PddlDomain domain, PddlProblem problem, SimplePlan input_plan, int maxMacros, boolean shortActions) throws CloneNotSupportedException, Exception {
         ArrayList macros = new ArrayList();
         ArrayList<Integer> splittingPoints = new ArrayList();
-       /**/            
-        
+        /**/
+
         long beforeMacrogeneration = System.currentTimeMillis();
         int j = 0;
         State current = problem.getInit().clone();
         for (GroundAction gr : input_plan) {
             if (!gr.isApplicable(current)) {
                 splittingPoints.add(j);
-            } else{
-                if (gr.threatGoalConditions(problem.getGoals(), input_plan,j,current)){
-                   splittingPoints.add(j); 
-                }
+            } else if (gr.threatGoalConditions(problem.getGoals(), input_plan, j, current)) {
+                splittingPoints.add(j);
             }
             current = gr.apply(current);
             j++;
         }
-        splittingPoints.add(0,0);
-        j=0;
+        splittingPoints.add(0, 0);
+        j = 0;
         splittingPoints.add(input_plan.size());
         //System.out.println("Index of: states that do not satisfy action precondition, state in which the action application threats the goal condition:" + splittingPoints);
-        if (shortActions){
-            
+        if (shortActions) {
+
             int n = splittingPoints.size();
             int z = 1;
-            while (z<n){
-                if ((splittingPoints.get(z) - splittingPoints.get(z-1)) > getMax_primitives() ){
-                    int x = (splittingPoints.get(z) - splittingPoints.get(z-1))/getMax_primitives();
-                    for (int t = 0; t<x; t++){
-                        splittingPoints.add(z+t,splittingPoints.get(z+t-1)+getMax_primitives());
+            while (z < n) {
+                if ((splittingPoints.get(z) - splittingPoints.get(z - 1)) > getMax_primitives()) {
+                    int x = (splittingPoints.get(z) - splittingPoints.get(z - 1)) / getMax_primitives();
+                    for (int t = 0; t < x; t++) {
+                        splittingPoints.add(z + t, splittingPoints.get(z + t - 1) + getMax_primitives());
                         //z++;
                     }
                 }
@@ -904,9 +934,9 @@ public class PlanAdapter {
 
         //System.out.println("Index of: states that do not satisfy action precondition, state in which the action application threats the goal condition:" + splittingPoints);
         for (Integer i : splittingPoints) {
-            GroundAction macro = input_plan.generateMacro(j, i-1);
+            GroundAction macro = input_plan.generateMacro(j, i - 1);
             j = i;
-            if (macro != null){
+            if (macro != null) {
                 macros.add(macro);
             }
         }
@@ -914,35 +944,32 @@ public class PlanAdapter {
         //long beforeAddingFile = System.currentTimeMillis();
         DomainEnhancer dEnh = new DomainEnhancer();
 
-        Map m = dEnh.addMacroActions(domain, macros,input_plan);
+        Map m = dEnh.addMacroActions(domain, macros, input_plan);
         //System.out.println("time for adding in the file:" + (System.currentTimeMillis() - beforeAddingFile));
 
-        /**/macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
+        /**/
+        macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
         //System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
 
         //planning using the enhanced domain
         //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
         SimplePlan new_plan = new SimplePlan(domain, problem, false);
         String solutionString = null;
-        if (planner instanceof metricFFWrapper){
+        if (planner instanceof metricFFWrapper) {
             solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFileReference());
-        }else{
-            PDDLObjects temp  = (PDDLObjects)problem.getObjects().clone();
+        } else {
+            PDDLObjects temp = (PDDLObjects) problem.getObjects().clone();
             problem.removeObjects(dEnh.getConstantsFound());
             problem.saveProblem("temp");
             solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), "temp");
             problem.setObjects(temp);
             Utils.deleteFile("temp");
         }
-        
-        
+
         if (solutionString == null) {
             return null;
         }
-        
-        
-        
-        
+
         new_plan.parseSolutionWithMacro(solutionString, m);
         this.setEmployedMacros(new_plan.getEmployedMacro());
         new File(solutionString).delete();
@@ -954,14 +981,18 @@ public class PlanAdapter {
 
     }
 
-    /**Get the maximum number of actions a macro action consists of
+    /**
+     * Get the maximum number of actions a macro action consists of
+     *
      * @return the max_primitives
      */
     public int getMax_primitives() {
         return max_primitives;
     }
 
-    /**Set the maximum number of actions a macro action consists of
+    /**
+     * Set the maximum number of actions a macro action consists of
+     *
      * @param max_primitives the max_primitives to set
      */
     public void setMax_primitives(int max_primitives) {
@@ -982,56 +1013,54 @@ public class PlanAdapter {
         this.poss_state = poss_state;
     }
 
-    public SimplePlan adaptViaPop(SimplePlan plan, PddlProblem prob, PddlDomain domain,boolean endlessActionPruning,
-                                  boolean biconnectivity,boolean missingServicesCut,boolean goalachievingCut,boolean goalthreatCut) throws Exception {
-        
-        
+    public SimplePlan adaptViaPop(SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean endlessActionPruning,
+            boolean biconnectivity, boolean missingServicesCut, boolean goalachievingCut, boolean goalthreatCut) throws Exception {
+
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
         long beforeMacrogeneration = System.currentTimeMillis();
-        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(),goalachievingCut);
+        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(), goalachievingCut);
         //System.out.println(po);
-        if (endlessActionPruning)
-            removeUselessActions(po,plan.size()-1);   
+        if (endlessActionPruning) {
+            removeUselessActions(po, plan.size() - 1);
+        }
         //System.out.println(po);
         //System.out.println(plan.toStringWithIndex());
-        po = plan.removeInitGoal(po);        
+        po = plan.removeInitGoal(po);
         DomainEnhancer dEnh = new DomainEnhancer();
         List c = null;
-        c =plan.generateMacrosFromPop(po,plan.getGoalAchiever(),missingServicesCut,biconnectivity,goalthreatCut);
+        c = plan.generateMacrosFromPop(po, plan.getGoalAchiever(), missingServicesCut, biconnectivity, goalthreatCut);
 
         this.setConnectedComponentsNumber(plan.getConnectedSetBuilder().connectedSets().size());
         //System.out.println(c);
         List macros = new ArrayList();
-        macros.addAll(pruneSmallMacros(c,1000000));
-        
-        Map m = dEnh.addMacroActions(domain,macros,plan);
-        
+        macros.addAll(pruneSmallMacros(c, 1000000));
+
+        Map m = dEnh.addMacroActions(domain, macros, plan);
+
         //System.out.println("time for adding in the file:" + (System.currentTimeMillis() - beforeAddingFile));
 
-        /**/macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
+        /**/
+        macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
         //System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
 
         //planning using the enhanced domain
         //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
-        
         SimplePlan new_plan = new SimplePlan(domain, prob, false);
-        
-        
+
         //PddlProblem temp = new PddlProblem();
- 
         String solutionString = null;
-        if (planner instanceof metricFFWrapper){
+        if (planner instanceof metricFFWrapper) {
             solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), prob.getPddlFileReference());
-        }else{
-            PDDLObjects temp  = (PDDLObjects)prob.getObjects().clone();
+        } else {
+            PDDLObjects temp = (PDDLObjects) prob.getObjects().clone();
             prob.removeObjects(dEnh.getConstantsFound());
             prob.saveProblem("temp");
             solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), "temp");
             prob.setObjects(temp);
             Utils.deleteFile("temp");
         }
-        
+
         if (solutionString == null) {
             return null;
         }
@@ -1045,34 +1074,33 @@ public class PlanAdapter {
         return new_plan;
     }
 
-
-
     public int adaptViaPopDEBUG(SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean goalPruning, boolean biconnectivity) throws Exception {
-        
+
         long beforeMacrogeneration = System.currentTimeMillis();
 
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
-        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(),false);
+        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(), false);
 
-        if (goalPruning)
-            this.removeUselessActions(po,plan.size()-1);
-        
+        if (goalPruning) {
+            this.removeUselessActions(po, plan.size() - 1);
+        }
+
         System.out.println(plan.getGoalAchiever());
-      
+
         po = plan.removeInitGoal(po);
         BiconnectivityInspector bI = new BiconnectivityInspector(new AsUndirectedGraph(po));
         //System.out.println("Number of BiconnectedComponents: "+bI.getCutpoints());
-        
+
         //System.out.println("Number of macros"+macros.size());
         //long beforeAddingFile = System.currentTimeMillis();
         DomainEnhancer dEnh = new DomainEnhancer();
         List c = null;
 
-            c =plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,biconnectivity,false);
-    
+        c = plan.generateMacrosFromPop(po, plan.getGoalAchiever(), true, biconnectivity, false);
+
         setConnectedComponentsNumber(plan.getConnectedSetBuilder().connectedSets().size());
-        
+
         return 0;
     }
 
@@ -1090,29 +1118,30 @@ public class PlanAdapter {
         this.connectedComponentsNumber = connectedComponentsNumber;
     }
 
-    public DirectedAcyclicGraph removeUselessActions(DirectedAcyclicGraph po,int goalIndex) {
+    public DirectedAcyclicGraph removeUselessActions(DirectedAcyclicGraph po, int goalIndex) {
         int counter = 0;
-        DirectedAcyclicGraph po1 = (DirectedAcyclicGraph)po.clone();
+        DirectedAcyclicGraph po1 = (DirectedAcyclicGraph) po.clone();
         TransitiveClosure.INSTANCE.closeSimpleDirectedGraph(po1);
-        
+
         Set s = new HashSet();
-        for (int v=1;v<goalIndex;v++){
-            if (!po1.containsEdge(v, goalIndex)){
+        for (int v = 1; v < goalIndex; v++) {
+            if (!po1.containsEdge(v, goalIndex)) {
                 System.out.println(v);
                 counter++;
                 s.add(v);
             }
         }
         System.out.println(s);
-        for (Object v: s)
+        for (Object v : s) {
             po.removeVertex(v);
-        
-        System.out.println("actins belonging to endless path:"+counter);
-        
+        }
+
+        System.out.println("actins belonging to endless path:" + counter);
+
         setUselessActionPruning(counter);
-        
+
         return po;
-        
+
     }
 
     /**
@@ -1130,45 +1159,37 @@ public class PlanAdapter {
     }
 
     protected TreeSet pruneSmallMacros(List c, int i) {
-        
+
         TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
         ret.addAll(c);
-        
-        while(ret.size()>i)
+
+        while (ret.size() > i) {
             ret.pollFirst();
+        }
         return ret;
-        
+
     }
 
     public void adaptViaBlockDeordering(SimplePlan sp, PddlProblem problem, PddlDomain domain, String planFile) {
-        
+
         //Block deordering invocation
-           
         //Build Macro Action
-        
         //Write domain extended
-        
         //Planning with off-the shelf planner on the extended domain representation
-        
-        
-        
     }
-
-
-
-
 
     public class GroundActionComparator implements Comparator<GroundAction> {
-    @Override
-    public int compare(GroundAction x, GroundAction y) {
-        if (x.getPrimitives().size()<=y.getPrimitives().size())
-            return -1;
-        if (x.getPrimitives().size()==y.getPrimitives().size())
-            return 0;
-        return 1;  // do your comparison
-    }
-    }
 
-    
+        @Override
+        public int compare(GroundAction x, GroundAction y) {
+            if (x.getPrimitives().size() <= y.getPrimitives().size()) {
+                return -1;
+            }
+            if (x.getPrimitives().size() == y.getPrimitives().size()) {
+                return 0;
+            }
+            return 1;  // do your comparison
+        }
+    }
 
 }

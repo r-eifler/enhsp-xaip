@@ -51,8 +51,6 @@ import propositionalFactory.grounder;
  */
 public class ActionSchema extends GenericActionType {
 
-
-
     public ActionSchema() {
         super();
         parameters = new SchemaParameters();
@@ -62,30 +60,28 @@ public class ActionSchema extends GenericActionType {
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
         this.cond_effects = new AndCond();
-        
-    }
 
+    }
 
     public void addParameter(Variable o) {
 
         parameters.add(o);
 
     }
-    
-    
-        
-    public String pddlPrintWithExtraObject(){
+
+    public String pddlPrintWithExtraObject() {
         String ret = "(:action " + this.name + "\n";
 
         ret += ":parameters " + this.parameters + "\n";
-        if (this.getPreconditions()!= null && !this.getPreconditions().sons.isEmpty())
+        if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty()) {
             ret += ":precondition (forall (?interpr - interpretation)" + this.getPreconditions().pddlPrintWithExtraObject() + ")\n";
+        }
         ret += ":effect " + this.pddlEffectsWithExtraObject();
 
         return ret + ")";
     }
 
-    public GroundAction ground(Map substitution,PDDLObjects po) {
+    public GroundAction ground(Map substitution, PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -95,18 +91,16 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution,po));
-        ret.setAddList(this.addList.ground(substitution,po));
-        ret.setDelList(this.delList.ground(substitution,po));
-        ret.setPreconditions(this.preconditions.ground(substitution,po));
-        ret.cond_effects = this.cond_effects.ground(substitution,po);
-
-
+        ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+        ret.setAddList(this.addList.ground(substitution, po));
+        ret.setDelList(this.delList.ground(substitution, po));
+        ret.setPreconditions(this.preconditions.ground(substitution, po));
+        ret.cond_effects = this.cond_effects.ground(substitution, po);
 
         return ret;
 
     }
-    
+
     public GroundAction ground(Map substitution, int c) {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
@@ -117,14 +111,14 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution,c++));
-        ret.setAddList(this.addList.ground(substitution,c++));
-        ret.setDelList(this.delList.ground(substitution,c++));
-        ret.setPreconditions(this.preconditions.ground(substitution,c++));
+        ret.setNumericEffects(this.numericEffects.ground(substitution, c++));
+        ret.setAddList(this.addList.ground(substitution, c++));
+        ret.setDelList(this.delList.ground(substitution, c++));
+        ret.setPreconditions(this.preconditions.ground(substitution, c++));
         return ret;
     }
 
-    public GroundAction ground(ParametersAsTerms par,PDDLObjects po) {
+    public GroundAction ground(ParametersAsTerms par, PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         int i = 0;
         grounder g = new grounder();
@@ -132,28 +126,29 @@ public class ActionSchema extends GenericActionType {
         ret.setParameters(par);
 
 //        System.out.println(this);
-        if (numericEffects!= null || !numericEffects.sons.isEmpty()){
+        if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution,po));
-        }if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution,po));
+            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+        }
+        if (addList != null) {
+            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution,po));
+            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution,po));
+            ret.setPreconditions(this.preconditions.ground(substitution, po));
         }
         if (cond_effects != null) {
 //            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution,po);
+            ret.cond_effects = this.cond_effects.ground(substitution, po);
 //            System.out.println("DEBUG: after:"+cond_effects);
-       
+
         }
 
         return ret;
     }
-    
+
     public GroundAction ground() {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
@@ -166,9 +161,6 @@ public class ActionSchema extends GenericActionType {
         ret.cond_effects = cond_effects;
         return ret;
     }
-    
-
-    
 
     @Override
     public String toString() {
@@ -184,7 +176,7 @@ public class ActionSchema extends GenericActionType {
         ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
         //ret += ":effect " + this.pddlEffectsWithExtraObject();
-        ret += ":effect " + this.pddlEffects()+"\n";
+        ret += ":effect " + this.pddlEffects() + "\n";
 
         return ret + ")";
     }
@@ -223,18 +215,18 @@ public class ActionSchema extends GenericActionType {
 
     public Set getAbstractNumericFluentAffected() {
         HashSet anfa = new HashSet();
-        for (Object o: this.numericEffects.sons){
-            if (o instanceof AndCond){
-                AndCond a = (AndCond)o;
-                for (Object o1: a.sons){
-                    if (o1 instanceof NumEffect){
-                        NumEffect ne = (NumEffect)o1;
+        for (Object o : this.numericEffects.sons) {
+            if (o instanceof AndCond) {
+                AndCond a = (AndCond) o;
+                for (Object o1 : a.sons) {
+                    if (o1 instanceof NumEffect) {
+                        NumEffect ne = (NumEffect) o1;
                         anfa.add(ne.getFluentAffected());
-                    }    
+                    }
                 }
-                
-            }else if (o instanceof NumEffect){
-                NumEffect ne = (NumEffect)o;
+
+            } else if (o instanceof NumEffect) {
+                NumEffect ne = (NumEffect) o;
                 anfa.add(ne.getFluentAffected());
             }
         }
@@ -243,17 +235,16 @@ public class ActionSchema extends GenericActionType {
 
     @Deprecated
     public ActionSchema append(ActionSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
-        
+
         if (this.name == null) {
             return (ActionSchema) as2.clone();
         }
         ActionSchema a = this;
-        
+
         ActionSchema ab = new ActionSchema();
-        ab.name = this.name+"_"+as2.name;
-        
-        
-        ab.setParameters( (SchemaParameters) a.parameters.clone());
+        ab.name = this.name + "_" + as2.name;
+
+        ab.setParameters((SchemaParameters) a.parameters.clone());
         ab.parameters.mergeParameters(as2.parameters);
 
         ab.setPreconditions(this.regress(as2, a));
@@ -266,18 +257,16 @@ public class ActionSchema extends GenericActionType {
     }
 
     private void progress(ActionSchema a, ActionSchema b, ActionSchema ab) {
-   /*Starting from what action a achieve*/
+        /*Starting from what action a achieve*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/
-
         localAddList.subtractElements((AndCond) b.getDelList());
 
         /*atoms achieved by b*/
         localAddList.sons.addAll(b.getAddList().sons);
 
         /*Starting from what action a deletes*/
-
         AndCond localDelList = null;
         if (a.delList != null) {
             localDelList = (AndCond) a.delList.clone();
@@ -325,10 +314,6 @@ public class ActionSchema extends GenericActionType {
     /**
      * @return the numericFluentAffected
      */
-
-
-
-
     private Conditions regress(ActionSchema b, ActionSchema a) {
         /*Propositional Part first*/
 
@@ -359,10 +344,8 @@ public class ActionSchema extends GenericActionType {
         result.sons.addAll(a.getPreconditions().sons);
 
         //AndCond numericCondition = 
+        return result;
 
-        return result;    
-    
-    
     }
 
     private String pddlEffectsWithExtraObject() {
@@ -370,26 +353,26 @@ public class ActionSchema extends GenericActionType {
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
-                ret += "(forall (?interpr - interpretation) "+p.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?interpr - interpretation) " + p.pddlPrintWithExtraObject() + ")";
             }
         }
         if (this.getDelList() != null) {
             for (Object o : this.getDelList().sons) {
                 NotCond p = (NotCond) o;
-                ret += "(forall (?interpr - interpretation) "+p.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?interpr - interpretation) " + p.pddlPrintWithExtraObject() + ")";
             }
         }
         if (this.getNumericEffects() != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
-                ret += "(forall (?interpr - interpretation) "+nE.pddlPrint(false)+")";
+                ret += "(forall (?interpr - interpretation) " + nE.pddlPrint(false) + ")";
 
             }
         }
         if (this.cond_effects != null) {
             for (Object o : this.cond_effects.sons) {
                 ConditionalEffect cond_eff = (ConditionalEffect) o;
-                ret += "(forall (?interpr - interpretation) "+cond_eff.pddlPrintWithExtraObject()+")";
+                ret += "(forall (?interpr - interpretation) " + cond_eff.pddlPrintWithExtraObject() + ")";
 
             }
         }
@@ -397,8 +380,4 @@ public class ActionSchema extends GenericActionType {
         return ret + ")";
     }
 
-
-    
-    
-    
 }

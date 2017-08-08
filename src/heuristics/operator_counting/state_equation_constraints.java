@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -40,5 +39,5 @@ public class state_equation_constraints extends op_counting_constraints {
     public void update_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

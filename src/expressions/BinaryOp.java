@@ -62,13 +62,12 @@ public class BinaryOp extends Expression {
         this.grounded = grounded;
 
     }
-    
-
 
     @Override
     public String toString() {
-        if (getRight()!=null)
+        if (getRight() != null) {
             return "(" + getOperator() + " (" + getOne() + " " + getRight() + "))";
+        }
         return "(" + getOperator() + " (" + getOne() + "))";
     }
 
@@ -115,12 +114,12 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
-        ret.lhs = lhs.ground(substitution,po);
-        ret.rhs = rhs.ground(substitution,po);
+        ret.lhs = lhs.ground(substitution, po);
+        ret.rhs = rhs.ground(substitution, po);
 
         ret.grounded = true;
 
@@ -169,19 +168,17 @@ public class BinaryOp extends Expression {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         this.setOne(this.getOne().normalize());
         this.setRight(this.getRight().normalize());
-        
-        
-        
-        ExtendedNormExpression l = (ExtendedNormExpression)this.getOne();
-        ExtendedNormExpression r = (ExtendedNormExpression)this.getRight();
+
+        ExtendedNormExpression l = (ExtendedNormExpression) this.getOne();
+        ExtendedNormExpression r = (ExtendedNormExpression) this.getRight();
 
         try {
-            if ((!r.isNumber() && this.getOperator().equals("/"))||((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && ((this.getOperator().equals("*") || this.getOperator().equals("/")))))) {
+            if ((!r.isNumber() && this.getOperator().equals("/")) || ((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && ((this.getOperator().equals("*") || this.getOperator().equals("/")))))) {
                 BinaryOp bin = new BinaryOp();
                 bin.setOperator(this.getOperator());
                 bin.setOne(l);
                 bin.setRight(r);
-                
+
                 ret = new ExtendedNormExpression(bin);
                 ret.linear = false;
                 //System.out.println("Addendum:"+ret);
@@ -227,7 +224,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public void changeVar(Map<Variable,PDDLObject> substitution) {
+    public void changeVar(Map<Variable, PDDLObject> substitution) {
         this.lhs.changeVar(substitution);
         this.rhs.changeVar(substitution);
 
@@ -246,10 +243,10 @@ public class BinaryOp extends Expression {
         if (ret.lhs == null || ret.rhs == null) {
             return null;
         }
-        if (ret.lhs instanceof PDDLNumber && ret.rhs instanceof PDDLNumber){
-            PDDLNumber first = (PDDLNumber)ret.lhs;
-            PDDLNumber second = (PDDLNumber)ret.rhs;
-            PDDLNumber ret_val=null;
+        if (ret.lhs instanceof PDDLNumber && ret.rhs instanceof PDDLNumber) {
+            PDDLNumber first = (PDDLNumber) ret.lhs;
+            PDDLNumber second = (PDDLNumber) ret.rhs;
+            PDDLNumber ret_val = null;
             switch (this.getOperator()) {
                 case "+":
                     ret_val = new PDDLNumber(first.getNumber() + second.getNumber());
@@ -278,9 +275,6 @@ public class BinaryOp extends Expression {
             }
             return ret_val;
         }
-        
-        
-
 
         return ret;
 
@@ -338,7 +332,7 @@ public class BinaryOp extends Expression {
 //            ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc,bd))));
             //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
 //            ret_val = new PDDLNumber(new Float(first.getNumber()) / new Float(second.getNumber()));
-        } else if (this.getOperator().equals("^")){
+        } else if (this.getOperator().equals("^")) {
             ret_val = first.pow(second);
 
         }

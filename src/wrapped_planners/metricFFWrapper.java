@@ -1,28 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
+ ********************************************************************
+ */
 package wrapped_planners;
 
 import extraUtils.Utils;
@@ -50,8 +53,6 @@ public class metricFFWrapper extends planningTool {
 
 //        ArrayList solution;
     }
-    
-
 
     @Override
     public String plan() {
@@ -59,24 +60,24 @@ public class metricFFWrapper extends planningTool {
             System.out.println("Planning...");
             this.executePlanning();
             //System.out.println(outputPlanning);
-            if (this.isTimeoutFail()){
+            if (this.isTimeoutFail()) {
                 System.out.println("....TIMEOUT");
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable") || (this.outputPlanning.contains("goal can be simplified to FALSE"))){
-                this.failed=true;
+            if (this.outputPlanning.contains("unsolvable") || (this.outputPlanning.contains("goal can be simplified to FALSE"))) {
+                this.failed = true;
                 System.out.println("....UNSOLVABLE");
                 this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
-            if (!this.outputPlanning.contains("found legal plan")){
-                this.failed=false;
+            if (!this.outputPlanning.contains("found legal plan")) {
+                this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR!!");
                 this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
-            
+
             System.out.println("....SUCCESS");
             putSolutionInFile(this.outputPlanning);
             this.findTotalTimeInFile(outputPlanning);
@@ -91,11 +92,11 @@ public class metricFFWrapper extends planningTool {
     @Override
     public String plan(String domainFile, String problemFile) {
 
-            //System.out.println("planning");
-            this.setDomainFile(domainFile);
-            this.setProblemFile(problemFile);
+        //System.out.println("planning");
+        this.setDomainFile(domainFile);
+        this.setProblemFile(problemFile);
 
-            return plan();
+        return plan();
 
     }
 
@@ -115,7 +116,6 @@ public class metricFFWrapper extends planningTool {
             }
         }
 
-
         output.close();
 
     }
@@ -124,10 +124,9 @@ public class metricFFWrapper extends planningTool {
     public String adapt(String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    public void findTotalTimeInFile(String s){
-            Scanner sc = new Scanner(s);
 
+    public void findTotalTimeInFile(String s) {
+        Scanner sc = new Scanner(s);
 
         while (sc.hasNextLine()) {
             String test = sc.findInLine("[0-9]+[.][0-9]+ seconds total time");

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -44,63 +43,63 @@ import problem.State;
  *
  * @author enrico
  */
-public class ConditionalEffect extends Conditions implements PostCondition{
+public class ConditionalEffect extends Conditions implements PostCondition {
+
     public Conditions activation_condition;
     public PostCondition effect;
 
-    
-    public ConditionalEffect(){
+    public ConditionalEffect() {
         super();
-        
+
     }
-    public ConditionalEffect(Conditions lhs, PostCondition rhs){
+
+    public ConditionalEffect(Conditions lhs, PostCondition rhs) {
         super();
 
         this.activation_condition = lhs;
         effect = rhs;
-        
-    }
-    
-    public Conditions clone(){
-        return new ConditionalEffect(activation_condition.clone(), (PostCondition) effect.clone());
-    }
-    
-    public String toString(){
-        return "(when "+this.activation_condition.pddlPrint(true)+" "+this.effect.pddlPrint(true)+")";
+
     }
 
+    public Conditions clone() {
+        return new ConditionalEffect(activation_condition.clone(), (PostCondition) effect.clone());
+    }
+
+    public String toString() {
+        return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
+    }
 
     public ConditionalEffect weakEval(State s, HashMap invF) {
         this.activation_condition.weakEval(s, invF);
-        if (this.effect instanceof Conditions){
-            Conditions con = (Conditions)this.effect;
+        if (this.effect instanceof Conditions) {
+            Conditions con = (Conditions) this.effect;
             con.weakEval(s, invF);
-        }else if (this.effect instanceof ConditionalEffect){
-            ConditionalEffect sub = (ConditionalEffect)this.effect;
+        } else if (this.effect instanceof ConditionalEffect) {
+            ConditionalEffect sub = (ConditionalEffect) this.effect;
             sub.weakEval(s, invF);
-        }else if (this.effect instanceof NumEffect){
-            NumEffect ne = (NumEffect)this.effect;
+        } else if (this.effect instanceof NumEffect) {
+            NumEffect ne = (NumEffect) this.effect;
             ne.weakEval(s, invF);
         }
         return this;
     }
 
-    public ConditionalEffect ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public ConditionalEffect ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ConditionalEffect ret = new ConditionalEffect();
-        ret.activation_condition = this.activation_condition.ground(substitution,po);
-        
-        if (this.effect instanceof Conditions){
-            Conditions con = (Conditions)this.effect;
-            ret.effect = (PostCondition) con.ground(substitution,po);
-        }else if (this.effect instanceof ConditionalEffect){
-            ConditionalEffect sub = (ConditionalEffect)this.effect;
-            ret.effect = sub.ground(substitution,po);
-        }else if (this.effect instanceof NumEffect){
-            NumEffect ne = (NumEffect)this.effect;
-            ret.effect = (NumEffect)ne.ground(substitution,po);
+        ret.activation_condition = this.activation_condition.ground(substitution, po);
+
+        if (this.effect instanceof Conditions) {
+            Conditions con = (Conditions) this.effect;
+            ret.effect = (PostCondition) con.ground(substitution, po);
+        } else if (this.effect instanceof ConditionalEffect) {
+            ConditionalEffect sub = (ConditionalEffect) this.effect;
+            ret.effect = sub.ground(substitution, po);
+        } else if (this.effect instanceof NumEffect) {
+            NumEffect ne = (NumEffect) this.effect;
+            ret.effect = (NumEffect) ne.ground(substitution, po);
         }
         ret.grounded = true;
-        return ret;    
+        return ret;
     }
 
     @Override
@@ -136,14 +135,14 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public void normalize() {
         this.activation_condition.normalize();
-        if (this.effect instanceof Conditions){
-            Conditions con = (Conditions)this.effect;
+        if (this.effect instanceof Conditions) {
+            Conditions con = (Conditions) this.effect;
             con.normalize();
-        }else if (this.effect instanceof ConditionalEffect){
-            ConditionalEffect sub = (ConditionalEffect)this.effect;
+        } else if (this.effect instanceof ConditionalEffect) {
+            ConditionalEffect sub = (ConditionalEffect) this.effect;
             sub.normalize();
-        }else if (this.effect instanceof NumEffect){
-            NumEffect ne = (NumEffect)this.effect;
+        } else if (this.effect instanceof NumEffect) {
+            NumEffect ne = (NumEffect) this.effect;
             ne.setRight(ne.getRight().normalize());
         }
     }
@@ -185,7 +184,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
 
     @Override
     public String pddlPrintWithExtraObject() {
-        return "(when "+this.activation_condition.pddlPrintWithExtraObject()+" "+this.effect.pddlPrintWithExtraObject()+")";
+        return "(when " + this.activation_condition.pddlPrintWithExtraObject() + " " + this.effect.pddlPrintWithExtraObject() + ")";
     }
 
     @Override
@@ -196,13 +195,15 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public Conditions achieve(Predicate p) {
         Conditions c = this.effect.achieve(p);
-        if (c==null)
+        if (c == null) {
             return null;
-        if (c.isValid()){
+        }
+        if (c.isValid()) {
             return this.activation_condition;
         }
-        if (c.isUnsatisfiable())
+        if (c.isUnsatisfiable()) {
             return c;
+        }
         AndCond and = new AndCond();
         and.addConditions(this.activation_condition);
         and.addConditions(c);
@@ -213,13 +214,15 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     @Override
     public Conditions delete(Predicate p) {
         Conditions c = this.effect.delete(p);
-        if (c==null)
+        if (c == null) {
             return null;
-        if (c.isValid()){
+        }
+        if (c.isValid()) {
             return this.activation_condition;
         }
-        if (c.isUnsatisfiable())
+        if (c.isUnsatisfiable()) {
             return c;
+        }
         AndCond and = new AndCond();
         and.addConditions(this.activation_condition);
         and.addConditions(c);
@@ -239,58 +242,58 @@ public class ConditionalEffect extends Conditions implements PostCondition{
         if (this == obj) {
             return true;
         }
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (!(obj instanceof ConditionalEffect)) {
             return false;
         }
-        
-        final ConditionalEffect other = (ConditionalEffect)obj;
-        
+
+        final ConditionalEffect other = (ConditionalEffect) obj;
+
         if (!this.activation_condition.equals(other.activation_condition)) {
             return false;
         }
-        
+
         if (!this.effect.equals(other.effect)) {
             return false;
         }
-        
+
         return true;
     }
 
     @Override
     public HashMap<Object, Object> apply(RelState s) {
-        final HashMap<Object,Object> ret = new HashMap<>();
+        final HashMap<Object, Object> ret = new HashMap<>();
         apply(s, ret);
         return ret;
     }
-    
+
     @Override
-    public HashMap<Object,Object> apply(State s) {
-        final HashMap<Object,Object> ret = new HashMap<>();
+    public HashMap<Object, Object> apply(State s) {
+        final HashMap<Object, Object> ret = new HashMap<>();
         apply(s, ret);
         return ret;
     }
 
     @Override
     public void apply(State s, Map modifications) {
-        if (s.satisfy(activation_condition)){
-            effect.apply(s,modifications);
+        if (s.satisfy(activation_condition)) {
+            effect.apply(s, modifications);
         }
     }
 
     @Override
     public void apply(RelState s, Map modifications) {
-        if (s.satisfy(activation_condition)){
-            effect.apply(s,modifications);
+        if (s.satisfy(activation_condition)) {
+            effect.apply(s, modifications);
         }
     }
-    
+
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui){
+    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         bui.append("(when ");
         activation_condition.pddlPrint(typeInformation, bui);
         bui.append(" ");
@@ -327,7 +330,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     public Conditions push_not_to_terminals() {
         this.activation_condition = this.activation_condition.push_not_to_terminals();
         return this;
-                //To change body of generated methods, choose Tools | Templates.
+        //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -339,7 +342,7 @@ public class ConditionalEffect extends Conditions implements PostCondition{
     public Conditions introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         return this.effect.affectedNumericFluents();

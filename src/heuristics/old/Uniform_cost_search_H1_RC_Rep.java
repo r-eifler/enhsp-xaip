@@ -55,7 +55,6 @@ public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
 
     protected HashMap<Conditions, Boolean> redundant_constraints;
 
-
     public Uniform_cost_search_H1_RC_Rep(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
@@ -64,7 +63,8 @@ public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
             Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-        protected void add_redundant_constraints() throws Exception {
+
+    protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 
         for (GroundAction a : A) {
@@ -116,9 +116,5 @@ public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
         set.addAll(temp);
 //        System.out.println("Set after:"+set.size());
     }
-
-
-    
-
 
 }

@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -44,7 +43,7 @@ import problem.GroundProcess;
  *
  * @author enrico
  */
-public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
+public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1 {
 
     public Uniform_cost_search_H1_RC(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -56,13 +55,14 @@ public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1{
     }
 
     public Uniform_cost_search_H1_RC(Conditions goals, Set actions, Set<GroundProcess> processesSet) {
-        super(goals, actions,processesSet);
+        super(goals, actions, processesSet);
         try {
             this.add_redundant_constraints();
         } catch (Exception ex) {
             Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 

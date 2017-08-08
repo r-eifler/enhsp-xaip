@@ -51,8 +51,6 @@ public class ProcessSchema extends GenericActionType {
 
     //private SchemaParameters parameters;
     //private HashSet numericFluentAffected;
-
-
     public ProcessSchema() {
         super();
         parameters = new SchemaParameters();
@@ -60,7 +58,7 @@ public class ProcessSchema extends GenericActionType {
         this.delList = new AndCond();
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
-        
+
     }
 
 //
@@ -91,7 +89,7 @@ public class ProcessSchema extends GenericActionType {
 
     }
 
-    public GroundProcess ground(Map substitution,PDDLObjects po) {
+    public GroundProcess ground(Map substitution, PDDLObjects po) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -101,18 +99,15 @@ public class ProcessSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution,po));
-        ret.setAddList(this.addList.ground(substitution,po));
-        ret.setDelList(this.delList.ground(substitution,po));
-        ret.setPreconditions(this.preconditions.ground(substitution,po));
-
-
-
+        ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+        ret.setAddList(this.addList.ground(substitution, po));
+        ret.setDelList(this.delList.ground(substitution, po));
+        ret.setPreconditions(this.preconditions.ground(substitution, po));
 
         return ret;
 
     }
-    
+
     public GroundProcess ground(Map substitution, int c) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
@@ -123,14 +118,14 @@ public class ProcessSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution,c++));
-        ret.setAddList(this.addList.ground(substitution,c++));
-        ret.setDelList(this.delList.ground(substitution,c++));
-        ret.setPreconditions(this.preconditions.ground(substitution,c++));
+        ret.setNumericEffects(this.numericEffects.ground(substitution, c++));
+        ret.setAddList(this.addList.ground(substitution, c++));
+        ret.setDelList(this.delList.ground(substitution, c++));
+        ret.setPreconditions(this.preconditions.ground(substitution, c++));
         return ret;
     }
 
-    public GroundProcess ground(ParametersAsTerms par,PDDLObjects po) {
+    public GroundProcess ground(ParametersAsTerms par, PDDLObjects po) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         int i = 0;
@@ -145,22 +140,23 @@ public class ProcessSchema extends GenericActionType {
         ret.setParameters(par);
 
         //System.out.println(this);
-        if (numericEffects!= null || !numericEffects.sons.isEmpty()){
+        if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution,po));
-        }if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution,po));
+            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+        }
+        if (addList != null) {
+            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution,po));
+            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution,po));
+            ret.setPreconditions(this.preconditions.ground(substitution, po));
         }
 
         return ret;
     }
-    
+
     public GroundProcess ground() {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
@@ -219,18 +215,18 @@ public class ProcessSchema extends GenericActionType {
 
     public Set getAbstractNumericFluentAffected() {
         HashSet anfa = new HashSet();
-        for (Object o: this.numericEffects.sons){
-            if (o instanceof AndCond){
-                AndCond a = (AndCond)o;
-                for (Object o1: a.sons){
-                    if (o1 instanceof NumEffect){
-                        NumEffect ne = (NumEffect)o1;
+        for (Object o : this.numericEffects.sons) {
+            if (o instanceof AndCond) {
+                AndCond a = (AndCond) o;
+                for (Object o1 : a.sons) {
+                    if (o1 instanceof NumEffect) {
+                        NumEffect ne = (NumEffect) o1;
                         anfa.add(ne.getFluentAffected());
-                    }    
+                    }
                 }
-                
-            }else if (o instanceof NumEffect){
-                NumEffect ne = (NumEffect)o;
+
+            } else if (o instanceof NumEffect) {
+                NumEffect ne = (NumEffect) o;
                 anfa.add(ne.getFluentAffected());
             }
         }
@@ -239,17 +235,16 @@ public class ProcessSchema extends GenericActionType {
 
     @Deprecated
     public ProcessSchema append(ProcessSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
-        
+
         if (this.name == null) {
             return (ProcessSchema) as2.clone();
         }
         ProcessSchema a = this;
-        
+
         ProcessSchema ab = new ProcessSchema();
-        ab.name = this.name+"_"+as2.name;
-        
-        
-        ab.setParameters( (SchemaParameters) a.getParameters().clone());
+        ab.name = this.name + "_" + as2.name;
+
+        ab.setParameters((SchemaParameters) a.getParameters().clone());
         ab.getParameters().mergeParameters(as2.getParameters());
 
         ab.setPreconditions(this.regress(as2, a));
@@ -262,18 +257,16 @@ public class ProcessSchema extends GenericActionType {
     }
 
     private void progress(ProcessSchema a, ProcessSchema b, ProcessSchema ab) {
-   /*Starting from what action a achieve*/
+        /*Starting from what action a achieve*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/
-
         localAddList.subtractElements((AndCond) b.getDelList());
 
         /*atoms achieved by b*/
         localAddList.sons.addAll(b.getAddList().sons);
 
         /*Starting from what action a deletes*/
-
         AndCond localDelList = null;
         if (a.delList != null) {
             localDelList = (AndCond) a.delList.clone();
@@ -298,7 +291,7 @@ public class ProcessSchema extends GenericActionType {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 numEff.sons.add(nf.subst(a.getNumericEffects()));
-                                System.out.println("TODO: redo the numeric affected fluents");
+                System.out.println("TODO: redo the numeric affected fluents");
                 System.exit(-1);
 //                ab.getNumericFluentAffected().add(nf.getFluentAffected());
             }
@@ -317,8 +310,6 @@ public class ProcessSchema extends GenericActionType {
 
         ab.setNumericEffects(numEff);
     }
-
-
 
     private Conditions regress(ProcessSchema b, ProcessSchema a) {
         /*Propositional Part first*/
@@ -350,12 +341,8 @@ public class ProcessSchema extends GenericActionType {
         result.sons.addAll(a.getPreconditions().sons);
 
         //AndCond numericCondition = 
+        return result;
 
-        return result;    
-    
-    
     }
-    
-    
-    
+
 }

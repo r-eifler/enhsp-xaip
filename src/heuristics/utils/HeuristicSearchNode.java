@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -35,21 +34,22 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-public class HeuristicSearchNode implements Comparable{
+public class HeuristicSearchNode implements Comparable {
 
     public GroundAction action;
     public int goal_distance;
     public HeuristicSearchNode father;
     public int action_cost_to_get_here;
     public Set orderings;
-    
-    public HeuristicSearchNode(GroundAction action,HeuristicSearchNode father,int action_cost_to_get_here,int goal_distance){
+
+    public HeuristicSearchNode(GroundAction action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
 
         this.action = action;
         this.goal_distance = goal_distance;
         this.father = father;
-        this.action_cost_to_get_here= action_cost_to_get_here;
+        this.action_cost_to_get_here = action_cost_to_get_here;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -59,8 +59,8 @@ public class HeuristicSearchNode implements Comparable{
             return false;
         }
         final HeuristicSearchNode other = (HeuristicSearchNode) obj;
-        
-        if (!this.action.equals(other.action) || this.action_cost_to_get_here != other.action_cost_to_get_here ) {
+
+        if (!this.action.equals(other.action) || this.action_cost_to_get_here != other.action_cost_to_get_here) {
             return false;
         }
         return true;
@@ -73,15 +73,16 @@ public class HeuristicSearchNode implements Comparable{
 //        return hash;
 //    }
 
-
     @Override
     public int compareTo(Object o) {
         final HeuristicSearchNode other = (HeuristicSearchNode) o;
-        if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here))
+        if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here)) {
             return 0;
-        if ((this.action_cost_to_get_here) < (other.action_cost_to_get_here))
+        }
+        if ((this.action_cost_to_get_here) < (other.action_cost_to_get_here)) {
             return -1;
-        else
+        } else {
             return +1;
+        }
     }
 }

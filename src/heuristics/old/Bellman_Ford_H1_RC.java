@@ -40,7 +40,6 @@ import problem.GroundAction;
  */
 public class Bellman_Ford_H1_RC extends Bellman_Ford_H1 {
 
-
     public Bellman_Ford_H1_RC(Conditions G, Set<GroundAction> A) {
         super(G, A);
         try {
@@ -51,4 +50,3 @@ public class Bellman_Ford_H1_RC extends Bellman_Ford_H1 {
     }
 
 }
-

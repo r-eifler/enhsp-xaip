@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -353,25 +352,25 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getOperator().equals("assign") && effect.getRight().rhsFluents().isEmpty()) {
-                        supporters.add(generate_constant_supporter(effect,gr.getName()+effect.getFluentAffected()));
-                    } else  {
-                        supporters.add(generate_plus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));
-                        supporters.add(generate_minus_inf_supporter(effect,gr.getName()+effect.getFluentAffected()));
+                        supporters.add(generate_constant_supporter(effect, gr.getName() + effect.getFluentAffected()));
+                    } else {
+                        supporters.add(generate_plus_inf_supporter(effect, gr.getName() + effect.getFluentAffected()));
+                        supporters.add(generate_minus_inf_supporter(effect, gr.getName() + effect.getFluentAffected()));
                     }
                 }
             }
 
         }
-        boolean solvable = verify_ibr_solvability(s,goal,supporters);
-        if (solvable){
-            return number_of_actions_needed(s,goal,A);
-        }else{
+        boolean solvable = verify_ibr_solvability(s, goal, supporters);
+        if (solvable) {
+            return number_of_actions_needed(s, goal, A);
+        } else {
             return Integer.MAX_VALUE;
         }
     }
 
-    private GroundAction generate_constant_supporter(NumEffect effect,String name) {
-        GroundAction ret = new GroundAction(name+"constantassign");
+    private GroundAction generate_constant_supporter(NumEffect effect, String name) {
+        GroundAction ret = new GroundAction(name + "constantassign");
         NumEffect assign = new NumEffect("assign");
         assign.setFluentAffected(effect.getFluentAffected());
         assign.setRight(effect.getRight());
@@ -379,7 +378,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         return ret;
     }
 
-    private GroundAction generate_plus_inf_supporter(NumEffect effect,String name) {
+    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name) {
         String disequality = "";
         Float asymptote = Float.POSITIVE_INFINITY;
         switch (effect.getOperator()) {
@@ -393,15 +392,15 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
                 disequality = ">";
                 break;
         }
-        return generate_supporter(effect, disequality, asymptote,name+"plusinf");
+        return generate_supporter(effect, disequality, asymptote, name + "plusinf");
     }
 
-    private GroundAction generate_supporter(NumEffect effect, String disequality, Float asymptote,String name) {
+    private GroundAction generate_supporter(NumEffect effect, String disequality, Float asymptote, String name) {
         GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(disequality);
-        if (effect.getOperator().equals("assign")){
-            indirect_precondition.setLeft(new BinaryOp(effect.getRight(),"-",effect.getFluentAffected(),true));
-        }else{
+        if (effect.getOperator().equals("assign")) {
+            indirect_precondition.setLeft(new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true));
+        } else {
             indirect_precondition.setLeft(effect.getRight());
         }
         indirect_precondition.setRight(new PDDLNumber(0));
@@ -413,7 +412,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         return ret;
     }
 
-    private GroundAction generate_minus_inf_supporter(NumEffect effect,String name) {
+    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name) {
         String disequality = "";
         Float asymptote = Float.NEGATIVE_INFINITY;
         switch (effect.getOperator()) {
@@ -426,18 +425,18 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
             case "assign":
                 disequality = "<";
                 break;
-            
+
         }
-        return generate_supporter(effect, disequality, asymptote,name+"minusinf");
+        return generate_supporter(effect, disequality, asymptote, name + "minusinf");
     }
 
     private boolean verify_ibr_solvability(State s, Comparison goal, Collection<GroundAction> supporters) {
-        
+
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
-        while (!rs.satisfy(goal)){//until  the goal is not satisfied
+        while (!rs.satisfy(goal)) {//until  the goal is not satisfied
             Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-            if (S.isEmpty()){//if there are no applicable action then finish!
+            if (S.isEmpty()) {//if there are no applicable action then finish!
                 return false;
             }
             temp_supporters.removeIf(p -> p.isApplicable(rs));//Remove the action just taken
@@ -449,13 +448,14 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
     private int number_of_actions_needed(State s, Comparison goal, Collection<GroundAction> actions) {
         RelState rs = s.relaxState();
         int counter = 0;
-        while (counter<=horizon){
-            for (GroundAction gr: actions){
-                if (gr.isApplicable(rs)){
+        while (counter <= horizon) {
+            for (GroundAction gr : actions) {
+                if (gr.isApplicable(rs)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs);
                     counter++;
-                    if (rs.satisfy(goal))
+                    if (rs.satisfy(goal)) {
                         return counter;
+                    }
                 }
             }
         }

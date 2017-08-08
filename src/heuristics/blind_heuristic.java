@@ -1,5 +1,3 @@
-
-
 /**
  * *******************************************************************
  *
@@ -37,34 +35,33 @@ import problem.State;
  *
  * @author enrico
  */
-public class blind_heuristic extends Aibr{
+public class blind_heuristic extends Aibr {
 
     public blind_heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
     }
-    
+
     public blind_heuristic(Conditions G, Set<GroundAction> A) {
         super(G, A);
     }
 
     public blind_heuristic(Conditions goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
-         super(goals, actions,processesSet,eventsSet);
+        super(goals, actions, processesSet, eventsSet);
 
     }
-
-
 
     @Override
     public Float compute_estimate(State s_0) {
-        if (reachability){
-            
+        if (reachability) {
+
             return super.compute_estimate(s_0);
-            
+
         }
-        if (s_0.satisfy(this.G))
-                return 0f;
-        else
+        if (s_0.satisfy(this.G)) {
+            return 0f;
+        } else {
             return 1f;
+        }
     }
-    
+
 }

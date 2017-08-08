@@ -111,8 +111,6 @@ public class PddlProblem {
     public Collection<NumFluent> num_fluent_universe;
     public Collection<Predicate> predicates_universe;
 
-    
-
     /**
      * Get the value of groundedActions
      *
@@ -230,7 +228,7 @@ public class PddlProblem {
         file.write(toWrite);
         file.close();
     }
-    
+
     public void saveProblemWithObjectInterpretation(String pddlNewFile) throws IOException {
 
         pddlFilRef = pddlNewFile;
@@ -241,14 +239,13 @@ public class PddlProblem {
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
         file.write("(define (problem " + this.getName() + ") ");
         file.write("(:domain ");
-        file.write(this.getDomainName()+")");
+        file.write(this.getDomainName() + ")");
         file.write(this.getObjects().pddlPrint());
         file.write(this.init.stringBuilderPddlPrintWithDummyTrue().toString());
         file.write("(:goal (forall (?interpr - interpretation)");
-        file.write(this.getGoals().pddlPrintWithExtraObject()+")))");
+        file.write(this.getGoals().pddlPrintWithExtraObject() + ")))");
         file.close();
     }
-
 
     /**
      *
@@ -325,7 +322,7 @@ public class PddlProblem {
 
             }
         }
-        this.goals =this.goals.push_not_to_terminals();
+        this.goals = this.goals.push_not_to_terminals();
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
@@ -357,7 +354,6 @@ public class PddlProblem {
         //System.out.println(a);
         for (int i = 1; i < t.getChildCount(); i++) {
 
-            
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
 //            System.out.println(a);
 //
@@ -365,8 +361,8 @@ public class PddlProblem {
             if (t1 != null) {
                 a.addObject(t1);
             } else {
-                
-                System.out.println("Object " + t.getChild(i).getText() + " does not exist. Issue in building predicate "+a.getPredicateName());
+
+                System.out.println("Object " + t.getChild(i).getText() + " does not exist. Issue in building predicate " + a.getPredicateName());
                 System.exit(-1);
             }
         }
@@ -429,7 +425,7 @@ public class PddlProblem {
             return ret;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
-        }else if (infoAction.getType() == PddlParser.ONEOF) {
+        } else if (infoAction.getType() == PddlParser.ONEOF) {
             OneOf one_of = new OneOf();
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Conditions ret_val = addOneOf(infoAction.getChild(i));
@@ -447,8 +443,7 @@ public class PddlProblem {
 
         int test = t.getType();
         switch (t.getType()) {
-            case PddlParser.BINARY_OP:
-            {
+            case PddlParser.BINARY_OP: {
                 BinaryOp ret = new BinaryOp();
                 ret.setOperator(t.getChild(0).getText());
                 ret.setOne(createExpression(t.getChild(1)));
@@ -456,27 +451,24 @@ public class PddlProblem {
                 ret.grounded = true;
                 return ret;
             }
-            case PddlParser.NUMBER:
-            {
+            case PddlParser.NUMBER: {
                 //Float.
                 PDDLNumber ret = new PDDLNumber(Float.valueOf(t.getText()));
                 return ret;
             }
-            case PddlParser.FUNC_HEAD:
-            {
+            case PddlParser.FUNC_HEAD: {
                 NumFluent ret = new NumFluent(t.getChild(0).getText());
-                
+
                 for (int i = 1; i < t.getChildCount(); i++) {
                     ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
                 }
-                
+
                 ret.grounded = true;
                 return ret;
             }
             case PddlParser.UNARY_MINUS:
                 return new MinusUnary(createExpression(t.getChild(0)));
-            case PddlParser.MULTI_OP:
-            {
+            case PddlParser.MULTI_OP: {
                 MultiOp ret = new MultiOp(t.getChild(0).getText());
                 for (int i = 1; i < t.getChildCount(); i++) {
                     //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
@@ -725,7 +717,7 @@ public class PddlProblem {
     }
 
     public void generateActions() throws Exception {
-        
+
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             grounder af = new grounder();
@@ -1063,7 +1055,7 @@ public class PddlProblem {
     public HashMap getActualFluents() throws Exception {
         if (staticFluents == null) {
             staticFluents = new HashMap();
-            if (this.getActions() == null || this.getActions().isEmpty() ) {
+            if (this.getActions() == null || this.getActions().isEmpty()) {
                 this.generateActions();
             }
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
@@ -1108,10 +1100,10 @@ public class PddlProblem {
             return buildInstPredicate(infoAction);
         } else if (infoAction.getType() == PddlParser.UNKNOWN) {
 
-          return addUnknown(infoAction.getChild(0));
+            return addUnknown(infoAction.getChild(0));
 
-        }else{
-            System.out.println("Some serious error:"+infoAction);
+        } else {
+            System.out.println("Some serious error:" + infoAction);
             return null;
         }
     }
@@ -1146,8 +1138,8 @@ public class PddlProblem {
                     }
                 }
                 return or;
-                //Crea un or e per ogni figlio di questo nodo invoca creaformula
-                //gestendo il valore di ritorno come un attributo di or
+            //Crea un or e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di or
             case PddlParser.NOT_PRED_INIT:
                 Conditions cond = null; // TODO: Can the condition be null or should we throw an error?
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -1173,7 +1165,7 @@ public class PddlProblem {
                 }
                 return one_of;
             default:
-                System.out.println("Oneof Parsing: Some serious error:"+infoAction);
+                System.out.println("Oneof Parsing: Some serious error:" + infoAction);
                 return null;
         }
     }
@@ -1210,7 +1202,7 @@ public class PddlProblem {
             return or;
             //Crea un or e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di or
-        } else if (infoAction.getType() == PddlParser.NOT_PRED_INIT) { 
+        } else if (infoAction.getType() == PddlParser.NOT_PRED_INIT) {
             // TODO: Can the condition be null or should we throw an error if that happens?
             Conditions cond = null;
             for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -1221,45 +1213,45 @@ public class PddlProblem {
             }
             NotCond not = new NotCond(cond);
             return not;
-        }else{
-            System.out.println("OR parsing: Some serious error:"+infoAction);
+        } else {
+            System.out.println("OR parsing: Some serious error:" + infoAction);
             return null;
         }
     }
 
     public void generate_universe_of_variables(PredicateSet predicates, List<NumFluent> functions, List<NumFluent> derived_variables) {
-        
+
         this.num_fluent_universe = new LinkedHashSet();
         this.predicates_universe = new LinkedHashSet();
-        for (Predicate p: predicates){
-            Set<ParametersAsTerms> combos =  grounder.sub(p.getTerms(), p.getTerms().size(), objects);
+        for (Predicate p : predicates) {
+            Set<ParametersAsTerms> combos = grounder.sub(p.getTerms(), p.getTerms().size(), objects);
 //            System.out.println("Combo Found:"+combos);
 
-            for (ParametersAsTerms ele : combos){
-                HashMap subst = create_subst(ele,p.getTerms());
+            for (ParametersAsTerms ele : combos) {
+                HashMap subst = create_subst(ele, p.getTerms());
 //                System.out.println("Current substitution:"+subst);
-                predicates_universe.add((Predicate)p.ground(subst,this.objects));
+                predicates_universe.add((Predicate) p.ground(subst, this.objects));
             }
-            if (p.getTerms().isEmpty())
+            if (p.getTerms().isEmpty()) {
                 predicates_universe.add(p);
-        }
-        for (NumFluent nf: functions){
-            Set<ParametersAsTerms> combos =  grounder.sub(nf.getTerms(), nf.getTerms().size(), objects);
-            for (ParametersAsTerms ele : combos){
-                HashMap subst = create_subst(ele,nf.getTerms());
-                num_fluent_universe.add((NumFluent)nf.ground(subst,this.objects));
             }
-            if (nf.getTerms().isEmpty())
+        }
+        for (NumFluent nf : functions) {
+            Set<ParametersAsTerms> combos = grounder.sub(nf.getTerms(), nf.getTerms().size(), objects);
+            for (ParametersAsTerms ele : combos) {
+                HashMap subst = create_subst(ele, nf.getTerms());
+                num_fluent_universe.add((NumFluent) nf.ground(subst, this.objects));
+            }
+            if (nf.getTerms().isEmpty()) {
                 num_fluent_universe.add(nf);
+            }
         }
     }
 
-
-
     private HashMap create_subst(ParametersAsTerms ele, ArrayList terms) {
         HashMap ret = new HashMap();
-        for (int i=0;i<terms.size();i++){
-            ret.put(terms.get(i),ele.get(i));
+        for (int i = 0; i < terms.size(); i++) {
+            ret.put(terms.get(i), ele.get(i));
         }
         return ret;
 

@@ -53,7 +53,7 @@ public class SchemaGlobalConstraint {
         return "SchemaGlobalConstraint{" + "parameters=" + parameters + ", condition=" + condition + ", name=" + name + '}';
     }
 
-    public GlobalConstraint ground(ParametersAsTerms par,PDDLObjects po) {
+    public GlobalConstraint ground(ParametersAsTerms par, PDDLObjects po) {
         GlobalConstraint ret = new GlobalConstraint(this.name);
         int i = 0;
 
@@ -66,7 +66,7 @@ public class SchemaGlobalConstraint {
         ret.grn_parameters = par;
 
         if (this.condition != null) {
-            ret.condition = this.condition.ground(substitution,po);
+            ret.condition = this.condition.ground(substitution, po);
         }
 
         return ret;
@@ -78,7 +78,7 @@ public class SchemaGlobalConstraint {
         ret.grn_parameters = new ParametersAsTerms();
         ret.condition = this.condition;
 
-        return ret;   
+        return ret;
     }
 
 }

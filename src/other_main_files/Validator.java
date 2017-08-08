@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -19,7 +18,6 @@
  ********************************************************************
  */
 package other_main_files;
-
 
 import conditions.Conditions;
 import domain.ActionSchema;
@@ -79,14 +77,14 @@ public class Validator {
 
     public static void parseInput(String[] args) {
 
-        if (args.length <2){
+        if (args.length < 2) {
             System.out.println("Usage: executable-name -o domain_name -f problem_name (-p plan_name)  (-s last_state_file)");
             System.exit(-1);
         }
         domainFile = searchParameterValue(args, "-o");
         problemFile = searchParameterValue(args, "-f");
-        planFile = searchParameterValue(args,"-p");
-        last_state_file = searchParameterValue(args,"-s");
+        planFile = searchParameterValue(args, "-p");
+        last_state_file = searchParameterValue(args, "-s");
     }
 
     /**
@@ -107,23 +105,23 @@ public class Validator {
         metricFFWrapper p = new metricFFWrapper();
         p.setTimeout(100000);
         SimplePlan sp = new SimplePlan(dom, prob, true);
-        
-        if (planFile == null){
+
+        if (planFile == null) {
             sp.parseSolution(p.plan(domainFile, problemFile));
             //sp.savePlan(problemFile+".sol");
-        }else{
+        } else {
             sp.parseSolution(planFile);
         }
-        
+
         sp.setInvariantFluents(prob.getActualFluents());
         System.out.println(sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
-        if (last_state_file != null)
-            save_last_state_to_a_file(last_state_file,sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
-            
-        System.out.println("Is the plan valid? "+sp.execute(prob.getInit()).satisfy(prob.getGoals()));
-   
-        //System.out.println(action_to_entaglement_by_init);
+        if (last_state_file != null) {
+            save_last_state_to_a_file(last_state_file, sp.last_relevant_fluents_last_state(0, prob.getInit().clone()));
+        }
 
+        System.out.println("Is the plan valid? " + sp.execute(prob.getInit()).satisfy(prob.getGoals()));
+
+        //System.out.println(action_to_entaglement_by_init);
     }
 
     private static void save_last_state_to_a_file(String last_state_file, String last_relevant_fluents_last_state) {
@@ -134,7 +132,7 @@ public class Validator {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Validator.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
 }

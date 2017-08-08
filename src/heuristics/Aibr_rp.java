@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -434,13 +433,12 @@ public class Aibr_rp extends Heuristic {
                     go_ahead = false;
                 }
             }
-            if (!go_ahead){
-                if (to_add.get(k).isEmpty()){
+            if (!go_ahead) {
+                if (to_add.get(k).isEmpty()) {
                     System.out.println("This shouldn't happen...Check in the plan extraction method");
                     System.exit(-1);
                 }
                 for (GroundAction gr : to_add.get(k)) {
-
 
                     for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
                         if (!c.can_be_true(rs2)) {
@@ -467,7 +465,7 @@ public class Aibr_rp extends Heuristic {
                     //System.out.println("Applying:"+gr);
                     //}             
                 }
-            }else{
+            } else {
                 k++;
             }
 

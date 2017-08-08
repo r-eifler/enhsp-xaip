@@ -73,7 +73,7 @@ public class SearchNode {
         wg = 1f;
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
+    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.action = action;
         this.h_n = goal_distance;
@@ -83,7 +83,7 @@ public class SearchNode {
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n*this.wh + this.g_n*this.wg;
+        f = this.h_n * this.wh + this.g_n * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -109,8 +109,8 @@ public class SearchNode {
         }
 
     }
-    
-        public SearchNode(State s1,  float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
+
+    public SearchNode(State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.action = null;
         this.h_n = goal_distance;
@@ -120,7 +120,7 @@ public class SearchNode {
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n*this.wh + this.g_n*this.wg;
+        f = this.h_n * this.wh + this.g_n * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -146,8 +146,8 @@ public class SearchNode {
         }
 
     }
-    
-    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json,float wg, float wh) {
+
+    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.action = null;
         this.h_n = goal_distance;
@@ -158,17 +158,16 @@ public class SearchNode {
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n*this.wh + this.g_n*this.wg;
+        f = this.h_n * this.wh + this.g_n * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
             if (action == null && this.list_of_actions == null) {
                 json_rep.put("action", "init_state");
+            } else if (action == null) {
+                json_rep.put("list_of_actions", "waiting");
             } else {
-                if (action == null)
-                    json_rep.put("list_of_actions", "waiting");
-                else
-                    json_rep.put("action", action.toString());
+                json_rep.put("action", action.toString());
             }
 
             json_rep.put("distance", goal_distance);
@@ -196,7 +195,6 @@ public class SearchNode {
         this.father = father;
         this.g_n = action_cost_to_get_here;
 
-        
         if (saving_json) {
             json_rep = new JSONObject();
             if (action == null) {
@@ -242,8 +240,6 @@ public class SearchNode {
         }
         System.out.println("Successfully Copied JSON Object to File...");
     }
-    
-
 
     @Override
     public boolean equals(Object obj) {
@@ -266,13 +262,10 @@ public class SearchNode {
         int hash = 5;
         hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
         hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-        hash = 29 * hash + (int)this.h_n;
+        hash = 29 * hash + (int) this.h_n;
         hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
         hash = 29 * hash + (int) this.g_n;
         return hash;
     }
-
-
-    
 
 }

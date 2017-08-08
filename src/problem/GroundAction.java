@@ -1685,12 +1685,9 @@ public class GroundAction extends GenericActionType implements Comparable {
         Conditions con = a.getPreconditions();
         if (con != null) {
             con.setFreeVarSemantic(true);
-            //        System.out.println(con);
             con = con.weakEval(problem.getInit(), invariantFluents);
 
             if (con == null || con.isUnsatisfiable()) {
-                //            if (con == null)
-                //                System.out.println("A precondition is never satisfiable; pruning"+a.toEcoString());
                 return false;
             }
         } else {

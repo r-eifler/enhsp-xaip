@@ -212,7 +212,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
             //d/ist.set(cn.c.getCounter(), cn.cost);
             closed.set(cn.getCounter(), true);
 
-            Float goal_dist = this.check_goal_conditions(s, G, dist,closed);
+            Float goal_dist = this.check_goal_conditions(s, G, dist, closed);
             if (goal_dist != Float.MAX_VALUE && !reacheability_setting) {
                 return goal_dist;
             }
@@ -221,7 +221,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
             LinkedHashSet<GroundAction> edges = new LinkedHashSet();
             while (it.hasNext()) {
                 GroundAction gr = it.next();
-                Float action_cost = this.compute_precondition_cost(s, dist, gr,closed);
+                Float action_cost = this.compute_precondition_cost(s, dist, gr, closed);
                 if (action_cost != Float.MAX_VALUE) {
                     edges.add(gr);
                     if (reacheability_setting) {
@@ -250,7 +250,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                         }
                     } else {
                         dist.set(p.getCounter(), current_cost);
-                        open_list.set(p.getCounter(),true);
+                        open_list.set(p.getCounter(), true);
                         FibonacciHeapNode node = new FibonacciHeapNode(p);
                         q.insert(node, current_cost);
                         cond_to_entry.put(p.getCounter(), node);
@@ -285,11 +285,11 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                                     dist.set(comp.getCounter(), current_cost);
                                 }
                             } else {
-                             dist.set(comp.getCounter(), current_cost);
-                            open_list.set(comp.getCounter(),true);
-                            FibonacciHeapNode node = new FibonacciHeapNode(comp);
-                            q.insert(node, current_cost);
-                            cond_to_entry.put(comp.getCounter(),node);
+                                dist.set(comp.getCounter(), current_cost);
+                                open_list.set(comp.getCounter(), true);
+                                FibonacciHeapNode node = new FibonacciHeapNode(comp);
+                                q.insert(node, current_cost);
+                                cond_to_entry.put(comp.getCounter(), node);
                             }
                         }
                     } else {
@@ -311,16 +311,16 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                     if (current_cost != Float.MAX_VALUE) {
                         if (open_list.get(comp.getCounter())) {
                             if (dist.get(comp.getCounter()) > current_cost) {
-                                
+
                                 q.decreaseKey(cond_to_entry.get(comp.getCounter()), current_cost);
                                 dist.set(comp.getCounter(), current_cost);
                             }
                         } else {
                             dist.set(comp.getCounter(), current_cost);
-                            open_list.set(comp.getCounter(),true);
+                            open_list.set(comp.getCounter(), true);
                             FibonacciHeapNode node = new FibonacciHeapNode(comp);
                             q.insert(node, current_cost);
-                            cond_to_entry.put(comp.getCounter(),node);
+                            cond_to_entry.put(comp.getCounter(), node);
                         }
                     }
                 } catch (CloneNotSupportedException ex) {
@@ -331,7 +331,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         }
 
         //System.out.println("Current Estimate to the goal:"+this.compute_float_cost(s, G, dist));
-        return this.check_goal_conditions(s, G, dist,closed);
+        return this.check_goal_conditions(s, G, dist, closed);
     }
 
     protected boolean generate_achievers() {

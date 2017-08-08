@@ -36,7 +36,7 @@ import net.sourceforge.interval.ia_math.RealInterval;
  */
 public class Interval {
 
-    private  PDDLNumber inf;
+    private PDDLNumber inf;
     private PDDLNumber sup;
     //TO-DO get rid of Interval and use RealInterval instead
     public boolean is_not_a_number;
@@ -67,10 +67,9 @@ public class Interval {
     public Interval sum(Interval b) {
 
 //        System.out.println("DEBUG: "+this);
-        
-        RealInterval ret = IAMath.add(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
-                                      new RealInterval(b.getInf().getNumber(),b.getSup().getNumber()));
-        
+        RealInterval ret = IAMath.add(new RealInterval(getInf().getNumber(), getSup().getNumber()),
+                new RealInterval(b.getInf().getNumber(), b.getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
@@ -78,9 +77,9 @@ public class Interval {
     }
 
     public Interval subtract(Interval b) {
-        RealInterval ret = IAMath.sub(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
-                                      new RealInterval(b.getInf().getNumber(),b.getSup().getNumber()));
-        
+        RealInterval ret = IAMath.sub(new RealInterval(getInf().getNumber(), getSup().getNumber()),
+                new RealInterval(b.getInf().getNumber(), b.getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
@@ -88,25 +87,26 @@ public class Interval {
     }
 
     public Interval mult(Float a) {
-        RealInterval ret = IAMath.mul(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
-                                      new RealInterval(a,a));
-        
+//        System.out.println("DEBUG:"+this);
+        RealInterval ret = IAMath.mul(new RealInterval(getInf().getNumber(), getSup().getNumber()),
+                new RealInterval(a, a));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
 
     public Interval mult(Interval b) {
 //        System.out.println(this);
-        RealInterval ret = IAMath.mul(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
-                                      new RealInterval(b.getInf().getNumber(),b.getSup().getNumber()));
-        
+        RealInterval ret = IAMath.mul(new RealInterval(getInf().getNumber(), getSup().getNumber()),
+                new RealInterval(b.getInf().getNumber(), b.getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
 
     }
@@ -118,7 +118,6 @@ public class Interval {
         return false;
     }
 
-    
 //    public Interval div(Interval b) {
 //        
 //        Interval ret_val = new Interval();
@@ -132,13 +131,13 @@ public class Interval {
 //         return ret_val;
 //     }
     public Interval div(Interval b) {
-        RealInterval ret = IAMath.odiv(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
-                                      new RealInterval(b.getInf().getNumber(),b.getSup().getNumber()));
-        
+        RealInterval ret = IAMath.odiv(new RealInterval(getInf().getNumber(), getSup().getNumber()),
+                new RealInterval(b.getInf().getNumber(), b.getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
 
@@ -153,13 +152,13 @@ public class Interval {
     }
 
     public Interval sum(Float number) {
-        RealInterval ret = IAMath.add(new RealInterval(getInf().getNumber(),getSup().getNumber()), 
-                                      new RealInterval(number,number));
-        
+        RealInterval ret = IAMath.add(new RealInterval(getInf().getNumber(), getSup().getNumber()),
+                new RealInterval(number, number));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
 
@@ -170,7 +169,7 @@ public class Interval {
     public boolean can_be_positive() {
         return this.getInf().greater(0) || this.getSup().greater(0);
     }
-    
+
     public Interval pow(Interval second) {
         Interval ret = new Interval();
 
@@ -191,8 +190,8 @@ public class Interval {
             ret.inf.setNumber(new Float(Math.pow(this.inf.getNumber(), second.inf.getNumber())));
             ret.sup.setNumber(new Float(Math.pow(this.sup.getNumber(), second.inf.getNumber())));
             return ret;
-            
-        }else{//higher integral powers
+
+        } else {//higher integral powers
             if (this.inf.getNumber() > 0 || (second.inf.getNumber() % 2 != 0)) {
 //            if (this.inf.getNumber() >= 0 ) {
 
@@ -224,77 +223,71 @@ public class Interval {
 //
 //        return ret_val;
 //    }
-    
     public Interval sin() {
-        RealInterval ret = IAMath.sin(new RealInterval(getInf().getNumber(),getSup().getNumber()));
-        
+        RealInterval ret = IAMath.sin(new RealInterval(getInf().getNumber(), getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
-    
+
     public Interval cos() {
-        RealInterval ret = IAMath.cos(new RealInterval(getInf().getNumber(),getSup().getNumber()));
-        
+        RealInterval ret = IAMath.cos(new RealInterval(getInf().getNumber(), getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
-    
+
     public Interval asin() {
-        RealInterval ret = IAMath.asin(new RealInterval(getInf().getNumber(),getSup().getNumber()));
-        
+        RealInterval ret = IAMath.asin(new RealInterval(getInf().getNumber(), getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
-    
+
     public Interval acos() {
-        RealInterval ret = IAMath.acos(new RealInterval(getInf().getNumber(),getSup().getNumber()));
-        
+        RealInterval ret = IAMath.acos(new RealInterval(getInf().getNumber(), getSup().getNumber()));
+
         Interval ret_val = new Interval();
         ret_val.setInf(new PDDLNumber((float) ret.lo()));
         ret_val.setSup(new PDDLNumber((float) ret.hi()));
-        
+
         return ret_val;
     }
-    
+
     public Interval abs() {
-        
+
         Interval ret_val = new Interval();
 
 //        ret_val.setInf(new PDDLNumber(Float.MIN_VALUE));
 //        ret_val.setSup(new PDDLNumber(Float.MAX_VALUE));
 //        return ret_val;
-        if (this.contain_zero()){
+        if (this.contain_zero()) {
             ret_val.setInf(new PDDLNumber(0));
             ret_val.setSup(new PDDLNumber(Math.max(Math.abs(this.inf.getNumber()), Math.abs(this.sup.getNumber()))));
-        }else if (this.sup.getNumber() <= 0){
+        } else if (this.sup.getNumber() <= 0) {
             ret_val.setInf(new PDDLNumber(Math.abs(this.sup.getNumber())));
             ret_val.setSup(new PDDLNumber(Math.abs(this.inf.getNumber())));
-        }else{
-            ret_val.setInf(new PDDLNumber(Math.abs(this.inf.getNumber())));           
+        } else {
+            ret_val.setInf(new PDDLNumber(Math.abs(this.inf.getNumber())));
             ret_val.setSup(new PDDLNumber(Math.abs(this.sup.getNumber())));
         }
-        
-        
-        
+
         return ret_val;
     }
-    
-
 
     @Override
     public String toString() {
         return "(" + this.getInf() + "," + this.getSup() + ")";
     }
-
 
     /**
      * @return the inf

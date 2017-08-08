@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -44,17 +43,18 @@ import java.util.HashMap;
  *
  * @author enrico
  */
-public class GlobalConstraint extends SchemaGlobalConstraint{
+public class GlobalConstraint extends SchemaGlobalConstraint {
 
     public ParametersAsTerms grn_parameters;
     private boolean normalized;
     private boolean reachable;
+
     public GlobalConstraint(String name) {
         super(name);
     }
 
     @Override
-    public Object clone(){
+    public Object clone() {
         GlobalConstraint cloned = new GlobalConstraint(this.name);
         cloned.normalized = this.normalized;
         cloned.reachable = this.reachable;
@@ -63,16 +63,15 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         cloned.parameters = (SchemaParameters) this.parameters.clone();
         return cloned;
     }
-    
+
     boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
-        
-      
+
         HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>)domain.get_derived_variables()){
-            invariantFluents.put(nf.getName(),Boolean.FALSE);
+        for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
+            invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
-        
+
         GlobalConstraint constr = this;
         //a.normalizeAndCopy();
 
@@ -81,18 +80,20 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
         //System.out.println(con);
         //con.normalize();
         //System.out.println(con);
-        
+
         //This needs to be fixed. The semantics of global constraints is different
         //from that of the actions. 
         con = con.weakEval(problem.getInit(), invariantFluents);
- 
+
         this.condition = con;
-        
-        
+
+        if (con.isValid()) {
+            return false;
+        }
+
         //if (con == null || con.isUnsatisfiable()){
         //    return false;
         //}
-
         //System.out.println(a.toPDDL());
 //        System.out.println(constr);
         constr.normalize();
@@ -129,44 +130,47 @@ public class GlobalConstraint extends SchemaGlobalConstraint{
     }
 
     public boolean isTautology(State reacheableState) {
-        
+
         //for now tautology is checked for disjunction in which one of the element is always true
-        if (this.condition instanceof OrCond){
-            OrCond or = (OrCond)this.condition;
-            for (Conditions c : (Collection<Conditions>)or.sons){
-                if (c instanceof NotCond){
-                    NotCond nc = (NotCond)c;
+        if (this.condition instanceof OrCond) {
+            OrCond or = (OrCond) this.condition;
+            for (Conditions c : (Collection<Conditions>) or.sons) {
+                if (c instanceof NotCond) {
+                    NotCond nc = (NotCond) c;
                     Object o = nc.getSon();
-                    if (o instanceof Predicate){
-                        Predicate p = (Predicate)o;
-                        if (!p.isSatisfied(reacheableState))
+                    if (o instanceof Predicate) {
+                        Predicate p = (Predicate) o;
+                        if (!p.isSatisfied(reacheableState)) {
                             return true;
+                        }
                     }
                 }
             }
         }
-            
+
         return false;
     }
+
     public boolean isTautology(RelState reacheableState) {
-        
+
         //for now tautology is checked for disjunction in which one of the element is always true
-        if (this.condition instanceof OrCond){
-            OrCond or = (OrCond)this.condition;
-            for (Conditions c : (Collection<Conditions>)or.sons){
-                if (c instanceof NotCond){
-                    NotCond nc = (NotCond)c;
+        if (this.condition instanceof OrCond) {
+            OrCond or = (OrCond) this.condition;
+            for (Conditions c : (Collection<Conditions>) or.sons) {
+                if (c instanceof NotCond) {
+                    NotCond nc = (NotCond) c;
                     Object o = nc.getSon();
-                    if (o instanceof Predicate){
-                        Predicate p = (Predicate)o;
-                        if (!p.can_be_true(reacheableState))
+                    if (o instanceof Predicate) {
+                        Predicate p = (Predicate) o;
+                        if (!p.can_be_true(reacheableState)) {
                             return true;
+                        }
                     }
                 }
             }
         }
-            
+
         return false;
     }
-    
+
 }

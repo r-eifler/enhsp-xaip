@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -42,15 +41,16 @@ import problem.State;
  *
  * @author enrico
  */
-public class double_implication extends Conditions{
-    
+public class double_implication extends Conditions {
+
     Conditions left;
     Conditions right;
 
-    public double_implication(Conditions left_input, Conditions right_input){
+    public double_implication(Conditions left_input, Conditions right_input) {
         this.left = left_input;
         this.right = right_input;
     }
+
     @Override
     public Conditions weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -62,7 +62,7 @@ public class double_implication extends Conditions{
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -128,7 +128,7 @@ public class double_implication extends Conditions{
 
     @Override
     public String toSmtVariableString(int i) {
-        return "( = ("+this.left.toSmtVariableString(i)+") "+"("+this.right.toSmtVariableString(i)+")";
+        return "( = (" + this.left.toSmtVariableString(i) + ") " + "(" + this.right.toSmtVariableString(i) + ")";
     }
 
     @Override

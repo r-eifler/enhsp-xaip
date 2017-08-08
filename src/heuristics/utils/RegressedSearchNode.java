@@ -17,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -36,18 +35,18 @@ import problem.State;
  *
  * @author enrico
  */
-public class RegressedSearchNode implements Comparable{
+public class RegressedSearchNode implements Comparable {
+
     public GroundAction action;
 
     public RegressedSearchNode father;
     public int action_cost_to_get_here;
-    public RegressedSearchNode(GroundAction action, int action_cost_to_get_here){
+
+    public RegressedSearchNode(GroundAction action, int action_cost_to_get_here) {
         this.action = action;
         this.father = father;
-        this.action_cost_to_get_here= action_cost_to_get_here;
+        this.action_cost_to_get_here = action_cost_to_get_here;
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
@@ -58,7 +57,7 @@ public class RegressedSearchNode implements Comparable{
             return false;
         }
         final RegressedSearchNode other = (RegressedSearchNode) obj;
-        
+
         if (!this.action.equals(other.action)) {
             return false;
         }
@@ -84,17 +83,17 @@ public class RegressedSearchNode implements Comparable{
 //        hash = 43 * hash + this.action_cost_to_get_here;
 //        return hash;
 //    }
-
     @Override
     public int compareTo(Object o) {
         final RegressedSearchNode other = (RegressedSearchNode) o;
-        if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here))
+        if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here)) {
             return 0;
-        if ((this.action_cost_to_get_here) < (other.action_cost_to_get_here))
+        }
+        if ((this.action_cost_to_get_here) < (other.action_cost_to_get_here)) {
             return -1;
-        else
+        } else {
             return +1;
+        }
     }
-    
-    
+
 }

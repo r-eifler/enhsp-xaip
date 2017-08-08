@@ -83,7 +83,7 @@ public class grounder {
         return sub(param, n_parametri, po);
 
     }
-    
+
     public Set Substitutions(SchemaParameters param, PDDLObjects po) throws Exception {
         return sub(param, param.size(), po);
 
@@ -216,24 +216,24 @@ public class grounder {
         Set ret = new LinkedHashSet();
 
         Set combo = Substitutions(a, po);
-        if (a.getPar().isEmpty())
+        if (a.getPar().isEmpty()) {
             combo.add(new ParametersAsTerms());
+        }
         for (Object o : combo) {
 
             if (o instanceof ParametersAsTerms) {
                 if (a instanceof EventSchema) {
-                    EventSchema b = (EventSchema)a;
-                    GroundEvent toAdd = b.ground((ParametersAsTerms) o,po);
+                    EventSchema b = (EventSchema) a;
+                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 } else {
-                    GroundAction toAdd = a.ground((ParametersAsTerms) o,po);
+                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 }
             }
         }
-        
 
         return ret;
 
@@ -245,7 +245,7 @@ public class grounder {
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
-                GroundProcess toAdd = a.ground((ParametersAsTerms) o,po);
+                GroundProcess toAdd = a.ground((ParametersAsTerms) o, po);
                 toAdd.generateAffectedNumFluents();
                 ret.add(toAdd);
             }
@@ -261,7 +261,7 @@ public class grounder {
         Set combo = Substitutions(constr, po);
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
-                GlobalConstraint toAdd = constr.ground((ParametersAsTerms) o,po);
+                GlobalConstraint toAdd = constr.ground((ParametersAsTerms) o, po);
                 ret.add(toAdd);
             }
         }
@@ -269,7 +269,6 @@ public class grounder {
         return ret;
 
     }
-
 
     public static Set sub(ArrayList param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
@@ -414,10 +413,9 @@ public class grounder {
 
         return combo;
     }
-    
-    
-    public Map obtain_sub_from_instance(SchemaParameters parameters, ParametersAsTerms par){
-    
+
+    public Map obtain_sub_from_instance(SchemaParameters parameters, ParametersAsTerms par) {
+
         int i = 0;
         Map substitution = new HashMap();
         for (Object o : parameters) {
@@ -427,6 +425,6 @@ public class grounder {
             i++;
         }
         return substitution;
-        
+
     }
 }

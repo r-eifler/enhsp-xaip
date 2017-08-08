@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 public class RelState extends Object {
 
     public HashMap<Predicate, Integer> poss_interpretation;//0 is negative, 1 positive, 2 both
-    public HashMap<NumFluent,Interval> poss_numericFs;
+    public HashMap<NumFluent, Interval> poss_numericFs;
     HashSet timedLiterals;///to do
 
     public RelState() {
@@ -67,14 +67,14 @@ public class RelState extends Object {
     @Override
     public RelState clone() {
         RelState ret_val = new RelState();
-        
-        for (NumFluent nf : this.poss_numericFs.keySet()){
+
+        for (NumFluent nf : this.poss_numericFs.keySet()) {
             ret_val.poss_numericFs.put(nf, this.poss_numericFs.get(nf).clone());
         }
         for (Predicate ele : this.poss_interpretation.keySet()) {
 
-                //            this.poss_interpretation.get(ele);
-                ret_val.poss_interpretation.put(ele, new Integer(this.poss_interpretation.get(ele)));
+            //            this.poss_interpretation.get(ele);
+            ret_val.poss_interpretation.put(ele, new Integer(this.poss_interpretation.get(ele)));
 
         }
 
@@ -104,13 +104,13 @@ public class RelState extends Object {
         } else {
 //            System.out.println("Value not found in the state!!"+f);
             Interval ret_val = new Interval(Float.NaN);
-            
+
             return ret_val;
         }
     }
 
     public PDDLNumber functionSupValue(NumFluent f) {
-        Interval a =  this.poss_numericFs.get(f);
+        Interval a = this.poss_numericFs.get(f);
         if (a != null) {
             return a.getSup();
         }
@@ -125,8 +125,6 @@ public class RelState extends Object {
             poss_interpretation.put(p, 2);
         }//otherwise it was already fine
     }
-
-
 
     void addTimedLiteral(Predicate buildInstPredicate) {
         timedLiterals.add(buildInstPredicate);
@@ -144,6 +142,7 @@ public class RelState extends Object {
         }
         return o >= 1;
     }
+
     public boolean can_be_false(Predicate aThis) {
 
         Integer o = this.poss_interpretation.get(aThis);
@@ -154,7 +153,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
-        Interval a =  this.poss_numericFs.get(f);
+        Interval a = this.poss_numericFs.get(f);
         if (a != null) {
             a.setInf(after);
         }
@@ -162,7 +161,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionSupValue(NumFluent f, PDDLNumber after) {
-        Interval a =  this.poss_numericFs.get(f);
+        Interval a = this.poss_numericFs.get(f);
         if (a != null) {
             a.setSup(after);
         }
@@ -250,7 +249,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionValues(NumFluent f, Interval after) {
-        this.poss_numericFs.put(f,after);
+        this.poss_numericFs.put(f, after);
 
     }
 
@@ -306,6 +305,6 @@ public class RelState extends Object {
     }
 
     void addNumericFluent(NumFluentValue newA) {
-       this.poss_numericFs.put(newA.getNFluent(), new Interval(newA.getValue().getNumber()));
+        this.poss_numericFs.put(newA.getNFluent(), new Interval(newA.getValue().getNumber()));
     }
 }

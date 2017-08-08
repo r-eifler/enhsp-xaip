@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -18,7 +17,6 @@
  *
  ********************************************************************
  */
-
 package adaptation;
 
 /*
@@ -26,8 +24,6 @@ package adaptation;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import adaptation.PlanAdapter;
 import some_computatitional_tool.DomainEnhancer;
 import domain.PddlDomain;
@@ -54,21 +50,19 @@ import problem.PddlProblem;
  *
  * @author enrico
  */
-public class AdapterViaBlockDeordering extends PlanAdapter{
+public class AdapterViaBlockDeordering extends PlanAdapter {
 
     public AdapterViaBlockDeordering(planningTool planner) {
         super(planner);
     }
 
     public SimplePlan adaptViaBlockDeordering(String planFile, PddlProblem problem, PddlDomain domain, SimplePlan sp) throws Exception {
-        
-             
-        
+
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
         long beforeMacrogeneration = System.currentTimeMillis();
         //List c = null;
-        List blocks = block_construction(problem.getPddlFileReference(),domain.getPddlFilRef(),planFile,sp,0);
+        List blocks = block_construction(problem.getPddlFileReference(), domain.getPddlFilRef(), planFile, sp, 0);
         //TreeSet macros = this.pruneSmallMacros(blocks,10);
         System.out.println(blocks);
         List mac = sp.generateMacrosFromBlocks(blocks);
@@ -76,33 +70,31 @@ public class AdapterViaBlockDeordering extends PlanAdapter{
         //System.out.println(po);
         //System.out.println(plan.toStringWithIndex());
         DomainEnhancer dEnh = new DomainEnhancer();
-        Map m = dEnh.addMacroActions(domain,mac,sp);
-        
+        Map m = dEnh.addMacroActions(domain, mac, sp);
+
         //System.out.println("time for adding in the file:" + (System.currentTimeMillis() - beforeAddingFile));
 
-        /**/macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
+        /**/
+        macroActionsConstructionTime = System.currentTimeMillis() - beforeMacrogeneration;
         //System.out.println("MacroConstruction Time:" + getMacroActionsConstructionTime());
 
         //planning using the enhanced domain
         //PddlDomain temp = new PddlDomain(dEnh.getDomainEnhancedFileName());
-        
         SimplePlan new_plan = new SimplePlan(domain, problem, false);
-        
-        
+
         //PddlProblem temp = new PddlProblem();
- 
         String solutionString = null;
-        if (planner instanceof metricFFWrapper){
+        if (planner instanceof metricFFWrapper) {
             solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), problem.getPddlFileReference());
-        }else{
-            PDDLObjects temp  = (PDDLObjects)problem.getObjects().clone();
+        } else {
+            PDDLObjects temp = (PDDLObjects) problem.getObjects().clone();
             problem.removeObjects(dEnh.getConstantsFound());
             problem.saveProblem("temp");
             solutionString = planner.plan(dEnh.getDomainEnhancedFileName(), "temp");
             problem.setObjects(temp);
             Utils.deleteFile("temp");
         }
-        
+
         if (solutionString == null) {
             System.out.println("No plan");
             return null;
@@ -117,62 +109,55 @@ public class AdapterViaBlockDeordering extends PlanAdapter{
         //System.out.println(new_plan);
 
         return new_plan;
-        
-        
+
     }
 
-    
-    class StreamGobbler extends Thread
-    {
+    class StreamGobbler extends Thread {
+
         InputStream is;
         String type;
 
-        StreamGobbler(InputStream is, String type)
-        {
+        StreamGobbler(InputStream is, String type) {
             this.is = is;
             this.type = type;
         }
 
         @Override
-        public void run()
-        {
-            try
-            {
+        public void run() {
+            try {
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);    
-                } catch (IOException ioe)
-                  {
-                    ioe.printStackTrace();  
-                  }
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(type + ">" + line);
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         }
     }
-    
-    private List block_construction(String pfile, String dfile, String planFile,SimplePlan p, int min_size) throws FileNotFoundException, IOException {
+
+    private List block_construction(String pfile, String dfile, String planFile, SimplePlan p, int min_size) throws FileNotFoundException, IOException {
         List ret = new ArrayList();
         try {
             Runtime runtime = Runtime.getRuntime();
             String block_deorder_exec = "block_deorder";
-            System.out.println("Executing: " + block_deorder_exec +" "+ dfile +" "+ pfile+" "+planFile);
-            Process process = runtime.exec(block_deorder_exec +" "+ dfile +" "+ pfile+" "+planFile);
+            System.out.println("Executing: " + block_deorder_exec + " " + dfile + " " + pfile + " " + planFile);
+            Process process = runtime.exec(block_deorder_exec + " " + dfile + " " + pfile + " " + planFile);
             /* Cleaning output */
-            StreamGobbler errorGobbler = new 
-                StreamGobbler(process.getErrorStream(), "ERROR");            
-            
+            StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
+
             // any output?
-            StreamGobbler outputGobbler = new 
-                StreamGobbler(process.getInputStream(), "OUTPUT");
-                
+            StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
+
             // kick them off
             errorGobbler.start();
             outputGobbler.start();
-                                    
+
             // any error???
             int exitVal = process.waitFor();
-            System.out.println("ExitValue: " + exitVal);   
-            
+            System.out.println("ExitValue: " + exitVal);
+
         } catch (IOException e) {
             System.out.println("Block Deorder Error" + e.toString());
         } catch (InterruptedException e) {
@@ -187,18 +172,19 @@ public class AdapterViaBlockDeordering extends PlanAdapter{
             while (line != null) {
                 //System.out.println(line);
                 Matcher m = r.matcher(line);
-                if (m.find()){
+                if (m.find()) {
                     List sub = new ArrayList();
                     //ret.add(Integer.parseInt(m.group(0)));
                     //System.out.println(m.group(2));
                     String[] sub_actions = m.group(2).split(" ");
                     int size = sub_actions.length;
-                    for (int i=0;i<size;i++){
+                    for (int i = 0; i < size; i++) {
                         sub.add(Integer.parseInt(sub_actions[i]));
                     }
                     //System.out.println("Block: "+m.group(1)+" Number of elements:"+size);
-                    if (size>min_size)
+                    if (size > min_size) {
                         ret.add(sub);
+                    }
                 }
                 line = br.readLine();
             }
@@ -206,11 +192,11 @@ public class AdapterViaBlockDeordering extends PlanAdapter{
         } finally {
             br.close();
         }
-        
+
         System.out.println(ret);
-        System.out.println("Number of Blocks:"+ret.size());
+        System.out.println("Number of Blocks:" + ret.size());
         return ret;
-    
+
     }
-    
+
 }

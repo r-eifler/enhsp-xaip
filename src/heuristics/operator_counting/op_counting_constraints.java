@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -30,16 +29,13 @@ package heuristics.operator_counting;
  * @author enrico
  */
 public abstract class op_counting_constraints {
-    
-    public op_counting_constraints(){
-        
+
+    public op_counting_constraints() {
+
     }
-    
+
     abstract public void initialize_constraints();
-        
-    
+
     abstract public void update_constraints();
-            
-    
-    
+
 }

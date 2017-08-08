@@ -1,30 +1,31 @@
-
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package problem;
 
 import conditions.PDDLObject;
@@ -42,24 +43,24 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
     // Returns true if they have the same name (or both ``null''), except for the character case
     private static boolean objectsShareSameName(PDDLObject o1, PDDLObject o2) {
         // TODO: Should we really allow for null names?
-        
+
         if (o1.getName() == null && o2.getName() == null) {
             return true;
         }
-        
+
         if (o1.getName().equalsIgnoreCase(o2.getName())) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
-     * Checks that the specified PDDLObject appears in this list of objects.  
-     * 
-     * @param t the object whose existence is checked.  
-     * @return true if the specified PDDL object appears 
-     * in this list of PDDL objects.  
+     * Checks that the specified PDDLObject appears in this list of objects.
+     *
+     * @param t the object whose existence is checked.
+     * @return true if the specified PDDL object appears in this list of PDDL
+     * objects.
      */
     public boolean validate(PDDLObject t) {
         for (final PDDLObject el : this) {
@@ -67,18 +68,17 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
                 return true;
             }
         }
-        
+
         return false;
     }
 
     /**
-     * Gets the type of the specified PDDL object.  
-     * This method is preferable to <code>t.getType()</code> 
-     * as <code>t</code> may ignore its type.  
-     * 
-     * @param t the PDDL object.  
-     * @return the type of the specified PDDL object if valid, 
-     * <code>null</code> otherwise.  
+     * Gets the type of the specified PDDL object. This method is preferable to
+     * <code>t.getType()</code> as <code>t</code> may ignore its type.
+     *
+     * @param t the PDDL object.
+     * @return the type of the specified PDDL object if valid, <code>null</code>
+     * otherwise.
      */
     public Type getTermType(PDDLObject t) {
         for (final PDDLObject el : this) {
@@ -90,16 +90,14 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
     }
 
     /**
-     * Returns the PDDL object equivalent to the specified one.  
-     * When constructing a PDDLObject, 
-     * it is always preferable to replace it immediately
-     * with the result of the call to this method, 
-     * as it reduces the memory consumption.  
-     * 
-     * @param t the PDDL object.  
-     * @return the PDDL object equivalent to the specified one 
-     * that appears in this list of PDDL objects if existing, 
-     * <code>null</code> otherwise.  
+     * Returns the PDDL object equivalent to the specified one. When
+     * constructing a PDDLObject, it is always preferable to replace it
+     * immediately with the result of the call to this method, as it reduces the
+     * memory consumption.
+     *
+     * @param t the PDDL object.
+     * @return the PDDL object equivalent to the specified one that appears in
+     * this list of PDDL objects if existing, <code>null</code> otherwise.
      */
     public PDDLObject containsTerm(PDDLObject t) {
         for (final PDDLObject el : this) {
@@ -109,11 +107,11 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
         }
         return null;
     }
-    
+
     @Override
     public String toString() {
         final StringBuffer result = new StringBuffer();
-        
+
         for (final PDDLObject el : this) {
             result.append(" ").append(el.toString()).append(" ");
         }
@@ -122,20 +120,21 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
     }
 
     /**
-     * Returns a string representation of this list of PDDLObject in PDDL format.  
-     * 
-     * @return a PDDL representation of this list of PDDLObject.  
+     * Returns a string representation of this list of PDDLObject in PDDL
+     * format.
+     *
+     * @return a PDDL representation of this list of PDDLObject.
      */
     public String pddlPrint() {
         final StringBuffer result = new StringBuffer();
-        
+
         result.append("(:objects \n");
         for (final PDDLObject o : this) {
             result.append("   ").append(o.pddlPrint(true)).append("\n");
         }
         result.append(")\n");
-        
+
         return result.toString();
     }
-    
+
 }

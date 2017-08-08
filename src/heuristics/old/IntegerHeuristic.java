@@ -197,8 +197,6 @@ public abstract class IntegerHeuristic {
 
         LinkedHashSet temp = new LinkedHashSet();
 
-        
-        
         for (Conditions c_1 : (Set<Conditions>) G.sons) {
             int index = conditions.indexOf(c_1);
             if (index != -1) {
@@ -475,12 +473,10 @@ public abstract class IntegerHeuristic {
             if ((h.get(g) != null && h.get(g) != Integer.MAX_VALUE) || s_0.satisfy(g)) {
                 if (s_0.satisfy(g)) {
                     h.put(g, 0);
+                } else if (additive_h) {
+                    cost += h.get(g);
                 } else {
-                    if (additive_h) {
-                        cost += h.get(g);
-                    } else {
-                        cost = Math.max(cost, h.get(g));
-                    }
+                    cost = Math.max(cost, h.get(g));
                 }
             } else {
                 return Integer.MAX_VALUE;
@@ -575,17 +571,15 @@ public abstract class IntegerHeuristic {
                     if (regr.isSatisfied(s_0)) {
                         h.put(regr, 0);
                         new_relevant_condition = true;
-                    } else {
-                        if (!regr.isUnsatisfiable()) {
-                            new_relevant_condition = true;
-                            if (already_added.get(regr) == null) {
-                                toAdd.add(regr);
-                                already_added.put(regr, Boolean.TRUE);
-                            }
-                        } else {
-                            it2.remove();//the regression is unsatifiable using this operator!
-                            continue;
+                    } else if (!regr.isUnsatisfiable()) {
+                        new_relevant_condition = true;
+                        if (already_added.get(regr) == null) {
+                            toAdd.add(regr);
+                            already_added.put(regr, Boolean.TRUE);
                         }
+                    } else {
+                        it2.remove();//the regression is unsatifiable using this operator!
+                        continue;
                     }
                     if ((h.get(regr) != null && h.get(regr) != Integer.MAX_VALUE)) {
                         int cost_for_this_condition;
@@ -772,8 +766,8 @@ public abstract class IntegerHeuristic {
         for (Conditions c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
                 h.set(c_1.getCounter(), 0);
-            }else{
-                
+            } else {
+
             }
             if (debug >= 2) {
                 System.out.println("Condition counter mapping:" + c_1 + " ," + c_1.getCounter());
@@ -932,13 +926,13 @@ public abstract class IntegerHeuristic {
 //                    action_for_phase.add(effects_to_actions.get(a));
 //                    temp = rel_state.satisfaction_distance((Comparison) c);
 //                }
-                
+
                 if (rel_state.satisfy((Comparison) c)) {
 //                    System.out.println("Caccamo");
                     relaxed_plan.add(action_for_phase);
                     //int ret = compute_plan_cost(relaxed_plan, action_to_cost, s_0,(Comparison)c);
                     int ret = this.compute_plan_cost(relaxed_plan, action_to_cost);
-                    if (ret == Integer.MAX_VALUE){
+                    if (ret == Integer.MAX_VALUE) {
                         System.out.println("Something went wrong");
                     }
                     return ret;
@@ -1063,10 +1057,8 @@ public abstract class IntegerHeuristic {
                     if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2) && action_to_cost.get(gr2) <= action_to_cost.get(gr)) {
                         pq.addLast(gr2);
                     }
-                } else {
-                    if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
-                        pq.addLast(gr2);
-                    }
+                } else if (visited.get(gr2) == null && gr.depends_on(gr2) && !gr.equals(gr2)) {
+                    pq.addLast(gr2);
                 }
             }
         }
@@ -1119,11 +1111,9 @@ public abstract class IntegerHeuristic {
                                 }
                             }
                         }
-                    } else {
-                        if (interval_based_relaxation_actions(s_0, c, pool) != Integer.MAX_VALUE) {
-                            if (update_value(h, c, 1)) {
-                                update = true;
-                            }
+                    } else if (interval_based_relaxation_actions(s_0, c, pool) != Integer.MAX_VALUE) {
+                        if (update_value(h, c, 1)) {
+                            update = true;
                         }
                     }
                 }
@@ -1417,7 +1407,7 @@ public abstract class IntegerHeuristic {
         return cost;
     }
 
-    private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost, State s_0,Comparison goal) {
+    private int compute_plan_cost(ArrayList<HashSet<GroundAction>> relaxed_plan, HashMap<GroundAction, Integer> action_to_cost, State s_0, Comparison goal) {
         try {
             int cost = 0;
             RelState rel_state = s_0.relaxState();
@@ -1428,25 +1418,26 @@ public abstract class IntegerHeuristic {
                 }
             }
             ArrayList<Boolean> removed = new ArrayList<Boolean>(Collections.nCopies(plan.size(), false));
-            int min = execute(plan, rel_state, removed,action_to_cost,goal,-1);
-            if (no_plan_extraction)
+            int min = execute(plan, rel_state, removed, action_to_cost, goal, -1);
+            if (no_plan_extraction) {
                 return min;
+            }
             while (true) {
                 int to_remove = -1;
                 for (int i = 0; i < plan.size(); i++) {
-                    int temp = execute(plan, rel_state, removed,action_to_cost,goal,i);
-                    if (temp < min){
+                    int temp = execute(plan, rel_state, removed, action_to_cost, goal, i);
+                    if (temp < min) {
                         min = temp;
                         to_remove = i;
 //                        System.out.println(min);
                     }
                 }
-                if (to_remove != -1){
+                if (to_remove != -1) {
                     removed.set(to_remove, true);
-                }else{
+                } else {
                     return min;
                 }
-                
+
             }
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(IntegerHeuristic.class.getName()).log(Level.SEVERE, null, ex);
@@ -1454,30 +1445,30 @@ public abstract class IntegerHeuristic {
         return 0;
     }
 
-    private int execute(ArrayList<GroundAction> plan, RelState rel_state, ArrayList<Boolean> removed,HashMap<GroundAction, Integer> action_to_cost,Comparison goal,int cand) throws CloneNotSupportedException {
+    private int execute(ArrayList<GroundAction> plan, RelState rel_state, ArrayList<Boolean> removed, HashMap<GroundAction, Integer> action_to_cost, Comparison goal, int cand) throws CloneNotSupportedException {
         int cost = 0;
         RelState temp = rel_state.clone();
 //        System.out.println(rel_state);
         for (int i = 0; i < plan.size(); i++) {
-            
+
 //            if (removed.get(i) == false && i != cand) {
-                temp = plan.get(i).apply(temp);
-                cost+=action_to_cost.get(plan.get(i));
-                cost++;
+            temp = plan.get(i).apply(temp);
+            cost += action_to_cost.get(plan.get(i));
+            cost++;
 //                System.out.println("Applying:"+plan.get(i));
 //            }
 
         }
 //        System.out.println(rel_state);
 //        System.out.println(goal);
-        if (!temp.satisfy(goal)){
+        if (!temp.satisfy(goal)) {
             //System.out.println("Unsatisfiable?!?!?!");
             return Integer.MAX_VALUE;
-            
-        }else{
+
+        } else {
             //System.out.println("OKKKK");
         }
-        
+
         return cost;
     }
 

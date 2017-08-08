@@ -18,20 +18,20 @@ import problem.State;
  * @author enrico
  */
 public abstract class LpInterface {
-    
+
     public int n_invocations;
     public boolean integer_variables;
     public boolean additive_h;
     public Conditions gc;
     public Conditions c;
-    
+
     //this is for set of conditions
     public LpInterface(Set<Conditions> cond, Conditions global_constraint) {
         super();
         AndCond c = new AndCond();
         c.sons.addAll(cond);
     }
-    
+
     public LpInterface(Conditions cond, Conditions global_constraint) {
         super();
         c = cond;
@@ -48,6 +48,6 @@ public abstract class LpInterface {
 
     protected abstract void init_condition(Collection<GroundAction> pool, State s_0);
 
-    protected abstract void update_condition(State s_0,Conditions temp);
-    
+    protected abstract void update_condition(State s_0, Conditions temp);
+
 }

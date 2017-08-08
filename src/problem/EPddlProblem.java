@@ -133,7 +133,7 @@ public class EPddlProblem extends PddlProblem {
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
                 //if (act.getPar().size() != 0) {
-                    getActions().addAll(af.Propositionalize(act, getObjects()));
+                getActions().addAll(af.Propositionalize(act, getObjects()));
                 //} else {
                 //    GroundAction gr = act.ground();
                 //    getActions().add(gr);
@@ -349,7 +349,7 @@ public class EPddlProblem extends PddlProblem {
         subst = find_substs(a, s);
         Set<GroundAction> ret = new LinkedHashSet();
         for (HashMap<Variable, PDDLObject> ele : subst) {
-            ret.add(a.ground(ele,this.getObjects()));
+            ret.add(a.ground(ele, this.getObjects()));
         }
         return ret;
     }
@@ -550,12 +550,12 @@ public class EPddlProblem extends PddlProblem {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects==1 || risky)) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
 //                            if (number_numericEffects == 1) {
-                                neff.setOperator("increase");
-                                neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
-                                neff.setPseudo_num_effect(true);
+                            neff.setOperator("increase");
+                            neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                            neff.setPseudo_num_effect(true);
 //                            }
                         }
                     }
@@ -576,12 +576,12 @@ public class EPddlProblem extends PddlProblem {
                     if (neff.getOperator().equals("assign")) {
 
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects==1 || risky)) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
 //                            if (number_numericEffects == 1) {
-                                neff.setOperator("increase");
-                                neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
-                                neff.setPseudo_num_effect(true);
+                            neff.setOperator("increase");
+                            neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                            neff.setPseudo_num_effect(true);
 //                            } else {
 //                                GroundAction gr2 = (GroundAction) gr.clone();
 //                                gr2.setNumericEffects(new AndCond());
@@ -649,9 +649,9 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void set_cost_from_metric(){
+    public void set_cost_from_metric() {
         Iterator it = getActions().iterator();
-        
+
         //System.out.println("prova");
 //        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
         while (it.hasNext()) {
@@ -663,12 +663,11 @@ public class EPddlProblem extends PddlProblem {
             }
         }
 
-
     }
-    
+
     public void simplifications_action_processes_constraints() throws Exception {
         Iterator it = getActions().iterator();
-        
+
         //System.out.println("prova");
 //        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
         while (it.hasNext()) {
@@ -744,20 +743,19 @@ public class EPddlProblem extends PddlProblem {
         this.globalConstraintGrounded = true;
         goals = goals.weakEval(init, staticFluents);
         goals.normalize();
-       
+
         if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().weakEval(init, staticFluents));
             this.metric.setMetExpr(this.metric.getMetExpr().normalize());
         } else {
             this.metric = null;
         }
-        
+
         remove_static_part_of_state();
         remove_num_fluents_not_involved_in_preconditions();
         add_possible_numeric_fluents_from_assignments();
         fix_num_fluents_unique_hashcode();
         propagate_new_num_fluents_hash();
-        
 
     }
 
@@ -844,7 +842,7 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
             if (!nf2.getName().equals("time_elapsed")) {
-                
+
                 boolean keep_it = false;
                 for (NumFluent nf : involved_fluents) {
                     if (nf.getName().equals(nf2.getName())) {
@@ -862,12 +860,12 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private void fix_num_fluents_unique_hashcode() {
-        int counter=0;
+        int counter = 0;
 //        System.out.println("Put numeric information into memory!");
         this.init.current_fluent_values = new ArrayList<>(nCopies(this.init.getNum_fluents_value().keySet().size() + 1, null));
-        for (NumFluent nf : this.init.getNum_fluents_value().keySet()){
+        for (NumFluent nf : this.init.getNum_fluents_value().keySet()) {
             nf.setId(counter);
-            this.init.current_fluent_values.set(counter,this.init.static_function_value(nf));
+            this.init.current_fluent_values.set(counter, this.init.static_function_value(nf));
             counter++;
 //            System.out.println(nf);
         }
@@ -876,7 +874,6 @@ public class EPddlProblem extends PddlProblem {
 
     private void propagate_new_num_fluents_hash() {
 
-        
     }
 
     private void add_possible_numeric_fluents_from_assignments() {

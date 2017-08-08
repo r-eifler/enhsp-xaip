@@ -95,10 +95,10 @@ public class Uniform_cost_search_H1 extends Heuristic {
     public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet) {
         super(G, A, processesSet);
     }
-    public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet,Set events) {
-        super(G, A, processesSet,events);
-    }
 
+    public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet, Set events) {
+        super(G, A, processesSet, events);
+    }
 
     @Override
     public Float setup(State s) {
@@ -345,7 +345,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     }
 
                 }
-                
+
                 if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
 //                    System.out.println("Gr:"+ gr);
 //                    try {
@@ -362,17 +362,16 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
             }
 //            if (at_least_one_service){
-                achieve.put(gr.counter, literals);
-                interact_with.put(gr.counter, comparisons);
-                possible_achievers.put(gr.counter, reacheable_comparisons);
+            achieve.put(gr.counter, literals);
+            interact_with.put(gr.counter, comparisons);
+            possible_achievers.put(gr.counter, reacheable_comparisons);
 //            }else{
 //                useless_actions.add(gr);
 //            }
         }
 //        boolean ret = !useless_actions.isEmpty();
-            
-//        A.removeAll(useless_actions);
 
+//        A.removeAll(useless_actions);
         Utils.dbg_print(debug, "Identify complex achievers");
 
         for (Comparison comp : this.complex_condition_set) {
@@ -411,8 +410,8 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 this.possible_achievers_inverted.put(comp.getCounter(), temp);
             }
             if (debug == 1) {
-                System.out.println("Comparison:"+comp);
-                System.out.println("Achievers Set"+this.possible_achievers_inverted.get(comp.getCounter()));
+                System.out.println("Comparison:" + comp);
+                System.out.println("Achievers Set" + this.possible_achievers_inverted.get(comp.getCounter()));
             }
 
         }
@@ -444,9 +443,8 @@ public class Uniform_cost_search_H1 extends Heuristic {
 
         for (GroundAction a : A) {
             a.setPreconditions(a.getPreconditions().introduce_red_constraints());
-            
+
         }
-        
 
         G = G.introduce_red_constraints();
         //System.out.println(G.toString());
@@ -470,7 +468,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     String new_comparator = ">=";
                     if (!a1.getComparator().equals(a2.getComparator())) {
                         new_comparator = ">=";
-                    }else{
+                    } else {
                         new_comparator = a1.getComparator();
                     }
 

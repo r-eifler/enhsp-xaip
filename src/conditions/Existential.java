@@ -46,13 +46,13 @@ import propositionalFactory.grounder;
  * @author enrico
  */
 public class Existential extends Conditions {
+
     private SchemaParameters parameters;
 
-    public Existential(){
+    public Existential() {
         this.parameters = new SchemaParameters();
         this.sons = new LinkedHashSet();
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -80,13 +80,10 @@ public class Existential extends Conditions {
         return hash;
     }
 
-   
-
     @Override
     public Conditions regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 
     @Override
     public Conditions ground(Map substitution, int c) {
@@ -176,7 +173,8 @@ public class Existential extends Conditions {
             }
         }
 
-        return ret;    }
+        return ret;
+    }
 
     @Override
     public Conditions transform_equality() {
@@ -195,7 +193,7 @@ public class Existential extends Conditions {
 
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
-        System.out.println("(exist "+this.parameters.toString()+" "+this.sons.toString());
+        System.out.println("(exist " + this.parameters.toString() + " " + this.sons.toString());
     }
 
     @Override
@@ -227,12 +225,14 @@ public class Existential extends Conditions {
         res.parameters = this.parameters;
         for (Conditions c : (Collection<Conditions>) this.sons) {
             Conditions c1 = c.push_not_to_terminals();
-            if (c1 instanceof OrCond)
+            if (c1 instanceof OrCond) {
                 res.sons.addAll(((OrCond) c1).sons);
-            else
+            } else {
                 res.addConditions(c1);
+            }
         }
-        return res;    }
+        return res;
+    }
 
     @Override
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
@@ -266,16 +266,16 @@ public class Existential extends Conditions {
     public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
         try {
             grounder g = new grounder();
-            Set<ParametersAsTerms> combo = g.Substitutions(this.parameters,objects);
+            Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
             OrCond or = new OrCond();
-            for (ParametersAsTerms ele : combo){
-                 Map sub = g.obtain_sub_from_instance(parameters, ele);
-                 sub.putAll(substitution);
-                 Conditions son = (Conditions) this.sons.iterator().next();
-                 or.addConditions(son.ground(sub, objects));
+            for (ParametersAsTerms ele : combo) {
+                Map sub = g.obtain_sub_from_instance(parameters, ele);
+                sub.putAll(substitution);
+                Conditions son = (Conditions) this.sons.iterator().next();
+                or.addConditions(son.ground(sub, objects));
             }
             return or;
-            
+
         } catch (Exception ex) {
             Logger.getLogger(Existential.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -287,5 +287,5 @@ public class Existential extends Conditions {
     public Conditions weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

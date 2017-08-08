@@ -70,10 +70,10 @@ public class Comparison extends Terminal {
             return false;
         }
         final Comparison other = (Comparison) obj;
-        
+
         other.normalize();
         this.normalize();
-        
+
         //System.out.println("Testing equality");
 //        if (!other.normalized || !this.normalized) {
 //            return false;
@@ -87,11 +87,10 @@ public class Comparison extends Terminal {
         if (this.right != other.right && (this.right == null || !this.right.equals(other.right))) {
             return false;
         }
-        
-        
+
         ExtendedNormExpression left_expr = (ExtendedNormExpression) left;
         ExtendedNormExpression left_expr2 = (ExtendedNormExpression) other.left;
-   
+
         if (!left_expr.equals(left_expr2)) {
             return false;
         }
@@ -131,10 +130,11 @@ public class Comparison extends Terminal {
 
     @Override
     public String toString() {
-        
-        if (string_representation==null)
+
+        if (string_representation == null) {
             string_representation = "(" + getComparator() + " (" + getLeft() + ") ( " + getRight() + "))";
-        
+        }
+
         return string_representation;
 
         //return "(" + getLeft() + " " + getComparator() + " " + getRight() + ")";
@@ -183,24 +183,23 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Comparison ret = new Comparison(comparator);
 
-        ret.left = left.ground(substitution,po);
-        ret.right = right.ground(substitution,po);
+        ret.left = left.ground(substitution, po);
+        ret.right = right.ground(substitution, po);
         ret.grounded = true;
         return ret;
     }
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution,null);
+        Conditions ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
 
-    
-    public boolean eval_to_null(State s){
+    public boolean eval_to_null(State s) {
         PDDLNumber first = left.eval(s);
         PDDLNumber second = right.eval(s);
         if ((first == null) || (second == null)) {
@@ -208,7 +207,7 @@ public class Comparison extends Terminal {
         }
         return false;
     }
-    
+
     @Override
     public boolean eval(State s) {
         PDDLNumber first = left.eval(s);
@@ -262,7 +261,7 @@ public class Comparison extends Terminal {
 
         Interval first = left.eval(s);
         Interval second = right.eval(s);
-        
+
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return false;
         }
@@ -380,7 +379,7 @@ public class Comparison extends Terminal {
                     return null;
                 }
             }
-            System.out.println(this.toString() + " will be never be satisfied");
+            //System.out.println(this.toString() + " will be never be satisfied");
 
             setUnsatisfiable(true);
             //throw new Exception();
@@ -449,8 +448,9 @@ public class Comparison extends Terminal {
         setRight(this.right.normalize());
         ExtendedNormExpression l = (ExtendedNormExpression) this.left;
         ExtendedNormExpression r = (ExtendedNormExpression) this.right;
-        if (!l.linear || !r.linear)
+        if (!l.linear || !r.linear) {
             this.setLinear(false);
+        }
         //System.out.println(l);
         try {
             if (l.isNumber() && r.isNumber()) {
@@ -480,14 +480,13 @@ public class Comparison extends Terminal {
                     }
                 }
                 //System.out.println(this.toString() + " will be never be satisfied");
-                
+
                 setUnsatisfiable(true);
             }
         } catch (Exception ex) {
-            System.out.println("Expression malformed:"+this);
+            System.out.println("Expression malformed:" + this);
             Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
 
         if ("<".equals(this.comparator) || "<=".equals(this.comparator) || "=".equals(this.comparator)) {
             try {
@@ -679,7 +678,6 @@ public class Comparison extends Terminal {
 //            //System.out.println("Action does not affect");
 //            return false;
 //        }
-
         //If the action affects one of the fluent the comparison depends on, then the comparison can be prevented
         if (get.influence(dependsOn)) {
             //System.out.println("Ordering for indirect influence");
@@ -789,7 +787,7 @@ public class Comparison extends Terminal {
 
     @Override
     public String toSmtVariableString(int k, GroundAction gr, String var) {
-        if (!gr.mayInfluence(this)){
+        if (!gr.mayInfluence(this)) {
             return " true ";
         }
         ExtendedNormExpression norm = (ExtendedNormExpression) this.getLeft();
@@ -804,7 +802,7 @@ public class Comparison extends Terminal {
         {
             //System.out.println(summations);
             ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(0);
-            if (ad.bin != null){
+            if (ad.bin != null) {
                 System.out.println("repetition cannot be activated for actions having non-linear constraints");
                 System.exit(-1);
             }
@@ -814,8 +812,9 @@ public class Comparison extends Terminal {
                 NumEffect neff = (NumEffect) affector.get(ad.f);
                 if (neff != null) {
                     ret_val = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
-                }else
+                } else {
                     ret_val = ad.f.toSmtVariableString(k);
+                }
 
                 ret_val = "(* " + ret_val + " " + ad.n.toSmtVariableString(k) + ")";
             }
@@ -827,11 +826,12 @@ public class Comparison extends Terminal {
                     ret_val = "(+ " + ret_val + " " + ad.n.toSmtVariableString(i) + " )";
                 } else {
                     NumEffect neff = (NumEffect) affector.get(ad.f);
-                    String temp=null;
+                    String temp = null;
                     if (neff != null) {
                         temp = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
-                    }else
+                    } else {
                         temp = ad.f.toSmtVariableString(k);
+                    }
                     ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n.toSmtVariableString(i) + "))";
 
 //                    ret_val += "(* " + temp + " " + ad.n.pddlPrint(false) + ")";
@@ -864,10 +864,14 @@ public class Comparison extends Terminal {
         lValue = lValue.weakEval(s, invF);
         rValue = rValue.weakEval(s, invF);
         if (lValue == null || rValue == null) {
-            return null;
+            this.setUnsatisfiable(true);
+            this.setValid(false);
+            return this;
         }
+
         comp.setLeft(lValue);
         comp.setRight(rValue);
+
         return comp;
     }
 
@@ -891,26 +895,28 @@ public class Comparison extends Terminal {
 
     public boolean is_evaluable(State tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
-        for (NumFluent f:set){
-            if (tempInit.functionValue(f)==null)
+        for (NumFluent f : set) {
+            if (tempInit.functionValue(f) == null) {
                 return false;
+            }
         }
         return true;
     }
 
-    public String regress_repeatedely(GroundAction action, int number_of_repetition,State s_0) {
+    public String regress_repeatedely(GroundAction action, int number_of_repetition, State s_0) {
         float a1;
         float b;
-        
-        if (!this.involve(action.getNumericFluentAffected()))
-            return this.getLeft().eval(s_0)+this.comparator+this.getRight().eval(s_0);
 
-        a1 = this.eval_not_affected(s_0,action);
-        b = this.eval_affected(s_0,action);
-        Float lhs = (b*number_of_repetition +a1);
-        
-        return lhs.toString() +">="+0; 
-        
+        if (!this.involve(action.getNumericFluentAffected())) {
+            return this.getLeft().eval(s_0) + this.comparator + this.getRight().eval(s_0);
+        }
+
+        a1 = this.eval_not_affected(s_0, action);
+        b = this.eval_affected(s_0, action);
+        Float lhs = (b * number_of_repetition + a1);
+
+        return lhs.toString() + ">=" + 0;
+
     }
 
     @Override
@@ -919,8 +925,8 @@ public class Comparison extends Terminal {
         Comparison comp = (Comparison) this;
         if (comp.getComparator().equals("=")) {
             Comparison dual = (Comparison) comp.clone();
-            ExtendedNormExpression right = (ExtendedNormExpression)dual.getRight();
-            ExtendedNormExpression left = (ExtendedNormExpression)dual.getLeft();
+            ExtendedNormExpression right = (ExtendedNormExpression) dual.getRight();
+            ExtendedNormExpression left = (ExtendedNormExpression) dual.getLeft();
 
             try {
                 dual.setLeft(right.minus(left));
@@ -934,15 +940,17 @@ public class Comparison extends Terminal {
             comp.normalize();
             ret.addConditions(dual);
             ret.addConditions(comp);
-        }else
+        } else {
             return this;
+        }
         return ret;
     }
 
     @Override
     public boolean is_affected_by(GroundAction gr) {
-        if (this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected()))
+        if (this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected())) {
             return true;
+        }
         return false;
     }
 
@@ -961,7 +969,7 @@ public class Comparison extends Terminal {
 
         Interval first = left.eval(s);
         Interval second = right.eval(s);
-        
+
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return true;
         }
@@ -977,7 +985,7 @@ public class Comparison extends Terminal {
         } else if (this.getComparator().equals(">=")) {
             return first.getInf().getNumber() < second.getSup().getNumber();
         } else if (this.getComparator().equals("=")) {
-            return (first.getSup().getNumber() > second.getInf().getNumber() || (first.getInf().getNumber() < second.getSup().getNumber()));           
+            return (first.getSup().getNumber() > second.getInf().getNumber() || (first.getInf().getNumber() < second.getSup().getNumber()));
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
@@ -989,9 +997,9 @@ public class Comparison extends Terminal {
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         bui.append("(").append(getComparator()).append(" ");
-        getLeft().pddlPrint(typeInformation,bui);
+        getLeft().pddlPrint(typeInformation, bui);
         bui.append(" ");
-        getRight().pddlPrint(typeInformation,bui);
+        getRight().pddlPrint(typeInformation, bui);
         bui.append(")");
     }
 
@@ -1008,7 +1016,7 @@ public class Comparison extends Terminal {
         int sizeOfSumC1 = sumC1.size();
         int sizeOfSumC2 = sumC2.size();
 
-        if (Math.abs(sizeOfSumC1-sizeOfSumC2)>=2) {
+        if (Math.abs(sizeOfSumC1 - sizeOfSumC2) >= 2) {
             return false;
         }
 
@@ -1016,9 +1024,11 @@ public class Comparison extends Terminal {
             for (ExtendedAddendum ead1 : sumC1) {
 
                 if (ead1.f != null) {
-                    if (!sumC2.contains(ead1)) {return false;}
-                } else {
-                    if (ead1.n.getNumber()>0) {return false;}
+                    if (!sumC2.contains(ead1)) {
+                        return false;
+                    }
+                } else if (ead1.n.getNumber() > 0) {
+                    return false;
                 }
             }
             return true;
@@ -1026,9 +1036,11 @@ public class Comparison extends Terminal {
         } else if (sumC1.size() < sumC2.size()) {
             for (ExtendedAddendum ead2 : sumC2) {
                 if (ead2.f != null) {
-                    if (!sumC1.contains(ead2)) {return false;}
-                } else {
-                    if (ead2.n.getNumber()>0) {return false;}
+                    if (!sumC1.contains(ead2)) {
+                        return false;
+                    }
+                } else if (ead2.n.getNumber() > 0) {
+                    return false;
                 }
             }
             return true;
@@ -1036,13 +1048,17 @@ public class Comparison extends Terminal {
         } else {
             //they have same size
             for (ExtendedAddendum ead1 : sumC1) {
-                if (ead1.f!=null) {
-                    if (!sumC2.contains(ead1)) {return false;}
+                if (ead1.f != null) {
+                    if (!sumC2.contains(ead1)) {
+                        return false;
+                    }
                 } else {
                     float constC1 = ead1.n.getNumber();
-                    for (ExtendedAddendum ead2: sumC2) {
+                    for (ExtendedAddendum ead2 : sumC2) {
                         if (ead2.f == null) {
-                            if (constC1 > ead2.n.getNumber()) {return false;}
+                            if (constC1 > ead2.n.getNumber()) {
+                                return false;
+                            }
                         }
                     }
                 }
@@ -1052,9 +1068,7 @@ public class Comparison extends Terminal {
 
     }
 
-
 //>>>>>>> daan
-
     /**
      * @return the linear
      */
@@ -1072,9 +1086,9 @@ public class Comparison extends Terminal {
 
     @Override
     public void storeInvolvedVariables(Collection<Variable> vars) {
-        for (NumFluent nf:this.getInvolvedFluents()){
-            for (final Object o: nf.getTerms()) {
-                final Variable var = (Variable)o;
+        for (NumFluent nf : this.getInvolvedFluents()) {
+            for (final Object o : nf.getTerms()) {
+                final Variable var = (Variable) o;
                 vars.add(var);
             }
         }
@@ -1087,12 +1101,12 @@ public class Comparison extends Terminal {
         ret.add(this);
         return ret;
     }
-    
+
     @Override
     public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getCounter());
     }
-    
+
     @Override
     public Conditions and(Conditions precondition) {
         AndCond and = new AndCond();
@@ -1110,14 +1124,14 @@ public class Comparison extends Terminal {
         return s;
 
     }
-    
+
     @Override
     public Conditions push_not_to_terminals() {
         return this;
     }
 
     Conditions invertOperator() {
-        if (this.getComparator().equals("=")){
+        if (this.getComparator().equals("=")) {
             OrCond a = new OrCond();
             Comparison c1 = (Comparison) this.clone();
             Comparison c2 = (Comparison) this.clone();
@@ -1126,9 +1140,9 @@ public class Comparison extends Terminal {
             a.addConditions(c2);
             a.addConditions(c1);
             return a;
-        }else{
+        } else {
             Comparison c1 = (Comparison) this.clone();
-            switch(this.getComparator()){
+            switch (this.getComparator()) {
                 case "<":
                     c1.setComparator(">=");
                     break;
@@ -1140,13 +1154,10 @@ public class Comparison extends Terminal {
                     break;
                 case ">":
                     c1.setComparator("<=");
-                    break;                    
+                    break;
             }
-            return c1;  
+            return c1;
         }
     }
 
-
-    
-    
 }

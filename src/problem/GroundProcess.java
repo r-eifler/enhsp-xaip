@@ -41,17 +41,16 @@ import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class GroundProcess extends GroundAction implements Comparable {
 
     public GroundProcess(String name) {
         super(name);
     }
 
-    public boolean isActive(State s){
+    public boolean isActive(State s) {
         return this.isApplicable(s);
     }
-    
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         GroundProcess ret = new GroundProcess(name);
@@ -65,9 +64,10 @@ public class GroundProcess extends GroundAction implements Comparable {
         if (this.numericEffects != null) {
             ret.numericEffects = this.numericEffects.clone();
         }
-        
-        if (this.numericFluentAffected!=null)
+
+        if (this.numericFluentAffected != null) {
             ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+        }
         if (this.parameters_as_terms != null) {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
@@ -80,10 +80,10 @@ public class GroundProcess extends GroundAction implements Comparable {
         return ret;
 
     }
-    
-    public State apply(State s_in, int time){
-        
-        State s=null;
+
+    public State apply(State s_in, int time) {
+
+        State s = null;
         try {
             s = s_in.clone();
         } catch (CloneNotSupportedException ex) {
@@ -112,7 +112,7 @@ public class GroundProcess extends GroundAction implements Comparable {
                     newN = null;
                 } else {
                     rValue = all.getRight().eval(s).getNumber();
-                    if (rValue == null){
+                    if (rValue == null) {
                         System.out.println("Trying to applying an action with invalid effects!!");
                         System.out.println(this);
                         System.exit(-1);
@@ -153,12 +153,12 @@ public class GroundProcess extends GroundAction implements Comparable {
 
     public void add_numeric_effect(NumEffect eff) {
 
-        Iterator<NumEffect> it =  this.numericEffects.sons.iterator();
+        Iterator<NumEffect> it = this.numericEffects.sons.iterator();
         Collection<NumEffect> to_add = new LinkedHashSet();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             NumEffect int_eff = it.next();
-            if (int_eff.getFluentAffected().equals(eff.getFluentAffected())){
-                if (eff.getOperator().equals(int_eff.getOperator())){
+            if (int_eff.getFluentAffected().equals(eff.getFluentAffected())) {
+                if (eff.getOperator().equals(int_eff.getOperator())) {
                     try {
 //                        System.out.println("DEBUG:"+int_eff);
 //                        System.out.println("DEBUG:"+int_eff.getRight());
@@ -172,31 +172,29 @@ public class GroundProcess extends GroundAction implements Comparable {
                     } catch (Exception ex) {
                         Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                }else{
-                    if (int_eff.getOperator().equals("increase")){
-                        try {
-                            ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight(); 
-                            ExtendedNormExpression res = expr.minus((ExtendedNormExpression) eff.getRight());
-                            NumEffect n_effect = new NumEffect("increase");
-                            n_effect.setFluentAffected(int_eff.getFluentAffected());
-                            n_effect.setRight(res);
-                            to_add.add(n_effect);
-                            it.remove();
-                        } catch (Exception ex) {
-                            Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }else{
-                        try {
-                            ExtendedNormExpression expr = (ExtendedNormExpression) eff.getRight();
-                            ExtendedNormExpression res = expr.minus((ExtendedNormExpression) int_eff.getRight());
-                            NumEffect n_effect = new NumEffect("increase");
-                            n_effect.setFluentAffected(int_eff.getFluentAffected());
-                            n_effect.setRight(res);
-                            to_add.add(n_effect);
-                            it.remove();
-                        } catch (Exception ex) {
-                            Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                } else if (int_eff.getOperator().equals("increase")) {
+                    try {
+                        ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
+                        ExtendedNormExpression res = expr.minus((ExtendedNormExpression) eff.getRight());
+                        NumEffect n_effect = new NumEffect("increase");
+                        n_effect.setFluentAffected(int_eff.getFluentAffected());
+                        n_effect.setRight(res);
+                        to_add.add(n_effect);
+                        it.remove();
+                    } catch (Exception ex) {
+                        Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    try {
+                        ExtendedNormExpression expr = (ExtendedNormExpression) eff.getRight();
+                        ExtendedNormExpression res = expr.minus((ExtendedNormExpression) int_eff.getRight());
+                        NumEffect n_effect = new NumEffect("increase");
+                        n_effect.setFluentAffected(int_eff.getFluentAffected());
+                        n_effect.setRight(res);
+                        to_add.add(n_effect);
+                        it.remove();
+                    } catch (Exception ex) {
+                        Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 this.numericEffects.sons.addAll(to_add);
@@ -206,19 +204,16 @@ public class GroundProcess extends GroundAction implements Comparable {
         //In case it does not found another effect like that, add just this one (this is not checking for the particular type of the effects, so you can potentially
         //use processes to represent sponteneous, more general evolution of the environment
         this.numericEffects.sons.add(eff);
-        
-    
+
     }
 
-    public void add_time_effects(NumFluent time_nf,float delta) {
-        
+    public void add_time_effects(NumFluent time_nf, float delta) {
+
         NumEffect time = new NumEffect("increase");
         time.setFluentAffected(time_nf);
         time.setRight(new PDDLNumber(delta));
         time.getRight().normalize();
         this.numericEffects.sons.add(time);
     }
-
-
 
 }

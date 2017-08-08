@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -112,13 +111,13 @@ public class asymptotic_ibr extends Heuristic {
 
         if (reacheability) {
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
-            
+
             //@TODO THIS IS FOR REVERSING
-            if (reversing){
+            if (reversing) {
                 LinkedList<GroundAction> temp = new LinkedList(this.reachable);
                 Iterator<GroundAction> itr = temp.descendingIterator();
                 LinkedHashSet<GroundAction> temp2 = new LinkedHashSet();
-                while(itr.hasNext()) {
+                while (itr.hasNext()) {
                     GroundAction item = itr.next();
                     temp2.add(item);
                     // do something
@@ -129,7 +128,7 @@ public class asymptotic_ibr extends Heuristic {
         }
 
         if (conservative) {
-            return (float)supporters_counter;
+            return (float) supporters_counter;
         }
         if (supporters_counter == 0) {
             return 0f;
@@ -157,7 +156,7 @@ public class asymptotic_ibr extends Heuristic {
                     }
                 }
             }
-            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty())||(gr.getDelList()!=null && !gr.getDelList().sons.isEmpty())) {
+            if ((gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
                 supporters.add(generate_propositional_action(gr.toFileCompliant() + "prop", (AndCond) gr.getPreconditions(), gr));
             }
 
@@ -280,7 +279,6 @@ public class asymptotic_ibr extends Heuristic {
         return counter;
     }
 
-    
     //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
     private Float extract_plan(RelState rs2) {
         Float counter = 0f;
@@ -308,7 +306,7 @@ public class asymptotic_ibr extends Heuristic {
                         //System.out.println("Backward: Level:" + layers_counter--);
 
                         //if (action_layers.isEmpty()) {
-                            //System.out.println("Shouldn't happen");
+                        //System.out.println("Shouldn't happen");
                         //    return counter;
                         //}
                         Deque<GroundAction> candidates = action_layers.pollLast();

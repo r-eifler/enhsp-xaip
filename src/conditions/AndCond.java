@@ -64,8 +64,6 @@ public class AndCond extends Conditions implements PostCondition {
         sons = new LinkedHashSet();
     }
 
-
-
     /**
      *
      * @return a string representation of the and tree
@@ -81,7 +79,7 @@ public class AndCond extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         AndCond ret = new AndCond();
 
         //System.out.println(this.toString());
@@ -89,17 +87,18 @@ public class AndCond extends Conditions implements PostCondition {
             final Object groundedO;
             if (o instanceof NumEffect) {
                 NumEffect el = (NumEffect) o;
-                groundedO = el.ground(substitution,po);
+                groundedO = el.ground(substitution, po);
 
             } else {
                 Conditions el = (Conditions) o;
                 //System.out.println(el);
-                groundedO = el.ground(substitution,po);
+                groundedO = el.ground(substitution, po);
             }
-            if (groundedO instanceof AndCond){
+            if (groundedO instanceof AndCond) {
                 ret.sons.addAll(((AndCond) groundedO).sons);
-            }else
+            } else {
                 ret.sons.add(groundedO);
+            }
         }
 
         ret.grounded = true;
@@ -531,7 +530,8 @@ public class AndCond extends Conditions implements PostCondition {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
-        Map<Conditions, Boolean> toRemove = new HashMap();
+        LinkedHashSet to_keep = new LinkedHashSet();
+
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
             while (it.hasNext()) {
@@ -541,41 +541,37 @@ public class AndCond extends Conditions implements PostCondition {
                     Conditions c = (Conditions) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
                     c = c.weakEval(s, invF);
-                    if (c == null) {
-                        return null;
-                    }
                     if (c.isValid()) {
-                        it.remove();
+
                     } else if (c.isUnsatisfiable()) {
                         this.setUnsatisfiable(true);
+                        this.setValid(false);
+                        return this;
+                    } else {
+                        to_keep.add(c);
                     }
-
                 } else if (o2 instanceof NumEffect) {
                     NumEffect ne = (NumEffect) o2;
                     ne.setFreeVarSemantic(freeVarSemantic);
-//                    System.out.println(ne);
                     ne = (NumEffect) ne.weakEval(s, invF);
                     if (ne == null) {
                         return null;
                     }
+                    to_keep.add(o2);
                 } else {
-//                    System.out.println(o2);
                     System.out.println("Unsupported operation for :" + o2.getClass());
                 }
             }
-//            Iterator it = this.sons.iterator();
-//            while (it.hasNext()) {
-//                if (toRemove.get(it.next()) != null) {
-//                    it.remove();
-//                }
-//            }
+
         }
+        this.sons = to_keep;
+
         return this;
     }
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution,null);
+        Conditions ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -919,10 +915,11 @@ public class AndCond extends Conditions implements PostCondition {
         AndCond res = new AndCond();
         for (Conditions c : (Collection<Conditions>) this.sons) {
             Conditions c1 = c.push_not_to_terminals();
-            if (c1 instanceof AndCond)
+            if (c1 instanceof AndCond) {
                 res.sons.addAll(((AndCond) c1).sons);
-            else
+            } else {
                 res.addConditions(c1);
+            }
         }
         return res;
     }
@@ -985,7 +982,7 @@ public class AndCond extends Conditions implements PostCondition {
                     newC.normalize();
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
-                    
+
                     if (tempLeft.summations.size() < 2) {
                         continue;
                     }
@@ -1002,13 +999,13 @@ public class AndCond extends Conditions implements PostCondition {
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         Set<NumFluent> ret = new HashSet();
-        if (this.sons.isEmpty())
+        if (this.sons.isEmpty()) {
             return ret;
-        else{
-            
-            for (Object con: this.sons){
-                if (con instanceof NumEffect){
-                    NumEffect temp = (NumEffect)con;
+        } else {
+
+            for (Object con : this.sons) {
+                if (con instanceof NumEffect) {
+                    NumEffect temp = (NumEffect) con;
                     ret.add(temp.getFluentAffected());
                 }
             }
