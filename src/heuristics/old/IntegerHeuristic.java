@@ -1027,7 +1027,7 @@ public abstract class IntegerHeuristic {
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
             if (this.compute_precondition_cost(s_0, h, gr) != Integer.MAX_VALUE) {
-                gr.setAction_cost(s_0);
+//                gr.set_unit_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, 0, 0));
                 it.remove();
             }
@@ -1167,7 +1167,7 @@ public abstract class IntegerHeuristic {
             GroundAction gr = (GroundAction) it.next();
             int cost = compute_precondition_cost(s_0, h, gr);
             if (cost != Integer.MAX_VALUE) {
-                gr.setAction_cost(s_0);
+//                gr.set_unit_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, cost, 0));
                 it.remove();
             }
@@ -1180,7 +1180,7 @@ public abstract class IntegerHeuristic {
             GroundAction gr = (GroundAction) it.next();
             int cost = compute_precondition_cost(s_0, h, gr);
             if (cost != Integer.MAX_VALUE) {
-                gr.setAction_cost(s_0);
+//                gr.set_unit_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, cost, 0));
                 it.remove();
                 this.reachable.add(gr);

@@ -2123,17 +2123,9 @@ public class GroundAction extends GenericActionType implements Comparable {
         return action_cost;
     }
 
-    public void setAction_cost(State s_0) {
-        if (action_cost == null) {//this would assume state independent cost
-            if (this.getNumericEffects() != null) {
-                AndCond temp = (AndCond) this.getNumericEffects();
-                for (NumEffect e : (LinkedHashSet<NumEffect>) temp.sons) {
-                    if (e.getFluentAffected().getName().equals("total-cost")) {
-                        action_cost = e.getRight().eval(s_0).getNumber();
-                        return;
-                    }
-                }
-            }
+    public void set_unit_cost(State s_0) {
+        if (action_cost == null) {
+
             action_cost = 1f;
         }
 
@@ -2702,7 +2694,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 this.action_cost = 0f;
             }
         } else {
-            this.setAction_cost(init);
+            this.set_unit_cost(init);
         }
 //        System.out.println("DEBUG:"+this);
 //        System.out.println("DEBUG:"+this.action_cost);

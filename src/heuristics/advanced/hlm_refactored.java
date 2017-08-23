@@ -553,7 +553,7 @@ public class hlm_refactored extends h1 {
                     for (GroundAction gr : set) {
 
                         IloNumVar action;
-                        gr.setAction_cost(s_0);
+//                        gr.set_unit_cost(s_0);
                         Float action_cost = gr.getAction_cost();
                         if (action_cost.isNaN()) {
 //                            System.out.println("Action: " + gr);

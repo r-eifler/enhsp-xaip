@@ -308,7 +308,7 @@ public class Aibr_rp extends Heuristic {
 
                     //counter++;//=
                     if (cost_oriented) {
-                        gr.setAction_cost(s);
+//                        gr.set_unit_cost(s);
                         counter += gr.getAction_cost();
                     } else {
                         counter++;
@@ -450,7 +450,7 @@ public class Aibr_rp extends Heuristic {
                     } else {
                         rs2 = gr.apply_with_generalized_interval_based_relaxation(rs2);
                         if (cost_oriented) {
-                            gr.setAction_cost(s);
+//                            gr.set_unit_cost(s);
                             counter += gr.getAction_cost();
                         } else {
                             counter++;

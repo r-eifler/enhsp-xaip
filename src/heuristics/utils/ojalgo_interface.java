@@ -190,7 +190,7 @@ public final class ojalgo_interface extends LpInterface {
                                     }
                                     //                                    System.out.println(neff);
 
-                                    gr.setAction_cost(s_0);
+//                                    gr.set_unit_cost(s_0);
                                     Float action_cost = gr.getAction_cost();
                                     if (action_cost.isNaN()) {
                                         continue;
@@ -252,7 +252,7 @@ public final class ojalgo_interface extends LpInterface {
                     if (gr.achieve(p)) {
                         pos_affectors_of.get(cond).add(gr);
                         affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
-                        gr.setAction_cost(s_0);
+//                        gr.set_unit_cost(s_0);
                         Float action_cost = gr.getAction_cost();
                         if (action_cost.isNaN()) {
                             continue;

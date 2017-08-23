@@ -659,7 +659,7 @@ public class EPddlProblem extends PddlProblem {
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
                 act.setAction_cost(init, this.getMetric());
             } else {
-                act.setAction_cost(init);
+                act.set_unit_cost(init);
             }
         }
 
@@ -681,11 +681,7 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            } else if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost(init, this.getMetric());
-            } else {
-                act.setAction_cost(init);
-            }
+            } 
         }
 //        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
@@ -701,6 +697,7 @@ public class EPddlProblem extends PddlProblem {
 //                System.out.println("Pruning process:"+process.toEcoString());
                 it.remove();
             }
+            process.setAction_cost(1);
         }
 
         //Event
@@ -715,6 +712,7 @@ public class EPddlProblem extends PddlProblem {
 //                System.out.println("Pruning process:"+process.toEcoString());
                 it.remove();
             }
+            event.setAction_cost(1);
         }
 
 //        unify_objects_names(this.getInit(),this.actions,this.processesSet);
@@ -755,8 +753,9 @@ public class EPddlProblem extends PddlProblem {
         remove_num_fluents_not_involved_in_preconditions();
         add_possible_numeric_fluents_from_assignments();
         fix_num_fluents_unique_hashcode();
+        
         propagate_new_num_fluents_hash();
-
+        set_actions_costs();
     }
 
     public void setDeltaTimeVariable(String delta_t) {
@@ -892,6 +891,21 @@ public class EPddlProblem extends PddlProblem {
      */
     public void setAction_cost_from_metric(boolean action_cost_from_metric) {
         this.action_cost_from_metric = action_cost_from_metric;
+    }
+
+    private void set_actions_costs() {
+        Iterator it = getActions().iterator();
+
+        //System.out.println("prova");
+//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
+        while (it.hasNext()) {
+            GroundAction act = (GroundAction) it.next();
+            if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
+                act.setAction_cost(init, this.getMetric());
+            } else {
+                act.set_unit_cost(init);
+            }
+        }
     }
 
 }

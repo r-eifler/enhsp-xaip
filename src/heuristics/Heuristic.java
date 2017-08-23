@@ -602,7 +602,7 @@ public abstract class Heuristic {
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
             if (this.compute_precondition_cost(s_0, h, gr, null) != Float.MAX_VALUE) {
-                gr.setAction_cost(s_0);
+//                gr.set_unit_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, 0, 0));
                 it.remove();
                 this.reachable.add(gr);
@@ -775,7 +775,7 @@ public abstract class Heuristic {
                                         continue;
                                     }
                                     //                                    System.out.println(neff);
-                                    gr.setAction_cost(s_0);
+//                                    gr.set_unit_cost(s_0);
                                     Float cost_action = gr.getAction_cost();
                                     if (cost_action.isNaN()) {
                                         continue;
@@ -853,7 +853,7 @@ public abstract class Heuristic {
 
                     for (GroundAction gr : pool) {
                         if (gr.achieve(p)) {
-                            gr.setAction_cost(s_0);
+//                            gr.set_unit_cost(s_0);
                             Float cost_action = gr.getAction_cost();
                             if (cost_action.isNaN()) {
                                 continue;

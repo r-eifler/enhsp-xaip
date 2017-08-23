@@ -157,7 +157,7 @@ public class UniformCostSearch_LM extends Heuristic {
                     IloLinearNumExpr expr = lp.linearNumExpr();
                     for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                         IloNumVar action;
-                        dlm.gr.setAction_cost(s);
+//                        dlm.gr.set_unit_cost(s);
                         Float action_cost = dlm.gr.getAction_cost();
                         if (action_cost.isNaN()) {
                             continue;

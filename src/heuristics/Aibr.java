@@ -328,7 +328,7 @@ public class Aibr extends Heuristic {
                     }
                     //counter++;//=
                     if (cost_oriented) {
-                        gr.setAction_cost(s);
+//                        gr.set_unit_cost(s);
                         counter += gr.getAction_cost();
                     } else {
                         counter++;

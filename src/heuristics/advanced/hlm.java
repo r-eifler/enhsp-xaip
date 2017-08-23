@@ -254,7 +254,7 @@ public class hlm extends h1 {
                         
                         for (repetition_landmark dlm : this.reachable_poss_achievers.get(c.getCounter())) {
                             IloNumVar action;
-                            dlm.gr.setAction_cost(s_0);
+                            //dlm.gr.set_unit_cost(s_0);
                             Float action_cost = dlm.gr.getAction_cost();
                             if (action_cost.isNaN()) {
                                 continue;
@@ -539,7 +539,7 @@ public class hlm extends h1 {
                     
                     for (GroundAction gr : this.condition_to_action.get(c.getCounter())) {
                         IloNumVar action;
-                        gr.setAction_cost(s_0);
+//                        gr.set_unit_cost(s_0);
                         Float action_cost = gr.getAction_cost();
                         if (action_cost.isNaN()) {
                             continue;

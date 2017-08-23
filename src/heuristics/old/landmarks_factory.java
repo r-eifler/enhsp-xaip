@@ -223,7 +223,7 @@ public class landmarks_factory extends Heuristic {
 
                         for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                             IloNumVar action;
-                            dlm.gr.setAction_cost(s_0);
+//                            dlm.gr.set_unit_cost(s_0);
                             Float action_cost = dlm.gr.getAction_cost();
                             if (action_cost.isNaN()) {
                                 continue;

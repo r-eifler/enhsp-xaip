@@ -545,7 +545,7 @@ public class SearchStrategies {
                     }
                     if (act.isApplicable(current_node.s)) {
                         State successor_state = act.apply(current_node.s.clone());
-                        act.setAction_cost(successor_state);
+//                        act.set_unit_cost(successor_state);
 
                         //skip this if violates global constraints
                         if (!successor_state.satisfy(problem.globalConstraints)) {
@@ -635,7 +635,7 @@ public class SearchStrategies {
                     cost.put(temp, current_node.g_n + 1);
                     setStates_evaluated(getStates_evaluated() + 1);
 
-                    act.setAction_cost(temp);
+//                    act.set_unit_cost(temp);
                     SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), 0, this.json_rep_saving, this.gw, 0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (json_rep_saving) {

@@ -120,6 +120,7 @@ public class h1 extends Uniform_cost_search_H1 {
         }
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
+        goal.setAction_cost(0);
         goal.setPreconditions(G);
         A.add(goal);
         //System.out.println("Building integer representation");
@@ -168,7 +169,7 @@ public class h1 extends Uniform_cost_search_H1 {
         action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
         closed = new ArrayList<>(nCopies(total_number_of_actions + 1, false));
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
-            gr.setAction_cost(s_0);
+//            gr.set_unit_cost(s_0);
             if (gr.isApplicable(s_0)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(gr);
                 action_to_fib_node.set(gr.counter, node);

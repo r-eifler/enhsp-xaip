@@ -182,7 +182,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
                 if (action_precondition_cost != MAX_VALUE) {
                     if (reacheability_setting) {
                         this.reachable.add(gr);
-                        gr.setAction_cost(s);
+//                        gr.set_unit_cost(s);
                     }
                     action_to_cost.put(gr, action_precondition_cost);
                     //if (!gr.has_state_dependent_effects())
