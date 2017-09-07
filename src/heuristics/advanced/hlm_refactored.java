@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -62,7 +61,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class hlm_refactored extends Uniform_cost_search_H1 {
+public class hlm_refactored extends h1 {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
@@ -105,7 +104,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
         }
         A = first_reachH.reachable;
         needs_checking_state_dependent_constraints = false;
-
+        this.simplify_actions(s);
         if (red_constraints) {
             try {
                 this.add_redundant_constraints();
@@ -125,9 +124,10 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
             }
         } while (reconstruct);
 
-        if (smart_intersection)
+        if (smart_intersection) {
             smart_intersection = check_if_smark_intersection_needed();
-        System.out.println("Smart Metric Intersection: "+smart_intersection);
+        }
+        System.out.println("Smart Metric Intersection: " + smart_intersection);
         init_lp(s);
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");
@@ -238,13 +238,13 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                 System.out.println("Not Trivial Landmarks:" + (goal_landmark.size() - goal_not_true_in_init));
 
             }
-   
+
             if (lp_cost_partinioning) {
                 int lm_considered = 0;
                 for (Conditions c : goal_landmark) {
-                    if (cond_dist.get(c.getCounter())!=0f){
+                    if (cond_dist.get(c.getCounter()) != 0f) {
                         lm_considered++;
-    //                        System.out.println("DEBUG: condition:"+c);
+                        //                        System.out.println("DEBUG: condition:"+c);
                         IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
                         if (ilo == null) {
                             return Float.MAX_VALUE;
@@ -256,9 +256,9 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                         //the following ask whether the condition depends on some action whose positiveness of the effects depend on the current state
                         //this happens for the special case of pseudo increase effects that are simulating the assignment operation
                         if (this.needs_checking_state_dependent_constraints) {
-    //                            System.out.println("DEBUG: There is need to check...");
+                            //                            System.out.println("DEBUG: There is need to check...");
                             if (this.has_state_dependent_achievers.get(c.getCounter())) {
-    //                                System.out.println("this one is one of them...");
+                                //                                System.out.println("this one is one of them...");
                                 revise_terms = true;
                             }
                         }
@@ -269,8 +269,9 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                     }
                 }
 //                System.out.println("LM to Satisfy:"+lm_considered);
-                if (this.debug_landmarks_counting)
+                if (this.debug_landmarks_counting) {
                     System.exit(-1);
+                }
                 if (debug == 5) {
                     System.out.println(lp_global);
                 }
@@ -552,7 +553,7 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
                     for (GroundAction gr : set) {
 
                         IloNumVar action;
-                        gr.setAction_cost(s_0);
+//                        gr.set_unit_cost(s_0);
                         Float action_cost = gr.getAction_cost();
                         if (action_cost.isNaN()) {
 //                            System.out.println("Action: " + gr);
@@ -635,20 +636,20 @@ public class hlm_refactored extends Uniform_cost_search_H1 {
     }
 
     private boolean check_if_smark_intersection_needed() {
-        for (int i=0;i<all_conditions.toArray().length;i++){
-            for (int j=i+1;j<all_conditions.toArray().length;j++){
+        for (int i = 0; i < all_conditions.toArray().length; i++) {
+            for (int j = i + 1; j < all_conditions.toArray().length; j++) {
                 Conditions c1 = (Conditions) all_conditions.toArray()[i];
                 Conditions c2 = (Conditions) all_conditions.toArray()[j];
-                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)){
-                    Comparison comp_c1 = (Comparison)c1;
-                    Comparison comp_c2 = (Comparison)c2;
-                    if (comp_c1.getInvolvedFluents().equals(comp_c2.getInvolvedFluents())){
+                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
+                    Comparison comp_c1 = (Comparison) c1;
+                    Comparison comp_c2 = (Comparison) c2;
+                    if (comp_c1.getInvolvedFluents().equals(comp_c2.getInvolvedFluents())) {
 //                        System.out.println(comp_c1+" "+comp_c2);
                         return true;
                     }
                 }
             }
-           
+
         }
         return false;
     }

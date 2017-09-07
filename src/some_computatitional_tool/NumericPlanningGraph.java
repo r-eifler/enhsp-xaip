@@ -1,30 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
-
+ ********************************************************************
+ */
 package some_computatitional_tool;
 
 import conditions.AndCond;
@@ -44,7 +45,6 @@ import java.util.Vector;
 import problem.GroundAction;
 import problem.RelState;
 import problem.State;
-
 
 /**
  *
@@ -78,6 +78,7 @@ public class NumericPlanningGraph {
         goal_reached_at = 0;
         relevantActions = new HashSet();
     }
+
     public NumericPlanningGraph(State init) {
         super();
         levels = 0;
@@ -101,24 +102,24 @@ public class NumericPlanningGraph {
 //    }
 
     public ArrayList computeRelaxedPlan(State s, Conditions goal, Set actions) throws CloneNotSupportedException {
-        
+
         //System.out.println("Find relaxed plan");
         ArrayList ret = new ArrayList();
 
         this.goal = goal;
         RelState current = s.relaxState();
         rel_state_level.add(current.clone());
-        
+
         //actions to be used for planning purposes. This list is a temporary collection to do not compromise the input structure
         ArrayList acts = new ArrayList();
         acts.addAll(actions);
         long start = System.currentTimeMillis();
         ArrayList level = new ArrayList();
-        levels=0;
+        levels = 0;
         while (true) {
             if (current.satisfy(goal)) {
                 goal_reached = true;
-                this.goal_reached_at=levels;
+                this.goal_reached_at = levels;
                 break;//goal reached!
             } else {
 
@@ -128,9 +129,10 @@ public class NumericPlanningGraph {
                     if (gr.isApplicable(current)) {
                         //if (gr.getPreconditions().isSatisfied(current)) {
                         level.add(gr);
-                        if (gr.getNumericEffects()==null)
+                        if (gr.getNumericEffects() == null) {
                             it.remove();
-                        
+                        }
+
                     }
                 }
                 if (level.isEmpty()) {
@@ -283,16 +285,15 @@ public class NumericPlanningGraph {
             spezzTime += System.currentTimeMillis() - start2;
             levels++;
         }
-        
+
         fixPoint = current.clone();
         FPCTime = System.currentTimeMillis() - start;
         System.out.println("Graphplan Building Time:" + (System.currentTimeMillis() - start));
         System.out.println("NumbersOfLevel" + (levels));
-        
-        
+
         return numberOfActions;
     }
-    
+
     public Set computeActionsUntilFixedPoint(State s, Set actions) throws CloneNotSupportedException {
 
         RelState current = s.relaxState();
@@ -302,7 +303,7 @@ public class NumericPlanningGraph {
         HashSet level = new HashSet(10000);
         numberOfActions = 0;
         while (true) {
-            
+
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
@@ -333,7 +334,7 @@ public class NumericPlanningGraph {
         relevantActions = level;
         return level;
     }
-    
+
     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions
     public Set reacheability(State s, Set actions) throws CloneNotSupportedException, Exception {
@@ -378,18 +379,17 @@ public class NumericPlanningGraph {
             levels++;
             //System.out.println("Level:"+levels);
         }
-        System.out.println("Total Number of Levels Developped:"+levels);
+        System.out.println("Total Number of Levels Developped:" + levels);
         fixPoint = current.clone();
         FPCTime = System.currentTimeMillis() - start;
         relevantActions = level;
         this.cpu_time = System.currentTimeMillis() - start;
         return level;
     }
-    
-     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
+
+    //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions. As before but it stops when the goal is reached in the relaxed state.
-       
-    public Set reacheabilityTillGoal(State s,Conditions goal, Set actions) throws CloneNotSupportedException {
+    public Set reacheabilityTillGoal(State s, Conditions goal, Set actions) throws CloneNotSupportedException {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -397,8 +397,8 @@ public class NumericPlanningGraph {
         long start = System.currentTimeMillis();
         HashSet level = new HashSet(10000);
         numberOfActions = 0;
-        levels=0;
-        
+        levels = 0;
+
         while (true) {
             if (current.satisfy(goal)) {
                 goal_reached = true;
@@ -407,8 +407,8 @@ public class NumericPlanningGraph {
             boolean newActions = false;
             for (Iterator it = acts.iterator(); it.hasNext();) {
                 GroundAction gr = (GroundAction) it.next();
-                
-                if (gr.getPreconditions()== null || gr.getPreconditions().can_be_true(current)) {
+
+                if (gr.getPreconditions() == null || gr.getPreconditions().can_be_true(current)) {
                     newActions = true;
                     level.add(gr);
                     this.numberOfActions++;
@@ -418,15 +418,14 @@ public class NumericPlanningGraph {
             //System.out.println("Here:"+action_level.size());
             //System.out.println(level.size());
             this.action_level.add(level.clone());
-            
+
             //THIS IS A BUG: IT SHOULD CONSIDER THE FACT THAT THE SATISFACTION OF AT LEAST A CONDITION IS SATISFIED!
             if (!newActions) {
                 System.out.println("No new actions applicable and goal is not reacheable...");
-               break;//it means that the goal is unreacheable!
+                break;//it means that the goal is unreacheable!
             }
             long start2 = System.currentTimeMillis();
-            
-            
+
             for (Object o : level) {
                 GroundAction gr = (GroundAction) o;
                 //System.out.println(gr.getName());
@@ -441,13 +440,12 @@ public class NumericPlanningGraph {
         this.cpu_time = System.currentTimeMillis() - start;
         return level;
     }
-    
-    
-    public Map<Predicate,Set<Predicate>> findLandmarks(State s, AndCond goals, Set actions) throws CloneNotSupportedException{
-        
-        Map<Predicate,Set<Predicate>> ret = new HashMap();
-        Map<Predicate,Set<Predicate>> FA = new HashMap();
-        
+
+    public Map<Predicate, Set<Predicate>> findLandmarks(State s, AndCond goals, Set actions) throws CloneNotSupportedException {
+
+        Map<Predicate, Set<Predicate>> ret = new HashMap();
+        Map<Predicate, Set<Predicate>> FA = new HashMap();
+
 //        Map<GroundAction,Boolean> visited = new HashMap();
 //        RelState current = s.relaxState();
 //        
@@ -468,16 +466,14 @@ public class NumericPlanningGraph {
 //                
 //            }
 //        }
-       
-        
         RelState current = s.relaxState();
         Set acts = new HashSet();
         acts.addAll(actions);
         long start = System.currentTimeMillis();
-        for (Object o: s.getPropositions()){
+        for (Object o : s.getPropositions()) {
             HashSet set = new HashSet();
             set.add(o);
-            ret.put((Predicate)o,set);
+            ret.put((Predicate) o, set);
         }
         HashSet level = new HashSet(10000);
         numberOfActions = 0;
@@ -490,18 +486,18 @@ public class NumericPlanningGraph {
                     level.add(gr);
                     this.numberOfActions++;
                     it.remove();
-                    for (Object o: gr.getAddList().sons){
-                        Predicate p = (Predicate)o;
-                        if (ret.get(p) == null){//first time I achieved p
+                    for (Object o : gr.getAddList().sons) {
+                        Predicate p = (Predicate) o;
+                        if (ret.get(p) == null) {//first time I achieved p
                             HashSet lmOfP = new HashSet();
                             lmOfP.add(p);
-                            addPredicatesPrecondition(lmOfP,ret,gr);
-                            setFA(p,gr,FA);
-                            
+                            addPredicatesPrecondition(lmOfP, ret, gr);
+                            setFA(p, gr, FA);
+
                             ret.put(p, lmOfP);
-                        }else{
-                            HashSet lmOfP = (HashSet)ret.get(p);
-                            intersectPredicatesPrecondition(lmOfP,ret,gr);
+                        } else {
+                            HashSet lmOfP = (HashSet) ret.get(p);
+                            intersectPredicatesPrecondition(lmOfP, ret, gr);
                             lmOfP.add(p);
                             ret.put(p, lmOfP);
                         }
@@ -528,16 +524,13 @@ public class NumericPlanningGraph {
         relevantActions = level;
         firstAchiever = FA;
         return ret;
-        
+
     }
-    
 
     private ArrayList extractPlan(Conditions goal, int levels) throws CloneNotSupportedException {
         Conditions AG[] = new Conditions[levels + 1];
         AG[levels] = goal;
         ArrayList rel_plan = new ArrayList();
-
-
 
         for (int t = levels - 1; t >= 0; t--) {
             RelState tem = (RelState) rel_state_level.get(t);
@@ -610,7 +603,7 @@ public class NumericPlanningGraph {
 //                                  System.out.println(rel_plan[z]);
 //                               }
 //                            }
-                        if (comp.involve((HashMap<NumFluent,Boolean>) gr.getNumericFluentAffected())) {
+                        if (comp.involve((HashMap<NumFluent, Boolean>) gr.getNumericFluentAffected())) {
                             //System.out.println(gr.getNumericFluentAffected());
                             gr.apply(s);
                             AG[t].sons.addAll(gr.getPreconditions().sons);
@@ -624,7 +617,6 @@ public class NumericPlanningGraph {
             }
 
         }
-
 
         return rel_plan;
 
@@ -676,7 +668,6 @@ public class NumericPlanningGraph {
 //                rel_plan[t].add(gr);
 //            }
         }
-
 
         return rel_plan;
 
@@ -732,7 +723,6 @@ public class NumericPlanningGraph {
                     it.remove();
                     return gr;
 
-
                 }
 
             }
@@ -777,13 +767,13 @@ public class NumericPlanningGraph {
     }
 
     public Set findFirstLevelActions() {
-        
+
         Set actions = new HashSet();
-        if (this.init == null){
+        if (this.init == null) {
             System.out.println("Initial state unknown");
         }
         //System.out.println("The number of relevant actions is: "+relevantActions.size());
-        for (GroundAction gr: (Set<GroundAction>)this.relevantActions){
+        for (GroundAction gr : (Set<GroundAction>) this.relevantActions) {
             //System.out.println(gr);
             if (gr.isApplicable(init)) {
                 actions.add(gr);
@@ -807,11 +797,11 @@ public class NumericPlanningGraph {
     }
 
     public RelState computeStateBound(State init, Conditions goals, Set actions) throws CloneNotSupportedException {
-        
+
         this.goal = goals;
         RelState current = init.relaxState();
         rel_state_level.add(current.clone());
-        
+
         //actions to be used for planning purposes. This list is a temporary collection to do not compromise the input structure
         ArrayList acts = new ArrayList();
         acts.addAll(actions);
@@ -855,57 +845,53 @@ public class NumericPlanningGraph {
 
         cpu_time = System.currentTimeMillis() - start;
 
-        
-
         return current;
-        
-        
+
     }
 
-    private void addPredicatesPrecondition(HashSet lmOfP, Map<Predicate,Set<Predicate>> ret, GroundAction gr) {
-        
-        if (gr.getPreconditions() == null)
-            return ;
-        
-        for (Object o: gr.getPreconditions().sons){
-            if (o instanceof Predicate){
-                lmOfP.addAll(ret.get(o));
-                
-            }
-            
+    private void addPredicatesPrecondition(HashSet lmOfP, Map<Predicate, Set<Predicate>> ret, GroundAction gr) {
+
+        if (gr.getPreconditions() == null) {
+            return;
         }
-    
+
+        for (Object o : gr.getPreconditions().sons) {
+            if (o instanceof Predicate) {
+                lmOfP.addAll(ret.get(o));
+
+            }
+
+        }
+
     }
 
-    private void intersectPredicatesPrecondition(HashSet lmOfP, Map<Predicate,Set<Predicate>> ret, GroundAction gr) {
-        if (gr.getPreconditions() == null)
-                lmOfP.clear();
-        else{
+    private void intersectPredicatesPrecondition(HashSet lmOfP, Map<Predicate, Set<Predicate>> ret, GroundAction gr) {
+        if (gr.getPreconditions() == null) {
+            lmOfP.clear();
+        } else {
             HashSet preconditions = new HashSet();
-            for (Object o: gr.getPreconditions().sons){
-                if (o instanceof Predicate){
+            for (Object o : gr.getPreconditions().sons) {
+                if (o instanceof Predicate) {
                     preconditions.addAll(ret.get(o));
                 }
             }
-                     
+
             lmOfP.retainAll(preconditions);
-            
+
         }
     }
 
     private void setFA(Predicate p, GroundAction gr, Map<Predicate, Set<Predicate>> FA) {
-        
+
         HashSet set = new HashSet();
-        for (Object o: gr.getPreconditions().sons){
-                if (o instanceof Predicate){
-                    set.add(o);
-                }
+        for (Object o : gr.getPreconditions().sons) {
+            if (o instanceof Predicate) {
+                set.add(o);
             }
-        
+        }
+
         FA.put(p, set);
-    
+
     }
-
-
 
 }

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -35,8 +34,8 @@ import problem.PDDLObjects;
  *
  * @author enrico
  */
-public class EventSchema extends ActionSchema{
-    
+public class EventSchema extends ActionSchema {
+
     public GroundEvent ground() {
         GroundEvent ret = new GroundEvent(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
@@ -49,8 +48,8 @@ public class EventSchema extends ActionSchema{
         ret.cond_effects = cond_effects;
         return ret;
     }
-    
-        @Override
+
+    @Override
     public String toString() {
 //        String parametri = "";
 //        for (Object o : parameters) {
@@ -64,12 +63,12 @@ public class EventSchema extends ActionSchema{
         ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
         //ret += ":effect " + this.pddlEffectsWithExtraObject();
-        ret += ":effect " + this.pddlEffects()+"\n";
+        ret += ":effect " + this.pddlEffects() + "\n";
 
         return ret + ")";
     }
-    
-    public GroundEvent ground(ParametersAsTerms par,PDDLObjects po) {
+
+    public GroundEvent ground(ParametersAsTerms par, PDDLObjects po) {
         GroundEvent ret = new GroundEvent(this.name);
         int i = 0;
 
@@ -83,23 +82,24 @@ public class EventSchema extends ActionSchema{
         ret.setParameters(par);
 
 //        System.out.println(this);
-        if (numericEffects!= null || !numericEffects.sons.isEmpty()){
+        if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution,po));
-        }if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution,po));
+            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+        }
+        if (addList != null) {
+            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution,po));
+            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution,po));
+            ret.setPreconditions(this.preconditions.ground(substitution, po));
         }
         if (cond_effects != null) {
 //            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution,po);
+            ret.cond_effects = this.cond_effects.ground(substitution, po);
 //            System.out.println("DEBUG: after:"+cond_effects);
-       
+
         }
 
         return ret;

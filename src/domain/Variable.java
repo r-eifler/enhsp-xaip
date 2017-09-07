@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package domain;
 
 import conditions.PDDLObject;
@@ -49,6 +51,7 @@ public class Variable implements ActionParameter {
         Name = text;
 
     }
+
     public Variable() {
         super();
     }
@@ -56,12 +59,12 @@ public class Variable implements ActionParameter {
     @Override
     public PDDLObject ground(Map<Variable, PDDLObject> substitution) {
         final PDDLObject o = substitution.get(this);
-        
+
         if (o == null) {
             System.out.println("Substitution Failed for " + o.toString());
             System.exit(-1);
         }
-        
+
         return o;
     }
 
@@ -96,7 +99,6 @@ public class Variable implements ActionParameter {
         }
         return false;
 
-
     }
 
     /**
@@ -126,17 +128,18 @@ public class Variable implements ActionParameter {
     public void setType(Type type) {
         this.type = type;
     }
-    
+
     public String pddlPrint() {
 
         return this.getName() + " " + this.getType();
     }
 
     public String pddlPrint(boolean typeInformation) {
-        if (typeInformation){
+        if (typeInformation) {
             return this.getName() + " " + this.getType();
-        }else
+        } else {
             return this.getName();
+        }
     }
 
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {

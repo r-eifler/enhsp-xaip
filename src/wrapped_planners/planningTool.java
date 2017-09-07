@@ -1,28 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
+ ********************************************************************
+ */
 package wrapped_planners;
 
 import java.io.BufferedReader;
@@ -40,7 +43,7 @@ public abstract class planningTool {
     protected int plannerTime;
     long timeout;
     protected boolean failed = false;
-        private boolean timeoutFail = false;
+    private boolean timeoutFail = false;
     private boolean plannerError;
     protected String domain_file_option = " -o ";
     protected String problem_file_option = " -f ";
@@ -63,7 +66,6 @@ public abstract class planningTool {
         this.timeoutFail = timeoutFail;
     }
 
-
     public planningTool() {
         timeout = 1000000;
     }
@@ -71,7 +73,7 @@ public abstract class planningTool {
     abstract public String adapt(String domainFile, String problemFile, String planFile);
 
     abstract public void changePlannersPath();
-    
+
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = "";
@@ -81,18 +83,18 @@ public abstract class planningTool {
             Runtime runtime = Runtime.getRuntime();
 
             System.out.println("This is what I am running");
-            System.out.println("Executing: " + planningExec + domain_file_option  + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
+            System.out.println("Executing: " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             process = runtime.exec(planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             /* Set up process I/O. */
 
             Worker worker = new Worker(process);
             worker.start();
-            
+
             worker.join(getTimeout());
 
             if (worker.exit != null) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                
+
                 String line = null;
                 while ((line = input.readLine()) != null) {
                     outputPlanning = outputPlanning.concat(line + "\n");

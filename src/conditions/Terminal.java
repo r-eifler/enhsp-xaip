@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -39,18 +38,16 @@ public abstract class Terminal extends Conditions {
         int current_dist = dist.get(this.getCounter());
         if (current_dist < i) {
             return true;
-        } else {
-            if (this.can_be_true(rs)) {
-                dist.set(this.getCounter(), i);
-                return true;
-            }
+        } else if (this.can_be_true(rs)) {
+            dist.set(this.getCounter(), i);
+            return true;
         }
         return false;
     }
-    
+
     @Override
     public Conditions introduce_red_constraints() {
         return this;
     }
-    
+
 }

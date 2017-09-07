@@ -28,11 +28,15 @@ import heuristics.old.Uniform_cost_search_H1;
 import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
 import conditions.Conditions;
+import expressions.BinaryOp;
+import expressions.ExtendedNormExpression;
+import expressions.NumEffect;
 import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.Aibr;
 import static java.lang.System.out;
 import java.util.ArrayList;
+import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -77,6 +81,8 @@ public class h1 extends Uniform_cost_search_H1 {
     public boolean ibr_deactivated = false;
     private LinkedList<Pair<GroundAction, Float>> relaxed_plan;
     private ArrayList<Float> established_local_cost;
+    private boolean risky = true;
+
     public h1(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
     }
@@ -97,6 +103,8 @@ public class h1 extends Uniform_cost_search_H1 {
             return ret;
         }
         A = first_reachH.reachable;
+        simplify_actions(s);
+
         if (red_constraints) {
             try {
                 this.add_redundant_constraints();
@@ -111,6 +119,7 @@ public class h1 extends Uniform_cost_search_H1 {
         }
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
+        goal.setAction_cost(0);
         goal.setPreconditions(G);
         A.add(goal);
         //System.out.println("Building integer representation");
@@ -182,7 +191,7 @@ public class h1 extends Uniform_cost_search_H1 {
         action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
         closed = new ArrayList<>(nCopies(total_number_of_actions + 1, false));
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
-            gr.setAction_cost(s_0);
+//            gr.set_unit_cost(s_0);
             if (gr.isApplicable(s_0)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(gr);
                 action_to_fib_node.set(gr.counter, node);
@@ -275,7 +284,7 @@ public class h1 extends Uniform_cost_search_H1 {
                         cond_dist.set(comp.getCounter(), cond_dist_comp);//update distance. Meant only to keep track of whether condition reachead or not, and "how"
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                             established_achiever.set(comp.getCounter(), gr);
-                            established_local_cost.set(comp.getCounter(), 1f);
+                            established_local_cost.set(comp.getCounter(), c_a);
                         }
                         update_reachable_actions(gr, comp, a_plus, never_active);
 
@@ -406,7 +415,7 @@ public class h1 extends Uniform_cost_search_H1 {
         }
     }
 
-    public Float check_conditions(GroundAction gr2) {
+    private Float check_conditions(GroundAction gr2) {
         if (relaxed_plan_extraction || this.helpful_actions_computation) {
             achiever_set s = gr2.getPreconditions().estimate_cost(cond_dist, additive_h, established_achiever);
             action_achievers.set(gr2.counter, s);
@@ -593,11 +602,11 @@ public class h1 extends Uniform_cost_search_H1 {
                 plan.set(i, gr_pair);
                 return;
             }
-            
-            if (only_mutual_exclusion_processes){//work from here to have hff sensible to process structure!
+
+            if (only_mutual_exclusion_processes) {//work from here to have hff sensible to process structure!
                 if (g instanceof problem.GroundProcess || g instanceof problem.GroundEvent) {//very very conservative
                     if (gr_pair.getFirst() instanceof problem.GroundProcess || gr_pair.getFirst() instanceof problem.GroundEvent) {
-                        if (!gr_pair.getFirst().getPreconditions().mutual_exclusion_guaranteed(g.getPreconditions())){
+                        if (!gr_pair.getFirst().getPreconditions().mutual_exclusion_guaranteed(g.getPreconditions())) {
                             //Float current_cost = gr_pair.getSecond();
 //                            if (cost > current_cost){
 //                                gr_pair.setSecond(cost);
@@ -622,6 +631,43 @@ public class h1 extends Uniform_cost_search_H1 {
             cost += p.getSecond();
         }
         return cost;
+    }
+
+    protected void simplify_actions(State init) {
+        for (GroundAction gr : (Collection<GroundAction>) this.A) {
+            try {
+                if (gr.getPreconditions() != null) {
+                    gr.setPreconditions(gr.getPreconditions().transform_equality());
+                }
+                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                    int number_numericEffects = gr.getNumericEffects().sons.size();
+                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                        NumEffect neff = (NumEffect) it.next();
+                        if (neff.getOperator().equals("assign")) {
+                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                            try {
+                                if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                                    //Utils.dbg_print(3,neff.toString());
+//                            if (number_numericEffects == 1) {
+                                    neff.setOperator("increase");
+                                    neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                                    neff.setPseudo_num_effect(true);
+//                            }
+                                }
+                            } catch (Exception ex) {
+                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+
+                    }
+                }
+                gr.normalize();
+            } catch (Exception ex) {
+                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.G = this.G.transform_equality();
+        this.G.normalize();
     }
 
 }

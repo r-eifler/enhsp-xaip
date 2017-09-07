@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -40,11 +39,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Created by Da An on 10/12/16.
  */
-
 public class UniformCostSearch_LM extends Heuristic {
 
     public HashMap<Integer, Set<repetition_landmark>> possible_achievers;
@@ -70,7 +67,6 @@ public class UniformCostSearch_LM extends Heuristic {
         this.build_integer_representation();
     }
 
-
     @Override
     public Float setup(State s) {
         reachable.addAll(A);
@@ -78,8 +74,6 @@ public class UniformCostSearch_LM extends Heuristic {
         reachable.addAll(reachable_at_this_stage);
         return ret;
     }
-
-
 
     @Override
     public Float compute_estimate(State s) {
@@ -149,7 +143,6 @@ public class UniformCostSearch_LM extends Heuristic {
             }
         }
 
-
         findGoalLandmark(G, s);
 
         float estimate = 0;
@@ -164,7 +157,7 @@ public class UniformCostSearch_LM extends Heuristic {
                     IloLinearNumExpr expr = lp.linearNumExpr();
                     for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                         IloNumVar action;
-                        dlm.gr.setAction_cost(s);
+//                        dlm.gr.set_unit_cost(s);
                         Float action_cost = dlm.gr.getAction_cost();
                         if (action_cost.isNaN()) {
                             continue;
@@ -204,9 +197,8 @@ public class UniformCostSearch_LM extends Heuristic {
         return estimate;
     }
 
-
     protected void findGoalLandmark(Conditions goal, State s) {
-        for (Conditions c: (Collection<Conditions>) goal.sons) {
+        for (Conditions c : (Collection<Conditions>) goal.sons) {
             goalLandmark.addAll(findConditionLandmark(c));
         }
     }
@@ -216,7 +208,7 @@ public class UniformCostSearch_LM extends Heuristic {
             //Already find the landmark for this condition, no need to do it again
             return conditionLandmark.get(c.getCounter());
         }
-        
+
         //Start: Anti-Cycle System
         if (visitedCondition.contains(c)) {
             //this condition has been visited but not has landmarks found, then it must be a cycle
@@ -230,7 +222,7 @@ public class UniformCostSearch_LM extends Heuristic {
 
         Set<repetition_landmark> possibleAchievers = possible_achievers.get(c.getCounter());
 
-        for (repetition_landmark rl: possibleAchievers) {
+        for (repetition_landmark rl : possibleAchievers) {
             GroundAction achiever = rl.gr;
             Set<Conditions> landmarks = findActionLandmark(achiever);
             conditionLandmark.get(c.getCounter()).retainAll(landmarks); //Keylar's Method
@@ -245,7 +237,6 @@ public class UniformCostSearch_LM extends Heuristic {
             //Already find the landmark for this action, no need to do it again
             return actionLandmark.get(a.counter);
         }
-
 
         Set<Conditions> preconditions = a.getPreconditions().sons;
         Set<Conditions> union = new HashSet<>();
@@ -264,8 +255,6 @@ public class UniformCostSearch_LM extends Heuristic {
         actionLandmark.get(a.counter).addAll(union); // Add landmark for this action into the map
         return union;
     }
-
-
 
     protected void init_data_structure(State s) {
 
@@ -286,8 +275,6 @@ public class UniformCostSearch_LM extends Heuristic {
         reachableActions = new LinkedList<>();
         conditionReachable = new HashMap<>();
 
-
-
         all_conditions.forEach((c) -> {
             conditionLandmark.put(c.getCounter(), new HashSet<>());
             possible_achievers.put(c.getCounter(), new HashSet<>());
@@ -306,7 +293,6 @@ public class UniformCostSearch_LM extends Heuristic {
             conditionLandmark.get(c.getCounter()).addAll(conditionsToConsider);
         }
 
-
         A.forEach((GroundAction gr) -> {
             actionLandmark.put(gr.counter, new HashSet<>());
             if (gr.isApplicable(s)) {
@@ -317,7 +303,6 @@ public class UniformCostSearch_LM extends Heuristic {
             }
         });
     }
-
 
     public class repetition_landmark extends Object {
 
@@ -360,15 +345,15 @@ public class UniformCostSearch_LM extends Heuristic {
         ArrayList<Conditions> allConditionArray = new ArrayList<>(all_conditions);
         Set<ExtendedNormExpression> exprSet = new HashSet<>();
 
-        for (int i=0; i<set_as_array.size(); i++) {
-            for (int j=i+1; j<set_as_array.size();j++) {
+        for (int i = 0; i < set_as_array.size(); i++) {
+            for (int j = i + 1; j < set_as_array.size(); j++) {
                 Conditions c1 = set_as_array.get(i);
                 Conditions c2 = set_as_array.get(j);
 
                 if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
                     //if (i<j) {
-                    Comparison a1 = (Comparison)c1;
-                    Comparison a2 = (Comparison)c2;
+                    Comparison a1 = (Comparison) c1;
+                    Comparison a2 = (Comparison) c2;
                     ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
                     ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
                     exprSet.add(lhs_a1);
@@ -392,7 +377,6 @@ public class UniformCostSearch_LM extends Heuristic {
                     cnew.setLeft(expr);
                     cnew.setRight(new ExtendedNormExpression(new Float(0.0)));
                     cnew.normalize();
-
 
                     if (allConditionArray.contains(cnew)) {
                         cnew.setCounter(allConditionArray.get(allConditionArray.indexOf(cnew)).getCounter());

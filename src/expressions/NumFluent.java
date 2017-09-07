@@ -47,8 +47,6 @@ import problem.State;
  */
 public class NumFluent extends Expression {
 
-
-
     private String name;
     private ArrayList<ActionParameter> terms;
     private String beforeReformulation;
@@ -61,13 +59,12 @@ public class NumFluent extends Expression {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj==this)
+        if (obj == this) {
             return true;
-            
+        }
+
         NumFluent objF = (NumFluent) obj;
 
-
-        
         if (objF.getName().equalsIgnoreCase(this.getName()) && this.getTermsAsString().equalsIgnoreCase(objF.getTermsAsString())) {
             return true;
         }
@@ -76,7 +73,7 @@ public class NumFluent extends Expression {
 
     @Override
     public int hashCode() {
-        
+
 //        if (this.hash_code == null) {
 //            int hash = 7;
 //            hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
@@ -85,12 +82,13 @@ public class NumFluent extends Expression {
 //        }
 //
 //        return this.hash_code;
-        if (actual_hash == null){
+        if (actual_hash == null) {
             actual_hash = 5;
 
             actual_hash = 97 * actual_hash + Objects.hashCode(this.name);
-            if (terms_as_string == null)
+            if (terms_as_string == null) {
                 terms_as_string = this.terms.toString();
+            }
             actual_hash = 97 * actual_hash + Objects.hashCode(this.terms_as_string);
         }
         return actual_hash;
@@ -108,7 +106,7 @@ public class NumFluent extends Expression {
         this.name = name;
         //variables = new ArrayList();
         terms = new ArrayList<>();
-        
+
         this.beforeReformulation = null;
     }
 
@@ -136,7 +134,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public NumFluent ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
+    public NumFluent ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumFluent ret = new NumFluent(getName());
         ret.index = this.index;
         for (final ActionParameter param : terms) {
@@ -244,9 +242,7 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression weakEval(State s, HashMap invF) {
-     
-        
-        
+
         if (this.name.equals("#t")) {
             //return this;
             return s.static_function_value(this);
@@ -468,8 +464,9 @@ public class NumFluent extends Expression {
     }
 
     private String getTermsAsString() {
-        if (terms_as_string == null)
-                terms_as_string = this.terms.toString(); //To change body of generated methods, choose Tools | Templates.
+        if (terms_as_string == null) {
+            terms_as_string = this.terms.toString(); //To change body of generated methods, choose Tools | Templates.
+        }
         return terms_as_string;
     }
 

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -48,11 +47,11 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;
-        ret.setArg(getArg().ground(substitution,po));
+        ret.setArg(getArg().ground(substitution, po));
 
         ret.grounded = true;
 
@@ -89,7 +88,7 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public void changeVar(Map<Variable,PDDLObject> substitution) {
+    public void changeVar(Map<Variable, PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -120,7 +119,7 @@ public class TrigonometricFunction extends BinaryOp {
     public Interval eval(RelState s) {
         Interval ret = null;
         Interval arg = this.getArg().eval(s);
-        
+
         switch (this.operator) {
             case "sin":
                 ret = arg.sin();

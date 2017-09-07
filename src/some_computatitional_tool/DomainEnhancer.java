@@ -193,7 +193,7 @@ public class DomainEnhancer {
         if (!constants.isEmpty()) {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
-        if (domain.getPredicates() != null){
+        if (domain.getPredicates() != null) {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
         if (!domain.getFunctions().isEmpty()) {

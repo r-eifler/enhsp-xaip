@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package expressions;
 
 import conditions.Conditions;
@@ -51,17 +53,20 @@ public class PDDLNumber extends Expression {
         super();
         grounded = true;
     }
+
     public PDDLNumber(Float n) {
         grounded = true;
         number = n;
 
     }
+
     public PDDLNumber(float number) {
 
         grounded = true;
         this.number = number;
 
     }
+
     public PDDLNumber(int number) {
 
         grounded = true;
@@ -72,14 +77,14 @@ public class PDDLNumber extends Expression {
     @Override
     public String toString() {
 
-        return " " + String.format("%.6f",this.getNumber()) + " ";
+        return " " + String.format("%.6f", this.getNumber()) + " ";
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         return new PDDLNumber(getNumber());
     }
-    
+
     @Override
     public Expression unGround(Map substitution) {
         return new PDDLNumber(getNumber());
@@ -116,7 +121,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public void changeVar(Map<Variable,PDDLObject> substitution) {
+    public void changeVar(Map<Variable, PDDLObject> substitution) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -137,7 +142,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent,Boolean> arrayList) {
+    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
         return false;
     }
 
@@ -153,10 +158,11 @@ public class PDDLNumber extends Expression {
 
     @Override
     public boolean isUngroundVersionOf(Expression expr) {
-        if (expr instanceof PDDLNumber){
-            PDDLNumber num = (PDDLNumber)expr;
-            if (this.getNumber().equals(num.getNumber()))
+        if (expr instanceof PDDLNumber) {
+            PDDLNumber num = (PDDLNumber) expr;
+            if (this.getNumber().equals(num.getNumber())) {
                 return true;
+            }
         }
         return false;
     }
@@ -196,11 +202,12 @@ public class PDDLNumber extends Expression {
     @Override
     public String toSmtVariableString(int i) {
 //        System.out.println("Variable sign:");
-        if (this.getNumber() < 0f){
+        if (this.getNumber() < 0f) {
 //            System.out.println("negative");
-            return "(- " + String.format("%.2f",this.getNumber()*-1f) + ") ";
-        }else
-            return " " + String.format("%.2f",this.getNumber()).replace("-", "") + " ";
+            return "(- " + String.format("%.2f", this.getNumber() * -1f) + ") ";
+        } else {
+            return " " + String.format("%.2f", this.getNumber()).replace("-", "") + " ";
+        }
 
     }
 
@@ -210,11 +217,11 @@ public class PDDLNumber extends Expression {
     }
 
     public boolean less(int i) {
-        return this.number<i;
+        return this.number < i;
     }
 
     public boolean greater(int i) {
-        return this.number>i;
+        return this.number > i;
     }
 
     @Override

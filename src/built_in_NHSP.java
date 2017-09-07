@@ -23,7 +23,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import conditions.NumFluentValue;
 import domain.PddlDomain;
 import extraUtils.Utils;
@@ -285,7 +284,7 @@ public class built_in_NHSP {
                 searchStrategies.setup_heuristic(new landmarks_factory(problem.getGoals(), problem.getActions()));
                 landmarks_factory h = (landmarks_factory) searchStrategies.getHeuristic();
                 h.setup(problem.getInit());
-            //System.out.println(h.compute_estimate(problem.getInit()));
+                //System.out.println(h.compute_estimate(problem.getInit()));
                 //System.exit(-1);
 //        } else if (config.equals("7")) {
 //            searchStrategies.setup_heuristic(new Belmann_Ford_H_15(problem.getGoals(), problem.getActions()));
@@ -310,7 +309,7 @@ public class built_in_NHSP {
 //            general_numeric_planning_heuristic h = (general_numeric_planning_heuristic) searchStrategies.getHeuristic();
 //            searchStrategies.setGw(1);
 //            searchStrategies.setHw(1);
-        }else if (config.equals("112")) {
+            } else if (config.equals("112")) {
                 searchStrategies.setup_heuristic(new asymptotic_ibr(problem.getGoals(), problem.getActions(), problem.processesSet));
                 asymptotic_ibr h = (asymptotic_ibr) searchStrategies.getHeuristic();
                 h.set(false, true);
@@ -420,155 +419,138 @@ public class built_in_NHSP {
                 System.out.println("Configuration Setting is not valid");
                 System.exit(-1);
             }
-        searchStrategies.json_rep_saving = saving_json;
-        if (break_ties != null) {
-            if (break_ties.equals("smaller_g")) {
-                searchStrategies.breakties_on_larger_g = false;
-                searchStrategies.breakties_on_smaller_g = true;
-            } else if (break_ties.equals("larger_g")) {
-                searchStrategies.breakties_on_larger_g = true;
+            searchStrategies.json_rep_saving = saving_json;
+            if (break_ties != null) {
+                if (break_ties.equals("smaller_g")) {
+                    searchStrategies.breakties_on_larger_g = false;
+                    searchStrategies.breakties_on_smaller_g = true;
+                } else if (break_ties.equals("larger_g")) {
+                    searchStrategies.breakties_on_larger_g = true;
+                } else {
+                    System.out.println("Wrong setting for break-ties. Arbitrary tie breaking");
+                }
             } else {
-                System.out.println("Wrong setting for break-ties. Arbitrary tie breaking");
+                searchStrategies.breakties_on_larger_g = false;
+                searchStrategies.breakties_on_smaller_g = false;
+
             }
-        } else {
-            searchStrategies.breakties_on_larger_g = false;
-            searchStrategies.breakties_on_smaller_g = false;
 
-        }
+            if (hw != null) {
+                searchStrategies.set_w_h(Float.parseFloat(hw));
+                System.out.println("w_h set to be " + hw);
+            }
+            if (gw != null) {
+                searchStrategies.set_w_g(Float.parseFloat(gw));
+                System.out.println("g_h set to be " + gw);
+            }
 
-        if (hw != null) {
-            searchStrategies.set_w_h(Float.parseFloat(hw));
-            System.out.println("w_h set to be " + hw);
-        }
-        if (gw != null) {
-            searchStrategies.set_w_g(Float.parseFloat(gw));
-            System.out.println("g_h set to be " + gw);
-        }
-
-        if (horizon != null) {
-            searchStrategies.depth_limit = Integer.parseInt(horizon);
-            System.out.println("Setting horizon to:" + horizon);
-        } else {
-            searchStrategies.depth_limit = Integer.MAX_VALUE;
-        }
+            if (horizon != null) {
+                searchStrategies.depth_limit = Integer.parseInt(horizon);
+                System.out.println("Setting horizon to:" + horizon);
+            } else {
+                searchStrategies.depth_limit = Integer.MAX_VALUE;
+            }
 //        if (admissible != null){
 //            searchStrategies.getHeuristic().additive_h = false;
 //        }
 
-        if ("hc".equals(search_engine)) {
-            raw_plan = searchStrategies.enforced_hill_climbing(problem);
-        } else if ("bfs".equals(search_engine) || search_engine == null) {
-            searchStrategies.preferred_operators_active = false;
-            if (gw == null) {
+            if ("hc".equals(search_engine)) {
+                raw_plan = searchStrategies.enforced_hill_climbing(problem);
+            } else if ("bfs".equals(search_engine) || search_engine == null) {
+                searchStrategies.preferred_operators_active = false;
+                if (gw == null) {
+                    searchStrategies.set_w_g(1);
+                }
+                if (hw == null) {
+                    searchStrategies.set_w_h(1);
+                }
+                raw_plan = searchStrategies.greedy_best_first_search(problem);
+            } else if ("wa_star".equals(search_engine)) {
+                if (gw == null) {
+                    searchStrategies.set_w_g(1);
+                }
+                if (hw == null) {
+                    searchStrategies.set_w_g(1);
+                }
+                raw_plan = searchStrategies.wa_star(problem);
+            } else if ("gbfs".equals(search_engine)) {
+                if (gw == null) {
+                    searchStrategies.set_w_g(0);
+                }
+                if (hw == null) {
+                    searchStrategies.set_w_h(1);
+                }
+                raw_plan = searchStrategies.greedy_best_first_search(problem);
+            } else if ("dfs".equals(search_engine)) {
+                config = "brfs";
+                searchStrategies.set_w_h(0);
                 searchStrategies.set_w_g(1);
-            }
-            if (hw == null) {
-                searchStrategies.set_w_h(1);
-            }
-            raw_plan = searchStrategies.greedy_best_first_search(problem);
-        } else if ("wa_star".equals(search_engine)) {
-            if (gw == null) {
+                searchStrategies.bfs = false;
+                raw_plan = searchStrategies.blindSearch(problem);
+            } else if ("brfs".equals(search_engine)) {
+                config = "brfs";
+                searchStrategies.set_w_h(0);
                 searchStrategies.set_w_g(1);
+                searchStrategies.bfs = true;
+                raw_plan = searchStrategies.blindSearch(problem);
+            } else {
+                System.out.println("Strategy is not correct");
+                System.exit(-1);
             }
-            if (hw == null) {
-                searchStrategies.set_w_g(1);
-            }
-            raw_plan = searchStrategies.wa_star(problem);
-        } else if ("gbfs".equals(search_engine)) {
-            if (gw == null) {
-                searchStrategies.set_w_g(0);
-            }
-            if (hw == null) {
-                searchStrategies.set_w_h(1);
-            }
-            raw_plan = searchStrategies.greedy_best_first_search(problem);
-        } else if ("dfs".equals(search_engine)) {
-            config = "brfs";
-            searchStrategies.set_w_h(0);
-            searchStrategies.set_w_g(1);
-            searchStrategies.bfs = false;
-            raw_plan = searchStrategies.blindSearch(problem);
-        } else if ("brfs".equals(search_engine)) {
-            config = "brfs";
-            searchStrategies.set_w_h(0);
-            searchStrategies.set_w_g(1);
-            searchStrategies.bfs = true;
-            raw_plan = searchStrategies.blindSearch(problem);
-        } else {
-            System.out.println("Strategy is not correct");
-            System.exit(-1);
         }
-    }
-    if (raw_plan
-
-    
-        != null) {
+        if (raw_plan
+                != null) {
             System.out.println("Problem Solved");
-        if (problem.processesSet.isEmpty()) {
-            sp.addAll(raw_plan);
-            System.out.println("(Pddl2.1 semantic) Plan is valid:" + sp.execute(problem.getInit(), problem.globalConstraints).satisfy(problem.getGoals()));
-            System.out.println(sp);
-            System.out.println("Plan-Length:" + sp.size());
+            if (problem.processesSet.isEmpty()) {
+                sp.addAll(raw_plan);
+                System.out.println("(Pddl2.1 semantic) Plan is valid:" + sp.execute(problem.getInit(), problem.globalConstraints).satisfy(problem.getGoals()));
+                System.out.println(sp);
+                System.out.println("Plan-Length:" + sp.size());
+            } else {
+                Float time = sp.build_pddl_plus_plan(raw_plan, Float.parseFloat(delta_t), 0.0000001f);
+                sp.print_trace = print_trace;
+                State last_state = sp.execute(problem.getInit(), problem.globalConstraints, problem.processesSet, problem.eventsSet, searchStrategies.delta, resolution_execution, time);
+                System.out.println("(Pddl+ semantic) Plan is valid:" + last_state.satisfy(problem.getGoals()));
+                System.out.println(sp);
+                System.out.println("Plan-Length:" + sp.size());
+                if (save_plan) {
+                    sp.savePlan(problem.getPddlFileReference() + "_c_" + config + "_gw_" + gw + "_hw_" + gw + "_delta_" + delta_t + ".plan", true);
+                }
+                if (problem.getMetric() != null && problem.getMetric().getMetExpr() != null) {
+                    System.out.println("Metric-Value:" + problem.getMetric().getMetExpr().eval(last_state));
+                }
+            }
         } else {
-            Float time = sp.build_pddl_plus_plan(raw_plan, Float.parseFloat(delta_t), 0.0000001f);
-            sp.print_trace = print_trace;
-            State last_state = sp.execute(problem.getInit(), problem.globalConstraints, problem.processesSet,problem.eventsSet, searchStrategies.delta, resolution_execution,time);
-            System.out.println("(Pddl+ semantic) Plan is valid:" + last_state.satisfy(problem.getGoals()));
-            System.out.println(sp);
-            System.out.println("Plan-Length:" + sp.size());
-            if (save_plan) {
-                sp.savePlan(problem.getPddlFileReference() + "_c_" + config + "_gw_" + gw + "_hw_" + gw + "_delta_" + delta_t + ".plan", true);
-            }
-            if (problem.getMetric() != null && problem.getMetric().getMetExpr() != null) {
-                System.out.println("Metric-Value:" + problem.getMetric().getMetExpr().eval(last_state));
-            }
-        }
-    }
-
-    
-        else {
             System.out.println("Problem Unsolvable");
-    }
+        }
 
-    System.out.println (
+        System.out.println(
+                "Heuristic Time:" + SearchStrategies.heuristic_time);
+        System.out.println(
+                "Planning Time:" + SearchStrategies.overall_search_time);
+        System.out.println(
+                "Expanded Nodes:" + SearchStrategies.nodes_expanded);
+        System.out.println(
+                "States Evaluated:" + SearchStrategies.states_evaluated);
+        System.out.println(
+                "Total Cost:" + sp.cost);
 
-    "Heuristic Time:" + SearchStrategies.heuristic_time);
-    System.out.println (
+        System.out.println(
+                "Priority Queue Size:" + SearchStrategies.priority_queue_size);
+        System.out.println(
+                "Number of Dead-Ends detected:" + SearchStrategies.num_dead_end_detected);
+        System.out.println(
+                "Number of duplicates detected:" + SearchStrategies.number_duplicates);
+        System.out.println(
+                "Number of Nodes re-opened:" + SearchStrategies.node_reopened);
+        System.out.println(
+                "Number of LP invocations:" + searchStrategies.getHeuristic().n_lp_invocations);
 
-    "Planning Time:" + SearchStrategies.overall_search_time);
-    System.out.println (
-
-    "Expanded Nodes:" + SearchStrategies.nodes_expanded);
-    System.out.println (
-
-    "States Evaluated:" + SearchStrategies.states_evaluated);
-    System.out.println (
-
-    "Total Cost:" + sp.cost);
-
-    System.out.println (
-
-    "Priority Queue Size:" + SearchStrategies.priority_queue_size);
-    System.out.println (
-
-    "Number of Dead-Ends detected:" + SearchStrategies.num_dead_end_detected);
-    System.out.println (
-
-    "Number of duplicates detected:" + SearchStrategies.number_duplicates);
-    System.out.println (
-
-    "Number of Nodes re-opened:" + SearchStrategies.node_reopened);
-    System.out.println (
-    "Number of LP invocations:" + searchStrategies.getHeuristic().n_lp_invocations);
-
-    if (saving_json
-
-    
-        ) {
+        if (saving_json) {
 
             searchStrategies.search_space_handle.print_json(problem.getPddlFileReference() + ".sp_log");
-    }
+        }
 
-}
+    }
 
 }

@@ -180,7 +180,7 @@ public class SearchStrategies {
             long start = System.currentTimeMillis();
             Float d = getHeuristic().compute_estimate(successor_state);
             heuristic_time += System.currentTimeMillis() - start;
-            if (d != Float.MAX_VALUE && (d+succ_g) < this.depth_limit) {
+            if (d != Float.MAX_VALUE && (d + succ_g) < this.depth_limit) {
                 SearchNode new_node = null;
                 if (action_s instanceof Collection) {
                     new_node = new SearchNode(successor_state, (ArrayList<GroundAction>) action_s, current_node, succ_g, d, this.json_rep_saving, this.gw, this.hw);
@@ -302,11 +302,13 @@ public class SearchStrategies {
                     return 1;
                 }
             } else//dfs
-             if (a.f <= other.f) {
+            {
+                if (a.f <= other.f) {
                     return 1;
                 } else {
                     return -1;
                 }
+            }
         }
 
     }
@@ -459,11 +461,11 @@ public class SearchStrategies {
         setup_reachable_actions_processes(problem);//this maps actions in the heuristic with the action in the execution model
 
         getHeuristic().why_not_active = true;
-        
+
         System.out.println("h(n = s_0)=" + current_value);//debugging information
 
         getHeuristic().why_not_active = false;
-        
+
         SearchNode init = new SearchNode((State) problem.getInit().clone(), 0, current_value, this.json_rep_saving, this.gw, this.hw);
         if (this.helpful_actions_pruning) {
             System.out.println("Selection actions from the helpful actions list");
@@ -507,17 +509,16 @@ public class SearchStrategies {
                     bestf = current_node.g_n + current_node.h_n;
                     System.out.println("f(n) = " + bestf + " (Expanded Nodes: " + nodes_expanded
                             + ", Evaluated States: " + states_evaluated + ", Time: " + (float) ((System.currentTimeMillis() - start_global)) / 1000.0 + ")");
-                    
 
                 }
-                if (!optimality && current_value > current_node.h_n ) {
+                if (!optimality && current_value > current_node.h_n) {
                     System.out.println(" g(n)= " + current_node.g_n + " h(n)=" + current_node.h_n);
                     current_value = current_node.h_n;
                     current_g = current_node.g_n;
                 }
-                
-                if (debug == 20 && nodes_expanded % 5000 ==0){
-                    System.out.println("Expanded Nodes / sec:"+(new Float(nodes_expanded)*1000.0/((System.currentTimeMillis() - start_global))));
+
+                if (debug == 20 && nodes_expanded % 5000 == 0) {
+                    System.out.println("Expanded Nodes / sec:" + (new Float(nodes_expanded) * 1000.0 / ((System.currentTimeMillis() - start_global))));
                 }
 
                 nodes_expanded++;
@@ -544,7 +545,7 @@ public class SearchStrategies {
                     }
                     if (act.isApplicable(current_node.s)) {
                         State successor_state = act.apply(current_node.s.clone());
-                        act.setAction_cost(successor_state);
+//                        act.set_unit_cost(successor_state);
 
                         //skip this if violates global constraints
                         if (!successor_state.satisfy(problem.globalConstraints)) {
@@ -634,7 +635,7 @@ public class SearchStrategies {
                     cost.put(temp, current_node.g_n + 1);
                     setStates_evaluated(getStates_evaluated() + 1);
 
-                    act.setAction_cost(temp);
+//                    act.set_unit_cost(temp);
                     SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getAction_cost(), 0, this.json_rep_saving, this.gw, 0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (json_rep_saving) {
@@ -682,7 +683,7 @@ public class SearchStrategies {
         }
         return temp;
     }
-    
+
     private static LinkedList add_actions_old(SearchNode c) throws CloneNotSupportedException {
         LinkedList temp = new LinkedList();
         while (c.father != null) {
@@ -829,7 +830,7 @@ public class SearchStrategies {
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
-                waiting.add_time_effects(temp.getTime(),delta);
+                waiting.add_time_effects(temp.getTime(), delta);
                 waiting.time = delta;//this is the waiting time associated with this step
                 for (GroundAction act : this.reachable_processes) {
                     if (act instanceof GroundProcess) {

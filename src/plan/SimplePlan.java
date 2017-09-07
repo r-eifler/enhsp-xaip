@@ -183,7 +183,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             System.out.println("Action not found in the domain theory!!" + actionName);
         }
         //System.out.println(par);
-        GroundAction grAction = action.ground(par,this.pp.getObjects());
+        GroundAction grAction = action.ground(par, this.pp.getObjects());
         grAction.generateAffectedNumFluents();
         //grAction.normalizeAndCopy();
         this.add(grAction);
@@ -2173,8 +2173,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
-            gr.setAction_cost(current,this.pp.getMetric());
-            
+            gr.setAction_cost(current, this.pp.getMetric());
+
             this.cost += gr.getAction_cost();
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                 System.out.println("Global Constraint is not satisfied:" + globalConstraints);
@@ -2321,7 +2321,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                System.out.println("After Waiting:"+time);
                 gr.time = temp;
                 this.add(gr);
-            } else if (gr instanceof GroundEvent){
+            } else if (gr instanceof GroundEvent) {
                 //                System.out.println("Waiting:"+gr.time);
                 //System.out.println("Event Captured:"+gr);
                 gr.time = time;
@@ -2329,7 +2329,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 this.add(gr);
                 time += epsilon;
                 inst_actions.add(gr);
-            }else{
+            } else {
 //                System.out.println("time before:"+gr.time);
                 gr.time = time;
 //                System.out.println("time after:"+gr.time);
@@ -2339,7 +2339,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
 //             System.out.println(time);
         }
-        
+
         this.ending_time = time;
         return time;//this is the time at which the plan achieves the goal. (There could be a bit of problems with epsilon though)
 
@@ -2364,7 +2364,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         State current = init.clone();
         this.cost = 0f;
         //current.addNumericFluent(new NumFluentValue("#t", resolution));
-         nf_trace = new HashMap();
+        nf_trace = new HashMap();
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
@@ -2389,20 +2389,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 System.out.println(current.pddlPrint());
             }
             GroundAction gr = inst_actions.get(i);
-            
-            //Execute till next action
-            current = advance_time(current, processesSet,reachable_events, resolution, gr.time);
-            if (gr instanceof GroundEvent){
-                
-            }else{
-                if (gr.isApplicable(current)) {
-                    current = gr.apply(current);
 
-                    //current_time = gr.time;
-                } else {
-                    System.out.println("Precondition not satisfied. Action:" + gr);
-                    return current;
-                }
+            //Execute till next action
+            current = advance_time(current, processesSet, reachable_events, resolution, gr.time);
+            if (gr instanceof GroundEvent) {
+
+            } else if (gr.isApplicable(current)) {
+                current = gr.apply(current);
+
+                //current_time = gr.time;
+            } else {
+                System.out.println("Precondition not satisfied. Action:" + gr);
+                return current;
             }
         }
         //Execute remaining time
@@ -2410,17 +2408,17 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //        System.out.println("Simulate till:"+time);
 //        System.out.println("With a time of:"+resolution);
 //        System.out.println(current.functionValue(new NumFluent("time_elapsed")));
-        current = advance_time(current, processesSet,reachable_events, resolution, time);
+        current = advance_time(current, processesSet, reachable_events, resolution, time);
 //        System.out.println(current.functionValue(new NumFluent("time_elapsed")));
         return current;
 
     }
 
-        private Set<GroundEvent> apply_events(State s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
+    private Set<GroundEvent> apply_events(State s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
         Set<GroundEvent> ret = new LinkedHashSet();
-        for (GroundEvent ev: reachable_events){
-            
-            if (ev.isApplicable(s)){
+        for (GroundEvent ev : reachable_events) {
+
+            if (ev.isApplicable(s)) {
                 s = ev.apply(s);
                 GroundEvent ev1 = (GroundEvent) ev.clone();
                 ret.add(ev1);
@@ -2428,15 +2426,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         return ret;
-        
+
     }
-    
+
     private State advance_time(State current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
-        while(current.functionValue(current.getTime()).getNumber()<time) {
-            
+        while (current.functionValue(current.getTime()).getNumber() < time) {
+
             if (print_trace) {
                 add_state_to_json(nf_trace, current);
             }
@@ -2444,7 +2442,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //            System.out.println("StartTime:"+start_time);
             GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
-            waiting.add_time_effects(current.getTime(),delta);
+            waiting.add_time_effects(current.getTime(), delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
@@ -2456,7 +2454,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
 
             }
-            
+
             current = waiting.apply(current);
             this.apply_events(current, reachable_events);
 //            System.out.println(current);    
@@ -2477,17 +2475,18 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public String printPDDLPlusPlan() {
         float start = 0f;
-        String ret="";
-        for (int i=0;i<this.inst_actions.size();i++){
+        String ret = "";
+        for (int i = 0; i < this.inst_actions.size(); i++) {
             GroundAction gr = this.inst_actions.get(i);
-            if (start+0.01<gr.time){
-                ret+="("+String.format("%.5f", start)+","+ String.format("%.5f",gr.time)+")------>waiting\n";
+            if (start + 0.01 < gr.time) {
+                ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", gr.time) + ")------>waiting\n";
             }
-            ret+=gr.toEcoString()+"\n";
-            start=gr.time;
+            ret += gr.toEcoString() + "\n";
+            start = gr.time;
         }
-        if (start+0.01<this.ending_time)
-            ret+="("+String.format("%.5f", start)+","+String.format("%.5f",ending_time)+")------>waiting\n";
+        if (start + 0.01 < this.ending_time) {
+            ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", ending_time) + ")------>waiting\n";
+        }
         return ret;
     }
 

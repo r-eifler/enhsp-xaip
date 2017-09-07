@@ -1,29 +1,31 @@
-
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
+ ********************************************************************
+ */
 package domain;
 
 import conditions.AndCond;
@@ -58,9 +60,10 @@ public abstract class GenericActionType extends Object {
         return addList;
     }
 
-    public SchemaParameters getPar(){
+    public SchemaParameters getPar() {
         return parameters;
     }
+
     /**
      * @return the delList
      */
@@ -135,7 +138,6 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the parameters
      */
-
     /**
      * @param parameters the parameters to set
      */
@@ -145,17 +147,17 @@ public abstract class GenericActionType extends Object {
 
     protected void push_not_to_terminals() {
         Conditions c = this.getPreconditions().push_not_to_terminals();
-        if (! (c instanceof AndCond)){
+        if (!(c instanceof AndCond)) {
             AndCond and = new AndCond();
             and.addConditions(c);
             this.setPreconditions(and);
-        }else{
+        } else {
             this.setPreconditions(c);
         }
-        if (this.cond_effects != null)
+        if (this.cond_effects != null) {
             this.cond_effects.push_not_to_terminals();
-                
-       
+        }
+
     }
 
     protected Collection<Predicate> getPropositionAffected() {
@@ -164,10 +166,10 @@ public abstract class GenericActionType extends Object {
             ret.addAll(this.addList.getTerminalConditions());
         }
         if (this.delList != null && this.delList.sons != null) {
-            for (Conditions c : (Collection<Conditions>)this.delList.sons){
-                if (c instanceof NotCond){
-                    NotCond nc = (NotCond)c;
-                    ret.add((Predicate)nc.getSon());
+            for (Conditions c : (Collection<Conditions>) this.delList.sons) {
+                if (c instanceof NotCond) {
+                    NotCond nc = (NotCond) c;
+                    ret.add((Predicate) nc.getSon());
                 }
             }
             //ret.addAll(this.delList.getTerminalConditions());
@@ -189,7 +191,7 @@ public abstract class GenericActionType extends Object {
         this.generateAffectedNumFluents();
         return this.numericFluentAffected;
     }
-    
+
     public void forcedGenerateAffectedNumFluents() {
 
         numericFluentAffected = new HashMap();
@@ -218,15 +220,15 @@ public abstract class GenericActionType extends Object {
                 }
             }
         }
-        
-        if (this.cond_effects != null){
-            for (ConditionalEffect c_eff: (Collection<ConditionalEffect>)this.cond_effects.sons){
-                for (NumFluent nf : c_eff.affectedNumericFluents()){
+
+        if (this.cond_effects != null) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+                for (NumFluent nf : c_eff.affectedNumericFluents()) {
                     this.numericFluentAffected.put(nf, Boolean.TRUE);
                 }
             }
         }
-      
+
     }
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {

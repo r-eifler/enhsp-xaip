@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -84,7 +83,6 @@ public final class cplex_interface extends LpInterface {
 
     @Override
     public void initialize(Collection<GroundAction> actions, State s_0) {
-        
 
         //first_time.set(c.getCounter(),true);
         this.init_condition(actions, s_0);
@@ -94,8 +92,7 @@ public final class cplex_interface extends LpInterface {
     @Override
     public void update_conditions_bound_plus_reset_variables(State s_0) {
         this.update_local_global_conditions(s_0);
-        
-        
+
         for (IloNumVar v : this.action_to_variable.values()) {
             try {
                 v.setUB(0.0);
@@ -171,9 +168,8 @@ public final class cplex_interface extends LpInterface {
         try {
 //            lp.solveFixed();
             //lp.setParam (IloCplex.IntParam.NodeAlg, IloCplex.Algorithm.Dual);
-            
-//            System.out.println(lp.isMIP());
 
+//            System.out.println(lp.isMIP());
             if (lp.solve()) {
 //                System.out.println(lp.getObjValue());
                 if (lp.getStatus() == IloCplex.Status.Optimal) {
@@ -233,7 +229,7 @@ public final class cplex_interface extends LpInterface {
                                         }
                                         //                                    System.out.println(neff);
 
-                                        gr.setAction_cost(s_0);
+//                                        gr.set_unit_cost(s_0);
                                         Float action_cost = gr.getAction_cost();
                                         if (action_cost.isNaN()) {
                                             continue;
@@ -290,7 +286,7 @@ public final class cplex_interface extends LpInterface {
                         if (gr.achieve(p)) {
                             pos_affectors_of.get(cond).add(gr);
                             affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
-                            gr.setAction_cost(s_0);
+//                            gr.set_unit_cost(s_0);
                             Float action_cost = gr.getAction_cost();
                             if (action_cost.isNaN()) {
                                 continue;
@@ -302,7 +298,7 @@ public final class cplex_interface extends LpInterface {
                                 action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
                                 action_to_variable.put(gr.counter, action);
 
-                                objective.addTerm(action, action_cost);     
+                                objective.addTerm(action, action_cost);
                             }
                             e.addTerm(action, 1);
 //                                e = lp.sum(lp.prod(action, 1), e);
@@ -319,7 +315,7 @@ public final class cplex_interface extends LpInterface {
 
         }
         try {
-            
+
 //            this.action_variables = lp.numVarArray(action_to_variable.values().size(), 0, 0);
 //            for (Integer grInd: action_to_variable.keySet()){
 //                action_variables[grInd]  =action_to_variable.get(grInd);

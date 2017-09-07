@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package expressions;
 
 /**
@@ -47,8 +49,9 @@ public class ExtendedAddendum {
         this.f = f;
         this.n = n;
         linear = true;
-        
+
     }
+
     public ExtendedAddendum(BinaryOp bin) {
         this.bin = bin;
         linear = false;
@@ -57,12 +60,12 @@ public class ExtendedAddendum {
     @Override
     protected Object clone() throws CloneNotSupportedException {
         ExtendedAddendum ret = new ExtendedAddendum();
-        if (!this.linear){
+        if (!this.linear) {
             ret.bin = (BinaryOp) this.bin.clone();
             ret.linear = false;
-        }else{
-            if (ret.bin != null){
-                System.out.println("There is a problem when cloning the following addendum:"+ret);
+        } else {
+            if (ret.bin != null) {
+                System.out.println("There is a problem when cloning the following addendum:" + ret);
                 System.exit(-1);
             }
             if (this.f != null) {
@@ -74,14 +77,13 @@ public class ExtendedAddendum {
 //                System.out.println("There is a problem when cloning the following addendum:"+ret);
 //                System.exit(-1);
 //            }
-            if (this.n == null)
-                System.out.println("Error:" +this);
+            if (this.n == null) {
+                System.out.println("Error:" + this);
+            }
             ret.n = (PDDLNumber) this.n.clone();
         }
         return ret;
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
@@ -91,24 +93,29 @@ public class ExtendedAddendum {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        
+
         final ExtendedAddendum other = (ExtendedAddendum) obj;
-        if (other.bin != null || this.bin != null){
+        if (other.bin != null || this.bin != null) {
             return false;
         }
 //        System.out.println("Left of the comparison:"+this);
 //        System.out.println("Right of the comparison:"+obj);
-        if (!other.n.equals(this.n))
+        if (!other.n.equals(this.n)) {
             return false;
-        if (other.f == null && this.f!= null)
+        }
+        if (other.f == null && this.f != null) {
             return false;
-        if (other.f != null && this.f== null)
+        }
+        if (other.f != null && this.f == null) {
             return false;
-        if (other.f == null && this.f== null)
+        }
+        if (other.f == null && this.f == null) {
             return true;
-        
-        if (!other.f.equals(this.f))
+        }
+
+        if (!other.f.equals(this.f)) {
             return false;
+        }
         return true;
     }
 
@@ -119,20 +126,20 @@ public class ExtendedAddendum {
         hash = 37 * hash + (this.f != null ? this.f.hashCode() : 0);
         return hash;
     }
-    
-    public Float scale(ExtendedAddendum obj){
-        if (this.f != obj.f)
+
+    public Float scale(ExtendedAddendum obj) {
+        if (this.f != obj.f) {
             return null;
+        }
         Float a = this.n.getNumber();
         Float b = obj.n.getNumber();
-        return a/b;
+        return a / b;
     }
 
     @Override
     public String toString() {
-        System.out.println("Linear:"+this.linear);
+        System.out.println("Linear:" + this.linear);
         return "Addendum{" + "n=" + n + ", f=" + f + "bin = " + bin + '}';
     }
-    
-    
+
 }

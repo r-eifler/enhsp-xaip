@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -43,8 +42,9 @@ import java.util.logging.Logger;
  */
 public class LM_ImplicitLandmark extends UniformCostSearch_LM {
 
-    public LM_ImplicitLandmark(Conditions goal, Set<GroundAction> A) {super(goal, A);}
-
+    public LM_ImplicitLandmark(Conditions goal, Set<GroundAction> A) {
+        super(goal, A);
+    }
 
     @Override
     public Float compute_estimate(State s) {
@@ -114,11 +114,10 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
             }
         }
 
-
         findGoalLandmark(G, s);
 
         //If found such landmark in this problem, it will print on the screen
-        for (Conditions c1: (Collection<Conditions>) this.G.sons) {
+        for (Conditions c1 : (Collection<Conditions>) this.G.sons) {
             //findImplicitLandmarks(c1);
             if (findImplicitLandmarks(c1)) {
                 System.out.println("Implicit Landmarks found");
@@ -137,7 +136,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
                     IloLinearNumExpr expr = lp.linearNumExpr();
                     for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                         IloNumVar action;
-                        dlm.gr.setAction_cost(s);
+//                        dlm.gr.set_unit_cost(s);
                         Float action_cost = dlm.gr.getAction_cost();
                         if (action_cost.isNaN()) {
                             continue;
@@ -177,36 +176,41 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
         return estimate;
     }
 
-
     //For now I use return type as Boolean to found out whether a domain contains such landmarks, it can change to void
     protected boolean findImplicitLandmarks(Conditions c) {
         boolean found = false;
         ArrayList<Conditions> preconditions = new ArrayList<>();
 
         for (repetition_landmark rp : this.possible_achievers.get(c.getCounter())) {
-            if ((rp.gr.getPreconditions() != null ) && (rp.gr.getPreconditions().sons != null)) {
+            if ((rp.gr.getPreconditions() != null) && (rp.gr.getPreconditions().sons != null)) {
                 preconditions.addAll(rp.gr.getPreconditions().sons);
             }
         }
 
-        for (int i=0; i<preconditions.size(); i++) {
+        for (int i = 0; i < preconditions.size(); i++) {
             boolean isLandmark = true;
-            Conditions c1  = preconditions.get(i);
+            Conditions c1 = preconditions.get(i);
 
-            if (c1 instanceof Predicate) {continue;}
+            if (c1 instanceof Predicate) {
+                continue;
+            }
 
-            for (int j=0; j<preconditions.size(); j++) {
+            for (int j = 0; j < preconditions.size(); j++) {
 
-                if (i==j) {continue;}
+                if (i == j) {
+                    continue;
+                }
 
                 Conditions c2 = preconditions.get(j);
 
-                if (c2 instanceof Predicate) {continue;}
+                if (c2 instanceof Predicate) {
+                    continue;
+                }
 
                 Comparison a1 = (Comparison) c1;
                 Comparison a2 = (Comparison) c2;
 
-                if (!a2.dominate(a1) ) {
+                if (!a2.dominate(a1)) {
                     isLandmark = false;
                     break;
                 }

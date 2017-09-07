@@ -61,10 +61,10 @@ public abstract class Conditions extends Object {
         grounded = false;
         unsatisfiable = false;
     }
-    
+
     @Override
     public abstract int hashCode();
-    
+
     @Override
     public abstract boolean equals(Object obj);
 
@@ -85,18 +85,18 @@ public abstract class Conditions extends Object {
     public abstract Conditions regress(GroundAction gr);
 
     /**
-     * Substitutes the variables in this conditions 
-     * with the PDDLObjects associated to each variable in the specified table.  
-     * The returned object is therefore grounded.  
-     * This method may fail if there is no substitution for some variable.  
-     * 
-     * @param substitution the map that indicates what object 
-     * should replace the specified variable.  
+     * Substitutes the variables in this conditions with the PDDLObjects
+     * associated to each variable in the specified table. The returned object
+     * is therefore grounded. This method may fail if there is no substitution
+     * for some variable.
+     *
+     * @param substitution the map that indicates what object should replace the
+     * specified variable.
      * @param objects These are the objects of the problem
-     * @return a copy of this conditions where each variable 
-     * is replaced to the object according to the specified mapping.  
+     * @return a copy of this conditions where each variable is replaced to the
+     * object according to the specified mapping.
      */
-    public abstract Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects objects);
+    public abstract Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects);
 
     public abstract Conditions ground(Map substitution, int c);
 
@@ -116,8 +116,7 @@ public abstract class Conditions extends Object {
     public abstract boolean can_be_true(RelState aThis);
 
     public abstract boolean can_be_false(RelState aThis);
-    
-    
+
     public abstract void normalize();
 
     public abstract Conditions unGround(Map asbstractionOf);
@@ -196,8 +195,9 @@ public abstract class Conditions extends Object {
             return ret;
         } else if (this instanceof NotCond) {
             NotCond temp = (NotCond) this;
-            if (temp.getSon() == null )
+            if (temp.getSon() == null) {
                 return ret;
+            }
             Conditions temp2 = (Conditions) temp.getSon();
             ret.addAll(temp2.getInvolvedPredicates());
             return ret;
@@ -212,9 +212,9 @@ public abstract class Conditions extends Object {
     }
 
     /**
-     * Returns the list of variables involved in this conditions.  
-     * 
-     * @return the list of variables in this conditions.  
+     * Returns the list of variables involved in this conditions.
+     *
+     * @return the list of variables in this conditions.
      */
     public final ArrayList<Variable> getInvolvedVariables() {
         // TODO: not sure whether the result should be a list or a set.
@@ -222,34 +222,35 @@ public abstract class Conditions extends Object {
         storeInvolvedVariables(result);
         return result;
     }
-    
+
     /**
-     * Stores in the specified collection the list of variables involved in this conditions.  
-     * 
-     * @param vars the list where the variables involved in this condition 
-     * are to be stored.  
+     * Stores in the specified collection the list of variables involved in this
+     * conditions.
+     *
+     * @param vars the list where the variables involved in this condition are
+     * to be stored.
      */
     public abstract void storeInvolvedVariables(Collection<Variable> vars);
 
     /**
-     * Returns a string representation of this condition in PDDL format.  
-     * 
-     * @param typeInformation <tt>true</tt> 
-     * if the type of the object should be printed as well.  
-     * @return a string representation in PDDL format of this condition.  
+     * Returns a string representation of this condition in PDDL format.
+     *
+     * @param typeInformation <tt>true</tt>
+     * if the type of the object should be printed as well.
+     * @return a string representation in PDDL format of this condition.
      */
     public final String pddlPrint(boolean typeInformation) {
         final StringBuilder bui = new StringBuilder();
         pddlPrint(typeInformation, bui);
         return bui.toString();
     }
-    
+
     /**
-     * Prints this condition in PDDL format in the specified string builder.  
-     * 
-     * @param typeInformation <tt>true</tt> 
-     * if the type of the object should be printed as well.  
-     * @param bui the string builder where this condition is printed.  
+     * Prints this condition in PDDL format in the specified string builder.
+     *
+     * @param typeInformation <tt>true</tt>
+     * if the type of the object should be printed as well.
+     * @param bui the string builder where this condition is printed.
      */
     public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
 
@@ -270,27 +271,28 @@ public abstract class Conditions extends Object {
     public abstract boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i);
 
 //    public abstract Conditionss unify_num_fluent(State init);
-
     public abstract Conditions introduce_red_constraints();
 
     public boolean mutual_exclusion_guaranteed(Conditions preconditions) {
-        if (preconditions instanceof AndCond && this instanceof AndCond){
-            AndCond a = (AndCond)preconditions;
-            AndCond b = (AndCond)this;
+        if (preconditions instanceof AndCond && this instanceof AndCond) {
+            AndCond a = (AndCond) preconditions;
+            AndCond b = (AndCond) this;
             ArrayList<Conditions> c1 = new ArrayList(a.getTerminalConditions());
             ArrayList<Conditions> c2 = new ArrayList(b.getTerminalConditions());
-            for (int i=0; i<c1.size();i++){
-                for (int j = i+1;j<c2.size();j++){
+            for (int i = 0; i < c1.size(); i++) {
+                for (int j = i + 1; j < c2.size(); j++) {
                     Conditions a_1 = c1.get(i);
                     Conditions a_2 = c2.get(j);
-                    if (a_1 instanceof NotCond && a_2 instanceof Predicate){
+                    if (a_1 instanceof NotCond && a_2 instanceof Predicate) {
                         NotCond nc = (NotCond) a_1;
-                        if (nc.getSon().equals(a_2))
+                        if (nc.getSon().equals(a_2)) {
                             return true;
-                    }else if (a_2 instanceof NotCond && a_1 instanceof Predicate){
+                        }
+                    } else if (a_2 instanceof NotCond && a_1 instanceof Predicate) {
                         NotCond nc = (NotCond) a_2;
-                        if (nc.getSon().equals(a_1))
+                        if (nc.getSon().equals(a_1)) {
                             return true;
+                        }
                     }
                 }
             }
@@ -301,10 +303,5 @@ public abstract class Conditions extends Object {
     public void addConditions(Conditions c) {
         sons.add(c);
     }
-        
-
-    
-        
-
 
 }

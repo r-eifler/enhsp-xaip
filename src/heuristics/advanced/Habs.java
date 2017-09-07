@@ -338,9 +338,9 @@ public class Habs extends Heuristic {
     @Override
     public Float compute_estimate(State s) {
         
-        if (UPDATE_COST){
-            updateActionCosts(s);
-        }
+//        if (UPDATE_COST){
+//            updateActionCosts(s);
+//        }
         
         Float ret = habs.compute_estimate(s);
         
@@ -378,12 +378,12 @@ public class Habs extends Heuristic {
     }
     
  
-    private void updateActionCosts(State s) {
-        for (GroundAction gr : habs.A) {
-            gr.clearActionCost();
-            gr.setAction_cost(s);
-        }
-    }
+//    private void updateActionCosts(State s) {
+//        for (GroundAction gr : habs.A) {
+//            gr.clearActionCost();
+//            gr.setAction_cost(s);
+//        }
+//    }
     // only for debugging
     public static void logging(String content) {
         String FILENAME = "/home/dxli/workspace/NetBeansProjects/expressive-numeric-heuristic-search-planner-enhsp-planner/abs_experiments/log.txt";

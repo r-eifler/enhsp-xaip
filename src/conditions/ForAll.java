@@ -46,13 +46,13 @@ import propositionalFactory.grounder;
  * @author enrico
  */
 public class ForAll extends Conditions {
+
     private SchemaParameters parameters;
 
-    public ForAll(){
+    public ForAll() {
         this.parameters = new SchemaParameters();
         this.sons = new LinkedHashSet();
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -80,17 +80,19 @@ public class ForAll extends Conditions {
         return hash;
     }
 
-   
-
     @Override
     public Conditions regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
     @Override
     public Conditions ground(Map substitution, int c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toString() {
+        return this.parameters + " " + this.sons.toString();
     }
 
     @Override
@@ -176,7 +178,8 @@ public class ForAll extends Conditions {
             }
         }
 
-        return ret;    }
+        return ret;
+    }
 
     @Override
     public Conditions transform_equality() {
@@ -195,7 +198,7 @@ public class ForAll extends Conditions {
 
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
-        System.out.println("(forall "+this.parameters.toString()+" "+this.sons.toString());
+        System.out.println("(forall " + this.parameters.toString() + " " + this.sons.toString());
     }
 
     @Override
@@ -227,12 +230,14 @@ public class ForAll extends Conditions {
         res.parameters = this.parameters;
         for (Conditions c : (Collection<Conditions>) this.sons) {
             Conditions c1 = c.push_not_to_terminals();
-            if (c1 instanceof AndCond)
+            if (c1 instanceof AndCond) {
                 res.sons.addAll(((AndCond) c1).sons);
-            else
+            } else {
                 res.addConditions(c1);
+            }
         }
-        return res;    }
+        return res;
+    }
 
     @Override
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
@@ -266,16 +271,17 @@ public class ForAll extends Conditions {
     public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
         try {
             grounder g = new grounder();
-            Set<ParametersAsTerms> combo = g.Substitutions(this.parameters,objects);
+            Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
             AndCond and = new AndCond();
-            for (ParametersAsTerms ele : combo){
-                 Map sub = g.obtain_sub_from_instance(parameters, ele);
-                 sub.putAll(substitution);
-                 Conditions son = (Conditions) this.sons.iterator().next();
-                 and.addConditions(son.ground(sub, objects));
+            for (ParametersAsTerms ele : combo) {
+                Map sub = g.obtain_sub_from_instance(parameters, ele);
+                sub.putAll(substitution);
+//                 System.out.println(this);
+                Conditions son = (Conditions) this.sons.iterator().next();
+                and.addConditions(son.ground(sub, objects));
             }
             return and;
-            
+
         } catch (Exception ex) {
             Logger.getLogger(ForAll.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -287,5 +293,5 @@ public class ForAll extends Conditions {
     public Conditions weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

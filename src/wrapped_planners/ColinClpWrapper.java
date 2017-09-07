@@ -1,28 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
+ ********************************************************************
+ */
 package wrapped_planners;
 
 import extraUtils.Utils;
@@ -57,27 +60,27 @@ public class ColinClpWrapper extends planningTool {
             System.out.println("Planning...");
             this.executePlanning();
             //System.out.println(outputPlanning);
-            if (this.isTimeoutFail()){
+            if (this.isTimeoutFail()) {
                 this.setTimeoutFail(true);
-                this.failed=false;
+                this.failed = false;
                 System.out.println("....TIMEOUT");
                 this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable")){
-                this.failed=true;
+            if (this.outputPlanning.contains("unsolvable")) {
+                this.failed = true;
                 System.out.println("....UNSOLVABLE");
                 this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
-            if (!this.outputPlanning.contains("Solution Found")){
-                this.failed=false;
+            if (!this.outputPlanning.contains("Solution Found")) {
+                this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR");
                 this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
-            
+
             System.out.println("....SUCCESS");
             putSolutionInFile(this.outputPlanning);
             this.findTotalTimeInFile(outputPlanning);
@@ -92,11 +95,11 @@ public class ColinClpWrapper extends planningTool {
     @Override
     public String plan(String domainFile, String problemFile) {
 
-            //System.out.println("planning");
-            this.setDomainFile(domainFile);
-            this.setProblemFile(problemFile);
+        //System.out.println("planning");
+        this.setDomainFile(domainFile);
+        this.setProblemFile(problemFile);
 
-            return plan();
+        return plan();
 
     }
 
@@ -107,12 +110,13 @@ public class ColinClpWrapper extends planningTool {
         output.write("\n");
         //System.out.println("prova");
         //ArrayList a = new ArrayList();
-        while (sc.hasNextLine()){
-            if (sc.findInLine("Solution Found")!= null)
-                    break;
+        while (sc.hasNextLine()) {
+            if (sc.findInLine("Solution Found") != null) {
+                break;
+            }
             sc.nextLine();
         }
-                 
+
         while (sc.hasNextLine()) {
 
             String prova;
@@ -147,26 +151,24 @@ public class ColinClpWrapper extends planningTool {
     public String adapt(String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    public void findTotalTimeInFile(String s){
-            Scanner sc = new Scanner(s);
 
+    public void findTotalTimeInFile(String s) {
+        Scanner sc = new Scanner(s);
 
         while (sc.hasNextLine()) {
             String time = sc.findInLine("Time[\\s]*[0-9]+[.][0-9]+");
             if (time != null) {
-                    Float t = Float.parseFloat(time.substring(time.indexOf(" ") + 1));
-                    Integer msec = (int) (float) (t * 1000);
-                    this.setTimePlanner(msec);
-                    System.out.println("time" + this.getPlannerTime());
+                Float t = Float.parseFloat(time.substring(time.indexOf(" ") + 1));
+                Integer msec = (int) (float) (t * 1000);
+                this.setTimePlanner(msec);
+                System.out.println("time" + this.getPlannerTime());
 
-            } 
-                sc.nextLine();
-            
+            }
+            sc.nextLine();
+
         }
     }
-    
-    
+
     @Override
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
@@ -175,19 +177,19 @@ public class ColinClpWrapper extends planningTool {
 
             Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
-            String[] toExecute  = new String[3];
+            String[] toExecute = new String[3];
             toExecute[0] = planningExec;
             toExecute[1] = domainFile;
             toExecute[2] = problemFile;
             //toExecute[0]= planningExec + "  " + domainFile + "  " + problemFile + " " + option1 + " " + option2;
-            System.out.println(toExecute[0]+" "+toExecute[1]+" "+toExecute[2]);
-            
+            System.out.println(toExecute[0] + " " + toExecute[1] + " " + toExecute[2]);
+
             //process = runtime.exec("ff" + " -o travellingMetric.pddl -f  " + problemFile + " " + option1 + " " + option2);
-            process = runtime.exec(planningExec + "  " + domainFile + "  " + problemFile );
+            process = runtime.exec(planningExec + "  " + domainFile + "  " + problemFile);
             /* Set up process I/O. */
-            
-            Killer kill = new Killer(process,timeout);
-            
+
+            Killer kill = new Killer(process, timeout);
+
             kill.start();
             System.out.println("Seeing the output");
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -196,10 +198,10 @@ public class ColinClpWrapper extends planningTool {
                 outputPlanning = outputPlanning.concat(line + "\n");
                 //System.out.println(outputPlanning);
             }
-            if (kill.isAlive()){
+            if (kill.isAlive()) {
                 kill.stop();
             } else {
-                
+
                 failed = true;
                 this.setTimeoutFail(true);
                 this.setTimePlanner((int) getTimeout());
@@ -212,8 +214,7 @@ public class ColinClpWrapper extends planningTool {
             System.out.println("Planner eccezione2 " + e.toString());
         }
     }
-    
-    
+
     public void executePlanning_PROVA() {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = "";
@@ -233,22 +234,19 @@ public class ColinClpWrapper extends planningTool {
 //            // Start new process
 //            java.lang.Process p = pb.start();
             process = runtime.exec(toExecute);
- 
-            
-            
-            
-            BufferedReader reader =
-            new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while ((reader.readLine()) != null) {}
-            System.out.println("Waiting for the Planning Process till the reaching of "+this.getTimeout());
+
+            BufferedReader reader
+                    = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            while ((reader.readLine()) != null) {
+            }
+            System.out.println("Waiting for the Planning Process till the reaching of " + this.getTimeout());
             //process.wait(getTimeout());
             process.waitFor();
-            
 
             System.out.println("Planning finished");
             if (true) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                
+
                 String line = null;
                 while ((line = input.readLine()) != null) {
                     outputPlanning = outputPlanning.concat(line + "\n");
@@ -274,80 +272,78 @@ public class ColinClpWrapper extends planningTool {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    static class ProcessRunner extends Thread {
 
-     static class ProcessRunner extends Thread  {
         ProcessBuilder b;
         Process p;
         boolean done = false;
 
-        ProcessRunner(String[] args)  {
-           super("ProcessRunner " + args); // got lazy here :D
-           b = new ProcessBuilder(args);
+        ProcessRunner(String[] args) {
+            super("ProcessRunner " + args); // got lazy here :D
+            b = new ProcessBuilder(args);
         }
 
         @Override
-        public void run()   {
-           try   {
-              p = b.start();
+        public void run() {
+            try {
+                p = b.start();
 
-              // Do your buffered reader and readline stuff here
-
-              // wait for the process to complete
-              p.waitFor();
-           }catch(Exception e) {
-              System.err.println(e.getMessage());
-           }finally {
-              // some cleanup code
-              done = true;
-           }
+                // Do your buffered reader and readline stuff here
+                // wait for the process to complete
+                p.waitFor();
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            } finally {
+                // some cleanup code
+                done = true;
+            }
         }
 
-        int exitValue() throws IllegalStateException  {
-           if(p != null)  {
-              return p.exitValue();
-           }         
-           throw new IllegalStateException("Process not started yet");
+        int exitValue() throws IllegalStateException {
+            if (p != null) {
+                return p.exitValue();
+            }
+            throw new IllegalStateException("Process not started yet");
         }
 
-        boolean isDone()  {
-           return done;
+        boolean isDone() {
+            return done;
         }
 
-        void abort()   {
-           if(! isDone()) {
-              // do some cleanup first
-              p.destroy();
-           }
+        void abort() {
+            if (!isDone()) {
+                // do some cleanup first
+                p.destroy();
+            }
         }
-     }
-  
-    
-     static class Killer extends Thread  {
+    }
+
+    static class Killer extends Thread {
+
         ProcessBuilder b;
         Process p;
         boolean done = false;
         long timeout;
 
-        Killer(Process p,long timeout)  {
-           super("killer "); // got lazy here :D
-           this.p = p;
-           this.timeout = timeout;
+        Killer(Process p, long timeout) {
+            super("killer "); // got lazy here :D
+            this.p = p;
+            this.timeout = timeout;
         }
 
         @Override
-        public void run()   {
-           try   {
-               Thread.currentThread().sleep(this.timeout);
-               p.destroy();
-               
-           }catch(Exception e) {
-              System.err.println(e.getMessage());
-           }finally {
-              // some cleanup code
-              done = true;
-           }
+        public void run() {
+            try {
+                Thread.currentThread().sleep(this.timeout);
+                p.destroy();
+
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            } finally {
+                // some cleanup code
+                done = true;
+            }
         }
-     }
-    
-    
+    }
+
 }

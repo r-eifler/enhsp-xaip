@@ -1,29 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
-
+ ********************************************************************
+ */
 package conditions;
 
 import domain.Variable;
@@ -59,32 +61,33 @@ public class NumFluentValue extends Terminal {
         this.operator = operator;
         this.nFlunetValueUpperBound = null;
     }
-    
-    public NumFluentValue(String fluent,float value) {
+
+    public NumFluentValue(String fluent, float value) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
         nFluent = new NumFluent(fluent);
-        
+
         this.setValue(new PDDLNumber(value));
     }
-    
-    public NumFluentValue(NumFluent fluent,float value) {
+
+    public NumFluentValue(NumFluent fluent, float value) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
         nFluent = fluent;
-        
+
         this.setValue(new PDDLNumber(value));
     }
-    public NumFluentValue(NumFluent fluent,Interval poss_values) {
+
+    public NumFluentValue(NumFluent fluent, Interval poss_values) {
         super();
         this.operator = "=";
         this.nFlunetValueUpperBound = null;
         nFluent = fluent;
         this.nFluentValue = poss_values.getInf();
         this.nFlunetValueUpperBound = poss_values.getSup();
-        
+
     }
 
     @Override
@@ -140,16 +143,16 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumFluentValue ret = new NumFluentValue(operator);
-        ret.nFluent = (NumFluent) nFluent.ground(substitution,po);
+        ret.nFluent = (NumFluent) nFluent.ground(substitution, po);
         ret.grounded = true;
         return ret;
     }
-    
+
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution,null);
+        Conditions ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -221,7 +224,7 @@ public class NumFluentValue extends Terminal {
         ret.nFluent = (NumFluent) nFluent.unGround(asbstractionOf);
         ret.grounded = false;
         return ret;
-    }    
+    }
 
     @Override
     public boolean isUngroundVersionOf(Conditions conditions) {
@@ -237,8 +240,6 @@ public class NumFluentValue extends Terminal {
     public Set<NumFluent> getInvolvedFluents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-
 
     @Override
     public boolean equals(Object obj) {

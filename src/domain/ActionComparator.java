@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -18,7 +17,6 @@
  *
  ********************************************************************
  */
-
 /**
  * *******************************************************************
  * Description: Part of the PPMaJaL library
@@ -43,7 +41,7 @@ class ActionComparator implements Comparator<GenericActionType> {
 
     @Override
     public int compare(GenericActionType gat1, GenericActionType gat2) {
-       return gat1.name.compareTo(gat2.name);
+        return gat1.name.compareTo(gat2.name);
     }
-    
+
 }

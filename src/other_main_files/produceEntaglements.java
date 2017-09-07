@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -19,7 +18,6 @@
  ********************************************************************
  */
 package other_main_files;
-
 
 import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
@@ -112,11 +110,12 @@ public class produceEntaglements {
         if (enhancedDomainFile == null) {
             enhancedDomainFile = domainFile + "enh";
         }
-        if (numericEntanglements)
+        if (numericEntanglements) {
             System.out.println("Learning Numeric Entanglements");
-        if (propEntanglements)
+        }
+        if (propEntanglements) {
             System.out.println("Learning Propositional Entanglements");
-        
+        }
 
     }
 
@@ -146,7 +145,7 @@ public class produceEntaglements {
         prob.parseProblem(problemFile);
         dom.validate(prob);
         //System.out.println(dom.getActionsSchema());
-        planJustInCase(dom,prob);
+        planJustInCase(dom, prob);
         //System.out.println(sp);
         action_to_entaglement_by_init = new HashMap();
         action_to_entaglement_by_goal = new HashMap();
@@ -214,7 +213,7 @@ public class produceEntaglements {
             dom.validate(prob);
             //System.out.println(dom.getActionsSchema());
 
-            planJustInCase(dom,prob);
+            planJustInCase(dom, prob);
             //System.out.println(sp);
             for (ActionSchema as : dom.getActionsSchema()) {
                 incCounter(operator_occurence_number, as, sp.countOccurenceOf(as.getName()));
@@ -225,7 +224,7 @@ public class produceEntaglements {
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
                     int holdingCount = sp.entangledByInitCounter(as.getName(), prob.getInit(), (Conditions) o);
-                    incCounter(init_condition_holding_number, o.toString()+as.getName(), holdingCount);
+                    incCounter(init_condition_holding_number, o.toString() + as.getName(), holdingCount);
                 }
 
             }
@@ -234,15 +233,13 @@ public class produceEntaglements {
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
                     int holdingCount = sp.entangledByGoalCounter(as.getName(), prob.getGoals(), (Conditions) o);
-                    incCounter(goal_condition_holding_number, o.toString()+as.getName(), holdingCount);
+                    incCounter(goal_condition_holding_number, o.toString() + as.getName(), holdingCount);
                 }
 
             }
 
         }
 
-        
-        
         for (ActionSchema as : dom.getActionsSchema()) {
             Set<Conditions> entanglementsByInit = new HashSet();
             Set<Conditions> entanglementsByGoal = new HashSet();
@@ -250,25 +247,27 @@ public class produceEntaglements {
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                int holdingCount = init_condition_holding_number.get(o.toString()+as.getName());
+                int holdingCount = init_condition_holding_number.get(o.toString() + as.getName());
                 int n = operator_occurence_number.get(as);
                 //System.out.println("Condition "+o+" : "+holdingCount+" Over "+n+" operators instances");
                 //System.out.println("Flaw-ratio:"+(float) holdingCount / (float)n);
-                if ((float) holdingCount / (float)n >= (1.0 - Float.parseFloat(flawRatio))) {
-                    if ((numericEntanglements && o instanceof Comparison) || (o instanceof Predicate && propEntanglements))
+                if ((float) holdingCount / (float) n >= (1.0 - Float.parseFloat(flawRatio))) {
+                    if ((numericEntanglements && o instanceof Comparison) || (o instanceof Predicate && propEntanglements)) {
                         entanglementsByInit.add((Conditions) o);
+                    }
                 }
             }
-            c =(AndCond) as.getAddList();
+            c = (AndCond) as.getAddList();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                int holdingCount = goal_condition_holding_number.get(o.toString()+as.getName());
+                int holdingCount = goal_condition_holding_number.get(o.toString() + as.getName());
                 int n = operator_occurence_number.get(as);
                 //System.out.println("Condition "+o+" : "+holdingCount+" Over "+n+" operators instances");
                 //System.out.println("Flaw-ratio:"+(float) holdingCount / (float)n);
-                if ((float) holdingCount / (float)n >= (1.0 - Float.parseFloat(flawRatio))) {
-                    if (propEntanglements)
-                         entanglementsByGoal.add((Conditions) o);
+                if ((float) holdingCount / (float) n >= (1.0 - Float.parseFloat(flawRatio))) {
+                    if (propEntanglements) {
+                        entanglementsByGoal.add((Conditions) o);
+                    }
                 }
             }
             action_to_entaglement_by_init.put(as, entanglementsByInit);
@@ -286,32 +285,24 @@ public class produceEntaglements {
             System.out.println();
 
         }
-        
 
-        
-        
-        
         scanner.close();
         DomainEnhancer dEnh = new DomainEnhancer();
         dEnh.addEntanglementsByInit(dom, action_to_entaglement_by_init);
         dEnh.addEntanglementsByGoal(dom, action_to_entaglement_by_goal);
         dom.saveDomain(enhancedDomainFile);
-        
-        
-        BufferedWriter f = new BufferedWriter(new FileWriter(domainFile+"RefMap", false));
-        for (String s: dEnh.getCondition_to_reformulation()){
-            f.write(s+"\n");
-        }
-        f.close();
-        
-        f = new BufferedWriter(new FileWriter(domainFile+"RefGoalMap", false));
-        for (String s: dEnh.getGoalCondition_Reformulation()){
-            f.write(s+"\n");
-        }
-        f.close();
-        
 
-        
+        BufferedWriter f = new BufferedWriter(new FileWriter(domainFile + "RefMap", false));
+        for (String s : dEnh.getCondition_to_reformulation()) {
+            f.write(s + "\n");
+        }
+        f.close();
+
+        f = new BufferedWriter(new FileWriter(domainFile + "RefGoalMap", false));
+        for (String s : dEnh.getGoalCondition_Reformulation()) {
+            f.write(s + "\n");
+        }
+        f.close();
 
     }
 
@@ -332,14 +323,15 @@ public class produceEntaglements {
             sp.parseSolution(p.plan(domainFile, problemFile));
             sp.savePlan("plan.pddl");
         } else {
-            
+
             String piano = "";
-            int i=0;
-            while (i<planFile.length()){
-                if (planFile.charAt(i)!='\n')
-                    piano+=planFile.charAt(i);
-                else
+            int i = 0;
+            while (i < planFile.length()) {
+                if (planFile.charAt(i) != '\n') {
+                    piano += planFile.charAt(i);
+                } else {
                     break;
+                }
                 i++;
                 //System.out.println(piano);
             }

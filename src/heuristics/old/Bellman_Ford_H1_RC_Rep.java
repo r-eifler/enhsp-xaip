@@ -38,8 +38,7 @@ import problem.GroundAction;
  * @author enrico
  */
 public class Bellman_Ford_H1_RC_Rep extends Bellman_Ford_H1_Rep {
-   
-    
+
     public Bellman_Ford_H1_RC_Rep(Conditions G, Set<GroundAction> A) throws Exception {
         super(G, A);
         this.G = G;
@@ -47,6 +46,6 @@ public class Bellman_Ford_H1_RC_Rep extends Bellman_Ford_H1_Rep {
         add_redundant_constraints();
         //System.out.println(this.orderings);
         //build_integer_representation();
-        
+
     }
 }

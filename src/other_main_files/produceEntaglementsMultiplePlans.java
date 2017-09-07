@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -19,7 +18,6 @@
  ********************************************************************
  */
 package other_main_files;
-
 
 import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
@@ -78,22 +76,21 @@ public class produceEntaglementsMultiplePlans {
 
     public static void parseInput(String[] args) {
 
-        
         domainFile = Utils.searchParameterValue(args, "-d");
         problemFile = Utils.searchParameterValue(args, "-p");
         planFile = Utils.searchParameterValue(args, "-P");
         enhancedDomainFile = Utils.searchParameterValue(args, "-D");
         //System.out.println("input"+args);
         //System.out.println(domainFile);
-        if (domainFile == null || problemFile == null){
+        if (domainFile == null || problemFile == null) {
             System.out.println("Usage: java -jar <executable_name> -d domain_file "
-                                + "\n                              -p problem_file "
-                                + "\n                              -P plan_file (Optional) "
-                                + "\n                              -D enhanced_domain_file (Optional, domain with entanglements; default is domain.pddlenh)  ");
+                    + "\n                              -p problem_file "
+                    + "\n                              -P plan_file (Optional) "
+                    + "\n                              -D enhanced_domain_file (Optional, domain with entanglements; default is domain.pddlenh)  ");
             System.exit(0);
         }
-        if (enhancedDomainFile == null){
-            enhancedDomainFile = domainFile+"enh";
+        if (enhancedDomainFile == null) {
+            enhancedDomainFile = domainFile + "enh";
         }
 
     }
@@ -116,52 +113,53 @@ public class produceEntaglementsMultiplePlans {
         metricFFWrapper p = new metricFFWrapper();
         p.setTimeout(100000);
         SimplePlan sp = new SimplePlan(dom, prob, false);
-        
-        if (planFile == null){
+
+        if (planFile == null) {
             sp.parseSolution(p.plan(domainFile, problemFile));
             sp.savePlan("plan.pddl");
-        }else
+        } else {
             sp.parseSolution(planFile);
+        }
         //System.out.println(sp);
         action_to_entaglement_by_init = new HashMap();
         action_to_entaglement_by_goal = new HashMap();
         for (ActionSchema as : dom.getActionsSchema()) {
             Set<Conditions> entanglementsByInit = new HashSet();
             //System.out.println(as.getName());
-            AndCond c = (AndCond)as.getPreconditions();
-            for (Object o:c.sons){
-                    //System.out.println("Testing: "+o);
-                    if (sp.entangledByInit(as.getName(),prob.getInit(),(Conditions)o)){
-                        entanglementsByInit.add((Conditions)o);
-                        
-                    }
+            AndCond c = (AndCond) as.getPreconditions();
+            for (Object o : c.sons) {
+                //System.out.println("Testing: "+o);
+                if (sp.entangledByInit(as.getName(), prob.getInit(), (Conditions) o)) {
+                    entanglementsByInit.add((Conditions) o);
+
+                }
             }
             action_to_entaglement_by_init.put(as, entanglementsByInit);
-            System.out.print(as.getName()+" ent_init -> " );
-            for (Conditions ent: entanglementsByInit){
-                System.out.print(ent.pddlPrint(false)+", ");
+            System.out.print(as.getName() + " ent_init -> ");
+            for (Conditions ent : entanglementsByInit) {
+                System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();
         }
-        
+
         for (ActionSchema as : dom.getActionsSchema()) {
             Set<Conditions> entanglementsByGoal = new HashSet();
             //System.out.println(as.getName());
-            AndCond c = (AndCond)as.getAddList();
-            for (Object o:c.sons){
-                    if (sp.entangledByGoal(as.getName(),prob.getGoals(),(Conditions)o)){
-                        entanglementsByGoal.add((Conditions)o);
-                    }
+            AndCond c = (AndCond) as.getAddList();
+            for (Object o : c.sons) {
+                if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Conditions) o)) {
+                    entanglementsByGoal.add((Conditions) o);
+                }
             }
             action_to_entaglement_by_goal.put(as, entanglementsByGoal);
-            System.out.print(as.getName()+" ent_goal -> ");
-            for (Conditions ent: entanglementsByGoal){
-                System.out.print(ent.pddlPrint(false)+", ");
+            System.out.print(as.getName() + " ent_goal -> ");
+            for (Conditions ent : entanglementsByGoal) {
+                System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();
         }
         DomainEnhancer dEnh = new DomainEnhancer();
-        dEnh.addEntanglementsByInit(dom,action_to_entaglement_by_init);
+        dEnh.addEntanglementsByInit(dom, action_to_entaglement_by_init);
         dom.saveDomain(enhancedDomainFile);
         //System.out.println(action_to_entaglement_by_init);
 

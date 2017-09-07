@@ -70,7 +70,7 @@ public class ExtendedNormExpression extends Expression {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum(bin);
         this.summations.add(a);
-        
+
         linear = true;
     }
 
@@ -346,7 +346,7 @@ public class ExtendedNormExpression extends Expression {
                     if (ele_to_add.n.getNumber() == 0.0) {
                         adding = false;
                     }
-                                 
+
                 } else if (a.linear && b.linear && b.f == null) {
                     ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
                     ele_to_add.f = (NumFluent) a.f.clone();
@@ -356,7 +356,7 @@ public class ExtendedNormExpression extends Expression {
                 } else if (a.linear && a.f == null && b.linear && b.f != null) {
                     ele_to_add.bin = new BinaryOp(a.n, "/", new BinaryOp(b.n, "*", b.f, true), true);
                     ele_to_add.linear = false;
-                    
+
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
                     ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new BinaryOp(a.f, "/", b.f, true), true);
                     ele_to_add.linear = false;
@@ -386,7 +386,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -394,7 +394,7 @@ public class ExtendedNormExpression extends Expression {
 //            System.out.println(substitution);
 //            System.out.println(a);
             if (a.f != null) {
-                newA.f = (NumFluent) a.f.ground(substitution,po);
+                newA.f = (NumFluent) a.f.ground(substitution, po);
             }
             newA.n = new PDDLNumber(a.n.getNumber());
             ret.summations.add(newA);
@@ -425,16 +425,16 @@ public class ExtendedNormExpression extends Expression {
             if (!a.linear) {
 //                System.out.println(a.bin);
 //                Float temp =  a.bin.eval(s).getNumber();
-                ret+= a.bin.eval(s).getNumber();
+                ret += a.bin.eval(s).getNumber();
             } else if (a.f != null) {
                 PDDLNumber n = s.functionValue(a.f);
-                
+
                 if (n == null) {
                     return null;
                 }
-                ret+=  n.getNumber() * a.n.getNumber();
+                ret += n.getNumber() * a.n.getNumber();
             } else {
-                ret+= a.n.getNumber();
+                ret += a.n.getNumber();
             }
         }
         return new PDDLNumber(ret);
@@ -457,10 +457,11 @@ public class ExtendedNormExpression extends Expression {
 //                if (invFluents.get(a.f)==null){
 //                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
 //                }
-                
+
                 if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
-                    if (s.static_function_value(a.f).getNumber().isNaN())
+                    if (s.static_function_value(a.f).getNumber().isNaN()) {
                         return null;
+                    }
                     c = new PDDLNumber(c.getNumber() + s.static_function_value(a.f).getNumber() * a.n.getNumber());
                 } else {
                     a.f = s.findCorrespondenceIfAny(a.f);
@@ -483,7 +484,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public void changeVar(Map<Variable,PDDLObject> substitution) {
+    public void changeVar(Map<Variable, PDDLObject> substitution) {
         for (Object o : this.summations) {
 
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -768,14 +769,14 @@ public class ExtendedNormExpression extends Expression {
         {
             //System.out.println(summations);
             ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
-            if (ad.bin == null){
+            if (ad.bin == null) {
                 if (ad.f == null) {
 
                     ret_val = " " + ad.n.toSmtVariableString(j) + " ";
                 } else {
                     ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.toSmtVariableString(j) + ")";
                 }
-            }else{
+            } else {
 //                System.out.println(ad);
 //                System.out.println(ad.bin);
                 ret_val = ad.bin.toSmtVariableString(j);
@@ -784,15 +785,15 @@ public class ExtendedNormExpression extends Expression {
         {
             for (int i = 1; i < summations.size(); i++) {
                 ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
-                if (ad.bin == null){
+                if (ad.bin == null) {
 
                     if (ad.f == null) {
                         ret_val = "(+ " + ret_val + " " + ad.n.toSmtVariableString(i) + " )";
                     } else {
                         ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.toSmtVariableString(j) + "))";
                     }
-                }else{
-                        ret_val = "(+ "+ret_val+" "+ad.bin.toSmtVariableString(j)+")";
+                } else {
+                    ret_val = "(+ " + ret_val + " " + ad.bin.toSmtVariableString(j) + ")";
 
                 }
             }
@@ -809,10 +810,11 @@ public class ExtendedNormExpression extends Expression {
                 current += ad.n.getNumber() * ad.f.eval(s_0).getNumber();
             } else if (action.getCoefficientAffected(ad.f) != null) {
                 //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
-                
+
                 PDDLNumber num = ad.f.eval(s_0);
-                if (num == null)
+                if (num == null) {
                     return Float.NaN;
+                }
                 current += ad.n.getNumber() * action.getCoefficientAffected(ad.f) * num.getNumber();
             }
         }
@@ -903,7 +905,7 @@ public class ExtendedNormExpression extends Expression {
                 }
             }
         }
-        
+
         bui.append(ret_val);
     }
 

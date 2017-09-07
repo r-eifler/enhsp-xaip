@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -33,12 +32,12 @@ import java.util.HashMap;
  *
  * @author enrico
  */
-public class GroundEvent extends GroundAction{
+public class GroundEvent extends GroundAction {
 
     public GroundEvent(String name) {
         super(name);
     }
-    
+
     @Override
     public String toPDDL() {
 
@@ -51,7 +50,7 @@ public class GroundEvent extends GroundAction{
         return ret + ")";
 
     }
-    
+
     public String toFileCompliant() {
 
         String parametri = "";
@@ -62,11 +61,11 @@ public class GroundEvent extends GroundAction{
         if (time == null) {
             return ";(" + this.name + " " + parametri + ")";
         } else {
-            return ";"+String.format("%.5f",time) + ": (" + this.name + " " + parametri + ")";
+            return ";" + String.format("%.5f", time) + ": (" + this.name + " " + parametri + ")";
         }
 
     }
-    
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         GroundEvent ret = new GroundEvent(name);

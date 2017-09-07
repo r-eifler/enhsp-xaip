@@ -1,28 +1,31 @@
-/*********************************************************************
+/**
+ * *******************************************************************
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
- *********************************************************************/
-
-/*********************************************************************
+ *
+ ********************************************************************
+ */
+/**
+ * *******************************************************************
  * Description: Part of the PPMaJaL library
- *             
+ *
  * Author: Enrico Scala 2013
  * Contact: enricos83@gmail.com
  *
- *********************************************************************/ 
+ ********************************************************************
+ */
 package wrapped_planners;
 
 import java.io.BufferedWriter;
@@ -38,6 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class lpgWrapper extends planningTool {
+
     protected long totalReplanningtime;
 
     public lpgWrapper() {
@@ -60,9 +64,9 @@ public class lpgWrapper extends planningTool {
             this.executePlanning();
             System.out.println(outputPlanning);
 
-            if (this.outputPlanning.contains("unsolvable") || this.outputPlanning.contains("can not be reached")){
+            if (this.outputPlanning.contains("unsolvable") || this.outputPlanning.contains("can not be reached")) {
                 moveFiles(problemFile);
-                this.failed=true;
+                this.failed = true;
                 System.out.println("....UNSOLVABLE");
                 return null;
             }
@@ -71,7 +75,7 @@ public class lpgWrapper extends planningTool {
                 return null;
             }
             putSolutionInFile2("temp.SOL");
-             
+
             return this.storedSolutionPath;
         } catch (IOException ex) {
             Logger.getLogger(metricFFWrapper.class.getName()).log(Level.SEVERE, null, ex);
@@ -207,19 +211,19 @@ public class lpgWrapper extends planningTool {
     }
 
     private void moveFiles(String problemFile) {
-        
-        try{
-        File afile =new File(problemFile);
-        
-    	   if(afile.renameTo(new File(problemFile + "UNSOLVABLE"))){
-    		System.out.println("File is moved successful!");
-    	   }else{
-    		System.out.println("File is failed to move!");
-    	   }
- 
-    	}catch(Exception e){
-    		e.printStackTrace();
-    	}
+
+        try {
+            File afile = new File(problemFile);
+
+            if (afile.renameTo(new File(problemFile + "UNSOLVABLE"))) {
+                System.out.println("File is moved successful!");
+            } else {
+                System.out.println("File is failed to move!");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -19,7 +18,6 @@
  ********************************************************************
  */
 package other_main_files;
-
 
 import some_computatitional_tool.DomainEnhancer;
 import domain.PddlDomain;
@@ -86,9 +84,8 @@ public class deordering {
     private static String domainFile;
     private static String problemFile;
     private static String planFile;
-    private static Boolean graphic=false;
-    private static Boolean get_macro_and_save=false;
-    
+    private static Boolean graphic = false;
+    private static Boolean get_macro_and_save = false;
 
     public static void parseInput(String[] args) {
         //Eseguibile -o domain -f problem -s solution -r tipo-repair 
@@ -103,9 +100,9 @@ public class deordering {
         } else {
             domainFile = searchParameterValue(args, "-o");
             problemFile = searchParameterValue(args, "-f");
-            planFile = searchParameterValue(args,"-p");
-            graphic = searchParameter(args,"-v");
-            get_macro_and_save = searchParameter(args,"-macro");
+            planFile = searchParameterValue(args, "-p");
+            graphic = searchParameter(args, "-v");
+            get_macro_and_save = searchParameter(args, "-macro");
             if (domainFile == null || problemFile == null) {
                 System.err.println(usage);
                 System.exit(-1);
@@ -113,7 +110,6 @@ public class deordering {
 
         }
     }
-
 
     /**
      * @param args the command line arguments
@@ -130,8 +126,8 @@ public class deordering {
         prob.parseProblem(problemFile);
 
         dom.validate(prob);
-        SimplePlan plan = new SimplePlan(dom, prob,true);
-        
+        SimplePlan plan = new SimplePlan(dom, prob, true);
+
         metricFFWrapper p = new metricFFWrapper();
 
         if (planFile == null) {
@@ -143,65 +139,62 @@ public class deordering {
 
         System.out.println(plan.toStringWithIndex());
 
-        
         //HashSet a = new HashSet();
 //        if (!plan.execute(prob.getInit()).satisfy(prob.getGoals())) {
 //            System.out.println("Piano non valido!!");
 //            System.exit(-1);
 //        }
-
-        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(),false);
+        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(), false);
         JGraphModelAdapter m_jgAdapter = new JGraphModelAdapter(po);
 
         //po = this.removeUselessActions(po,plan.size()-1);
         printOrdering(po);
-        
+
         //System.out.println(plan.generateMacrosFromPop(po));
-        
-        if (get_macro_and_save){
+        if (get_macro_and_save) {
             System.out.println("Saving Macros from Deordering");
             DomainEnhancer dEnh = new DomainEnhancer();
             //DomainEnhancer dEnh = new DomainEnhancer();
-            po = plan.removeInitGoal(po); 
+            po = plan.removeInitGoal(po);
             List c;
-            c = plan.generateMacrosFromPop(po,plan.getGoalAchiever(),true,false,false);
+            c = plan.generateMacrosFromPop(po, plan.getGoalAchiever(), true, false, false);
             //System.out.println(c);
-            Map m = dEnh.addMacroActions(dom,c,plan);
+            Map m = dEnh.addMacroActions(dom, c, plan);
         }
-        
-        if (!graphic)
+
+        if (!graphic) {
             return;
+        }
         //po = plan.removeInitGoal(po);        
         po.removeVertex(-1);
         DirectedAcyclicGraph totalOrder = new DirectedAcyclicGraph(DefaultEdge.class);
-        
-        for(int i=0;i<plan.size();i++){
+
+        for (int i = 0; i < plan.size(); i++) {
             totalOrder.addVertex(i);
         }
-        for(int i=0;i<plan.size();i++){
-            for (int j =i+1;j<plan.size();j++){
+        for (int i = 0; i < plan.size(); i++) {
+            for (int j = i + 1; j < plan.size(); j++) {
                 totalOrder.addEdge(i, j);
             }
         }
-        m_jgAdapter = new JGraphModelAdapter(po);        
+        m_jgAdapter = new JGraphModelAdapter(po);
 
         //po = totalOrder;
-        
         JGraph jgraph = new JGraph(m_jgAdapter);
 
         int x = 0;
         int y = 0;
         int counter = 0;
         for (Object o : po.vertexSet()) {
-            Integer v = (Integer)o;
-            
+            Integer v = (Integer) o;
+
             GroundAction gr = plan.get(v);
             System.out.println(gr.toEcoString());
             if (counter % 2 == 0) {
-                positionVertexAt(m_jgAdapter, o, 380 + y, 90 + x,plan);
+                positionVertexAt(m_jgAdapter, o, 380 + y, 90 + x, plan);
                 x = x + 100;
             } else {
-                positionVertexAt(m_jgAdapter,o, 380 + y, 90,plan);
+                positionVertexAt(m_jgAdapter, o, 380 + y, 90, plan);
             }
 
             y = 100;
@@ -216,13 +209,13 @@ public class deordering {
 
     }
 
-    private static void positionVertexAt(JGraphModelAdapter m_jgAdapter, Object vertex, int x, int y,SimplePlan p) {
+    private static void positionVertexAt(JGraphModelAdapter m_jgAdapter, Object vertex, int x, int y, SimplePlan p) {
         DefaultGraphCell cell = m_jgAdapter.getVertexCell(vertex);
-        GroundAction gr = p.get((Integer)vertex);
+        GroundAction gr = p.get((Integer) vertex);
         cell.setUserObject(gr.getName());
         Map attr = cell.getAttributes();
         Rectangle2D b = GraphConstants.getBounds(attr);
-        
+
         b.setRect(x, y, 50, 50);
         GraphConstants.setBounds(attr, b);
 
@@ -232,7 +225,7 @@ public class deordering {
         //m_jgAdapter.edit( cellAttr, null, null, null, null );
     }
 
-    private static ArrayList decompose(DirectedAcyclicGraph po,int planSize) {
+    private static ArrayList decompose(DirectedAcyclicGraph po, int planSize) {
 
         ArrayList component = new ArrayList();
         HashMap<Object, Boolean> visited = new HashMap();
@@ -241,7 +234,7 @@ public class deordering {
             visited.put(v, false);
         }
         //removeInitGoal(po);
-        int maxSize = (int) ((float)planSize*(2/3.0));
+        int maxSize = (int) ((float) planSize * (2 / 3.0));
         //maxSize = 1000000000;
         while (true) {
             Object endPoint = findVertexWithMinimumOutGoingArcsFromNotVisitedVertex(po, visited);
@@ -250,21 +243,22 @@ public class deordering {
                 System.out.println(visited);
                 break;
             }
-             visited.put(endPoint, Boolean.TRUE);
-             System.out.println("Generator:"+endPoint);
-             while (true) {
+            visited.put(endPoint, Boolean.TRUE);
+            System.out.println("Generator:" + endPoint);
+            while (true) {
                 HashSet currentPo = new HashSet();
                 currentPo.add(endPoint);
-                
+
                 Object vertex = findVertexWithMinimumOutGoingArcsFromEdge(po, po.incomingEdgesOf(endPoint), visited);
                 if (vertex != null) {
                     Collection c = findConnectedComponent(po, null, vertex, maxSize, visited);
-                    if (c.isEmpty())
+                    if (c.isEmpty()) {
                         break;
+                    }
                     currentPo.addAll(c);
                     component.add(currentPo);
                     //System.out.println("generator:"+endPoint);
-                    
+
                 } else {
                     System.out.println("Already finished??");
                     break;
@@ -290,18 +284,17 @@ public class deordering {
         } else {
             //currentPo.add(o);
             //i nodi che dipendono da o
-            Collection c  = collectSuccessors(po, o, visited);
-            if (c.size()+currentPo.size()>=k){
+            Collection c = collectSuccessors(po, o, visited);
+            if (c.size() + currentPo.size() >= k) {
                 //System.out.println("Source:"+o);
                 //System.out.println("Too big the resulting collections...???...:"+c.size());
-                for (Object v1:c){
+                for (Object v1 : c) {
                     visited.put(v1, false);
                 }
                 return currentPo;
             }
             currentPo.add(o);
             currentPo.addAll(c);
-            
 
             Object vertex = findVertexWithMinimumOutGoingArcsFromEdge(po, po.incomingEdgesOf(o), visited);
             if (vertex != null) {
@@ -315,14 +308,12 @@ public class deordering {
         HashSet ret = new HashSet();
         if (o == null) {
             return ret;
-        } else {
-            if (!visited.get(o)) {
-                ret.add(o);
-                visited.put(o, true);
-                if (!po.outgoingEdgesOf(o).isEmpty()) {
-                    for (Object edge : po.outgoingEdgesOf(o)) {
-                        ret.addAll(collectSuccessors(po, po.getEdgeTarget(edge), visited));
-                    }
+        } else if (!visited.get(o)) {
+            ret.add(o);
+            visited.put(o, true);
+            if (!po.outgoingEdgesOf(o).isEmpty()) {
+                for (Object edge : po.outgoingEdgesOf(o)) {
+                    ret.addAll(collectSuccessors(po, po.getEdgeTarget(edge), visited));
                 }
             }
         }
@@ -359,63 +350,64 @@ public class deordering {
     private static void removeInitGoal(DirectedAcyclicGraph po) {
 
         po.removeEdge(po.edgesOf(0));
-        po.removeEdge(po.edgesOf(po.vertexSet().size()-1));
-        po.removeVertex(po.vertexSet().size()-1);
+        po.removeEdge(po.edgesOf(po.vertexSet().size() - 1));
+        po.removeVertex(po.vertexSet().size() - 1);
         po.removeVertex(0);
     }
 
-    private static void decompose2(DirectedAcyclicGraph po,int planSize) {
-        
+    private static void decompose2(DirectedAcyclicGraph po, int planSize) {
+
         removeInitGoal(po);
 
         int components = 1;
-        do{
-            ConnectivityInspector<Object,Object> a = new ConnectivityInspector<Object,Object>(po);
+        do {
+            ConnectivityInspector<Object, Object> a = new ConnectivityInspector<Object, Object>(po);
             System.out.println(a.connectedSets().size());
             components = a.connectedSets().size();
             System.out.println(a.connectedSets());
-            if (components <planSize)
+            if (components < planSize) {
                 removeLargerAbsorberLargerProducer(po);
-            
-        }while(components <planSize);
+            }
+
+        } while (components < planSize);
     }
 
     private static void removeLargerAbsorberLargerProducer(DirectedAcyclicGraph po) {
-        Object absorber=null;
-        Object producer=null;
+        Object absorber = null;
+        Object producer = null;
         int maxAbsorber = 0;
         int maxProducer = 0;
-        
-        for (Object o: po.vertexSet()){
-            if (po.inDegreeOf(o)>maxAbsorber){
+
+        for (Object o : po.vertexSet()) {
+            if (po.inDegreeOf(o) > maxAbsorber) {
                 absorber = o;
                 maxAbsorber = po.inDegreeOf(o);
             }
-            if (po.outDegreeOf(o)>maxProducer){
+            if (po.outDegreeOf(o) > maxProducer) {
                 producer = o;
                 maxProducer = po.outDegreeOf(o);
             }
 
         }
-       if (absorber != null){
+        if (absorber != null) {
             Set s = new HashSet();
-            for(Object edge: po.incomingEdgesOf(absorber)){
-            s.add(edge);
+            for (Object edge : po.incomingEdgesOf(absorber)) {
+                s.add(edge);
             }
             po.removeAllEdges(s);
-       }
-       if (producer != null){
-        Set s = new HashSet();
-        for(Object edge: po.outgoingEdgesOf(producer)){
-            s.add(edge);
         }
-        po.removeAllEdges(s);
-       }
+        if (producer != null) {
+            Set s = new HashSet();
+            for (Object edge : po.outgoingEdgesOf(producer)) {
+                s.add(edge);
+            }
+            po.removeAllEdges(s);
+        }
 
     }
 
     private static void printOrdering(DirectedAcyclicGraph po) {
-       for (Object v : po.vertexSet()) {
+        for (Object v : po.vertexSet()) {
             Integer action = (Integer) v;
             System.out.print(action + " ->");
             for (Object v1 : po.vertexSet()) {

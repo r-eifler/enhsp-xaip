@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -41,39 +40,40 @@ public class Utils {
             System.out.print(string);
         }
     }
+
     public static String toPDDLSet(Collection c) {
         String ret = "";
         for (Object o : c) {
-            ret += " "+o.toString();
+            ret += " " + o.toString();
         }
         return ret;
     }
-    
-    public static void remove_file(String name){
-        try{
+
+    public static void remove_file(String name) {
+        try {
 
             File file = new File(name);
             file.delete();
 
-            }catch(Exception e){
+        } catch (Exception e) {
 
-                    e.printStackTrace();
+            e.printStackTrace();
 
-            }
+        }
     }
-    
+
     public static String toPDDLSetWithBreak(Collection c) {
         String ret = "";
         for (Object o : c) {
-            ret += o.toString()+"\n";
+            ret += o.toString() + "\n";
         }
         return ret;
     }
-    
-     public static String toPDDLWithExtraObject(Collection<ActionSchema> c) {
+
+    public static String toPDDLWithExtraObject(Collection<ActionSchema> c) {
         String ret = "";
         for (ActionSchema o : c) {
-            ret += o.pddlPrintWithExtraObject()+"\n";
+            ret += o.pddlPrintWithExtraObject() + "\n";
         }
         return ret;
     }
@@ -81,39 +81,40 @@ public class Utils {
     public static String toPDDLTypesSet(Collection c) {
         String ret = "";
         for (Object o : c) {
-            Type t = (Type)o;
-            ret += " "+t.pddlString();
+            Type t = (Type) o;
+            ret += " " + t.pddlString();
         }
         return ret;
     }
-    
-    public static void deleteFile(String fileName){
-       
+
+    public static void deleteFile(String fileName) {
+
         new File(fileName).delete();
     }
-    
+
     public static String searchParameterValue(String[] args, String par) {
 
         //System.out.println("Searching option " + par);
         for (int i = 0; i < args.length - 1; i++) {
             if (args[i].equals(par)) {
                 String ret = args[++i];
-                if (ret == null)
+                if (ret == null) {
                     return null;
-                if (ret.charAt(0)=='-')
+                }
+                if (ret.charAt(0) == '-') {
                     return null;
+                }
                 return ret;
             }
         }
 
         return null;
     }
-    
-    
+
     public static boolean searchParameter(String[] args, String par) {
 
         //System.out.println("Searching option " + par);
-        for (int i = 0; i < args.length ; i++) {
+        for (int i = 0; i < args.length; i++) {
             if (args[i].equals(par)) {
                 return true;
             }
@@ -121,7 +122,7 @@ public class Utils {
 
         return false;
     }
-    
+
 //    public static String[] searchParameterValue(String[] args, String par) {
 //
 //        //System.out.println("Searching option " + par);
@@ -143,5 +144,4 @@ public class Utils {
 //
 //        return null;
 //    }
-
 }

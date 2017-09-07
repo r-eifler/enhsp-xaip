@@ -27,7 +27,6 @@
  */
 package heuristics.old;
 
-
 import conditions.Comparison;
 import conditions.Conditions;
 import extraUtils.Pair;
@@ -70,9 +69,9 @@ public class Bellman_Ford_Hm extends Heuristic {
         //System.out.println(this.orderings);
         //build_integer_representation();
     }
-    
-    public Bellman_Ford_Hm(Conditions G, Set<GroundAction> A,Set processesSet, Conditions GC) {
-        super(G, A,processesSet,GC);
+
+    public Bellman_Ford_Hm(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
+        super(G, A, processesSet, GC);
         greedy = false;
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
@@ -92,20 +91,20 @@ public class Bellman_Ford_Hm extends Heuristic {
         System.out.println("Easy Conditions: " + (this.all_conditions.size() - complex_conditions));
         System.out.println("Hard Conditions: " + complex_conditions);
         reachability = true;
-        Float first_est =compute_estimate(s_0);
+        Float first_est = compute_estimate(s_0);
         reachability = false;
         A = this.reachable;
         all_conditions = new LinkedHashSet();
         this.build_integer_representation();
         return first_est;
     }
-    
-    protected void init_h(ArrayList<Float> h,  State s_0) {
+
+    protected void init_h(ArrayList<Float> h, State s_0) {
         for (Conditions c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
 //                System.out.println(c_1);
                 h.set(c_1.getCounter(), 0f);
-            }else{
+            } else {
 //                System.out.println("No:"+c_1);
             }
             if (debug >= 2) {
@@ -141,17 +140,17 @@ public class Bellman_Ford_Hm extends Heuristic {
     protected boolean update_conditions_values(Collection<GroundAction> pool, State s_0, Collection<Conditions> all_conditions, ArrayList<Float> h) {
         boolean update = false;
         for (Conditions c : this.all_conditions) {
-            if (h.get(c.getCounter()) != 0f ) {
+            if (h.get(c.getCounter()) != 0f) {
                 float current = compute_current_cost_via_lp(pool, s_0, c, h);
 //                if (current == 0)
-                    //System.out.println("Anomaly:"+c);
+                //System.out.println("Anomaly:"+c);
 //                System.out.println("Updating!");
                 if (current < h.get(c.getCounter())) {
                     h.set(c.getCounter(), current);
                     update = true;
                 }
-            }else{
-                
+            } else {
+
             }
         }
         return update;
@@ -160,17 +159,18 @@ public class Bellman_Ford_Hm extends Heuristic {
     @Override
     protected void update_pool(Collection<GroundAction> pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
         //update action precondition
-        
-        for (GroundAction gr : A1) {         
-            if (gr.getPreconditions()==null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getCounter())!=Float.MAX_VALUE){
+
+        for (GroundAction gr : A1) {
+            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getCounter()) != Float.MAX_VALUE) {
                 pool.add(gr);
-                if (this.reachability) this.reachable.add(gr);
+                if (this.reachability) {
+                    this.reachable.add(gr);
+                }
                 //it.remove();
             }
         }
     }
-    
-    
+
     @Override
     public void build_integer_representation() {
         int counter2 = 0;
@@ -194,13 +194,13 @@ public class Bellman_Ford_Hm extends Heuristic {
 
     }
 
-
     private void init_actions(Collection<GroundAction> pool, Collection<GroundAction> A_temp, State s_0, ArrayList<Float> h) {
         A_temp.stream().filter((gr) -> (h.get(gr.getPreconditions().getCounter()) != Float.MAX_VALUE)).forEach((gr) -> {
             pool.add(gr);
-            if (reachability) this.reachable.add(gr);
+            if (reachability) {
+                this.reachable.add(gr);
+            }
         });
     }
-
 
 }

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -66,10 +65,9 @@ public class landmarks_factory extends Heuristic {
     public boolean compute_lp;
 
     //protected LinkedHashSet<Comparison> redundant_constrains;
-
     public landmarks_factory(Conditions goal, Set<GroundAction> A) {
         super(goal, A);
-        
+
         this.build_integer_representation();
     }
 
@@ -128,8 +126,9 @@ public class landmarks_factory extends Heuristic {
 
     @Override
     public Float compute_estimate(State s_0) {
-        if (this.G.isSatisfied(s_0))
-            return (float)0;
+        if (this.G.isSatisfied(s_0)) {
+            return (float) 0;
+        }
         this.init_data_structures(s_0);
         HashMap<Integer, IloNumVar> action_to_variable = new HashMap();
         boolean update;
@@ -169,7 +168,7 @@ public class landmarks_factory extends Heuristic {
                     });
                 }
                 update_poss_achievers(c, ach_of_conditions_with_repetition);
-                if (update_landmarks(c, ach_of_conditions)){// || l != condition_level.get(c.getCounter()) || dplus.get(c.getCounter()) != old_dplus) {
+                if (update_landmarks(c, ach_of_conditions)) {// || l != condition_level.get(c.getCounter()) || dplus.get(c.getCounter()) != old_dplus) {
                     update = true;
                 }
             }
@@ -222,10 +221,9 @@ public class landmarks_factory extends Heuristic {
                     if (!c.isSatisfied(s_0)) {
                         IloLinearNumExpr expr = lp.linearNumExpr();
 
-                    
                         for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                             IloNumVar action;
-                            dlm.gr.setAction_cost(s_0);
+//                            dlm.gr.set_unit_cost(s_0);
                             Float action_cost = dlm.gr.getAction_cost();
                             if (action_cost.isNaN()) {
                                 continue;
@@ -243,13 +241,13 @@ public class landmarks_factory extends Heuristic {
                     }
                 }
                 lp.addMinimize(objective);
-                
+
                 if (lp.solve()) {
                     if (lp.getStatus() == IloCplex.Status.Optimal) {
-                        estimate = (float)lp.getObjValue();
+                        estimate = (float) lp.getObjValue();
                     } else {
                         estimate = Float.MAX_VALUE;
-                    }                
+                    }
                 } else {
                     estimate = Float.MAX_VALUE;
 
@@ -267,7 +265,6 @@ public class landmarks_factory extends Heuristic {
             }
         }
 
-        
         return estimate;
     }
 
@@ -338,7 +335,6 @@ public class landmarks_factory extends Heuristic {
         }
     }
 
-
     protected void add_redundant_constrains(LinkedHashSet set) throws Exception {
         ArrayList<Conditions> set_as_array = new ArrayList(set);
         //System.out.println("set:");
@@ -346,8 +342,8 @@ public class landmarks_factory extends Heuristic {
 
         int counter = all_conditions.size();
 
-        for (int i=0; i<set_as_array.size(); i++) {
-            for (int j=i+1; j<set_as_array.size();j++) {
+        for (int i = 0; i < set_as_array.size(); i++) {
+            for (int j = i + 1; j < set_as_array.size(); j++) {
                 Conditions c1 = set_as_array.get(i);
                 Conditions c2 = set_as_array.get(j);
                 //System.out.println("c1: "+c1);
@@ -362,17 +358,17 @@ public class landmarks_factory extends Heuristic {
                 if (c1 instanceof Comparison) {
                     System.out.println(c1);
                 }
-                */
+                 */
                 if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
                     //if (i<j) {
-                    Comparison a1 = (Comparison)c1;
-                    Comparison a2 = (Comparison)c2;
+                    Comparison a1 = (Comparison) c1;
+                    Comparison a2 = (Comparison) c2;
                     //System.out.println("a1: " + a1);
                     //System.out.println("a2: " + a2);
                     //if (suitable_to_combine(a1, a2)){
                     ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
                     ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
-                    if (suitable_to_combine(lhs_a1, lhs_a2)){
+                    if (suitable_to_combine(lhs_a1, lhs_a2)) {
                         ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
                         String new_comparator = ">=";
                         if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
@@ -385,8 +381,8 @@ public class landmarks_factory extends Heuristic {
                         cnew.normalize();
                         cnew.setCounter(counter);
                         //System.out.println("cnew: "+cnew);
-                            ///ExtendedNormExpression temp  (ExtendedNormExpression) cnew.getLeft();
-                        if (expr.summations.size()<2) {
+                        ///ExtendedNormExpression temp  (ExtendedNormExpression) cnew.getLeft();
+                        if (expr.summations.size() < 2) {
                             //System.out.println("inIF");
                             continue;
                         }
@@ -408,8 +404,8 @@ public class landmarks_factory extends Heuristic {
         Set e2_fluent = e2.rhsFluents();
 
         for (Object f1 : e1_fluent) {
-            for (Object f2: e2_fluent) {
-                if (f1.equals(f2)){
+            for (Object f2 : e2_fluent) {
+                if (f1.equals(f2)) {
                     return true;
                 }
             }

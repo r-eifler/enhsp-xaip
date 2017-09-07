@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -83,9 +82,9 @@ public class Aibr extends Heuristic {
 
         //this.build_integer_representation();
     }
-    
-    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes,Set<GroundEvent> events) {
-        super(G, actions, processes,events);
+
+    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
+        super(G, actions, processes, events);
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
@@ -184,7 +183,7 @@ public class Aibr extends Heuristic {
 //            }
 //            s.consolidate_propositions(rs);
 //            System.out.println("Total Number of Predicates which makes sense"+counter_predicates);
-            
+
             //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             this.supporters = new LinkedHashSet(supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
@@ -329,7 +328,7 @@ public class Aibr extends Heuristic {
                     }
                     //counter++;//=
                     if (cost_oriented) {
-                        gr.setAction_cost(s);
+//                        gr.set_unit_cost(s);
                         counter += gr.getAction_cost();
                     } else {
                         counter++;

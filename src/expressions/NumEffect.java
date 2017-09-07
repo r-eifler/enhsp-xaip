@@ -126,10 +126,10 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a new Grounded NumEffect object
      */
     @Override
-    public Expression ground(Map<Variable,PDDLObject> substitution,PDDLObjects po) {
+    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumEffect ret = new NumEffect(this.operator);
-        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution,po);
-        ret.right = this.right.ground(substitution,po);
+        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution, po);
+        ret.right = this.right.ground(substitution, po);
         ret.grounded = true;
         return ret;
     }
@@ -210,7 +210,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @param substitution
      */
     @Override
-    public void changeVar(Map<Variable,PDDLObject> substitution) {
+    public void changeVar(Map<Variable, PDDLObject> substitution) {
         this.fluentAffected.changeVar(substitution);
         this.right.changeVar(substitution);
     }
@@ -237,11 +237,11 @@ public class NumEffect extends Expression implements PostCondition {
         }
 //        System.out.println(this);
         NumFluent nf = s.getNumericFluent(this.getFluentAffected());
-        if (nf!=null)
+        if (nf != null) {
             this.setFluentAffected(nf);
-        else{//this can become a state variable; so conservatively keeps track of it
+        } else {//this can become a state variable; so conservatively keeps track of it
             //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
-            s.getNum_fluents_value().put(fluentAffected,null);
+            s.getNum_fluents_value().put(fluentAffected, null);
         }
         return this;
     }
@@ -498,13 +498,13 @@ public class NumEffect extends Expression implements PostCondition {
     @Override
     public void apply(State s, Map modifications) {
         if (!fluentAffected.has_to_be_tracked()) {
-            return ;
+            return;
         }
-        
+
         PDDLNumber after = null;
         PDDLNumber eval = this.getRight().eval(s);
         if (eval == null) {
-            System.out.print("State:"+s);
+            System.out.print("State:" + s);
             System.out.println("Applying a not applicable effect!:" + this);
             System.exit(-1);
         }
@@ -515,7 +515,7 @@ public class NumEffect extends Expression implements PostCondition {
                 //System.out.println("State:"+s);
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);
-            }else{
+            } else {
                 after = new PDDLNumber(current.getNumber() + eval.getNumber());
             }
         } else if (this.operator.equals("decrease")) {
@@ -523,7 +523,7 @@ public class NumEffect extends Expression implements PostCondition {
             if (current == null) {
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);
-            }else{
+            } else {
                 after = new PDDLNumber(current.getNumber() - eval.getNumber());
             }
         } else if (this.operator.equals("assign")) {
@@ -535,23 +535,24 @@ public class NumEffect extends Expression implements PostCondition {
 
     @Override
     public void apply(RelState s, Map modifications) {
-        if (!fluentAffected.has_to_be_tracked())
+        if (!fluentAffected.has_to_be_tracked()) {
             return;
+        }
         final Interval after = new Interval();
         final Interval current = s.functionValues(fluentAffected);
-        
+
         final Interval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
 //            System.out.println(this);
 //            System.out.println(current);
 //            System.out.println(eval);
-            if (!current.is_not_a_number && current.getInf().getNumber()!=null &&  current.getSup().getNumber()!=null){
+            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
                 after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
                 after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
             }
         } else if (getOperator().equals("decrease")) {
-            if (!current.is_not_a_number && current.getInf().getNumber()!=null &&  current.getSup().getNumber()!=null){
+            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
                 after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
                 after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
             }
@@ -582,7 +583,7 @@ public class NumEffect extends Expression implements PostCondition {
             }
 
         }
-        
+
         modifications.put(fluentAffected, after);
     }
 
@@ -591,29 +592,29 @@ public class NumEffect extends Expression implements PostCondition {
         bui.append("(");
         bui.append(getOperator());
         bui.append(" ");
-        getFluentAffected().pddlPrint(typeInformation,bui);
+        getFluentAffected().pddlPrint(typeInformation, bui);
         bui.append(" ");
-        getRight().pddlPrint(typeInformation,bui);
+        getRight().pddlPrint(typeInformation, bui);
         bui.append(")");
     }
 
-    public ArrayList<Variable> getInvolvedVariables()  {
+    public ArrayList<Variable> getInvolvedVariables() {
         // It is assumed that this method will be called only when the terms are ungrounded.  
         // Here be dragon.  
-        final ArrayList list = (ArrayList)this.fluentAffected.getTerms();
-        final ArrayList<Variable> result = (ArrayList<Variable>)list;
+        final ArrayList list = (ArrayList) this.fluentAffected.getTerms();
+        final ArrayList<Variable> result = (ArrayList<Variable>) list;
         return result;
     }
 
-    public void storeInvolvedVariables(Collection<Variable> vars)  {
+    public void storeInvolvedVariables(Collection<Variable> vars) {
         // It is assumed that this method will be called only when the terms are ungrounded.  
         // Here be dragon.  
-        for (final Object o: this.fluentAffected.getTerms()) {
-            final Variable var = (Variable)o;
+        for (final Object o : this.fluentAffected.getTerms()) {
+            final Variable var = (Variable) o;
             vars.add(var);
         }
     }
-    
+
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         Set<NumFluent> ret = new HashSet();

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -38,9 +37,10 @@ import problem.State;
 public class operator_counting_heuristic extends Heuristic {
 
     //this is meant to build the very basic data structures
-    public operator_counting_heuristic(Conditions goal, Set<GroundAction> actions){
-        super(goal,actions);
+    public operator_counting_heuristic(Conditions goal, Set<GroundAction> actions) {
+        super(goal, actions);
     }
+
     @Override
     public Float setup(State s_0) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -50,5 +50,5 @@ public class operator_counting_heuristic extends Heuristic {
     public Float compute_estimate(State s_0) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

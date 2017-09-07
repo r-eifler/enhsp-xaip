@@ -1,5 +1,3 @@
-
-
 /**
  * *******************************************************************
  *
@@ -29,7 +27,7 @@ package heuristics.operator_counting;
  *
  * @author enrico
  */
-public class numeric_state_equation_constraints extends op_counting_constraints{
+public class numeric_state_equation_constraints extends op_counting_constraints {
 
     @Override
     public void initialize_constraints() {
@@ -40,5 +38,5 @@ public class numeric_state_equation_constraints extends op_counting_constraints{
     public void update_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

@@ -1,4 +1,3 @@
-
 /**
  * *******************************************************************
  *
@@ -60,7 +59,6 @@ public class OrCond extends Conditions {
         sons = new LinkedHashSet();
     }
 
-
     @Override
     public String toString() {
         String ret_val = "Or(";
@@ -103,12 +101,12 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution,PDDLObjects po) {
+    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
             Conditions el = (Conditions) o;
-            ret.sons.add(el.ground(substitution,po));
+            ret.sons.add(el.ground(substitution, po));
         }
         ret.grounded = true;
         return ret;
@@ -116,7 +114,7 @@ public class OrCond extends Conditions {
 
     @Override
     public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution,null);
+        Conditions ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -338,20 +336,37 @@ public class OrCond extends Conditions {
 
     @Override
     public Conditions weakEval(State s, HashMap invF) {
+        LinkedHashSet to_keep = new LinkedHashSet();
         if (this.sons != null) {
-            for (Object o2 : this.sons) {
+            Iterator it = this.sons.iterator();
+            while (it.hasNext()) {
+                Object o2 = it.next();
                 if (o2 instanceof Conditions) {
                     Conditions c = (Conditions) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
 //                    System.out.println(c);
                     c = c.weakEval(s, invF);
-//                    System.out.println(c);
-                    if (c == null) {
-                        return null;
+                    if (o2 instanceof PDDLObjectsEquality) {
+                        if (c.isValid()) {
+                            this.setValid(true);
+                            this.setUnsatisfiable(false);
+                            return this;
+                        }
+                    } else if (c.isValid()) {
+                        this.setValid(true);
+                        this.setUnsatisfiable(false);
+                        return this;
+                    } else if (c.isUnsatisfiable()) {
+//                            to_remove.add(c);
+                    } else {
+                        to_keep.add(c);
                     }
+
                 }
             }
         }
+        this.sons = to_keep;
+
         return this;
     }
 

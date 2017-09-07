@@ -31,6 +31,9 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Conditions;
 import conditions.Predicate;
+import expressions.BinaryOp;
+import expressions.ExtendedNormExpression;
+import expressions.NumEffect;
 import expressions.NumFluent;
 import extraUtils.Utils;
 import heuristics.Aibr;
@@ -46,6 +49,7 @@ import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -67,6 +71,7 @@ public class quasi_hm extends Heuristic {
     private boolean cplex = true;
     public HashMap<Integer, LpInterface> lps;
     private HashMap<Integer, Collection<GroundAction>> cond_to_actions;
+    private boolean risky = true;
 
     public quasi_hm(Conditions G, Set<GroundAction> A) {
         super(G, A);
@@ -98,6 +103,7 @@ public class quasi_hm extends Heuristic {
             return ret;
         }
         A = first_reachH.reachable;
+        this.simplify_actions(s);
         this.cond_to_actions = new HashMap();
         build_integer_representation();
         //identify_complex_conditions(all_conditions, A);
@@ -255,7 +261,7 @@ public class quasi_hm extends Heuristic {
 //                System.out.println("Action that is connected:"+this.cond_action.get(cond.getCounter()));
                 if (!closed.get(cond.getCounter())) {
 //                    System.out.println("Condition under analysis:"+cond);
-                    
+
                     Float current_cost = null;
                     current_cost = lps.get(cond.getCounter()).update_cost(s, active_actions, distance);
                     n_lp_invocations++;
@@ -365,4 +371,42 @@ public class quasi_hm extends Heuristic {
         }
     }
 
+    protected void simplify_actions(State init) {
+        for (GroundAction gr : (Collection<GroundAction>) this.A) {
+            try {
+                if (gr.getPreconditions() != null) {
+                    gr.setPreconditions(gr.getPreconditions().transform_equality());
+                }
+                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                    int number_numericEffects = gr.getNumericEffects().sons.size();
+                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                        NumEffect neff = (NumEffect) it.next();
+                        if (neff.getOperator().equals("assign")) {
+                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                            try {
+                                if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                                    //Utils.dbg_print(3,neff.toString());
+//                            if (number_numericEffects == 1) {
+                                    neff.setOperator("increase");
+                                    neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                                    neff.setPseudo_num_effect(true);
+//                            }
+                                }
+                            } catch (Exception ex) {
+                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+
+                    }
+                }
+                gr.normalize();
+            } catch (Exception ex) {
+                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.G.normalize();
+        this.G = this.G.transform_equality();
+        this.gC.normalize();
+        this.gC = this.gC.transform_equality();
+    }
 }
