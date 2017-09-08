@@ -156,6 +156,7 @@ public class h1 extends Uniform_cost_search_H1 {
         
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
+        goal.setAction_cost(0);
         goal.setPreconditions(G);
         A.add(goal);
         build_integer_representation();

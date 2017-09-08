@@ -36,7 +36,6 @@ import problem.State;
 public class Habs extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
-    private static final Boolean UPDATE_COST = false;
     private static final Boolean COST_SENSITIVE = false;
     
     private final Set<GroundProcess> processSet;
@@ -242,6 +241,8 @@ public class Habs extends Heuristic {
     
     private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
         Interval rhsInterval = effect.getRight().eval(rs);
+//        System.out.println(effect.getRight());
+//        System.out.println(rhsInterval);
         
         Float inf, sup, strip;
         HashSet<Interval> subdomains = new HashSet<>();
@@ -301,7 +302,9 @@ public class Habs extends Heuristic {
         subaction.getPreconditions().sons.add(indirect_precondition_lt);
         subaction.getPreconditions().sons.add(indirect_precondition_gt);
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
-
+      
+        // set action cost, for now supports only unit cost
+        subaction.setAction_cost(1);
         return subaction;
     }
 
@@ -331,6 +334,9 @@ public class Habs extends Heuristic {
         if (COST_SENSITIVE && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
         }
+        
+        // set action cost, for now supports only unit cost
+        sup.setAction_cost(1);
         
         supporters.add(sup);
     }
