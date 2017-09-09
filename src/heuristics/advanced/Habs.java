@@ -60,9 +60,16 @@ public class Habs extends Heuristic {
         // abstraction step
         generate_subactions(s);
         
+//        for (GroundAction gr : this.supporters){
+//            System.out.println(gr.toPDDL()+"\n\n");
+//        }
+        
         // estimation for initial state
         setup_habs(s);
         ret = habs.compute_estimate(s);
+        
+//        System.out.println("h(s_0): " + ret);
+//        System.exit(0);
         
         return ret;
     }
@@ -209,11 +216,11 @@ public class Habs extends Heuristic {
                         effectOnCost,
                         gr);
                 supporters.add(subaction);
-                
             }
         }
         
         // add plus infinity subdomain
+        if (domain_sup == 0){ domain_sup = 1f;}
         repSample = new ExtendedNormExpression(domain_sup);
         subactionName = name + " (" + domain_sup.toString() + ",+inf) " + " for " + effect.getFluentAffected().toString();
         GroundAction subaction = generatePiecewiseSubaction(subactionName, 
@@ -226,13 +233,14 @@ public class Habs extends Heuristic {
         supporters.add(subaction);
         
         // add minus infinity subdomain
+        if (domain_sup == 0){ domain_sup = -1f;}
         repSample = new ExtendedNormExpression(domain_inf);
         subactionName = name + " (-inf," + domain_inf.toString() + ") " + " for " + effect.getFluentAffected().toString();
         subaction = generatePiecewiseSubaction(subactionName, 
                 repSample, 
                 -Float.MAX_VALUE,
                 domain_inf, 
-                effect, 
+                effect,
                 effectOnCost, 
                 gr);
         supporters.add(subaction);
@@ -241,8 +249,6 @@ public class Habs extends Heuristic {
     
     private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
         Interval rhsInterval = effect.getRight().eval(rs);
-//        System.out.println(effect.getRight());
-//        System.out.println(rhsInterval);
         
         Float inf, sup, strip;
         HashSet<Interval> subdomains = new HashSet<>();
@@ -282,7 +288,7 @@ public class Habs extends Heuristic {
         Comparison indirect_precondition_gt;
         Comparison indirect_precondition_lt;
         
-        if (inf <= 0){
+        if (inf < 0){
             indirect_precondition_gt = new Comparison(">=");
             indirect_precondition_lt = new Comparison("<");
         } else {
@@ -302,7 +308,7 @@ public class Habs extends Heuristic {
         subaction.getPreconditions().sons.add(indirect_precondition_lt);
         subaction.getPreconditions().sons.add(indirect_precondition_gt);
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
-      
+        
         // set action cost, for now supports only unit cost
         subaction.setAction_cost(1);
         return subaction;
