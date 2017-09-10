@@ -28,6 +28,7 @@ import problem.GroundAction;
 import problem.GroundProcess;
 import problem.RelState;
 import problem.State;
+import problem.Metric;
 
 /**
  *
@@ -36,8 +37,9 @@ import problem.State;
 public class Habs extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
-    private static final Boolean COST_SENSITIVE = false;
-    
+    private static final Boolean COST_SENSITIVE = true;
+    public Metric metric = null;
+  
     private final Set<GroundProcess> processSet;
     private final Integer numOfSubdomains = 2;
     private h1 habs;
@@ -49,6 +51,10 @@ public class Habs extends Heuristic {
         this.processSet = P;
     }
 
+    public void setMetric(Metric metric) {
+        this.metric = metric;
+    }
+  
     @Override
     public Float setup(State s) {
         // reachablity analysis by AIBR
@@ -92,8 +98,8 @@ public class Habs extends Heuristic {
      * 
      * <p>
      */
-    private void generate_subactions(State s) {
-        RelState rs = getRelaxedGoal(A, G, s);
+    private void generate_subactions(State s_0) {
+        RelState rs = getRelaxedGoal(A, G, s_0);
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -110,9 +116,11 @@ public class Habs extends Heuristic {
                         effectOnCost = (NumEffect) effect.clone();
                         continue;
                     }
+                    
+                    ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
-                    if (!effect.getRight().rhsFluents().isEmpty()) {
-                        addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs);
+                    if (!rhs.rhsFluents().isEmpty() && rhs.linear) {
+                        addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs, s_0);
                     } else { // constant numeric effects
                         allConstantEffects.add(effect);
                     }
@@ -123,7 +131,7 @@ public class Habs extends Heuristic {
             if (!allConstantEffects.isEmpty() 
                     || (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) 
                     || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
-                addConstantSubaction(gr.toFileCompliant() + " const", gr, allConstantEffects, effectOnCost);
+                addConstantSubaction(gr.toFileCompliant() + " const", gr, allConstantEffects, effectOnCost, s_0);
             }
         }
 
@@ -161,7 +169,7 @@ public class Habs extends Heuristic {
     /**
      * <p>
      */
-    private void addPiecewiseSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs) {
+    private void addPiecewiseSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, State s_0) {
         // decomposition
         HashSet<Interval> subdomains = decomposeRhs(effect, rs);
         
@@ -190,7 +198,8 @@ public class Habs extends Heuristic {
                         sup, 
                         effect, 
                         effectOnCost, 
-                        gr);
+                        gr,
+                        s_0);
                 
                 supporters.add(subaction);
                 
@@ -203,7 +212,8 @@ public class Habs extends Heuristic {
                         sup, 
                         effect, 
                         effectOnCost, 
-                        gr);
+                        gr,
+                        s_0);
                 supporters.add(subaction);
                 
                 repSample = new ExtendedNormExpression(inf/2);
@@ -214,7 +224,8 @@ public class Habs extends Heuristic {
                         0f, 
                         effect, 
                         effectOnCost,
-                        gr);
+                        gr,
+                        s_0);
                 supporters.add(subaction);
             }
         }
@@ -229,7 +240,8 @@ public class Habs extends Heuristic {
                 Float.MAX_VALUE,
                 effect, 
                 effectOnCost, 
-                gr);
+                gr,
+                s_0);
         supporters.add(subaction);
         
         // add minus infinity subdomain
@@ -242,7 +254,8 @@ public class Habs extends Heuristic {
                 domain_inf, 
                 effect,
                 effectOnCost, 
-                gr);
+                gr,
+                s_0);
         supporters.add(subaction);
         
     }
@@ -269,7 +282,7 @@ public class Habs extends Heuristic {
         return subdomains;
     }
 
-    private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr) {    
+    private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, State s_0) {    
         GroundAction subaction = new GroundAction(subactionName);
 
         // set up effect
@@ -310,7 +323,8 @@ public class Habs extends Heuristic {
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
         
         // set action cost, for now supports only unit cost
-        subaction.setAction_cost(1);
+//        subaction.setAction_cost(1);
+        subaction.setAction_cost(s_0, this.metric);
         return subaction;
     }
 
@@ -321,7 +335,7 @@ public class Habs extends Heuristic {
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
      */
-    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost) {
+    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, State s_0) {
         GroundAction sup = new GroundAction(name);
 
         // add preconditions
@@ -342,8 +356,8 @@ public class Habs extends Heuristic {
         }
         
         // set action cost, for now supports only unit cost
-        sup.setAction_cost(1);
-        
+//        sup.setAction_cost(1);
+        sup.setAction_cost(s_0, metric);
         supporters.add(sup);
     }
 
@@ -355,36 +369,6 @@ public class Habs extends Heuristic {
 //        }
         
         Float ret = habs.compute_estimate(s);
-        
-//        System.out.println(ret);
-        
-//        System.exit(0);
-        
-//        for(Map.Entry<Integer, LinkedHashSet<Comparison>> a : habs.possible_achievers.entrySet()){
-//            System.out.print("Action: " + a.getKey() + " achieves: ");
-//            for (Conditions c : a.getValue()){
-//                System.out.print(c.getCounter() + ",");
-//            }
-//            System.out.println("");
-//        }
-        
-//        System.out.println(habs.possible_achievers);
-//        for(Conditions c:habs.all_conditions){
-//            System.out.println("Condition: " + c.getCounter() + " " + c.toString());
-//        }
-//        if (ret == 0){
-//            for (GroundAction gr:habs.A){
-//                System.out.println(gr.toPDDL() + "\n\n");
-//            }
-//            for (GroundAction gr : partitionMap.keySet()){
-//                for (Expression rhs : partitionMap.get(gr).keySet()){
-//                    System.out.println(rhs);
-//                    System.out.println(partitionMap.get(gr).get(rhs));
-//                    System.out.println("\n");
-//                }
-//            }
-////            System.exit(0);
-//        }
         
         return ret;
     }
