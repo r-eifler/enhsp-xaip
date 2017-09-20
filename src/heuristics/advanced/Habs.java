@@ -37,7 +37,7 @@ import problem.Metric;
 public class Habs extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
-    private static final Boolean COST_SENSITIVE = true;
+    private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
   
     private final Set<GroundProcess> processSet;
@@ -65,10 +65,6 @@ public class Habs extends Heuristic {
         
         // abstraction step
         generate_subactions(s);
-        
-//        for (GroundAction gr : this.supporters){
-//            System.out.println(gr.toPDDL()+"\n\n");
-//        }
         
         // estimation for initial state
         setup_habs(s);
@@ -231,8 +227,12 @@ public class Habs extends Heuristic {
         }
         
         // add plus infinity subdomain
-        if (domain_sup == 0){ domain_sup = 1f;}
-        repSample = new ExtendedNormExpression(domain_sup);
+        if (domain_sup != 0){
+            repSample = new ExtendedNormExpression(domain_sup);
+        } else {
+            // this is very unstable!!
+            repSample = new ExtendedNormExpression(1f);
+        }
         subactionName = name + " (" + domain_sup.toString() + ",+inf) " + " for " + effect.getFluentAffected().toString();
         GroundAction subaction = generatePiecewiseSubaction(subactionName, 
                 repSample,  
@@ -245,8 +245,12 @@ public class Habs extends Heuristic {
         supporters.add(subaction);
         
         // add minus infinity subdomain
-        if (domain_sup == 0){ domain_sup = -1f;}
-        repSample = new ExtendedNormExpression(domain_inf);
+        if (domain_inf != 0){
+            repSample = new ExtendedNormExpression(domain_inf);
+        } else {
+            // this is very unstable!!
+            repSample = new ExtendedNormExpression(-1f);
+        }
         subactionName = name + " (-inf," + domain_inf.toString() + ") " + " for " + effect.getFluentAffected().toString();
         subaction = generatePiecewiseSubaction(subactionName, 
                 repSample, 
@@ -293,8 +297,12 @@ public class Habs extends Heuristic {
         // set effects for subactions
         subaction.getNumericEffects().sons.add(supEff);
         
-        if (COST_SENSITIVE && effectOnCost != null) {
+        if (cost_sensitive && effectOnCost != null) {
             subaction.getNumericEffects().sons.add(effectOnCost);
+            subaction.setAction_cost(s_0, this.metric);
+        } else {
+        // if not metric sensitive, set uniform action cost
+            subaction.setAction_cost(1);
         }
 
         // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
@@ -322,9 +330,6 @@ public class Habs extends Heuristic {
         subaction.getPreconditions().sons.add(indirect_precondition_gt);
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
         
-        // set action cost, for now supports only unit cost
-//        subaction.setAction_cost(1);
-        subaction.setAction_cost(s_0, this.metric);
         return subaction;
     }
 
@@ -351,35 +356,24 @@ public class Habs extends Heuristic {
         sup.setDelList(gr.getDelList());
         
         // add effect on metric
-        if (COST_SENSITIVE && effectOnCost != null) {
+        if (cost_sensitive && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
+            sup.setAction_cost(s_0, metric);
+        } else {
+        // if not metric sensitive, set uniform action cost
+            sup.setAction_cost(1);
         }
         
-        // set action cost, for now supports only unit cost
-//        sup.setAction_cost(1);
-        sup.setAction_cost(s_0, metric);
         supporters.add(sup);
     }
 
     @Override
     public Float compute_estimate(State s) {
-        
-//        if (UPDATE_COST){
-//            updateActionCosts(s);
-//        }
-        
         Float ret = habs.compute_estimate(s);
         
         return ret;
     }
     
- 
-//    private void updateActionCosts(State s) {
-//        for (GroundAction gr : habs.A) {
-//            gr.clearActionCost();
-//            gr.setAction_cost(s);
-//        }
-//    }
     // only for debugging
     public static void logging(String content) {
         String FILENAME = "/home/dxli/workspace/NetBeansProjects/expressive-numeric-heuristic-search-planner-enhsp-planner/abs_experiments/log.txt";
