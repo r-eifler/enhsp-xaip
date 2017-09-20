@@ -41,7 +41,7 @@ public class Habs extends Heuristic {
     public Metric metric = null;
   
     private final Set<GroundProcess> processSet;
-    private final Integer numOfSubdomains = 2;
+    private final Integer numOfSubdomains = 1;
     private h1 habs;
 
     public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
@@ -99,7 +99,7 @@ public class Habs extends Heuristic {
      * <p>
      */
     private void generate_subactions(State s_0) {
-        RelState rs = getRelaxedGoal(A, G, s_0);
+        RelState rs = getRelaxedGoal(A, G, processSet, s_0);
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -139,8 +139,8 @@ public class Habs extends Heuristic {
         System.out.println("|Sup + goal|: " + supporters.size());
     }
 
-    private RelState getRelaxedGoal(Set<GroundAction> A, Conditions G, State s) {
-        Aibr aibr_handle = new Aibr(G, A);
+    private RelState getRelaxedGoal(Set<GroundAction> A, Conditions G, Set<GroundProcess> P, State s) {
+        Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
         return aibr_handle.get_reachable_state(s, s.relaxState());
