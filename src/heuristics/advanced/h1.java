@@ -300,8 +300,10 @@ public class h1 extends Uniform_cost_search_H1 {
                 if (current_distance != 0f) {
 
                     Float rep_needed;
-
-                    if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
+                    
+                    if (this.infinite_constant_effect){
+                        rep_needed = 1f;
+                    } else if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
 
                         rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
                     } else {

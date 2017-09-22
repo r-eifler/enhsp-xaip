@@ -34,17 +34,16 @@ import problem.Metric;
  *
  * @author dxli
  */
-public class Habs extends Heuristic {
+public class habs_max extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
   
     private final Set<GroundProcess> processSet;
-    private final Integer numOfSubdomains = 1;
     private h1 habs;
 
-    public Habs(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public habs_max(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
 
         this.supporters = new LinkedHashSet<>();
@@ -57,6 +56,7 @@ public class Habs extends Heuristic {
   
     @Override
     public Float setup(State s) {
+        
         // reachablity analysis by AIBR
         Float ret = aibrReachabilityAnalysis(s);
         if (ret == Float.MAX_VALUE) {
@@ -68,6 +68,12 @@ public class Habs extends Heuristic {
         
         // estimation for initial state
         setup_habs(s);
+        
+        // admissible setting
+        habs.additive_h = false;
+        // @see h1.java, line 304
+        habs.infinite_constant_effect = true;
+        
         ret = habs.compute_estimate(s);
         
 //        System.out.println("h(s_0): " + ret);
@@ -116,7 +122,7 @@ public class Habs extends Heuristic {
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
                     if (!rhs.rhsFluents().isEmpty() && rhs.linear) {
-                        addPiecewiseSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs, s_0);
+                        addinfiniteSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs, s_0);
                     } else { // constant numeric effects
                         allConstantEffects.add(effect);
                     }
@@ -165,78 +171,18 @@ public class Habs extends Heuristic {
     /**
      * <p>
      */
-    private void addPiecewiseSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, State s_0) {
-        // decomposition
-        HashSet<Interval> subdomains = decomposeRhs(effect, rs);
-        
+    private void addinfiniteSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, State s_0) {
         Expression repSample;
         String subactionName;
         Float domain_inf = Float.MAX_VALUE;
         Float domain_sup = - Float.MAX_VALUE;
-
-        for (Interval subdomain : subdomains) {
-            Float inf = subdomain.getInf().getNumber();
-            Float sup = subdomain.getSup().getNumber();
-            
-            if (inf < domain_inf){
-                domain_inf = inf;
-            }
-            if (sup > domain_sup){
-                domain_sup = sup;
-            }
-            
-            if (inf * sup >= 0){
-                repSample = new ExtendedNormExpression((inf + sup) / 2);
-                subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
-                GroundAction subaction = generatePiecewiseSubaction(subactionName, 
-                        repSample, 
-                        inf, 
-                        sup, 
-                        effect, 
-                        effectOnCost, 
-                        gr,
-                        s_0);
-                
-                supporters.add(subaction);
-                
-            } else if (inf * sup < 0){ // theorem 2, ensuring asymptotic reachability
-                repSample = new ExtendedNormExpression(sup/2);
-                subactionName = name + " (0," + sup.toString() + ") " + " for " + effect.getFluentAffected().toString();
-                GroundAction subaction = generatePiecewiseSubaction(subactionName, 
-                        repSample, 
-                        0f, 
-                        sup, 
-                        effect, 
-                        effectOnCost, 
-                        gr,
-                        s_0);
-                supporters.add(subaction);
-                
-                repSample = new ExtendedNormExpression(inf/2);
-                subactionName = name + " (" + inf.toString() + ",0) " + " for " + effect.getFluentAffected().toString();
-                subaction = generatePiecewiseSubaction(subactionName, 
-                        repSample, 
-                        inf, 
-                        0f, 
-                        effect, 
-                        effectOnCost,
-                        gr,
-                        s_0);
-                supporters.add(subaction);
-            }
-        }
         
         // add plus infinity subdomain
-        if (domain_sup != 0){
-            repSample = new ExtendedNormExpression(domain_sup);
-        } else {
-            // this is very unstable!!
-            repSample = new ExtendedNormExpression(1f);
-        }
+        repSample = new ExtendedNormExpression(Float.MAX_VALUE);
         subactionName = name + " (" + domain_sup.toString() + ",+inf) " + " for " + effect.getFluentAffected().toString();
         GroundAction subaction = generatePiecewiseSubaction(subactionName, 
                 repSample,  
-                domain_sup,
+                0f,
                 Float.MAX_VALUE,
                 effect, 
                 effectOnCost, 
@@ -245,17 +191,12 @@ public class Habs extends Heuristic {
         supporters.add(subaction);
         
         // add minus infinity subdomain
-        if (domain_inf != 0){
-            repSample = new ExtendedNormExpression(domain_inf);
-        } else {
-            // this is very unstable!!
-            repSample = new ExtendedNormExpression(-1f);
-        }
+        repSample = new ExtendedNormExpression(-Float.MAX_VALUE);
         subactionName = name + " (-inf," + domain_inf.toString() + ") " + " for " + effect.getFluentAffected().toString();
         subaction = generatePiecewiseSubaction(subactionName, 
                 repSample, 
                 -Float.MAX_VALUE,
-                domain_inf, 
+                0f, 
                 effect,
                 effectOnCost, 
                 gr,
@@ -264,28 +205,6 @@ public class Habs extends Heuristic {
         
     }
     
-    private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
-        Interval rhsInterval = effect.getRight().eval(rs);
-        
-        Float inf, sup, strip;
-        HashSet<Interval> subdomains = new HashSet<>();
-
-        inf = rhsInterval.getInf().getNumber();
-        sup = rhsInterval.getSup().getNumber();
-        
-        // uniform decomposition
-        strip = (sup - inf) / numOfSubdomains;
-        for (int i = 0; i < numOfSubdomains; i++) {
-            Interval subdomain = new Interval();
-            subdomain.setInf(new PDDLNumber(inf + strip * i));
-            subdomain.setSup(new PDDLNumber(inf + strip * (i + 1)));
-            
-            subdomains.add(subdomain);
-        }
-        
-        return subdomains;
-    }
-
     private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, State s_0) {    
         GroundAction subaction = new GroundAction(subactionName);
 
@@ -387,7 +306,7 @@ public class Habs extends Heuristic {
             bw.write(content);
 
         } catch (IOException ex) {
-            Logger.getLogger(Habs.class.getName()).log(Level.FINEST, null, ex);
+            Logger.getLogger(habs_add.class.getName()).log(Level.FINEST, null, ex);
         } finally {
             try {
 

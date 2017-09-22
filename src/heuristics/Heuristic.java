@@ -123,6 +123,9 @@ public abstract class Heuristic {
     protected int total_number_of_actions;
     public Boolean weak_helpful_actions_pruning = true;
     public boolean only_mutual_exclusion_processes = false;
+    
+    // dongxu added for hmax_abs
+    public boolean infinite_constant_effect = false;
 
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
