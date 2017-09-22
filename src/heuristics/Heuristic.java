@@ -1,29 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics;
 
@@ -59,6 +50,7 @@ import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 import org.ojalgo.optimisation.Variable;
+import problem.AbstractState;
 import problem.GroundEvent;
 import problem.GroundProcess;
 
@@ -66,7 +58,7 @@ import problem.GroundProcess;
  *
  * @author enrico
  */
-public abstract class Heuristic {
+public abstract class Heuristic{
 
     static public LinkedHashSet usefulActions = new LinkedHashSet();
     protected LinkedList<NumEffect> sorted_nodes;
@@ -124,6 +116,16 @@ public abstract class Heuristic {
     public Boolean weak_helpful_actions_pruning = true;
     public boolean only_mutual_exclusion_processes = false;
 
+    
+    public Heuristic(){
+        
+    }
+    
+    public Heuristic(Set<GroundAction> A){
+        this.A = (LinkedHashSet<GroundAction>) A;
+        
+    }
+    
     public Heuristic(Conditions G, Set<GroundAction> A) {
         super();
         achievers = new HashMap();
@@ -219,7 +221,7 @@ public abstract class Heuristic {
                 for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
-                    Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
+                    //Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
                 }
             }
         }
@@ -233,9 +235,9 @@ public abstract class Heuristic {
 
 //        LinkedHashSet temp = new LinkedHashSet();
         for (Conditions c_1 : G.getTerminalConditions()) {
-            Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
+            //Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
             counter_conditions = update_index_conditions(c_1, counter_conditions);
-            Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
+            //Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
 
 //            temp.add(c_1);
         }

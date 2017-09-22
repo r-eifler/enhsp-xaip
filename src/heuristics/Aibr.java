@@ -1,26 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics;
 
@@ -90,6 +84,7 @@ public class Aibr extends Heuristic {
         supporters = new LinkedHashSet();
 //        Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
+        
 //        Utils.dbg_print(debug, "Supporters Generated\n");
 
         //this.build_integer_representation();
@@ -154,6 +149,7 @@ public class Aibr extends Heuristic {
             }
 
             if (reachability) {
+
 //            if (true){
                 for (GroundAction gr : S) {
                     gr.apply(rs);
@@ -175,7 +171,10 @@ public class Aibr extends Heuristic {
         }
 //        Utils.dbg_print(debug, "Rechability finished");
 
+//        System.out.println("Number of Transitions: "+A.size());
+//        System.out.println("Number of Supporters: "+supporters.size());
         if (reachability) {
+
 //            int counter_predicates = 0;
 //            for (Predicate p : rs.poss_interpretation.keySet()){
 //                if (rs.poss_interpretation.get(p) >0)

@@ -1,29 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package search;
 
@@ -42,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -108,7 +100,6 @@ public class SearchStrategies {
             to_consider = new HashSet(getHeuristic().helpful_actions);
         } else {
             System.out.println("Take all reachable actions");
-
             to_consider = getHeuristic().reachable;
         }
         for (GroundAction gr : to_consider) {
@@ -251,6 +242,12 @@ public class SearchStrategies {
 
     }
 
+    public List a_star(EPddlProblem problem) throws Exception {
+        this.gw = 1f;
+        this.hw = 1f;
+        return this.wa_star(problem);
+    }
+
     public class FrontierOrder implements Comparator<SearchNode> {
 
         Heuristic h;
@@ -302,12 +299,10 @@ public class SearchStrategies {
                     return 1;
                 }
             } else//dfs
-            {
-                if (a.f <= other.f) {
-                    return 1;
-                } else {
-                    return -1;
-                }
+            if (a.f <= other.f) {
+                return 1;
+            } else {
+                return -1;
             }
         }
 
@@ -335,15 +330,16 @@ public class SearchStrategies {
         //System.out.println("Goals:"+problem.getGoals());
 //        rel_actions = getHeuristic().reachable;
         states_evaluated = 0;
-        while (!current.satisfy(problem.getGoals())) {
+        while (!problem.goalSatisfied(current)) {
             SearchNode succ = breadth_first_search(current, problem.getGoals(), getHeuristic(), (EPddlProblem) problem);
             if (succ == null) {
                 System.out.println("No plan exists with EHC");
                 return null;
             }
 
-            //System.out.println("");
             current = succ.s;
+//            System.out.println(current);
+
             if (this.helpful_actions_pruning) {
                 reachable_actions = new LinkedHashSet(succ.relaxed_plan_from_heuristic);
             }
@@ -361,7 +357,7 @@ public class SearchStrategies {
         HashMap<State, Boolean> visited = new HashMap();
         //System.out.println("Visited size:"+visited.size());
 
-        ArrayDeque<SearchNode> frontier = new ArrayDeque();
+        Queue<SearchNode> frontier = new LinkedList();
         Float current_value = heuristic.compute_estimate(current);
 
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
@@ -370,13 +366,20 @@ public class SearchStrategies {
             init.relaxed_plan_from_heuristic = getHeuristic().helpful_actions;
         }
 //        System.out.println(init.relaxed_plan_from_heuristic);
-
+        System.out.println("h(n):" + current_value + " ");
+        float current_gn = 0;
         while (!frontier.isEmpty()) {
             SearchNode node = frontier.poll();
             nodes_expanded++;
+            if (node.g_n > current_gn) {
+                System.out.println(" " + node.g_n);
+                current_gn = node.g_n;
+
+            }
             if (this.helpful_actions_pruning) {
                 reachable_actions = node.relaxed_plan_from_heuristic;
             }
+
             if (processes) {
                 //System.out.println("Enforced Hill Climbing not supporting autonomous processes yet");
                 advance_time(frontier, node, (EPddlProblem) problem);
@@ -387,7 +390,8 @@ public class SearchStrategies {
                     continue;
                 }
                 if (act.isApplicable(node.s)) {
-                    State temp = act.apply(node.s.clone());
+                    State temp = node.s.clone();
+                    temp.apply(act);
 //                    System.out.println("Depth:"+node.g_n);
                     //act.normalize();
                     if (!temp.satisfy(problem.globalConstraints)) {
@@ -402,7 +406,7 @@ public class SearchStrategies {
                         setStates_evaluated(getStates_evaluated() + 1);
                         if (d != Float.MAX_VALUE) {// && d <= current_value) {
                             SearchNode new_node = new SearchNode(temp, act, node, node.g_n + 1, 0);
-                            frontier.push(new_node);
+                            frontier.add(new_node);
                             if (this.helpful_actions_pruning) {
                                 new_node.relaxed_plan_from_heuristic = heuristic.helpful_actions;
                             }
@@ -445,19 +449,18 @@ public class SearchStrategies {
 
         long start_global = System.currentTimeMillis();
         PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
-        State current = (State) problem.getInit();
-        if (!current.satisfy(problem.globalConstraints)) {
+        if (!problem.getInit().satisfy(problem.globalConstraints)) {
             System.out.println("Initial State is not valid");
             return null;
         }
         constraints_violations = 0;
-        if (getHeuristic().setup(current) == Float.MAX_VALUE) {
+        if (getHeuristic().setup(problem.getInit()) == Float.MAX_VALUE) {
             System.out.println("h(n = s_0)=inf");
             return null;
         }
         System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().reachable.size());
 
-        Float current_value = getHeuristic().compute_estimate(current);
+        Float current_value = getHeuristic().compute_estimate(problem.getInit());
         setup_reachable_actions_processes(problem);//this maps actions in the heuristic with the action in the execution model
 
         getHeuristic().why_not_active = true;
@@ -488,7 +491,8 @@ public class SearchStrategies {
         current_g = 0f;
         g.put(problem.getInit(), 0f);//The initial state is at 0 distance, of course.
         float bestf = 0;
-
+        nodes_expanded = 0;
+        this.setStates_evaluated(0);
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
 
@@ -523,7 +527,8 @@ public class SearchStrategies {
 
                 nodes_expanded++;
                 priority_queue_size = frontier.size();
-                if (current_node.s.satisfy(problem.getGoals())) {
+                if (problem.goalSatisfied(current_node.s)) {
+                    //if (current_node.s.satisfy(problem.getGoals())) {
                     overall_search_time = System.currentTimeMillis() - start_global;
                     current_g = current_node.g_n;
                     return extract_plan(current_node);
@@ -544,7 +549,8 @@ public class SearchStrategies {
                         continue;
                     }
                     if (act.isApplicable(current_node.s)) {
-                        State successor_state = act.apply(current_node.s.clone());
+                        State successor_state = current_node.s.clone();
+                        successor_state.apply(act);
 //                        act.set_unit_cost(successor_state);
 
                         //skip this if violates global constraints

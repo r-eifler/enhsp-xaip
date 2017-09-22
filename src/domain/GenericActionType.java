@@ -1,30 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package domain;
 
@@ -204,6 +194,13 @@ public abstract class GenericActionType extends Object {
                 }
             }
         }
+        if (this.cond_effects != null) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+                for (NumFluent nf : c_eff.affectedNumericFluents()) {
+                    this.numericFluentAffected.put(nf, Boolean.TRUE);
+                }
+            }
+        }
     }
 
     public void generateAffectedNumFluents() {
@@ -230,6 +227,31 @@ public abstract class GenericActionType extends Object {
         }
 
     }
+    
+//    public void generateAffectedNumFluents() {
+//        if (numericFluentAffected != null) {
+//            return;
+//        }
+//        numericFluentAffected = new HashMap();
+//        AndCond num = (AndCond) this.getNumericEffects();
+//        if (num != null) {
+//            for (Object o : num.sons) {
+//                if (o instanceof NumEffect) {
+//                    NumEffect e = (NumEffect) o;
+//                    this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
+//                }
+//            }
+//        }
+//
+//        if (this.cond_effects != null) {
+//            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+//                for (NumFluent nf : c_eff.affectedNumericFluents()) {
+//                    this.numericFluentAffected.put(nf, Boolean.TRUE);
+//                }
+//            }
+//        }
+//
+//    }
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {
         Set<NumFluent> ret = new HashSet();

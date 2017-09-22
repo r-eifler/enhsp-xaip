@@ -1,22 +1,22 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- *//*
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
+ */
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -38,6 +38,7 @@ import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -81,6 +82,7 @@ public class h1 extends Uniform_cost_search_H1 {
     public boolean ibr_deactivated = false;
     private LinkedList<Pair<GroundAction, Float>> relaxed_plan;
     private ArrayList<Float> established_local_cost;
+    private HashMap<Pair<Integer,Integer>,Float> action_comp_number_execution;
     private boolean risky = true;
 
     public h1(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
@@ -168,6 +170,7 @@ public class h1 extends Uniform_cost_search_H1 {
         cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
         closed = new ArrayList<>(nCopies(total_number_of_actions + 1, false));
+        action_comp_number_execution = new HashMap();
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
 //            gr.set_unit_cost(s_0);
             if (gr.isApplicable(s_0)) {
@@ -276,14 +279,19 @@ public class h1 extends Uniform_cost_search_H1 {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
 
-                    Float rep_needed;
+                    Float rep_needed=this.action_comp_number_execution.get(new Pair(gr.counter,comp.getCounter()));
+                    if (rep_needed == null){
+                        if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
 
-                    if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
-
-                        rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
-                    } else {
-                        rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
+                            rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
+                        } else {
+                            rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
+                        }
+                        this.action_comp_number_execution.put(new Pair(gr.counter,comp.getCounter()),rep_needed);
+                    }else{
+//                        System.out.println("Cache funziona");
                     }
+                    
                     if (rep_needed != Float.MAX_VALUE) {
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation || !this.additive_h) {
                             update_achiever(comp, gr);
@@ -346,7 +354,6 @@ public class h1 extends Uniform_cost_search_H1 {
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                             established_achiever.set(comp.getCounter(), gr);
                             established_local_cost.set(comp.getCounter(), new_distance);//this does not really work!!
-
                         }
                         update_reachable_actions(gr, comp, a_plus, never_active);
                     }
