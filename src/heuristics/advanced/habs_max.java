@@ -71,13 +71,13 @@ public class habs_max extends Heuristic {
         
         // admissible setting
         habs.additive_h = false;
-        // @see h1.java, line 304
-        habs.infinite_constant_effect = true;
+//        // @see h1.java, line 304
+//        habs.infinite_constant_effect = true;
         
         ret = habs.compute_estimate(s);
         
-//        System.out.println("h(s_0): " + ret);
-//        System.exit(0);
+        System.out.println("h(s_0): " + ret);
+        System.exit(0);
         
         return ret;
     }
@@ -188,6 +188,7 @@ public class habs_max extends Heuristic {
                 effectOnCost, 
                 gr,
                 s_0);
+        subaction.infinite_constant_effect = true;
         supporters.add(subaction);
         
         // add minus infinity subdomain
@@ -201,6 +202,7 @@ public class habs_max extends Heuristic {
                 effectOnCost, 
                 gr,
                 s_0);
+        subaction.infinite_constant_effect = true;
         supporters.add(subaction);
         
     }
