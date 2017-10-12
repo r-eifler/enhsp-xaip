@@ -19,7 +19,7 @@
 package heuristics.utils;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
@@ -47,14 +47,14 @@ public final class ojalgo_interface extends LpInterface {
     public HashMap<Integer, Collection<GroundAction>> affectors_of_temp;
 
     public HashMap<Integer, ExpressionsBasedModel> cond_lp_formulation;
-    public HashMap<Conditions, Collection<GroundAction>> pos_affectors_of;
+    public HashMap<Condition, Collection<GroundAction>> pos_affectors_of;
     public HashMap<Integer, Variable> action_to_variable;
     public ArrayList<Boolean> first_time;
     public HashMap<Variable, Collection<Constraint>> var_to_expr;
 
     public ExpressionsBasedModel lp;
 
-    public ojalgo_interface(Conditions cond, Conditions global_constraint) {
+    public ojalgo_interface(Condition cond, Condition global_constraint) {
         super(cond, global_constraint);
         n_invocations = 0;
         integer_variables = false;
@@ -119,7 +119,7 @@ public final class ojalgo_interface extends LpInterface {
         if (this.additive_h) {
             precondition_contribution = 0f;
         }
-        for (Conditions c_0 : (Collection<Conditions>) c.sons) {
+        for (Condition c_0 : (Collection<Condition>) c.sons) {
             Float local_min = Float.MAX_VALUE;
             if (s_0.satisfy(c_0)) {
                 if (!this.additive_h) {
@@ -157,7 +157,7 @@ public final class ojalgo_interface extends LpInterface {
     protected void init_condition(Collection<GroundAction> pool, State s_0) {
 
         action_to_variable = new HashMap();
-        Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
+        Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
         conditions_to_evaluate.addAll(c.sons);
         if (gc != null) {
 //            System.out.println("considering Global Constraints:"+gC.sons);
@@ -165,7 +165,7 @@ public final class ojalgo_interface extends LpInterface {
         }
         this.affectors_of.put(c.getCounter(), new LinkedHashSet());
 
-        for (Conditions cond : conditions_to_evaluate) {
+        for (Condition cond : conditions_to_evaluate) {
             Expression condition = lp.addExpression(cond.toString());
             pos_affectors_of.put(cond, new LinkedHashSet());
             if (cond instanceof Comparison) {
@@ -276,8 +276,8 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    protected void update_condition(State s_0, Conditions temp) {
-        for (Conditions c_0 : (Collection<Conditions>) temp.sons) {
+    protected void update_condition(State s_0, Condition temp) {
+        for (Condition c_0 : (Collection<Condition>) temp.sons) {
             Expression lp_cond = lp.getExpression(c_0.toString());
             if (c_0 instanceof Comparison) {
                 Comparison comp = (Comparison) c_0;

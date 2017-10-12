@@ -20,7 +20,7 @@ package heuristics.old;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
@@ -56,12 +56,12 @@ public class asymptotic_ibr extends Heuristic {
     private boolean reversing = false;
     protected ArrayList<Integer> dist;
 
-    public asymptotic_ibr(Conditions G, Set<GroundAction> actions) {
+    public asymptotic_ibr(Condition G, Set<GroundAction> actions) {
         super(G, actions);
         generate_supporters(A);
     }
 
-    public asymptotic_ibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
+    public asymptotic_ibr(Condition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         generate_supporters(A);
     }
@@ -294,7 +294,7 @@ public class asymptotic_ibr extends Heuristic {
                 if (current.satisfy(G)) {
                     action_layers.add(actions_in_the_layer);
                     //state_layers.add(current.clone());
-                    Conditions temp = G;
+                    Condition temp = G;
                     while (!state_layers.isEmpty()) {
                         RelState previous = state_layers.pollLast();
                         //System.out.println("Backward: Level:" + layers_counter--);

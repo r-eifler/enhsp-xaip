@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.PostCondition;
@@ -276,7 +276,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition numeric) {
 
         //NumEffect ret = (NumEffect)this.clone();
         NumEffect ret = (NumEffect) this.clone();
@@ -463,12 +463,12 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
+    public Condition achieve(Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions delete(Predicate p) {
+    public Condition delete(Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

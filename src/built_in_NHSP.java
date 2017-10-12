@@ -124,8 +124,8 @@ public class built_in_NHSP {
         parseInput(args);
         PddlDomain domain = new PddlDomain(domainFile);
         System.out.println("Domain Parsed");
-        final EPddlProblem problem = new EPddlProblem(problemFile, domain.getConstants());
-        final EPddlProblem validation_problem = new EPddlProblem(problemFile, domain.getConstants());
+        final EPddlProblem problem = new EPddlProblem(problemFile, domain.getConstants(),domain.getTypes());
+        final EPddlProblem validation_problem = new EPddlProblem(problemFile, domain.getConstants(),domain.getTypes());
 
         System.out.println("Problem parsed");
 

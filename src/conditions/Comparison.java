@@ -174,7 +174,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Comparison ret = new Comparison(comparator);
 
         ret.left = left.ground(substitution, po);
@@ -184,8 +184,8 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -401,7 +401,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         Comparison ret = new Comparison(this.comparator);
         ret.grounded = this.grounded;
         ret.left = this.left.clone();
@@ -637,7 +637,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
 
         Comparison ret = new Comparison(comparator);
 
@@ -738,7 +738,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions c) {
+    public boolean isUngroundVersionOf(Condition c) {
         if (c instanceof Comparison) {
             Comparison comp = (Comparison) c;
             if (comp.getComparator().equals(this.getComparator())) {
@@ -844,7 +844,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         Comparison comp = this;
         Expression lValue = comp.getLeft();
         Expression rValue = comp.getRight();
@@ -911,7 +911,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         AndCond ret = new AndCond();
         Comparison comp = (Comparison) this;
         if (comp.getComparator().equals("=")) {
@@ -946,7 +946,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -1087,7 +1087,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         Set ret = new LinkedHashSet();
         ret.add(this);
         return ret;
@@ -1099,7 +1099,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -1117,11 +1117,11 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
     }
 
-    Conditions invertOperator() {
+    Condition invertOperator() {
         if (this.getComparator().equals("=")) {
             OrCond a = new OrCond();
             Comparison c1 = (Comparison) this.clone();

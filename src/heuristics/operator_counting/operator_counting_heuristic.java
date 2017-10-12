@@ -18,7 +18,7 @@
  */
 package heuristics.operator_counting;
 
-import conditions.Conditions;
+import conditions.Condition;
 import heuristics.Heuristic;
 import java.util.Set;
 import problem.GroundAction;
@@ -31,7 +31,7 @@ import problem.State;
 public class operator_counting_heuristic extends Heuristic {
 
     //this is meant to build the very basic data structures
-    public operator_counting_heuristic(Conditions goal, Set<GroundAction> actions) {
+    public operator_counting_heuristic(Condition goal, Set<GroundAction> actions) {
         super(goal, actions);
     }
 

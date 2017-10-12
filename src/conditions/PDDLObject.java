@@ -118,8 +118,8 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -145,7 +145,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
 //        PDDLObject ret = new PDDLObject(name,this.getType());
 //        ret.grounded = this.grounded;
 //        return ret;
@@ -158,12 +158,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -178,7 +178,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         return this;
     }
 
@@ -188,7 +188,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -198,7 +198,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -226,7 +226,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -236,7 +236,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -246,7 +246,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
     }
 

@@ -21,7 +21,7 @@ package problem;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NotCond;
 import conditions.OrCond;
 import conditions.PDDLObject;
@@ -65,7 +65,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     private Float prevDistanceFromProblem;
     public Comparison achievedComparison = null;
     public GroundAction generator;
-    public HashSet<Conditions> achievedComparisons;
+    public HashSet<Condition> achievedComparisons;
     private boolean reacheable = false;
     private HashMap<NumFluent, Float> coefficientAffected;
     private Float action_cost;
@@ -449,7 +449,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return ab;
     }
 
-    public Conditions regress(GroundAction b, GroundAction a) {
+    public Condition regress(GroundAction b, GroundAction a) {
 
         /*Propositional Part first*/
         AndCond result = (AndCond) b.getPreconditions().clone();
@@ -489,7 +489,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return c;
     }
 
-    public Conditions regress(Conditions cond) {
+    public Condition regress(Condition cond) {
 
         if (cond instanceof Comparison) {
             Comparison c = (Comparison) cond;
@@ -533,9 +533,9 @@ public class GroundAction extends GenericActionType implements Comparable {
         return result;
     }
 
-    public Conditions regress_formula(Conditions input) {
+    public Condition regress_formula(Condition input) {
         AndCond ret = new AndCond();
-        Conditions con = input.regress(this);
+        Condition con = input.regress(this);
         if (con instanceof AndCond) {
             ret.sons.addAll(((AndCond) con).sons);
         } else {
@@ -544,12 +544,12 @@ public class GroundAction extends GenericActionType implements Comparable {
         return ret;
     }
 
-    public Conditions regress_formula_old(Conditions input) {
+    public Condition regress_formula_old(Condition input) {
         AndCond ret = new AndCond();
         if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty()) {
             ret.addConditions(this.getPreconditions());
         }
-        Conditions con = input.regress(this);
+        Condition con = input.regress(this);
         if (con instanceof AndCond) {
             ret.sons.addAll(((AndCond) con).sons);
         } else {
@@ -593,7 +593,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Conditions numEff = new AndCond();
+        Condition numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
@@ -678,7 +678,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         GroundAction a = this;
 
-        Conditions con = a.getPreconditions();
+        Condition con = a.getPreconditions();
 
         if (con != null) {
 
@@ -690,7 +690,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             }
         }
 
-        Conditions eff = a.getNumericEffects();
+        Condition eff = a.getNumericEffects();
 
         //System.out.println(abstractInvariantFluents);
         eff = eff.weakEval(problem.getInit(), invariantFluents);
@@ -900,7 +900,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.prevDistanceFromProblem = prevDistanceFromProblem;
     }
 
-    public boolean threatenConditions(Conditions goal, SimplePlan sp, State current) {
+    public boolean threatenConditions(Condition goal, SimplePlan sp, State current) {
         boolean threatened = false;
         for (Object o : goal.sons) {
             if (o instanceof Predicate) {
@@ -924,7 +924,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-    public boolean threatGoalConditions(Conditions goal, SimplePlan sp, int j, State current) throws CloneNotSupportedException {
+    public boolean threatGoalConditions(Condition goal, SimplePlan sp, int j, State current) throws CloneNotSupportedException {
         boolean threatened = false;
 
         Set threatenedAtoms = new HashSet();
@@ -1063,7 +1063,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return getPrevDistanceFromProblem();
     }
 
-    public Conditions regressAndStoreFatherPointer(Conditions cond) {
+    public Condition regressAndStoreFatherPointer(Condition cond) {
         /*Propositional Part first*/
 
         AndCond result = new AndCond();
@@ -1340,7 +1340,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public Set influencedBy(NumFluent nf) {
         HashSet<NumFluent> ret = new HashSet();
-        Conditions c = this.getNumericEffects();
+        Condition c = this.getNumericEffects();
         if (c != null) {
             if (c instanceof AndCond) {
                 for (Object o : c.sons) {
@@ -1499,7 +1499,7 @@ public class GroundAction extends GenericActionType implements Comparable {
     }
 
     //This function regresses the cond passed as input according to the model of the action. The value of the parameter will be modified. So if you want to generate a new condition please clone before using the function
-    public Conditions regressNew(Conditions cond) {
+    public Condition regressNew(Condition cond) {
 
         AndCond result = null;
 
@@ -1676,7 +1676,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         GroundAction a = this;
         //a.normalizeAndCopy();
         boolean free_var_semantics = !domain.get_derived_variables().isEmpty();
-        Conditions con = a.getPreconditions();
+        Condition con = a.getPreconditions();
         if (con != null) {
             con.setFreeVarSemantic(free_var_semantics);
             con = con.weakEval(problem.getInit(), invariantFluents);
@@ -1691,7 +1691,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             return false;
         }
 
-        Conditions eff = a.getNumericEffects();
+        Condition eff = a.getNumericEffects();
         eff.setFreeVarSemantic(free_var_semantics);
         eff = eff.weakEval(problem.getInit(), invariantFluents);
 
@@ -1713,8 +1713,8 @@ public class GroundAction extends GenericActionType implements Comparable {
         GroundAction a = this;
         //a.normalizeAndCopy();
 
-        Conditions con = a.getPreconditions();
-        Conditions eff = a.getNumericEffects();
+        Condition con = a.getPreconditions();
+        Condition eff = a.getNumericEffects();
 //                    System.out.println(con);
 //                    System.out.println(eff);
         con.setFreeVarSemantic(true);
@@ -1748,7 +1748,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         //System.out.println(a.toPDDL());
     }
 
-    public void addPreconditions(Conditions c) {
+    public void addPreconditions(Condition c) {
         if (this.getPreconditions() != null) {
             if (this.getPreconditions().sons != null) {
                 this.getPreconditions().sons.add(c);
@@ -1798,7 +1798,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return false;
     }
 
-    public void addAchievedComparison(Conditions c_1) {
+    public void addAchievedComparison(Condition c_1) {
         if (this.achievedComparisons == null) {
             this.achievedComparisons = new HashSet();
         }
@@ -1854,7 +1854,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return some_change;
     }
 
-    public boolean preconditioned_on(Conditions c) {
+    public boolean preconditioned_on(Condition c) {
         if (this.getPreconditions() == null) {
             return false;
         }
@@ -1862,7 +1862,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         {
             return false;
         }
-        for (Conditions cond : (Collection<Conditions>) this.getPreconditions().sons) {
+        for (Condition cond : (Collection<Condition>) this.getPreconditions().sons) {
             if (cond.getCounter() == c.getCounter()) {
                 return true;
             }
@@ -2337,7 +2337,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             return false;
         }
 
-        for (Conditions c : (Collection<Conditions>) this.getPreconditions().sons) {
+        for (Condition c : (Collection<Condition>) this.getPreconditions().sons) {
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
                 if (comp.getLeft() instanceof ExtendedNormExpression) {
@@ -2476,7 +2476,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             //for now single condition effect. Extend to andcond
             if (c_eff.effect instanceof AndCond) {
                 AndCond and = (AndCond) c_eff.effect;
-                for (Conditions c : (Collection<Conditions>) and.sons) {
+                for (Condition c : (Collection<Condition>) and.sons) {
                     if (c instanceof NotCond) {
                         NotCond n_eff = (NotCond) c;
                         Predicate p = (Predicate) n_eff.getSon();
@@ -2535,13 +2535,13 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         if (this.addList instanceof AndCond) {
             AndCond and = (AndCond) this.addList;
-            Conditions c = and.achieve(aThis);
+            Condition c = and.achieve(aThis);
             if (c != null) {
                 or.addConditions(c);
             }
         }
         for (ConditionalEffect c : (Collection<ConditionalEffect>) this.cond_effects.sons) {
-            Conditions c1 = c.achieve(aThis);
+            Condition c1 = c.achieve(aThis);
             if (c1 != null) {
                 or.addConditions(c1);
             }
@@ -2554,13 +2554,13 @@ public class GroundAction extends GenericActionType implements Comparable {
         or.addConditions(new Predicate(Predicate.true_false.FALSE));
         if (this.delList instanceof AndCond) {
             AndCond and = (AndCond) this.delList;
-            Conditions c = and.delete(aThis);
+            Condition c = and.delete(aThis);
             if (c != null) {
                 or.addConditions(c);
             }
         }
         for (ConditionalEffect c : (Collection<ConditionalEffect>) this.cond_effects.sons) {
-            Conditions c1 = c.delete(aThis);
+            Condition c1 = c.delete(aThis);
             if (c1 != null) {
                 or.addConditions(c1);
             }
@@ -2568,7 +2568,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return or;
     }
 
-    public Float getStaticContribution(State s_0, Conditions c) {
+    public Float getStaticContribution(State s_0, Condition c) {
 
         if (c instanceof Predicate) {
             if (this.achieve((Predicate) c)) {
@@ -2695,7 +2695,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-    public boolean has_pseudo_numeric_effect_on(Conditions c) {
+    public boolean has_pseudo_numeric_effect_on(Condition c) {
         if (c instanceof Predicate) {
             return false;
         }

@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.NumEffect;
@@ -54,7 +54,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
     private boolean reacheability_setting;
     private boolean all_paths = false;
 
-    public general_numeric_planning_heuristic(Conditions G, Set<GroundAction> A) {
+    public general_numeric_planning_heuristic(Condition G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -64,7 +64,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
      * @param actions
      * @param processesSet
      */
-    public general_numeric_planning_heuristic(Conditions G, Set A, Set processesSet) {
+    public general_numeric_planning_heuristic(Condition G, Set A, Set processesSet) {
         super(G, A, processesSet);
     }
 
@@ -89,14 +89,14 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
     @Override
     public int compute_estimate(State s) {
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
-        FibonacciHeap<Conditions> q = new FibonacciHeap();
+        FibonacciHeap<Condition> q = new FibonacciHeap();
 
         relaxed_plan_actions = new LinkedHashSet();
         ArrayList<Boolean> closed = new ArrayList<Boolean>(Collections.nCopies(all_conditions.size() + 1, false));
         ArrayList<Integer> dist = new ArrayList<Integer>(Collections.nCopies(all_conditions.size() + 1, Integer.MAX_VALUE));
         ArrayList<Boolean> open_list = new ArrayList<Boolean>(Collections.nCopies(all_conditions.size() + 1, false));
         HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             if (s.satisfy(c)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
@@ -121,7 +121,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         boolean first_round = true;
         while (!q.isEmpty() || first_round) {
 
-            Conditions cn = null;
+            Condition cn = null;
             if (!q.isEmpty()) {
                 cn = q.removeMin().getData();
             }
@@ -285,7 +285,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Predicate> predicates = new LinkedHashSet();
-            for (Conditions c : this.all_conditions) {
+            for (Condition c : this.all_conditions) {
                 LinkedHashSet<GroundAction> achievable_via = new LinkedHashSet();
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
@@ -321,7 +321,7 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
         }
     }
 
-    private boolean delete_if_worse_present(PriorityQueue<ConditionsNode> q, Conditions con, float current_cost) {
+    private boolean delete_if_worse_present(PriorityQueue<ConditionsNode> q, Condition con, float current_cost) {
         Iterator<ConditionsNode> it = q.iterator();
         while (it.hasNext()) {
             ConditionsNode c = (ConditionsNode) it.next();
@@ -455,10 +455,10 @@ public class general_numeric_planning_heuristic extends Bellman_Ford_H1 {
 
     private static class ConditionsNode implements Comparable {
 
-        Conditions c;
+        Condition c;
         int cost;
 
-        public ConditionsNode(Conditions c1, int cost1) {
+        public ConditionsNode(Condition c1, int cost1) {
             c = c1;
             cost = cost1;
         }

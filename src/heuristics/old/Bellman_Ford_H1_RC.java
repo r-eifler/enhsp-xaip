@@ -18,7 +18,7 @@
  */
 package heuristics.old;
 
-import conditions.Conditions;
+import conditions.Condition;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +31,7 @@ import problem.GroundAction;
  */
 public class Bellman_Ford_H1_RC extends Bellman_Ford_H1 {
 
-    public Bellman_Ford_H1_RC(Conditions G, Set<GroundAction> A) {
+    public Bellman_Ford_H1_RC(Condition G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();

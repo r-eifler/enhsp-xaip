@@ -25,7 +25,8 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
@@ -37,9 +38,9 @@ import problem.State;
  *
  * @author enrico
  */
-public class ConditionalEffect extends Conditions implements PostCondition {
+public class ConditionalEffect extends Condition implements PostCondition {
 
-    public Conditions activation_condition;
+    public Condition activation_condition;
     public PostCondition effect;
 
     public ConditionalEffect() {
@@ -47,7 +48,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
 
     }
 
-    public ConditionalEffect(Conditions lhs, PostCondition rhs) {
+    public ConditionalEffect(Condition lhs, PostCondition rhs) {
         super();
 
         this.activation_condition = lhs;
@@ -55,7 +56,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
 
     }
 
-    public Conditions clone() {
+    public Condition clone() {
         return new ConditionalEffect(activation_condition.clone(), (PostCondition) effect.clone());
     }
 
@@ -65,8 +66,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
 
     public ConditionalEffect weakEval(State s, HashMap invF) {
         this.activation_condition.weakEval(s, invF);
-        if (this.effect instanceof Conditions) {
-            Conditions con = (Conditions) this.effect;
+        if (this.effect instanceof Condition) {
+            Condition con = (Condition) this.effect;
             con.weakEval(s, invF);
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
@@ -82,8 +83,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
         ConditionalEffect ret = new ConditionalEffect();
         ret.activation_condition = this.activation_condition.ground(substitution, po);
 
-        if (this.effect instanceof Conditions) {
-            Conditions con = (Conditions) this.effect;
+        if (this.effect instanceof Condition) {
+            Condition con = (Condition) this.effect;
             ret.effect = (PostCondition) con.ground(substitution, po);
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
@@ -97,7 +98,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
+    public Condition ground(Map substitution, int c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -129,8 +130,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     @Override
     public void normalize() {
         this.activation_condition.normalize();
-        if (this.effect instanceof Conditions) {
-            Conditions con = (Conditions) this.effect;
+        if (this.effect instanceof Condition) {
+            Condition con = (Condition) this.effect;
             con.normalize();
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
@@ -142,12 +143,12 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -162,7 +163,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -172,7 +173,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -187,8 +188,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
-        Conditions c = this.effect.achieve(p);
+    public Condition achieve(Predicate p) {
+        Condition c = this.effect.achieve(p);
         if (c == null) {
             return null;
         }
@@ -206,8 +207,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions delete(Predicate p) {
-        Conditions c = this.effect.delete(p);
+    public Condition delete(Predicate p) {
+        Condition c = this.effect.delete(p);
         if (c == null) {
             return null;
         }
@@ -301,8 +302,23 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Set<Condition> getTerminalConditions() {
+        LinkedHashSet ret = new LinkedHashSet();
+        
+        if (((Condition)effect).sons == null) {
+            return new LinkedHashSet();
+        }
+        for (Condition c : (Collection<Condition>) ((Condition)effect).sons) {
+            ret.addAll(c.getTerminalConditions());
+        }
+        Iterator<Condition> it = ret.iterator();
+        while(it.hasNext()){
+            Condition c = it.next();
+            if (c instanceof NotCond)
+                it.remove();
+        }
+                
+        return ret;
     }
 
     @Override
@@ -311,7 +327,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -321,7 +337,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         this.activation_condition = this.activation_condition.push_not_to_terminals();
         return this;
         //To change body of generated methods, choose Tools | Templates.
@@ -333,7 +349,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions introduce_red_constraints() {
+    public Condition introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

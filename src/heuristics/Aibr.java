@@ -20,7 +20,7 @@ package heuristics;
 
 import conditions.Comparison;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import domain.PddlDomain;
 import expressions.BinaryOp;
@@ -56,7 +56,7 @@ public class Aibr extends Heuristic {
     public boolean layers_counter;
     private boolean cost_oriented = true;
 
-    public Aibr(Conditions G, Set<GroundAction> actions) {
+    public Aibr(Condition G, Set<GroundAction> actions) {
         super(G, actions);
         this.supp_to_action = new HashMap();
 
@@ -65,7 +65,7 @@ public class Aibr extends Heuristic {
         generate_supporters(A);
     }
 
-    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
+    public Aibr(Condition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         this.supp_to_action = new HashMap();
 
@@ -77,7 +77,7 @@ public class Aibr extends Heuristic {
         //this.build_integer_representation();
     }
 
-    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
+    public Aibr(Condition G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
         super(G, actions, processes, events);
         this.supp_to_action = new HashMap();
 
@@ -234,7 +234,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private GroundAction generate_constant_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_constant_supporter(NumEffect effect, String name, Condition precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name + "constantassign");
         NumEffect assign = new NumEffect("assign");
         assign.setFluentAffected(effect.getFluentAffected());
@@ -245,7 +245,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name, Condition precondition, GroundAction gr) {
         String disequality = "";
         Float asymptote = Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -262,7 +262,7 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "plusinf", precondition, gr);
     }
 
-    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, Condition precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(inequality);
         if (effect.getOperator().equals("assign")) {
@@ -281,7 +281,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name, Condition precondition, GroundAction gr) {
         String disequality = "";
         Float asymptote = -Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -299,7 +299,7 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition, gr);
     }
 
-    private GroundAction generate_propositional_action(String name, Conditions cond, GroundAction gr) {
+    private GroundAction generate_propositional_action(String name, Condition cond, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
@@ -377,11 +377,11 @@ public class Aibr extends Heuristic {
 
     }
 
-    private boolean check_goal_condition(Conditions G, RelState rs) {
+    private boolean check_goal_condition(Condition G, RelState rs) {
         return G.isSatisfied(rs);
     }
 
-    private boolean achiever(GroundAction gr, RelState rs2, Conditions g) {
+    private boolean achiever(GroundAction gr, RelState rs2, Condition g) {
         RelState temp = rs2.clone();
         if (gr.apply(temp).satisfy(g)) {
             return true;
@@ -390,7 +390,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Conditions cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Condition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {
@@ -398,7 +398,7 @@ public class Aibr extends Heuristic {
                 ConditionalEffect cond = (ConditionalEffect) o;
                 GroundAction a = new GroundAction(name + counter);
                 a.setPreconditions(a.getPreconditions().and(cond.activation_condition));
-                PddlDomain.create_effects_by_cases(cond.effect, a);
+                a.create_effects_by_cases(cond.effect);
                 ret.add(a);
                 counter++;
             }

@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import expressions.ExtendedNormExpression;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import problem.GroundProcess;
  */
 public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1 {
 
-    public Uniform_cost_search_H1_RC(Conditions G, Set<GroundAction> A) {
+    public Uniform_cost_search_H1_RC(Condition G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
@@ -45,7 +45,7 @@ public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1 {
         }
     }
 
-    public Uniform_cost_search_H1_RC(Conditions goals, Set actions, Set<GroundProcess> processesSet) {
+    public Uniform_cost_search_H1_RC(Condition goals, Set actions, Set<GroundProcess> processesSet) {
         super(goals, actions, processesSet);
         try {
             this.add_redundant_constraints();
@@ -59,22 +59,22 @@ public class Uniform_cost_search_H1_RC extends Uniform_cost_search_H1 {
 
         for (GroundAction a : A) {
             if (a.getPreconditions() != null) {
-                compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
+                compute_redundant_constraint((Set<Condition>) a.getPreconditions().sons);
             }
             //System.out.println(a.toPDDL());
         }
 
-        compute_redundant_constraint((Set<Conditions>) G.sons);
+        compute_redundant_constraint((Set<Condition>) G.sons);
     }
 
-    protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
+    protected void compute_redundant_constraint(Set<Condition> set) throws Exception {
         LinkedHashSet temp = new LinkedHashSet();
-        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        ArrayList<Condition> set_as_array = new ArrayList(set);
         int counter = 0;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
-                Conditions c_1 = set_as_array.get(i);
-                Conditions c_2 = set_as_array.get(j);
+                Condition c_1 = set_as_array.get(i);
+                Condition c_2 = set_as_array.get(j);
                 if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
                     counter++;
                     Comparison a1 = (Comparison) c_1;

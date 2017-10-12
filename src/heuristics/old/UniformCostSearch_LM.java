@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedNormExpression;
 import heuristics.Heuristic;
@@ -28,13 +28,10 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
-import org.jgrapht.util.FibonacciHeap;
-import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.State;
 
 import java.util.*;
-import java.util.concurrent.locks.Condition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,22 +43,22 @@ public class UniformCostSearch_LM extends Heuristic {
     public HashMap<Integer, Set<repetition_landmark>> possible_achievers;
     protected LinkedHashSet<GroundAction> reachable_at_this_stage;
     protected HashMap<Integer, IloNumVar> action_to_variable;
-    protected Set<Conditions> goalLandmark;
+    protected Set<Condition> goalLandmark;
     public boolean compute_lp;
-    protected Set<Conditions> conditionsToConsider;
-    protected HashMap<Integer, Set<Conditions>> conditionLandmark;
-    protected HashMap<Integer, Set<Conditions>> actionLandmark;
+    protected Set<Condition> conditionsToConsider;
+    protected HashMap<Integer, Set<Condition>> conditionLandmark;
+    protected HashMap<Integer, Set<Condition>> actionLandmark;
     protected Set<GroundAction> actionNotApplicableYet;
     protected HashMap<Integer, Boolean> conditionLandmarkFound;
 
     //Anti-Cycle System
-    protected Set<Conditions> visitedCondition;
+    protected Set<Condition> visitedCondition;
 
     //New Queue Approach
     protected Queue<GroundAction> reachableActions;
     protected HashMap<Integer, Boolean> conditionReachable;
 
-    public UniformCostSearch_LM(Conditions G, Set<GroundAction> A) {
+    public UniformCostSearch_LM(Condition G, Set<GroundAction> A) {
         super(G, A);
         this.build_integer_representation();
     }
@@ -88,7 +85,7 @@ public class UniformCostSearch_LM extends Heuristic {
         while (!reachableActions.isEmpty()) {
             needActivation = false;
             GroundAction gr = reachableActions.remove();
-            for (Conditions c : conditionsToConsider) {
+            for (Condition c : conditionsToConsider) {
                 if (gr.getPreconditions().sons.contains(c)) {
                     continue; //Assume no action can achieve its precondition
                 }
@@ -125,7 +122,7 @@ public class UniformCostSearch_LM extends Heuristic {
                     GroundAction g = itr.next();
                     boolean reachable = true;
                     if (g.getPreconditions() != null && !g.getPreconditions().sons.isEmpty()) {
-                        for (Conditions c : (Collection<Conditions>) g.getPreconditions().sons) {
+                        for (Condition c : (Collection<Condition>) g.getPreconditions().sons) {
                             if (!conditionReachable.get(c.getCounter())) {
                                 //still not reachable
                                 reachable = false;
@@ -152,7 +149,7 @@ public class UniformCostSearch_LM extends Heuristic {
                 lp.setOut(null);
 
                 IloLinearNumExpr objective = lp.linearNumExpr();
-                for (Conditions c : goalLandmark) {
+                for (Condition c : goalLandmark) {
                     IloLinearNumExpr expr = lp.linearNumExpr();
                     for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                         IloNumVar action;
@@ -196,13 +193,13 @@ public class UniformCostSearch_LM extends Heuristic {
         return estimate;
     }
 
-    protected void findGoalLandmark(Conditions goal, State s) {
-        for (Conditions c : (Collection<Conditions>) goal.sons) {
+    protected void findGoalLandmark(Condition goal, State s) {
+        for (Condition c : (Collection<Condition>) goal.sons) {
             goalLandmark.addAll(findConditionLandmark(c));
         }
     }
 
-    protected Set<Conditions> findConditionLandmark(Conditions c) {
+    protected Set<Condition> findConditionLandmark(Condition c) {
         if (conditionLandmarkFound.get(c.getCounter())) {
             //Already find the landmark for this condition, no need to do it again
             return conditionLandmark.get(c.getCounter());
@@ -223,7 +220,7 @@ public class UniformCostSearch_LM extends Heuristic {
 
         for (repetition_landmark rl : possibleAchievers) {
             GroundAction achiever = rl.gr;
-            Set<Conditions> landmarks = findActionLandmark(achiever);
+            Set<Condition> landmarks = findActionLandmark(achiever);
             conditionLandmark.get(c.getCounter()).retainAll(landmarks); //Keylar's Method
         }
         conditionLandmark.get(c.getCounter()).add(c);// Add itself
@@ -231,21 +228,21 @@ public class UniformCostSearch_LM extends Heuristic {
         return conditionLandmark.get(c.getCounter());
     }
 
-    protected Set<Conditions> findActionLandmark(GroundAction a) {
+    protected Set<Condition> findActionLandmark(GroundAction a) {
         if (actionLandmark.get(a.counter).size() != 0) {
             //Already find the landmark for this action, no need to do it again
             return actionLandmark.get(a.counter);
         }
 
-        Set<Conditions> preconditions = a.getPreconditions().sons;
-        Set<Conditions> union = new HashSet<>();
+        Set<Condition> preconditions = a.getPreconditions().sons;
+        Set<Condition> union = new HashSet<>();
 
         if (preconditions.size() == 0) {
             return union;
         }
 
-        for (Conditions precondition : preconditions) {
-            Set<Conditions> landmarks = findConditionLandmark(precondition);
+        for (Condition precondition : preconditions) {
+            Set<Condition> landmarks = findConditionLandmark(precondition);
             if (landmarks.size() == 0) {
                 continue;
             } // potential redundant
@@ -287,7 +284,7 @@ public class UniformCostSearch_LM extends Heuristic {
         });
 
         //this is the Keyler approach to intersection, set landmark set for all condition with all non-initial conditions
-        for (Conditions c : conditionsToConsider) {
+        for (Condition c : conditionsToConsider) {
             conditionLandmarkFound.put(c.getCounter(), false);
             conditionLandmark.get(c.getCounter()).addAll(conditionsToConsider);
         }
@@ -338,16 +335,16 @@ public class UniformCostSearch_LM extends Heuristic {
     }
 
     protected void add_redundant_constrains(LinkedHashSet set) throws Exception {
-        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        ArrayList<Condition> set_as_array = new ArrayList(set);
 
         int counter = all_conditions.size();
-        ArrayList<Conditions> allConditionArray = new ArrayList<>(all_conditions);
+        ArrayList<Condition> allConditionArray = new ArrayList<>(all_conditions);
         Set<ExtendedNormExpression> exprSet = new HashSet<>();
 
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
-                Conditions c1 = set_as_array.get(i);
-                Conditions c2 = set_as_array.get(j);
+                Condition c1 = set_as_array.get(i);
+                Condition c2 = set_as_array.get(j);
 
                 if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
                     //if (i<j) {

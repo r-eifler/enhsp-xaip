@@ -77,9 +77,9 @@ public interface PostCondition {
 
     public abstract String pddlPrintWithExtraObject();
 
-    public abstract Conditions achieve(Predicate p);
+    public abstract Condition achieve(Predicate p);
 
-    public abstract Conditions delete(Predicate p);
+    public abstract Condition delete(Predicate p);
 
     public abstract Set<NumFluent> affectedNumericFluents();
 

@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedNormExpression;
 import expressions.NumFluent;
@@ -42,8 +42,8 @@ import problem.State;
  */
 public class landmarks_factory extends Heuristic {
 
-    public HashMap<Integer, Set<Conditions>> landmark_of;
-    public HashMap<Integer, Set<Conditions>> landmark_of_action;
+    public HashMap<Integer, Set<Condition>> landmark_of;
+    public HashMap<Integer, Set<Condition>> landmark_of_action;
 
     public HashMap<Integer, Integer> condition_level;
     public HashMap<Integer, Integer> action_level;
@@ -59,7 +59,7 @@ public class landmarks_factory extends Heuristic {
     public boolean compute_lp;
 
     //protected LinkedHashSet<Comparison> redundant_constrains;
-    public landmarks_factory(Conditions goal, Set<GroundAction> A) {
+    public landmarks_factory(Condition goal, Set<GroundAction> A) {
         super(goal, A);
 
         this.build_integer_representation();
@@ -74,7 +74,7 @@ public class landmarks_factory extends Heuristic {
         reachable_at_this_stage = new LinkedHashSet();
 
         all_conditions.stream().forEach((c) -> {
-            Set<Conditions> lms = new LinkedHashSet();
+            Set<Condition> lms = new LinkedHashSet();
             lms.add(c);//add itself
             landmark_of.put(c.getCounter(), lms);
         });
@@ -92,8 +92,8 @@ public class landmarks_factory extends Heuristic {
                 action_level.put(gr.counter, 0);
                 landmarks_factory.this.reachable_at_this_stage.add(gr);
                 if (gr.getPreconditions() != null && !gr.getPreconditions().sons.isEmpty()) {
-                    Set<Conditions> lms = new LinkedHashSet();
-                    for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+                    Set<Condition> lms = new LinkedHashSet();
+                    for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
                         lms.add(c);
                     }
                     landmark_of_action.put(gr.counter, lms);
@@ -131,7 +131,7 @@ public class landmarks_factory extends Heuristic {
         possible_achievers = new HashMap();
         do {
             update = false;
-            for (Conditions c : all_conditions) {
+            for (Condition c : all_conditions) {
 
                 int l = condition_level.get(c.getCounter());    //didn't use later
                 int old_dplus = dplus.get(c.getCounter());      //didn't use later
@@ -173,8 +173,8 @@ public class landmarks_factory extends Heuristic {
                     if (gr.getPreconditions() != null && !gr.getPreconditions().sons.isEmpty()) {
                         int max = Integer.MIN_VALUE;
                         boolean activated = true;
-                        Set<Conditions> candidate = new LinkedHashSet();
-                        for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+                        Set<Condition> candidate = new LinkedHashSet();
+                        for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
                             if (condition_level.get(c.getCounter()) != Integer.MAX_VALUE) {
                                 max = Math.max(max, condition_level.get(c.getCounter()));
                                 candidate.addAll(landmark_of.get(c.getCounter()));
@@ -196,8 +196,8 @@ public class landmarks_factory extends Heuristic {
 
         } while (update);
 
-        Set<Conditions> goal_landmark = new LinkedHashSet();
-        for (Conditions c : (Collection<Conditions>) this.G.sons) {
+        Set<Condition> goal_landmark = new LinkedHashSet();
+        for (Condition c : (Collection<Condition>) this.G.sons) {
             if (condition_level.get(c.getCounter()) == Integer.MAX_VALUE) {
                 return Float.MAX_VALUE;
             }
@@ -211,7 +211,7 @@ public class landmarks_factory extends Heuristic {
                 lp.setOut(null);
 
                 IloLinearNumExpr objective = lp.linearNumExpr();
-                for (Conditions c : goal_landmark) {
+                for (Condition c : goal_landmark) {
                     if (!c.isSatisfied(s_0)) {
                         IloLinearNumExpr expr = lp.linearNumExpr();
 
@@ -252,7 +252,7 @@ public class landmarks_factory extends Heuristic {
                 Logger.getLogger(landmarks_factory.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
+            for (Condition c : goal_landmark) {//these are the landmarks for the planning task
 //                System.out.println("Debug: Poss_achiever(" + c + ":)" + this.possible_achievers.get(c.getCounter()));
 
                 estimate += dplus.get(c.getCounter());
@@ -262,19 +262,19 @@ public class landmarks_factory extends Heuristic {
         return estimate;
     }
 
-    private boolean update_landmarks(Conditions c, Set<GroundAction> achievers) {
+    private boolean update_landmarks(Condition c, Set<GroundAction> achievers) {
         if (achievers.isEmpty()) {
             return false;
         }
-        Set<Conditions> previous = this.landmark_of.get(c.getCounter());
+        Set<Condition> previous = this.landmark_of.get(c.getCounter());
 
-        Set<Conditions> intersection = null;
+        Set<Condition> intersection = null;
         for (GroundAction gr : achievers) {
             if (intersection == null) {
                 intersection = new LinkedHashSet();
                 intersection.addAll(landmark_of_action.get(gr.counter));
             } else {
-                Set<Conditions> new_set = landmark_of_action.get(gr.counter);
+                Set<Condition> new_set = landmark_of_action.get(gr.counter);
                 intersection.retainAll(new_set);
             }
         }
@@ -288,7 +288,7 @@ public class landmarks_factory extends Heuristic {
         }
     }
 
-    private void update_poss_achievers(Conditions c, Set<repetition_landmark> ach_of_conditions) {
+    private void update_poss_achievers(Condition c, Set<repetition_landmark> ach_of_conditions) {
         if (this.possible_achievers.get(c.getCounter()) == null) {
             this.possible_achievers.put(c.getCounter(), new LinkedHashSet());
         }
@@ -330,7 +330,7 @@ public class landmarks_factory extends Heuristic {
     }
 
     protected void add_redundant_constrains(LinkedHashSet set) throws Exception {
-        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        ArrayList<Condition> set_as_array = new ArrayList(set);
         //System.out.println("set:");
         //System.out.println(set_as_array.toString());
 
@@ -338,8 +338,8 @@ public class landmarks_factory extends Heuristic {
 
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
-                Conditions c1 = set_as_array.get(i);
-                Conditions c2 = set_as_array.get(j);
+                Condition c1 = set_as_array.get(i);
+                Condition c2 = set_as_array.get(j);
                 //System.out.println("c1: "+c1);
                 //System.out.println("c2:" +c2);
                 /*

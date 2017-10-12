@@ -27,7 +27,7 @@ import heuristics.utils.achiever_set;
 import heuristics.old.Uniform_cost_search_H1;
 import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -85,12 +85,12 @@ public class h1 extends Uniform_cost_search_H1 {
     private HashMap<Pair<Integer,Integer>,Float> action_comp_number_execution;
     private boolean risky = true;
 
-    public h1(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public h1(Condition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
 
     }
 
-    public h1(Conditions G, Set A, Set processesSet, Set events) {
+    public h1(Condition G, Set A, Set processesSet, Set events) {
         super(G, A, processesSet, events);
     }
 
@@ -185,7 +185,7 @@ public class h1 extends Uniform_cost_search_H1 {
         }
 
 //        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
-        for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+        for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 cond_dist.set(c.getCounter(), 0f);
 //                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
@@ -252,7 +252,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void update_reachable_conditions_actions(State s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
         float c_a = Math.max(gr.getAction_cost(), min_cost_action);
-        for (Conditions comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
+        for (Condition comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
             Float current_distance = cond_dist.get(comp.getCounter());
             if (current_distance != 0f) {
 
@@ -273,7 +273,7 @@ public class h1 extends Uniform_cost_search_H1 {
                 }
             }
         }
-        for (Conditions comp : this.possible_achievers.get(gr.counter)) {
+        for (Condition comp : this.possible_achievers.get(gr.counter)) {
 //            Utils.dbg_print(debug - 10, "Condition under analysis:" + comp + "\n");
             if (!this.is_complex.get(comp.getCounter())) {
                 Float current_distance = cond_dist.get(comp.getCounter());
@@ -366,7 +366,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     }
 
-    private void update_reachable_actions(GroundAction gr, Conditions comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
+    private void update_reachable_actions(GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
         Set<GroundAction> set = condition_to_action.get(comp.getCounter());
@@ -413,7 +413,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void generate_link_precondition_action() {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             LinkedHashSet<GroundAction> set = new LinkedHashSet();
             for (GroundAction gr : A) {
                 if (gr.getPreconditions().getTerminalConditions().contains(c)) {
@@ -441,18 +441,18 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void compute_relaxed_plan() {//this should be updated!
 
-        LinkedList<Conditions> list = new LinkedList();
+        LinkedList<Condition> list = new LinkedList();
         relaxed_plan = new LinkedList();
 
         helpful_actions = new LinkedHashSet();
         achiever_set s = this.action_achievers.get(goal.counter);
         HashSet<Integer> visited = new HashSet();
-        for (Conditions c : s.target_cond) {
+        for (Condition c : s.target_cond) {
             list.add(c);
             visited.add(c.getCounter());
         }
         while (!list.isEmpty()) {
-            Conditions c = list.pollLast();
+            Condition c = list.pollLast();
             Float cost = this.cond_dist.get(c.getCounter());
             if (cost != 0) {
                 GroundAction gr = this.established_achiever.get(c.getCounter());
@@ -472,7 +472,7 @@ public class h1 extends Uniform_cost_search_H1 {
                 } else {
                     achiever_set ach_set = this.action_achievers.get(gr.counter);
                     if (ach_set != null) {
-                        for (Conditions c1 : ach_set.target_cond) {
+                        for (Condition c1 : ach_set.target_cond) {
                             if (!visited.contains(c1.getCounter())) {
                                 list.add(c1);
                                 visited.add(c1.getCounter());
@@ -487,7 +487,7 @@ public class h1 extends Uniform_cost_search_H1 {
 //      
     }
 
-    private void update_achiever(Conditions comp, GroundAction gr) {
+    private void update_achiever(Condition comp, GroundAction gr) {
 
         LinkedHashSet s = all_achievers.get(comp.getCounter());
         if (s == null) {
@@ -510,7 +510,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void getHelpfulActions(LinkedList<GroundAction> list, achiever_set s) {
         if (s != null) {
-            for (Conditions o : s.target_cond) {
+            for (Condition o : s.target_cond) {
                 if (cond_dist.get(o.getCounter()) == 0) {
                     continue;
                 }
@@ -556,7 +556,7 @@ public class h1 extends Uniform_cost_search_H1 {
     private void find_reasons_of_unsat(ArrayList<Float> cond_dist, GroundAction goal) {
 
         //works only for conjunction
-        for (Conditions c : goal.getPreconditions().getTerminalConditions()) {
+        for (Condition c : goal.getPreconditions().getTerminalConditions()) {
             if (cond_dist.get(c.getCounter()) == Float.MAX_VALUE) {
                 System.out.println("Unreachable in the relaxation: " + c);
             }
@@ -564,7 +564,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     }
 
-    private Float min_over_possible_achievers(Conditions comp) {
+    private Float min_over_possible_achievers(Condition comp) {
         Set<GroundAction> set = this.all_achievers.get(comp.getCounter());
         Float min = Float.MAX_VALUE;
         for (GroundAction gr : set) {

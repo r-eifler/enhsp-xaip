@@ -21,7 +21,7 @@ package heuristics.old;
 import heuristics.utils.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -51,12 +51,12 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
     private boolean greedy;
     protected boolean full_regression = false;
-    protected HashMap<Conditions, Boolean> redundant_constraints;
+    protected HashMap<Condition, Boolean> redundant_constraints;
     protected HashMap<Pair<GroundAction, Comparison>, Boolean> num_achiever;
 
-    protected HashMap<Pair<Conditions, GroundAction>, Boolean> achvs;
+    protected HashMap<Pair<Condition, GroundAction>, Boolean> achvs;
 
-    public Bellman_Ford_H1(Conditions G, Set<GroundAction> A) {
+    public Bellman_Ford_H1(Condition G, Set<GroundAction> A) {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
@@ -66,7 +66,7 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
         //build_integer_representation();
     }
 
-    public Bellman_Ford_H1(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+    public Bellman_Ford_H1(Condition G, Set<GroundAction> A, Set<GroundAction> P) {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
@@ -135,9 +135,9 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
     }
 
-    protected boolean update_conditions_values(Collection<HeuristicSearchNode> pool, State s_0, Collection<Conditions> all_conditions, ArrayList<Integer> h) {
+    protected boolean update_conditions_values(Collection<HeuristicSearchNode> pool, State s_0, Collection<Condition> all_conditions, ArrayList<Integer> h) {
         boolean update = false;
-        for (Conditions c : this.all_conditions) {
+        for (Condition c : this.all_conditions) {
             if (h.get(c.getCounter()) != 0) {
                 if (c instanceof Predicate) {
                     for (HeuristicSearchNode gr : pool) {
@@ -203,22 +203,22 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
         for (GroundAction a : A) {
             if (a.getPreconditions() != null) {
-                compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
+                compute_redundant_constraint((Set<Condition>) a.getPreconditions().sons);
             }
             //System.out.println(a.toPDDL());
         }
 
-        compute_redundant_constraint((Set<Conditions>) G.sons);
+        compute_redundant_constraint((Set<Condition>) G.sons);
     }
 
-    protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
+    protected void compute_redundant_constraint(Set<Condition> set) throws Exception {
         LinkedHashSet temp = new LinkedHashSet();
-        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        ArrayList<Condition> set_as_array = new ArrayList(set);
         int counter = 0;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
-                Conditions c_1 = set_as_array.get(i);
-                Conditions c_2 = set_as_array.get(j);
+                Condition c_1 = set_as_array.get(i);
+                Condition c_2 = set_as_array.get(j);
                 if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
                     counter++;
                     Comparison a1 = (Comparison) c_1;
@@ -253,7 +253,7 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
     private void generate_numeric_achievers(State s_0) {
         this.num_achiever = new HashMap();
-        for (Conditions c : this.all_conditions) {
+        for (Condition c : this.all_conditions) {
             for (GroundAction gr : this.reachable) {
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
@@ -272,7 +272,7 @@ public class Bellman_Ford_H1 extends IntegerHeuristic {
 
         achvs = new HashMap();
 
-        for (Conditions c : this.all_conditions) {
+        for (Condition c : this.all_conditions) {
             for (GroundAction gr : this.A) {
                 achvs.put(new Pair(c, gr), false);
                 if (c instanceof Comparison) {

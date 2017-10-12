@@ -45,14 +45,14 @@ public class NotCond extends Terminal implements PostCondition {
     /**
      * The condition that is negated in this condition.
      */
-    private final Conditions son;
+    private final Condition son;
 
-    public NotCond(Conditions son) {
+    public NotCond(Condition son) {
         super();
         this.son = son;
     }
 
-    public Conditions getSon() {
+    public Condition getSon() {
         return son;
     }
 
@@ -68,16 +68,16 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        final Conditions groundedSon = son.ground(substitution, po);
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+        final Condition groundedSon = son.ground(substitution, po);
         NotCond ret = new NotCond(groundedSon);
         ret.grounded = true;
         return ret;
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -115,7 +115,7 @@ public class NotCond extends Terminal implements PostCondition {
                 Logger.getLogger(NotCond.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            Conditions c = (Conditions) son;
+            Condition c = (Condition) son;
             c.normalize();
         }
 
@@ -127,19 +127,19 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions clone() {
-        final Conditions clonedSon = this.son.clone();
+    public Condition clone() {
+        final Condition clonedSon = this.son.clone();
         NotCond ret = new NotCond(clonedSon);
         ret.grounded = this.grounded;
         return ret;
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions con) {
+    public boolean isUngroundVersionOf(Condition con) {
         if (con instanceof NotCond) {
             NotCond nc = (NotCond) con;
-            Conditions c1 = (Conditions) this.son;
-            Conditions c2 = (Conditions) nc.son;
+            Condition c1 = (Condition) this.son;
+            Condition c2 = (Condition) nc.son;
             if (c1.isUngroundVersionOf(c2)) {
                 return true;
             }
@@ -149,8 +149,8 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions unGround(Map substitution) {
-        final Conditions ungroundSon = son.unGround(substitution);
+    public Condition unGround(Map substitution) {
+        final Condition ungroundSon = son.unGround(substitution);
         NotCond ret = new NotCond(ungroundSon);
         ret.grounded = false;
         return ret;
@@ -165,8 +165,8 @@ public class NotCond extends Terminal implements PostCondition {
     public Set<NumFluent> getInvolvedFluents() {
         Set<NumFluent> ret = new HashSet();
 
-        if (son instanceof Conditions) {
-            Conditions c = (Conditions) son;
+        if (son instanceof Condition) {
+            Condition c = (Condition) son;
             if (c.getInvolvedFluents() != null) {
                 ret.addAll(c.getInvolvedFluents());
             }
@@ -178,9 +178,9 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
 
-        Conditions el = (Conditions) son;
+        Condition el = (Condition) son;
         el.setFreeVarSemantic(freeVarSemantic);
         el = el.weakEval(s, invF);
         if (el == null) {
@@ -203,11 +203,11 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         if (this.son == null) {
             return this;
         }
-        final Conditions transformedSon = son.transform_equality();
+        final Condition transformedSon = son.transform_equality();
         NotCond ret = new NotCond(transformedSon);
         //System.out.println(ret);
         return ret;
@@ -224,9 +224,9 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
 
-        Conditions temp = son.regress(gr);
+        Condition temp = son.regress(gr);
         if (temp.isValid()) {
 //            NotCond ret = new NotCond();
 //            ret.setUnsatisfiable(true);
@@ -243,8 +243,8 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public String pddlPrintWithExtraObject() {
         String ret_val = "(not ";
-        if (son instanceof Conditions) {
-            Conditions c = (Conditions) son;
+        if (son instanceof Condition) {
+            Condition c = (Condition) son;
             ret_val = ret_val.concat(c.pddlPrintWithExtraObject());
         } else {
             System.out.println("Error in pddlPrint:" + this);
@@ -260,12 +260,12 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
+    public Condition achieve(Predicate p) {
         return null;
     }
 
     @Override
-    public Conditions delete(Predicate p) {
+    public Condition delete(Predicate p) {
         if (son.equals(p)) {
             return new Predicate(Predicate.true_false.TRUE);
         }
@@ -375,7 +375,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         if (!this.isTerminal()) {
             System.out.println("This should be a terminal!" + this);
             System.exit(-1);
@@ -391,7 +391,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -408,22 +408,22 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         if (son instanceof Predicate) {
             return this;
         } else if (son instanceof Comparison) {
             Comparison c1 = (Comparison) son;
-            Conditions c2 = c1.invertOperator();
+            Condition c2 = c1.invertOperator();
             return c2;
         } else if (son instanceof AndCond) {
             AndCond and = (AndCond) son;
             OrCond or = and.push_negation_demorgan();
-            Conditions c = or.push_not_to_terminals();
+            Condition c = or.push_not_to_terminals();
             return c;
         } else if (son instanceof OrCond) {
             OrCond or = (OrCond) son;
             AndCond and = or.push_negation_demorgan();
-            Conditions c = and.push_not_to_terminals();
+            Condition c = and.push_not_to_terminals();
             return c;
         } else if (son instanceof PDDLObjectsEquality) {
             return this;

@@ -21,7 +21,7 @@ package heuristics;
 import heuristics.utils.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
@@ -70,22 +70,22 @@ public abstract class Heuristic{
     protected boolean internal_update;
     public LinkedHashSet<Predicate> reacheable_predicates;
 
-    protected Collection<Conditions> all_conditions;
-    HashMap<GroundAction, HashSet<Conditions>> influenced_by;
+    protected Collection<Condition> all_conditions;
+    HashMap<GroundAction, HashSet<Condition>> influenced_by;
     HashMap<GroundAction, GroundAction> depends_on;
 
-    public HashMap<Conditions, GroundAction> achievers;
+    public HashMap<Condition, GroundAction> achievers;
     public HashMap<Comparison, Comparison> add_achievers;
     protected int index_of_last_static_atom;
     public LinkedHashSet<GroundAction> A;
-    public Conditions G;
+    public Condition G;
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
 
     public boolean why_not_active = false;
     protected ArrayList<Boolean> is_complex;
-    protected HashMap<Conditions, Boolean> new_condition;
+    protected HashMap<Condition, Boolean> new_condition;
     protected int complex_conditions;
     protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
     protected boolean sat_test_within_cost = true;
@@ -107,10 +107,10 @@ public abstract class Heuristic{
     public int n_lp_invocations;
     public boolean integer_variables;
     public boolean greedy = false;
-    public Conditions gC;
+    public Condition gC;
     public boolean integer_actions = false;
     private boolean cost_oriented_ibr = false;
-    protected HashMap<Conditions, Integer> integer_ref;
+    protected HashMap<Condition, Integer> integer_ref;
     public boolean helpful_actions_computation = false;
     protected int total_number_of_actions;
     public Boolean weak_helpful_actions_pruning = true;
@@ -126,7 +126,7 @@ public abstract class Heuristic{
         
     }
     
-    public Heuristic(Conditions G, Set<GroundAction> A) {
+    public Heuristic(Condition G, Set<GroundAction> A) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -141,7 +141,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public Heuristic(Condition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -157,7 +157,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public Heuristic(Condition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -174,7 +174,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P, Conditions GC) {
+    public Heuristic(Condition G, Set<GroundAction> A, Set<GroundAction> P, Condition GC) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -218,7 +218,7 @@ public abstract class Heuristic{
         for (GroundAction a : actions_to_consider) {
             a.counter = total_number_of_actions++;
             if (a.getPreconditions() != null) {
-                for (Conditions c_1 : a.getPreconditions().getTerminalConditions()) {
+                for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
                     //Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
@@ -227,14 +227,14 @@ public abstract class Heuristic{
         }
         for (GroundAction a : actions_to_consider) {
             if (a.getAddList() != null && a.getAddList().sons != null) {
-                for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
+                for (Condition c_1 : (Set<Condition>) a.getAddList().sons) {
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
                 }
             }
         }
 
 //        LinkedHashSet temp = new LinkedHashSet();
-        for (Conditions c_1 : G.getTerminalConditions()) {
+        for (Condition c_1 : G.getTerminalConditions()) {
             //Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
             counter_conditions = update_index_conditions(c_1, counter_conditions);
             //Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
@@ -253,14 +253,14 @@ public abstract class Heuristic{
         return this.compute_cost(s_0, h, gr.getPreconditions(), closed);
     }
 
-    protected Float compute_cost(State s_0, ArrayList<Float> h, Conditions con, ArrayList<Boolean> closed) {
+    protected Float compute_cost(State s_0, ArrayList<Float> h, Condition con, ArrayList<Boolean> closed) {
         Float cost = 0f;
 
         if (con == null || con.sons == null) {
             return 0f;
         }
 
-        for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
+        for (Condition t : (LinkedHashSet<Condition>) con.sons) {
             if (closed != null && !closed.get(t.getCounter()) && !greedy) {
                 return Float.MAX_VALUE;
             }
@@ -280,16 +280,16 @@ public abstract class Heuristic{
         return cost;
     }
 
-    protected Float check_goal_conditions(State s_0, Conditions G, ArrayList<Float> h, ArrayList<Boolean> closed) {
+    protected Float check_goal_conditions(State s_0, Condition G, ArrayList<Float> h, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, G, closed);
     }
 
-    protected boolean update_prop_h(HeuristicSearchNode node, Map<Conditions, Integer> h) {
+    protected boolean update_prop_h(HeuristicSearchNode node, Map<Condition, Integer> h) {
         boolean new_condition = false;
         if (node.action.getAddList() == null) {
             return new_condition;
         }
-        for (Conditions eff : (LinkedHashSet<Conditions>) node.action.getAddList().sons) {
+        for (Condition eff : (LinkedHashSet<Condition>) node.action.getAddList().sons) {
             if (h.get(eff) == null || h.get(eff) > (node.action_cost_to_get_here)) {
                 h.put(eff, node.action_cost_to_get_here);
                 this.achievers.put(eff, node.action);
@@ -299,11 +299,11 @@ public abstract class Heuristic{
         return new_condition;
     }
 
-    protected int compute_precondition_cost(State s_0, Map<Conditions, Integer> h, GroundAction gr) {
+    protected int compute_precondition_cost(State s_0, Map<Condition, Integer> h, GroundAction gr) {
 
         int cost = 0;
         if (gr.getPreconditions() != null) {
-            for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
+            for (Condition t : (LinkedHashSet<Condition>) gr.getPreconditions().sons) {
                 Integer temp = h.get(t);
                 if (temp != null && temp != Float.MAX_VALUE) {
                     if (additive_h) {
@@ -332,14 +332,14 @@ public abstract class Heuristic{
         return this.compute_cost(s_0, h, gr.getPreconditions());
     }
 
-    protected int compute_cost(State s_0, ArrayList<Integer> h, Conditions con) {
+    protected int compute_cost(State s_0, ArrayList<Integer> h, Condition con) {
         int cost = 0;
 
         if (con == null) {
             return 0;
         }
 
-        for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
+        for (Condition t : (LinkedHashSet<Condition>) con.sons) {
             int temp = h.get(t.getCounter());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
@@ -489,7 +489,7 @@ public abstract class Heuristic{
 
     }
 
-    protected Float interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
+    protected Float interval_based_relaxation_actions_with_cost(State s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -631,7 +631,7 @@ public abstract class Heuristic{
 
         new_condition = new HashMap();
         complex_condition_set = new LinkedHashSet();
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
 //            System.out.println("This is condition number:"+c.getCounter());
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
@@ -670,7 +670,7 @@ public abstract class Heuristic{
             if (gr.getPreconditions() == null || gr.getPreconditions().sons == null) {
                 continue;
             }
-            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+            for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
                 if (c instanceof Predicate) {
                     if (gr.delete((Predicate) c)) {
                         precondition.add(c);
@@ -713,7 +713,7 @@ public abstract class Heuristic{
         return additional_cost;
     }
 
-    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Conditions c, ArrayList<Float> h) {
+    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Condition c, ArrayList<Float> h) {
 
         n_lp_invocations = n_lp_invocations + 1;
 //        System.out.println(invocation);
@@ -733,13 +733,13 @@ public abstract class Heuristic{
         Collection<Float> minimi = new LinkedHashSet();
         HashMap<Integer, Variable> action_to_variable = new HashMap();
 
-        Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
+        Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
         conditions_to_evaluate.addAll(c.sons);
         if (gC != null) {
 //            System.out.println("considering Global Constraints:"+gC.sons);
             conditions_to_evaluate.addAll(gC.sons);
         }
-        for (Conditions cond : conditions_to_evaluate) {
+        for (Condition cond : conditions_to_evaluate) {
             Float local_minimum = Float.MAX_VALUE;
 
             if (cond instanceof Comparison) {
@@ -936,7 +936,7 @@ public abstract class Heuristic{
         //        System.out.println(opt.Check());
     }
 
-    protected int update_index_conditions(Conditions c_1, int counter) {
+    protected int update_index_conditions(Condition c_1, int counter) {
 
         if (integer_ref.get(c_1) == null) {
 //            System.out.println("This happens then");

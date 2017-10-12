@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.PDDLNumber;
@@ -53,7 +53,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
     protected HashMap<GroundAction, LinkedHashSet<Comparison>> temporary_achievers;
     private boolean super_greedy = false;
 
-    public Uniform_cost_search_H1_Rep(Conditions G, Set<GroundAction> A) {
+    public Uniform_cost_search_H1_Rep(Condition G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -75,18 +75,18 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         return ret;
     }
 
-    private void generate_repetition_constraints(State s_0, Collection<GroundAction> A1, Collection<Conditions> conditions_set) {
+    private void generate_repetition_constraints(State s_0, Collection<GroundAction> A1, Collection<Condition> conditions_set) {
 
         rep_costs = new HashMap();
         limited_rep_action = new HashMap();
-        LinkedHashSet<Conditions> new_conditions_set = new LinkedHashSet();
+        LinkedHashSet<Condition> new_conditions_set = new LinkedHashSet();
         for (GroundAction gr : A1) {
             limited_rep_action.put(gr, false);
             LinkedHashSet pairs_to_add = new LinkedHashSet();
             if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty()) {
                 continue;
             }
-            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+            for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
 
                 if (c instanceof Comparison) {
                     //System.out.println("redundant_constraints:"+redundant_constraints);
@@ -131,7 +131,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
                             this.is_complex.set(new_comp.getCounter(), false);
                             //this.index_of_last_static_atom++;s
                             if (!conditions_set.add(new_comp)) {
-                                for (Conditions c3 : conditions_set) {
+                                for (Condition c3 : conditions_set) {
                                     if (c3 instanceof Comparison) {
                                         Comparison temp = (Comparison) c3;
                                         if (temp.equals(new_comp)) {
@@ -167,7 +167,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
 
     @Override
     public Float compute_estimate(State s) {
-        FibonacciHeap<Conditions> q = new FibonacciHeap();
+        FibonacciHeap<Condition> q = new FibonacciHeap();
 
         LinkedHashSet<GroundAction> temp_a;
         if (reacheability_setting) {
@@ -176,7 +176,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
             temp_a = new LinkedHashSet(this.reachable);
         }
 
-        Collection<Conditions> temp_conditions = new LinkedHashSet(all_conditions);
+        Collection<Condition> temp_conditions = new LinkedHashSet(all_conditions);
 
         this.generate_repetition_constraints(s, temp_a, temp_conditions);
 
@@ -184,7 +184,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         ArrayList<Float> dist = new ArrayList<Float>(Collections.nCopies(temp_conditions.size() + 1, Float.MAX_VALUE));
         ArrayList<Boolean> open_list = new ArrayList<Boolean>(Collections.nCopies(temp_conditions.size() + 1, false));
         HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
-        for (Conditions c : temp_conditions) {
+        for (Condition c : temp_conditions) {
             if (c.isSatisfied(s)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
@@ -199,7 +199,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         HashMap<GroundAction, Float> action_to_cost = new HashMap();
         Collection<Comparison> temp_complex_conditions = new LinkedHashSet();
         while (!q.isEmpty()) {
-            Conditions cn = q.removeMin().getData();
+            Condition cn = q.removeMin().getData();
             //d/ist.set(cn.c.getCounter(), cn.cost);
             closed.set(cn.getCounter(), true);
 
@@ -333,7 +333,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Predicate> predicates = new LinkedHashSet();
-            for (Conditions c : this.all_conditions) {
+            for (Condition c : this.all_conditions) {
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
@@ -364,12 +364,12 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         return false;
     }
 
-    private void update_achievers(Collection<Conditions> conds, Collection<GroundAction> actions) {
+    private void update_achievers(Collection<Condition> conds, Collection<GroundAction> actions) {
 
         temporary_achievers = new HashMap();
         for (GroundAction gr : actions) {
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
-            for (Conditions c : conds) {
+            for (Condition c : conds) {
                 if (c instanceof Comparison) {
                     Comparison comp = (Comparison) c;
                     if (comp.involve(gr.getNumericFluentAffected())) {
@@ -388,7 +388,7 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
         }
     }
 
-    private boolean delete_if_worse_present(PriorityQueue<ConditionsNode> q, Conditions con, float current_cost) {
+    private boolean delete_if_worse_present(PriorityQueue<ConditionsNode> q, Condition con, float current_cost) {
         Iterator<ConditionsNode> it = q.iterator();
         while (it.hasNext()) {
             ConditionsNode c = (ConditionsNode) it.next();
@@ -406,10 +406,10 @@ public class Uniform_cost_search_H1_Rep extends Uniform_cost_search_H1 {
 
     private static class ConditionsNode implements Comparable {
 
-        Conditions c;
+        Condition c;
         int cost;
 
-        public ConditionsNode(Conditions c1, int cost1) {
+        public ConditionsNode(Condition c1, int cost1) {
             c = c1;
             cost = cost1;
         }

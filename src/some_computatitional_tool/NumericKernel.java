@@ -20,7 +20,7 @@ package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import java.util.ArrayList;
@@ -53,10 +53,10 @@ public class NumericKernel extends HashMap {
      * @param g
      * @throws CloneNotSupportedException
      */
-    public void construct(SimplePlan sp, Conditions g) throws CloneNotSupportedException {
+    public void construct(SimplePlan sp, Condition g) throws CloneNotSupportedException {
 
         SimplePlan pianoClonato = (SimplePlan) sp.clone();
-        Conditions goal = (Conditions) g.clone();
+        Condition goal = (Condition) g.clone();
         //HashMap kerns = new HashMap();
         this.put(pianoClonato.size(), goal.clone());
 
@@ -67,16 +67,16 @@ public class NumericKernel extends HashMap {
             this.put(i, goal.clone());
         }
         for (Object o : this.values()) {
-            Conditions con = (Conditions) o;
+            Condition con = (Condition) o;
             con.normalize();
         }
 
     }
 
-    public void constructAndComputeMaxDist(SimplePlan sp, Conditions g, RelState numericFleuntsBoundaries) {
+    public void constructAndComputeMaxDist(SimplePlan sp, Condition g, RelState numericFleuntsBoundaries) {
 
         SimplePlan pianoClonato = (SimplePlan) sp.clone();
-        Conditions goal = (Conditions) g.clone();
+        Condition goal = (Condition) g.clone();
 
         //HashMap kerns = new HashMap();
         this.put(pianoClonato.size(), goal);
@@ -88,13 +88,13 @@ public class NumericKernel extends HashMap {
             this.put(i, goal);
         }
         for (Object o : this.values()) {
-            Conditions con = (Conditions) o;
+            Condition con = (Condition) o;
             con.normalize();
 
         }
 
         for (int i = pianoClonato.size(); i >= 0; i--) {
-            Conditions con = (Conditions) this.get(i);
+            Condition con = (Condition) this.get(i);
             //System.out.println(con);
 
             if (con instanceof AndCond) {
@@ -138,7 +138,7 @@ public class NumericKernel extends HashMap {
         }
 
         for (int i = pianoClonato.size(); i >= 0; i--) {
-            Conditions con = (Conditions) this.get(i);
+            Condition con = (Condition) this.get(i);
             if (con instanceof AndCond) {
                 for (Object o : con.sons) {
                     if (o instanceof Comparison) {
@@ -162,9 +162,9 @@ public class NumericKernel extends HashMap {
      * @throws CloneNotSupportedException
      */
     @Deprecated
-    public void construct_old(SimplePlan sp, Conditions g) throws CloneNotSupportedException, Exception {
+    public void construct_old(SimplePlan sp, Condition g) throws CloneNotSupportedException, Exception {
 
-        Conditions goal = (Conditions) g.clone();
+        Condition goal = (Condition) g.clone();
         //HashMap kerns = new HashMap();
         this.put(sp.size(), goal.clone());
 
@@ -223,7 +223,7 @@ public class NumericKernel extends HashMap {
             }
 
             for (Object o1 : a.getPreconditions().sons) {
-                Conditions c = (Conditions) o1;
+                Condition c = (Condition) o1;
                 con.sons.add(c);
             }
 //            if(!verifyConditions(con))
@@ -290,10 +290,10 @@ public class NumericKernel extends HashMap {
 
     }
 
-    public void computeMaxDistViaPlanBounds(SimplePlan sp, Conditions g, HashMap higherNFValues, HashMap lowerNFValues) {
+    public void computeMaxDistViaPlanBounds(SimplePlan sp, Condition g, HashMap higherNFValues, HashMap lowerNFValues) {
 
         for (int i = sp.size(); i >= 0; i--) {
-            Conditions con = (Conditions) this.get(i);
+            Condition con = (Condition) this.get(i);
             //System.out.println(con);
 
             if (con instanceof AndCond) {
@@ -338,7 +338,7 @@ public class NumericKernel extends HashMap {
         }
 
         for (int i = sp.size(); i >= 0; i--) {
-            Conditions con = (Conditions) this.get(i);
+            Condition con = (Condition) this.get(i);
             if (con instanceof AndCond) {
                 for (Object o : con.sons) {
                     if (o instanceof Comparison) {

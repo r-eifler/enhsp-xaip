@@ -133,7 +133,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) nFluent.ground(substitution, po);
         ret.grounded = true;
@@ -141,8 +141,8 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -181,7 +181,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) this.nFluent.clone();
         ret.grounded = this.grounded;
@@ -209,7 +209,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         NumFluentValue ret = new NumFluentValue(operator);
         ret.nFluent = (NumFluent) nFluent.unGround(asbstractionOf);
         ret.grounded = false;
@@ -217,7 +217,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -258,7 +258,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -268,7 +268,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -278,7 +278,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -307,7 +307,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -317,7 +317,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -327,7 +327,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

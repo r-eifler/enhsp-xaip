@@ -20,7 +20,7 @@ package domain;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NotCond;
 
 import conditions.PDDLObject;
@@ -277,7 +277,7 @@ public class ProcessSchema extends GenericActionType {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Conditions numEff = new AndCond();
+        Condition numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
@@ -302,7 +302,7 @@ public class ProcessSchema extends GenericActionType {
         ab.setNumericEffects(numEff);
     }
 
-    private Conditions regress(ProcessSchema b, ProcessSchema a) {
+    private Condition regress(ProcessSchema b, ProcessSchema a) {
         /*Propositional Part first*/
 
         AndCond result = (AndCond) b.getPreconditions().clone();

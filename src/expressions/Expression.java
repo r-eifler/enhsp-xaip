@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public abstract class Expression extends Object {
 
     public abstract boolean involve(HashMap<NumFluent, Boolean> arrayList);
 
-    public abstract Expression subst(Conditions numeric);
+    public abstract Expression subst(Condition numeric);
 
     public abstract Set<NumFluent> rhsFluents();
 

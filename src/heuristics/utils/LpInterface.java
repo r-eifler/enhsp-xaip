@@ -19,7 +19,7 @@
 package heuristics.utils;
 
 import conditions.AndCond;
-import conditions.Conditions;
+import conditions.Condition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -35,17 +35,17 @@ public abstract class LpInterface {
     public int n_invocations;
     public boolean integer_variables;
     public boolean additive_h;
-    public Conditions gc;
-    public Conditions c;
+    public Condition gc;
+    public Condition c;
 
     //this is for set of conditions
-    public LpInterface(Set<Conditions> cond, Conditions global_constraint) {
+    public LpInterface(Set<Condition> cond, Condition global_constraint) {
         super();
         AndCond c = new AndCond();
         c.sons.addAll(cond);
     }
 
-    public LpInterface(Conditions cond, Conditions global_constraint) {
+    public LpInterface(Condition cond, Condition global_constraint) {
         super();
         c = cond;
         gc = global_constraint;
@@ -61,6 +61,6 @@ public abstract class LpInterface {
 
     protected abstract void init_condition(Collection<GroundAction> pool, State s_0);
 
-    protected abstract void update_condition(State s_0, Conditions temp);
+    protected abstract void update_condition(State s_0, Condition temp);
 
 }

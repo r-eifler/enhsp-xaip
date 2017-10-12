@@ -18,7 +18,7 @@
  */
 package heuristics.utils;
 
-import conditions.Conditions;
+import conditions.Condition;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import problem.GroundAction;
@@ -31,7 +31,7 @@ public class achiever_set {
 
     public Float cost;
     public HashSet<GroundAction> actions;
-    public HashSet<Conditions> target_cond;
+    public HashSet<Condition> target_cond;
 
     public achiever_set() {
         actions = new HashSet();

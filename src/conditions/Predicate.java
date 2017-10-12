@@ -94,7 +94,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
+    public Condition achieve(Predicate p) {
         if (this.equals(p)) {
             return new Predicate(Predicate.true_false.TRUE);
         }
@@ -102,12 +102,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions delete(Predicate p) {
+    public Condition delete(Predicate p) {
         return null;
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         Set ret = new LinkedHashSet();
         ret.add(this);
         return ret;
@@ -254,7 +254,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
         ret.grounded = true;
@@ -278,8 +278,8 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -403,7 +403,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         return this;
     }
 
@@ -423,7 +423,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions unGround(Map substitution) {
+    public Condition unGround(Map substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
 
@@ -446,7 +446,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions con) {
+    public boolean isUngroundVersionOf(Condition con) {
         if (con instanceof Predicate) {
             Predicate p = (Predicate) con;
             if (this.getPredicateName().equals(p.getPredicateName())) {
@@ -509,7 +509,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
@@ -534,7 +534,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         return this;
     }
 
@@ -544,7 +544,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
 
         OrCond achievers = gr.getAdders(this);
         OrCond deleters = gr.getDels(this);
@@ -562,11 +562,11 @@ public class Predicate extends Terminal implements PostCondition {
         return or;
     }
 
-    public Conditions regress_old(GroundAction gr) {
+    public Condition regress_old(GroundAction gr) {
         PostCondition achiever = gr.getAdder(this);
         PostCondition destroyer = gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate) {
-            Conditions con = new NotCond(null); // Maybe put a dummy here?
+            Condition con = new NotCond(null); // Maybe put a dummy here?
             con.setUnsatisfiable(true);
             return con;
         }
@@ -670,7 +670,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -688,7 +688,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
     }
 

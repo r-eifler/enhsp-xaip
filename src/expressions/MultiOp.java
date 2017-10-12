@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.ArrayList;
@@ -176,7 +176,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition numeric) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

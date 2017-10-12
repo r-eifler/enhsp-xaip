@@ -18,7 +18,7 @@
  */
 package domain;
 
-import conditions.Conditions;
+import conditions.Condition;
 import java.util.HashMap;
 import java.util.Map;
 import problem.GlobalConstraint;
@@ -31,7 +31,7 @@ import problem.PDDLObjects;
 public class SchemaGlobalConstraint {
 
     public SchemaParameters parameters;
-    public Conditions condition;
+    public Condition condition;
     public String name;
 
     public SchemaGlobalConstraint(String name) {

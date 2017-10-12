@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.ArrayList;
@@ -485,7 +485,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public ExtendedNormExpression subst(Conditions numeric) {
+    public ExtendedNormExpression subst(Condition numeric) {
         if (numeric == null || numeric.sons == null || numeric.sons.size() == 0) {
             return this;
         }

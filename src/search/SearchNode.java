@@ -252,11 +252,16 @@ public class SearchNode {
     public int hashCode() {
         int hash = 5;
         hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
-        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-        hash = 29 * hash + (int) this.h_n;
-        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-        hash = 29 * hash + (int) this.g_n;
+//        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
+//        hash = 29 * hash + (int) this.h_n;
+//        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
+//        hash = 29 * hash + (int) this.g_n;
         return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchNode{" + "s=" + s + ", action=" + action + ", h_n=" + h_n + ", g_n=" + g_n + '}';
     }
 
 }

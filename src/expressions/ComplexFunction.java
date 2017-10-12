@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.HashMap;
@@ -133,7 +133,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition numeric) {
         ComplexFunction ret = (ComplexFunction) this.clone();
         ret.setArg(getArg().subst(numeric));
         return ret;

@@ -25,7 +25,7 @@ import problem.RelState;
  *
  * @author enrico
  */
-public abstract class Terminal extends Conditions {
+public abstract class Terminal extends Condition {
 
     @Override
     public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
@@ -40,7 +40,7 @@ public abstract class Terminal extends Conditions {
     }
 
     @Override
-    public Conditions introduce_red_constraints() {
+    public Condition introduce_red_constraints() {
         return this;
     }
 

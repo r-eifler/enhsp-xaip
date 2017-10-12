@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.HashMap;
@@ -99,7 +99,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition numeric) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

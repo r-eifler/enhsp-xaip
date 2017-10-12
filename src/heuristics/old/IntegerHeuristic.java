@@ -21,7 +21,7 @@ package heuristics.old;
 import heuristics.utils.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -64,20 +64,20 @@ public abstract class IntegerHeuristic {
     protected boolean internal_update;
     public LinkedHashSet<Predicate> reacheable_predicates;
 
-    Collection<Conditions> all_conditions;
-    HashMap<GroundAction, HashSet<Conditions>> influenced_by;
+    Collection<Condition> all_conditions;
+    HashMap<GroundAction, HashSet<Condition>> influenced_by;
     HashMap<GroundAction, GroundAction> depends_on;
 
-    public HashMap<Conditions, GroundAction> achievers;
+    public HashMap<Condition, GroundAction> achievers;
     public HashMap<Comparison, Comparison> add_achievers;
     protected int index_of_last_static_atom;
     public LinkedHashSet<GroundAction> A;
-    public Conditions G;
+    public Condition G;
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
-    protected HashMap<Conditions, Boolean> is_complex;
-    protected HashMap<Conditions, Boolean> new_condition;
+    protected HashMap<Condition, Boolean> is_complex;
+    protected HashMap<Condition, Boolean> new_condition;
     protected int complex_conditions;
     protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
     protected boolean sat_test_within_cost = true;
@@ -91,7 +91,7 @@ public abstract class IntegerHeuristic {
     private boolean no_plan_extraction = true;
     public int horizon = 1000000;
 
-    public IntegerHeuristic(Conditions G, Set<GroundAction> A) {
+    public IntegerHeuristic(Condition G, Set<GroundAction> A) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -106,7 +106,7 @@ public abstract class IntegerHeuristic {
         //build_integer_representation(A,G);
     }
 
-    public IntegerHeuristic(Conditions G, Set<GroundAction> A, Set<GroundAction> P) {
+    public IntegerHeuristic(Condition G, Set<GroundAction> A, Set<GroundAction> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -141,11 +141,11 @@ public abstract class IntegerHeuristic {
         for (GroundAction a : A) {
             LinkedHashSet temp = new LinkedHashSet();
             if (a.getPreconditions() != null) {
-                for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
+                for (Condition c_1 : (Set<Condition>) a.getPreconditions().sons) {
                     int index = conditions.indexOf(c_1);
                     if (index != -1) {
                         repetition++;
-                        c_1 = (Conditions) conditions.get(index);
+                        c_1 = (Condition) conditions.get(index);
                     } else {
                         counter2++;
                         //System.out.println("Am I here?!?!?");
@@ -167,10 +167,10 @@ public abstract class IntegerHeuristic {
             LinkedHashSet temp = new LinkedHashSet();
 
             if (a.getAddList() != null && a.getAddList().sons != null) {
-                for (Conditions c_1 : (Set<Conditions>) a.getAddList().sons) {
+                for (Condition c_1 : (Set<Condition>) a.getAddList().sons) {
                     int index = conditions.indexOf(c_1);
                     if (index != -1) {
-                        c_1 = (Conditions) conditions.get(index);
+                        c_1 = (Condition) conditions.get(index);
                         //System.out.println(c_1+"->"+c_1.getCounter());
                     } else {
                         counter2++;
@@ -188,10 +188,10 @@ public abstract class IntegerHeuristic {
 
         LinkedHashSet temp = new LinkedHashSet();
 
-        for (Conditions c_1 : (Set<Conditions>) G.sons) {
+        for (Condition c_1 : (Set<Condition>) G.sons) {
             int index = conditions.indexOf(c_1);
             if (index != -1) {
-                c_1 = (Conditions) conditions.get(index);
+                c_1 = (Condition) conditions.get(index);
             } else {
                 counter2++;
                 c_1.setCounter(counter2);
@@ -210,9 +210,9 @@ public abstract class IntegerHeuristic {
     abstract int compute_estimate(State s_0);
 
     public void compute_relevant_actions(State s_0) {
-        HashMap<GroundAction, HashSet<Conditions>> impr_conditions = new HashMap();
-        HashMap<Conditions, Integer> h = new HashMap();
-        HashMap<Conditions, Boolean> already_added = new HashMap();
+        HashMap<GroundAction, HashSet<Condition>> impr_conditions = new HashMap();
+        HashMap<Condition, Integer> h = new HashMap();
+        HashMap<Condition, Boolean> already_added = new HashMap();
         LinkedHashSet<GroundAction> A1 = new LinkedHashSet();
         A1.addAll(A);
         //assuming it is an and condition
@@ -220,7 +220,7 @@ public abstract class IntegerHeuristic {
         //System.out.println("Starting Relevance Analysis....");
         long start = System.currentTimeMillis();
 
-        for (Conditions c_1 : this.all_conditions) {
+        for (Condition c_1 : this.all_conditions) {
             if (c_1.isSatisfied(s_0)) {
                 h.put(c_1, 0);
             }
@@ -257,8 +257,8 @@ public abstract class IntegerHeuristic {
         return;
     }
 
-    protected void update_reacheable_predicates(HashMap<Conditions, Integer> h, State s_0) {
-        for (Conditions c : h.keySet()) {
+    protected void update_reacheable_predicates(HashMap<Condition, Integer> h, State s_0) {
+        for (Condition c : h.keySet()) {
             if (c instanceof Predicate) {
                 this.reacheable_predicates.add((Predicate) c);
             }
@@ -271,13 +271,13 @@ public abstract class IntegerHeuristic {
 
     }
 
-    public Pair<HashMap<Conditions, Integer>, HashMap<GroundAction, HashSet<Conditions>>> computeAchieveds(State s_0, Conditions G, Set<GroundAction> A) throws Exception {
+    public Pair<HashMap<Condition, Integer>, HashMap<GroundAction, HashSet<Condition>>> computeAchieveds(State s_0, Condition G, Set<GroundAction> A) throws Exception {
         long start = System.currentTimeMillis();
-        HashSet<Conditions> all_conditions = computeConditionsSet(A, G);
+        HashSet<Condition> all_conditions = computeConditionsSet(A, G);
 
-        HashMap<Conditions, Integer> h = new HashMap();
-        HashMap<GroundAction, HashSet<Conditions>> achieveds = new HashMap();
-        for (Conditions c_1 : all_conditions) {
+        HashMap<Condition, Integer> h = new HashMap();
+        HashMap<GroundAction, HashSet<Condition>> achieveds = new HashMap();
+        for (Condition c_1 : all_conditions) {
             c_1.normalize();
             if (s_0.satisfy(c_1)) {
                 h.put(c_1, 0);
@@ -317,12 +317,12 @@ public abstract class IntegerHeuristic {
         return new Pair(h, achieveds);
     }
 
-    public HashSet<Conditions> computeConditionsSet(Set<GroundAction> A, Conditions G) {
-        HashSet<Conditions> ret = new HashSet();
+    public HashSet<Condition> computeConditionsSet(Set<GroundAction> A, Condition G) {
+        HashSet<Condition> ret = new HashSet();
 
         for (GroundAction a : A) {
             //adding all the conditions of the action (Assuming it is an and condition)
-            for (Conditions c_1 : (Set<Conditions>) a.getPreconditions().sons) {
+            for (Condition c_1 : (Set<Condition>) a.getPreconditions().sons) {
                 if (c_1 instanceof Comparison) {
                     ret.add((Comparison) c_1);
                     //System.out.println("Considered Constraint:"+c_1);
@@ -330,7 +330,7 @@ public abstract class IntegerHeuristic {
             }
 
         }
-        for (Conditions c_1 : (Set<Conditions>) G.sons) {
+        for (Condition c_1 : (Set<Condition>) G.sons) {
             if (c_1 instanceof Comparison) {
                 ret.add((Comparison) c_1);
                 //System.out.println("Constraint in the goal:" + c_1);
@@ -339,14 +339,14 @@ public abstract class IntegerHeuristic {
         return ret;
     }
 
-    protected HashMap<GroundAction, HashSet<Conditions>> computeInflueced_by() {
-        HashMap<GroundAction, HashSet<Conditions>> ret = new HashMap();
+    protected HashMap<GroundAction, HashSet<Condition>> computeInflueced_by() {
+        HashMap<GroundAction, HashSet<Condition>> ret = new HashMap();
 
         if (debug >= 1) {
             System.out.println("all conditions:" + all_conditions);
         }
 
-        for (Conditions c_1 : all_conditions) {
+        for (Condition c_1 : all_conditions) {
             if (c_1 instanceof Comparison) {
                 Comparison comp = (Comparison) c_1;
                 comp.normalize();
@@ -371,7 +371,7 @@ public abstract class IntegerHeuristic {
         return ret;
     }
 
-    protected HashMap<GroundAction, HashSet<Conditions>> update_improvable(State s_0, HashSet<GroundAction> A, HashSet<GroundAction> A1, HashSet<Comparison> toAdd, HashMap<GroundAction, HashSet<Conditions>> improvable, Map<Conditions, Integer> h, int k, boolean to_post) throws Exception {
+    protected HashMap<GroundAction, HashSet<Condition>> update_improvable(State s_0, HashSet<GroundAction> A, HashSet<GroundAction> A1, HashSet<Comparison> toAdd, HashMap<GroundAction, HashSet<Condition>> improvable, Map<Condition, Integer> h, int k, boolean to_post) throws Exception {
         for (GroundAction gr : A) {
             for (Comparison c_1 : toAdd) {
                 Pair<Boolean, Integer> t = gr.improve_k(s_0, c_1, k, this.influence_graph, null);
@@ -384,11 +384,11 @@ public abstract class IntegerHeuristic {
                     //ret.add(c_1);
                     //System.out.println("c_1"+c_1);
                     if (improvable.get(gr) == null) {
-                        HashSet<Conditions> new_achieveds = new HashSet();
+                        HashSet<Condition> new_achieveds = new HashSet();
                         new_achieveds.add(c_1);
                         improvable.put(gr, new_achieveds);
                     } else {
-                        HashSet<Conditions> previous = improvable.get(gr);
+                        HashSet<Condition> previous = improvable.get(gr);
                         previous.add(c_1);
                         improvable.put(gr, previous);
                     }
@@ -402,23 +402,23 @@ public abstract class IntegerHeuristic {
         return improvable;
     }
 
-    private void print_achievers(Conditions G) {
+    private void print_achievers(Condition G) {
 
-        ArrayDeque<Conditions> q = new ArrayDeque();
+        ArrayDeque<Condition> q = new ArrayDeque();
 
-        for (Conditions c : (LinkedHashSet<Conditions>) G.sons) {
+        for (Condition c : (LinkedHashSet<Condition>) G.sons) {
             q.addLast(c);
         }
 
         while (q.size() > 0) {
-            Conditions t = q.poll();
+            Condition t = q.poll();
             if (achievers.get(t) != null) {
                 GroundAction gr = (GroundAction) achievers.get(t);
                 System.out.println(gr);
                 if (gr.getPreconditions() != null) {
                     for (Object o : gr.getPreconditions().sons) {
                         System.out.println("      " + o);
-                        Conditions c = (Conditions) o;
+                        Condition c = (Condition) o;
                         if (achievers.get(o) != null) {
                             System.out.println("      " + achievers.get(o));
                         }
@@ -458,9 +458,9 @@ public abstract class IntegerHeuristic {
         return ret;
     }
 
-    protected int check_goal_conditions(State s_0, Conditions G, Map<Conditions, Integer> h) {
+    protected int check_goal_conditions(State s_0, Condition G, Map<Condition, Integer> h) {
         int cost = 0;
-        for (Conditions g : (LinkedHashSet<Conditions>) G.sons) {
+        for (Condition g : (LinkedHashSet<Condition>) G.sons) {
             if ((h.get(g) != null && h.get(g) != Integer.MAX_VALUE) || s_0.satisfy(g)) {
                 if (s_0.satisfy(g)) {
                     h.put(g, 0);
@@ -476,7 +476,7 @@ public abstract class IntegerHeuristic {
         return cost;
     }
 
-    protected void update_frontier(Collection frontier, LinkedHashSet<GroundAction> A1, Map<Conditions, Integer> h, State s_0) {
+    protected void update_frontier(Collection frontier, LinkedHashSet<GroundAction> A1, Map<Condition, Integer> h, State s_0) {
         Iterator it = A1.iterator();
         while (it.hasNext()) {
             GroundAction gr = (GroundAction) it.next();
@@ -491,12 +491,12 @@ public abstract class IntegerHeuristic {
         }
     }
 
-    protected boolean update_prop_h(HeuristicSearchNode node, Map<Conditions, Integer> h) {
+    protected boolean update_prop_h(HeuristicSearchNode node, Map<Condition, Integer> h) {
         boolean new_condition = false;
         if (node.action.getAddList() == null) {
             return new_condition;
         }
-        for (Conditions eff : (LinkedHashSet<Conditions>) node.action.getAddList().sons) {
+        for (Condition eff : (LinkedHashSet<Condition>) node.action.getAddList().sons) {
             if (h.get(eff) == null || h.get(eff) > (node.action_cost_to_get_here)) {
                 h.put(eff, node.action_cost_to_get_here);
                 this.achievers.put(eff, node.action);
@@ -506,11 +506,11 @@ public abstract class IntegerHeuristic {
         return new_condition;
     }
 
-    protected int compute_precondition_cost(State s_0, Map<Conditions, Integer> h, GroundAction gr) {
+    protected int compute_precondition_cost(State s_0, Map<Condition, Integer> h, GroundAction gr) {
 
         int cost = 0;
         if (gr.getPreconditions() != null) {
-            for (Conditions t : (LinkedHashSet<Conditions>) gr.getPreconditions().sons) {
+            for (Condition t : (LinkedHashSet<Condition>) gr.getPreconditions().sons) {
                 Integer temp = h.get(t);
                 if (temp != null && temp != Integer.MAX_VALUE) {
                     if (additive_h) {
@@ -535,7 +535,7 @@ public abstract class IntegerHeuristic {
         return cost;
     }
 
-    public boolean update_prop_numeric_h(Collection<HeuristicSearchNode> q, HashMap<GroundAction, HashSet<Conditions>> impr_conditions, HashMap<Conditions, Boolean> already_added, State s_0, LinkedHashSet<GroundAction> A1, Map<Conditions, Integer> h, HashSet<Comparison> toAdd, boolean to_post) throws Exception {
+    public boolean update_prop_numeric_h(Collection<HeuristicSearchNode> q, HashMap<GroundAction, HashSet<Condition>> impr_conditions, HashMap<Condition, Boolean> already_added, State s_0, LinkedHashSet<GroundAction> A1, Map<Condition, Integer> h, HashSet<Comparison> toAdd, boolean to_post) throws Exception {
         boolean new_relevant_condition = false;
         for (HeuristicSearchNode node : q) {
             GroundAction gr = node.action;
@@ -594,12 +594,12 @@ public abstract class IntegerHeuristic {
         return new_relevant_condition;
     }
 
-    protected HashSet<Conditions> computeImprovable(HeuristicSearchNode node, State s_0, HashMap<GroundAction, HashSet<Conditions>> influenced_by, int k, Map<Conditions, Integer> h, boolean to_post) throws Exception {
-        HashSet<Conditions> ret = new HashSet();
+    protected HashSet<Condition> computeImprovable(HeuristicSearchNode node, State s_0, HashMap<GroundAction, HashSet<Condition>> influenced_by, int k, Map<Condition, Integer> h, boolean to_post) throws Exception {
+        HashSet<Condition> ret = new HashSet();
         if (influenced_by.get(node.action) == null) {
             return ret;
         }
-        for (Conditions c_1 : influenced_by.get(node.action)) {
+        for (Condition c_1 : influenced_by.get(node.action)) {
             Comparison comp = (Comparison) c_1;
             if (c_1.isSatisfied(s_0)) {
                 this.internal_update = true;
@@ -731,14 +731,14 @@ public abstract class IntegerHeuristic {
         return this.compute_cost(s_0, h, gr.getPreconditions());
     }
 
-    protected int compute_cost(State s_0, ArrayList<Integer> h, Conditions con) {
+    protected int compute_cost(State s_0, ArrayList<Integer> h, Condition con) {
         int cost = 0;
 
         if (con == null) {
             return 0;
         }
 
-        for (Conditions t : (LinkedHashSet<Conditions>) con.sons) {
+        for (Condition t : (LinkedHashSet<Condition>) con.sons) {
             int temp = h.get(t.getCounter());
             if (temp != Integer.MAX_VALUE) {
                 if (additive_h) {
@@ -753,8 +753,8 @@ public abstract class IntegerHeuristic {
         return cost;
     }
 
-    protected void init_h(ArrayList<Integer> h, Collection<Conditions> all_conditions, State s_0) {
-        for (Conditions c_1 : all_conditions) {
+    protected void init_h(ArrayList<Integer> h, Collection<Condition> all_conditions, State s_0) {
+        for (Condition c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
                 h.set(c_1.getCounter(), 0);
             } else {
@@ -767,11 +767,11 @@ public abstract class IntegerHeuristic {
     }
     //
 
-    protected int check_goal_conditions(State s_0, Conditions G, ArrayList<Integer> h) {
+    protected int check_goal_conditions(State s_0, Condition G, ArrayList<Integer> h) {
         return this.compute_cost(s_0, h, G);
     }
 
-    protected boolean update_value(ArrayList<Integer> h, Conditions c, int cost) {
+    protected boolean update_value(ArrayList<Integer> h, Condition c, int cost) {
         if (h.get(c.getCounter()) != null && h.get(c.getCounter()) <= cost) {
             return false;
         }
@@ -779,7 +779,7 @@ public abstract class IntegerHeuristic {
         return true;
     }
 
-    protected int interval_based_relaxation(State s_0, Conditions c, Collection<HeuristicSearchNode> pool) {
+    protected int interval_based_relaxation(State s_0, Condition c, Collection<HeuristicSearchNode> pool) {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
@@ -839,7 +839,7 @@ public abstract class IntegerHeuristic {
 //            }
 //        }
 //    }
-    protected int interval_based_relaxation_actions(State s_0, Conditions c, Collection<GroundAction> pool) {
+    protected int interval_based_relaxation_actions(State s_0, Condition c, Collection<GroundAction> pool) {
         RelState rel_state = s_0.relaxState();
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
         int cost = 0;
@@ -868,7 +868,7 @@ public abstract class IntegerHeuristic {
         }
     }
 
-    protected int interval_based_relaxation_actions_with_cost(State s_0, Conditions c, Collection<GroundAction> pool, HashMap<GroundAction, Integer> action_to_cost) throws CloneNotSupportedException {
+    protected int interval_based_relaxation_actions_with_cost(State s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Integer> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -1025,7 +1025,7 @@ public abstract class IntegerHeuristic {
         }
     }
 
-    protected LinkedList order_according_to_dependencies_actions(Collection<GroundAction> pool, Conditions c, HashMap<GroundAction, Integer> action_to_cost) {
+    protected LinkedList order_according_to_dependencies_actions(Collection<GroundAction> pool, Condition c, HashMap<GroundAction, Integer> action_to_cost) {
         Comparison comp = (Comparison) c;
         LinkedList<GroundAction> pq = new LinkedList();
         LinkedList<GroundAction> ret = new LinkedList();
@@ -1081,9 +1081,9 @@ public abstract class IntegerHeuristic {
         return temp;
     }
 
-    protected boolean update_h(LinkedHashSet<GroundAction> pool, Collection<Conditions> conds, ArrayList<Integer> h, State s_0) {
+    protected boolean update_h(LinkedHashSet<GroundAction> pool, Collection<Condition> conds, ArrayList<Integer> h, State s_0) {
         boolean update = false;
-        for (Conditions c : conds) {
+        for (Condition c : conds) {
             if (h.get(c.getCounter()) != 0) {
                 if (c instanceof Predicate) {
                     for (GroundAction gr : pool) {
@@ -1121,7 +1121,7 @@ public abstract class IntegerHeuristic {
         }
     }
 
-    protected LinkedList order_according_to_dependencies(Collection<HeuristicSearchNode> pool, Conditions c) {
+    protected LinkedList order_according_to_dependencies(Collection<HeuristicSearchNode> pool, Condition c) {
         Comparison comp = (Comparison) c;
         LinkedList<HeuristicSearchNode> pq = new LinkedList();
         LinkedList<HeuristicSearchNode> ret = new LinkedList();
@@ -1179,12 +1179,12 @@ public abstract class IntegerHeuristic {
         }
     }
 
-    protected void identify_complex_conditions(Collection<Conditions> conds, Collection<GroundAction> A) {
+    protected void identify_complex_conditions(Collection<Condition> conds, Collection<GroundAction> A) {
         //For each condition, identify whether there is at least an action whose effects are not simple. This condition
         // will be considered complex in that checking its satisfaction is hard
         is_complex = new HashMap();
         new_condition = new HashMap();
-        for (Conditions c : conds) {
+        for (Condition c : conds) {
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
                 new_condition.put(comp, false);
@@ -1214,7 +1214,7 @@ public abstract class IntegerHeuristic {
             if (gr.getPreconditions() == null || gr.getPreconditions().sons == null) {
                 continue;
             }
-            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+            for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
                 if (c instanceof Predicate) {
                     if (gr.delete((Predicate) c)) {
                         precondition.add(c);

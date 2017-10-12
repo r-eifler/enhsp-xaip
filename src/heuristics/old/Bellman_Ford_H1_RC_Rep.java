@@ -18,7 +18,7 @@
  */
 package heuristics.old;
 
-import conditions.Conditions;
+import conditions.Condition;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import problem.GroundAction;
@@ -30,7 +30,7 @@ import problem.GroundAction;
  */
 public class Bellman_Ford_H1_RC_Rep extends Bellman_Ford_H1_Rep {
 
-    public Bellman_Ford_H1_RC_Rep(Conditions G, Set<GroundAction> A) throws Exception {
+    public Bellman_Ford_H1_RC_Rep(Condition G, Set<GroundAction> A) throws Exception {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;

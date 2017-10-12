@@ -20,7 +20,7 @@ package search;
 
 import heuristics.Heuristic;
 import conditions.AndCond;
-import conditions.Conditions;
+import conditions.Condition;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
@@ -75,7 +75,7 @@ public class SearchStrategies {
     public boolean bfs = true;
     static public int node_reopened;
     public boolean cost_optimal;
-    public Conditions goal;
+    public Condition goal;
     HashMap<State, Float> g = new HashMap();
 
     private boolean optimality = true;
@@ -89,6 +89,7 @@ public class SearchStrategies {
     public int debug;
     public boolean json_eco_rep_saving;
     public float current_g;
+    public boolean forgetting_ehc = false;
 
     private void set_reachable_actions(EPddlProblem problem) {
 
@@ -330,8 +331,18 @@ public class SearchStrategies {
         //System.out.println("Goals:"+problem.getGoals());
 //        rel_actions = getHeuristic().reachable;
         states_evaluated = 0;
-        while (!problem.goalSatisfied(current)) {
-            SearchNode succ = breadth_first_search(current, problem.getGoals(), getHeuristic(), (EPddlProblem) problem);
+        HashMap<State, Boolean> visited = new HashMap();
+
+        while (true) {
+            Boolean b = problem.goalSatisfied(current);
+            
+            if (b == null)
+                return null;
+            if (b)
+                break;
+                
+            SearchNode succ = breadth_first_search(current, (EPddlProblem) problem, visited);
+            
             if (succ == null) {
                 System.out.println("No plan exists with EHC");
                 return null;
@@ -345,6 +356,9 @@ public class SearchStrategies {
             }
             plan.addAll(extract_plan(succ));
             //System.out.println(plan);
+            if (forgetting_ehc){
+                visited = new HashMap();
+            }
         }
         overall_search_time = System.currentTimeMillis() - start_global;
         return plan;
@@ -353,8 +367,7 @@ public class SearchStrategies {
 
     public static int nodes_expanded = 0;
 
-    public SearchNode breadth_first_search(State current, Conditions goals, Heuristic heuristic, EPddlProblem problem) throws Exception {
-        HashMap<State, Boolean> visited = new HashMap();
+    public SearchNode breadth_first_search(State current, EPddlProblem problem, HashMap<State, Boolean> visited) throws Exception {
         //System.out.println("Visited size:"+visited.size());
 
         Queue<SearchNode> frontier = new LinkedList();
@@ -496,7 +509,7 @@ public class SearchStrategies {
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
 
-//            System.out.println(current_node);
+            
             if (current_node.g_n >= depth_limit) {
                 overall_search_time = System.currentTimeMillis() - start_global;
                 continue;
@@ -525,9 +538,15 @@ public class SearchStrategies {
                     System.out.println("Expanded Nodes / sec:" + (new Float(nodes_expanded) * 1000.0 / ((System.currentTimeMillis() - start_global))));
                 }
 
-                nodes_expanded++;
+                
                 priority_queue_size = frontier.size();
-                if (problem.goalSatisfied(current_node.s)) {
+                Boolean res = problem.goalSatisfied(current_node.s);
+                if (res == null){//this means it is a dead-end
+                    num_dead_end_detected++;
+                    continue;
+                }
+                nodes_expanded++;
+                if (res) {
                     //if (current_node.s.satisfy(problem.getGoals())) {
                     overall_search_time = System.currentTimeMillis() - start_global;
                     current_g = current_node.g_n;
@@ -552,6 +571,7 @@ public class SearchStrategies {
                         State successor_state = current_node.s.clone();
                         successor_state.apply(act);
 //                        act.set_unit_cost(successor_state);
+//                        System.out.println(act);
 
                         //skip this if violates global constraints
                         if (!successor_state.satisfy(problem.globalConstraints)) {
@@ -570,6 +590,13 @@ public class SearchStrategies {
         return null;
     }
 
+    /**
+     * This function implements UCS as for Felner's paper SOCS 2011. It can also be used in a depth first search manner (going towards the highest f nodes first, if search strategy
+     * is called with the bfs = false option.
+     * @param problem. This is an EpddlProblem containing all the necessary information
+     * @return A sequence of actions
+     * @throws Exception Throws generic expression for now.
+     */
     public LinkedList blindSearch(EPddlProblem problem) throws Exception {
 
         System.out.println("Blind Search");
@@ -587,8 +614,9 @@ public class SearchStrategies {
             search_space_handle = init;
         }
         frontier.add(init);
-        HashMap<State, Boolean> visited = new HashMap();
+        HashMap<State, Boolean> closed = new HashMap();
         HashMap<State, Float> cost = new HashMap();
+        cost.put(problem.getInit(),0f);
         heuristic_time = 0;
         while (!frontier.isEmpty()) {
             SearchNode current_node = frontier.poll();
@@ -617,10 +645,12 @@ public class SearchStrategies {
                 continue;
             }
 
-            visited.put(current_node.s, Boolean.TRUE);
+            
             if (processes) {
                 advance_time(frontier, current_node, problem);
             }
+            
+
             for (GroundAction act : getHeuristic().reachable) {
                 if (act instanceof GroundProcess) {
                 } else if (act.isApplicable(current_node.s)) {
@@ -630,15 +660,16 @@ public class SearchStrategies {
                         continue;
                     }
 
-                    if (visited.get(temp) != null) {
+                    if (closed.get(temp) != null) {
                         if (cost.get(temp) != null) {
-                            if (!(cost.get(temp) > current_node.g_n + 1)) {
+                            if (!(cost.get(temp) >= current_node.g_n + act.getAction_cost())) {
                                 continue;
                             }
                         }
                     }
 
-                    cost.put(temp, current_node.g_n + 1);
+                    closed.put(current_node.s, Boolean.TRUE);
+                    cost.put(temp, current_node.g_n + act.getAction_cost());
                     setStates_evaluated(getStates_evaluated() + 1);
 
 //                    act.set_unit_cost(temp);

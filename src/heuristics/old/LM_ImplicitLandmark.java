@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  */
 public class LM_ImplicitLandmark extends UniformCostSearch_LM {
 
-    public LM_ImplicitLandmark(Conditions goal, Set<GroundAction> A) {
+    public LM_ImplicitLandmark(Condition goal, Set<GroundAction> A) {
         super(goal, A);
     }
 
@@ -59,7 +59,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
         while (!reachableActions.isEmpty()) {
             needActivation = false;
             GroundAction gr = reachableActions.remove();
-            for (Conditions c : conditionsToConsider) {
+            for (Condition c : conditionsToConsider) {
                 if (gr.getPreconditions().sons.contains(c)) {
                     continue; //Assume no action can achieve its precondition
                 }
@@ -96,7 +96,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
                     GroundAction g = itr.next();
                     boolean reachable = true;
                     if (g.getPreconditions() != null && !g.getPreconditions().sons.isEmpty()) {
-                        for (Conditions c : (Collection<Conditions>) g.getPreconditions().sons) {
+                        for (Condition c : (Collection<Condition>) g.getPreconditions().sons) {
                             if (!conditionReachable.get(c.getCounter())) {
                                 //still not reachable
                                 reachable = false;
@@ -116,7 +116,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
         findGoalLandmark(G, s);
 
         //If found such landmark in this problem, it will print on the screen
-        for (Conditions c1 : (Collection<Conditions>) this.G.sons) {
+        for (Condition c1 : (Collection<Condition>) this.G.sons) {
             //findImplicitLandmarks(c1);
             if (findImplicitLandmarks(c1)) {
                 System.out.println("Implicit Landmarks found");
@@ -131,7 +131,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
                 lp.setOut(null);
 
                 IloLinearNumExpr objective = lp.linearNumExpr();
-                for (Conditions c : goalLandmark) {
+                for (Condition c : goalLandmark) {
                     IloLinearNumExpr expr = lp.linearNumExpr();
                     for (repetition_landmark dlm : this.possible_achievers.get(c.getCounter())) {
                         IloNumVar action;
@@ -176,9 +176,9 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
     }
 
     //For now I use return type as Boolean to found out whether a domain contains such landmarks, it can change to void
-    protected boolean findImplicitLandmarks(Conditions c) {
+    protected boolean findImplicitLandmarks(Condition c) {
         boolean found = false;
-        ArrayList<Conditions> preconditions = new ArrayList<>();
+        ArrayList<Condition> preconditions = new ArrayList<>();
 
         for (repetition_landmark rp : this.possible_achievers.get(c.getCounter())) {
             if ((rp.gr.getPreconditions() != null) && (rp.gr.getPreconditions().sons != null)) {
@@ -188,7 +188,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
 
         for (int i = 0; i < preconditions.size(); i++) {
             boolean isLandmark = true;
-            Conditions c1 = preconditions.get(i);
+            Condition c1 = preconditions.get(i);
 
             if (c1 instanceof Predicate) {
                 continue;
@@ -200,7 +200,7 @@ public class LM_ImplicitLandmark extends UniformCostSearch_LM {
                     continue;
                 }
 
-                Conditions c2 = preconditions.get(j);
+                Condition c2 = preconditions.get(j);
 
                 if (c2 instanceof Predicate) {
                     continue;

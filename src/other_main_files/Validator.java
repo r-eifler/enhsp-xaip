@@ -18,7 +18,7 @@
  */
 package other_main_files;
 
-import conditions.Conditions;
+import conditions.Condition;
 import domain.ActionSchema;
 import domain.PddlDomain;
 import static extraUtils.Utils.searchParameterValue;
@@ -70,8 +70,8 @@ public class Validator {
     private static String domainFile;
     private static String problemFile;
     private static String planFile;
-    private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_init;
-    private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_goal;
+    private static HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init;
+    private static HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal;
     private static String last_state_file;
 
     public static void parseInput(String[] args) {

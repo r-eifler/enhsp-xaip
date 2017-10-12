@@ -20,7 +20,7 @@ package other_main_files;
 
 import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
-import conditions.Conditions;
+import conditions.Condition;
 import domain.ActionSchema;
 import domain.PddlDomain;
 import extraUtils.Utils;
@@ -69,8 +69,8 @@ public class produceEntaglementsMultiplePlans {
     private static String domainFile;
     private static String problemFile;
     private static String planFile;
-    private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_init;
-    private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_goal;
+    private static HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init;
+    private static HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal;
     private static String enhancedDomainFile;
 
     public static void parseInput(String[] args) {
@@ -123,36 +123,36 @@ public class produceEntaglementsMultiplePlans {
         action_to_entaglement_by_init = new HashMap();
         action_to_entaglement_by_goal = new HashMap();
         for (ActionSchema as : dom.getActionsSchema()) {
-            Set<Conditions> entanglementsByInit = new HashSet();
+            Set<Condition> entanglementsByInit = new HashSet();
             //System.out.println(as.getName());
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                if (sp.entangledByInit(as.getName(), prob.getInit(), (Conditions) o)) {
-                    entanglementsByInit.add((Conditions) o);
+                if (sp.entangledByInit(as.getName(), prob.getInit(), (Condition) o)) {
+                    entanglementsByInit.add((Condition) o);
 
                 }
             }
             action_to_entaglement_by_init.put(as, entanglementsByInit);
             System.out.print(as.getName() + " ent_init -> ");
-            for (Conditions ent : entanglementsByInit) {
+            for (Condition ent : entanglementsByInit) {
                 System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();
         }
 
         for (ActionSchema as : dom.getActionsSchema()) {
-            Set<Conditions> entanglementsByGoal = new HashSet();
+            Set<Condition> entanglementsByGoal = new HashSet();
             //System.out.println(as.getName());
             AndCond c = (AndCond) as.getAddList();
             for (Object o : c.sons) {
-                if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Conditions) o)) {
-                    entanglementsByGoal.add((Conditions) o);
+                if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Condition) o)) {
+                    entanglementsByGoal.add((Condition) o);
                 }
             }
             action_to_entaglement_by_goal.put(as, entanglementsByGoal);
             System.out.print(as.getName() + " ent_goal -> ");
-            for (Conditions ent : entanglementsByGoal) {
+            for (Condition ent : entanglementsByGoal) {
                 System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();

@@ -21,7 +21,7 @@ package problem;
 import conditions.AndCond;
 import conditions.NumFluentValue;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
@@ -67,6 +67,7 @@ public class State extends AbstractState {
         propositions = new HashMap();
         num_fluents_initial_values = new HashMap();
         timedLiterals = new HashSet();
+        this.current_fluent_values = new ArrayList();
     }
 
     @Override
@@ -294,7 +295,7 @@ public class State extends AbstractState {
     }
             
 
-    public boolean satisfy(Conditions input) {
+    public boolean satisfy(Condition input) {
 
         return input.isSatisfied(this);
 
@@ -355,9 +356,9 @@ public class State extends AbstractState {
 
         for (Object o : grActions) {
             GroundAction gr = (GroundAction) o;
-            Conditions add = gr.getAddList();
-            Conditions del = gr.getDelList();
-            Conditions num = gr.getNumericEffects();
+            Condition add = gr.getAddList();
+            Condition del = gr.getDelList();
+            Condition num = gr.getNumericEffects();
         }
 
     }
@@ -559,7 +560,7 @@ public class State extends AbstractState {
 
     }
 
-    public Float normalizedRisk(Conditions conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
+    public Float normalizedRisk(Condition conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
         Float total = new Float(0.0);
 
         String threateningConstraint = new String();
@@ -651,7 +652,7 @@ public class State extends AbstractState {
 
     }
 
-    public Float normalizedDist(Conditions conditions, RelState numericFleuntsBoundaries, String distStrategy) {
+    public Float normalizedDist(Condition conditions, RelState numericFleuntsBoundaries, String distStrategy) {
         Float total = new Float(0.0);
 
         if (conditions instanceof AndCond) {
@@ -764,7 +765,7 @@ public class State extends AbstractState {
         return total;
     }
 
-    public Float distance(Conditions c) {
+    public Float distance(Condition c) {
         Comparison comp = (Comparison) c;
         if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
@@ -819,7 +820,7 @@ public class State extends AbstractState {
         return null;
     }
 
-    public Float distance2(Conditions c) {
+    public Float distance2(Condition c) {
         Comparison comp = (Comparison) c;
         if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
@@ -958,7 +959,7 @@ public class State extends AbstractState {
         return null;
     }
 
-    public Conditions getProposition(Predicate aThis) {
+    public Condition getProposition(Predicate aThis) {
         for (Predicate p : this.getPropositions()) {
             if (p.equals(aThis)) {
                 return p;

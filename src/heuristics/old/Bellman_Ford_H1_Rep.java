@@ -21,7 +21,7 @@ package heuristics.old;
 import heuristics.utils.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
@@ -50,12 +50,12 @@ import problem.State;
  */
 public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
 
-    protected HashMap<Conditions, Conditions> generator;
+    protected HashMap<Condition, Condition> generator;
     private boolean ignore_reduntant_constraints;
     private boolean max_redundant_constraints;
     private boolean too_optimistic = false;
 
-    public Bellman_Ford_H1_Rep(Conditions G, Set<GroundAction> A) throws Exception {
+    public Bellman_Ford_H1_Rep(Condition G, Set<GroundAction> A) throws Exception {
         super(G, A);
         this.G = G;
         this.A = (LinkedHashSet<GroundAction>) A;
@@ -73,7 +73,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
         }
         Collection<GroundAction> A_temp = new LinkedHashSet(this.reachable);;
 
-        LinkedHashSet<Conditions> all_conditions_temp = new LinkedHashSet(all_conditions);
+        LinkedHashSet<Condition> all_conditions_temp = new LinkedHashSet(all_conditions);
         generate_repetition_constraints(s_0, A_temp, (LinkedHashSet) all_conditions_temp);
         ArrayList<Integer> h = new ArrayList<Integer>(Collections.nCopies(all_conditions_temp.size() + 1, Integer.MAX_VALUE));
 
@@ -93,9 +93,9 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
     }
 
     @Override
-    protected boolean update_conditions_values(Collection<HeuristicSearchNode> pool, State s_0, Collection<Conditions> conds, ArrayList<Integer> h) {
+    protected boolean update_conditions_values(Collection<HeuristicSearchNode> pool, State s_0, Collection<Condition> conds, ArrayList<Integer> h) {
         boolean update = false;
-        for (Conditions c : conds) {
+        for (Condition c : conds) {
             if (h.get(c.getCounter()) != 0) {
                 if (c instanceof Predicate) {
                     for (HeuristicSearchNode gr : pool) {
@@ -187,7 +187,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
         return update;
     }
 
-    private void generate_repetition_constraints(State s_0, Collection<GroundAction> A1, LinkedHashSet<Conditions> conditions_set) {
+    private void generate_repetition_constraints(State s_0, Collection<GroundAction> A1, LinkedHashSet<Condition> conditions_set) {
 
         rep_costs = new HashMap();
         generator = new HashMap();
@@ -198,7 +198,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
             if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty()) {
                 continue;
             }
-            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().sons) {
+            for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
 
                 if (c instanceof Comparison) {
                     //System.out.println("redundant_constraints:"+redundant_constraints);
@@ -249,7 +249,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                             this.is_complex.put(new_comp, false);
                             //this.index_of_last_static_atom++;s
                             if (!conditions_set.add(new_comp)) {
-                                for (Conditions c3 : conditions_set) {
+                                for (Condition c3 : conditions_set) {
                                     if (c3 instanceof Comparison) {
                                         Comparison temp = (Comparison) c3;
                                         if (temp.equals(new_comp)) {
@@ -277,7 +277,7 @@ public class Bellman_Ford_H1_Rep extends Bellman_Ford_H1 {
                             new_comp.setCounter(conditions_set.size() + 1);
                             //this.index_of_last_static_atom++;s
                             if (!conditions_set.add(new_comp)) {
-                                for (Conditions c3 : conditions_set) {
+                                for (Condition c3 : conditions_set) {
                                     if (c3 instanceof Comparison) {
                                         Comparison temp = (Comparison) c3;
                                         if (temp.equals(new_comp)) {

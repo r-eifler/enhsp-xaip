@@ -22,13 +22,11 @@ import conditions.ForAll;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
-import conditions.Existential;
+import conditions.Condition;
+import conditions.FactoryConditions;
 import conditions.NotCond;
 import conditions.NumFluentValue;
-import conditions.OrCond;
 import conditions.PDDLObject;
-import conditions.PDDLObjectsEquality;
 import conditions.PostCondition;
 import conditions.Predicate;
 import expressions.ComplexFunction;
@@ -79,7 +77,7 @@ public final class PddlDomain extends Object {
     private Set<EventSchema> eventsSchema;
 
     private PredicateSet predicates;
-    private List<Type> types;
+    private Set<Type> types;
     private PDDLObjects constants;
     private List functions;
     private List<NumFluent> derived_variables;
@@ -88,8 +86,9 @@ public final class PddlDomain extends Object {
     private String pddlReferenceFile;
     private HashMap abstractInvariantFluents;
     private LinkedHashSet<SchemaGlobalConstraint> SchemaGlobalConstraints;
+    private FactoryConditions fc;
 
-    private PddlDomain(Set<ActionSchema> ActionsSchema, PredicateSet Predicates, List<Type> types, List Functions, List DurativeActions, List<String> Requirements) {
+    private PddlDomain(Set<ActionSchema> ActionsSchema, PredicateSet Predicates, Set<Type> types, List Functions, List DurativeActions, List<String> Requirements) {
         this.ActionsSchema = ActionsSchema;
         this.predicates = Predicates;
         this.types = types;
@@ -104,7 +103,7 @@ public final class PddlDomain extends Object {
      */
     public PddlDomain() {
         super();
-        types = new ArrayList<>();
+        types = new LinkedHashSet<>();
         ActionsSchema = new TreeSet<>(new ActionComparator());
         functions = new ArrayList();
         derived_variables = new ArrayList();
@@ -121,7 +120,7 @@ public final class PddlDomain extends Object {
         try {
             SchemaGlobalConstraints = new LinkedHashSet();
 
-            types = new ArrayList<>();
+            types = new LinkedHashSet<>();
             ActionsSchema = new TreeSet<>(new ActionComparator());
             functions = new ArrayList();
             derived_variables = new ArrayList();
@@ -304,6 +303,7 @@ public final class PddlDomain extends Object {
             System.exit(-1);
         }
 
+//        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types,this.constants);
         CommonTree t = (CommonTree) root.getTree();
         int i;
         for (i = 0; i < t.getChildCount(); i++) {
@@ -318,8 +318,8 @@ public final class PddlDomain extends Object {
                     addTypes(c);
                     break;
                 case PddlParser.PREDICATES:
-                    //addPredicates(c);
                     this.predicates = (PredicateSet) addPredicates(c);
+                    fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types,this.constants);
                     break;
                 case PddlParser.ACTION:
                     addActions(c);
@@ -382,14 +382,14 @@ public final class PddlDomain extends Object {
     /**
      * @return the types declared in the domain
      */
-    public List<Type> getTypes() {
+    public Set<Type> getTypes() {
         return types;
     }
 
     /**
      * @param types the types to set
      */
-    private void setTypes(List<Type> Types) {
+    private void setTypes(Set<Type> Types) {
         this.types = Types;
     }
 
@@ -496,225 +496,7 @@ public final class PddlDomain extends Object {
         this.addGenericActionSchemas(c, new ActionSchema());
     }
 
-    private Conditions createPreconditions(Tree infoAction, SchemaParameters parTable) {
-        Conditions ret = null;
-        if (infoAction == null) {
-            return null;
-        }
-
-        switch (infoAction.getType()) {
-            case PddlParser.PRED_HEAD:
-                //extract the predicate
-                return buildPredicate(infoAction, parTable);
-            case PddlParser.AND_GD:
-                AndCond and = new AndCond();
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                    if (ret_val != null) {
-                        and.addConditions(ret_val);
-                    }
-                }
-                return and;
-            //Crea un and e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di and
-            case PddlParser.OR_GD:
-                OrCond or = new OrCond();
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                    if (ret_val != null) {
-                        or.addConditions(ret_val);
-                    }
-                }
-                return or;
-            case PddlParser.NOT_GD:
-                Conditions cond = null; // TODO: Can it be null or should we throw an error?  
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = createPreconditions(infoAction.getChild(i), parTable);
-                    if (ret_val != null) {
-                        cond = ret_val;
-                    }
-                }
-                NotCond not = new NotCond(cond);
-                return not;
-            //Crea un not e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di not
-            case PddlParser.COMPARISON_GD:
-                //System.out.println("Comparison:" + infoAction.getText());
-
-                Comparison c = new Comparison(infoAction.getChild(0).getText());
-
-                c.setLeft(createExpression(infoAction.getChild(1), parTable));
-                c.setRight(createExpression(infoAction.getChild(2), parTable));
-                return c;
-            //Create an equality structure for comparing Objects
-            case PddlParser.EQUALITY_CON:
-                PDDLObjectsEquality equality = new PDDLObjectsEquality();
-
-                if (infoAction.getChild(1).getType() == PddlParser.NAME) {
-                    System.out.println("Constant objects in equality comparison are not supported");
-                    System.exit(-1);
-                } else {
-                    equality.setLeftV(buildVariable(infoAction.getChild(1), parTable));
-                }
-                if (infoAction.getChild(1).getType() == PddlParser.NAME) {
-                    System.out.println("Constant objects in equality comparison are not supported");
-                    System.exit(-1);
-                } else {
-                    equality.setRightV(buildVariable(infoAction.getChild(2), parTable));
-                }
-                return equality;
-            case PddlParser.FORALL_GD:
-                ForAll forall = new ForAll();
-
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Tree child = infoAction.getChild(i);
-                    switch (child.getType()) {
-                        case PddlParser.VARIABLE:
-                            if (child.getChild(0) == null) {
-                                break;
-                            }
-                            Type t = new Type(child.getChild(0).getText());
-                            boolean found = false;
-                            for (Object o : this.getTypes()) {
-                                if (t.equals(o)) {
-                                    t = (Type) o;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                System.out.println("Type: " + t + " is not specified. Please Fix the Model");
-                                System.exit(-1);
-                            } else {
-                                forall.addParameter(new Variable(child.getText(), t));
-                            }
-                            break;
-                        default:
-                            //at this point I should have collected all the parameters for grounding
-                            //the variable into constants
-                            SchemaParameters aug_par_table = new SchemaParameters();
-                            aug_par_table.addAll(parTable);
-                            aug_par_table.addAll(forall.getParameters());
-                            Conditions ret_val = createPreconditions(child, aug_par_table);
-                            //System.out.println("ret_val for forall condition is:"+ret_val);
-                            if (ret_val != null) {
-                                forall.addConditions(ret_val);
-                            } else {
-                                System.out.println("Something fishy here.." + child);
-                                System.exit(-1);
-                            }
-                            break;
-
-                    }
-
-                }
-                return forall;
-            case PddlParser.EXISTS_GD:
-                Existential exist = new Existential();
-
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Tree child = infoAction.getChild(i);
-                    switch (child.getType()) {
-                        case PddlParser.VARIABLE:
-                            if (child.getChild(0) == null) {
-                                break;
-                            }
-                            Type t = new Type(child.getChild(0).getText());
-                            boolean found = false;
-                            for (Object o : this.getTypes()) {
-                                if (t.equals(o)) {
-                                    t = (Type) o;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                System.out.println("Type: " + t + " is not specified. Please Fix the Model");
-                                System.exit(-1);
-                            } else {
-                                exist.addParameter(new Variable(child.getText(), t));
-                            }
-                            break;
-                        default:
-                            //at this point I should have collected all the parameters for grounding
-                            //the variable into constants
-                            SchemaParameters aug_par_table = new SchemaParameters();
-                            aug_par_table.addAll(parTable);
-                            aug_par_table.addAll(exist.getParameters());
-                            Conditions ret_val = createPreconditions(child, aug_par_table);
-                            if (ret_val != null) {
-                                exist.addConditions(ret_val);
-                            }
-                            break;
-
-                    }
-
-                }
-                return exist;
-            case PddlParser.IMPLY_GD:
-                System.out.println("Implication not supported yet:" + infoAction.getText());
-                return null;
-            //Create an equality structure for comparing Objects
-            default:
-                break;
-        }
-        return null;
-    }
-
-    private Predicate buildPredicate(Tree t, SchemaParameters parTable) {
-        Predicate a = new Predicate();
-        a.setPredicateName(t.getChild(0).getText());
-        //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
-        for (int i = 1; i < t.getChildCount(); i++) {
-            if (t.getChild(i).getType() == PddlParser.NAME) {
-                PDDLObject o = new PDDLObject(t.getChild(i).getText());
-                PDDLObject o1 = this.getConstants().containsTerm(o);
-                if (o1 != null) {
-                    //a.setGrounded(true);
-                    a.addObject(o1);
-                } else {
-                    System.out.println("Variable " + o + " is not a constant object");
-                    System.exit(-1);
-                }
-            } else {
-                Variable v = new Variable(t.getChild(i).getText());
-                Variable v1 = parTable.containsVariable(v);
-                if (v1 != null) {
-                    a.addVariable(v1);
-                } else {
-                    System.out.println("BuildPredicate: Variable " + v + " not in the action model");
-                    System.exit(-1);
-                }
-            }
-        }
-        if (!predicates.validate(a)) {
-            System.out.println("Predicate " + a + " is not valid");
-            System.exit(-1);
-        }
-        return a;
-    }
-
-    private Variable buildVariable(Tree t, SchemaParameters parTable) {
-        Variable a = null;
-        //a.setName(t.getChild(0).getText());
-        //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
-        if (t.getType() == PddlParser.NAME) {
-
-            System.out.println("Error in parsing variable terms");
-            System.exit(-1);
-
-        } else {
-
-            a = new Variable(t.getText());
-            Variable v1 = parTable.containsVariable(a);
-            if (v1 == null) {
-                System.out.println("BuildPredicate: Variable " + a + " not involved in the action model");
-                System.exit(-1);
-            }
-            a = v1;
-        }
-        return a;
-    }
+   
 
     private Object addPredicates(Tree t) {
         PredicateSet col = new PredicateSet();
@@ -759,7 +541,7 @@ public final class PddlDomain extends Object {
         switch (infoAction.getType()) {
             case PddlParser.PRED_HEAD:
                 //estrapola tutti i predicati e ritornali come set di predicati
-                return buildPredicate(infoAction, parTable);
+                return fc.buildPredicate(infoAction, parTable);
 
             case PddlParser.AND_EFFECT:
                 AndCond and = new AndCond();
@@ -771,12 +553,9 @@ public final class PddlDomain extends Object {
                 }
                 return and;
             case PddlParser.NOT_EFFECT:
-                Conditions ret_val = (Conditions) createPostCondition(parTable, infoAction.getChild(0));
+                Condition ret_val = (Condition) createPostCondition(parTable, infoAction.getChild(0));
                 NotCond not = new NotCond(ret_val);
-
                 return not;
-            //Crea un and e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di and
             case PddlParser.ASSIGN_EFFECT:
                 NumEffect a = new NumEffect(infoAction.getChild(0).getText());
 //                System.out.println("DEBUG: Working out this effect:"+a);
@@ -784,12 +563,11 @@ public final class PddlDomain extends Object {
                 a.setRight((Expression) createExpression(infoAction.getChild(2), parTable));
                 return a;
             case PddlParser.FORALL_EFFECT:
-                System.err.println("ADL not fully supported");
-                System.exit(-1);
+                ForAll forall = this.createForAllEffect(infoAction, parTable);
+                return forall;
             case PddlParser.WHEN_EFFECT:
-                Conditions lhs = this.createPreconditions(infoAction.getChild(0), parTable);
+                Condition lhs = fc.createCondition(infoAction.getChild(0), parTable);
                 PostCondition rhs = (PostCondition) this.createPostCondition(parTable, infoAction.getChild(1));
-
                 return new ConditionalEffect(lhs, rhs);
             default:
                 System.out.println("Serious error in parsing:" + infoAction);
@@ -1055,7 +833,7 @@ public final class PddlDomain extends Object {
     public HashMap<Object, Boolean> generateInvariant() {
         HashMap<Object, Boolean> ret = new HashMap();
         for (ActionSchema as : this.getActionsSchema()) {
-            Conditions prop_effects = as.getAddList();
+            Condition prop_effects = as.getAddList();
             if (prop_effects instanceof AndCond) {
                 AndCond ac = (AndCond) prop_effects;
                 for (Object o : ac.sons) {
@@ -1160,7 +938,8 @@ public final class PddlDomain extends Object {
 
             switch (type) {
                 case (PddlParser.PRECONDITION):
-                    Conditions condition = createPreconditions(infoConstraint.getChild(0), con.parameters);
+                    
+                    Condition condition = fc.createCondition(infoConstraint.getChild(0), con.parameters);
                     if ((condition instanceof Comparison) || (condition instanceof Predicate)) {
                         AndCond and = new AndCond();
                         and.addConditions(condition);
@@ -1222,7 +1001,7 @@ public final class PddlDomain extends Object {
 
             switch (type) {
                 case (PddlParser.PRECONDITION):
-                    Conditions con = createPreconditions(infoAction.getChild(0), a.getParameters());
+                    Condition con = fc.createCondition(infoAction.getChild(0), a.getParameters());
                     if ((con instanceof Comparison) || (con instanceof Predicate)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
@@ -1288,33 +1067,10 @@ public final class PddlDomain extends Object {
 //    }
     private void add_effects(GenericActionType a, Tree infoAction) {
         PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
-        create_effects_by_cases(res, a);
+        a.create_effects_by_cases(res);
     }
 
-    public static void create_effects_by_cases(PostCondition res, GenericActionType a) {
-        if (res instanceof AndCond) {
-            AndCond pc = (AndCond) res;
-            for (Object o : pc.sons) {
-                if (o instanceof Predicate) {
-                    a.addList.sons.add(o);
-                } else if (o instanceof NotCond) {
-                    a.delList.sons.add(o);
-                } else if (o instanceof NumEffect) {
-                    a.numericEffects.sons.add(o);
-                } else if (o instanceof ConditionalEffect) {
-                    a.cond_effects.sons.add(o);
-                }
-            }
-        } else if (res instanceof Predicate) {
-            a.addList.sons.add(res);
-        } else if (res instanceof NotCond) {
-            a.delList.sons.add(res);
-        } else if (res instanceof NumEffect) {
-            a.numericEffects.sons.add(res);
-        } else if (res instanceof ConditionalEffect) {
-            a.cond_effects.sons.add(res);
-        }
-    }
+    
 
     public void saveDomainWithInterpretationObjects(String file) throws IOException {
         PddlDomain domain = this;
@@ -1379,7 +1135,8 @@ public final class PddlDomain extends Object {
 
             switch (type) {
                 case (PddlParser.PRECONDITION):
-                    Conditions con = createPreconditions(infoAction.getChild(0), a.parameters);
+                    
+                    Condition con = fc.createCondition(infoAction.getChild(0), a.parameters);
                     if ((con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
@@ -1432,15 +1189,15 @@ public final class PddlDomain extends Object {
     }
 
     public boolean can_be_abstract_dominant_constraints() {
-        Set<Conditions> set = new HashSet();
+        Set<Condition> set = new HashSet();
         for (ActionSchema as : this.ActionsSchema) {
             set.addAll(as.getPreconditions().getTerminalConditions());
         }
 
         for (int i = 0; i < set.toArray().length; i++) {
             for (int j = i + 1; j < set.toArray().length; j++) {
-                Conditions c1 = (Conditions) set.toArray()[i];
-                Conditions c2 = (Conditions) set.toArray()[j];
+                Condition c1 = (Condition) set.toArray()[i];
+                Condition c2 = (Condition) set.toArray()[j];
                 if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
                     Comparison comp_c1 = (Comparison) c1;
                     Comparison comp_c2 = (Comparison) c2;
@@ -1453,6 +1210,101 @@ public final class PddlDomain extends Object {
 
         }
         return false;
+    }
+
+    public ForAll createForAll(Tree infoAction, SchemaParameters parTable) {
+        ForAll forall = new ForAll();
+        for (int i = 0; i < infoAction.getChildCount(); i++) {
+            Tree child = infoAction.getChild(i);
+            switch (child.getType()) {
+                case PddlParser.VARIABLE:
+                    if (child.getChild(0) == null) {
+                        break;
+                    }
+                    Type t = new Type(child.getChild(0).getText());
+                    boolean found = false;
+                    for (Object o : this.getTypes()) {
+                        if (t.equals(o)) {
+                            t = (Type) o;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                        System.exit(-1);
+                    } else {
+                        forall.addParameter(new Variable(child.getText(), t));
+                    }
+                    break;
+                default:
+                    //at this point I should have collected all the parameters for grounding
+                    //the variable into constants
+                    SchemaParameters aug_par_table = new SchemaParameters();
+                    aug_par_table.addAll(parTable);
+                    aug_par_table.addAll(forall.getParameters());
+                    Condition ret_val = fc.createCondition(child, aug_par_table);
+                    //System.out.println("ret_val for forall condition is:"+ret_val);
+                    if (ret_val != null) {
+                        forall.addConditions(ret_val);
+                    } else {
+                        System.out.println("Something fishy here.." + child);
+                        System.exit(-1);
+                    }
+                    break;
+
+            }
+
+        }
+        return forall;
+
+    }
+
+    private ForAll createForAllEffect(Tree infoAction, SchemaParameters parTable) {
+        ForAll forall = new ForAll();
+        for (int i = 0; i < infoAction.getChildCount(); i++) {
+            Tree child = infoAction.getChild(i);
+            switch (child.getType()) {
+                case PddlParser.VARIABLE:
+                    if (child.getChild(0) == null) {
+                        break;
+                    }
+                    Type t = new Type(child.getChild(0).getText());
+                    boolean found = false;
+                    for (Object o : this.getTypes()) {
+                        if (t.equals(o)) {
+                            t = (Type) o;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
+                        System.exit(-1);
+                    } else {
+                        forall.addParameter(new Variable(child.getText(), t));
+                    }
+                    break;
+                default:
+                    //at this point I should have collected all the parameters for grounding
+                    //the variable into constants
+                    SchemaParameters aug_par_table = new SchemaParameters();
+                    aug_par_table.addAll(parTable);
+                    aug_par_table.addAll(forall.getParameters());
+                    PostCondition ret_val = createPostCondition(aug_par_table,child);
+                    //System.out.println("ret_val for forall condition is:"+ret_val);
+                    if (ret_val != null) {
+                        forall.sons.add(ret_val);
+                    } else {
+                        System.out.println("Something fishy here.." + child);
+                        System.exit(-1);
+                    }
+                    break;
+
+            }
+
+        }
+        return forall;
     }
 
 }

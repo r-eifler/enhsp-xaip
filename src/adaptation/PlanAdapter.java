@@ -22,7 +22,7 @@ import antlr.RecognitionException;
 import some_computatitional_tool.DomainEnhancer;
 import some_computatitional_tool.NumericKernel;
 import some_computatitional_tool.NumericPlanningGraph;
-import conditions.Conditions;
+import conditions.Condition;
 import domain.PddlDomain;
 import extraUtils.Utils;
 import java.io.File;
@@ -189,7 +189,7 @@ public class PlanAdapter {
             //Temporary Problem to emulate a new goal in a PDDL problem description
             PddlProblem tempProblem = new PddlProblem();
             tempProblem.parseProblem(prob.getPddlFileReference());
-            tempProblem.setGoals((Conditions) nk.get(i));
+            tempProblem.setGoals((Condition) nk.get(i));
             tempProblem.saveProblem("temp.pddl");
 
             //Computing the patch toward the kernel by means of a general purpose planner

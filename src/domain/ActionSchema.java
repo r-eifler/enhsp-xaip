@@ -21,20 +21,19 @@ package domain;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NotCond;
 
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumEffect;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
-import propositionalFactory.grounder;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -82,11 +81,17 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
+        if (ret.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) ret.forall.ground(substitution, po);
+            this.create_effects_by_cases(temp);
+        } 
+
         ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         ret.setAddList(this.addList.ground(substitution, po));
         ret.setDelList(this.delList.ground(substitution, po));
         ret.setPreconditions(this.preconditions.ground(substitution, po));
         ret.cond_effects = this.cond_effects.ground(substitution, po);
+        
 
         return ret;
 
@@ -112,10 +117,16 @@ public class ActionSchema extends GenericActionType {
     public GroundAction ground(ParametersAsTerms par, PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         int i = 0;
-        grounder g = new grounder();
+        Grounder g = new Grounder();
         Map substitution = g.obtain_sub_from_instance(parameters, par);
         ret.setParameters(par);
 
+        if (this.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) this.forall.ground(substitution, po);
+            this.create_effects_by_cases(temp);
+        } 
+        
+        
 //        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
@@ -277,7 +288,7 @@ public class ActionSchema extends GenericActionType {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Conditions numEff = new AndCond();
+        Condition numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
@@ -305,7 +316,7 @@ public class ActionSchema extends GenericActionType {
     /**
      * @return the numericFluentAffected
      */
-    private Conditions regress(ActionSchema b, ActionSchema a) {
+    private Condition regress(ActionSchema b, ActionSchema a) {
         /*Propositional Part first*/
 
         AndCond result = (AndCond) b.getPreconditions().clone();

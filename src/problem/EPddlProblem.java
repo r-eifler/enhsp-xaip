@@ -20,6 +20,7 @@ package problem;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ForAll;
 import conditions.NotCond;
 import conditions.NumFluentValue;
 import conditions.OrCond;
@@ -27,9 +28,10 @@ import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionSchema;
 import domain.EventSchema;
-import domain.GenericActionType;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
+import domain.SchemaParameters;
+import domain.Type;
 import domain.Variable;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
@@ -45,7 +47,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import propositionalFactory.grounder;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -67,7 +69,8 @@ public class EPddlProblem extends PddlProblem {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects);
+
+        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
         cloned.processesSet = new LinkedHashSet();
         for (GroundAction gr : this.actions) {
             cloned.actions.add((GroundAction) gr.clone());
@@ -83,24 +86,12 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public EPddlProblem(){
-        
-    }
-    
-    public EPddlProblem(String problemFile) {
-        super(problemFile);
-        globalConstraintSet = new LinkedHashSet();
-        processesSet = new LinkedHashSet();
-        eventsSet = new LinkedHashSet();
-
-        globalConstraintGrounded = false;
-        processesGround = false;
-        grounding = false;
+    public EPddlProblem() {
 
     }
 
-    public EPddlProblem(String problemFile, PDDLObjects po) {
-        super(problemFile, po);
+    public EPddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
+        super(problemFile, po, types);
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
         eventsSet = new LinkedHashSet();
@@ -124,7 +115,7 @@ public class EPddlProblem extends PddlProblem {
     public void generateActions() throws Exception {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
                 //if (act.getPar().size() != 0) {
@@ -185,7 +176,7 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         processesSet = new LinkedHashSet();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
                 if (process.getParameters().size() != 0) {
@@ -435,7 +426,7 @@ public class EPddlProblem extends PddlProblem {
 
         } else if (a instanceof NotCond) {//this is problematique.
             NotCond nc = (NotCond) a;
-            subst = grounder.substitutions(nc.getInvolvedVariables(), objects);
+            subst = Grounder.substitutions(nc.getInvolvedVariables(), objects);
 //            for (Object o: nc.son){
             subst.removeAll(this.find_substs(nc.getSon(), s));
 //            }           
@@ -494,12 +485,12 @@ public class EPddlProblem extends PddlProblem {
         /*In this setting here, you have to generate a number of substitutions. Each one of them is a possible grounding of the
         action according to its effect. This has to be intersected with what we have discovered so far, but still it has to be done*/
         //add list
-        subst = intersect(subst, grounder.substitutions(gr.getAddList().getInvolvedVariables(), objects));
-        subst = intersect(subst, grounder.substitutions(gr.getDelList().getInvolvedVariables(), objects));
+        subst = intersect(subst, Grounder.substitutions(gr.getAddList().getInvolvedVariables(), objects));
+        subst = intersect(subst, Grounder.substitutions(gr.getDelList().getInvolvedVariables(), objects));
 
         subst = intersect(subst, this.find_substs(gr.getNumericEffects(), s));
 
-        subst = intersect(subst, grounder.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
+        subst = intersect(subst, Grounder.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
 
         //the following is a (failed) attempt to optimise the thing
 //        
@@ -605,7 +596,7 @@ public class EPddlProblem extends PddlProblem {
 
     public void generateConstraints() throws Exception {
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
 
@@ -626,6 +617,8 @@ public class EPddlProblem extends PddlProblem {
 
     public void grounding_action_processes_constraints() throws Exception {
         long start = System.currentTimeMillis();
+
+        this.groundGoals();
         this.generateActions();
         this.generateProcesses();
         this.generateConstraints();
@@ -676,12 +669,11 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            } 
+            }
         }
 //        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
 //        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
-        
         it = this.processesSet.iterator();
         while (it.hasNext()) {
             GroundProcess process = (GroundProcess) it.next();
@@ -749,7 +741,7 @@ public class EPddlProblem extends PddlProblem {
         remove_num_fluents_not_involved_in_preconditions();
         add_possible_numeric_fluents_from_assignments();
         fix_num_fluents_unique_hashcode();
-        
+
         propagate_new_num_fluents_hash();
         set_actions_costs();
     }
@@ -763,7 +755,7 @@ public class EPddlProblem extends PddlProblem {
     private void generateEvents() {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (EventSchema event_schema : (Set<EventSchema>) linkedDomain.getEventSchema()) {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
@@ -904,8 +896,14 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    public boolean goalSatisfied(State s) {
-       return s.satisfy(this.getGoals());
+    public Boolean goalSatisfied(State s) {
+        return s.satisfy(this.getGoals());
+    }
+
+    private void groundGoals() {
+
+        this.goals = this.goals.ground(new HashMap(), objects);
+
     }
 
 }

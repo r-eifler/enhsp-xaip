@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.ActionParameter;
 import domain.Variable;
@@ -298,7 +298,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition numeric) {
 
         if (numeric == null) {
             return this;

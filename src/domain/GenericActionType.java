@@ -20,8 +20,10 @@ package domain;
 
 import conditions.AndCond;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
+import conditions.ForAll;
 import conditions.NotCond;
+import conditions.PostCondition;
 import conditions.Predicate;
 
 import expressions.NumEffect;
@@ -35,18 +37,19 @@ import java.util.Set;
 public abstract class GenericActionType extends Object {
 
     protected String name;
-    protected Conditions addList;
-    protected Conditions delList;
-    protected Conditions numericEffects;
-    protected Conditions preconditions;
-    public Conditions cond_effects;
+    protected Condition addList;
+    protected Condition delList;
+    protected Condition numericEffects;
+    protected Condition preconditions;
+    public Condition cond_effects;
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     protected SchemaParameters parameters;
+    protected Condition forall;
 
     /**
      * @return the addList
      */
-    public Conditions getAddList() {
+    public Condition getAddList() {
         return addList;
     }
 
@@ -57,7 +60,7 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the delList
      */
-    public Conditions getDelList() {
+    public Condition getDelList() {
         return delList;
     }
 
@@ -68,28 +71,28 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the numericEffects
      */
-    public Conditions getNumericEffects() {
+    public Condition getNumericEffects() {
         return numericEffects;
     }
 
     /**
      * @return the preconditions
      */
-    public Conditions getPreconditions() {
+    public Condition getPreconditions() {
         return preconditions;
     }
 
     /**
      * @param addList the addList to set
      */
-    public void setAddList(Conditions addList) {
+    public void setAddList(Condition addList) {
         this.addList = addList;
     }
 
     /**
      * @param delList the delList to set
      */
-    public void setDelList(Conditions delList) {
+    public void setDelList(Condition delList) {
         this.delList = delList;
     }
 
@@ -103,28 +106,21 @@ public abstract class GenericActionType extends Object {
     /**
      * @param numericEffects the numericEffects to set
      */
-    public void setNumericEffects(Conditions numericEffects) {
+    public void setNumericEffects(Condition numericEffects) {
         this.numericEffects = numericEffects;
     }
 
     /**
      * @param preconditions the preconditions to set
      */
-    public void setPreconditions(Conditions preconditions) {
+    public void setPreconditions(Condition preconditions) {
         this.preconditions = preconditions;
     }
 
     @Override
     public abstract String toString();
 
-    //
-    //    public Action ground(ArrayList terms){
-    //
-    //
-    //        substitution = new HashMap();
-    //
-    //
-    //    }
+   
     /**
      * @return the parameters
      */
@@ -136,7 +132,7 @@ public abstract class GenericActionType extends Object {
     }
 
     protected void push_not_to_terminals() {
-        Conditions c = this.getPreconditions().push_not_to_terminals();
+        Condition c = this.getPreconditions().push_not_to_terminals();
         if (!(c instanceof AndCond)) {
             AndCond and = new AndCond();
             and.addConditions(c);
@@ -155,14 +151,16 @@ public abstract class GenericActionType extends Object {
         if (this.addList != null) {
             ret.addAll(this.addList.getTerminalConditions());
         }
+        if (this.cond_effects != null) {
+            ret.addAll(this.cond_effects.getTerminalConditions());
+        }
         if (this.delList != null && this.delList.sons != null) {
-            for (Conditions c : (Collection<Conditions>) this.delList.sons) {
+            for (Condition c : (Collection<Condition>) this.delList.sons) {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     ret.add((Predicate) nc.getSon());
                 }
             }
-            //ret.addAll(this.delList.getTerminalConditions());
         }
         return ret;
     }
@@ -227,31 +225,6 @@ public abstract class GenericActionType extends Object {
         }
 
     }
-    
-//    public void generateAffectedNumFluents() {
-//        if (numericFluentAffected != null) {
-//            return;
-//        }
-//        numericFluentAffected = new HashMap();
-//        AndCond num = (AndCond) this.getNumericEffects();
-//        if (num != null) {
-//            for (Object o : num.sons) {
-//                if (o instanceof NumEffect) {
-//                    NumEffect e = (NumEffect) o;
-//                    this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
-//                }
-//            }
-//        }
-//
-//        if (this.cond_effects != null) {
-//            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
-//                for (NumFluent nf : c_eff.affectedNumericFluents()) {
-//                    this.numericFluentAffected.put(nf, Boolean.TRUE);
-//                }
-//            }
-//        }
-//
-//    }
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {
         Set<NumFluent> ret = new HashSet();
@@ -259,5 +232,36 @@ public abstract class GenericActionType extends Object {
             ret.addAll(neff.getRight().rhsFluents());
         }
         return ret;
+    }
+    
+    public void create_effects_by_cases(PostCondition res) {
+        if (res instanceof AndCond) {
+            AndCond pc = (AndCond) res;
+            for (Object o : pc.sons) {
+                if (o instanceof Predicate) {
+                    this.addList.sons.add(o);
+                } else if (o instanceof NotCond) {
+                    this.delList.sons.add(o);
+                } else if (o instanceof NumEffect) {
+                    this.numericEffects.sons.add(o);
+                } else if (o instanceof ConditionalEffect) {
+                    this.cond_effects.sons.add(o);
+                }else if (o instanceof ForAll) {
+                    this.forall = (Condition) o;
+//                    this.forall.sons.add(o);
+                }
+            }
+        } else if (res instanceof Predicate) {
+            this.addList.sons.add(res);
+        } else if (res instanceof NotCond) {
+            this.delList.sons.add(res);
+        } else if (res instanceof NumEffect) {
+            this.numericEffects.sons.add(res);
+        } else if (res instanceof ConditionalEffect) {
+            this.cond_effects.sons.add(res);
+        }else if (res instanceof ForAll) {
+            this.forall = (Condition) res;
+//            this.forall.sons.add(res);
+        }
     }
 }

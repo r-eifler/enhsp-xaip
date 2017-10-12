@@ -19,7 +19,7 @@
 package heuristics.utils;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
@@ -51,17 +51,17 @@ public final class cplex_interface extends LpInterface {
     public final HashMap<Integer, Collection<GroundAction>> affectors_of;
     public HashMap<Integer, Collection<GroundAction>> affectors_of_temp;
 
-    public final HashMap<Conditions, Collection<GroundAction>> pos_affectors_of;
+    public final HashMap<Condition, Collection<GroundAction>> pos_affectors_of;
     public ArrayList<Boolean> first_time;
 
     public final IloCplex lp;
     public IloNumVar[] action_variables;
     public Collection<IloConstraint> constraints;
-    public HashMap<Conditions, IloRange> cond_to_cplex_cond;
+    public HashMap<Condition, IloRange> cond_to_cplex_cond;
     public HashMap<Integer, IloNumVar> action_to_variable;
     public IloLinearNumExpr objective;
 
-    public cplex_interface(Conditions cond, Conditions global_constraint) throws IloException {
+    public cplex_interface(Condition cond, Condition global_constraint) throws IloException {
         super(cond, global_constraint);
         n_invocations = 0;
         integer_variables = false;
@@ -135,7 +135,7 @@ public final class cplex_interface extends LpInterface {
         if (this.additive_h) {
             precondition_contribution = 0f;
         }
-        for (Conditions c_0 : (Collection<Conditions>) c.sons) {
+        for (Condition c_0 : (Collection<Condition>) c.sons) {
             Float local_min = Float.MAX_VALUE;
             if (s_0.satisfy(c_0)) {
                 if (!this.additive_h) {
@@ -185,7 +185,7 @@ public final class cplex_interface extends LpInterface {
     protected void init_condition(Collection<GroundAction> pool, State s_0) {
 
         action_to_variable = new HashMap();
-        Collection<Conditions> conditions_to_evaluate = new LinkedHashSet();
+        Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
         conditions_to_evaluate.addAll(c.sons);
         if (gc != null) {
 //            System.out.println("considering Global Constraints:"+gC.sons);
@@ -198,7 +198,7 @@ public final class cplex_interface extends LpInterface {
         }
         this.affectors_of.put(c.getCounter(), new LinkedHashSet());
 
-        for (Conditions cond : conditions_to_evaluate) {
+        for (Condition cond : conditions_to_evaluate) {
 
             pos_affectors_of.put(cond, new LinkedHashSet());
             if (cond instanceof Comparison) {
@@ -325,9 +325,9 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    protected void update_condition(State s_0, Conditions temp) {
+    protected void update_condition(State s_0, Condition temp) {
 
-        for (Conditions c_0 : (Collection<Conditions>) temp.sons) {
+        for (Condition c_0 : (Collection<Condition>) temp.sons) {
             IloRange lp_cond = this.cond_to_cplex_cond.get(c_0);
             if (c_0 instanceof Comparison) {
                 Comparison comp = (Comparison) c_0;

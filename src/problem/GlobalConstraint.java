@@ -18,7 +18,7 @@
  */
 package problem;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
@@ -66,7 +66,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         GlobalConstraint constr = this;
         //a.normalizeAndCopy();
 
-        Conditions con = constr.condition;
+        Condition con = constr.condition;
         con.setFreeVarSemantic(true);
         //System.out.println(con);
         //con.normalize();
@@ -125,7 +125,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {
             OrCond or = (OrCond) this.condition;
-            for (Conditions c : (Collection<Conditions>) or.sons) {
+            for (Condition c : (Collection<Condition>) or.sons) {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     Object o = nc.getSon();
@@ -147,7 +147,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {
             OrCond or = (OrCond) this.condition;
-            for (Conditions c : (Collection<Conditions>) or.sons) {
+            for (Condition c : (Collection<Condition>) or.sons) {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     Object o = nc.getSon();

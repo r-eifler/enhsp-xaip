@@ -18,15 +18,24 @@
  */
 package domain;
 
-import conditions.PDDLObject;
 import java.util.ArrayList;
 import java.util.Iterator;
+import problem.PDDLObjects;
 
 /**
  *
  * @author enrico
  */
 public class SchemaParameters extends ArrayList {
+
+    
+    public SchemaParameters() {
+        super();
+    }
+    
+    public SchemaParameters(SchemaParameters po) {
+        super(po);
+    }
 
     public Variable containsVariable(Variable o) {
         Iterator it = this.iterator();

@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NotCond;
 import conditions.Predicate;
 import expressions.ExtendedNormExpression;
@@ -61,19 +61,19 @@ import static java.util.logging.Logger.getLogger;
  */
 public class Uniform_cost_search_H1 extends Heuristic {
 
-    protected HashMap<Integer, LinkedHashSet<Conditions>> achieve;
+    protected HashMap<Integer, LinkedHashSet<Condition>> achieve;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<Comparison>> interact_with;
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
-    protected HashMap<Conditions, Boolean> redundant_constraints;
+    protected HashMap<Condition, Boolean> redundant_constraints;
 
     protected boolean reacheability_setting;
     private boolean all_paths = false;
     protected ArrayList<Integer> dist;
 
-    public Uniform_cost_search_H1(Conditions G, Set<GroundAction> A) {
+    public Uniform_cost_search_H1(Condition G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -83,11 +83,11 @@ public class Uniform_cost_search_H1 extends Heuristic {
      * @param actions
      * @param processesSet
      */
-    public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet) {
+    public Uniform_cost_search_H1(Condition G, Set A, Set processesSet) {
         super(G, A, processesSet);
     }
 
-    public Uniform_cost_search_H1(Conditions G, Set A, Set processesSet, Set events) {
+    public Uniform_cost_search_H1(Condition G, Set A, Set processesSet, Set events) {
         super(G, A, processesSet, events);
     }
 
@@ -115,7 +115,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
     @Override
     public Float compute_estimate(State s) {
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
-        FibonacciHeap<Conditions> q = new FibonacciHeap();
+        FibonacciHeap<Condition> q = new FibonacciHeap();
 
 //        relaxed_plan_actions = new LinkedHashSet();
         //setting up the initial values
@@ -123,7 +123,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         ArrayList<Float> dist = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
         ArrayList<Boolean> open_list = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
         HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             if (s.satisfy(c)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
@@ -148,7 +148,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         Integer iteration = 0;
         while (!q.isEmpty() || first) {
             if (!first) {
-                Conditions cn = q.removeMin().getData();
+                Condition cn = q.removeMin().getData();
                 closed.set(cn.getCounter(), true);
             }
             if (!all_paths) {
@@ -181,14 +181,14 @@ public class Uniform_cost_search_H1 extends Heuristic {
                     actions_for_complex_condition.add(gr);
 
                     //for (GroundAction gr : edges) {//this can be optimized a lot
-                    Collection<Conditions> predicates = this.achieve.get(gr.counter);
+                    Collection<Condition> predicates = this.achieve.get(gr.counter);
                     Collection<Comparison> comparisons = this.possible_achievers.get(gr.counter);
-                    for (Conditions p : predicates) {
+                    for (Condition p : predicates) {
                         if (closed.get(p.getCounter())) {
                             continue;
                         }
                         Float current_cost = action_to_cost.get(gr) + gr.getAction_cost();
-                        update_cost_if_necessary(open_list, dist, (Conditions) p, q, cond_to_entry, current_cost);
+                        update_cost_if_necessary(open_list, dist, (Condition) p, q, cond_to_entry, current_cost);
 
                     }
                     for (Comparison comp : comparisons) {
@@ -269,9 +269,9 @@ public class Uniform_cost_search_H1 extends Heuristic {
         for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
-            LinkedHashSet<Conditions> literals = new LinkedHashSet();
+            LinkedHashSet<Condition> literals = new LinkedHashSet();
             boolean at_least_one_service = false;
-            for (Conditions c : this.all_conditions) {
+            for (Condition c : this.all_conditions) {
 
                 if (precondition_mapping.get(c.getCounter()) == null) {
                     precondition_mapping.put(c.getCounter(), new LinkedHashSet());
@@ -410,7 +410,7 @@ public class Uniform_cost_search_H1 extends Heuristic {
         return false;//to fix at some point
     }
 
-    private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Conditions p, FibonacciHeap<Conditions> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {
+    private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Condition p, FibonacciHeap<Condition> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {
         if (current_cost == Float.MAX_VALUE) {
             return;
         }
@@ -441,14 +441,14 @@ public class Uniform_cost_search_H1 extends Heuristic {
         //System.out.println(G.toString());
     }
 
-    protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
+    protected void compute_redundant_constraint(Set<Condition> set) throws Exception {
         LinkedHashSet temp = new LinkedHashSet();
-        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        ArrayList<Condition> set_as_array = new ArrayList(set);
         int counter = 0;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
-                Conditions c_1 = set_as_array.get(i);
-                Conditions c_2 = set_as_array.get(j);
+                Condition c_1 = set_as_array.get(i);
+                Condition c_2 = set_as_array.get(j);
                 if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
                     counter++;
                     Comparison a1 = (Comparison) c_1;

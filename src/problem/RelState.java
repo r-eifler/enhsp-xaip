@@ -20,7 +20,7 @@ package problem;
 
 import conditions.Comparison;
 import conditions.NumFluentValue;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.Expression;
 import expressions.NumFluent;
@@ -227,7 +227,7 @@ public class RelState extends Object {
 //        
 //        
 //    }
-    public boolean satisfy(Conditions con) {
+    public boolean satisfy(Condition con) {
 
         if (con == null) {
             System.out.println(this);

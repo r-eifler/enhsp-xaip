@@ -18,7 +18,7 @@
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.ArrayList;
@@ -137,7 +137,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition numeric) {
         return this;
     }
 

@@ -36,7 +36,7 @@ import problem.State;
  *
  * @author enrico
  */
-public abstract class Conditions extends Object {
+public abstract class Condition extends Object {
 
     public boolean grounded;
     public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
@@ -46,7 +46,7 @@ public abstract class Conditions extends Object {
     private boolean valid = false;
     private int counter;
 
-    public Conditions() {
+    public Condition() {
         //son = new HashSet();
         grounded = false;
         unsatisfiable = false;
@@ -58,7 +58,7 @@ public abstract class Conditions extends Object {
     @Override
     public abstract boolean equals(Object obj);
 
-    public abstract Conditions weakEval(State s, HashMap invF);
+    public abstract Condition weakEval(State s, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
     /*
@@ -72,7 +72,7 @@ public abstract class Conditions extends Object {
                activation conditions.
     
      */
-    public abstract Conditions regress(GroundAction gr);
+    public abstract Condition regress(GroundAction gr);
 
     /**
      * Substitutes the variables in this conditions with the PDDLObjects
@@ -86,9 +86,9 @@ public abstract class Conditions extends Object {
      * @return a copy of this conditions where each variable is replaced to the
      * object according to the specified mapping.
      */
-    public abstract Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects);
+    public abstract Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects);
 
-    public abstract Conditions ground(Map substitution, int c);
+    public abstract Condition ground(Map substitution, int c);
 
     public abstract boolean eval(State s);
 
@@ -101,7 +101,7 @@ public abstract class Conditions extends Object {
     public abstract String pddlPrintWithExtraObject();
 
     @Override
-    public abstract Conditions clone();
+    public abstract Condition clone();
 
     public abstract boolean can_be_true(RelState aThis);
 
@@ -109,9 +109,9 @@ public abstract class Conditions extends Object {
 
     public abstract void normalize();
 
-    public abstract Conditions unGround(Map asbstractionOf);
+    public abstract Condition unGround(Map asbstractionOf);
 
-    public abstract boolean isUngroundVersionOf(Conditions conditions);
+    public abstract boolean isUngroundVersionOf(Condition conditions);
 
     public abstract String toSmtVariableString(int i);//just for and condition
 
@@ -174,7 +174,7 @@ public abstract class Conditions extends Object {
         this.valid = valid;
     }
 
-    public abstract Conditions transform_equality();
+    public abstract Condition transform_equality();
 
     public abstract boolean is_affected_by(GroundAction gr);
 
@@ -188,13 +188,13 @@ public abstract class Conditions extends Object {
             if (temp.getSon() == null) {
                 return ret;
             }
-            Conditions temp2 = (Conditions) temp.getSon();
+            Condition temp2 = (Condition) temp.getSon();
             ret.addAll(temp2.getInvolvedPredicates());
             return ret;
         }
         //from here it can only be an AndCond or a Or. Other cases are not considered
         if (this.sons != null) {
-            for (Conditions c : (Collection<Conditions>) this.sons) {
+            for (Condition c : (Collection<Condition>) this.sons) {
                 ret.addAll(c.getInvolvedPredicates());
             }
         }
@@ -244,15 +244,15 @@ public abstract class Conditions extends Object {
      */
     public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
 
-    public abstract Set<Conditions> getTerminalConditions();
+    public abstract Set<Condition> getTerminalConditions();
 
     public abstract Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h);
 
-    public abstract Conditions and(Conditions precondition);
+    public abstract Condition and(Condition precondition);
 
     public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
 
-    public abstract Conditions push_not_to_terminals();
+    public abstract Condition push_not_to_terminals();
 
     public boolean isSatisfied(RelState rs) {
         return rs.satisfy(this);
@@ -261,18 +261,18 @@ public abstract class Conditions extends Object {
     public abstract boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i);
 
 //    public abstract Conditionss unify_num_fluent(State init);
-    public abstract Conditions introduce_red_constraints();
+    public abstract Condition introduce_red_constraints();
 
-    public boolean mutual_exclusion_guaranteed(Conditions preconditions) {
+    public boolean mutual_exclusion_guaranteed(Condition preconditions) {
         if (preconditions instanceof AndCond && this instanceof AndCond) {
             AndCond a = (AndCond) preconditions;
             AndCond b = (AndCond) this;
-            ArrayList<Conditions> c1 = new ArrayList(a.getTerminalConditions());
-            ArrayList<Conditions> c2 = new ArrayList(b.getTerminalConditions());
+            ArrayList<Condition> c1 = new ArrayList(a.getTerminalConditions());
+            ArrayList<Condition> c2 = new ArrayList(b.getTerminalConditions());
             for (int i = 0; i < c1.size(); i++) {
                 for (int j = i + 1; j < c2.size(); j++) {
-                    Conditions a_1 = c1.get(i);
-                    Conditions a_2 = c2.get(j);
+                    Condition a_1 = c1.get(i);
+                    Condition a_2 = c2.get(j);
                     if (a_1 instanceof NotCond && a_2 instanceof Predicate) {
                         NotCond nc = (NotCond) a_1;
                         if (nc.getSon().equals(a_2)) {
@@ -290,7 +290,7 @@ public abstract class Conditions extends Object {
         return false;
     }
 
-    public void addConditions(Conditions c) {
+    public void addConditions(Condition c) {
         sons.add(c);
     }
 

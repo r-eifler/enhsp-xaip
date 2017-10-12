@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
@@ -44,9 +44,9 @@ import problem.State;
  */
 public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
 
-    protected HashMap<Conditions, Boolean> redundant_constraints;
+    protected HashMap<Condition, Boolean> redundant_constraints;
 
-    public Uniform_cost_search_H1_RC_Rep(Conditions G, Set<GroundAction> A) {
+    public Uniform_cost_search_H1_RC_Rep(Condition G, Set<GroundAction> A) {
         super(G, A);
         try {
             this.add_redundant_constraints();
@@ -60,22 +60,22 @@ public class Uniform_cost_search_H1_RC_Rep extends Uniform_cost_search_H1_Rep {
 
         for (GroundAction a : A) {
             if (a.getPreconditions() != null) {
-                compute_redundant_constraint((Set<Conditions>) a.getPreconditions().sons);
+                compute_redundant_constraint((Set<Condition>) a.getPreconditions().sons);
             }
             //System.out.println(a.toPDDL());
         }
 
-        compute_redundant_constraint((Set<Conditions>) G.sons);
+        compute_redundant_constraint((Set<Condition>) G.sons);
     }
 
-    protected void compute_redundant_constraint(Set<Conditions> set) throws Exception {
+    protected void compute_redundant_constraint(Set<Condition> set) throws Exception {
         LinkedHashSet temp = new LinkedHashSet();
-        ArrayList<Conditions> set_as_array = new ArrayList(set);
+        ArrayList<Condition> set_as_array = new ArrayList(set);
         int counter = 0;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {
-                Conditions c_1 = set_as_array.get(i);
-                Conditions c_2 = set_as_array.get(j);
+                Condition c_1 = set_as_array.get(i);
+                Condition c_2 = set_as_array.get(j);
                 if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
                     counter++;
                     Comparison a1 = (Comparison) c_1;

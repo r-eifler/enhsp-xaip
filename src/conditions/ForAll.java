@@ -39,13 +39,13 @@ import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
-import propositionalFactory.grounder;
+import propositionalFactory.Grounder;
 
 /**
  *
  * @author enrico
  */
-public class ForAll extends Conditions {
+public class ForAll extends Condition implements PostCondition {
 
     private SchemaParameters parameters;
 
@@ -81,12 +81,12 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
+    public Condition ground(Map substitution, int c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -121,7 +121,7 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -141,12 +141,12 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -162,8 +162,8 @@ public class ForAll extends Conditions {
             for (Object o : this.sons) {
                 if (o instanceof NumFluent) {
                     ret.add((NumFluent) o);
-                } else if (o instanceof Conditions) {
-                    Conditions c = (Conditions) o;
+                } else if (o instanceof Condition) {
+                    Condition c = (Condition) o;
                     if (c.getInvolvedFluents() != null) {
                         ret.addAll(c.getInvolvedFluents());
                     }
@@ -182,7 +182,7 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -202,7 +202,7 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -212,7 +212,7 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -222,14 +222,14 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         if (this.sons == null) {
             return this;
         }
         ForAll res = new ForAll();
         res.parameters = this.parameters;
-        for (Conditions c : (Collection<Conditions>) this.sons) {
-            Conditions c1 = c.push_not_to_terminals();
+        for (Condition c : (Collection<Condition>) this.sons) {
+            Condition c1 = c.push_not_to_terminals();
             if (c1 instanceof AndCond) {
                 res.sons.addAll(((AndCond) c1).sons);
             } else {
@@ -245,7 +245,7 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions introduce_red_constraints() {
+    public Condition introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -268,18 +268,22 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
         try {
-            grounder g = new grounder();
+            Grounder g = new Grounder();
             Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
             AndCond and = new AndCond();
             for (ParametersAsTerms ele : combo) {
                 Map sub = g.obtain_sub_from_instance(parameters, ele);
                 sub.putAll(substitution);
 //                 System.out.println(this);
-                Conditions son = (Conditions) this.sons.iterator().next();
-                and.addConditions(son.ground(sub, objects));
+//                Condition son = (Condition) this.sons.iterator().next();
+//                and.addConditions(son.ground(sub, objects));
+                for (Condition c : (Collection<Condition>) this.sons) {
+                    and.addConditions(c.ground(sub, objects));
+                }
             }
+
             return and;
 
         } catch (Exception ex) {
@@ -290,7 +294,42 @@ public class ForAll extends Conditions {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void apply(State s, Map modifications) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void apply(RelState s, Map modifications) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public HashMap<Object, Object> apply(State s) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public HashMap<Object, Object> apply(RelState s) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition achieve(Predicate p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition delete(Predicate p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Set<NumFluent> affectedNumericFluents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

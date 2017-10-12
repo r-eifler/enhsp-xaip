@@ -19,7 +19,7 @@
 package heuristics.old;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import extraUtils.Pair;
 import heuristics.Heuristic;
 import java.util.ArrayList;
@@ -40,17 +40,17 @@ public class Bellman_Ford_Hm extends Heuristic {
 
     private boolean greedy;
     protected boolean full_regression = false;
-    protected HashMap<Conditions, Boolean> redundant_constraints;
+    protected HashMap<Condition, Boolean> redundant_constraints;
     protected HashMap<Pair<GroundAction, Comparison>, Boolean> num_achiever;
 
-    protected HashMap<Pair<Conditions, GroundAction>, Boolean> achvs;
-    private Conditions G;
+    protected HashMap<Pair<Condition, GroundAction>, Boolean> achvs;
+    private Condition G;
     private LinkedHashSet<GroundAction> A;
     private int complex_conditions;
-    private LinkedHashSet<Conditions> all_conditions;
+    private LinkedHashSet<Condition> all_conditions;
     private boolean reachability;
 
-    public Bellman_Ford_Hm(Conditions G, Set<GroundAction> A) {
+    public Bellman_Ford_Hm(Condition G, Set<GroundAction> A) {
         super(G, A);
         greedy = false;
         this.G = G;
@@ -61,7 +61,7 @@ public class Bellman_Ford_Hm extends Heuristic {
         //build_integer_representation();
     }
 
-    public Bellman_Ford_Hm(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
+    public Bellman_Ford_Hm(Condition G, Set<GroundAction> A, Set processesSet, Condition GC) {
         super(G, A, processesSet, GC);
         greedy = false;
         this.G = G;
@@ -91,7 +91,7 @@ public class Bellman_Ford_Hm extends Heuristic {
     }
 
     protected void init_h(ArrayList<Float> h, State s_0) {
-        for (Conditions c_1 : all_conditions) {
+        for (Condition c_1 : all_conditions) {
             if (c_1.isSatisfied(s_0)) {
 //                System.out.println(c_1);
                 h.set(c_1.getCounter(), 0f);
@@ -128,9 +128,9 @@ public class Bellman_Ford_Hm extends Heuristic {
 
     }
 
-    protected boolean update_conditions_values(Collection<GroundAction> pool, State s_0, Collection<Conditions> all_conditions, ArrayList<Float> h) {
+    protected boolean update_conditions_values(Collection<GroundAction> pool, State s_0, Collection<Condition> all_conditions, ArrayList<Float> h) {
         boolean update = false;
-        for (Conditions c : this.all_conditions) {
+        for (Condition c : this.all_conditions) {
             if (h.get(c.getCounter()) != 0f) {
                 float current = compute_current_cost_via_lp(pool, s_0, c, h);
 //                if (current == 0)

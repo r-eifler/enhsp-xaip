@@ -64,7 +64,7 @@ public class PDDLObjectsEquality extends Terminal {
      * @return a grounded copy of the condition
      */
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         // TODO: Couldn't one of the objects be already grounded?
 
         PDDLObjectsEquality ret = null;
@@ -83,8 +83,8 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -118,7 +118,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         PDDLObjectsEquality ret = new PDDLObjectsEquality();
         ret.grounded = this.grounded;
         if (grounded) {
@@ -206,7 +206,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         PDDLObjectsEquality ret = null;
 
         Variable t1 = (Variable) asbstractionOf.get(getLeft().getName());
@@ -224,7 +224,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         if (conditions instanceof PDDLObjectsEquality) {
             PDDLObjectsEquality c = (PDDLObjectsEquality) conditions;
             Variable v1 = (Variable) this.getLeftV();
@@ -262,7 +262,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         if (this.left.equals(this.right)) {
             this.setValid(true);
             this.setUnsatisfiable(false);
@@ -279,7 +279,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         return this;
     }
 
@@ -289,7 +289,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -400,7 +400,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -410,7 +410,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public Condition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -420,7 +420,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
     }
 }

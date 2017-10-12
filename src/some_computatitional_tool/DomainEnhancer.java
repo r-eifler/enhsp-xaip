@@ -20,7 +20,7 @@ package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import domain.ParametersAsTerms;
 import domain.ActionSchema;
@@ -310,14 +310,14 @@ public class DomainEnhancer {
         return ret;
     }
 
-    public void addEntanglementsByInit(PddlDomain domain, HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_init) {
+    public void addEntanglementsByInit(PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init) {
 
         HashMap<Object, Boolean> invariantFluent = domain.generateInvariant();
         setCondition_to_reformulation(new HashSet());
         j = 0;
         for (ActionSchema s : domain.getActionsSchema()) {
-            Set<Conditions> entanglementsByInit = action_to_entaglement_by_init.get(s);
-            for (Conditions ent : entanglementsByInit) {
+            Set<Condition> entanglementsByInit = action_to_entaglement_by_init.get(s);
+            for (Condition ent : entanglementsByInit) {
                 if (ent instanceof Predicate) {
                     Predicate entP = (Predicate) ent;
                     Predicate temp = new Predicate();
@@ -446,11 +446,11 @@ public class DomainEnhancer {
         this.condition_to_reformulation = condition_to_reformulation;
     }
 
-    public void addEntanglementsByGoal(PddlDomain domain, HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_goal) {
+    public void addEntanglementsByGoal(PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal) {
         goalCondition_Reformulation = new HashSet();
         for (ActionSchema s : domain.getActionsSchema()) {
-            Set<Conditions> entanglementsByGoal = action_to_entaglement_by_goal.get(s);
-            for (Conditions ent : entanglementsByGoal) {
+            Set<Condition> entanglementsByGoal = action_to_entaglement_by_goal.get(s);
+            for (Condition ent : entanglementsByGoal) {
                 if (ent instanceof Predicate) {
                     Predicate entP = (Predicate) ent;
                     Predicate temp = new Predicate();

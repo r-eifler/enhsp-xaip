@@ -18,6 +18,7 @@
  */
 package propositionalFactory;
 
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.ActionSchema;
 import domain.EventSchema;
@@ -42,9 +43,9 @@ import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PDDLObjects;
 
-public class grounder {
+public class Grounder {
 
-    public grounder() {
+    public Grounder() {
         super();
     }
 
@@ -259,6 +260,8 @@ public class grounder {
         return ret;
 
     }
+    
+    
 
     public static Set sub(ArrayList param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
