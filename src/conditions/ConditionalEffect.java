@@ -25,9 +25,11 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import problem.GroundAction;
 import problem.PDDLObjects;
@@ -45,14 +47,18 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     public ConditionalEffect() {
         super();
-
+        activation_condition = new AndCond();
+        effect = new AndCond();
     }
 
     public ConditionalEffect(Condition lhs, PostCondition rhs) {
-        super();
-
+        this();
         this.activation_condition = lhs;
-        effect = rhs;
+        if (rhs instanceof AndCond){
+            ((AndCond) effect).sons.addAll(((AndCond) rhs).sons);
+        }else{
+            ((AndCond) effect).sons.add(rhs);
+        }
 
     }
 
@@ -61,7 +67,9 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     public String toString() {
-        return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
+        if (this.activation_condition!=null)
+            return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
+        return null;
     }
 
     public ConditionalEffect weakEval(State s, HashMap invF) {
@@ -81,18 +89,20 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     public ConditionalEffect ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ConditionalEffect ret = new ConditionalEffect();
-        ret.activation_condition = this.activation_condition.ground(substitution, po);
+//        if (ret.activation_condition!=null){
+            ret.activation_condition = this.activation_condition.ground(substitution, po);
 
-        if (this.effect instanceof Condition) {
-            Condition con = (Condition) this.effect;
-            ret.effect = (PostCondition) con.ground(substitution, po);
-        } else if (this.effect instanceof ConditionalEffect) {
-            ConditionalEffect sub = (ConditionalEffect) this.effect;
-            ret.effect = sub.ground(substitution, po);
-        } else if (this.effect instanceof NumEffect) {
-            NumEffect ne = (NumEffect) this.effect;
-            ret.effect = (NumEffect) ne.ground(substitution, po);
-        }
+            if (this.effect instanceof Condition) {
+                Condition con = (Condition) this.effect;
+                ret.effect = (PostCondition) con.ground(substitution, po);
+            } else if (this.effect instanceof ConditionalEffect) {
+                ConditionalEffect sub = (ConditionalEffect) this.effect;
+                ret.effect = sub.ground(substitution, po);
+            } else if (this.effect instanceof NumEffect) {
+                NumEffect ne = (NumEffect) this.effect;
+                ret.effect = (NumEffect) ne.ground(substitution, po);
+            }
+//        }
         ret.grounded = true;
         return ret;
     }
@@ -226,10 +236,10 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     @Override
     public int hashCode() {
-        final int condHash = activation_condition.hashCode();
-        final int effHash = effect.hashCode();
-        final int result = (condHash * effHash) + condHash;
-        return result;
+        int hash = 3;
+        hash = 89 * hash + Objects.hashCode(this.activation_condition);
+        hash = 89 * hash + Objects.hashCode(this.effect);
+        return hash;
     }
 
     @Override
@@ -237,27 +247,23 @@ public class ConditionalEffect extends Condition implements PostCondition {
         if (this == obj) {
             return true;
         }
-
         if (obj == null) {
             return false;
         }
-
-        if (!(obj instanceof ConditionalEffect)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-
         final ConditionalEffect other = (ConditionalEffect) obj;
-
-        if (!this.activation_condition.equals(other.activation_condition)) {
+        if (!Objects.equals(this.activation_condition, other.activation_condition)) {
             return false;
         }
-
-        if (!this.effect.equals(other.effect)) {
+        if (!Objects.equals(this.effect, other.effect)) {
             return false;
         }
-
         return true;
     }
+
+
 
     @Override
     public HashMap<Object, Object> apply(RelState s) {
@@ -305,18 +311,11 @@ public class ConditionalEffect extends Condition implements PostCondition {
     public Set<Condition> getTerminalConditions() {
         LinkedHashSet ret = new LinkedHashSet();
         
-        if (((Condition)effect).sons == null) {
-            return new LinkedHashSet();
-        }
-        for (Condition c : (Collection<Condition>) ((Condition)effect).sons) {
-            ret.addAll(c.getTerminalConditions());
-        }
-        Iterator<Condition> it = ret.iterator();
-        while(it.hasNext()){
-            Condition c = it.next();
-            if (c instanceof NotCond)
-                it.remove();
-        }
+        if (effect == null || this.activation_condition == null)
+            return ret;
+        ret.addAll(((Condition)effect).getTerminalConditions());
+        ret.addAll(activation_condition.getTerminalConditions());
+
                 
         return ret;
     }
@@ -338,7 +337,8 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     @Override
     public Condition push_not_to_terminals() {
-        this.activation_condition = this.activation_condition.push_not_to_terminals();
+        if (this.activation_condition != null)
+            this.activation_condition = this.activation_condition.push_not_to_terminals();
         return this;
         //To change body of generated methods, choose Tools | Templates.
     }
@@ -355,6 +355,9 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     @Override
     public Set<NumFluent> affectedNumericFluents() {
-        return this.effect.affectedNumericFluents();
+        if (this.effect != null)
+            return this.effect.affectedNumericFluents();
+        else
+            return new HashSet();
     }
 }

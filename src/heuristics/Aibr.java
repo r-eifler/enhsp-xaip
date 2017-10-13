@@ -126,13 +126,13 @@ public class Aibr extends Heuristic {
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-//            Utils.dbg_print(debug, "Relaxed State:" + rs + "\n");
+//            Utils.dbg_print(1, "Relaxed State:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs);
-//            Utils.dbg_print(debug, "Applicable Supporter:" + S + "\n");
+//            Utils.dbg_print(1, "Applicable Supporter:" + S + "\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
                     if (reachability) {

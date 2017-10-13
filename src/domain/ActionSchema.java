@@ -27,6 +27,7 @@ import conditions.NotCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumEffect;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +51,7 @@ public class ActionSchema extends GenericActionType {
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
         this.cond_effects = new AndCond();
+        this.forall = new AndCond();
 
     }
 
@@ -84,14 +86,13 @@ public class ActionSchema extends GenericActionType {
         if (ret.forall != null) {//Kind of special case for now
             AndCond temp = (AndCond) ret.forall.ground(substitution, po);
             this.create_effects_by_cases(temp);
-        } 
+        }
 
         ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         ret.setAddList(this.addList.ground(substitution, po));
         ret.setDelList(this.delList.ground(substitution, po));
         ret.setPreconditions(this.preconditions.ground(substitution, po));
         ret.cond_effects = this.cond_effects.ground(substitution, po);
-        
 
         return ret;
 
@@ -123,31 +124,30 @@ public class ActionSchema extends GenericActionType {
 
         if (this.forall != null) {//Kind of special case for now
             AndCond temp = (AndCond) this.forall.ground(substitution, po);
-            this.create_effects_by_cases(temp);
-        } 
-        
-        
+            ret.create_effects_by_cases(temp);
+        }
+
 //        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+            ret.numericEffects.sons.addAll(this.numericEffects.ground(substitution, po).sons);
+//            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution, po));
+            ret.addList.sons.addAll(this.addList.ground(substitution, po).sons);
+//            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution, po));
+            ret.delList.sons.addAll(this.addList.ground(substitution, po).sons);
+
+//            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
             ret.setPreconditions(this.preconditions.ground(substitution, po));
         }
         if (cond_effects != null) {
-//            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution, po);
-//            System.out.println("DEBUG: after:"+cond_effects);
-
+            ret.cond_effects.sons.addAll(this.cond_effects.ground(substitution, po).sons);
         }
-
         return ret;
     }
 

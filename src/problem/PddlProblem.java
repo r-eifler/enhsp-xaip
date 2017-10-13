@@ -286,20 +286,16 @@ public class PddlProblem {
                     break;
                 case PddlParser.OBJECTS:
                     addObjects(child);
-//                    System.out.println("Objects considered:"+objects);
                     break;
                 case PddlParser.INIT:
-                    
                     addInitFacts(child);
                     break;
                 case PddlParser.FORMULAINIT:
                     this.belief = createGoals(child.getChild(0), null);
                     break;
                 case PddlParser.GOAL:
-//                    System.out.println(fc);
                     Condition con = fc.createCondition(child.getChild(0), null);
                     this.setGoals(con);
-//                    this.setGoals(createGoals(child.getChild(0), new SchemaParameters(this.objects)));
                     break;
                 case PddlParser.PROBLEM_METRIC:
                     addMetric(child);

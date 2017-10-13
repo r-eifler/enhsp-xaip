@@ -44,7 +44,7 @@ public abstract class GenericActionType extends Object {
     public Condition cond_effects;
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     protected SchemaParameters parameters;
-    protected Condition forall;
+    protected AndCond forall;
 
     /**
      * @return the addList
@@ -118,7 +118,10 @@ public abstract class GenericActionType extends Object {
     }
 
     @Override
-    public abstract String toString();
+    public String toString() {
+        return "GenericActionType{" + "name=" + name + ", addList=" + addList + ", delList=" + delList + ", numericEffects=" + numericEffects + ", preconditions=" + preconditions + ", cond_effects=" + cond_effects + '}';
+    }
+
 
    
     /**
@@ -152,7 +155,24 @@ public abstract class GenericActionType extends Object {
             ret.addAll(this.addList.getTerminalConditions());
         }
         if (this.cond_effects != null) {
-            ret.addAll(this.cond_effects.getTerminalConditions());
+           for (Condition cEff: (Collection<Condition>)this.cond_effects.sons){
+               if (cEff instanceof ConditionalEffect){
+                    ConditionalEffect conditional = (ConditionalEffect)cEff;
+                    Set<Condition> temp = ((AndCond)conditional.effect).getTerminalConditions();
+                    for (Condition c : temp) {
+                         if (c instanceof NotCond) {
+                             NotCond nc = (NotCond) c;
+                             ret.add((Predicate) nc.getSon());
+                         }else if (c instanceof Predicate){
+                             ret.add(c);
+                         }else{
+                             throw new RuntimeException("A conditional effect terminal conditions function does not work");
+                         }
+                     }
+               }else{
+                    throw new RuntimeException("Needs to fix the conditional effect");
+               }
+           }
         }
         if (this.delList != null && this.delList.sons != null) {
             for (Condition c : (Collection<Condition>) this.delList.sons) {
@@ -247,8 +267,7 @@ public abstract class GenericActionType extends Object {
                 } else if (o instanceof ConditionalEffect) {
                     this.cond_effects.sons.add(o);
                 }else if (o instanceof ForAll) {
-                    this.forall = (Condition) o;
-//                    this.forall.sons.add(o);
+                    this.forall.sons.add(o);
                 }
             }
         } else if (res instanceof Predicate) {
@@ -260,7 +279,7 @@ public abstract class GenericActionType extends Object {
         } else if (res instanceof ConditionalEffect) {
             this.cond_effects.sons.add(res);
         }else if (res instanceof ForAll) {
-            this.forall = (Condition) res;
+            this.forall.sons.add(res);
 //            this.forall.sons.add(res);
         }
     }

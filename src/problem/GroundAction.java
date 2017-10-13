@@ -150,6 +150,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.parameters_as_terms = new ParametersAsTerms();
         this.preconditions = new AndCond();
         this.numericEffects = new AndCond();
+        this.cond_effects = new AndCond();
         //numericFluentAffected = new HashMap();
         action_cost = null;
         interact_with = new HashMap();
@@ -181,18 +182,22 @@ public class GroundAction extends GenericActionType implements Comparable {
 //        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
 //
 //    }
-    @Override
-    public String toString() {
-        String parametri = "";
-        if (getParameters() != null) {
-            for (Object o : getParameters()) {
-                parametri = parametri.concat(o.toString()).concat(" ");
-            }
-        }
-        return this.name + " " + parametri;
-
-    }
-
+//    @Override
+//    public String toString() {
+//        String parametri = "";
+//        if (getParameters() != null) {
+//            for (Object o : getParameters()) {
+//                parametri = parametri.concat(o.toString()).concat(" ");
+//            }
+//        }
+//        return this.name + " " + parametri;
+//
+//    }
+    
+    
+    
+    
+    
     public String toEcoString() {
         String parametri = "";
         if (getParameters() != null) {

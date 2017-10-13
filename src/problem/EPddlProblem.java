@@ -756,7 +756,7 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
-            for (EventSchema event_schema : (Set<EventSchema>) linkedDomain.getEventSchema()) {
+            for (EventSchema event_schema : (Collection<EventSchema>) linkedDomain.eventsSchema) {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
                     try {
@@ -815,7 +815,7 @@ public class EPddlProblem extends PddlProblem {
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
         }
-        for (EventSchema a : this.linkedDomain.getEventSchema()) {
+        for (EventSchema a : this.linkedDomain.eventsSchema) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 

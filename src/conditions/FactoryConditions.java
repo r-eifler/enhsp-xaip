@@ -27,6 +27,7 @@ import expressions.ComplexFunction;
 import expressions.Expression;
 import expressions.MinusUnary;
 import expressions.MultiOp;
+import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.TrigonometricFunction;
@@ -144,7 +145,7 @@ public class FactoryConditions {
                 }
                 return equality;
             case PddlParser.FORALL_GD:
-                ForAll forall = createForAll(tree, parTable);
+                ForAll forall = createForAll(tree, parTable,false);
                 return forall;
             case PddlParser.EXISTS_GD:
                 Existential exist = new Existential();
@@ -214,7 +215,7 @@ public class FactoryConditions {
                 }
             } else {
                 Variable v = new Variable(t.getChild(i).getText());
-                
+
                 Variable v1 = parTable.containsVariable(v);
                 if (v1 != null) {
                     a.addVariable(v1);
@@ -319,7 +320,7 @@ public class FactoryConditions {
 
     }
 
-    public ForAll createForAll(Tree infoAction, SchemaParameters parTable) {
+    public ForAll createForAll(Tree infoAction, SchemaParameters parTable, boolean effect) {
         ForAll forall = new ForAll();
         for (int i = 0; i < infoAction.getChildCount(); i++) {
             Tree child = infoAction.getChild(i);
@@ -330,7 +331,7 @@ public class FactoryConditions {
                     }
                     Type t = new Type(child.getChild(0).getText());
                     boolean found = false;
-                    System.out.println(types);
+//                    System.out.println(types);
                     for (Object o : this.types) {
                         if (t.equals(o)) {
                             t = (Type) o;
@@ -349,10 +350,16 @@ public class FactoryConditions {
                     //at this point I should have collected all the parameters for grounding
                     //the variable into constants
                     SchemaParameters aug_par_table = new SchemaParameters();
-                    if (parTable != null)
+                    if (parTable != null) {
                         aug_par_table.addAll(parTable);
+                    }
                     aug_par_table.addAll(forall.getParameters());
-                    Condition ret_val = createCondition(child, aug_par_table);
+                    Condition ret_val = null;
+                    if (effect) {
+                        ret_val = (Condition) this.createPostCondition(aug_par_table, child);
+                    } else {
+                        ret_val = createCondition(child, aug_par_table);
+                    }
                     //System.out.println("ret_val for forall condition is:"+ret_val);
                     if (ret_val != null) {
                         forall.addConditions(ret_val);
@@ -366,6 +373,51 @@ public class FactoryConditions {
 
         }
         return forall;
+
+    }
+
+    public PostCondition createPostCondition(SchemaParameters parameters, Tree tree) {
+        if (tree == null) {
+            return new AndCond();
+        }
+        switch (tree.getType()) {
+            case PddlParser.PRED_HEAD:
+                //estrapola tutti i predicati e ritornali come set di predicati
+                return buildPredicate(tree, parameters);
+
+            case PddlParser.AND_EFFECT:
+                AndCond and = new AndCond();
+                for (int i = 0; i < tree.getChildCount(); i++) {
+                    Object ret_val = createPostCondition(parameters, tree.getChild(i));
+                    if (ret_val != null) {
+                        and.sons.add(ret_val);
+                    }
+                }
+                return and;
+            case PddlParser.NOT_EFFECT:
+                Condition ret_val = (Condition) createPostCondition(parameters, tree.getChild(0));
+                NotCond not = new NotCond(ret_val);
+                return not;
+            case PddlParser.ASSIGN_EFFECT:
+                NumEffect a = new NumEffect(tree.getChild(0).getText());
+//                System.out.println("DEBUG: Working out this effect:"+a);
+                a.setFluentAffected((NumFluent) createExpression(tree.getChild(1), parameters));
+                a.setRight((Expression) createExpression(tree.getChild(2), parameters));
+                return a;
+            case PddlParser.FORALL_EFFECT:
+                ForAll forall = this.createForAll(tree, parameters,true);
+                return forall;
+            case PddlParser.WHEN_EFFECT:
+                Condition lhs = createCondition(tree.getChild(0), parameters);
+                PostCondition rhs = (PostCondition) this.createPostCondition(parameters, tree.getChild(1));
+                return new ConditionalEffect(lhs, rhs);
+            default:
+                System.out.println("Serious error in parsing:" + tree);
+                System.err.println("ADL not fully supported");
+                System.exit(-1);
+                break;
+        }
+        return null;
 
     }
 

@@ -125,8 +125,8 @@ public class produceEntaglements {
 
         parseInput(args);
 
-        PddlDomain dom = new PddlDomain();
-        dom.parseDomain(domainFile);
+        PddlDomain dom = new PddlDomain(domainFile);
+        
         if (multipleFilesFileName == null) {
 
             learn_entanglements_with_problem_given_in_input(dom);

@@ -78,8 +78,8 @@ public class DomainEnhancer {
         f = new BufferedWriter(new FileWriter(getDomainEnhancedFileName()));
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -88,8 +88,8 @@ public class DomainEnhancer {
             f.write(constants);
         }
         f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -122,8 +122,8 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null && !domain.requirements.isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -132,8 +132,8 @@ public class DomainEnhancer {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
         f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -175,8 +175,8 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null && !domain.requirements.isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -187,8 +187,8 @@ public class DomainEnhancer {
         if (domain.getPredicates() != null) {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -233,8 +233,8 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null && !domain.requirements.isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -243,8 +243,8 @@ public class DomainEnhancer {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
         f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -285,8 +285,8 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -295,8 +295,8 @@ public class DomainEnhancer {
         {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -342,13 +342,13 @@ public class DomainEnhancer {
                     //System.out.println(toAddInDefinition);
                     if (!toAddInDefinition.isEmpty()) {
 
-                        //                     domain.getFunctions().addAll(toAddInDefinition);
+                        //                     domain.functions.addAll(toAddInDefinition);
                         AndCond precondition = (AndCond) s.getPreconditions();
                         precondition.addConditions(temp);
                     }
                     for (NumFluent nf : toAddInDefinition) {
                         if (!nf.getBeforeReformulation().equals("same")) {
-                            domain.getFunctions().add(nf);
+                            domain.functions.add(nf);
                             getCondition_to_reformulation().add(nf.getBeforeReformulation() + "->" + nf.getName());
                         }
                     }
@@ -379,8 +379,8 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -389,8 +389,8 @@ public class DomainEnhancer {
         {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {

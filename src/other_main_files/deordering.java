@@ -118,8 +118,7 @@ public class deordering {
 
         parseInput(args);
 
-        PddlDomain dom = new PddlDomain();
-        dom.parseDomain(domainFile);
+        PddlDomain dom = new PddlDomain(domainFile);
 
         PddlProblem prob = new PddlProblem();
         prob.parseProblem(problemFile);

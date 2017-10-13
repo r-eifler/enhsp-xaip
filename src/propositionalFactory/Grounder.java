@@ -414,7 +414,6 @@ public class Grounder {
         for (Object o : parameters) {
             Variable el = (Variable) o;
             substitution.put(el, par.get(i));
-            PDDLObject t = (PDDLObject) substitution.get(el);
             i++;
         }
         return substitution;
