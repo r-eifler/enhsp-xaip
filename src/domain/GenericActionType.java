@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import problem.EPddlProblem;
 
 public abstract class GenericActionType extends Object {
 
@@ -311,5 +312,14 @@ public abstract class GenericActionType extends Object {
             ret.addAll(this.cond_effects.getInvolvedPredicates());
         }
         return ret;
+    }
+
+    public void unifyVariablesReferences(EPddlProblem p) {
+
+        preconditions = (ComplexCondition) preconditions.unifyVariablesReferences(p);
+        addList = (AndCond) addList.unifyVariablesReferences(p);
+        delList = (AndCond) delList.unifyVariablesReferences(p);
+        numericEffects = (AndCond) numericEffects.unifyVariablesReferences(p);
+        cond_effects = (AndCond) cond_effects.unifyVariablesReferences(p);
     }
 }

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import problem.EPddlProblem;
 import problem.GroundAction;
@@ -131,14 +132,17 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Collection<Predicate> getInvolvedPredicates() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        LinkedHashSet ret = new LinkedHashSet();
+        ret.add(this);
+        return ret;
     }
 
     @Override
     public Condition unifyVariablesReferences(EPddlProblem p) {
-        Predicate p1 = p.predicateReference.get(p.toString());
+        Predicate p1 = p.predicateReference.get(this.toString());
         if (p1 == null){
-            throw new RuntimeException("Problem with Predicate "+p+" mapping");
+            p.predicateReference.put(this.toString(),this);
+            return this;
         }
         return p1;
     }
@@ -329,6 +333,37 @@ public class Predicate extends Terminal implements PostCondition {
         return (i == 1) || (i == 2);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.predicateName);
+        hash = 29 * hash + Objects.hashCode(this.terms);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Predicate other = (Predicate) obj;
+        if (!Objects.equals(this.predicateName, other.predicateName)) {
+            return false;
+        }
+        if (!Objects.equals(this.terms, other.terms)) {
+            return false;
+        }
+        return true;
+    }
+
+
+
 //    /**
 //     *
 //     * @param obj
@@ -352,54 +387,10 @@ public class Predicate extends Terminal implements PostCondition {
 //        }
 //        return true;
 //    }
-    @Override
-    public int hashCode() {
-        if (this.hash_code == null) {
-            int hash = 7;
-            hash = 79 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
-            hash = 79 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-            this.hash_code = hash;
-        }
-
-        return this.hash_code;
-    }
-
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 97 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-//        return hash;
-//    }
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        if (this == obj) {
-            return true;
-        }
-        final Predicate other = (Predicate) obj;
-        if ((this.predicateName == null) ? (other.predicateName != null) : !this.predicateName.equals(other.predicateName)) {
-            return false;
-        }
-        if (this.terms == null) {
-            return false;
-        }
-        if (!this.terms.equals(other.terms)) {
-            return false;
-        }
-//        if (this.hash_code != other.hash_code && (this.hash_code == null || !this.hash_code.equals(other.hash_code))) {
-//            return false;
-//        }
-        return true;
-    }
+   
 
     public State remove(State s) {
-        s.removeProposition(this);
+        s.setPredFalse(this);
         return s;
     }
 

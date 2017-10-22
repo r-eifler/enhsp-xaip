@@ -29,6 +29,10 @@ public class Metric {
     private Expression metExpr;
     private String optimization;
 
+    public Metric() {
+        super();
+    }
+
     public Metric(String optimization) {
         this.optimization = optimization;
     }
@@ -74,5 +78,11 @@ public class Metric {
         } else {
             return "";
         }
+    }
+
+    Metric unifyVariablesReferences(EPddlProblem aThis) {
+        if (this.metExpr != null)
+            this.metExpr = this.metExpr.unifyVariablesReferences(aThis);
+        return this;
     }
 }

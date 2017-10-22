@@ -413,7 +413,8 @@ public class PddlProblem {
             Tree c = child.getChild(i);
             switch (c.getType()) {
                 case PddlParser.PRED_INST:
-                    init.addProposition(buildInstPredicate(c, null));
+                    init.initPred.put(buildInstPredicate(c, null), true);
+//                    init.setPredTrue(buildInstPredicate(c, null));
                     break;
                 case PddlParser.INIT_EQ:
                     counterNumericFluents++;
@@ -976,6 +977,10 @@ public class PddlProblem {
     }
 
     public void keepUniqueVariable(GenericActionType act) {
+        
+        
+        
+        
         for (Predicate p : act.getInvolvedPredicates()) {
             PddlProblem.this.keepUniqueVariable(p);
         }

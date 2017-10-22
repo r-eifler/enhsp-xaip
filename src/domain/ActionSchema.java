@@ -139,7 +139,7 @@ public class ActionSchema extends GenericActionType {
 //            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.delList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+            ret.delList.sons.addAll(((AndCond)this.delList.ground(substitution, po)).sons);
 
 //            ret.setDelList(this.delList.ground(substitution, po));
         }

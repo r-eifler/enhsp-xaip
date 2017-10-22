@@ -306,7 +306,7 @@ public class hlm_refactored extends h1 {
                 }
             }
             //experimental
-//            previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
+            previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
             lm.set(p.getCounter(), previous);
             return true;
         } else {
@@ -369,7 +369,7 @@ public class hlm_refactored extends h1 {
                 }
             }
             //experimental
-//            previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
+            previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
             lm.set(p.getCounter(), previous);
             if (previous_size != previous.size()) {
                 return true;

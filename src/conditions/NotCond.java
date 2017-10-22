@@ -458,7 +458,10 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public Collection<Predicate> getInvolvedPredicates() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Set ret = new LinkedHashSet();
+        ret.add(this.son);
+        return ret;
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

@@ -95,7 +95,8 @@ public class EPddlProblem extends PddlProblem {
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
         eventsSet = new LinkedHashSet();
-
+        globalConstraints = new AndCond();
+        metric = new Metric();
         grounding = false;
     }
 
@@ -146,7 +147,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public HashMap getActualFluents() throws Exception {
+    public HashMap getActualFluents() {
         if (staticFluents == null) {
 //            if ((this.getActions() == null || this.getActions().isEmpty()) && (this.processesSet == null || this.processesSet.isEmpty())) {
 //                this.grounding_action_processes_constraints();
@@ -741,7 +742,7 @@ public class EPddlProblem extends PddlProblem {
         remove_static_part_of_state();
         remove_num_fluents_not_involved_in_preconditions();
         add_possible_numeric_fluents_from_assignments();
-        fix_num_fluents_unique_hashcode();
+        makeArraysRepresentations();
         propagate_new_num_fluents_hash();
         set_actions_costs();
     }
@@ -820,7 +821,7 @@ public class EPddlProblem extends PddlProblem {
         }
         involved_fluents.addAll(goals.getInvolvedFluents());
 
-        Iterator<NumFluent> it = this.init.getNum_fluents_value().keySet().iterator();
+        Iterator<NumFluent> it = this.init.getInitNumFluents().keySet().iterator();
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
             if (!nf2.getName().equals("time_elapsed")) {
@@ -841,16 +842,27 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void fix_num_fluents_unique_hashcode() {
-        int counter = 0;
+    private void makeArraysRepresentations() {
 //        System.out.println("Put numeric information into memory!");
-        this.init.current_fluent_values = new ArrayList<>(nCopies(this.init.getNum_fluents_value().keySet().size() + 1, null));
-        for (NumFluent nf : this.init.getNum_fluents_value().keySet()) {
-            nf.setId(counter);
-            this.init.current_fluent_values.set(counter, this.init.static_function_value(nf));
-            counter++;
+        this.init.currNumFluentsValues = new ArrayList();
+        for (NumFluent nf : this.init.getInitNumFluents().keySet()) {
+            nf.setId(this.init.currNumFluentsValues.size());
+            this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
 //            System.out.println(nf);
         }
+        this.init.currPredValues = new ArrayList();
+        for (Predicate p: this.predicateReference.values()){
+            if (this.getActualFluents().get(p)!= null){
+                p.id = this.init.currPredValues.size();
+                Boolean r = this.init.initPred.get(p);
+                if (r == null || !r)
+                    this.init.currPredValues.add(false);
+                else
+                    this.init.currPredValues.add(true);
+            }
+        }
+//        System.out.println(this.init.currPredValues);
+//        System.out.println(this.init.currNumFluentsValues);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -902,21 +914,20 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private void syncActionProcessesEventsConstraintsVariables() {
-        for (GenericActionType act : this.actions){
-            this.keepUniqueVariable(act);
+
+        for (GenericActionType act : this.actions) {
+            act.unifyVariablesReferences(this);
         }
-        for (GenericActionType act : this.eventsSet){
-            this.keepUniqueVariable(act);
+        for (GenericActionType act : this.eventsSet) {
+            act.unifyVariablesReferences(this);
         }
-        for (GenericActionType act : this.processesSet){
-            this.keepUniqueVariable(act);
+        for (GenericActionType act : this.processesSet) {
+            act.unifyVariablesReferences(this);
         }
-        this.keepUniqueVariable(goals);
-        this.keepUniqueVariable(init);
-        this.keepUniqueVariable(this.globalConstraints);
-        this.syncVariables(metric);
+        goals = (ComplexCondition) goals.unifyVariablesReferences(this);
+        globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(this);
+        init.unifyVariablesReferences(this);
+        if (metric != null) metric = metric.unifyVariablesReferences(this);
     }
-
-
 
 }

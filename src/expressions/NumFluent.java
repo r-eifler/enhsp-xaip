@@ -51,49 +51,41 @@ public class NumFluent extends Expression {
     private Integer actual_hash;
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        NumFluent objF = (NumFluent) obj;
-//        System.out.println("ID:"+id);
-        if (this.id != null && objF.id != null) {
-            return this.id.equals(objF.id);
-        } else {
-
-            if (objF.getName().equalsIgnoreCase(this.getName()) && this.getTermsAsString().equalsIgnoreCase(objF.getTermsAsString())) {
-                return true;
-            }
-            return false;
-        }
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.name);
+        hash = 89 * hash + Objects.hashCode(this.terms);
+        return hash;
     }
 
     @Override
-    public int hashCode() {
-
-//        if (this.hash_code == null) {
-//            int hash = 7;
-//            hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
-//            hash = 79 * hash + (this.terms_as_string != null ? this.terms_as_string.hashCode() : 0);
-//            this.hash_code = hash;
-//        }
-//
-//        return this.hash_code;
-//        if (id != null)
-//            return this.id;
-//        
-        if (actual_hash == null) {
-            actual_hash = 5;
-
-            actual_hash = 97 * actual_hash + Objects.hashCode(this.name);
-            if (terms_as_string == null) {
-                terms_as_string = this.terms.toString();
-            }
-            actual_hash = 97 * actual_hash + Objects.hashCode(this.terms_as_string);
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return actual_hash;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        
+        
+        final NumFluent other = (NumFluent) obj;
+        
+
+        
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.terms, other.terms)) {
+            return false;
+        }
+        return true;
     }
+
+    
 
 //    @Override
 //    public int hashCode() {
@@ -501,7 +493,8 @@ public class NumFluent extends Expression {
     public Expression unifyVariablesReferences(EPddlProblem p) {
         NumFluent t = p.numFluentReference.get(this.toString());
         if (t == null){
-            throw new RuntimeException("Fluent "+this+" not found in pddl problem");
+            p.numFluentReference.put(this.toString(),this);
+            return this;
         }
         return t;
 

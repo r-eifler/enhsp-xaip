@@ -279,7 +279,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         State ret = new State();
         for (Object o : this.sons) {
             if (o instanceof Predicate) {
-                ret.addProposition((Predicate) o);
+                ret.setPredTrue((Predicate) o);
             } else {
                 System.out.println("This AndCond cannot be transformed into a State");
                 return null;

@@ -233,7 +233,7 @@ public class NumEffect extends Expression implements PostCondition {
             this.setFluentAffected(nf);
         } else {//this can become a state variable; so conservatively keeps track of it
             //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
-            s.getNum_fluents_value().put(fluentAffected, null);
+            s.getInitNumFluents().put(fluentAffected, null);
         }
         return this;
     }
@@ -617,6 +617,8 @@ public class NumEffect extends Expression implements PostCondition {
 
     @Override
     public Expression unifyVariablesReferences(EPddlProblem p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.fluentAffected = (NumFluent) this.fluentAffected.unifyVariablesReferences(p);
+        this.right = right.unifyVariablesReferences(p);
+        return this;
     }
 }
