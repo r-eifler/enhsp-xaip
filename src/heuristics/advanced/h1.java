@@ -302,7 +302,7 @@ public class h1 extends Uniform_cost_search_H1 {
                     Float rep_needed;
                     
                     if (this.infinite_constant_effect){
-                        rep_needed = 1f;
+                        rep_needed = 1f * c_a;
                     } else if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
 
                         rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;

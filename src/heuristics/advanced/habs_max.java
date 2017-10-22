@@ -292,35 +292,4 @@ public class habs_max extends Heuristic {
         
         return ret;
     }
-    
-    // only for debugging
-    public static void logging(String content) {
-        String FILENAME = "/home/dxli/workspace/NetBeansProjects/expressive-numeric-heuristic-search-planner-enhsp-planner/abs_experiments/log.txt";
-
-        FileWriter fw = null;
-        BufferedWriter bw = null;
-
-        try {
-            fw = new FileWriter(FILENAME, true);
-            bw = new BufferedWriter(fw);
-            bw.write(content);
-
-        } catch (IOException ex) {
-            Logger.getLogger(habs_add.class.getName()).log(Level.FINEST, null, ex);
-        } finally {
-            try {
-
-                if (bw != null) {
-                    bw.close();
-                }
-
-                if (fw != null) {
-                    fw.close();
-                }
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
 }
