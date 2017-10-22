@@ -35,12 +35,12 @@ import problem.State;
  *
  * @author enrico
  */
-public class double_implication extends Condition {
+public class DoubleImplication extends ComplexCondition {
 
     Condition left;
     Condition right;
 
-    public double_implication(Condition left_input, Condition right_input) {
+    public DoubleImplication(Condition left_input, Condition right_input) {
         this.left = left_input;
         this.right = right_input;
     }
@@ -171,7 +171,7 @@ public class double_implication extends Condition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -192,6 +192,11 @@ public class double_implication extends Condition {
 
     @Override
     public Condition introduce_red_constraints() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

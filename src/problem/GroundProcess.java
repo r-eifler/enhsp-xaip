@@ -19,6 +19,7 @@
 package problem;
 
 import conditions.AndCond;
+import conditions.ComplexCondition;
 import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -46,14 +47,14 @@ public class GroundProcess extends GroundAction implements Comparable {
     public Object clone() throws CloneNotSupportedException {
         GroundProcess ret = new GroundProcess(name);
         if (this.addList != null) {
-            ret.addList = this.addList.clone();
+            ret.addList = (AndCond) this.addList.clone();
         }
         if (this.delList != null) {
-            ret.delList = this.delList.clone();
+            ret.delList = (AndCond) this.delList.clone();
         }
         ret.normalized = this.normalized;
         if (this.numericEffects != null) {
-            ret.numericEffects = this.numericEffects.clone();
+            ret.numericEffects = (AndCond) this.numericEffects.clone();
         }
 
         if (this.numericFluentAffected != null) {
@@ -63,7 +64,7 @@ public class GroundProcess extends GroundAction implements Comparable {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
         if (this.preconditions != null) {
-            ret.preconditions = this.preconditions.clone();
+            ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
         if (this.interact_with != null) {
             ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();

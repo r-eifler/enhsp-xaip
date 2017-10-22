@@ -18,8 +18,8 @@
  */
 package expressions;
 
+import conditions.ComplexCondition;
 import conditions.Condition;
-import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -276,18 +277,19 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression subst(Condition numeric) {
+    public Expression subst(Condition input) {
 
         //NumEffect ret = (NumEffect)this.clone();
         NumEffect ret = (NumEffect) this.clone();
-        ret.right = ret.right.subst(numeric);
+        ret.right = ret.right.subst(input);
 
-        if (numeric == null) {
+        if (input == null) {
             return ret;
         }
-        if (numeric.sons.isEmpty()) {
+        if (!(input instanceof ComplexCondition))
             return ret;
-        }
+        
+        ComplexCondition numeric = (ComplexCondition)input;
 
         if (ret.getOperator().equals("assign")) {
             return ret;
@@ -611,5 +613,10 @@ public class NumEffect extends Expression implements PostCondition {
         Set<NumFluent> ret = new HashSet();
         ret.add(fluentAffected);
         return ret;
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

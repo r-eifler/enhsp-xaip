@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -217,5 +218,10 @@ public class PDDLNumber extends Expression {
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         bui.append(this.toString());
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        return this;
     }
 }

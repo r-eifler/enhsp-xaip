@@ -21,6 +21,7 @@ package heuristics;
 import heuristics.utils.HeuristicSearchNode;
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
@@ -50,7 +51,6 @@ import problem.GroundAction;
 import problem.RelState;
 import problem.State;
 import org.ojalgo.optimisation.Variable;
-import problem.AbstractState;
 import problem.GroundEvent;
 import problem.GroundProcess;
 
@@ -78,7 +78,7 @@ public abstract class Heuristic{
     public HashMap<Comparison, Comparison> add_achievers;
     protected int index_of_last_static_atom;
     public LinkedHashSet<GroundAction> A;
-    public Condition G;
+    public ComplexCondition G;
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
     protected boolean cyclic_task;
@@ -107,7 +107,7 @@ public abstract class Heuristic{
     public int n_lp_invocations;
     public boolean integer_variables;
     public boolean greedy = false;
-    public Condition gC;
+    public ComplexCondition gC;
     public boolean integer_actions = false;
     private boolean cost_oriented_ibr = false;
     protected HashMap<Condition, Integer> integer_ref;
@@ -115,6 +115,7 @@ public abstract class Heuristic{
     protected int total_number_of_actions;
     public Boolean weak_helpful_actions_pruning = true;
     public boolean only_mutual_exclusion_processes = false;
+    private HashMap redundant_constraints;
 
     
     public Heuristic(){
@@ -126,7 +127,7 @@ public abstract class Heuristic{
         
     }
     
-    public Heuristic(Condition G, Set<GroundAction> A) {
+    public Heuristic(ComplexCondition G, Set<GroundAction> A) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -141,7 +142,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Condition G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -157,7 +158,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Condition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -174,7 +175,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(Condition G, Set<GroundAction> A, Set<GroundAction> P, Condition GC) {
+    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundAction> P, ComplexCondition GC) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -253,12 +254,11 @@ public abstract class Heuristic{
         return this.compute_cost(s_0, h, gr.getPreconditions(), closed);
     }
 
-    protected Float compute_cost(State s_0, ArrayList<Float> h, Condition con, ArrayList<Boolean> closed) {
+    protected Float compute_cost(State s_0, ArrayList<Float> h, Condition input_cond, ArrayList<Boolean> closed) {
         Float cost = 0f;
 
-        if (con == null || con.sons == null) {
-            return 0f;
-        }
+        
+        ComplexCondition con = (ComplexCondition)input_cond;
 
         for (Condition t : (LinkedHashSet<Condition>) con.sons) {
             if (closed != null && !closed.get(t.getCounter()) && !greedy) {
@@ -332,7 +332,7 @@ public abstract class Heuristic{
         return this.compute_cost(s_0, h, gr.getPreconditions());
     }
 
-    protected int compute_cost(State s_0, ArrayList<Integer> h, Condition con) {
+    protected int compute_cost(State s_0, ArrayList<Integer> h, ComplexCondition con) {
         int cost = 0;
 
         if (con == null) {
@@ -713,7 +713,7 @@ public abstract class Heuristic{
         return additional_cost;
     }
 
-    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, Condition c, ArrayList<Float> h) {
+    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, ComplexCondition c, ArrayList<Float> h) {
 
         n_lp_invocations = n_lp_invocations + 1;
 //        System.out.println(invocation);
@@ -957,6 +957,59 @@ public abstract class Heuristic{
         }
         return counter;
 
+    }
+    
+        protected void add_redundant_constraints() throws Exception {
+        redundant_constraints = new HashMap();
+
+        for (GroundAction a : A) {
+            if (a.getPreconditions() != null) {
+                compute_redundant_constraint((Set<ComplexCondition>) a.getPreconditions().sons);
+            }
+            //System.out.println(a.toPDDL());
+        }
+
+        compute_redundant_constraint((Set<ComplexCondition>) G.sons);
+    }
+
+    protected void compute_redundant_constraint(Set<ComplexCondition> set) throws Exception {
+        LinkedHashSet temp = new LinkedHashSet();
+        ArrayList<Condition> set_as_array = new ArrayList(set);
+        int counter = 0;
+        for (int i = 0; i < set_as_array.size(); i++) {
+            for (int j = i + 1; j < set_as_array.size(); j++) {
+                Condition c_1 = set_as_array.get(i);
+                Condition c_2 = set_as_array.get(j);
+                if ((c_1 instanceof Comparison) && (c_2 instanceof Comparison)) {
+                    counter++;
+                    Comparison a1 = (Comparison) c_1;
+                    Comparison a2 = (Comparison) c_2;
+                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+                    ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
+                    String new_comparator = ">=";
+                    if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
+                        new_comparator = ">";
+                    }
+                    Comparison newC = new Comparison(new_comparator);
+                    newC.setLeft(expr);
+                    newC.setRight(new ExtendedNormExpression(new Float(0.0)));
+                    newC.normalize();
+
+                    ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
+
+                    if (tempLeft.summations.size() < 2) {
+                        continue;
+                    }
+                    redundant_constraints.put(newC, true);
+                    temp.add(newC);
+                }
+            }
+        }
+//        System.out.println("New conditions now:"+counter);
+//        System.out.println("Set before:"+set.size());
+        set.addAll(temp);
+//        System.out.println("Set after:"+set.size());
     }
 
 }

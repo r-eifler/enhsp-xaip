@@ -18,6 +18,8 @@
  */
 package domain;
 
+import conditions.AndCond;
+import conditions.ComplexCondition;
 import conditions.PDDLObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,26 +78,32 @@ public class EventSchema extends ActionSchema {
         ret.setParameters(par);
 
 //        System.out.println(this);
+        if (this.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) this.forall.ground(substitution, po);
+            ret.create_effects_by_cases(temp);
+        }
+
+//        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+            ret.numericEffects.sons.addAll(((AndCond)this.numericEffects.ground(substitution, po)).sons);
+//            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution, po));
+            ret.addList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+//            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution, po));
+            ret.delList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+
+//            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution, po));
+            ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
         if (cond_effects != null) {
-//            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution, po);
-//            System.out.println("DEBUG: after:"+cond_effects);
-
+            ret.cond_effects.sons.addAll(((ComplexCondition) this.cond_effects.ground(substitution, po)).sons);
         }
-
         return ret;
     }
 }

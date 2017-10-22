@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -419,5 +420,12 @@ public class BinaryOp extends Expression {
         bui.append(" ");
         getRight().pddlPrint(typeInformation, bui);
         bui.append(")");
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        this.lhs = this.lhs.unifyVariablesReferences(p);
+        this.rhs = this.rhs.unifyVariablesReferences(p);
+        return this;
     }
 }

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -213,5 +214,10 @@ public class MultiOp extends Expression {
     @Override
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

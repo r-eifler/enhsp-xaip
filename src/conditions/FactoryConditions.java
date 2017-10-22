@@ -109,6 +109,16 @@ public class FactoryConditions {
                     }
                 }
                 return or;
+                
+            case PddlParser.ONEOF:
+                OneOf one_of = new OneOf();
+                for (int i = 0; i < tree.getChildCount(); i++) {
+                    Condition ret_val = createCondition(tree.getChild(i),parTable);
+                    if (ret_val != null) {
+                        one_of.sons.add(ret_val);
+                    }
+                }
+                return one_of;
             case PddlParser.NOT_GD:
                 Condition cond = null; // TODO: Can it be null or should we throw an error?  
                 for (int i = 0; i < tree.getChildCount(); i++) {

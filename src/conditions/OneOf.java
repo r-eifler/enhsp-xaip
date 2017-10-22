@@ -24,6 +24,7 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,13 +37,12 @@ import problem.State;
  *
  * @author enrico
  */
-public class OneOf extends Condition {
+public class OneOf extends ComplexCondition {
 
     private String smt_representation;
 
     public OneOf() {
         super();
-        this.sons = new LinkedHashSet();
     }
 
     @Override
@@ -145,7 +145,8 @@ public class OneOf extends Condition {
 
     @Override
     public Set<NumFluent> getInvolvedFluents() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new HashSet();
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -214,7 +215,7 @@ public class OneOf extends Condition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -235,6 +236,11 @@ public class OneOf extends Condition {
 
     @Override
     public Condition introduce_red_constraints() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

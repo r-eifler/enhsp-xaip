@@ -19,6 +19,7 @@
 package domain;
 
 import conditions.AndCond;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.ForAll;
@@ -37,11 +38,11 @@ import java.util.Set;
 public abstract class GenericActionType extends Object {
 
     protected String name;
-    protected Condition addList;
-    protected Condition delList;
-    protected Condition numericEffects;
-    protected Condition preconditions;
-    public Condition cond_effects;
+    protected AndCond addList;
+    protected AndCond delList;
+    protected AndCond numericEffects;
+    protected ComplexCondition preconditions;
+    public AndCond cond_effects;
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     protected SchemaParameters parameters;
     protected AndCond forall;
@@ -49,7 +50,7 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the addList
      */
-    public Condition getAddList() {
+    public AndCond getAddList() {
         return addList;
     }
 
@@ -60,7 +61,7 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the delList
      */
-    public Condition getDelList() {
+    public AndCond getDelList() {
         return delList;
     }
 
@@ -71,28 +72,28 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the numericEffects
      */
-    public Condition getNumericEffects() {
+    public AndCond getNumericEffects() {
         return numericEffects;
     }
 
     /**
      * @return the preconditions
      */
-    public Condition getPreconditions() {
+    public ComplexCondition getPreconditions() {
         return preconditions;
     }
 
     /**
      * @param addList the addList to set
      */
-    public void setAddList(Condition addList) {
+    public void setAddList(AndCond addList) {
         this.addList = addList;
     }
 
     /**
      * @param delList the delList to set
      */
-    public void setDelList(Condition delList) {
+    public void setDelList(AndCond delList) {
         this.delList = delList;
     }
 
@@ -106,14 +107,14 @@ public abstract class GenericActionType extends Object {
     /**
      * @param numericEffects the numericEffects to set
      */
-    public void setNumericEffects(Condition numericEffects) {
+    public void setNumericEffects(AndCond numericEffects) {
         this.numericEffects = numericEffects;
     }
 
     /**
      * @param preconditions the preconditions to set
      */
-    public void setPreconditions(Condition preconditions) {
+    public void setPreconditions(ComplexCondition preconditions) {
         this.preconditions = preconditions;
     }
 
@@ -135,7 +136,7 @@ public abstract class GenericActionType extends Object {
     }
 
     protected void push_not_to_terminals() {
-        Condition c = this.getPreconditions().push_not_to_terminals();
+        ComplexCondition c = (ComplexCondition)this.getPreconditions().push_not_to_terminals();
         if (!(c instanceof AndCond)) {
             AndCond and = new AndCond();
             and.addConditions(c);
@@ -155,7 +156,8 @@ public abstract class GenericActionType extends Object {
             ret.addAll(this.addList.getTerminalConditions());
         }
         if (this.cond_effects != null) {
-           for (Condition cEff: (Collection<Condition>)this.cond_effects.sons){
+           AndCond temp2 = (AndCond)this.cond_effects;
+           for (Condition cEff: (Collection<Condition>)temp2.sons){
                if (cEff instanceof ConditionalEffect){
                     ConditionalEffect conditional = (ConditionalEffect)cEff;
                     Set<Condition> temp = ((AndCond)conditional.effect).getTerminalConditions();
@@ -174,11 +176,15 @@ public abstract class GenericActionType extends Object {
                }
            }
         }
-        if (this.delList != null && this.delList.sons != null) {
-            for (Condition c : (Collection<Condition>) this.delList.sons) {
-                if (c instanceof NotCond) {
-                    NotCond nc = (NotCond) c;
-                    ret.add((Predicate) nc.getSon());
+        
+        if (this.delList != null ) {
+            if (this.delList instanceof ComplexCondition){
+                
+                for (Condition c : (Collection<Condition>) ((ComplexCondition)this.delList).sons) {
+                    if (c instanceof NotCond) {
+                        NotCond nc = (NotCond) c;
+                        ret.add((Predicate) nc.getSon());
+                    }
                 }
             }
         }
@@ -213,7 +219,7 @@ public abstract class GenericActionType extends Object {
             }
         }
         if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) ((ComplexCondition)this.cond_effects).sons) {
                 for (NumFluent nf : c_eff.affectedNumericFluents()) {
                     this.numericFluentAffected.put(nf, Boolean.TRUE);
                 }
@@ -237,7 +243,7 @@ public abstract class GenericActionType extends Object {
         }
 
         if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) ((ComplexCondition)this.cond_effects).sons) {
                 for (NumFluent nf : c_eff.affectedNumericFluents()) {
                     this.numericFluentAffected.put(nf, Boolean.TRUE);
                 }
@@ -248,7 +254,7 @@ public abstract class GenericActionType extends Object {
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {
         Set<NumFluent> ret = new HashSet();
-        for (NumEffect neff : (Collection<NumEffect>) this.getNumericEffects().sons) {
+        for (NumEffect neff : (Collection<NumEffect>) ((ComplexCondition)this.getNumericEffects()).sons) {
             ret.addAll(neff.getRight().rhsFluents());
         }
         return ret;
@@ -282,5 +288,28 @@ public abstract class GenericActionType extends Object {
             this.forall.sons.add(res);
 //            this.forall.sons.add(res);
         }
+    }
+
+    public Collection<NumFluent> getInvolvedNumFluents() {
+        Collection<NumFluent> ret = this.preconditions.getInvolvedFluents();
+        ret.addAll(this.numericEffects.getInvolvedFluents());
+        return ret;
+    }
+
+    public Collection<Predicate> getInvolvedPredicates() {
+        Collection<Predicate> ret = new LinkedHashSet();
+        if (this.preconditions != null) {
+            ret.addAll(this.preconditions.getInvolvedPredicates());
+        }
+        if (this.addList != null) {
+            ret.addAll(this.addList.getInvolvedPredicates());
+        }
+        if (this.delList != null) {
+            ret.addAll(this.delList.getInvolvedPredicates());
+        }
+        if (this.cond_effects != null) {
+            ret.addAll(this.cond_effects.getInvolvedPredicates());
+        }
+        return ret;
     }
 }

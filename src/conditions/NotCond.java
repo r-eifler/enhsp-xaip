@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -45,7 +46,7 @@ public class NotCond extends Terminal implements PostCondition {
     /**
      * The condition that is negated in this condition.
      */
-    private final Condition son;
+    private Condition son;
 
     public NotCond(Condition son) {
         super();
@@ -391,7 +392,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -448,6 +449,22 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         return new HashSet();
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        this.son = this.son.unifyVariablesReferences(p);
+        return this;
     }
 
 }

@@ -24,11 +24,12 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
+import problem.PDDLProblemComponent;
 import problem.RelState;
 import problem.State;
 
@@ -36,15 +37,14 @@ import problem.State;
  *
  * @author enrico
  */
-public abstract class Condition extends Object {
+public abstract class Condition extends PDDLProblemComponent {
 
     public boolean grounded;
-    public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
     // TODO: Make a ConditionsWithSons class that sits between AndCond/OrCond/OneOf and Conditions
     protected boolean freeVarSemantic = false;
     private boolean unsatisfiable = false;
     private boolean valid = false;
-    private int counter;
+    protected int counter;
 
     public Condition() {
         //son = new HashSet();
@@ -58,6 +58,12 @@ public abstract class Condition extends Object {
     @Override
     public abstract boolean equals(Object obj);
 
+    /**
+     *
+     * @param s
+     * @param invF
+     * @return
+     */
     public abstract Condition weakEval(State s, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
@@ -178,28 +184,7 @@ public abstract class Condition extends Object {
 
     public abstract boolean is_affected_by(GroundAction gr);
 
-    public Collection<Predicate> getInvolvedPredicates() {
-        Collection ret = new LinkedHashSet();
-        if (this instanceof Predicate) {
-            ret.add(this);
-            return ret;
-        } else if (this instanceof NotCond) {
-            NotCond temp = (NotCond) this;
-            if (temp.getSon() == null) {
-                return ret;
-            }
-            Condition temp2 = (Condition) temp.getSon();
-            ret.addAll(temp2.getInvolvedPredicates());
-            return ret;
-        }
-        //from here it can only be an AndCond or a Or. Other cases are not considered
-        if (this.sons != null) {
-            for (Condition c : (Collection<Condition>) this.sons) {
-                ret.addAll(c.getInvolvedPredicates());
-            }
-        }
-        return ret;
-    }
+    public abstract Collection<Predicate> getInvolvedPredicates();
 
     /**
      * Returns the list of variables involved in this conditions.
@@ -248,7 +233,7 @@ public abstract class Condition extends Object {
 
     public abstract Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h);
 
-    public abstract Condition and(Condition precondition);
+    public abstract ComplexCondition and(Condition precondition);
 
     public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
 
@@ -290,8 +275,8 @@ public abstract class Condition extends Object {
         return false;
     }
 
-    public void addConditions(Condition c) {
-        sons.add(c);
-    }
+
+    public  abstract void extendTerms(Variable v);
+    
 
 }

@@ -40,7 +40,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class ConditionalEffect extends Condition implements PostCondition {
+public class ConditionalEffect extends ComplexCondition implements PostCondition {
 
     public Condition activation_condition;
     public PostCondition effect;
@@ -326,7 +326,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -359,5 +359,10 @@ public class ConditionalEffect extends Condition implements PostCondition {
             return this.effect.affectedNumericFluents();
         else
             return new HashSet();
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

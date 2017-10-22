@@ -19,6 +19,7 @@
 package heuristics;
 
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.Predicate;
@@ -56,7 +57,7 @@ public class Aibr extends Heuristic {
     public boolean layers_counter;
     private boolean cost_oriented = true;
 
-    public Aibr(Condition G, Set<GroundAction> actions) {
+    public Aibr(ComplexCondition G, Set<GroundAction> actions) {
         super(G, actions);
         this.supp_to_action = new HashMap();
 
@@ -65,7 +66,7 @@ public class Aibr extends Heuristic {
         generate_supporters(A);
     }
 
-    public Aibr(Condition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
+    public Aibr(ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         this.supp_to_action = new HashMap();
 
@@ -77,7 +78,7 @@ public class Aibr extends Heuristic {
         //this.build_integer_representation();
     }
 
-    public Aibr(Condition G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
+    public Aibr(ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
         super(G, actions, processes, events);
         this.supp_to_action = new HashMap();
 
@@ -299,7 +300,7 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition, gr);
     }
 
-    private GroundAction generate_propositional_action(String name, Condition cond, GroundAction gr) {
+    private GroundAction generate_propositional_action(String name, ComplexCondition cond, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
@@ -390,7 +391,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Condition cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, ComplexCondition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {

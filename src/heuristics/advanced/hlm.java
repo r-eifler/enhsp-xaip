@@ -18,9 +18,8 @@
  */
 package heuristics.advanced;
 
-import heuristics.old.Uniform_cost_search_H1;
-import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
 import expressions.PDDLNumber;
@@ -38,7 +37,6 @@ import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
@@ -72,12 +70,12 @@ public class hlm extends h1 {
     private HashMap<Integer, IloNumVar> action_to_variable;
     private HashMap<Integer, IloRange> condition_to_cplex_constraint;
     
-    public hlm(Condition goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
         
     }
     
-    public hlm(Condition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super(goal, A, P, E);
         
     }
@@ -97,7 +95,7 @@ public class hlm extends h1 {
             try {
                 this.add_redundant_constraints();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Putting something here");
             }
         }
         build_integer_representation();
@@ -106,7 +104,7 @@ public class hlm extends h1 {
         try {
             generate_achievers();
         } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Put something here");
         }
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -236,7 +237,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -253,6 +254,21 @@ public class PDDLObject extends Terminal implements ActionParameter {
     @Override
     public PDDLObject ground(Map<Variable, PDDLObject> substitution) {
         return new PDDLObject(name, type); // TODO: Why not return this?
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        return this;
     }
 
 }

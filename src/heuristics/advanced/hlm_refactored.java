@@ -18,9 +18,8 @@
  */
 package heuristics.advanced;
 
-import heuristics.old.Uniform_cost_search_H1;
-import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.NotCond;
 import conditions.Predicate;
@@ -77,12 +76,12 @@ public class hlm_refactored extends h1 {
     private boolean needs_checking_state_dependent_constraints;
     public boolean debug_landmarks_counting = false;
 
-    public hlm_refactored(Condition goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public hlm_refactored(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
 
     }
 
-    public hlm_refactored(Condition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public hlm_refactored(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super(goal, A, P, E);
 
     }
@@ -103,7 +102,7 @@ public class hlm_refactored extends h1 {
             try {
                 this.add_redundant_constraints();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Put something here");
             }
         }
         boolean reconstruct = false;
@@ -114,7 +113,7 @@ public class hlm_refactored extends h1 {
             try {
                 reconstruct = generate_achievers();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Put something here");
             }
         } while (reconstruct);
 

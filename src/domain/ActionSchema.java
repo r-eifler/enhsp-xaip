@@ -20,6 +20,7 @@ package domain;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.NotCond;
@@ -88,11 +89,11 @@ public class ActionSchema extends GenericActionType {
             this.create_effects_by_cases(temp);
         }
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution, po));
-        ret.setAddList(this.addList.ground(substitution, po));
-        ret.setDelList(this.delList.ground(substitution, po));
-        ret.setPreconditions(this.preconditions.ground(substitution, po));
-        ret.cond_effects = this.cond_effects.ground(substitution, po);
+        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, po));
+        ret.setAddList((AndCond) this.addList.ground(substitution, po));
+        ret.setDelList((AndCond) this.delList.ground(substitution, po));
+        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
+        ret.cond_effects = (AndCond) this.cond_effects.ground(substitution, po);
 
         return ret;
 
@@ -108,10 +109,10 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution, c++));
-        ret.setAddList(this.addList.ground(substitution, c++));
-        ret.setDelList(this.delList.ground(substitution, c++));
-        ret.setPreconditions(this.preconditions.ground(substitution, c++));
+        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, c++));
+        ret.setAddList((AndCond) this.addList.ground(substitution, c++));
+        ret.setDelList((AndCond) this.delList.ground(substitution, c++));
+        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, c++));
         return ret;
     }
 
@@ -130,23 +131,23 @@ public class ActionSchema extends GenericActionType {
 //        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.numericEffects.sons.addAll(this.numericEffects.ground(substitution, po).sons);
+            ret.numericEffects.sons.addAll(((AndCond)this.numericEffects.ground(substitution, po)).sons);
 //            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.addList.sons.addAll(this.addList.ground(substitution, po).sons);
+            ret.addList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
 //            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.delList.sons.addAll(this.addList.ground(substitution, po).sons);
+            ret.delList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
 
 //            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution, po));
+            ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
         if (cond_effects != null) {
-            ret.cond_effects.sons.addAll(this.cond_effects.ground(substitution, po).sons);
+            ret.cond_effects.sons.addAll(((ComplexCondition) this.cond_effects.ground(substitution, po)).sons);
         }
         return ret;
     }
@@ -249,7 +250,7 @@ public class ActionSchema extends GenericActionType {
         ab.setParameters((SchemaParameters) a.parameters.clone());
         ab.parameters.mergeParameters(as2.parameters);
 
-        ab.setPreconditions(this.regress(as2, a));
+        ab.setPreconditions((ComplexCondition) this.regress(as2, a));
         this.progress(a, as2, ab);
         //ab.setIsMacro(true);
         //System.out.println("Da dentro l'azione..."+ab);
@@ -288,7 +289,7 @@ public class ActionSchema extends GenericActionType {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Condition numEff = new AndCond();
+        AndCond numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;

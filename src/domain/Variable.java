@@ -61,7 +61,7 @@ public class Variable implements ActionParameter {
     @Override
     public String toString() {
 
-        return getName();
+        return this.getName() + " " + this.getType();
 
     }
 

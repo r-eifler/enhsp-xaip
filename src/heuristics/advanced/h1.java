@@ -23,17 +23,20 @@
  */
 package heuristics.advanced;
 
+import conditions.AndCond;
 import heuristics.utils.achiever_set;
-import heuristics.old.Uniform_cost_search_H1;
-import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
+import conditions.NotCond;
+import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.Aibr;
+import heuristics.Heuristic;
 import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +59,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class h1 extends Uniform_cost_search_H1 {
+public class h1 extends Heuristic {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
@@ -84,13 +87,23 @@ public class h1 extends Uniform_cost_search_H1 {
     private ArrayList<Float> established_local_cost;
     private HashMap<Pair<Integer,Integer>,Float> action_comp_number_execution;
     private boolean risky = true;
+    protected boolean reacheability_setting;
+    
+    
+        protected HashMap<Integer, LinkedHashSet<Condition>> achieve;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
+    protected HashMap<Integer, LinkedHashSet<Comparison>> interact_with;
+    protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
+    protected HashMap<Condition, Boolean> redundant_constraints;
 
-    public h1(Condition goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public h1(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
 
     }
 
-    public h1(Condition G, Set A, Set processesSet, Set events) {
+    public h1(ComplexCondition G, Set A, Set processesSet, Set events) {
         super(G, A, processesSet, events);
     }
 
@@ -112,7 +125,7 @@ public class h1 extends Uniform_cost_search_H1 {
             try {
                 this.add_redundant_constraints();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Putting something here");
             }
         }
         if (additive_h) {
@@ -134,7 +147,7 @@ public class h1 extends Uniform_cost_search_H1 {
             try {
                 reconstruct = generate_achievers();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Putting something here");
             }
         } while (reconstruct);
         reacheability_setting = true;
@@ -331,7 +344,11 @@ public class h1 extends Uniform_cost_search_H1 {
                     new_distance = action_dist.get(gr.counter) + c_a;//this is a very conservative measure.
                 } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
-                    Aibr aibr_handle = new Aibr(comp, reachable_here);
+                    
+                    AndCond temp = new AndCond();
+                    temp.addConditions(comp);
+                            
+                    Aibr aibr_handle = new Aibr(temp, reachable_here);
                     //aibr_handle
                     aibr_handle.set(false, true);
 
@@ -622,7 +639,7 @@ public class h1 extends Uniform_cost_search_H1 {
         for (GroundAction gr : (Collection<GroundAction>) this.A) {
             try {
                 if (gr.getPreconditions() != null) {
-                    gr.setPreconditions(gr.getPreconditions().transform_equality());
+                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
                 }
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
@@ -651,8 +668,165 @@ public class h1 extends Uniform_cost_search_H1 {
                 Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        this.G = this.G.transform_equality();
+        this.G = (ComplexCondition) this.G.transform_equality();
         this.G.normalize();
     }
+    
+    
+    protected boolean generate_achievers() throws Exception {
+        interact_with = new HashMap();
+        achieve = new HashMap();
+        possible_achievers = new HashMap();
+        this.possible_achievers_inverted = new HashMap();
+        achievers_inverted = new HashMap();
+        precondition_mapping = new HashMap();
+
+        //this should also include the indirect dependencies, otherwise does not work!!
+        Set<GroundAction> useless_actions = new HashSet();
+        for (GroundAction gr : this.A) {
+            LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
+            LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
+            LinkedHashSet<Condition> literals = new LinkedHashSet();
+            boolean at_least_one_service = false;
+            for (Condition c : this.all_conditions) {
+
+                if (precondition_mapping.get(c.getCounter()) == null) {
+                    precondition_mapping.put(c.getCounter(), new LinkedHashSet());
+                }
+                LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+                if (c instanceof Comparison) {
+//                    System.out.println("Condition under analysis:"+c);
+//                    System.out.println("Counter is:"+c.getCounter());
+                    Comparison comp = (Comparison) c;
+                    if (comp.involve(gr.getNumericFluentAffected())) {
+                        comparisons.add(comp);
+
+                        if (this.is_complex.get(comp.getCounter())) {
+                            at_least_one_service = true;
+                            reacheable_comparisons.add(comp);
+                        } else if (gr.is_possible_achiever_of(comp)) {
+                            at_least_one_service = true;
+                            reacheable_comparisons.add(comp);
+                            action_list.add(gr);
+                        }
+                    }
+                    if (this.possible_achievers_inverted.get(comp.getCounter()) == null) {
+                        this.possible_achievers_inverted.put(comp.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getCounter());
+                        temp.addAll(action_list);
+                        this.possible_achievers_inverted.put(comp.getCounter(), temp);
+                    }
+                } else if (c instanceof Predicate) {
+                    Predicate p = (Predicate) c;
+                    if (gr.achieve(p)) {
+                        at_least_one_service = true;
+                        literals.add(p);
+                        action_list.add(gr);
+                    }
+                    if (this.achievers_inverted.get(p.getCounter()) == null) {
+                        this.achievers_inverted.put(p.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(p.getCounter());
+                        temp.addAll(action_list);
+                        this.achievers_inverted.put(p.getCounter(), temp);
+                    }
+
+                } else if (c instanceof NotCond) {
+                    NotCond c1 = (NotCond) c;
+                    if (!c1.isTerminal()) {
+                        System.out.println("Not formula has to be used as a terminal, and it is not:" + c1);
+                        System.exit(-1);
+                    }
+                    Predicate p = (Predicate) c1.getSon();
+                    if (gr.delete(p)) {
+                        at_least_one_service = true;
+                        literals.add(c1);
+                        action_list.add(gr);
+                    }
+                    if (this.achievers_inverted.get(c1.getCounter()) == null) {
+                        this.achievers_inverted.put(c1.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(c1.getCounter());
+                        temp.addAll(action_list);
+                        this.achievers_inverted.put(c1.getCounter(), temp);
+                    }
+
+                }
+
+                if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
+//                    System.out.println("Gr:"+ gr);
+//                    try {
+//                        System.in.read();
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+
+                    LinkedHashSet<GroundAction> temp = this.precondition_mapping.get(c.getCounter());
+                    temp.add(gr);
+                    this.precondition_mapping.put(c.getCounter(), temp);
+
+                }
+
+            }
+//            if (at_least_one_service){
+            achieve.put(gr.counter, literals);
+            interact_with.put(gr.counter, comparisons);
+            possible_achievers.put(gr.counter, reacheable_comparisons);
+//            }else{
+//                useless_actions.add(gr);
+//            }
+        }
+//        boolean ret = !useless_actions.isEmpty();
+
+//        A.removeAll(useless_actions);
+        Utils.dbg_print(debug, "Identify complex achievers");
+
+        for (Comparison comp : this.complex_condition_set) {
+            HashSet<NumEffect> num_effects = new LinkedHashSet();
+            HashMap<NumEffect, Boolean> temp_mark = new HashMap();
+            HashMap<NumEffect, Boolean> per_mark = new HashMap();
+            sorted_nodes = new LinkedList();
+            for (GroundAction gr : A) {
+                for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
+                    temp_mark.put(nf, false);
+                    per_mark.put(nf, false);
+                    num_effects.add(nf);
+                }
+            }
+            for (NumEffect a : num_effects) {
+                if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected()))) {
+                    visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
+                }
+            }
+            LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+            for (GroundAction gr : A) {
+                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+
+                    if (sorted_nodes.contains(neff)) {
+                        possible_achievers.get(gr.counter).add(comp);
+                        action_list.add(gr);
+                    }
+
+                }
+            }
+            if (this.possible_achievers_inverted.get(comp.getCounter()) == null) {
+                this.possible_achievers_inverted.put(comp.getCounter(), action_list);
+            } else {
+                LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getCounter());
+                temp.addAll(action_list);
+                this.possible_achievers_inverted.put(comp.getCounter(), temp);
+            }
+            if (debug == 1) {
+                System.out.println("Comparison:" + comp);
+                System.out.println("Achievers Set" + this.possible_achievers_inverted.get(comp.getCounter()));
+            }
+
+        }
+        Utils.dbg_print(debug, "Complex achievers identified");
+        return false;//to fix at some point
+    }
+    
+
 
 }

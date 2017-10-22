@@ -19,6 +19,7 @@
 package heuristics.utils;
 
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
@@ -61,7 +62,7 @@ public final class cplex_interface extends LpInterface {
     public HashMap<Integer, IloNumVar> action_to_variable;
     public IloLinearNumExpr objective;
 
-    public cplex_interface(Condition cond, Condition global_constraint) throws IloException {
+    public cplex_interface(ComplexCondition cond, ComplexCondition global_constraint) throws IloException {
         super(cond, global_constraint);
         n_invocations = 0;
         integer_variables = false;
@@ -325,7 +326,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    protected void update_condition(State s_0, Condition temp) {
+    protected void update_condition(State s_0, ComplexCondition temp) {
 
         for (Condition c_0 : (Collection<Condition>) temp.sons) {
             IloRange lp_cond = this.cond_to_cplex_cond.get(c_0);

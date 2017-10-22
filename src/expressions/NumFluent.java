@@ -18,6 +18,7 @@
  */
 package expressions;
 
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.ActionParameter;
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -45,7 +47,7 @@ public class NumFluent extends Expression {
     private String terms_as_string;
     Integer hash_code;
     public int index;
-    private Integer id;
+    public Integer id;
     private Integer actual_hash;
 
     @Override
@@ -78,6 +80,9 @@ public class NumFluent extends Expression {
 //        }
 //
 //        return this.hash_code;
+//        if (id != null)
+//            return this.id;
+//        
         if (actual_hash == null) {
             actual_hash = 5;
 
@@ -298,14 +303,15 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression subst(Condition numeric) {
+    public Expression subst(Condition input) {
 
-        if (numeric == null) {
+        if (input == null) {
             return this;
         }
-        if (numeric.sons.isEmpty()) {
+        if (!(input instanceof ComplexCondition))
             return this;
-        }
+        
+        ComplexCondition numeric = (ComplexCondition)input;
 
         for (Object o : numeric.sons) {
             if (o instanceof NumEffect) {
@@ -489,5 +495,15 @@ public class NumFluent extends Expression {
      */
     public void setHas_to_be_tracked(Boolean has_to_be_tracked) {
         this.has_to_be_tracked = has_to_be_tracked;
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        NumFluent t = p.numFluentReference.get(this.toString());
+        if (t == null){
+            throw new RuntimeException("Fluent "+this+" not found in pddl problem");
+        }
+        return t;
+
     }
 }

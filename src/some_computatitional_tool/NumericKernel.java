@@ -20,6 +20,7 @@ package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
@@ -73,10 +74,10 @@ public class NumericKernel extends HashMap {
 
     }
 
-    public void constructAndComputeMaxDist(SimplePlan sp, Condition g, RelState numericFleuntsBoundaries) {
+    public void constructAndComputeMaxDist(SimplePlan sp, ComplexCondition g, RelState numericFleuntsBoundaries) {
 
         SimplePlan pianoClonato = (SimplePlan) sp.clone();
-        Condition goal = (Condition) g.clone();
+        ComplexCondition goal = (ComplexCondition) g.clone();
 
         //HashMap kerns = new HashMap();
         this.put(pianoClonato.size(), goal);
@@ -84,7 +85,7 @@ public class NumericKernel extends HashMap {
         for (int i = pianoClonato.size() - 1; i >= 0; i--) {
             GroundAction a = (GroundAction) pianoClonato.get(i);
 
-            goal = a.regressAndStoreFatherPointer(goal);
+            goal = (ComplexCondition) a.regressAndStoreFatherPointer(goal);
             this.put(i, goal);
         }
         for (Object o : this.values()) {
@@ -94,7 +95,7 @@ public class NumericKernel extends HashMap {
         }
 
         for (int i = pianoClonato.size(); i >= 0; i--) {
-            Condition con = (Condition) this.get(i);
+            ComplexCondition con = (ComplexCondition) this.get(i);
             //System.out.println(con);
 
             if (con instanceof AndCond) {
@@ -138,7 +139,7 @@ public class NumericKernel extends HashMap {
         }
 
         for (int i = pianoClonato.size(); i >= 0; i--) {
-            Condition con = (Condition) this.get(i);
+            ComplexCondition con = (ComplexCondition) this.get(i);
             if (con instanceof AndCond) {
                 for (Object o : con.sons) {
                     if (o instanceof Comparison) {
@@ -293,7 +294,7 @@ public class NumericKernel extends HashMap {
     public void computeMaxDistViaPlanBounds(SimplePlan sp, Condition g, HashMap higherNFValues, HashMap lowerNFValues) {
 
         for (int i = sp.size(); i >= 0; i--) {
-            Condition con = (Condition) this.get(i);
+            ComplexCondition con = (ComplexCondition) this.get(i);
             //System.out.println(con);
 
             if (con instanceof AndCond) {
@@ -338,7 +339,7 @@ public class NumericKernel extends HashMap {
         }
 
         for (int i = sp.size(); i >= 0; i--) {
-            Condition con = (Condition) this.get(i);
+            ComplexCondition con = (ComplexCondition) this.get(i);
             if (con instanceof AndCond) {
                 for (Object o : con.sons) {
                     if (o instanceof Comparison) {

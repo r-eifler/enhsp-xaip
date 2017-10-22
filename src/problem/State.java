@@ -21,6 +21,7 @@ package problem;
 import conditions.AndCond;
 import conditions.NumFluentValue;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.PDDLObject;
 import conditions.Predicate;
@@ -44,7 +45,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -116,8 +116,8 @@ public class State extends AbstractState {
 
     }
 
-    public void addProposition(Predicate buildInstPredicate) {
-        propositions.put(buildInstPredicate, true);
+    public void addProposition(Predicate p) {
+        propositions.put(p, true);
     }
 
     public void addNumericFluent(NumFluentValue a) {
@@ -560,7 +560,7 @@ public class State extends AbstractState {
 
     }
 
-    public Float normalizedRisk(Condition conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
+    public Float normalizedRisk(ComplexCondition conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
         Float total = new Float(0.0);
 
         String threateningConstraint = new String();
@@ -652,7 +652,7 @@ public class State extends AbstractState {
 
     }
 
-    public Float normalizedDist(Condition conditions, RelState numericFleuntsBoundaries, String distStrategy) {
+    public Float normalizedDist(ComplexCondition conditions, RelState numericFleuntsBoundaries, String distStrategy) {
         Float total = new Float(0.0);
 
         if (conditions instanceof AndCond) {
@@ -673,18 +673,7 @@ public class State extends AbstractState {
 
                 }
             }
-        } else if (conditions instanceof Comparison) {
-            Comparison comp = (Comparison) conditions;
-
-            if (distStrategy.equals("sum")) {
-                total += comp.getDistance(this, numericFleuntsBoundaries);
-
-            } else if (distStrategy.equals("max")) {
-                total = Math.max(comp.getDistance(this, numericFleuntsBoundaries), total);
-                //System.out.println("Distance: "+dist);
-            }
-
-        }
+        } 
         return total;
 
     }

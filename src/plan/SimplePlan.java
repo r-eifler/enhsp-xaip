@@ -20,6 +20,7 @@ package plan;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.NotCond;
 import conditions.PDDLObject;
@@ -177,7 +178,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         
         GroundAction grAction = action.ground(par, pp.getProblemObjects());
         grAction.generateAffectedNumFluents();
-        //grAction.normalizeAndCopy();
+        pp.keepUniqueVariable(grAction);
         this.add(grAction);
 
     }
@@ -416,8 +417,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             GroundAction a = (GroundAction) o;
             //a.normalizeAndCopy();
 
-            Condition con = a.getPreconditions();
-            Condition eff = a.getNumericEffects();
+            ComplexCondition con = a.getPreconditions();
+            ComplexCondition eff = a.getNumericEffects();
 //                    System.out.println(con);
 //                    System.out.println(eff);
             if (con != null) {
@@ -435,16 +436,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             //System.out.println("after" + lValue + rValue);
                         }
                     }
-                } else if (con instanceof Predicate) {
-                } else if (con instanceof Comparison) {
-                    Comparison comp = (Comparison) con;
-                    Expression lValue = comp.getLeft();
-                    Expression rValue = comp.getRight();
-                    //System.out.println("before" + lValue + rValue);
-                    lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                    rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                    comp.setLeft(lValue);
-                    comp.setRight(rValue);
+                
                 } else {
                     System.err.println("Conditions of the type: " + con.getClass());
                     throw new UnsupportedOperationException("Not supported yet.");
@@ -1136,7 +1128,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public DirectedAcyclicGraph buildValidationStructures(State init, Condition g) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph buildValidationStructures(State init, ComplexCondition g) throws CloneNotSupportedException, Exception {
         DirectedAcyclicGraph po = new DirectedAcyclicGraph(DefaultEdge.class);
         po.addVertex(-1);
         //DirectedAcyclicGraph po = new DirectedAcyclicGraph();
@@ -1284,7 +1276,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return po;
     }
 
-    public DirectedAcyclicGraph deorder(State init, Condition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph deorder(State init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
         if (debug > 0) {
@@ -2093,7 +2085,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return numberOfHoldings;
     }
 
-    public boolean entangledByGoal(String name, Condition goal, Condition con) {
+    public boolean entangledByGoal(String name, ComplexCondition goal, Condition con) {
 
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
@@ -2121,7 +2113,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return counter;
     }
 
-    public int entangledByGoalCounter(String name, Condition goal, Condition con) {
+    public int entangledByGoalCounter(String name, ComplexCondition goal, Condition con) {
         int counter = 0;
 
         for (GroundAction gr : this) {

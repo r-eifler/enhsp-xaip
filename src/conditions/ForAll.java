@@ -44,13 +44,12 @@ import propositionalFactory.Grounder;
  *
  * @author enrico
  */
-public class ForAll extends Condition implements PostCondition {
+public class ForAll extends ComplexCondition implements PostCondition {
 
-    private SchemaParameters parameters;
+    public SchemaParameters parameters;
 
     public ForAll() {
         this.parameters = new SchemaParameters();
-        this.sons = new LinkedHashSet();
     }
 
     @Override
@@ -211,7 +210,7 @@ public class ForAll extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -329,6 +328,11 @@ public class ForAll extends Condition implements PostCondition {
 
     @Override
     public Set<NumFluent> affectedNumericFluents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

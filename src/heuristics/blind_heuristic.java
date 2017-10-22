@@ -23,6 +23,7 @@
  */
 package heuristics;
 
+import conditions.ComplexCondition;
 import conditions.Condition;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,15 +38,15 @@ import problem.State;
  */
 public class blind_heuristic extends Aibr {
 
-    public blind_heuristic(Condition G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public blind_heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
     }
 
-    public blind_heuristic(Condition G, Set<GroundAction> A) {
+    public blind_heuristic(ComplexCondition G, Set<GroundAction> A) {
         super(G, A);
     }
 
-    public blind_heuristic(Condition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
+    public blind_heuristic(ComplexCondition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
         super(goals, actions, processesSet, eventsSet);
 
     }

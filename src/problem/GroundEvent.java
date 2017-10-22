@@ -18,6 +18,8 @@
  */
 package problem;
 
+import conditions.AndCond;
+import conditions.ComplexCondition;
 import conditions.PDDLObject;
 import domain.ParametersAsTerms;
 import java.util.HashMap;
@@ -64,17 +66,17 @@ public class GroundEvent extends GroundAction {
     public Object clone() throws CloneNotSupportedException {
         GroundEvent ret = new GroundEvent(name);
         if (this.addList != null) {
-            ret.addList = this.addList.clone();
+            ret.addList = (AndCond) this.addList.clone();
         }
         if (this.delList != null) {
-            ret.delList = this.delList.clone();
+            ret.delList = (AndCond) this.delList.clone();
         }
         ret.normalized = this.normalized;
         if (this.numericEffects != null) {
-            ret.numericEffects = this.numericEffects.clone();
+            ret.numericEffects = (AndCond) this.numericEffects.clone();
         }
         if (this.cond_effects != null) {
-            ret.cond_effects = this.cond_effects.clone();
+            ret.cond_effects = (AndCond) this.cond_effects.clone();
         }
 
         if (this.numericFluentAffected != null) {
@@ -84,7 +86,7 @@ public class GroundEvent extends GroundAction {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
         if (this.preconditions != null) {
-            ret.preconditions = this.preconditions.clone();
+            ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
         if (this.interact_with != null) {
             ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();

@@ -20,6 +20,7 @@ package problem;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.NotCond;
@@ -82,17 +83,17 @@ public class GroundAction extends GenericActionType implements Comparable {
     public Object clone() throws CloneNotSupportedException {
         GroundAction ret = new GroundAction(name);
         if (this.addList != null) {
-            ret.addList = this.addList.clone();
+            ret.addList = (AndCond) this.addList.clone();
         }
         if (this.delList != null) {
-            ret.delList = this.delList.clone();
+            ret.delList = (AndCond) this.delList.clone();
         }
         ret.normalized = this.normalized;
         if (this.numericEffects != null) {
-            ret.numericEffects = this.numericEffects.clone();
+            ret.numericEffects = (AndCond) this.numericEffects.clone();
         }
         if (this.cond_effects != null) {
-            ret.cond_effects = this.cond_effects.clone();
+            ret.cond_effects = (AndCond) this.cond_effects.clone();
         }
 
         if (this.numericFluentAffected != null) {
@@ -102,7 +103,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
         if (this.preconditions != null) {
-            ret.preconditions = this.preconditions.clone();
+            ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
         if (this.interact_with != null) {
             ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();
@@ -408,7 +409,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             ab.getParameters().addALLNewObjects(b.getParameters());
         }
 
-        ab.setPreconditions(regress(b, a));
+        ab.setPreconditions((ComplexCondition) regress(b, a));
         progress(a, b, ab);
         ab.setIsMacro(true);
         //System.out.println("Da dentro l'azione..."+ab);
@@ -440,7 +441,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
         //System.out.println(b.pddlEffects());
         //      System.out.println(a.pddlEffects());
-        ab.setPreconditions(regress(b, a));
+        ab.setPreconditions((ComplexCondition) regress(b, a));
         progress(a, b, ab);
         ab.setIsMacro(true);
 //        System.out.println("Da dentro l'azione..."+ab);
@@ -598,7 +599,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Condition numEff = new AndCond();
+        AndCond numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
@@ -747,11 +748,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         int cumulativeComparisonDistance = 0;
         AndCond prec = new AndCond();
         float dist = 0;//this.getPrimitives().size()/2;
-        if (this.preconditions instanceof Predicate) {
-            prec.addConditions((Predicate) this.preconditions);
-        } else if (this.preconditions instanceof Comparison) {
-            prec.addConditions((Comparison) this.preconditions);
-        } else if (this.preconditions instanceof AndCond) {
+        if (this.preconditions instanceof AndCond) {
             prec = (AndCond) this.preconditions;
         } else {
             System.out.println(this.preconditions.getClass() + " is not supported");
@@ -769,11 +766,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             }
         }
         AndCond goal = new AndCond();
-        if (prob.getGoals() instanceof Predicate) {
-            goal.addConditions((Predicate) prob.getGoals());
-        } else if (prob.getGoals() instanceof Comparison) {
-            goal.addConditions((Comparison) prob.getGoals());
-        } else if (prob.getGoals() instanceof AndCond) {
+        if (prob.getGoals() instanceof AndCond) {
             goal = (AndCond) prob.getGoals();
         } else {
             System.out.println(prob.getGoals().getClass() + " is not supported");
@@ -782,11 +775,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (Object o : goal.sons) {
             if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                if (this.addList instanceof Predicate) {
-                    if (!p.equals(this.addList)) {
-                        missingGoals++;
-                    }
-                } else if (this.addList instanceof AndCond) {
+                if (this.addList instanceof AndCond) {
                     if (!this.addList.sons.contains(o)) {
                         missingGoals++;
                     }
@@ -796,11 +785,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //System.out.println("distanza da comparison del goal da fare!");
             }
         }
-        if (this.delList instanceof Predicate) {
-            if (goal.sons.contains(delList)) {
-                destroyingGoals++;
-            }
-        } else if (delList instanceof AndCond) {
+        if (delList instanceof AndCond) {
             for (NotCond o : (HashSet<NotCond>) delList.sons) {
                 //System.out.println(o);
                 if (goal.sons.contains(o.getSon())) {
@@ -857,7 +842,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         ba.setParameters((ParametersAsTerms) b.getParameters().clone());
         ba.getParameters().addALLNewObjects(a.getParameters());
 
-        ba.setPreconditions(regress(b, a));
+        ba.setPreconditions((ComplexCondition) regress(b, a));
         progress(a, b, ba);
         ba.setIsMacro(true);
         ba.simplifyModel(pd, pp);
@@ -905,17 +890,12 @@ public class GroundAction extends GenericActionType implements Comparable {
         this.prevDistanceFromProblem = prevDistanceFromProblem;
     }
 
-    public boolean threatenConditions(Condition goal, SimplePlan sp, State current) {
+    public boolean threatenConditions(ComplexCondition goal, SimplePlan sp, State current) {
         boolean threatened = false;
         for (Object o : goal.sons) {
             if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                if (this.addList instanceof Predicate) {
-                    if (!p.equals(this.addList)) {
-                        threatened = true;
-
-                    }
-                } else if (this.addList instanceof AndCond) {
+                if (this.addList instanceof AndCond) {
                     if (!this.addList.sons.contains(o)) {
                         threatened = true;
                     }
@@ -929,18 +909,12 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     }
 
-    public boolean threatGoalConditions(Condition goal, SimplePlan sp, int j, State current) throws CloneNotSupportedException {
+    public boolean threatGoalConditions(ComplexCondition goal, SimplePlan sp, int j, State current) throws CloneNotSupportedException {
         boolean threatened = false;
 
         Set threatenedAtoms = new HashSet();
 
-        if (this.delList instanceof Predicate) {
-            for (Object o : goal.sons) {
-                if (o.equals(delList)) {
-                    threatenedAtoms.add(o);
-                }
-            }
-        } else if (delList instanceof AndCond) {
+         if (delList instanceof AndCond) {
             for (NotCond o : (HashSet<NotCond>) delList.sons) {
                 //System.out.println(o);
                 for (Object o1 : goal.sons) {
@@ -986,11 +960,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         //System.out.println("Propositional Time:"+pp.getPropositionalTime());
         //RelState rel_state = gr.computeStateBound(prob.getInit(),prob.getGoals(),prob.getActions());
         float dist = 0;//this.getPrimitives().size()/2;
-        if (this.preconditions instanceof Predicate) {
-            prec.addConditions((Predicate) this.preconditions);
-        } else if (this.preconditions instanceof Comparison) {
-            prec.addConditions((Comparison) this.preconditions);
-        } else if (this.preconditions instanceof AndCond) {
+         if (this.preconditions instanceof AndCond) {
             prec = (AndCond) this.preconditions;
         } else {
             System.out.println(this.preconditions.getClass() + " is not supported");
@@ -1006,11 +976,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
         cumulativeComparisonDistance += prob.getInit().normalizedDist(prec, prob.getPossStates(), "sum");
         AndCond goal = new AndCond();
-        if (prob.getGoals() instanceof Predicate) {
-            goal.addConditions((Predicate) prob.getGoals());
-        } else if (prob.getGoals() instanceof Comparison) {
-            goal.addConditions((Comparison) prob.getGoals());
-        } else if (prob.getGoals() instanceof AndCond) {
+        if (prob.getGoals() instanceof AndCond) {
             goal = (AndCond) prob.getGoals();
         } else {
             System.out.println(prob.getGoals().getClass() + " is not supported");
@@ -1019,11 +985,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         for (Object o : goal.sons) {
             if (o instanceof Predicate) {
                 Predicate p = (Predicate) o;
-                if (this.addList instanceof Predicate) {
-                    if (!p.equals(this.addList)) {
-                        missingGoals++;
-                    }
-                } else if (this.addList instanceof AndCond) {
+                if (this.addList instanceof AndCond) {
                     if (!this.addList.sons.contains(o)) {
                         missingGoals++;
                     }
@@ -1032,11 +994,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                 //System.out.println("distanza da comparison del goal da fare!");
             }
         }
-        if (this.delList instanceof Predicate) {
-            if (goal.sons.contains(delList)) {
-                destroyingGoals++;
-            }
-        } else if (delList instanceof AndCond) {
+        if (delList instanceof AndCond) {
             for (NotCond o : (HashSet<NotCond>) delList.sons) {
                 //System.out.println(o);
                 if (goal.sons.contains(o.getSon())) {
@@ -1068,7 +1026,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         return getPrevDistanceFromProblem();
     }
 
-    public Condition regressAndStoreFatherPointer(Condition cond) {
+    public Condition regressAndStoreFatherPointer(ComplexCondition cond) {
         /*Propositional Part first*/
 
         AndCond result = new AndCond();
@@ -1121,10 +1079,10 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
         //System.out.println("Macro Action: " + result.getName());
         //System.out.println(asbstractionOf);
-        result.setPreconditions(preconditions.unGround(asbstractionOf));
-        result.setAddList(addList.unGround(asbstractionOf));
-        result.setDelList(delList.unGround(asbstractionOf));
-        result.setNumericEffects(this.numericEffects.unGround(asbstractionOf));
+        result.setPreconditions((ComplexCondition) preconditions.unGround(asbstractionOf));
+        result.setAddList((AndCond) addList.unGround(asbstractionOf));
+        result.setDelList((AndCond) delList.unGround(asbstractionOf));
+        result.setNumericEffects((AndCond) this.numericEffects.unGround(asbstractionOf));
 
         return result;
     }
@@ -1160,12 +1118,7 @@ public class GroundAction extends GenericActionType implements Comparable {
                     return true;
                 }
                 this.achieve.put(p, false);
-            } else if (this.getAddList() instanceof Predicate) {
-                Predicate pre = (Predicate) this.getAddList();
-                if (pre.equals(p)) {
-                    return true;
-                }
-            }
+            } 
             return false;
         }
 
@@ -1345,7 +1298,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public Set influencedBy(NumFluent nf) {
         HashSet<NumFluent> ret = new HashSet();
-        Condition c = this.getNumericEffects();
+        AndCond c = this.getNumericEffects();
         if (c != null) {
             if (c instanceof AndCond) {
                 for (Object o : c.sons) {
@@ -1700,6 +1653,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         eff.setFreeVarSemantic(free_var_semantics);
         eff = eff.weakEval(problem.getInit(), invariantFluents);
 
+        a.cond_effects =  (AndCond) a.cond_effects.weakEval(problem.getInit(), invariantFluents);
         if (eff == null) {
 //            System.out.println("Pruning because of the effect");
             return false;
@@ -1719,7 +1673,7 @@ public class GroundAction extends GenericActionType implements Comparable {
         //a.normalizeAndCopy();
 
         Condition con = a.getPreconditions();
-        Condition eff = a.getNumericEffects();
+        AndCond eff = a.getNumericEffects();
 //                    System.out.println(con);
 //                    System.out.println(eff);
         con.setFreeVarSemantic(true);
@@ -2431,18 +2385,7 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public boolean delete_own_preconditions() {//to do
 
-        if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty() && this.getDelList() != null && !this.getDelList().sons.isEmpty()) {
-            if (this.getPreconditions() instanceof Predicate) {
-
-            } else if (this.getPreconditions() instanceof AndCond) {
-
-            } else if (this.getPreconditions() instanceof Comparison) {
-
-            } else {
-                System.out.println("precondition not supported" + this.getPreconditions());
-            }
-
-        }
+//        AndCond
         return false;
     }
 
@@ -2507,28 +2450,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         return null;
     }
 
-    Collection<NumFluent> getInvolvedNumFluents() {
-        Collection<NumFluent> ret = this.preconditions.getInvolvedFluents();
-        ret.addAll(this.numericEffects.getInvolvedFluents());
-        return ret;
-    }
-
-    Collection<Predicate> getInvolvedPredicates() {
-        Collection<Predicate> ret = new LinkedHashSet();
-        if (this.preconditions != null) {
-            ret.addAll(this.preconditions.getInvolvedPredicates());
-        }
-        if (this.addList != null) {
-            ret.addAll(this.addList.getInvolvedPredicates());
-        }
-        if (this.delList != null) {
-            ret.addAll(this.delList.getInvolvedPredicates());
-        }
-        if (this.cond_effects != null) {
-            ret.addAll(this.cond_effects.getInvolvedPredicates());
-        }
-        return ret;
-    }
 
     void subst_predicate(Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

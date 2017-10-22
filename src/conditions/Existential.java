@@ -45,13 +45,12 @@ import propositionalFactory.Grounder;
  *
  * @author enrico
  */
-public class Existential extends Condition {
+public class Existential extends ComplexCondition {
 
     private SchemaParameters parameters;
 
     public Existential() {
         this.parameters = new SchemaParameters();
-        this.sons = new LinkedHashSet();
     }
 
     @Override
@@ -207,7 +206,7 @@ public class Existential extends Condition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -285,6 +284,11 @@ public class Existential extends Condition {
 
     @Override
     public Condition weakEval(State s, HashMap invF) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

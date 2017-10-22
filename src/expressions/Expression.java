@@ -24,6 +24,7 @@ import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -121,4 +122,6 @@ public abstract class Expression extends Object {
      * @param bui the string builder where this condition is printed.
      */
     public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
+
+    public abstract Expression unifyVariablesReferences(EPddlProblem p);
 }

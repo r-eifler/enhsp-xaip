@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -410,7 +411,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -422,5 +423,21 @@ public class PDDLObjectsEquality extends Terminal {
     @Override
     public Condition push_not_to_terminals() {
         return this;
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        return this;
+
     }
 }

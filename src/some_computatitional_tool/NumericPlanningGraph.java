@@ -20,6 +20,7 @@ package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
 import expressions.NumFluent;
@@ -45,7 +46,7 @@ public class NumericPlanningGraph {
     public int levels;
     public Vector action_level;
     public Vector rel_state_level;
-    public Condition goal;
+    public ComplexCondition goal;
     public boolean goal_reached;
     private long cpu_time;
     private long spezzTime;
@@ -91,7 +92,7 @@ public class NumericPlanningGraph {
 //        goal_reached = false;
 //    }
 
-    public ArrayList computeRelaxedPlan(State s, Condition goal, Set actions) throws CloneNotSupportedException {
+    public ArrayList computeRelaxedPlan(State s, ComplexCondition goal, Set actions) throws CloneNotSupportedException {
 
         //System.out.println("Find relaxed plan");
         ArrayList ret = new ArrayList();
@@ -199,7 +200,7 @@ public class NumericPlanningGraph {
         while (true) {
             for (Iterator it = kernels.iterator(); it.hasNext();) {
                 //System.out.println("it:::" + it.next());
-                Condition o = (Condition) it.next();
+                ComplexCondition o = (ComplexCondition) it.next();
                 if (current.satisfy(o)) {
                     reached.put(o, true);
                     ArrayList relaxedPlan = extractPlan(o, levels);
@@ -517,8 +518,8 @@ public class NumericPlanningGraph {
 
     }
 
-    private ArrayList extractPlan(Condition goal, int levels) throws CloneNotSupportedException {
-        Condition AG[] = new Condition[levels + 1];
+    private ArrayList extractPlan(ComplexCondition goal, int levels) throws CloneNotSupportedException {
+        ComplexCondition AG[] = new ComplexCondition[levels + 1];
         AG[levels] = goal;
         ArrayList rel_plan = new ArrayList();
 
@@ -613,7 +614,7 @@ public class NumericPlanningGraph {
     }
 
     private ArrayList[] extractPlan_new() throws CloneNotSupportedException {
-        Condition AG;
+        ComplexCondition AG;
         AG = this.goal;
         ArrayList rel_plan[] = new ArrayList[levels];
 
@@ -786,7 +787,7 @@ public class NumericPlanningGraph {
         this.fixPoint = fixPoint;
     }
 
-    public RelState computeStateBound(State init, Condition goals, Set actions) throws CloneNotSupportedException {
+    public RelState computeStateBound(State init, ComplexCondition goals, Set actions) throws CloneNotSupportedException {
 
         this.goal = goals;
         RelState current = init.relaxState();

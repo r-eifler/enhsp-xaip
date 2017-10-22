@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -1099,7 +1100,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -1150,5 +1151,25 @@ public class Comparison extends Terminal {
             return c1;
         }
     }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        return new HashSet();
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        this.left = this.getLeft().unifyVariablesReferences(p);
+        this.right = this.getRight().unifyVariablesReferences(p);
+        return this;
+    }
+    
+    
+
 
 }

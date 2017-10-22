@@ -19,6 +19,7 @@
 package adaptation;
 
 import antlr.RecognitionException;
+import conditions.ComplexCondition;
 import some_computatitional_tool.DomainEnhancer;
 import some_computatitional_tool.NumericKernel;
 import some_computatitional_tool.NumericPlanningGraph;
@@ -189,7 +190,7 @@ public class PlanAdapter {
             //Temporary Problem to emulate a new goal in a PDDL problem description
             PddlProblem tempProblem = new PddlProblem();
             tempProblem.parseProblem(prob.getPddlFileReference());
-            tempProblem.setGoals((Condition) nk.get(i));
+            tempProblem.setGoals((ComplexCondition) (Condition) nk.get(i));
             tempProblem.saveProblem("temp.pddl");
 
             //Computing the patch toward the kernel by means of a general purpose planner

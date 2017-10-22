@@ -20,6 +20,7 @@ package heuristics;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
 import domain.PddlDomain;
@@ -62,13 +63,13 @@ public class Aibr_rp extends Heuristic {
     public boolean layers_counter;
     private boolean cost_oriented = true;
 
-    public Aibr_rp(Condition G, Set<GroundAction> actions) {
+    public Aibr_rp(ComplexCondition G, Set<GroundAction> actions) {
         super(G, actions);
         Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
     }
 
-    public Aibr_rp(Condition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
+    public Aibr_rp(ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
@@ -521,7 +522,7 @@ public class Aibr_rp extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Condition cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, ComplexCondition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {

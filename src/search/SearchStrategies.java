@@ -547,7 +547,6 @@ public class SearchStrategies {
                 }
                 nodes_expanded++;
                 if (res) {
-                    //if (current_node.s.satisfy(problem.getGoals())) {
                     overall_search_time = System.currentTimeMillis() - start_global;
                     current_g = current_node.g_n;
                     return extract_plan(current_node);

@@ -20,7 +20,7 @@ package problem;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.ForAll;
+import conditions.ComplexCondition;
 import conditions.NotCond;
 import conditions.NumFluentValue;
 import conditions.OrCond;
@@ -28,9 +28,9 @@ import conditions.PDDLObject;
 import conditions.Predicate;
 import domain.ActionSchema;
 import domain.EventSchema;
+import domain.GenericActionType;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
-import domain.SchemaParameters;
 import domain.Type;
 import domain.Variable;
 import expressions.BinaryOp;
@@ -141,7 +141,7 @@ public class EPddlProblem extends PddlProblem {
 
         this.simplifications_action_processes_constraints();
 
-        this.transform_numeric_condition();
+        this.transformNumericConditionsInActions();
 
     }
 
@@ -198,7 +198,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void transform_numeric_condition() throws Exception {
+    public void transformNumericConditionsInActions() throws Exception {
 
         for (GroundAction gr : (Collection<GroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
@@ -634,6 +634,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
+        syncActionProcessesEventsConstraintsVariables();
 
     }
 
@@ -727,7 +728,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         this.globalConstraintGrounded = true;
-        goals = goals.weakEval(init, staticFluents);
+        goals = (ComplexCondition) goals.weakEval(init, staticFluents);
         goals.normalize();
 
         if (this.metric != null && this.metric.getMetExpr() != null) {
@@ -741,7 +742,6 @@ public class EPddlProblem extends PddlProblem {
         remove_num_fluents_not_involved_in_preconditions();
         add_possible_numeric_fluents_from_assignments();
         fix_num_fluents_unique_hashcode();
-
         propagate_new_num_fluents_hash();
         set_actions_costs();
     }
@@ -784,22 +784,17 @@ public class EPddlProblem extends PddlProblem {
         LinkedHashSet<Predicate> to_remove = new LinkedHashSet();
         for (Predicate p : s.getPropositions()) {
             if (this.getActualFluents().get((Object) p) == null) {
-//                System.out.println("Proposition to remove"+p);
                 to_remove.add(p);
             }
         }
         LinkedHashSet<NumFluent> n_fluents_to_remove = new LinkedHashSet();
         for (NumFluent p : s.getNumericFluents()) {
             if (this.getActualFluents().get((Object) p) == null) {
-//                System.out.println("Fluent to remove"+p);
                 n_fluents_to_remove.add(p);
             }
         }
-//        System.out.println(this.getVariantFluents());
         s.removeNumericFluents(n_fluents_to_remove);
         s.removePropositions(to_remove);
-
-        //cost-related fluents
     }
 
     private void remove_num_fluents_not_involved_in_preconditions() {
@@ -902,8 +897,26 @@ public class EPddlProblem extends PddlProblem {
 
     private void groundGoals() {
 
-        this.goals = this.goals.ground(new HashMap(), objects);
+        this.goals = (ComplexCondition) this.goals.ground(new HashMap(), objects);
 
     }
+
+    private void syncActionProcessesEventsConstraintsVariables() {
+        for (GenericActionType act : this.actions){
+            this.keepUniqueVariable(act);
+        }
+        for (GenericActionType act : this.eventsSet){
+            this.keepUniqueVariable(act);
+        }
+        for (GenericActionType act : this.processesSet){
+            this.keepUniqueVariable(act);
+        }
+        this.keepUniqueVariable(goals);
+        this.keepUniqueVariable(init);
+        this.keepUniqueVariable(this.globalConstraints);
+        this.syncVariables(metric);
+    }
+
+
 
 }

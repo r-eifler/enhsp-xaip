@@ -41,13 +41,11 @@ import problem.State;
  *
  * @author enrico
  */
-public class OrCond extends Condition {
+public class OrCond extends ComplexCondition {
 
-    public HashSet son; // TODO: REMOVE?
 
     public OrCond() {
         super();
-        sons = new LinkedHashSet();
     }
 
     @Override
@@ -601,7 +599,7 @@ public class OrCond extends Condition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -640,6 +638,15 @@ public class OrCond extends Condition {
             ret.addConditions(c.introduce_red_constraints());
         }
         return ret;
+    }
+    
+        @Override
+    public void extendTerms(Variable v) {
+        if(this.sons == null)
+            return ;
+        for (Condition c: (Collection<Condition>)sons){
+            c.extendTerms(v);
+        }
     }
 
 }

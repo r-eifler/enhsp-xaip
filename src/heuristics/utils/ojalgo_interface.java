@@ -19,6 +19,7 @@
 package heuristics.utils;
 
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
@@ -54,7 +55,7 @@ public final class ojalgo_interface extends LpInterface {
 
     public ExpressionsBasedModel lp;
 
-    public ojalgo_interface(Condition cond, Condition global_constraint) {
+    public ojalgo_interface(ComplexCondition cond, ComplexCondition global_constraint) {
         super(cond, global_constraint);
         n_invocations = 0;
         integer_variables = false;
@@ -276,7 +277,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    protected void update_condition(State s_0, Condition temp) {
+    protected void update_condition(State s_0, ComplexCondition temp) {
         for (Condition c_0 : (Collection<Condition>) temp.sons) {
             Expression lp_cond = lp.getExpression(c_0.toString());
             if (c_0 instanceof Comparison) {

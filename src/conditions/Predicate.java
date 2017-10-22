@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -41,10 +42,10 @@ import problem.State;
 public class Predicate extends Terminal implements PostCondition {
 
     private String predicateName;
-    //private ArrayList variables;
     private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
     public HashSet son;
     public Integer hash_code;
+    public Integer id;
 
     @Override
     public String pddlPrintWithExtraObject() {
@@ -121,6 +122,25 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         return new HashSet();
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        Predicate p1 = p.predicateReference.get(p.toString());
+        if (p1 == null){
+            throw new RuntimeException("Problem with Predicate "+p+" mapping");
+        }
+        return p1;
     }
 
     public enum true_false {
@@ -670,7 +690,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition and(Condition precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);

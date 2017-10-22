@@ -21,6 +21,7 @@ package domain;
 import conditions.ForAll;
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.FactoryConditions;
@@ -78,7 +79,7 @@ public final class PddlDomain extends Object {
     public final Collection<EventSchema> eventsSchema;
     private PredicateSet predicates;
     public final Set<Type> types;
-    private final PDDLObjects constants;
+    public final PDDLObjects constants;
     public final Collection functions;
     private final Collection<NumFluent> derived_variables;
     public final Collection<String> requirements;
@@ -287,9 +288,9 @@ public final class PddlDomain extends Object {
                         break;
                     case PddlParser.PREDICATES:
                         this.predicates = (PredicateSet) addPredicates(c);
-                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
                         break;
                     case PddlParser.ACTION:
+                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
                         addActions(c);
                         break;
                     case PddlParser.EVENT:
@@ -308,6 +309,7 @@ public final class PddlDomain extends Object {
                         addFree_Functions(c);
                         break;
                     case PddlParser.GLOBAL_CONSTRAINT:
+                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
                         addGlobal_constraint(c);
                         break;
                     case PddlParser.PROCESS:
@@ -781,7 +783,7 @@ public final class PddlDomain extends Object {
                         and.addConditions(con);
                         a.setPreconditions(and);
                     } else if (con != null) {
-                        a.setPreconditions(con);
+                        a.setPreconditions((ComplexCondition) con);
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -910,7 +912,7 @@ public final class PddlDomain extends Object {
                         and.addConditions(con);
                         a.setPreconditions(and);
                     } else if (con != null) {
-                        a.setPreconditions(con);
+                        a.setPreconditions((ComplexCondition) con);
                     }
                     break;
                 case (PddlParser.VARIABLE):

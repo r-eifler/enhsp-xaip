@@ -20,6 +20,7 @@ package domain;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.NotCond;
 
@@ -90,10 +91,10 @@ public class ProcessSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution, po));
-        ret.setAddList(this.addList.ground(substitution, po));
-        ret.setDelList(this.delList.ground(substitution, po));
-        ret.setPreconditions(this.preconditions.ground(substitution, po));
+        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, po));
+        ret.setAddList((AndCond) this.addList.ground(substitution, po));
+        ret.setDelList((AndCond) this.delList.ground(substitution, po));
+        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
 
         return ret;
 
@@ -109,10 +110,10 @@ public class ProcessSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution, c++));
-        ret.setAddList(this.addList.ground(substitution, c++));
-        ret.setDelList(this.delList.ground(substitution, c++));
-        ret.setPreconditions(this.preconditions.ground(substitution, c++));
+        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, c++));
+        ret.setAddList((AndCond) this.addList.ground(substitution, c++));
+        ret.setDelList((AndCond) this.delList.ground(substitution, c++));
+        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, c++));
         return ret;
     }
 
@@ -133,16 +134,16 @@ public class ProcessSchema extends GenericActionType {
         //System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+            ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution, po));
+            ret.setAddList((AndCond) this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution, po));
+            ret.setDelList((AndCond) this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution, po));
+            ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
 
         return ret;
@@ -238,7 +239,7 @@ public class ProcessSchema extends GenericActionType {
         ab.setParameters((SchemaParameters) a.getParameters().clone());
         ab.getParameters().mergeParameters(as2.getParameters());
 
-        ab.setPreconditions(this.regress(as2, a));
+        ab.setPreconditions((ComplexCondition) this.regress(as2, a));
         this.progress(a, as2, ab);
         //ab.setIsMacro(true);
         //System.out.println("Da dentro l'azione..."+ab);
@@ -277,7 +278,7 @@ public class ProcessSchema extends GenericActionType {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Condition numEff = new AndCond();
+        AndCond numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
