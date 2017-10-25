@@ -93,7 +93,7 @@ public class SearchNode {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
-            json_rep.put("state", s1.pddlPrint());
+            json_rep.put("state", s1.toString());
 
         } else {
             json_rep = null;
@@ -130,7 +130,7 @@ public class SearchNode {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
-            json_rep.put("state", s1.pddlPrint());
+            json_rep.put("state", s1.toString());
 
         } else {
             json_rep = null;
@@ -171,7 +171,7 @@ public class SearchNode {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
-            json_rep.put("state", s1.pddlPrint());
+            json_rep.put("state", s1.toString());
 
         } else {
             json_rep = null;

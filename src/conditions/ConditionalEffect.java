@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -40,7 +41,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class ConditionalEffect extends ComplexCondition implements PostCondition {
+public class ConditionalEffect extends Condition implements PostCondition {
 
     public Condition activation_condition;
     public PostCondition effect;
@@ -364,5 +365,21 @@ public class ConditionalEffect extends ComplexCondition implements PostCondition
     @Override
     public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        LinkedHashSet ret = new LinkedHashSet();
+        this.activation_condition = this.activation_condition.unifyVariablesReferences(p);
+        this.effect = (PostCondition) ((Condition)this.effect).unifyVariablesReferences(p);
+        return this;
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        Set<Predicate> ret = new LinkedHashSet();
+        ret.addAll(this.activation_condition.getInvolvedPredicates());
+        ret.addAll(((Condition)this.effect).getInvolvedPredicates());
+        return ret;
     }
 }

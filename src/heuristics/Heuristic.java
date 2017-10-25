@@ -248,6 +248,11 @@ public abstract class Heuristic{
 
     }
 
+    /**
+     *
+     * @param s_0
+     * @return
+     */
     abstract public Float compute_estimate(State s_0);
 
     protected Float compute_precondition_cost(State s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {

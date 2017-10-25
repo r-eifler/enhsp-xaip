@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -313,7 +313,7 @@ public class EPddlProblem extends PddlProblem {
 //            for (ActionSchema a:this.linkedDomain.getProcessesSchema()){
 //                A_primo.addAll(ground(a,s));
 //                A_primo.removeAll(reachable);
-//                
+//
 //            }
             if (A_primo.isEmpty()) {
                 System.out.println("Reachable(" + reachable.size() + "):");
@@ -430,7 +430,7 @@ public class EPddlProblem extends PddlProblem {
             subst = Grounder.substitutions(nc.getInvolvedVariables(), objects);
 //            for (Object o: nc.son){
             subst.removeAll(this.find_substs(nc.getSon(), s));
-//            }           
+//            }
         } else if (a instanceof ActionSchema) {
             ActionSchema gr = (ActionSchema) a;
             if (gr.getPar() == null || gr.getPar().isEmpty()) {
@@ -494,7 +494,7 @@ public class EPddlProblem extends PddlProblem {
         subst = intersect(subst, Grounder.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
 
         //the following is a (failed) attempt to optimise the thing
-//        
+//
 //                ArrayList<Variable> alread_assigned = new ArrayList();
 //        for (HashMap<Variable,PDDLObject> t : subst){
 //            alread_assigned.addAll(t.keySet());
@@ -507,11 +507,11 @@ public class EPddlProblem extends PddlProblem {
 //        temp = new ArrayList(gr.getDelList().getInvolvedVariables());
 //        temp.retainAll(alread_assigned);
 //        subst = intersect(subst,Instantiator.substitutions(temp, objects));
-//         
+//
 //        subst = intersect(subst,this.find_substs(gr.getNumericEffects(), s));
-//        
+//
 //        temp = new ArrayList(gr.getNumericEffects().getInvolvedVariables());
-//        temp.retainAll(alread_assigned);       
+//        temp.retainAll(alread_assigned);
 //        subst = intersect(subst,Instantiator.substitutions(temp, objects));
         return subst;
     }
@@ -635,7 +635,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        syncActionProcessesEventsConstraintsVariables();
+        syncAllVariables();
 
     }
 
@@ -824,8 +824,7 @@ public class EPddlProblem extends PddlProblem {
         Iterator<NumFluent> it = this.init.getInitNumFluents().keySet().iterator();
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
-            if (!nf2.getName().equals("time_elapsed")) {
-
+//            if (!nf2.getName().equals("time_elapsed")) {
                 boolean keep_it = false;
                 for (NumFluent nf : involved_fluents) {
                     if (nf.getName().equals(nf2.getName())) {
@@ -837,7 +836,7 @@ public class EPddlProblem extends PddlProblem {
                     nf2.setHas_to_be_tracked(false);
                     it.remove();
                 }
-            }
+//            }
         }
 
     }
@@ -845,21 +844,51 @@ public class EPddlProblem extends PddlProblem {
     private void makeArraysRepresentations() {
 //        System.out.println("Put numeric information into memory!");
         this.init.currNumFluentsValues = new ArrayList();
-        for (NumFluent nf : this.init.getInitNumFluents().keySet()) {
-            nf.setId(this.init.currNumFluentsValues.size());
-            this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
-//            System.out.println(nf);
+
+        for (NumFluent nf : this.numFluentReference.values()) {
+            if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
+                nf.setId(this.init.currNumFluentsValues.size());
+                this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
+                this.init.numFluents.add(nf);
+            }
         }
         this.init.currPredValues = new ArrayList();
-        for (Predicate p: this.predicateReference.values()){
-            if (this.getActualFluents().get(p)!= null){
+        for (Predicate p : this.predicateReference.values()) {
+            if (this.getActualFluents().get(p) != null) {
                 p.id = this.init.currPredValues.size();
                 Boolean r = this.init.initPred.get(p);
-                if (r == null || !r)
+                if (r == null || !r) {
                     this.init.currPredValues.add(false);
-                else
+                } else {
                     this.init.currPredValues.add(true);
+                }
+                this.init.predFluents.add(p);
             }
+        }
+//        System.out.println(this.init.currPredValues);
+//        System.out.println(this.init.currNumFluentsValues);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public void noInvariantArraysRepresentations() {
+//        System.out.println("Put numeric information into memory!");
+        this.init.currNumFluentsValues = new ArrayList();
+
+        for (NumFluent nf : this.numFluentReference.values()) {
+                nf.setId(this.init.currNumFluentsValues.size());
+                this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
+                this.init.numFluents.add(nf);
+        }
+        this.init.currPredValues = new ArrayList();
+        for (Predicate p : this.predicateReference.values()) {
+                p.id = this.init.currPredValues.size();
+                Boolean r = this.init.initPred.get(p);
+                if (r == null || !r) {
+                    this.init.currPredValues.add(false);
+                } else {
+                    this.init.currPredValues.add(true);
+                }
+                this.init.predFluents.add(p);
         }
 //        System.out.println(this.init.currPredValues);
 //        System.out.println(this.init.currNumFluentsValues);
@@ -913,7 +942,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void syncActionProcessesEventsConstraintsVariables() {
+    public void syncAllVariables() {
 
         for (GenericActionType act : this.actions) {
             act.unifyVariablesReferences(this);
@@ -921,13 +950,20 @@ public class EPddlProblem extends PddlProblem {
         for (GenericActionType act : this.eventsSet) {
             act.unifyVariablesReferences(this);
         }
-        for (GenericActionType act : this.processesSet) {
-            act.unifyVariablesReferences(this);
+        if (this.processesSet != null){
+            for (GenericActionType act : this.processesSet) {
+                act.unifyVariablesReferences(this);
+            }
         }
         goals = (ComplexCondition) goals.unifyVariablesReferences(this);
         globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(this);
         init.unifyVariablesReferences(this);
-        if (metric != null) metric = metric.unifyVariablesReferences(this);
+        if (metric != null) {
+            metric = metric.unifyVariablesReferences(this);
+        }
+        if (belief != null){
+            belief = belief.unifyVariablesReferences(this);
+        }
     }
 
 }

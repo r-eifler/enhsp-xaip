@@ -77,9 +77,9 @@ import propositionalFactory.Grounder;
  */
 public class PddlProblem {
 
-    protected PDDLObjects objects;
-    protected State init;
-    protected ComplexCondition goals;
+    public PDDLObjects objects;
+    public State init;
+    public ComplexCondition goals;
     protected String name;
     protected Integer indexObject;
     protected Integer indexInit;
@@ -89,7 +89,7 @@ public class PddlProblem {
     protected String domainName;
     PddlDomain linkedDomain;
     protected boolean validatedAgainstDomain;
-    protected Set<GroundAction> actions;
+    public Set<GroundAction> actions;
     protected long propositionalTime;
     protected boolean grounded_representation;
     protected RelState possStates;
@@ -313,8 +313,8 @@ public class PddlProblem {
         }
         this.goals = (ComplexCondition) this.goals.push_not_to_terminals();
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(),this.getObjects());
-        this.keepUniqueVariable(goals);
-        this.keepUniqueVariable(belief);
+        this.keepCopyOfVariables(goals);
+        this.keepCopyOfVariables(belief);
         this.keepUniqueVariable(init);
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
@@ -965,7 +965,7 @@ public class PddlProblem {
 
     
     
-    public void keepUniqueVariable(Condition cond) {
+    public void keepCopyOfVariables(Condition cond) {
         if (cond != null && cond.getInvolvedPredicates() != null){
             for (Predicate p : cond.getInvolvedPredicates()) {
                 PddlProblem.this.keepUniqueVariable(p);

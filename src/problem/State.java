@@ -59,6 +59,10 @@ public class State extends AbstractState {
     public HashMap<NumFluent, PDDLNumber> initNumFluents;
     public ArrayList<PDDLNumber> currNumFluentsValues;
     public ArrayList<Boolean> currPredValues;
+    
+    public ArrayList<NumFluent> numFluents;
+    public ArrayList<Predicate> predFluents;
+    
     HashSet timedLiterals;
     private NumFluent time;
     protected Integer hash;
@@ -69,12 +73,18 @@ public class State extends AbstractState {
         initNumFluents = new HashMap();
         timedLiterals = new HashSet();
         this.currNumFluentsValues = new ArrayList();
+        this.currPredValues = new ArrayList();
+        numFluents = new ArrayList();
+        predFluents = new ArrayList();
     }
+
 
     @Override
     public String toString() {
-        return "State{" + "propositions=" + initPred + "numericFs=" + getInitNumFluents() + "timedLiterals=" + timedLiterals + '}';
+        return "State{" + "currNumFluentsValues=" + currNumFluentsValues + ", currPredValues=" + currPredValues + ", time=" + time + '}';
     }
+
+    
 
     @Override
     public State clone() throws CloneNotSupportedException {
@@ -82,7 +92,12 @@ public class State extends AbstractState {
 
         ret_val.initNumFluents = this.getInitNumFluents();
 
-        ret_val.initPred = this.initPred;
+          ret_val.initPred = this.initPred;
+        ret_val.numFluents = this.numFluents;
+        ret_val.predFluents = this.predFluents;
+        
+//        if (this.initPred.isEmpty())
+        
 
 //        for (Predicate o :(Collection<Predicate>) this.propositions.keySet()) {
 //            //ret_val.addProposition((Predicate) ele.clone());
@@ -129,9 +144,40 @@ public class State extends AbstractState {
     }
 
     public void setPredTrue(Predicate p) {
+//        System.out.println(p);
+//        System.out.println(this.currPredValues);
+//        System.out.println(p.id);
         this.currPredValues.set(p.id,true);
 //        initPred.put(p, true);
     }
+    
+    public void syncWithProblemVariables(EPddlProblem p){
+        
+//        System.out.println("Put numeric information into memory!");
+        this.currNumFluentsValues = new ArrayList();
+
+        for (NumFluent nf : p.numFluentReference.values()) {
+                nf.setId(this.currNumFluentsValues.size());
+                this.currNumFluentsValues.add(this.static_function_value(nf));
+                this.numFluents.add(nf);
+        }
+        this.currPredValues = new ArrayList();
+        for (Predicate p1 : p.predicateReference.values()) {
+                p1.id = this.currPredValues.size();
+                Boolean r = this.initPred.get(p1);
+                if (r == null || !r) {
+                    this.currPredValues.add(false);
+                } else {
+                    this.currPredValues.add(true);
+                }
+                this.predFluents.add(p1);
+        }
+//        System.out.println(this.currPredValues);
+//        System.out.println(this.init.currNumFluentsValues);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+    }
+    
 
     public void addNumericFluent(NumFluentValue a) {
         getInitNumFluents().put(a.getNFluent(), a.getValue());
@@ -146,11 +192,16 @@ public class State extends AbstractState {
 
     }
 
-    public boolean is_true(Predicate p) {
+    public boolean holds(Predicate p) {
         if (p.id == null){
-            //throw new RuntimeException("You need to map this predicate into the problem reference first"+p);
+//            System.out.println("You need to map this predicate into the problem reference first"+p);
+            if (this.initPred.get(p) == null)
+                return false;
             return this.initPred.get(p);
         }
+//        System.out.println("Is it there?"+p);
+        if (this.currPredValues.get(p.id)== null)
+            return false;
         return this.currPredValues.get(p.id);
     }
 
@@ -175,21 +226,21 @@ public class State extends AbstractState {
 
         for (Object o : this.getPropositions()) {
             Predicate a = (Predicate) o;
-            ret.append("  (" + a.getPredicateName());
+            ret.append("  (").append(a.getPredicateName());
             for (Object o1 : a.getTerms()) {
                 PDDLObject obj = (PDDLObject) o1;
-                ret.append(" " + obj.getName());
+                ret.append(" ").append(obj.getName());
             }
             ret.append(")\n");
         }
         for (Object o : this.getNumericFluents()) {
             NumFluentValue a = (NumFluentValue) o;
-            ret.append("  ( = (" + a.getNFluent().getName());
+            ret.append("  ( = (").append(a.getNFluent().getName());
             for (Object o1 : a.getNFluent().getTerms()) {
                 PDDLObject obj = (PDDLObject) o1;
-                ret.append(" " + obj.getName());
+                ret.append(" ").append(obj.getName());
             }
-            ret.append(") " + a.getValue().pddlPrint(false) + ")\n");
+            ret.append(") ").append(a.getValue().pddlPrint(false)).append(")\n");
         }
 
         ret.append(")");
@@ -327,7 +378,7 @@ public class State extends AbstractState {
                 }
 
             } else if (o instanceof Predicate) {
-                if (!this.is_true((Predicate) o)) {
+                if (!this.holds((Predicate) o)) {
                     System.out.println(o + "is not satisfied");
                     ret = false;
                 }
@@ -340,21 +391,32 @@ public class State extends AbstractState {
     }
 
     public RelState relaxState() {
-        RelState ret_val = new RelState();
-
-        for (NumFluent o : this.getInitNumFluents().keySet()) {
-            //System.out.println(o);
-
-            //System.out.println(this.numericFs.get(o));
-            if (this.functionValue(o) != null) {
-                ret_val.poss_numericFs.put(o, new Interval(this.functionValue(o).getNumber()));
-            }
+        RelState ret_val = new RelState(); 
+        
+        for (int i = 0; i<this.numFluents.size() ; i++){  
+//            System.out.println(this.numFluents.get(i));
+            ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
+        }
+        for (int i = 0; i<this.predFluents.size() ; i++){
+            if (this.currPredValues.get(i))
+                ret_val.poss_interpretation.put(this.predFluents.get(i), 1);
+            else
+                ret_val.poss_interpretation.put(this.predFluents.get(i), 0);
         }
 
-        for (Object o : this.initPred.keySet()) {
-            Predicate ele = (Predicate) o;
-            ret_val.poss_interpretation.put(ele, 1);
-        }
+//        for (NumFluent o : this.currNumFluentsValues.keySet()) {
+//            //System.out.println(o);
+//
+//            //System.out.println(this.numericFs.get(o));
+//            if (this.functionValue(o) != null) {
+//                ret_val.poss_numericFs.put(o, new Interval(this.functionValue(o).getNumber()));
+//            }
+//        }
+//
+//        for (Object o : this.initPred.keySet()) {
+//            Predicate ele = (Predicate) o;
+//            ret_val.poss_interpretation.put(ele, 1);
+//        }
         //ret_val.propositions = (HashSet) this.propositions.clone();
 
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
@@ -392,64 +454,8 @@ public class State extends AbstractState {
     
     
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final State other = (State) obj;
-
-//        System.out.println("Checking equality!!!");
-        for (NumFluent nf : this.getNumericFluents()) {
-            if (nf.getId() == null) {
-                continue;
-            }
-            if (!nf.has_to_be_tracked()) {
-                continue;
-            }
-
-            if (nf.getName().equals("time_elapsed")) {//if they have different time elapsed doesn't matter at this stage{
-//                System.out.println("Time comparison");
-                continue;
-            } else {
-//                System.out.println(nf);
-            }
-
-            if (other.functionValue(nf) == null && this.functionValue(nf) == null) {
-//                System.out.println("Error!!:"+ass_init.getNFluent());
-                continue;
-            }
-            if (other.functionValue(nf) == null) {
-//                System.out.println(nf);
-//                System.out.println("(other is null)These two are different?a:"+this+"\nb:"+obj);
-                return false;
-            }
-            if (this.functionValue(nf) == null) {
-//                System.out.println(nf);
-//                System.out.println("(this is null) These two are different?a:"+this+"\nb:"+obj);
-                return false;
-            }
-
-            if (!functionValue(nf).getNumber().equals(other.functionValue(nf).getNumber())) {
-//                System.out.println(nf);
-//                System.out.println("These two are different?a:"+this+"\nb:"+obj);
-                return false;
-            }
-        }
-        return this.currPredValues.equals(other.currPredValues);
-//        System.out.println("These two are the same?a:"+this+"\nb:"+obj);
-
-//        return true;
-    }
-
 //    @Override
 //    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
 //        if (obj == null) {
 //            return false;
 //        }
@@ -457,14 +463,70 @@ public class State extends AbstractState {
 //            return false;
 //        }
 //        final State other = (State) obj;
-//        if (!Objects.equals(this.currNumFluentsValues, other.currNumFluentsValues)) {
-//            return false;
+//
+////        System.out.println("Checking equality!!!");
+//        for (NumFluent nf : this.getNumericFluents()) {
+//            if (nf.getId() == null) {
+//                continue;
+//            }
+//            if (!nf.has_to_be_tracked()) {
+//                continue;
+//            }
+//
+//            if (nf.getName().equals("time_elapsed")) {//if they have different time elapsed doesn't matter at this stage{
+////                System.out.println("Time comparison");
+//                continue;
+//            } else {
+////                System.out.println(nf);
+//            }
+//
+//            if (other.functionValue(nf) == null && this.functionValue(nf) == null) {
+////                System.out.println("Error!!:"+ass_init.getNFluent());
+//                continue;
+//            }
+//            if (other.functionValue(nf) == null) {
+////                System.out.println(nf);
+////                System.out.println("(other is null)These two are different?a:"+this+"\nb:"+obj);
+//                return false;
+//            }
+//            if (this.functionValue(nf) == null) {
+////                System.out.println(nf);
+////                System.out.println("(this is null) These two are different?a:"+this+"\nb:"+obj);
+//                return false;
+//            }
+//
+//            if (!functionValue(nf).getNumber().equals(other.functionValue(nf).getNumber())) {
+////                System.out.println(nf);
+////                System.out.println("These two are different?a:"+this+"\nb:"+obj);
+//                return false;
+//            }
 //        }
-//        if (!Objects.equals(this.currPredValues, other.currPredValues)) {
-//            return false;
-//        }
-//        return true;
+//        return this.currPredValues.equals(other.currPredValues);
+////        System.out.println("These two are the same?a:"+this+"\nb:"+obj);
+//
+////        return true;
 //    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final State other = (State) obj;
+        if (!Objects.equals(this.currNumFluentsValues, other.currNumFluentsValues)) {
+            return false;
+        }
+        if (!Objects.equals(this.currPredValues, other.currPredValues)) {
+            return false;
+        }
+        return true;
+    }
     
     
     
@@ -490,7 +552,7 @@ public class State extends AbstractState {
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (this.is_true(p)) {
+            if (this.holds(p)) {
                 ret.sons.add(p);
             }
         }
@@ -503,7 +565,7 @@ public class State extends AbstractState {
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (!init.is_true(p)) {
+            if (!init.holds(p)) {
                 diff.add(p);
             }
 
@@ -511,7 +573,7 @@ public class State extends AbstractState {
         it = init.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (!this.is_true(p)) {
+            if (!this.holds(p)) {
                 diff.add(p);
             }
 
@@ -906,6 +968,8 @@ public class State extends AbstractState {
     public void addTimeFluent() {
         this.time = new NumFluent("time_elapsed");
         getInitNumFluents().put(this.time, new PDDLNumber(new Float(0.0)));
+        this.time.id = this.currNumFluentsValues.size();
+        this.currNumFluentsValues.add(new PDDLNumber(new Float(0.0)));
     }
 
     /**
@@ -1016,5 +1080,14 @@ public class State extends AbstractState {
         this.initNumFluents = temp1;
 
     }
+
+    public void addPredicate(Predicate p, boolean b) {
+
+        
+        this.initPred.put(p,b);
+        p.id = this.currPredValues.size();
+        this.currPredValues.add(b);
+    }
+
 
 }

@@ -310,7 +310,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean eval(State s) {
-        return s.is_true(this);
+        return s.holds(this);
     }
 
     @Override
@@ -321,7 +321,7 @@ public class Predicate extends Terminal implements PostCondition {
         if (isUnsatisfiable()) {
             return false;
         }
-        return s.is_true(this);
+        return s.holds(this);
     }
 
     @Override

@@ -109,6 +109,11 @@ public abstract class Condition extends PDDLProblemComponent {
     @Override
     public abstract Condition clone();
 
+    /**
+     *
+     * @param aThis
+     * @return
+     */
     public abstract boolean can_be_true(RelState aThis);
 
     public abstract boolean can_be_false(RelState aThis);

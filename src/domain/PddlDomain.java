@@ -907,7 +907,7 @@ public final class PddlDomain extends Object {
                 case (PddlParser.PRECONDITION):
 
                     Condition con = fc.createCondition(infoAction.getChild(0), a.parameters);
-                    if ((con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
+                    if ((con instanceof NotCond) || (con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
                         a.setPreconditions(and);

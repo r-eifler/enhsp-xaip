@@ -154,14 +154,14 @@ public abstract class GenericActionType extends Object {
     protected Collection<Predicate> getPropositionAffected() {
         LinkedHashSet ret = new LinkedHashSet();
         if (this.addList != null) {
-            ret.addAll(this.addList.getTerminalConditions());
+            ret.addAll(this.addList.getInvolvedPredicates());
         }
         if (this.cond_effects != null) {
            AndCond temp2 = (AndCond)this.cond_effects;
            for (Condition cEff: (Collection<Condition>)temp2.sons){
                if (cEff instanceof ConditionalEffect){
                     ConditionalEffect conditional = (ConditionalEffect)cEff;
-                    Set<Condition> temp = ((AndCond)conditional.effect).getTerminalConditions();
+                    Collection<Predicate> temp = ((AndCond)conditional.effect).getInvolvedPredicates();
                     for (Condition c : temp) {
                          if (c instanceof NotCond) {
                              NotCond nc = (NotCond) c;

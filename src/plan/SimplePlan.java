@@ -58,6 +58,7 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
@@ -71,7 +72,7 @@ import problem.State;
 public class SimplePlan extends ArrayList<GroundAction> {
 
     private PddlDomain pd;
-    private PddlProblem pp;
+    public PddlProblem pp;
     private HashMap invariantFluents;
     private boolean invariantAnalysis;
     private HashMap rank;
@@ -178,7 +179,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         
         GroundAction grAction = action.ground(par, pp.getProblemObjects());
         grAction.generateAffectedNumFluents();
-        pp.keepUniqueVariable(grAction);
+//        if (pp instanceof EPddlProblem) 
+//            grAction.unifyVariablesReferences((EPddlProblem) pp);
         this.add(grAction);
 
     }
@@ -2360,7 +2362,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 nf_trace.put(nf, nf_traj);
             }
         }
-        //current.addTimeFluent();
+        current.addTimeFluent();
         for (int i = 0; i < inst_actions.size(); i++) {
             if (print_trace) {
                 add_state_to_json(nf_trace, current);

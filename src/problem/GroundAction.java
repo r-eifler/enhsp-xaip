@@ -940,7 +940,7 @@ public class GroundAction extends GenericActionType implements Comparable {
             end = sp.get(i).apply(end);
         }
         for (Object o : threatenedAtoms) {
-            if (!end.is_true((Predicate) o)) {
+            if (!end.holds((Predicate) o)) {
                 System.out.println("=================Found a goal threat=============");
                 return true;
             }
@@ -1105,22 +1105,13 @@ public class GroundAction extends GenericActionType implements Comparable {
     public boolean achieve(Predicate p) {
 
         if (this.achieve.get(p) == null) {
-            if (this.getAddList() == null) {
-                this.achieve.put(p, false);
-                return false;
-            }
-            if (this.getAddList() instanceof AndCond) {
-                AndCond add = (AndCond) this.getAddList();
-                if (add.sons == null) {
-                    this.achieve.put(p, false);
-                    return false;
-                }
-                if (add.sons.contains(p)) {
+            if (this.getAddList() != null) {
+                if (this.getAddList().getInvolvedPredicates().contains(p)){
                     this.achieve.put(p, true);
                     return true;
                 }
-                this.achieve.put(p, false);
-            } 
+            }
+            this.achieve.put(p, false);
             return false;
         }
 

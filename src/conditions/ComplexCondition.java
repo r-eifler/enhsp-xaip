@@ -51,8 +51,10 @@ public abstract class ComplexCondition extends Condition{
         Collection<Predicate> ret = new LinkedHashSet();
         //from here it can only be an AndCond or a Or. Other cases are not considered
         if (this.sons != null) {
-            for (Condition c : (Collection<Condition>) this.sons) {
-                ret.addAll(c.getInvolvedPredicates());
+            for (Object c :  this.sons) {
+                if (c instanceof Condition){
+                    ret.addAll(((Condition)c).getInvolvedPredicates());
+                }
             }
         }
         return ret;
