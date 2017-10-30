@@ -49,12 +49,12 @@ public class ProbeWrapper extends planningTool {
         System.out.println("Planning...");
         this.executePlanning();
         System.out.println(outputPlanning);
-        if (this.outputPlanning.contains("unsolvable")) {
+        if (this.outputPlanning.toString().contains("unsolvable")) {
             this.failed = true;
             System.out.println("....UNSOLVABLE");
             return null;
         }
-        if (!this.outputPlanning.contains("SOLUTION 1")) {
+        if (!this.outputPlanning.toString().contains("SOLUTION 1")) {
             this.failed = true;
             System.out.println("....UNKNOWN ERROR");
             return null;
@@ -64,7 +64,7 @@ public class ProbeWrapper extends planningTool {
             return null;
         }
         System.out.println("....SUCCESS");
-        setTime(this.outputPlanning);
+        setTime(this.outputPlanning.toString());
         return this.solutionFile + ".1";
 
     }
@@ -72,7 +72,7 @@ public class ProbeWrapper extends planningTool {
     @Override
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Runtime runtime = Runtime.getRuntime();
@@ -89,7 +89,7 @@ public class ProbeWrapper extends planningTool {
 
                 String line = null;
                 while ((line = input.readLine()) != null) {
-                    outputPlanning = outputPlanning.concat(line + "\n");
+                    outputPlanning = outputPlanning.append(line).append("\n");
                     //System.out.println(outputPlanning);
                 }
             } else {

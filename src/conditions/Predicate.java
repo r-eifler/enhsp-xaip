@@ -91,6 +91,11 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean can_be_false(RelState s) {
+        if (this.isValid())
+            return false;
+        if (this.isUnsatisfiable())
+            return true;
+        
         Integer i = s.poss_interpretation.get(this);
         return (i == null) || (i == 0) || (i == 2);
     }
@@ -326,11 +331,18 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean can_be_true(RelState s) {
+        if (this.isValid())
+            return true;
+        if (this.isUnsatisfiable())
+            return false;
         Integer i = s.poss_interpretation.get(this);
         if (i == null) {
             return false;
         }
-        return (i == 1) || (i == 2);
+        if (i>=1)
+            return true;
+        return false;           
+        //return (i == 1) || (i == 2);
     }
 
     @Override

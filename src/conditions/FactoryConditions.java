@@ -430,5 +430,194 @@ public class FactoryConditions {
         return null;
 
     }
+    
+     public Condition createGoals(Tree infoAction) {
+        if (infoAction == null) {
+            return null;
+        }
+        if (infoAction.getType() == PddlParser.PRED_HEAD) {
+            //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+            return buildPredicate(infoAction,null);
+        } else if (infoAction.getType() == PddlParser.AND_GD) {
+            AndCond and = new AndCond();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Condition ret_val = createGoals(infoAction.getChild(i));
+                if (ret_val != null) {
+                    and.addConditions(ret_val);
+                }
+            }
+            return and;
+
+        } else if (infoAction.getType() == PddlParser.OR_GD) {
+            OrCond or = new OrCond();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Condition ret_val = createGoals(infoAction.getChild(i));
+                if (ret_val != null) {
+                    or.addConditions(ret_val);
+                }
+            }
+            return or;
+            //Crea un or e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di or
+        } else if (infoAction.getType() == PddlParser.NOT_GD) {
+            Condition cond = null; // TODO: Can the condition be null or should we throw an error if that happens?
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Condition ret_val = createGoals(infoAction.getChild(i));
+                if (ret_val != null) {
+                    cond = ret_val;
+                }
+            }
+            NotCond not = new NotCond(cond);
+            return not;
+            //Crea un not e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di not
+        } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
+            //System.out.println("Comparison:" + infoAction.getText());
+            AndCond ret = new AndCond();
+            Comparison c = new Comparison(infoAction.getChild(0).getText());
+
+            c.setLeft(createExpression(infoAction.getChild(1)));
+            c.setRight(createExpression(infoAction.getChild(2)));
+            ret.addConditions(c);
+            return ret;
+            //Crea un not e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di not
+        } else if (infoAction.getType() == PddlParser.ONEOF) {
+            OneOf one_of = new OneOf();
+            for (int i = 0; i < infoAction.getChildCount(); i++) {
+                Condition ret_val = addOneOf(infoAction.getChild(i));
+                if (ret_val != null) {
+                    one_of.sons.add(ret_val);
+                }
+            }
+            return one_of;
+        }
+
+        return null;
+    }
+
+    protected Expression createExpression(Tree t) {
+
+        int test = t.getType();
+        switch (t.getType()) {
+            case PddlParser.BINARY_OP: {
+                BinaryOp ret = new BinaryOp();
+                ret.setOperator(t.getChild(0).getText());
+                ret.setOne(createExpression(t.getChild(1)));
+                ret.setRight(createExpression(t.getChild(2)));
+                ret.grounded = true;
+                return ret;
+            }
+            case PddlParser.NUMBER: {
+                //Float.
+                PDDLNumber ret = new PDDLNumber(Float.valueOf(t.getText()));
+                return ret;
+            }
+            case PddlParser.FUNC_HEAD: {
+                NumFluent ret = new NumFluent(t.getChild(0).getText());
+                for (int i = 1; i < t.getChildCount(); i++) {
+//                System.out.println("Constant Type:" + PddlParser.CONSTANTS);
+//                System.out.println("Name Type:" + PddlParser.NAME);
+//                System.out.println("Current Type:" + t.getChild(i).getType());
+                    if (t.getChild(i).getType() == PddlParser.NAME) {
+                        PDDLObject o = new PDDLObject(t.getChild(i).getText());
+                        PDDLObject o1 = this.constants.containsTerm(o);
+                        if (o1 != null) {
+                            ret.addTerms(o1);
+                        } else {
+
+                            System.out.println("NumFluent:Variable " + o + " is not a constant object");
+                            System.exit(-1);
+                        }
+                    } else {
+                        
+                    }
+                }
+                return ret;
+            }
+            case PddlParser.UNARY_MINUS:
+                return new MinusUnary(createExpression(t.getChild(0)));
+            case PddlParser.MULTI_OP: {
+                MultiOp ret = new MultiOp(t.getChild(0).getText());
+                for (int i = 1; i < t.getChildCount(); i++) {
+                    //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
+                    ret.addExpression(createExpression(t.getChild(i)));
+                }
+                ret.grounded = true;
+                return ret;
+            }
+            default:
+                break;
+        }
+
+        return null;
+
+    }
+    
+    private Condition addOneOf(Tree infoAction) {
+        if (infoAction == null) {
+            return null;
+        }
+        switch (infoAction.getType()) {
+            case PddlParser.PRED_HEAD:
+                //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+                return buildPredicate(infoAction,null);
+            case PddlParser.AND_GD:
+                AndCond and = new AndCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Condition ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        and.addConditions(ret_val);
+                    }
+                }
+                return and;
+            case PddlParser.OR_GD:
+                //            System.out.println("Or Condition");
+                OrCond or = new OrCond();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Condition ret_val = addOneOf(infoAction.getChild(i));
+//                System.out.println(ret_val);
+                    if (ret_val != null) {
+                        or.addConditions(ret_val);
+                    }
+                }
+                return or;
+            //Crea un or e per ogni figlio di questo nodo invoca creaformula
+            //gestendo il valore di ritorno come un attributo di or
+            case PddlParser.NOT_PRED_INIT:
+                Condition cond = null; // TODO: Can the condition be null or should we throw an error?
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Condition ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        cond = ret_val;
+                    }
+                }
+                NotCond not = new NotCond(cond);
+                return not;
+            case PddlParser.PRED_INST:
+                //estrapola tutti i predicati e ritornali come set di predicati
+//            AndCond and = new AndCond();
+//            and.addConditions();
+                return this.buildPredicate(infoAction,null);
+            case PddlParser.ONEOF:
+                OneOf one_of = new OneOf();
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Condition ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        one_of.sons.add(ret_val);
+                    }
+                }
+                return one_of;
+            default:
+                System.out.println("Oneof Parsing: Some serious error:" + infoAction);
+                return null;
+        }
+    }
+    
+    
 
 }

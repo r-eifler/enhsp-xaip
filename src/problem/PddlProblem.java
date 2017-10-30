@@ -292,7 +292,8 @@ public class PddlProblem {
                     addInitFacts(child);
                     break;
                 case PddlParser.FORMULAINIT:
-                    this.belief = fc.createCondition(child.getChild(0), null);
+                    this.belief = fc.createGoals(child.getChild(0));
+//                    this.belief = fc.createCondition(child.getChild(0), null);
                     break;
                 case PddlParser.GOAL:
                     this.goals = null;

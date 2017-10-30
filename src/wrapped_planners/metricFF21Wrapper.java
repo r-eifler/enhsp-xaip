@@ -58,23 +58,23 @@ public class metricFF21Wrapper extends planningTool {
                 System.out.println("....TIMEOUT");
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable")) {
+            if (this.outputPlanning.toString().contains("unsolvable")) {
                 this.failed = true;
                 System.out.println("....UNSOLVABLE");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (!this.outputPlanning.contains("found legal plan")) {
+            if (!this.outputPlanning.toString().contains("found legal plan")) {
                 this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR!!");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
 
             System.out.println("....SUCCESS");
-            putSolutionInFile(this.outputPlanning);
-            this.findTotalTimeInFile(outputPlanning);
+            putSolutionInFile(this.outputPlanning.toString());
+            this.findTotalTimeInFile(outputPlanning.toString());
 
             return this.storedSolutionPath;
         } catch (IOException ex) {

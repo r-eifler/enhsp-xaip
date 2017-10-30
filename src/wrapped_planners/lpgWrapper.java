@@ -54,7 +54,7 @@ public class lpgWrapper extends planningTool {
             this.executePlanning();
             System.out.println(outputPlanning);
 
-            if (this.outputPlanning.contains("unsolvable") || this.outputPlanning.contains("can not be reached")) {
+            if (this.outputPlanning.toString().contains("unsolvable") || this.outputPlanning.toString().contains("can not be reached")) {
                 moveFiles(problemFile);
                 this.failed = true;
                 System.out.println("....UNSOLVABLE");

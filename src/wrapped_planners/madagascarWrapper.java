@@ -59,13 +59,13 @@ public class madagascarWrapper extends planningTool {
                 System.out.println("....TIMEOUT");
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable") || (this.outputPlanning.contains("goal can be simplified to FALSE"))) {
+            if (this.outputPlanning.toString().contains("unsolvable") || (this.outputPlanning.toString().contains("goal can be simplified to FALSE"))) {
                 this.failed = true;
                 System.out.println("....UNSOLVABLE");
 //                this.findTotalTimeInFile(outputPlanning);
                 return null;
             }
-            if (!this.outputPlanning.contains("PLAN FOUND")) {
+            if (!this.outputPlanning.toString().contains("PLAN FOUND")) {
                 this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR!!");
@@ -74,7 +74,7 @@ public class madagascarWrapper extends planningTool {
             }
 
             System.out.println("....SUCCESS");
-            putSolutionInFile(this.outputPlanning);
+            putSolutionInFile(this.outputPlanning.toString());
 //            this.findTotalTimeInFile(outputPlanning);
 
             return this.storedSolutionPath;

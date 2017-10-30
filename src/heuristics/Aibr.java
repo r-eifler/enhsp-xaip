@@ -22,8 +22,7 @@ import conditions.Comparison;
 import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
-import conditions.Predicate;
-import domain.PddlDomain;
+import domain.ParametersAsTerms;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
@@ -210,7 +209,8 @@ public class Aibr extends Heuristic {
         Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {
             if (gr.cond_effects != null) {
-                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(), gr.cond_effects));
+//                System.out.println(gr);
+                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(),gr.getParameters(), gr.cond_effects));
             }
         }
         //System.out.println(actions_plus_action_for_supporters);
@@ -232,6 +232,7 @@ public class Aibr extends Heuristic {
             }
 
         }
+//        System.out.println("_");
 
     }
 
@@ -391,17 +392,20 @@ public class Aibr extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, ComplexCondition cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name,ParametersAsTerms p, ComplexCondition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {
             if (o instanceof ConditionalEffect) {
                 ConditionalEffect cond = (ConditionalEffect) o;
                 GroundAction a = new GroundAction(name + counter);
+                a.setParameters(p);
                 a.setPreconditions(a.getPreconditions().and(cond.activation_condition));
                 a.create_effects_by_cases(cond.effect);
                 ret.add(a);
                 counter++;
+            }else{
+                throw new RuntimeException("Error!!");
             }
         }
         return ret;

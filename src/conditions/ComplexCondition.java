@@ -49,7 +49,7 @@ public abstract class ComplexCondition extends Condition{
     @Override
     public final Collection<Predicate> getInvolvedPredicates() {
         Collection<Predicate> ret = new LinkedHashSet();
-        //from here it can only be an AndCond or a Or. Other cases are not considered
+        //from here it can only be an AndCond or a Or. Other cases are not instance of this
         if (this.sons != null) {
             for (Object c :  this.sons) {
                 if (c instanceof Condition){

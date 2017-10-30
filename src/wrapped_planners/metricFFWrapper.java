@@ -19,11 +19,13 @@
 package wrapped_planners;
 
 import extraUtils.Utils;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -44,33 +46,96 @@ public class metricFFWrapper extends planningTool {
 //        ArrayList solution;
     }
 
+    
+    @Override
+    public int computeHeuristic(){
+        int output = computeHeuristic(domainFile, problemFile);
+        if (output == 0){
+            throw new RuntimeException("something went wrong"+this.outputPlanning);
+        }
+        return output;
+    }
+    
+    @Override
+    public int computeHeuristic(String domainFile, String problemFile){
+                //System.out.println("planning");
+        Runtime rt = Runtime.getRuntime();
+        outputPlanning = new StringBuilder();
+        int heuristic = 0;
+        try {
+
+//            Utility.deleteFile("temp.SOL");
+            Runtime runtime = Runtime.getRuntime();
+
+//            System.out.println("This is what I am running");
+//            System.out.println("Executing: " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
+            process = runtime.exec(planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
+            /* Set up process I/O. */
+
+            Worker worker = new Worker(process);
+            worker.start();
+
+            worker.join(getTimeout());
+
+            if (worker.exit != null) {
+                BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+                String line = null;
+                while ((line = input.readLine()) != null) {
+//                    System.out.println(line);
+                    if (line.contains("Heuristic")){
+                        String[] res = line.split(":");
+                        heuristic = Integer.parseInt(res[1].trim());
+//                        System.out.println("There you go:"+heuristic);
+                    }
+                    this.outputPlanning.append(line);
+                }
+                
+            } else {
+                process.destroy();
+                failed = false;
+                this.setTimeoutFail(true);
+                this.setTimePlanner((int) getTimeout());
+            }
+            //System.out.println("Time del planner: "+ this.getPlannerTime());
+
+        } catch (IOException e) {
+            System.out.println("Planner eccezione" + e.toString());
+        } catch (InterruptedException e) {
+            System.out.println("Planner eccezione" + e.toString());
+        } 
+
+        return heuristic;
+    }
+    
+    
     @Override
     public String plan() {
         try {
-            System.out.println("Planning...");
+//            System.out.println("Planning...");
             this.executePlanning();
             //System.out.println(outputPlanning);
             if (this.isTimeoutFail()) {
                 System.out.println("....TIMEOUT");
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable") || (this.outputPlanning.contains("goal can be simplified to FALSE"))) {
+            if (this.outputPlanning.toString().contains("unsolvable") || (this.outputPlanning.toString().contains("goal can be simplified to FALSE"))) {
                 this.failed = true;
                 System.out.println("....UNSOLVABLE");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (!this.outputPlanning.contains("found legal plan")) {
+            if (!this.outputPlanning.toString().contains("found legal plan")) {
                 this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR!!");
-                this.findTotalTimeInFile(outputPlanning);
-                return null;
+                this.findTotalTimeInFile(outputPlanning.toString());
+                throw new RuntimeException("Planning with FF failed. Output is:"+outputPlanning);
             }
 
-            System.out.println("....SUCCESS");
-            putSolutionInFile(this.outputPlanning);
-            this.findTotalTimeInFile(outputPlanning);
+//            System.out.println("....SUCCESS");
+            putSolutionInFile(this.outputPlanning.toString());
+            this.findTotalTimeInFile(outputPlanning.toString());
 
             return this.storedSolutionPath;
         } catch (IOException ex) {
@@ -123,7 +188,7 @@ public class metricFFWrapper extends planningTool {
             if (test != null) {
                 Scanner temp = new Scanner(test);
                 this.setTimePlanner((int) (Float.parseFloat(temp.findInLine("[0-9]+[.][0-9]+")) * 1000));
-                System.out.println("time" + this.getPlannerTime());
+//                System.out.println("time" + this.getPlannerTime());
             } else {
                 sc.nextLine();
             }

@@ -189,6 +189,10 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract boolean is_affected_by(GroundAction gr);
 
+    /**
+     *
+     * @return
+     */
     public abstract Collection<Predicate> getInvolvedPredicates();
 
     /**

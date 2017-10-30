@@ -74,16 +74,17 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     public ConditionalEffect weakEval(State s, HashMap invF) {
-        this.activation_condition.weakEval(s, invF);
+        this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
-            con.weakEval(s, invF);
+            this.effect = (PostCondition) con.weakEval(s, invF);
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
-            sub.weakEval(s, invF);
+            this.effect = sub.weakEval(s, invF);
+            
         } else if (this.effect instanceof NumEffect) {
             NumEffect ne = (NumEffect) this.effect;
-            ne.weakEval(s, invF);
+            this.effect = (PostCondition) ne.weakEval(s, invF);
         }
         return this;
     }
@@ -125,7 +126,8 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     @Override
     public boolean isSatisfied(State s) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return s.satisfy(activation_condition);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

@@ -54,26 +54,26 @@ public class ColinClpWrapper extends planningTool {
                 this.setTimeoutFail(true);
                 this.failed = false;
                 System.out.println("....TIMEOUT");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable")) {
+            if (this.outputPlanning.toString().contains("unsolvable")) {
                 this.failed = true;
                 System.out.println("....UNSOLVABLE");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (!this.outputPlanning.contains("Solution Found")) {
+            if (!this.outputPlanning.toString().contains("Solution Found")) {
                 this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
 
             System.out.println("....SUCCESS");
-            putSolutionInFile(this.outputPlanning);
-            this.findTotalTimeInFile(outputPlanning);
+            putSolutionInFile(this.outputPlanning.toString());
+            this.findTotalTimeInFile(outputPlanning.toString());
 
             return this.storedSolutionPath;
         } catch (IOException ex) {
@@ -162,7 +162,7 @@ public class ColinClpWrapper extends planningTool {
     @Override
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Utility.deleteFile("temp.SOL");
@@ -185,7 +185,7 @@ public class ColinClpWrapper extends planningTool {
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";
             while ((line = input.readLine()) != null) {
-                outputPlanning = outputPlanning.concat(line + "\n");
+                outputPlanning = outputPlanning.append(line + "\n");
                 //System.out.println(outputPlanning);
             }
             if (kill.isAlive()) {
@@ -207,7 +207,7 @@ public class ColinClpWrapper extends planningTool {
 
     public void executePlanning_PROVA() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Utility.deleteFile("temp.SOL");
@@ -239,7 +239,7 @@ public class ColinClpWrapper extends planningTool {
 
                 String line = null;
                 while ((line = input.readLine()) != null) {
-                    outputPlanning = outputPlanning.concat(line + "\n");
+                    outputPlanning = outputPlanning.append(line + "\n");
                     //System.out.println(outputPlanning);
                 }
             } else {

@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 public abstract class planningTool {
 
-    public String outputPlanning;
+    public StringBuilder outputPlanning;
     Process process;
     public String storedSolutionPath = "sol.pddl";
     protected int plannerTime;
@@ -66,7 +66,7 @@ public abstract class planningTool {
 
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Utility.deleteFile("temp.SOL");
@@ -87,7 +87,7 @@ public abstract class planningTool {
 
                 String line = null;
                 while ((line = input.readLine()) != null) {
-                    outputPlanning = outputPlanning.concat(line + "\n");
+                    outputPlanning = outputPlanning.append(line).append("\n");
                     //System.out.println(outputPlanning);
                 }
             } else {
@@ -201,6 +201,14 @@ public abstract class planningTool {
      */
     public void setPlannerError(boolean plannerError) {
         this.plannerError = plannerError;
+    }
+
+    public int computeHeuristic(String confDomainFile, String problemSampleFile) {
+        return 0;
+    }
+
+    public int computeHeuristic() {
+        return computeHeuristic(domainFile, problemFile); //To change body of generated methods, choose Tools | Templates.
     }
 
     protected static class Worker extends Thread {
