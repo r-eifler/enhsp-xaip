@@ -71,8 +71,6 @@ public class habs_max extends Heuristic {
         
         // admissible setting
         habs.additive_h = false;
-//        // @see h1.java, line 304
-//        habs.infinite_constant_effect = true;
         
         ret = habs.compute_estimate(s);
         
@@ -93,7 +91,7 @@ public class habs_max extends Heuristic {
     
         
     /**
-     * <p>
+     * <p> 
      * 
      * <p>
      */
@@ -288,7 +286,6 @@ public class habs_max extends Heuristic {
     @Override
     public Float compute_estimate(State s) {
         Float ret = habs.compute_estimate(s);
-        
         return ret;
     }
 }
