@@ -63,11 +63,11 @@ public class h1 extends Heuristic {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
-    public ArrayList<Set<GroundAction>> condition_to_action;
+    private ArrayList<Set<GroundAction>> condition_to_action;
 
     public boolean compute_lp;
     private ArrayList<Float> cond_dist;
-    public ArrayList<Float> action_dist;
+    private ArrayList<Float> action_dist;
 
     public boolean red_constraints = false;
     public boolean mip;
@@ -161,13 +161,6 @@ public class h1 extends Heuristic {
     }
     
     public void light_setup(State s){
-//        if (red_constraints) {
-//            try {
-//                this.add_redundant_constraints();
-//            } catch (Exception ex) {
-//                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
         
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
@@ -314,18 +307,6 @@ public class h1 extends Heuristic {
             if (!this.is_complex.get(comp.getCounter())) {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
-
-//<<<<<<< HEAD
-//                    Float rep_needed;
-                    
-//                    if (gr.infinite_constant_effect){
-//                        rep_needed = 1f * c_a;
-//                    } else if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
-//
-//                        rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
-//                    } else {
-//                        rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
-//=======
                     Float rep_needed=this.action_comp_number_execution.get(new Pair(gr.counter,comp.getCounter()));
                     if (rep_needed == null){
                         if (gr.infinite_constant_effect){
@@ -340,7 +321,6 @@ public class h1 extends Heuristic {
                         this.action_comp_number_execution.put(new Pair(gr.counter,comp.getCounter()),rep_needed);
                     }else{
 //                        System.out.println("Cache funziona");
-//>>>>>>> master
                     }
                     
                     if (rep_needed != Float.MAX_VALUE) {
