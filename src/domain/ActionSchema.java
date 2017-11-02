@@ -1,36 +1,28 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package domain;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.NotCond;
 
 import conditions.PDDLObject;
@@ -43,7 +35,7 @@ import java.util.Set;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
-import propositionalFactory.grounder;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -60,6 +52,7 @@ public class ActionSchema extends GenericActionType {
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
         this.cond_effects = new AndCond();
+        this.forall = new AndCond();
 
     }
 
@@ -91,11 +84,16 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution, po));
-        ret.setAddList(this.addList.ground(substitution, po));
-        ret.setDelList(this.delList.ground(substitution, po));
-        ret.setPreconditions(this.preconditions.ground(substitution, po));
-        ret.cond_effects = this.cond_effects.ground(substitution, po);
+        if (ret.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) ret.forall.ground(substitution, po);
+            this.create_effects_by_cases(temp);
+        }
+
+        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, po));
+        ret.setAddList((AndCond) this.addList.ground(substitution, po));
+        ret.setDelList((AndCond) this.delList.ground(substitution, po));
+        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
+        ret.cond_effects = (AndCond) this.cond_effects.ground(substitution, po);
 
         return ret;
 
@@ -111,41 +109,46 @@ public class ActionSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
-        ret.setNumericEffects(this.numericEffects.ground(substitution, c++));
-        ret.setAddList(this.addList.ground(substitution, c++));
-        ret.setDelList(this.delList.ground(substitution, c++));
-        ret.setPreconditions(this.preconditions.ground(substitution, c++));
+        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, c++));
+        ret.setAddList((AndCond) this.addList.ground(substitution, c++));
+        ret.setDelList((AndCond) this.delList.ground(substitution, c++));
+        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, c++));
         return ret;
     }
 
     public GroundAction ground(ParametersAsTerms par, PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         int i = 0;
-        grounder g = new grounder();
+        Grounder g = new Grounder();
         Map substitution = g.obtain_sub_from_instance(parameters, par);
         ret.setParameters(par);
+
+        if (this.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) this.forall.ground(substitution, po);
+            ret.create_effects_by_cases(temp);
+        }
 
 //        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+            ret.numericEffects.sons.addAll(((AndCond)this.numericEffects.ground(substitution, po)).sons);
+//            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.setAddList(this.addList.ground(substitution, po));
+            ret.addList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+//            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList(this.delList.ground(substitution, po));
+            ret.delList.sons.addAll(((AndCond)this.delList.ground(substitution, po)).sons);
+
+//            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
-            ret.setPreconditions(this.preconditions.ground(substitution, po));
+            ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
         if (cond_effects != null) {
-//            System.out.println("DEBUG: Before:"+cond_effects);
-            ret.cond_effects = this.cond_effects.ground(substitution, po);
-//            System.out.println("DEBUG: after:"+cond_effects);
-
+            ret.cond_effects.sons.addAll(((ComplexCondition) this.cond_effects.ground(substitution, po)).sons);
         }
-
         return ret;
     }
 
@@ -247,7 +250,7 @@ public class ActionSchema extends GenericActionType {
         ab.setParameters((SchemaParameters) a.parameters.clone());
         ab.parameters.mergeParameters(as2.parameters);
 
-        ab.setPreconditions(this.regress(as2, a));
+        ab.setPreconditions((ComplexCondition) this.regress(as2, a));
         this.progress(a, as2, ab);
         //ab.setIsMacro(true);
         //System.out.println("Da dentro l'azione..."+ab);
@@ -286,7 +289,7 @@ public class ActionSchema extends GenericActionType {
         ab.setAddList(localAddList);
         ab.setDelList(localDelList);
 
-        Conditions numEff = new AndCond();
+        AndCond numEff = new AndCond();
         if (b.getNumericEffects() != null) {
             for (Object o : b.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
@@ -314,7 +317,7 @@ public class ActionSchema extends GenericActionType {
     /**
      * @return the numericFluentAffected
      */
-    private Conditions regress(ActionSchema b, ActionSchema a) {
+    private Condition regress(ActionSchema b, ActionSchema a) {
         /*Propositional Part first*/
 
         AndCond result = (AndCond) b.getPreconditions().clone();

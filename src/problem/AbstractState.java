@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
+/*
+ * Copyright (C) 2017 Enrico Scala.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package domain;
-
-//import java.util.Comparator;
-import java.util.Comparator;
+package problem;
 
 /**
  *
- * @author enrico
+ * @author Enrico Scala
  */
-class ActionComparator implements Comparator<GenericActionType> {
-
-    public ActionComparator() {
-    }
-
-    @Override
-    public int compare(GenericActionType gat1, GenericActionType gat2) {
-        return gat1.name.compareTo(gat2.name);
-    }
-
+public abstract class AbstractState {
+    
 }

@@ -1,30 +1,24 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics.operator_counting;
 
-import conditions.Conditions;
+import conditions.ComplexCondition;
 import heuristics.Heuristic;
 import java.util.Set;
 import problem.GroundAction;
@@ -37,7 +31,7 @@ import problem.State;
 public class operator_counting_heuristic extends Heuristic {
 
     //this is meant to build the very basic data structures
-    public operator_counting_heuristic(Conditions goal, Set<GroundAction> actions) {
+    public operator_counting_heuristic(ComplexCondition goal, Set<GroundAction> actions) {
         super(goal, actions);
     }
 

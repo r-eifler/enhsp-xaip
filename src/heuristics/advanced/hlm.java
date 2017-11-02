@@ -1,33 +1,26 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics.advanced;
 
-import heuristics.old.Uniform_cost_search_H1;
-import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
@@ -44,7 +37,6 @@ import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
@@ -78,12 +70,12 @@ public class hlm extends h1 {
     private HashMap<Integer, IloNumVar> action_to_variable;
     private HashMap<Integer, IloRange> condition_to_cplex_constraint;
     
-    public hlm(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
         
     }
     
-    public hlm(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super(goal, A, P, E);
         
     }
@@ -103,7 +95,7 @@ public class hlm extends h1 {
             try {
                 this.add_redundant_constraints();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Putting something here");
             }
         }
         build_integer_representation();
@@ -112,7 +104,7 @@ public class hlm extends h1 {
         try {
             generate_achievers();
         } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Put something here");
         }
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");
@@ -142,7 +134,7 @@ public class hlm extends h1 {
             return 0f;
         }
         Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
-        ArrayList<Set<Conditions>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
+        ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
         ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
         HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
         reachable_poss_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
@@ -150,7 +142,7 @@ public class hlm extends h1 {
         dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         target_value = new ArrayList<>(nCopies(all_conditions.size() + 1, 0f));//keep track of conditions that have been reachead yet
 
-        for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+        for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 dist_float.set(c.getCounter(), 0f);
 //                Utils.dbg_print(debug,"Condition that is already satisfied:"+c+"\n");
@@ -206,8 +198,8 @@ public class hlm extends h1 {
         }
         
         int goal_not_true_in_init = 0;
-        Set<Conditions> goal_landmark = new LinkedHashSet();
-        for (Conditions c : (Collection<Conditions>) this.G.sons) {
+        Set<Condition> goal_landmark = new LinkedHashSet();
+        for (Condition c : (Collection<Condition>) this.G.sons) {
             Float distance = dist_float.get(c.getCounter());
             if (distance == Float.MAX_VALUE) {
                 Boolean outcome = this.is_complex.get(c.getCounter());
@@ -245,7 +237,7 @@ public class hlm extends h1 {
                 IloCplex lp = new IloCplex();
                 lp.setOut(null);
                 IloLinearNumExpr objective = lp.linearNumExpr();
-                for (Conditions c : goal_landmark) {
+                for (Condition c : goal_landmark) {
                     if (dist_float.get(c.getCounter()) != 0) {
                         if (debug > 0) {
                             System.out.println("Condition under analysis: " + c);
@@ -303,7 +295,7 @@ public class hlm extends h1 {
                 Logger.getLogger(hlm.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
+            for (Condition c : goal_landmark) {//these are the landmarks for the planning task
 //                System.out.println("Debug: Poss_achiever(" + c + ":)" + this.possible_achievers.get(c.getCounter()));
 
                 estimate += dplus.get(c.getCounter());
@@ -320,16 +312,16 @@ public class hlm extends h1 {
         return Math.max(0.0001f, estimate);
     }
     
-    private boolean update_lm(Conditions p, GroundAction gr, ArrayList<Set<Conditions>> lm) {
+    private boolean update_lm(Condition p, GroundAction gr, ArrayList<Set<Condition>> lm) {
         
-        Set<Conditions> previous = lm.get(p.getCounter());
+        Set<Condition> previous = lm.get(p.getCounter());
         
         if (previous == null) {
             if (debug > 10) {
                 System.out.println("First LM for:" + p);
             }
             previous = new LinkedHashSet();
-            for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
+            for (Condition c : (Set<Condition>) gr.getPreconditions().sons) {
                 if (this.dist_float.get(c.getCounter()) != 0f) {
                     previous.addAll(lm.get(c.getCounter()));
                     previous.add(c);
@@ -351,8 +343,8 @@ public class hlm extends h1 {
             if (previous_size == 0) {
                 return false;
             }
-            Set<Conditions> temp = new LinkedHashSet();
-            for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
+            Set<Condition> temp = new LinkedHashSet();
+            for (Condition c : (Set<Condition>) gr.getPreconditions().sons) {
                 if (this.dist_float.get(c.getCounter()) != 0f) {
                     temp.addAll(lm.get(c.getCounter()));
                     temp.add(c);//the lm as implemented in this code does not contain itself
@@ -383,8 +375,8 @@ public class hlm extends h1 {
         
     }
     
-    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Conditions>> lm) {
-        for (Conditions comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
+    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
+        for (Condition comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (dist_float.get(comp.getCounter()) != 0f) {//if this isn't in the init state yet
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
@@ -396,7 +388,7 @@ public class hlm extends h1 {
                 //for this specific condition check implications of having it reached.
             }
         }
-        for (Conditions comp : this.possible_achievers.get(gr.counter)) {
+        for (Condition comp : this.possible_achievers.get(gr.counter)) {
             if (dist_float.get(comp.getCounter()) != 0f) {
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
 //                    continue;
@@ -410,7 +402,7 @@ public class hlm extends h1 {
         }
     }
     
-    private void update_action_condition(GroundAction gr, Conditions comp, ArrayList<Set<Conditions>> lm, Float contribution, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
+    private void update_action_condition(GroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, Float contribution, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
@@ -454,7 +446,7 @@ public class hlm extends h1 {
     
     private boolean check_conditions(GroundAction gr2) {
         
-        for (Conditions c : (Collection<Conditions>) gr2.getPreconditions().sons) {
+        for (Condition c : (Collection<Condition>) gr2.getPreconditions().sons) {
             if (dist_float.get(c.getCounter()) == Float.MAX_VALUE) {
                 return false;
             }
@@ -464,7 +456,7 @@ public class hlm extends h1 {
     
     private void generate_link_precondition_action() {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             LinkedHashSet<GroundAction> set = new LinkedHashSet();
             for (GroundAction gr : A) {
                 if (gr.getPreconditions().sons.contains(c)) {
@@ -477,19 +469,19 @@ public class hlm extends h1 {
     }
 
     //TO-DO do the sensitive intersection to the metric
-    private Set<Conditions> metric_sensitive_intersection(Set<Conditions> previous, Set<Conditions> temp) {
-        Set<Conditions> newset = new LinkedHashSet();
+    private Set<Condition> metric_sensitive_intersection(Set<Condition> previous, Set<Condition> temp) {
+        Set<Condition> newset = new LinkedHashSet();
         if (debug > 0) {
             System.out.println("Previous:" + previous);
             System.out.println("Intersecting with:" + temp);
         }
-        for (Conditions c : temp) {
+        for (Condition c : temp) {
             if (c instanceof Predicate) {
                 if (previous.contains(c)) {
                     newset.add(c);
                 }
             } else if (c instanceof Comparison) {
-                for (Conditions c1 : previous) {
+                for (Condition c1 : previous) {
                     if (c1 instanceof Comparison) {
                         Comparison comp_c = (Comparison) c;
                         Comparison comp_c1 = (Comparison) c1;
@@ -509,13 +501,13 @@ public class hlm extends h1 {
         return newset;
     }
     
-    private String print_ordering(ArrayList<Set<Conditions>> lm, Conditions c) {
+    private String print_ordering(ArrayList<Set<Condition>> lm, Condition c) {
         
         if (lm.get(c.getCounter()) == null || lm.get(c.getCounter()).isEmpty()) {
             return "(" + c.toString() + "," + c.getCounter() + ")";
         } else {
             String temp = "";
-            for (Conditions c1 : lm.get(c.getCounter())) {
+            for (Condition c1 : lm.get(c.getCounter())) {
                 temp += "(" + c.toString() + "," + c.getCounter() + ")" + "<-" + print_ordering(lm, c1) + "\n";
             }
             return temp;
@@ -523,13 +515,13 @@ public class hlm extends h1 {
         
     }
     
-    private void init_lp(LinkedHashSet<GroundAction> A, Collection<Conditions> all_conditions, State s_0) {
+    private void init_lp(LinkedHashSet<GroundAction> A, Collection<Condition> all_conditions, State s_0) {
         try {
             lp_global = new IloCplex();
             objective_function = lp_global.linearNumExpr();
             action_to_variable = new HashMap();
             condition_to_cplex_constraint = new HashMap();
-            for (Conditions c : all_conditions) {
+            for (Condition c : all_conditions) {
                 IloLinearNumExpr expr = lp_global.linearNumExpr();
                 if (c instanceof Predicate) {
                     for (GroundAction gr : this.condition_to_action.get(c.getCounter())) {

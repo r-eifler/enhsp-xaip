@@ -1,26 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
@@ -30,6 +24,7 @@ import heuristics.utils.achiever_set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,32 +37,31 @@ import problem.State;
  *
  * @author enrico
  */
-public class OneOf extends Conditions {
+public class OneOf extends ComplexCondition {
 
     private String smt_representation;
 
     public OneOf() {
         super();
-        this.sons = new LinkedHashSet();
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
+    public Condition ground(Map substitution, int c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -97,7 +91,7 @@ public class OneOf extends Conditions {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -112,12 +106,12 @@ public class OneOf extends Conditions {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -127,11 +121,11 @@ public class OneOf extends Conditions {
             smt_representation = "";
             AndCond and = new AndCond();
             OrCond or = new OrCond();
-            for (Conditions p1 : (Collection<Conditions>) this.sons) {
+            for (Condition p1 : (Collection<Condition>) this.sons) {
                 or.addConditions(p1);
             }
             and.addConditions(or);
-            ArrayList<Conditions> list1 = new ArrayList((Collection<Conditions>) this.sons);
+            ArrayList<Condition> list1 = new ArrayList((Collection<Condition>) this.sons);
 
             for (int k = 0; k < list1.size(); k++) {
                 for (int j = k + 1; j < list1.size(); j++) {
@@ -151,11 +145,12 @@ public class OneOf extends Conditions {
 
     @Override
     public Set<NumFluent> getInvolvedFluents() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new HashSet();
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -210,7 +205,7 @@ public class OneOf extends Conditions {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -220,7 +215,7 @@ public class OneOf extends Conditions {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -230,7 +225,7 @@ public class OneOf extends Conditions {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -240,7 +235,12 @@ public class OneOf extends Conditions {
     }
 
     @Override
-    public Conditions introduce_red_constraints() {
+    public Condition introduce_red_constraints() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

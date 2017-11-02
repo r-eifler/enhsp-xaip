@@ -1,35 +1,27 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics.advanced;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
@@ -65,7 +57,7 @@ import problem.State;
  */
 public class quasi_hm extends Heuristic {
 
-    protected HashMap<Integer, ArrayList<Conditions>> poss_achiever;
+    protected HashMap<Integer, ArrayList<Condition>> poss_achiever;
     private boolean reacheability_setting;
     protected ArrayList<Integer> dist;
     private boolean cplex = true;
@@ -73,7 +65,7 @@ public class quasi_hm extends Heuristic {
     private HashMap<Integer, Collection<GroundAction>> cond_to_actions;
     private boolean risky = true;
 
-    public quasi_hm(Conditions G, Set<GroundAction> A) {
+    public quasi_hm(ComplexCondition G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -83,12 +75,12 @@ public class quasi_hm extends Heuristic {
      * @param actions
      * @param processesSet
      */
-    public quasi_hm(Conditions G, Set A, Set processesSet) {
+    public quasi_hm(ComplexCondition G, Set A, Set processesSet) {
         super(G, A, processesSet);
 
     }
 
-    public quasi_hm(Conditions G, Set<GroundAction> A, Set processesSet, Conditions GC) {
+    public quasi_hm(ComplexCondition G, Set<GroundAction> A, Set processesSet, ComplexCondition GC) {
         super(G, A, processesSet, GC);
     }
 
@@ -158,7 +150,7 @@ public class quasi_hm extends Heuristic {
         if (s.satisfy(G)) {
             return 0f;
         }
-        FibonacciHeap<Conditions> q = new FibonacciHeap();
+        FibonacciHeap<Condition> q = new FibonacciHeap();
 //        if (this.reacheability_setting)
 //            generate_lp(A,s);
 //        else
@@ -169,7 +161,7 @@ public class quasi_hm extends Heuristic {
         ArrayList<Float> distance = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
         ArrayList<Boolean> open_list = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
         HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             if (s.satisfy(c)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
@@ -193,7 +185,7 @@ public class quasi_hm extends Heuristic {
 //            if (gr.isApplicable(s))
 //                //active_actions.add(gr);
 //        }
-        Collection<Conditions> temp_conditions = null;
+        Collection<Condition> temp_conditions = null;
 //        System.out.println(all_conditions.size());
         temp_conditions = new ArrayList();
         while (!q.isEmpty()) {
@@ -210,7 +202,7 @@ public class quasi_hm extends Heuristic {
                     }
                 }
 
-                Conditions cn = q.removeMin().getData();
+                Condition cn = q.removeMin().getData();
                 if (distance.get(cn.getCounter()) == Float.MAX_VALUE) {
                     System.out.println("Anomaly!!!");//This shouldn't happen as only reachable conditions are put in the list
                     break;
@@ -256,7 +248,7 @@ public class quasi_hm extends Heuristic {
 
             }
 
-            for (Conditions cond : temp_conditions) {
+            for (Condition cond : temp_conditions) {
 //                System.out.println("Condition checking:"+cond);
 //                System.out.println("Action that is connected:"+this.cond_action.get(cond.getCounter()));
                 if (!closed.get(cond.getCounter())) {
@@ -294,9 +286,10 @@ public class quasi_hm extends Heuristic {
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
             poss_achiever.put(gr.counter, new ArrayList());
-            for (Conditions c : this.all_conditions) {
-                if (gr.getPreconditions().getCounter() != c.getCounter()) {
-                    for (Conditions c_in : (Collection<Conditions>) c.sons) {
+            for (Condition c1 : this.all_conditions) {
+                if (gr.getPreconditions().getCounter() != c1.getCounter()) {
+                    ComplexCondition c = (ComplexCondition)c1;
+                    for (Condition c_in : (Collection<Condition>) c.sons) {
                         if (c_in instanceof Comparison) {
                             for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
                                 if (c_in.getInvolvedFluents().contains(nf)) {
@@ -321,7 +314,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Conditions p, FibonacciHeap<Conditions> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {
+    private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Condition p, FibonacciHeap<Condition> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {
         if (current_cost == Float.MAX_VALUE) {
             return;
         }
@@ -342,15 +335,15 @@ public class quasi_hm extends Heuristic {
 
     private void generate_linear_programs(Collection<GroundAction> actions, State s_0) throws IloException {
         lps = new HashMap();
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             LpInterface lp = null;
             if (cplex) {
 //                System.out.println("DEBUG: Using CPLEX");
-                lp = new cplex_interface(c, this.gC);
+                lp = new cplex_interface((ComplexCondition) c, this.gC);
             } else {
 //                System.out.println("DEBUG: Using OJALGO");
 
-                lp = new ojalgo_interface(c, this.gC);
+                lp = new ojalgo_interface((ComplexCondition) c, this.gC);
             }
             lp.additive_h = this.additive_h;
             lp.initialize(actions, s_0);
@@ -358,7 +351,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void update_mapping(Conditions preconditions, GroundAction a) {
+    private void update_mapping(Condition preconditions, GroundAction a) {
         if (this.cond_to_actions.get(preconditions.getCounter()) == null) {
             LinkedHashSet actions = new LinkedHashSet();
             actions.add(a);
@@ -375,7 +368,7 @@ public class quasi_hm extends Heuristic {
         for (GroundAction gr : (Collection<GroundAction>) this.A) {
             try {
                 if (gr.getPreconditions() != null) {
-                    gr.setPreconditions(gr.getPreconditions().transform_equality());
+                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
                 }
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
@@ -405,8 +398,8 @@ public class quasi_hm extends Heuristic {
             }
         }
         this.G.normalize();
-        this.G = this.G.transform_equality();
+        this.G = (ComplexCondition) this.G.transform_equality();
         this.gC.normalize();
-        this.gC = this.gC.transform_equality();
+        this.gC = (ComplexCondition) this.gC.transform_equality();
     }
 }

@@ -1,43 +1,47 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- *//*
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
+ */
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package heuristics.advanced;
 
+import conditions.AndCond;
 import heuristics.utils.achiever_set;
-import heuristics.old.Uniform_cost_search_H1;
-import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
+import conditions.NotCond;
+import conditions.Predicate;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.Aibr;
+import heuristics.Heuristic;
 import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -55,7 +59,7 @@ import problem.State;
  *
  * @author enrico
  */
-public class h1 extends Uniform_cost_search_H1 {
+public class h1 extends Heuristic {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
@@ -81,13 +85,24 @@ public class h1 extends Uniform_cost_search_H1 {
     public boolean ibr_deactivated = false;
     private LinkedList<Pair<GroundAction, Float>> relaxed_plan;
     private ArrayList<Float> established_local_cost;
+    private HashMap<Pair<Integer,Integer>,Float> action_comp_number_execution;
     private boolean risky = true;
+    protected boolean reacheability_setting;
+    
+    
+        protected HashMap<Integer, LinkedHashSet<Condition>> achieve;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
+    protected HashMap<Integer, LinkedHashSet<Comparison>> interact_with;
+    protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
+    protected HashMap<Condition, Boolean> redundant_constraints;
 
-    public h1(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public h1(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
     }
 
-    public h1(Conditions G, Set A, Set processesSet, Set events) {
+    public h1(ComplexCondition G, Set A, Set processesSet, Set events) {
         super(G, A, processesSet, events);
     }
 
@@ -109,7 +124,7 @@ public class h1 extends Uniform_cost_search_H1 {
             try {
                 this.add_redundant_constraints();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Putting something here");
             }
         }
         if (additive_h) {
@@ -131,7 +146,7 @@ public class h1 extends Uniform_cost_search_H1 {
             try {
                 reconstruct = generate_achievers();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Putting something here");
             }
         } while (reconstruct);
         reacheability_setting = true;
@@ -146,13 +161,13 @@ public class h1 extends Uniform_cost_search_H1 {
     }
     
     public void light_setup(State s){
-        if (red_constraints) {
-            try {
-                this.add_redundant_constraints();
-            } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+//        if (red_constraints) {
+//            try {
+//                this.add_redundant_constraints();
+//            } catch (Exception ex) {
+//                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
         
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
@@ -167,7 +182,7 @@ public class h1 extends Uniform_cost_search_H1 {
         try {
             generate_achievers();
         } catch (Exception ex) {
-            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -191,6 +206,7 @@ public class h1 extends Uniform_cost_search_H1 {
         cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
         closed = new ArrayList<>(nCopies(total_number_of_actions + 1, false));
+        action_comp_number_execution = new HashMap();
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
 //            gr.set_unit_cost(s_0);
             if (gr.isApplicable(s_0)) {
@@ -205,7 +221,7 @@ public class h1 extends Uniform_cost_search_H1 {
         }
 
 //        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
-        for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+        for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (c.isSatisfied(s_0)) {
                 cond_dist.set(c.getCounter(), 0f);
 //                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
@@ -272,7 +288,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void update_reachable_conditions_actions(State s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
         float c_a = Math.max(gr.getAction_cost(), min_cost_action);
-        for (Conditions comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
+        for (Condition comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
             Float current_distance = cond_dist.get(comp.getCounter());
             if (current_distance != 0f) {
 
@@ -293,22 +309,40 @@ public class h1 extends Uniform_cost_search_H1 {
                 }
             }
         }
-        for (Conditions comp : this.possible_achievers.get(gr.counter)) {
+        for (Condition comp : this.possible_achievers.get(gr.counter)) {
 //            Utils.dbg_print(debug - 10, "Condition under analysis:" + comp + "\n");
             if (!this.is_complex.get(comp.getCounter())) {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
 
-                    Float rep_needed;
+//<<<<<<< HEAD
+//                    Float rep_needed;
                     
-                    if (gr.infinite_constant_effect){
-                        rep_needed = 1f * c_a;
-                    } else if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
+//                    if (gr.infinite_constant_effect){
+//                        rep_needed = 1f * c_a;
+//                    } else if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
+//
+//                        rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
+//                    } else {
+//                        rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
+//=======
+                    Float rep_needed=this.action_comp_number_execution.get(new Pair(gr.counter,comp.getCounter()));
+                    if (rep_needed == null){
+                        if (gr.infinite_constant_effect){
+                            rep_needed = 1f * c_a;
+                        }
+                        if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
 
-                        rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
-                    } else {
-                        rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
+                            rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
+                        } else {
+                            rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
+                        }
+                        this.action_comp_number_execution.put(new Pair(gr.counter,comp.getCounter()),rep_needed);
+                    }else{
+//                        System.out.println("Cache funziona");
+//>>>>>>> master
                     }
+                    
                     if (rep_needed != Float.MAX_VALUE) {
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation || !this.additive_h) {
                             update_achiever(comp, gr);
@@ -348,7 +382,11 @@ public class h1 extends Uniform_cost_search_H1 {
                     new_distance = action_dist.get(gr.counter) + c_a;//this is a very conservative measure.
                 } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
-                    Aibr aibr_handle = new Aibr(comp, reachable_here);
+                    
+                    AndCond temp = new AndCond();
+                    temp.addConditions(comp);
+                            
+                    Aibr aibr_handle = new Aibr(temp, reachable_here);
                     //aibr_handle
                     aibr_handle.set(false, true);
 
@@ -371,7 +409,6 @@ public class h1 extends Uniform_cost_search_H1 {
                         if (this.relaxed_plan_extraction || this.helpful_actions_computation) {
                             established_achiever.set(comp.getCounter(), gr);
                             established_local_cost.set(comp.getCounter(), new_distance);//this does not really work!!
-
                         }
                         update_reachable_actions(gr, comp, a_plus, never_active);
                     }
@@ -384,7 +421,8 @@ public class h1 extends Uniform_cost_search_H1 {
 
     }
 
-    public void update_reachable_actions(GroundAction gr, Conditions comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
+
+    private void update_reachable_actions(GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
         Set<GroundAction> set = condition_to_action.get(comp.getCounter());
@@ -431,7 +469,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void generate_link_precondition_action() {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             LinkedHashSet<GroundAction> set = new LinkedHashSet();
             for (GroundAction gr : A) {
                 if (gr.getPreconditions().getTerminalConditions().contains(c)) {
@@ -459,18 +497,18 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void compute_relaxed_plan() {//this should be updated!
 
-        LinkedList<Conditions> list = new LinkedList();
+        LinkedList<Condition> list = new LinkedList();
         relaxed_plan = new LinkedList();
 
         helpful_actions = new LinkedHashSet();
         achiever_set s = this.action_achievers.get(goal.counter);
         HashSet<Integer> visited = new HashSet();
-        for (Conditions c : s.target_cond) {
+        for (Condition c : s.target_cond) {
             list.add(c);
             visited.add(c.getCounter());
         }
         while (!list.isEmpty()) {
-            Conditions c = list.pollLast();
+            Condition c = list.pollLast();
             Float cost = this.cond_dist.get(c.getCounter());
             if (cost != 0) {
                 GroundAction gr = this.established_achiever.get(c.getCounter());
@@ -490,7 +528,7 @@ public class h1 extends Uniform_cost_search_H1 {
                 } else {
                     achiever_set ach_set = this.action_achievers.get(gr.counter);
                     if (ach_set != null) {
-                        for (Conditions c1 : ach_set.target_cond) {
+                        for (Condition c1 : ach_set.target_cond) {
                             if (!visited.contains(c1.getCounter())) {
                                 list.add(c1);
                                 visited.add(c1.getCounter());
@@ -505,7 +543,7 @@ public class h1 extends Uniform_cost_search_H1 {
 //      
     }
 
-    private void update_achiever(Conditions comp, GroundAction gr) {
+    private void update_achiever(Condition comp, GroundAction gr) {
 
         LinkedHashSet s = all_achievers.get(comp.getCounter());
         if (s == null) {
@@ -528,7 +566,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     private void getHelpfulActions(LinkedList<GroundAction> list, achiever_set s) {
         if (s != null) {
-            for (Conditions o : s.target_cond) {
+            for (Condition o : s.target_cond) {
                 if (cond_dist.get(o.getCounter()) == 0) {
                     continue;
                 }
@@ -574,7 +612,7 @@ public class h1 extends Uniform_cost_search_H1 {
     private void find_reasons_of_unsat(ArrayList<Float> cond_dist, GroundAction goal) {
 
         //works only for conjunction
-        for (Conditions c : goal.getPreconditions().getTerminalConditions()) {
+        for (Condition c : goal.getPreconditions().getTerminalConditions()) {
             if (cond_dist.get(c.getCounter()) == Float.MAX_VALUE) {
                 System.out.println("Unreachable in the relaxation: " + c);
             }
@@ -582,7 +620,7 @@ public class h1 extends Uniform_cost_search_H1 {
 
     }
 
-    private Float min_over_possible_achievers(Conditions comp) {
+    private Float min_over_possible_achievers(Condition comp) {
         Set<GroundAction> set = this.all_achievers.get(comp.getCounter());
         Float min = Float.MAX_VALUE;
         for (GroundAction gr : set) {
@@ -640,7 +678,7 @@ public class h1 extends Uniform_cost_search_H1 {
         for (GroundAction gr : (Collection<GroundAction>) this.A) {
             try {
                 if (gr.getPreconditions() != null) {
-                    gr.setPreconditions(gr.getPreconditions().transform_equality());
+                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
                 }
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
@@ -669,8 +707,165 @@ public class h1 extends Uniform_cost_search_H1 {
                 Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        this.G = this.G.transform_equality();
+        this.G = (ComplexCondition) this.G.transform_equality();
         this.G.normalize();
     }
+    
+    
+    protected boolean generate_achievers() throws Exception {
+        interact_with = new HashMap();
+        achieve = new HashMap();
+        possible_achievers = new HashMap();
+        this.possible_achievers_inverted = new HashMap();
+        achievers_inverted = new HashMap();
+        precondition_mapping = new HashMap();
+
+        //this should also include the indirect dependencies, otherwise does not work!!
+        Set<GroundAction> useless_actions = new HashSet();
+        for (GroundAction gr : this.A) {
+            LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
+            LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
+            LinkedHashSet<Condition> literals = new LinkedHashSet();
+            boolean at_least_one_service = false;
+            for (Condition c : this.all_conditions) {
+
+                if (precondition_mapping.get(c.getCounter()) == null) {
+                    precondition_mapping.put(c.getCounter(), new LinkedHashSet());
+                }
+                LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+                if (c instanceof Comparison) {
+//                    System.out.println("Condition under analysis:"+c);
+//                    System.out.println("Counter is:"+c.getCounter());
+                    Comparison comp = (Comparison) c;
+                    if (comp.involve(gr.getNumericFluentAffected())) {
+                        comparisons.add(comp);
+
+                        if (this.is_complex.get(comp.getCounter())) {
+                            at_least_one_service = true;
+                            reacheable_comparisons.add(comp);
+                        } else if (gr.is_possible_achiever_of(comp)) {
+                            at_least_one_service = true;
+                            reacheable_comparisons.add(comp);
+                            action_list.add(gr);
+                        }
+                    }
+                    if (this.possible_achievers_inverted.get(comp.getCounter()) == null) {
+                        this.possible_achievers_inverted.put(comp.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getCounter());
+                        temp.addAll(action_list);
+                        this.possible_achievers_inverted.put(comp.getCounter(), temp);
+                    }
+                } else if (c instanceof Predicate) {
+                    Predicate p = (Predicate) c;
+                    if (gr.achieve(p)) {
+                        at_least_one_service = true;
+                        literals.add(p);
+                        action_list.add(gr);
+                    }
+                    if (this.achievers_inverted.get(p.getCounter()) == null) {
+                        this.achievers_inverted.put(p.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(p.getCounter());
+                        temp.addAll(action_list);
+                        this.achievers_inverted.put(p.getCounter(), temp);
+                    }
+
+                } else if (c instanceof NotCond) {
+                    NotCond c1 = (NotCond) c;
+                    if (!c1.isTerminal()) {
+                        System.out.println("Not formula has to be used as a terminal, and it is not:" + c1);
+                        System.exit(-1);
+                    }
+                    Predicate p = (Predicate) c1.getSon();
+                    if (gr.delete(p)) {
+                        at_least_one_service = true;
+                        literals.add(c1);
+                        action_list.add(gr);
+                    }
+                    if (this.achievers_inverted.get(c1.getCounter()) == null) {
+                        this.achievers_inverted.put(c1.getCounter(), action_list);
+                    } else {
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(c1.getCounter());
+                        temp.addAll(action_list);
+                        this.achievers_inverted.put(c1.getCounter(), temp);
+                    }
+
+                }
+
+                if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
+//                    System.out.println("Gr:"+ gr);
+//                    try {
+//                        System.in.read();
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+
+                    LinkedHashSet<GroundAction> temp = this.precondition_mapping.get(c.getCounter());
+                    temp.add(gr);
+                    this.precondition_mapping.put(c.getCounter(), temp);
+
+                }
+
+            }
+//            if (at_least_one_service){
+            achieve.put(gr.counter, literals);
+            interact_with.put(gr.counter, comparisons);
+            possible_achievers.put(gr.counter, reacheable_comparisons);
+//            }else{
+//                useless_actions.add(gr);
+//            }
+        }
+//        boolean ret = !useless_actions.isEmpty();
+
+//        A.removeAll(useless_actions);
+        Utils.dbg_print(debug, "Identify complex achievers");
+
+        for (Comparison comp : this.complex_condition_set) {
+            HashSet<NumEffect> num_effects = new LinkedHashSet();
+            HashMap<NumEffect, Boolean> temp_mark = new HashMap();
+            HashMap<NumEffect, Boolean> per_mark = new HashMap();
+            sorted_nodes = new LinkedList();
+            for (GroundAction gr : A) {
+                for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
+                    temp_mark.put(nf, false);
+                    per_mark.put(nf, false);
+                    num_effects.add(nf);
+                }
+            }
+            for (NumEffect a : num_effects) {
+                if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected()))) {
+                    visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
+                }
+            }
+            LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+            for (GroundAction gr : A) {
+                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+
+                    if (sorted_nodes.contains(neff)) {
+                        possible_achievers.get(gr.counter).add(comp);
+                        action_list.add(gr);
+                    }
+
+                }
+            }
+            if (this.possible_achievers_inverted.get(comp.getCounter()) == null) {
+                this.possible_achievers_inverted.put(comp.getCounter(), action_list);
+            } else {
+                LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getCounter());
+                temp.addAll(action_list);
+                this.possible_achievers_inverted.put(comp.getCounter(), temp);
+            }
+            if (debug == 1) {
+                System.out.println("Comparison:" + comp);
+                System.out.println("Achievers Set" + this.possible_achievers_inverted.get(comp.getCounter()));
+            }
+
+        }
+        Utils.dbg_print(debug, "Complex achievers identified");
+        return false;//to fix at some point
+    }
+    
+
 
 }

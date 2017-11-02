@@ -1,37 +1,30 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package domain;
 
 import conditions.AndCond;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
+import conditions.ForAll;
 import conditions.NotCond;
+import conditions.PostCondition;
 import conditions.Predicate;
 
 import expressions.NumEffect;
@@ -41,22 +34,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import problem.EPddlProblem;
 
 public abstract class GenericActionType extends Object {
 
     protected String name;
-    protected Conditions addList;
-    protected Conditions delList;
-    protected Conditions numericEffects;
-    protected Conditions preconditions;
-    public Conditions cond_effects;
+    protected AndCond addList;
+    protected AndCond delList;
+    protected AndCond numericEffects;
+    protected ComplexCondition preconditions;
+    public AndCond cond_effects;
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     protected SchemaParameters parameters;
+    protected AndCond forall;
 
     /**
      * @return the addList
      */
-    public Conditions getAddList() {
+    public AndCond getAddList() {
         return addList;
     }
 
@@ -67,7 +62,7 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the delList
      */
-    public Conditions getDelList() {
+    public AndCond getDelList() {
         return delList;
     }
 
@@ -78,28 +73,28 @@ public abstract class GenericActionType extends Object {
     /**
      * @return the numericEffects
      */
-    public Conditions getNumericEffects() {
+    public AndCond getNumericEffects() {
         return numericEffects;
     }
 
     /**
      * @return the preconditions
      */
-    public Conditions getPreconditions() {
+    public ComplexCondition getPreconditions() {
         return preconditions;
     }
 
     /**
      * @param addList the addList to set
      */
-    public void setAddList(Conditions addList) {
+    public void setAddList(AndCond addList) {
         this.addList = addList;
     }
 
     /**
      * @param delList the delList to set
      */
-    public void setDelList(Conditions delList) {
+    public void setDelList(AndCond delList) {
         this.delList = delList;
     }
 
@@ -113,28 +108,24 @@ public abstract class GenericActionType extends Object {
     /**
      * @param numericEffects the numericEffects to set
      */
-    public void setNumericEffects(Conditions numericEffects) {
+    public void setNumericEffects(AndCond numericEffects) {
         this.numericEffects = numericEffects;
     }
 
     /**
      * @param preconditions the preconditions to set
      */
-    public void setPreconditions(Conditions preconditions) {
+    public void setPreconditions(ComplexCondition preconditions) {
         this.preconditions = preconditions;
     }
 
     @Override
-    public abstract String toString();
+    public String toString() {
+        return "GenericActionType{" + "name=" + name + ", addList=" + addList + ", delList=" + delList + ", numericEffects=" + numericEffects + ", preconditions=" + preconditions + ", cond_effects=" + cond_effects + '}';
+    }
 
-    //
-    //    public Action ground(ArrayList terms){
-    //
-    //
-    //        substitution = new HashMap();
-    //
-    //
-    //    }
+
+   
     /**
      * @return the parameters
      */
@@ -146,7 +137,7 @@ public abstract class GenericActionType extends Object {
     }
 
     protected void push_not_to_terminals() {
-        Conditions c = this.getPreconditions().push_not_to_terminals();
+        ComplexCondition c = (ComplexCondition)this.getPreconditions().push_not_to_terminals();
         if (!(c instanceof AndCond)) {
             AndCond and = new AndCond();
             and.addConditions(c);
@@ -163,16 +154,40 @@ public abstract class GenericActionType extends Object {
     protected Collection<Predicate> getPropositionAffected() {
         LinkedHashSet ret = new LinkedHashSet();
         if (this.addList != null) {
-            ret.addAll(this.addList.getTerminalConditions());
+            ret.addAll(this.addList.getInvolvedPredicates());
         }
-        if (this.delList != null && this.delList.sons != null) {
-            for (Conditions c : (Collection<Conditions>) this.delList.sons) {
-                if (c instanceof NotCond) {
-                    NotCond nc = (NotCond) c;
-                    ret.add((Predicate) nc.getSon());
+        if (this.cond_effects != null) {
+           AndCond temp2 = (AndCond)this.cond_effects;
+           for (Condition cEff: (Collection<Condition>)temp2.sons){
+               if (cEff instanceof ConditionalEffect){
+                    ConditionalEffect conditional = (ConditionalEffect)cEff;
+                    Collection<Predicate> temp = ((AndCond)conditional.effect).getInvolvedPredicates();
+                    for (Condition c : temp) {
+                         if (c instanceof NotCond) {
+                             NotCond nc = (NotCond) c;
+                             ret.add((Predicate) nc.getSon());
+                         }else if (c instanceof Predicate){
+                             ret.add(c);
+                         }else{
+                             throw new RuntimeException("A conditional effect terminal conditions function does not work");
+                         }
+                     }
+               }else{
+                    throw new RuntimeException("Needs to fix the conditional effect");
+               }
+           }
+        }
+        
+        if (this.delList != null ) {
+            if (this.delList instanceof ComplexCondition){
+                
+                for (Condition c : (Collection<Condition>) ((ComplexCondition)this.delList).sons) {
+                    if (c instanceof NotCond) {
+                        NotCond nc = (NotCond) c;
+                        ret.add((Predicate) nc.getSon());
+                    }
                 }
             }
-            //ret.addAll(this.delList.getTerminalConditions());
         }
         return ret;
     }
@@ -204,6 +219,13 @@ public abstract class GenericActionType extends Object {
                 }
             }
         }
+        if (this.cond_effects != null) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) ((ComplexCondition)this.cond_effects).sons) {
+                for (NumFluent nf : c_eff.affectedNumericFluents()) {
+                    this.numericFluentAffected.put(nf, Boolean.TRUE);
+                }
+            }
+        }
     }
 
     public void generateAffectedNumFluents() {
@@ -222,7 +244,7 @@ public abstract class GenericActionType extends Object {
         }
 
         if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) ((ComplexCondition)this.cond_effects).sons) {
                 for (NumFluent nf : c_eff.affectedNumericFluents()) {
                     this.numericFluentAffected.put(nf, Boolean.TRUE);
                 }
@@ -233,9 +255,71 @@ public abstract class GenericActionType extends Object {
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {
         Set<NumFluent> ret = new HashSet();
-        for (NumEffect neff : (Collection<NumEffect>) this.getNumericEffects().sons) {
+        for (NumEffect neff : (Collection<NumEffect>) ((ComplexCondition)this.getNumericEffects()).sons) {
             ret.addAll(neff.getRight().rhsFluents());
         }
         return ret;
+    }
+    
+    public void create_effects_by_cases(PostCondition res) {
+        if (res instanceof AndCond) {
+            AndCond pc = (AndCond) res;
+            for (Object o : pc.sons) {
+                if (o instanceof Predicate) {
+                    this.addList.sons.add(o);
+                } else if (o instanceof NotCond) {
+                    this.delList.sons.add(o);
+                } else if (o instanceof NumEffect) {
+                    this.numericEffects.sons.add(o);
+                } else if (o instanceof ConditionalEffect) {
+                    this.cond_effects.sons.add(o);
+                }else if (o instanceof ForAll) {
+                    this.forall.sons.add(o);
+                }
+            }
+        } else if (res instanceof Predicate) {
+            this.addList.sons.add(res);
+        } else if (res instanceof NotCond) {
+            this.delList.sons.add(res);
+        } else if (res instanceof NumEffect) {
+            this.numericEffects.sons.add(res);
+        } else if (res instanceof ConditionalEffect) {
+            this.cond_effects.sons.add(res);
+        }else if (res instanceof ForAll) {
+            this.forall.sons.add(res);
+//            this.forall.sons.add(res);
+        }
+    }
+
+    public Collection<NumFluent> getInvolvedNumFluents() {
+        Collection<NumFluent> ret = this.preconditions.getInvolvedFluents();
+        ret.addAll(this.numericEffects.getInvolvedFluents());
+        return ret;
+    }
+
+    public Collection<Predicate> getInvolvedPredicates() {
+        Collection<Predicate> ret = new LinkedHashSet();
+        if (this.preconditions != null) {
+            ret.addAll(this.preconditions.getInvolvedPredicates());
+        }
+        if (this.addList != null) {
+            ret.addAll(this.addList.getInvolvedPredicates());
+        }
+        if (this.delList != null) {
+            ret.addAll(this.delList.getInvolvedPredicates());
+        }
+        if (this.cond_effects != null) {
+            ret.addAll(this.cond_effects.getInvolvedPredicates());
+        }
+        return ret;
+    }
+
+    public void unifyVariablesReferences(EPddlProblem p) {
+
+        preconditions = (ComplexCondition) preconditions.unifyVariablesReferences(p);
+        addList = (AndCond) addList.unifyVariablesReferences(p);
+        delList = (AndCond) delList.unifyVariablesReferences(p);
+        numericEffects = (AndCond) numericEffects.unifyVariablesReferences(p);
+        cond_effects = (AndCond) cond_effects.unifyVariablesReferences(p);
     }
 }

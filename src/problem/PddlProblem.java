@@ -1,47 +1,39 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package problem;
 
 import antlr.RecognitionException;
-
 import conditions.AndCond;
+import conditions.ComplexCondition;
+
 import conditions.NumFluentValue;
-import conditions.Comparison;
-import conditions.Conditions;
-import conditions.NotCond;
+import conditions.Condition;
+import conditions.FactoryConditions;
 import conditions.OneOf;
 import conditions.OrCond;
 import conditions.Predicate;
 import conditions.PDDLObject;
 import domain.ParametersAsTerms;
 import domain.ActionSchema;
+import domain.GenericActionType;
 import domain.PddlDomain;
-import domain.PredicateSet;
+import domain.SchemaParameters;
 
 import domain.Type;
 
@@ -77,7 +69,7 @@ import org.antlr.runtime.tree.Tree;
 
 import parser.PddlLexer;
 import parser.PddlParser;
-import propositionalFactory.grounder;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -85,9 +77,9 @@ import propositionalFactory.grounder;
  */
 public class PddlProblem {
 
-    protected PDDLObjects objects;
-    protected State init;
-    protected Conditions goals;
+    public PDDLObjects objects;
+    public State init;
+    public ComplexCondition goals;
     protected String name;
     protected Integer indexObject;
     protected Integer indexInit;
@@ -97,19 +89,25 @@ public class PddlProblem {
     protected String domainName;
     PddlDomain linkedDomain;
     protected boolean validatedAgainstDomain;
-    protected Set<GroundAction> actions;
+    public Set<GroundAction> actions;
     protected long propositionalTime;
     protected boolean grounded_representation;
     protected RelState possStates;
     public int counterNumericFluents = 0;
     protected boolean simplifyActions;
     protected HashMap staticFluents;
-    public Conditions belief;
+    public Condition belief;
     public Collection<Predicate> unknonw_predicates;
     public Collection<OneOf> one_of_s;
     public Collection<OrCond> or_s;
     public Collection<NumFluent> num_fluent_universe;
     public Collection<Predicate> predicates_universe;
+    private FactoryConditions fc;
+    public Set<Type> types;
+
+    //This maps the string representation of a predicate (which uniquely defines it, into an integer)
+    public HashMap<String, Predicate> predicateReference;
+    public HashMap<String, NumFluent> numFluentReference;
 
     /**
      * Get the value of groundedActions
@@ -129,7 +127,7 @@ public class PddlProblem {
         this.grounded_representation = groundedActions;
     }
 
-    public PddlProblem(String problemFile, PDDLObjects po) {
+    public PddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
         super();
         try {
             init = new State();
@@ -141,37 +139,20 @@ public class PddlProblem {
             metric = new Metric("NO");
             linkedDomain = null;
             actions = new LinkedHashSet();
-            this.parseProblem(problemFile);
             grounded_representation = false;
             validatedAgainstDomain = false;
             possStates = null;
             simplifyActions = true;
+            this.types = types;
+            predicateReference = new HashMap();
+            numFluentReference = new HashMap();
+            this.parseProblem(problemFile);
+
         } catch (IOException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.antlr.runtime.RecognitionException ex) {
-            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-
-    public PddlProblem(String problemFile) {
-        super();
-        try {
-            init = new State();
-            indexObject = 0;
-            indexInit = 0;
-            indexGoals = 0;
-            objects = new PDDLObjects();
-            metric = new Metric("NO");
-            linkedDomain = null;
-            actions = new HashSet();
-            this.parseProblem(problemFile);
-            grounded_representation = false;
-            validatedAgainstDomain = false;
-            possStates = null;
-        } catch (IOException | RecognitionException | org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -292,6 +273,7 @@ public class PddlProblem {
         this.one_of_s = new LinkedHashSet();
         this.unknonw_predicates = new LinkedHashSet();
         this.or_s = new LinkedHashSet();
+        fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.objects);
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
             //System.out.println(child.getChild(0).getText());
@@ -305,16 +287,24 @@ public class PddlProblem {
                     break;
                 case PddlParser.OBJECTS:
                     addObjects(child);
-//                    System.out.println("Objects considered:"+objects);
                     break;
                 case PddlParser.INIT:
                     addInitFacts(child);
                     break;
                 case PddlParser.FORMULAINIT:
-                    this.belief = createGoals(child.getChild(0));
+                    this.belief = fc.createGoals(child.getChild(0));
+//                    this.belief = fc.createCondition(child.getChild(0), null);
                     break;
                 case PddlParser.GOAL:
-                    this.setGoals(createGoals(child.getChild(0)));
+                    this.goals = null;
+                    Condition con = fc.createCondition(child.getChild(0), null);
+                    if (!(con instanceof ComplexCondition)){
+                        this.goals = new AndCond();
+                        this.goals.addConditions(con);
+                    }else{
+                        this.goals = (ComplexCondition) con;
+                    }
+                    
                     break;
                 case PddlParser.PROBLEM_METRIC:
                     addMetric(child);
@@ -322,7 +312,11 @@ public class PddlProblem {
 
             }
         }
-        this.goals = this.goals.push_not_to_terminals();
+        this.goals = (ComplexCondition) this.goals.push_not_to_terminals();
+        this.goals = (ComplexCondition) this.goals.ground(new HashMap(),this.getObjects());
+        this.keepCopyOfVariables(goals);
+        this.keepCopyOfVariables(belief);
+        this.keepUniqueVariable(init);
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
@@ -345,7 +339,7 @@ public class PddlProblem {
     }
 
     //Aggiungere controllo su dominio...in qualche modo!
-    protected Predicate buildInstPredicate(Tree t) {
+    protected Predicate buildInstPredicate(Tree t, SchemaParameters aug_par_table) {
 
         //if (t.getType() == PddlParser.PRED_INST) {
         Predicate a = new Predicate(true);
@@ -355,9 +349,6 @@ public class PddlProblem {
         for (int i = 1; i < t.getChildCount(); i++) {
 
             PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
-//            System.out.println(a);
-//
-//            System.out.println(t1);
             if (t1 != null) {
                 a.addObject(t1);
             } else {
@@ -370,73 +361,6 @@ public class PddlProblem {
         //}
 
         //return null;
-    }
-
-    protected Conditions createGoals(Tree infoAction) {
-        if (infoAction == null) {
-            return null;
-        }
-        if (infoAction.getType() == PddlParser.PRED_HEAD) {
-            //estrapola tutti i predicati e ritornali come set di predicati
-//            AndCond and = new AndCond();
-//            and.addConditions();
-            return buildInstPredicate(infoAction);
-        } else if (infoAction.getType() == PddlParser.AND_GD) {
-            AndCond and = new AndCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createGoals(infoAction.getChild(i));
-                if (ret_val != null) {
-                    and.addConditions(ret_val);
-                }
-            }
-            return and;
-
-        } else if (infoAction.getType() == PddlParser.OR_GD) {
-            OrCond or = new OrCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createGoals(infoAction.getChild(i));
-                if (ret_val != null) {
-                    or.addConditions(ret_val);
-                }
-            }
-            return or;
-            //Crea un or e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di or
-        } else if (infoAction.getType() == PddlParser.NOT_GD) {
-            Conditions cond = null; // TODO: Can the condition be null or should we throw an error if that happens?
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = createGoals(infoAction.getChild(i));
-                if (ret_val != null) {
-                    cond = ret_val;
-                }
-            }
-            NotCond not = new NotCond(cond);
-            return not;
-            //Crea un not e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di not
-        } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
-            //System.out.println("Comparison:" + infoAction.getText());
-            AndCond ret = new AndCond();
-            Comparison c = new Comparison(infoAction.getChild(0).getText());
-
-            c.setLeft(createExpression(infoAction.getChild(1)));
-            c.setRight(createExpression(infoAction.getChild(2)));
-            ret.addConditions(c);
-            return ret;
-            //Crea un not e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di not
-        } else if (infoAction.getType() == PddlParser.ONEOF) {
-            OneOf one_of = new OneOf();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = addOneOf(infoAction.getChild(i));
-                if (ret_val != null) {
-                    one_of.sons.add(ret_val);
-                }
-            }
-            return one_of;
-        }
-
-        return null;
     }
 
     protected Expression createExpression(Tree t) {
@@ -490,18 +414,20 @@ public class PddlProblem {
             Tree c = child.getChild(i);
             switch (c.getType()) {
                 case PddlParser.PRED_INST:
-                    init.addProposition(buildInstPredicate(c));
+                    init.initPred.put(buildInstPredicate(c, null), true);
+//                    init.setPredTrue(buildInstPredicate(c, null));
                     break;
                 case PddlParser.INIT_EQ:
                     counterNumericFluents++;
                     NumFluentValue a = new NumFluentValue("=");
+                    
                     a.setNFluent((NumFluent) createExpression(c.getChild(0)));
                     a.setValue((PDDLNumber) createExpression(c.getChild(1)));
                     //System.out.println(a);
                     init.addNumericFluent(a);
                     break;
                 case PddlParser.INIT_AT:
-                    init.addTimedLiteral(buildInstPredicate(c));
+                    init.addTimedLiteral(buildInstPredicate(c, null));
                     break;
                 case PddlParser.UNKNOWN:
 //                    System.out.println("DEBUG: unknonw");
@@ -509,11 +435,12 @@ public class PddlProblem {
                     break;
                 case PddlParser.ONEOF:
 //                    System.out.println("DEBUG: oneof");
-                    this.one_of_s.add((OneOf) addOneOf(c));
+//                    fc.createCondition(c, null);
+                    this.one_of_s.add((OneOf) fc.createCondition(c, null));
                     break;
                 case PddlParser.OR_GD:
 //                    System.out.println("DEBUG: or Conditition");
-                    this.or_s.add((OrCond) this.addOr(c));
+                    this.or_s.add((OrCond) fc.createCondition(c, null));
                     break;
                 default:
                     break;
@@ -569,7 +496,7 @@ public class PddlProblem {
     /**
      * @return the goals - the goal set
      */
-    public Conditions getGoals() {
+    public ComplexCondition getGoals() {
         return goals;
     }
 
@@ -592,15 +519,12 @@ public class PddlProblem {
         this.metric = m;
     }
 
-    protected void setObject(PDDLObjects object) {
-        this.setObjects(object);
-    }
 
     public void setInit(State init) {
         this.init = init;
     }
 
-    public void setGoals(Conditions goals) {
+    public void setGoals(ComplexCondition goals) {
         this.goals = goals;
     }
 
@@ -611,44 +535,6 @@ public class PddlProblem {
         this.name = name;
     }
 
-    protected Integer getIndexObject() {
-        return indexObject;
-    }
-
-    /**
-     * @param indexObject the indexObject to set
-     */
-    protected void setIndexObject(Integer indexObject) {
-        this.indexObject = indexObject;
-    }
-
-    /**
-     * @return the indexInit
-     */
-    protected Integer getIndexInit() {
-        return indexInit;
-    }
-
-    /**
-     * @param indexInit the indexInit to set
-     */
-    protected void setIndexInit(Integer indexInit) {
-        this.indexInit = indexInit;
-    }
-
-    /**
-     * @return the indexGoals
-     */
-    protected Integer getIndexGoals() {
-        return indexGoals;
-    }
-
-    /**
-     * @param indexGoals the indexGoals to set
-     */
-    protected void setIndexGoals(Integer indexGoals) {
-        this.indexGoals = indexGoals;
-    }
 
     /**
      * @return the metric
@@ -673,7 +559,6 @@ public class PddlProblem {
     }
 
     public Float getInitFunctionValue(NumFluent f) {
-
         return init.functionValue(f).getNumber();
     }
 
@@ -720,7 +605,7 @@ public class PddlProblem {
 
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
                 if (act.getPar().size() != 0) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
@@ -758,7 +643,7 @@ public class PddlProblem {
 
     }
 
-    public int distance(State sIn, Conditions c) {
+    public int distance(State sIn, Condition c) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -798,7 +683,7 @@ public class PddlProblem {
         int distance = 0;
         while (true) {
             for (Iterator it = toVisit.iterator(); it.hasNext();) {
-                Conditions c = (Conditions) it.next();
+                Condition c = (Condition) it.next();
                 if (s.satisfy(c)) {
                     order.put(c, distance);
                     it.remove();
@@ -867,39 +752,6 @@ public class PddlProblem {
 
     }
 
-    protected void pruneActions_old() {
-        boolean finished = false;
-        boolean goalReached = false;
-        int distance = 0;
-        Set level;
-        RelState s = this.init.relaxState();
-        int prec = 0;
-        while (!finished && !goalReached) {
-            distance++;
-            level = new HashSet();
-            for (Iterator it = getActions().iterator(); it.hasNext();) {
-                GroundAction gr = (GroundAction) it.next();
-                //System.out.println(gr.toEcoString());
-                if (gr.getPreconditions().can_be_true(s)) {
-                    level.add(gr);
-                }
-            }
-            for (Object o : level) {
-                GroundAction gr = (GroundAction) o;
-                gr.apply(s);
-            }
-            //if (s.satisfy(getGoals()))
-            //  goalReached=true;
-            //System.out.println("Distance: " +distance);
-            //System.out.println("ApplicableActions: " +level.size());
-            if (prec == level.size()) {
-                finished = true;
-                getActions().clear();
-                setActions(level);
-            }
-            prec = level.size();
-        }
-    }
 
     /**
      * @return the propositionalTime
@@ -958,7 +810,7 @@ public class PddlProblem {
                 gr.apply(s);
             }
             for (Iterator it = toVisit.iterator(); it.hasNext();) {
-                Conditions con = (Conditions) it.next();
+                Condition con = (Condition) it.next();
 
                 if (s.satisfy(con)) {
                     //System.out.println("Kernel " + con + " raggiunto a livello:" + distance);
@@ -1067,18 +919,18 @@ public class PddlProblem {
         return staticFluents;
     }
 
-    public void transform_numeric_condition() throws Exception {
+    public void transformNumericConditionsInActions() throws Exception {
 
         for (GroundAction gr : (Collection<GroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
-                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
+                gr.setPreconditions((ComplexCondition) generate_inequalities(gr.getPreconditions()));
             }
         }
-        this.goals = generate_inequalities(goals);
+        this.goals = (ComplexCondition) generate_inequalities(goals);
     }
 
-    protected Conditions generate_inequalities(Conditions con) {
-        return con.transform_equality();
+    protected ComplexCondition generate_inequalities(Condition con) {
+        return (ComplexCondition)con.transform_equality();
     }
 
     public boolean print_actions() {
@@ -1089,7 +941,7 @@ public class PddlProblem {
         return true;
     }
 
-    private Conditions addUnknown(Tree infoAction) {
+    private Condition addUnknown(Tree infoAction) {
         if (infoAction == null) {
             return null;
         }
@@ -1097,7 +949,7 @@ public class PddlProblem {
             //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-            return buildInstPredicate(infoAction);
+            return buildInstPredicate(infoAction, null);
         } else if (infoAction.getType() == PddlParser.UNKNOWN) {
 
             return addUnknown(infoAction.getChild(0));
@@ -1108,152 +960,64 @@ public class PddlProblem {
         }
     }
 
-    private Conditions addOneOf(Tree infoAction) {
-        if (infoAction == null) {
-            return null;
-        }
-        switch (infoAction.getType()) {
-            case PddlParser.PRED_HEAD:
-                //estrapola tutti i predicati e ritornali come set di predicati
-//            AndCond and = new AndCond();
-//            and.addConditions();
-                return buildInstPredicate(infoAction);
-            case PddlParser.AND_GD:
-                AndCond and = new AndCond();
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = addOneOf(infoAction.getChild(i));
-                    if (ret_val != null) {
-                        and.addConditions(ret_val);
-                    }
-                }
-                return and;
-            case PddlParser.OR_GD:
-                //            System.out.println("Or Condition");
-                OrCond or = new OrCond();
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = addOneOf(infoAction.getChild(i));
-//                System.out.println(ret_val);
-                    if (ret_val != null) {
-                        or.addConditions(ret_val);
-                    }
-                }
-                return or;
-            //Crea un or e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di or
-            case PddlParser.NOT_PRED_INIT:
-                Conditions cond = null; // TODO: Can the condition be null or should we throw an error?
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = addOneOf(infoAction.getChild(i));
-                    if (ret_val != null) {
-                        cond = ret_val;
-                    }
-                }
-                NotCond not = new NotCond(cond);
-                return not;
-            case PddlParser.PRED_INST:
-                //estrapola tutti i predicati e ritornali come set di predicati
-//            AndCond and = new AndCond();
-//            and.addConditions();
-                return buildInstPredicate(infoAction);
-            case PddlParser.ONEOF:
-                OneOf one_of = new OneOf();
-                for (int i = 0; i < infoAction.getChildCount(); i++) {
-                    Conditions ret_val = addOneOf(infoAction.getChild(i));
-                    if (ret_val != null) {
-                        one_of.sons.add(ret_val);
-                    }
-                }
-                return one_of;
-            default:
-                System.out.println("Oneof Parsing: Some serious error:" + infoAction);
-                return null;
-        }
-    }
 
-    private Conditions addOr(Tree infoAction) {
-        if (infoAction == null) {
-            return null;
-        }
-        if (infoAction.getType() == PddlParser.PRED_INST) {
-            //estrapola tutti i predicati e ritornali come set di predicati
-//            AndCond and = new AndCond();
-//            and.addConditions();
-            return buildInstPredicate(infoAction);
-        } else if (infoAction.getType() == PddlParser.AND_GD) {
-            AndCond and = new AndCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = addOr(infoAction.getChild(i));
-                if (ret_val != null) {
-                    and.addConditions(ret_val);
-                }
-            }
-            return and;
 
-        } else if (infoAction.getType() == PddlParser.OR_GD) {
-//            System.out.println("Or Condition");
-            OrCond or = new OrCond();
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = addOr(infoAction.getChild(i));
-//                System.out.println(ret_val);
-                if (ret_val != null) {
-                    or.addConditions(ret_val);
-                }
-            }
-            return or;
-            //Crea un or e per ogni figlio di questo nodo invoca creaformula
-            //gestendo il valore di ritorno come un attributo di or
-        } else if (infoAction.getType() == PddlParser.NOT_PRED_INIT) {
-            // TODO: Can the condition be null or should we throw an error if that happens?
-            Conditions cond = null;
-            for (int i = 0; i < infoAction.getChildCount(); i++) {
-                Conditions ret_val = addOr(infoAction.getChild(i));
-                if (ret_val != null) {
-                    cond = ret_val;
-                }
-            }
-            NotCond not = new NotCond(cond);
-            return not;
-        } else {
-            System.out.println("OR parsing: Some serious error:" + infoAction);
-            return null;
-        }
-    }
 
-    public void generate_universe_of_variables(PredicateSet predicates, List<NumFluent> functions, List<NumFluent> derived_variables) {
 
-        this.num_fluent_universe = new LinkedHashSet();
-        this.predicates_universe = new LinkedHashSet();
-        for (Predicate p : predicates) {
-            Set<ParametersAsTerms> combos = grounder.sub(p.getTerms(), p.getTerms().size(), objects);
-//            System.out.println("Combo Found:"+combos);
-
-            for (ParametersAsTerms ele : combos) {
-                HashMap subst = create_subst(ele, p.getTerms());
-//                System.out.println("Current substitution:"+subst);
-                predicates_universe.add((Predicate) p.ground(subst, this.objects));
+    
+    
+    public void keepCopyOfVariables(Condition cond) {
+        if (cond != null && cond.getInvolvedPredicates() != null){
+            for (Predicate p : cond.getInvolvedPredicates()) {
+                PddlProblem.this.keepUniqueVariable(p);
             }
-            if (p.getTerms().isEmpty()) {
-                predicates_universe.add(p);
-            }
-        }
-        for (NumFluent nf : functions) {
-            Set<ParametersAsTerms> combos = grounder.sub(nf.getTerms(), nf.getTerms().size(), objects);
-            for (ParametersAsTerms ele : combos) {
-                HashMap subst = create_subst(ele, nf.getTerms());
-                num_fluent_universe.add((NumFluent) nf.ground(subst, this.objects));
-            }
-            if (nf.getTerms().isEmpty()) {
-                num_fluent_universe.add(nf);
+            for (NumFluent x : cond.getInvolvedFluents()) {
+                PddlProblem.this.keepUniqueVariable(x);
             }
         }
     }
 
-    private HashMap create_subst(ParametersAsTerms ele, ArrayList terms) {
-        HashMap ret = new HashMap();
-        for (int i = 0; i < terms.size(); i++) {
-            ret.put(terms.get(i), ele.get(i));
+    public void keepUniqueVariable(GenericActionType act) {
+        
+        
+        
+        
+        for (Predicate p : act.getInvolvedPredicates()) {
+            PddlProblem.this.keepUniqueVariable(p);
         }
-        return ret;
+        for (NumFluent x : act.getInvolvedNumFluents()) {
+            PddlProblem.this.keepUniqueVariable(x);
+        }
+    }
 
+    public void keepUniqueVariable(State s) {
+        for (Predicate p : s.getPropositions()) {
+            PddlProblem.this.keepUniqueVariable(p);
+        }
+        for (NumFluent x : s.getNumericFluents()) {
+            PddlProblem.this.keepUniqueVariable(x);
+        }
+    }
+
+    private void keepUniqueVariable(Predicate p) {
+        Predicate p1 = this.predicateReference.get(p.toString());
+        if (p1 == null) {
+            this.predicateReference.put(p.toString(), p);
+        }
+    }
+
+    private void keepUniqueVariable(NumFluent x) {
+        NumFluent x1 = this.numFluentReference.get(x.toString());
+        if (x1 == null) {
+            this.numFluentReference.put(x.toString(), x);
+        }
+    }
+    
+    protected void syncVariables(Metric cond) {
+        if (cond != null && cond.getMetExpr()!= null){
+            for (NumFluent x : cond.getMetExpr().rhsFluents()) {
+                PddlProblem.this.keepUniqueVariable(x);
+            }
+        }    
     }
 }

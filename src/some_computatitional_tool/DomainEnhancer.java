@@ -1,35 +1,26 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import domain.ParametersAsTerms;
 import domain.ActionSchema;
@@ -87,8 +78,8 @@ public class DomainEnhancer {
         f = new BufferedWriter(new FileWriter(getDomainEnhancedFileName()));
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -97,8 +88,8 @@ public class DomainEnhancer {
             f.write(constants);
         }
         f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -131,8 +122,8 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null && !domain.requirements.isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -141,8 +132,8 @@ public class DomainEnhancer {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
         f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -184,8 +175,8 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null && !domain.requirements.isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -196,8 +187,8 @@ public class DomainEnhancer {
         if (domain.getPredicates() != null) {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -242,8 +233,8 @@ public class DomainEnhancer {
         setConstantsFound(constants);
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null && !domain.getRequirements().isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null && !domain.requirements.isEmpty()) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -252,8 +243,8 @@ public class DomainEnhancer {
             f.write("(:constants " + constants.pddlPrint() + ")\n");
         }
         f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -294,8 +285,8 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -304,8 +295,8 @@ public class DomainEnhancer {
         {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -319,14 +310,14 @@ public class DomainEnhancer {
         return ret;
     }
 
-    public void addEntanglementsByInit(PddlDomain domain, HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_init) {
+    public void addEntanglementsByInit(PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init) {
 
         HashMap<Object, Boolean> invariantFluent = domain.generateInvariant();
         setCondition_to_reformulation(new HashSet());
         j = 0;
         for (ActionSchema s : domain.getActionsSchema()) {
-            Set<Conditions> entanglementsByInit = action_to_entaglement_by_init.get(s);
-            for (Conditions ent : entanglementsByInit) {
+            Set<Condition> entanglementsByInit = action_to_entaglement_by_init.get(s);
+            for (Condition ent : entanglementsByInit) {
                 if (ent instanceof Predicate) {
                     Predicate entP = (Predicate) ent;
                     Predicate temp = new Predicate();
@@ -351,13 +342,13 @@ public class DomainEnhancer {
                     //System.out.println(toAddInDefinition);
                     if (!toAddInDefinition.isEmpty()) {
 
-                        //                     domain.getFunctions().addAll(toAddInDefinition);
+                        //                     domain.functions.addAll(toAddInDefinition);
                         AndCond precondition = (AndCond) s.getPreconditions();
                         precondition.addConditions(temp);
                     }
                     for (NumFluent nf : toAddInDefinition) {
                         if (!nf.getBeforeReformulation().equals("same")) {
-                            domain.getFunctions().add(nf);
+                            domain.functions.add(nf);
                             getCondition_to_reformulation().add(nf.getBeforeReformulation() + "->" + nf.getName());
                         }
                     }
@@ -388,8 +379,8 @@ public class DomainEnhancer {
             i++;
         }
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (domain.getRequirements() != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(domain.getRequirements()) + ")\n");
+        if (domain.requirements != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(domain.requirements) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -398,8 +389,8 @@ public class DomainEnhancer {
         {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
-        if (!domain.getFunctions().isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(domain.getFunctions()) + ")\n");
+        if (!domain.functions.isEmpty()) {
+            f.write("(:functions " + Utils.toPDDLSet(domain.functions) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -455,11 +446,11 @@ public class DomainEnhancer {
         this.condition_to_reformulation = condition_to_reformulation;
     }
 
-    public void addEntanglementsByGoal(PddlDomain domain, HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_goal) {
+    public void addEntanglementsByGoal(PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal) {
         goalCondition_Reformulation = new HashSet();
         for (ActionSchema s : domain.getActionsSchema()) {
-            Set<Conditions> entanglementsByGoal = action_to_entaglement_by_goal.get(s);
-            for (Conditions ent : entanglementsByGoal) {
+            Set<Condition> entanglementsByGoal = action_to_entaglement_by_goal.get(s);
+            for (Condition ent : entanglementsByGoal) {
                 if (ent instanceof Predicate) {
                     Predicate entP = (Predicate) ent;
                     Predicate temp = new Predicate();

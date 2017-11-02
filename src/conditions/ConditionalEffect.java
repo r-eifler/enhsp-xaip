@@ -1,26 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
@@ -32,8 +26,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -43,67 +41,76 @@ import problem.State;
  *
  * @author enrico
  */
-public class ConditionalEffect extends Conditions implements PostCondition {
+public class ConditionalEffect extends Condition implements PostCondition {
 
-    public Conditions activation_condition;
+    public Condition activation_condition;
     public PostCondition effect;
 
     public ConditionalEffect() {
         super();
-
+        activation_condition = new AndCond();
+        effect = new AndCond();
     }
 
-    public ConditionalEffect(Conditions lhs, PostCondition rhs) {
-        super();
-
+    public ConditionalEffect(Condition lhs, PostCondition rhs) {
+        this();
         this.activation_condition = lhs;
-        effect = rhs;
+        if (rhs instanceof AndCond){
+            ((AndCond) effect).sons.addAll(((AndCond) rhs).sons);
+        }else{
+            ((AndCond) effect).sons.add(rhs);
+        }
 
     }
 
-    public Conditions clone() {
+    public Condition clone() {
         return new ConditionalEffect(activation_condition.clone(), (PostCondition) effect.clone());
     }
 
     public String toString() {
-        return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
+        if (this.activation_condition!=null)
+            return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
+        return null;
     }
 
     public ConditionalEffect weakEval(State s, HashMap invF) {
-        this.activation_condition.weakEval(s, invF);
-        if (this.effect instanceof Conditions) {
-            Conditions con = (Conditions) this.effect;
-            con.weakEval(s, invF);
+        this.activation_condition = this.activation_condition.weakEval(s, invF);
+        if (this.effect instanceof Condition) {
+            Condition con = (Condition) this.effect;
+            this.effect = (PostCondition) con.weakEval(s, invF);
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
-            sub.weakEval(s, invF);
+            this.effect = sub.weakEval(s, invF);
+            
         } else if (this.effect instanceof NumEffect) {
             NumEffect ne = (NumEffect) this.effect;
-            ne.weakEval(s, invF);
+            this.effect = (PostCondition) ne.weakEval(s, invF);
         }
         return this;
     }
 
     public ConditionalEffect ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ConditionalEffect ret = new ConditionalEffect();
-        ret.activation_condition = this.activation_condition.ground(substitution, po);
+//        if (ret.activation_condition!=null){
+            ret.activation_condition = this.activation_condition.ground(substitution, po);
 
-        if (this.effect instanceof Conditions) {
-            Conditions con = (Conditions) this.effect;
-            ret.effect = (PostCondition) con.ground(substitution, po);
-        } else if (this.effect instanceof ConditionalEffect) {
-            ConditionalEffect sub = (ConditionalEffect) this.effect;
-            ret.effect = sub.ground(substitution, po);
-        } else if (this.effect instanceof NumEffect) {
-            NumEffect ne = (NumEffect) this.effect;
-            ret.effect = (NumEffect) ne.ground(substitution, po);
-        }
+            if (this.effect instanceof Condition) {
+                Condition con = (Condition) this.effect;
+                ret.effect = (PostCondition) con.ground(substitution, po);
+            } else if (this.effect instanceof ConditionalEffect) {
+                ConditionalEffect sub = (ConditionalEffect) this.effect;
+                ret.effect = sub.ground(substitution, po);
+            } else if (this.effect instanceof NumEffect) {
+                NumEffect ne = (NumEffect) this.effect;
+                ret.effect = (NumEffect) ne.ground(substitution, po);
+            }
+//        }
         ret.grounded = true;
         return ret;
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
+    public Condition ground(Map substitution, int c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -119,7 +126,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
 
     @Override
     public boolean isSatisfied(State s) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return s.satisfy(activation_condition);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -135,8 +143,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     @Override
     public void normalize() {
         this.activation_condition.normalize();
-        if (this.effect instanceof Conditions) {
-            Conditions con = (Conditions) this.effect;
+        if (this.effect instanceof Condition) {
+            Condition con = (Condition) this.effect;
             con.normalize();
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
@@ -148,12 +156,12 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -168,7 +176,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -178,7 +186,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -193,8 +201,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
-        Conditions c = this.effect.achieve(p);
+    public Condition achieve(Predicate p) {
+        Condition c = this.effect.achieve(p);
         if (c == null) {
             return null;
         }
@@ -212,8 +220,8 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions delete(Predicate p) {
-        Conditions c = this.effect.delete(p);
+    public Condition delete(Predicate p) {
+        Condition c = this.effect.delete(p);
         if (c == null) {
             return null;
         }
@@ -231,10 +239,10 @@ public class ConditionalEffect extends Conditions implements PostCondition {
 
     @Override
     public int hashCode() {
-        final int condHash = activation_condition.hashCode();
-        final int effHash = effect.hashCode();
-        final int result = (condHash * effHash) + condHash;
-        return result;
+        int hash = 3;
+        hash = 89 * hash + Objects.hashCode(this.activation_condition);
+        hash = 89 * hash + Objects.hashCode(this.effect);
+        return hash;
     }
 
     @Override
@@ -242,27 +250,23 @@ public class ConditionalEffect extends Conditions implements PostCondition {
         if (this == obj) {
             return true;
         }
-
         if (obj == null) {
             return false;
         }
-
-        if (!(obj instanceof ConditionalEffect)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-
         final ConditionalEffect other = (ConditionalEffect) obj;
-
-        if (!this.activation_condition.equals(other.activation_condition)) {
+        if (!Objects.equals(this.activation_condition, other.activation_condition)) {
             return false;
         }
-
-        if (!this.effect.equals(other.effect)) {
+        if (!Objects.equals(this.effect, other.effect)) {
             return false;
         }
-
         return true;
     }
+
+
 
     @Override
     public HashMap<Object, Object> apply(RelState s) {
@@ -307,8 +311,16 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Set<Condition> getTerminalConditions() {
+        LinkedHashSet ret = new LinkedHashSet();
+        
+        if (effect == null || this.activation_condition == null)
+            return ret;
+        ret.addAll(((Condition)effect).getTerminalConditions());
+        ret.addAll(activation_condition.getTerminalConditions());
+
+                
+        return ret;
     }
 
     @Override
@@ -317,7 +329,7 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -327,8 +339,9 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
-        this.activation_condition = this.activation_condition.push_not_to_terminals();
+    public Condition push_not_to_terminals() {
+        if (this.activation_condition != null)
+            this.activation_condition = this.activation_condition.push_not_to_terminals();
         return this;
         //To change body of generated methods, choose Tools | Templates.
     }
@@ -339,12 +352,36 @@ public class ConditionalEffect extends Conditions implements PostCondition {
     }
 
     @Override
-    public Conditions introduce_red_constraints() {
+    public Condition introduce_red_constraints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Set<NumFluent> affectedNumericFluents() {
-        return this.effect.affectedNumericFluents();
+        if (this.effect != null)
+            return this.effect.affectedNumericFluents();
+        else
+            return new HashSet();
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        LinkedHashSet ret = new LinkedHashSet();
+        this.activation_condition = this.activation_condition.unifyVariablesReferences(p);
+        this.effect = (PostCondition) ((Condition)this.effect).unifyVariablesReferences(p);
+        return this;
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        Set<Predicate> ret = new LinkedHashSet();
+        ret.addAll(this.activation_condition.getInvolvedPredicates());
+        ret.addAll(((Condition)this.effect).getInvolvedPredicates());
+        return ret;
     }
 }

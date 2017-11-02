@@ -1,33 +1,28 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
+import conditions.Condition;
 import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
@@ -59,22 +54,22 @@ public class Aibr_rp extends Heuristic {
     public boolean extract_plan = false;
     private boolean reversing = false;
     private HashMap<GroundAction, GroundAction> supp_to_action;
-    private HashMap<Conditions, Integer> cond_level;
+    private HashMap<Condition, Integer> cond_level;
     private HashMap<GroundAction, Integer> supporter_level;
     private HashMap<Integer, LinkedHashSet<GroundAction>> supporters_exec_at_time_index;
-    private HashMap<Integer, LinkedHashSet<Conditions>> conditions_sat_at_time_index;
+    private HashMap<Integer, LinkedHashSet<Condition>> conditions_sat_at_time_index;
     private HashMap<Integer, GroundAction> supp_to_actions;
     protected ArrayList<Integer> dist;
     public boolean layers_counter;
     private boolean cost_oriented = true;
 
-    public Aibr_rp(Conditions G, Set<GroundAction> actions) {
+    public Aibr_rp(ComplexCondition G, Set<GroundAction> actions) {
         super(G, actions);
         Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
     }
 
-    public Aibr_rp(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
+    public Aibr_rp(ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
@@ -352,7 +347,7 @@ public class Aibr_rp extends Heuristic {
             this.conditions_sat_at_time_index.put(t, new LinkedHashSet());
         }
 
-        for (Conditions c : (Collection<Conditions>) G.getTerminalConditions()) {
+        for (Condition c : (Collection<Condition>) G.getTerminalConditions()) {
             Utils.dbg_print(debug, "[" + dist.get(c.getCounter()) + "]Goal atom:" + c + "\n");
             this.conditions_sat_at_time_index.get(dist.get(c.getCounter())).add(c);
         }
@@ -362,10 +357,10 @@ public class Aibr_rp extends Heuristic {
 
         Utils.dbg_print(debug, "Layer(goals):" + i);
         while (k > 0) {
-            LinkedHashSet<Conditions> g_new = new LinkedHashSet();
+            LinkedHashSet<Condition> g_new = new LinkedHashSet();
             Utils.dbg_print(debug, "\nLayer " + k + ":");
 
-            for (Conditions g : this.conditions_sat_at_time_index.get(k)) {
+            for (Condition g : this.conditions_sat_at_time_index.get(k)) {
                 //System.out.println("Open goals:"+g);
                 GroundAction candidate = null;
                 Utils.dbg_print(debug, "Condition under analysis:" + g);
@@ -373,7 +368,7 @@ public class Aibr_rp extends Heuristic {
                     Utils.dbg_print(debug, "Trying this action:" + gr);
                     if (achiever(gr, rs2, g)) {
                         if (gr.getPreconditions() != null) {
-                            for (Conditions c : (Collection<Conditions>) gr.getPreconditions().getTerminalConditions()) {
+                            for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
                                 //System.out.println("Precondition level:"+dist.get(c));
 //                                Utils.dbg_print(debug,"instances of"+c.getClass());
                                 Utils.dbg_print(debug, "Candidate implications:[" + this.dist.get(c.getCounter()) + "]" + c);
@@ -396,7 +391,7 @@ public class Aibr_rp extends Heuristic {
                         for (GroundAction gr : this.supporters_exec_at_time_index.get(t)) {
                             gr.apply(temp);
                             if (gr.getPreconditions() != null) {
-                                for (Conditions c : (Collection<Conditions>) gr.getPreconditions().getTerminalConditions()) {
+                                for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
                                     //System.out.println("Precondition level:"+dist.get(c));
                                     this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
                                 }
@@ -428,7 +423,7 @@ public class Aibr_rp extends Heuristic {
         while (k < i) {
             Utils.dbg_print(debug, "\nGoing all the way up to the goal:" + k);
             boolean go_ahead = true;
-            for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
+            for (Condition c : this.conditions_sat_at_time_index.get(k + 1)) {
                 if (!c.can_be_true(rs2)) {
                     go_ahead = false;
                 }
@@ -440,7 +435,7 @@ public class Aibr_rp extends Heuristic {
                 }
                 for (GroundAction gr : to_add.get(k)) {
 
-                    for (Conditions c : this.conditions_sat_at_time_index.get(k + 1)) {
+                    for (Condition c : this.conditions_sat_at_time_index.get(k + 1)) {
                         if (!c.can_be_true(rs2)) {
                             go_ahead = false;
                         }
@@ -482,7 +477,7 @@ public class Aibr_rp extends Heuristic {
             GroundAction gr = it.next();
             boolean add_action = true;
             if (gr.getPreconditions().getTerminalConditions() != null) {
-                for (Conditions c : (Collection<Conditions>) gr.getPreconditions().getTerminalConditions()) {
+                for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
                     if (c.can_be_true(rs)) {
                         if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
                             this.dist.set(c.getCounter(), i);
@@ -503,9 +498,9 @@ public class Aibr_rp extends Heuristic {
 
     }
 
-    private boolean check_goal_condition(Conditions G, int i, RelState rs) {
+    private boolean check_goal_condition(Condition G, int i, RelState rs) {
         boolean goal_satisfied = true;
-        for (Conditions c : (Collection<Conditions>) G.getTerminalConditions()) {
+        for (Condition c : (Collection<Condition>) G.getTerminalConditions()) {
             if (c.can_be_true(rs)) {
                 if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
                     this.dist.set(c.getCounter(), i);
@@ -518,7 +513,7 @@ public class Aibr_rp extends Heuristic {
         return goal_satisfied;
     }
 
-    private boolean achiever(GroundAction gr, RelState rs2, Conditions g) {
+    private boolean achiever(GroundAction gr, RelState rs2, Condition g) {
         RelState temp = rs2.clone();
         if (gr.apply(temp).satisfy(g)) {
             return true;
@@ -527,7 +522,7 @@ public class Aibr_rp extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Conditions cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, ComplexCondition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {
@@ -535,7 +530,7 @@ public class Aibr_rp extends Heuristic {
                 ConditionalEffect cond = (ConditionalEffect) o;
                 GroundAction a = new GroundAction(name + counter);
                 a.getPreconditions().sons.add(cond.activation_condition);
-                PddlDomain.create_effects_by_cases(cond.effect, a);
+                a.create_effects_by_cases(cond.effect);
                 ret.add(a);
                 counter++;
             }

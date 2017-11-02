@@ -1,34 +1,26 @@
-/**
- * *******************************************************************
+/*
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package problem;
 
 import conditions.AndCond;
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.NotCond;
 import conditions.NumFluentValue;
 import conditions.OrCond;
@@ -39,6 +31,7 @@ import domain.EventSchema;
 import domain.GenericActionType;
 import domain.ProcessSchema;
 import domain.SchemaGlobalConstraint;
+import domain.Type;
 import domain.Variable;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
@@ -54,7 +47,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import propositionalFactory.grounder;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -76,7 +69,8 @@ public class EPddlProblem extends PddlProblem {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects);
+
+        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
         cloned.processesSet = new LinkedHashSet();
         for (GroundAction gr : this.actions) {
             cloned.actions.add((GroundAction) gr.clone());
@@ -92,24 +86,17 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public EPddlProblem(String problemFile) {
-        super(problemFile);
-        globalConstraintSet = new LinkedHashSet();
-        processesSet = new LinkedHashSet();
-        eventsSet = new LinkedHashSet();
-
-        globalConstraintGrounded = false;
-        processesGround = false;
-        grounding = false;
+    public EPddlProblem() {
 
     }
 
-    public EPddlProblem(String problemFile, PDDLObjects po) {
-        super(problemFile, po);
+    public EPddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
+        super(problemFile, po, types);
         globalConstraintSet = new LinkedHashSet();
         globalConstraintGrounded = false;
         eventsSet = new LinkedHashSet();
-
+        globalConstraints = new AndCond();
+        metric = new Metric();
         grounding = false;
     }
 
@@ -129,7 +116,7 @@ public class EPddlProblem extends PddlProblem {
     public void generateActions() throws Exception {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
                 //if (act.getPar().size() != 0) {
@@ -155,12 +142,12 @@ public class EPddlProblem extends PddlProblem {
 
         this.simplifications_action_processes_constraints();
 
-        this.transform_numeric_condition();
+        this.transformNumericConditionsInActions();
 
     }
 
     @Override
-    public HashMap getActualFluents() throws Exception {
+    public HashMap getActualFluents() {
         if (staticFluents == null) {
 //            if ((this.getActions() == null || this.getActions().isEmpty()) && (this.processesSet == null || this.processesSet.isEmpty())) {
 //                this.grounding_action_processes_constraints();
@@ -190,7 +177,7 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         processesSet = new LinkedHashSet();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
                 if (process.getParameters().size() != 0) {
@@ -212,7 +199,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void transform_numeric_condition() throws Exception {
+    public void transformNumericConditionsInActions() throws Exception {
 
         for (GroundAction gr : (Collection<GroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
@@ -326,7 +313,7 @@ public class EPddlProblem extends PddlProblem {
 //            for (ActionSchema a:this.linkedDomain.getProcessesSchema()){
 //                A_primo.addAll(ground(a,s));
 //                A_primo.removeAll(reachable);
-//                
+//
 //            }
             if (A_primo.isEmpty()) {
                 System.out.println("Reachable(" + reachable.size() + "):");
@@ -440,10 +427,10 @@ public class EPddlProblem extends PddlProblem {
 
         } else if (a instanceof NotCond) {//this is problematique.
             NotCond nc = (NotCond) a;
-            subst = grounder.substitutions(nc.getInvolvedVariables(), objects);
+            subst = Grounder.substitutions(nc.getInvolvedVariables(), objects);
 //            for (Object o: nc.son){
             subst.removeAll(this.find_substs(nc.getSon(), s));
-//            }           
+//            }
         } else if (a instanceof ActionSchema) {
             ActionSchema gr = (ActionSchema) a;
             if (gr.getPar() == null || gr.getPar().isEmpty()) {
@@ -499,15 +486,15 @@ public class EPddlProblem extends PddlProblem {
         /*In this setting here, you have to generate a number of substitutions. Each one of them is a possible grounding of the
         action according to its effect. This has to be intersected with what we have discovered so far, but still it has to be done*/
         //add list
-        subst = intersect(subst, grounder.substitutions(gr.getAddList().getInvolvedVariables(), objects));
-        subst = intersect(subst, grounder.substitutions(gr.getDelList().getInvolvedVariables(), objects));
+        subst = intersect(subst, Grounder.substitutions(gr.getAddList().getInvolvedVariables(), objects));
+        subst = intersect(subst, Grounder.substitutions(gr.getDelList().getInvolvedVariables(), objects));
 
         subst = intersect(subst, this.find_substs(gr.getNumericEffects(), s));
 
-        subst = intersect(subst, grounder.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
+        subst = intersect(subst, Grounder.substitutions(gr.getNumericEffects().getInvolvedVariables(), objects));
 
         //the following is a (failed) attempt to optimise the thing
-//        
+//
 //                ArrayList<Variable> alread_assigned = new ArrayList();
 //        for (HashMap<Variable,PDDLObject> t : subst){
 //            alread_assigned.addAll(t.keySet());
@@ -520,11 +507,11 @@ public class EPddlProblem extends PddlProblem {
 //        temp = new ArrayList(gr.getDelList().getInvolvedVariables());
 //        temp.retainAll(alread_assigned);
 //        subst = intersect(subst,Instantiator.substitutions(temp, objects));
-//         
+//
 //        subst = intersect(subst,this.find_substs(gr.getNumericEffects(), s));
-//        
+//
 //        temp = new ArrayList(gr.getNumericEffects().getInvolvedVariables());
-//        temp.retainAll(alread_assigned);       
+//        temp.retainAll(alread_assigned);
 //        subst = intersect(subst,Instantiator.substitutions(temp, objects));
         return subst;
     }
@@ -610,7 +597,7 @@ public class EPddlProblem extends PddlProblem {
 
     public void generateConstraints() throws Exception {
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
+            Grounder af = new Grounder();
             for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
 
@@ -631,6 +618,8 @@ public class EPddlProblem extends PddlProblem {
 
     public void grounding_action_processes_constraints() throws Exception {
         long start = System.currentTimeMillis();
+
+        this.groundGoals();
         this.generateActions();
         this.generateProcesses();
         this.generateConstraints();
@@ -646,6 +635,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
+        syncAllVariables();
 
     }
 
@@ -681,7 +671,7 @@ public class EPddlProblem extends PddlProblem {
             if (!keep) {
 //                System.out.println("Pruning action:"+act.getName());
                 it.remove();
-            } 
+            }
         }
 //        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
@@ -739,7 +729,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         this.globalConstraintGrounded = true;
-        goals = goals.weakEval(init, staticFluents);
+        goals = (ComplexCondition) goals.weakEval(init, staticFluents);
         goals.normalize();
 
         if (this.metric != null && this.metric.getMetExpr() != null) {
@@ -752,8 +742,7 @@ public class EPddlProblem extends PddlProblem {
         remove_static_part_of_state();
         remove_num_fluents_not_involved_in_preconditions();
         add_possible_numeric_fluents_from_assignments();
-        fix_num_fluents_unique_hashcode();
-        
+        makeArraysRepresentations();
         propagate_new_num_fluents_hash();
         set_actions_costs();
     }
@@ -767,8 +756,8 @@ public class EPddlProblem extends PddlProblem {
     private void generateEvents() {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            grounder af = new grounder();
-            for (EventSchema event_schema : (Set<EventSchema>) linkedDomain.getEventSchema()) {
+            Grounder af = new Grounder();
+            for (EventSchema event_schema : (Collection<EventSchema>) linkedDomain.eventsSchema) {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
                     try {
@@ -796,22 +785,17 @@ public class EPddlProblem extends PddlProblem {
         LinkedHashSet<Predicate> to_remove = new LinkedHashSet();
         for (Predicate p : s.getPropositions()) {
             if (this.getActualFluents().get((Object) p) == null) {
-//                System.out.println("Proposition to remove"+p);
                 to_remove.add(p);
             }
         }
         LinkedHashSet<NumFluent> n_fluents_to_remove = new LinkedHashSet();
         for (NumFluent p : s.getNumericFluents()) {
             if (this.getActualFluents().get((Object) p) == null) {
-//                System.out.println("Fluent to remove"+p);
                 n_fluents_to_remove.add(p);
             }
         }
-//        System.out.println(this.getVariantFluents());
         s.removeNumericFluents(n_fluents_to_remove);
         s.removePropositions(to_remove);
-
-        //cost-related fluents
     }
 
     private void remove_num_fluents_not_involved_in_preconditions() {
@@ -827,7 +811,7 @@ public class EPddlProblem extends PddlProblem {
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
         }
-        for (EventSchema a : this.linkedDomain.getEventSchema()) {
+        for (EventSchema a : this.linkedDomain.eventsSchema) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
@@ -837,11 +821,10 @@ public class EPddlProblem extends PddlProblem {
         }
         involved_fluents.addAll(goals.getInvolvedFluents());
 
-        Iterator<NumFluent> it = this.init.getNum_fluents_value().keySet().iterator();
+        Iterator<NumFluent> it = this.init.getInitNumFluents().keySet().iterator();
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
-            if (!nf2.getName().equals("time_elapsed")) {
-
+//            if (!nf2.getName().equals("time_elapsed")) {
                 boolean keep_it = false;
                 for (NumFluent nf : involved_fluents) {
                     if (nf.getName().equals(nf2.getName())) {
@@ -853,21 +836,62 @@ public class EPddlProblem extends PddlProblem {
                     nf2.setHas_to_be_tracked(false);
                     it.remove();
                 }
-            }
+//            }
         }
 
     }
 
-    private void fix_num_fluents_unique_hashcode() {
-        int counter = 0;
+    private void makeArraysRepresentations() {
 //        System.out.println("Put numeric information into memory!");
-        this.init.current_fluent_values = new ArrayList<>(nCopies(this.init.getNum_fluents_value().keySet().size() + 1, null));
-        for (NumFluent nf : this.init.getNum_fluents_value().keySet()) {
-            nf.setId(counter);
-            this.init.current_fluent_values.set(counter, this.init.static_function_value(nf));
-            counter++;
-//            System.out.println(nf);
+        this.init.currNumFluentsValues = new ArrayList();
+
+        for (NumFluent nf : this.numFluentReference.values()) {
+            if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
+                nf.setId(this.init.currNumFluentsValues.size());
+                this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
+                this.init.numFluents.add(nf);
+            }
         }
+        this.init.currPredValues = new ArrayList();
+        for (Predicate p : this.predicateReference.values()) {
+            if (this.getActualFluents().get(p) != null) {
+                p.id = this.init.currPredValues.size();
+                Boolean r = this.init.initPred.get(p);
+                if (r == null || !r) {
+                    this.init.currPredValues.add(false);
+                } else {
+                    this.init.currPredValues.add(true);
+                }
+                this.init.predFluents.add(p);
+            }
+        }
+//        System.out.println(this.init.currPredValues);
+//        System.out.println(this.init.currNumFluentsValues);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public void noInvariantArraysRepresentations() {
+//        System.out.println("Put numeric information into memory!");
+        this.init.currNumFluentsValues = new ArrayList();
+
+        for (NumFluent nf : this.numFluentReference.values()) {
+                nf.setId(this.init.currNumFluentsValues.size());
+                this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
+                this.init.numFluents.add(nf);
+        }
+        this.init.currPredValues = new ArrayList();
+        for (Predicate p : this.predicateReference.values()) {
+                p.id = this.init.currPredValues.size();
+                Boolean r = this.init.initPred.get(p);
+                if (r == null || !r) {
+                    this.init.currPredValues.add(false);
+                } else {
+                    this.init.currPredValues.add(true);
+                }
+                this.init.predFluents.add(p);
+        }
+//        System.out.println(this.init.currPredValues);
+//        System.out.println(this.init.currNumFluentsValues);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -905,6 +929,40 @@ public class EPddlProblem extends PddlProblem {
             } else {
                 act.set_unit_cost(init);
             }
+        }
+    }
+
+    public Boolean goalSatisfied(State s) {
+        return s.satisfy(this.getGoals());
+    }
+
+    private void groundGoals() {
+
+        this.goals = (ComplexCondition) this.goals.ground(new HashMap(), objects);
+
+    }
+
+    public void syncAllVariables() {
+
+        for (GenericActionType act : this.actions) {
+            act.unifyVariablesReferences(this);
+        }
+        for (GenericActionType act : this.eventsSet) {
+            act.unifyVariablesReferences(this);
+        }
+        if (this.processesSet != null){
+            for (GenericActionType act : this.processesSet) {
+                act.unifyVariablesReferences(this);
+            }
+        }
+        goals = (ComplexCondition) goals.unifyVariablesReferences(this);
+        globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(this);
+        init.unifyVariablesReferences(this);
+        if (metric != null) {
+            metric = metric.unifyVariablesReferences(this);
+        }
+        if (belief != null){
+            belief = belief.unifyVariablesReferences(this);
         }
     }
 

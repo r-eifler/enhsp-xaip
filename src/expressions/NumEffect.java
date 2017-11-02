@@ -1,35 +1,25 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package expressions;
 
-import conditions.Conditions;
-import conditions.NumFluentValue;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;
@@ -41,6 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -225,6 +216,7 @@ public class NumEffect extends Expression implements PostCondition {
     public Expression weakEval(State s, HashMap invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
+        this.right.setFreeVarSemantic(freeVarSemantic);
         this.setRight(this.right.weakEval(s, invF));
         if (this.right == null) {
             //System.out.println(this);
@@ -241,7 +233,7 @@ public class NumEffect extends Expression implements PostCondition {
             this.setFluentAffected(nf);
         } else {//this can become a state variable; so conservatively keeps track of it
             //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
-            s.getNum_fluents_value().put(fluentAffected, null);
+            s.getInitNumFluents().put(fluentAffected, null);
         }
         return this;
     }
@@ -285,18 +277,19 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition input) {
 
         //NumEffect ret = (NumEffect)this.clone();
         NumEffect ret = (NumEffect) this.clone();
-        ret.right = ret.right.subst(numeric);
+        ret.right = ret.right.subst(input);
 
-        if (numeric == null) {
+        if (input == null) {
             return ret;
         }
-        if (numeric.sons.isEmpty()) {
+        if (!(input instanceof ComplexCondition))
             return ret;
-        }
+        
+        ComplexCondition numeric = (ComplexCondition)input;
 
         if (ret.getOperator().equals("assign")) {
             return ret;
@@ -472,12 +465,12 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
+    public Condition achieve(Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Conditions delete(Predicate p) {
+    public Condition delete(Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -620,5 +613,12 @@ public class NumEffect extends Expression implements PostCondition {
         Set<NumFluent> ret = new HashSet();
         ret.add(fluentAffected);
         return ret;
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        this.fluentAffected = (NumFluent) this.fluentAffected.unifyVariablesReferences(p);
+        this.right = right.unifyVariablesReferences(p);
+        return this;
     }
 }

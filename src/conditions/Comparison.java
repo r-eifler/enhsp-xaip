@@ -1,29 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
@@ -47,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -183,7 +175,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Comparison ret = new Comparison(comparator);
 
         ret.left = left.ground(substitution, po);
@@ -193,8 +185,8 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -410,7 +402,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         Comparison ret = new Comparison(this.comparator);
         ret.grounded = this.grounded;
         ret.left = this.left.clone();
@@ -646,7 +638,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
 
         Comparison ret = new Comparison(comparator);
 
@@ -747,7 +739,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions c) {
+    public boolean isUngroundVersionOf(Condition c) {
         if (c instanceof Comparison) {
             Comparison comp = (Comparison) c;
             if (comp.getComparator().equals(this.getComparator())) {
@@ -853,7 +845,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         Comparison comp = this;
         Expression lValue = comp.getLeft();
         Expression rValue = comp.getRight();
@@ -920,7 +912,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         AndCond ret = new AndCond();
         Comparison comp = (Comparison) this;
         if (comp.getComparator().equals("=")) {
@@ -955,7 +947,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -1096,7 +1088,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         Set ret = new LinkedHashSet();
         ret.add(this);
         return ret;
@@ -1108,7 +1100,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -1126,11 +1118,11 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
     }
 
-    Conditions invertOperator() {
+    Condition invertOperator() {
         if (this.getComparator().equals("=")) {
             OrCond a = new OrCond();
             Comparison c1 = (Comparison) this.clone();
@@ -1159,5 +1151,25 @@ public class Comparison extends Terminal {
             return c1;
         }
     }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        return new HashSet();
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        this.left = this.getLeft().unifyVariablesReferences(p);
+        this.right = this.getRight().unifyVariablesReferences(p);
+        return this;
+    }
+    
+    
+
 
 }

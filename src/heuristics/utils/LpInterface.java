@@ -1,12 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics.utils;
 
 import conditions.AndCond;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -22,17 +36,17 @@ public abstract class LpInterface {
     public int n_invocations;
     public boolean integer_variables;
     public boolean additive_h;
-    public Conditions gc;
-    public Conditions c;
+    public ComplexCondition gc;
+    public ComplexCondition c;
 
     //this is for set of conditions
-    public LpInterface(Set<Conditions> cond, Conditions global_constraint) {
+    public LpInterface(Set<ComplexCondition> cond, ComplexCondition global_constraint) {
         super();
         AndCond c = new AndCond();
         c.sons.addAll(cond);
     }
 
-    public LpInterface(Conditions cond, Conditions global_constraint) {
+    public LpInterface(ComplexCondition cond, ComplexCondition global_constraint) {
         super();
         c = cond;
         gc = global_constraint;
@@ -48,6 +62,6 @@ public abstract class LpInterface {
 
     protected abstract void init_condition(Collection<GroundAction> pool, State s_0);
 
-    protected abstract void update_condition(State s_0, Conditions temp);
+    protected abstract void update_condition(State s_0, ComplexCondition temp);
 
 }

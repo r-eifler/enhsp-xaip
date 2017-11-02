@@ -1,33 +1,25 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.ActionParameter;
 import domain.Variable;
@@ -37,6 +29,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -54,45 +47,45 @@ public class NumFluent extends Expression {
     private String terms_as_string;
     Integer hash_code;
     public int index;
-    private Integer id;
+    public Integer id;
     private Integer actual_hash;
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        NumFluent objF = (NumFluent) obj;
-
-        if (objF.getName().equalsIgnoreCase(this.getName()) && this.getTermsAsString().equalsIgnoreCase(objF.getTermsAsString())) {
-            return true;
-        }
-        return false;
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.name);
+        hash = 89 * hash + Objects.hashCode(this.terms);
+        return hash;
     }
 
     @Override
-    public int hashCode() {
-
-//        if (this.hash_code == null) {
-//            int hash = 7;
-//            hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
-//            hash = 79 * hash + (this.terms_as_string != null ? this.terms_as_string.hashCode() : 0);
-//            this.hash_code = hash;
-//        }
-//
-//        return this.hash_code;
-        if (actual_hash == null) {
-            actual_hash = 5;
-
-            actual_hash = 97 * actual_hash + Objects.hashCode(this.name);
-            if (terms_as_string == null) {
-                terms_as_string = this.terms.toString();
-            }
-            actual_hash = 97 * actual_hash + Objects.hashCode(this.terms_as_string);
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return actual_hash;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        
+        
+        final NumFluent other = (NumFluent) obj;
+        
+
+        
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.terms, other.terms)) {
+            return false;
+        }
+        return true;
     }
+
+    
 
 //    @Override
 //    public int hashCode() {
@@ -248,7 +241,11 @@ public class NumFluent extends Expression {
             return s.static_function_value(this);
         }
 
-        if ((invF.get(this) == null)) {//this means that the fluent can be in principle assigned
+        if ((invF.get(this) == null)) {//this means that the fluent cannot be in principle assigned
+            PDDLNumber o = s.static_function_value(this);
+            if (o == null && this.freeVarSemantic) {
+                return s.findCorrespondenceIfAny(this);
+            }
             return s.static_function_value(this);
         }
         if (invF.get(this) != null) {
@@ -279,11 +276,6 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression clone() {
-//        NumFluent ret = new NumFluent(this.name);
-//        ret.terms = (ArrayList)this.terms.clone();
-//        ret.variables = (ArrayList)this.variables.clone();
-//        ret.grounded = this.grounded;
-//        return ret;
         return this;
     }
 
@@ -298,14 +290,15 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression subst(Conditions numeric) {
+    public Expression subst(Condition input) {
 
-        if (numeric == null) {
+        if (input == null) {
             return this;
         }
-        if (numeric.sons.isEmpty()) {
+        if (!(input instanceof ComplexCondition))
             return this;
-        }
+        
+        ComplexCondition numeric = (ComplexCondition)input;
 
         for (Object o : numeric.sons) {
             if (o instanceof NumEffect) {
@@ -489,5 +482,16 @@ public class NumFluent extends Expression {
      */
     public void setHas_to_be_tracked(Boolean has_to_be_tracked) {
         this.has_to_be_tracked = has_to_be_tracked;
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        NumFluent t = p.numFluentReference.get(this.toString());
+        if (t == null){
+            p.numFluentReference.put(this.toString(),this);
+            return this;
+        }
+        return t;
+
     }
 }

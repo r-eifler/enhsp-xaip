@@ -1,33 +1,25 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package expressions;
 
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
 import java.util.ArrayList;
@@ -38,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -494,10 +487,11 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public ExtendedNormExpression subst(Conditions numeric) {
-        if (numeric == null || numeric.sons == null || numeric.sons.size() == 0) {
+    public ExtendedNormExpression subst(Condition input) {
+        if (!(input instanceof ComplexCondition))
             return this;
-        }
+        
+        ComplexCondition numeric = (ComplexCondition)input;
 
         ExtendedNormExpression result = new ExtendedNormExpression();
         result = (ExtendedNormExpression) this.clone();
@@ -551,58 +545,6 @@ public class ExtendedNormExpression extends Expression {
         return result;
     }
 
-//    public ExtendedNormExpression subst(Conditions numeric, String var) {
-//        ArrayList toAdd = new ArrayList();
-//        ArrayList toRemove = new ArrayList();
-//        Iterator it = summations.iterator();
-//        try{
-//        while (it.hasNext()) {
-//            ExtendedAddendum ad = (ExtendedAddendum) it.next();
-//            if (ad.f != null) {
-//                //System.out.println(numeric);
-//                if (numeric != null) {
-//                    for (Object o1 : numeric.sons) {
-//                        NumEffect ef = (NumEffect) o1;
-//                        NumEffect eff = (NumEffect) ef.clone();
-//                        //eff.setRight(eff.getRight().normalize());
-////                    System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
-//                        if (eff.getFluentAffected().equals(ad.f)) {
-//                            if ((eff.getOperator().equals("increase"))) {
-//                                ExtendedNormExpression res = new ExtendedNormExpression();
-//                                res.sum((ExtendedNormExpression) eff.getRight());
-//                                res.mult(ad.n);
-//                                toAdd.add(res);
-//                            } else if (eff.getOperator().equals("decrease")) {
-//                                ExtendedNormExpression res = new ExtendedNormExpression();
-//                                //System.out.println(eff);
-//                                //eff.setRight(eff.getRight().normalize());
-//                                res.sum((ExtendedNormExpression) eff.getRight());
-//                                res.mult(ad.n);
-//                                toRemove.add(res);
-//                            } else if (eff.getOperator().equals("assign")) {
-//                                ExtendedNormExpression res = new ExtendedNormExpression();
-//                                res.sum((ExtendedNormExpression) eff.getRight());
-//                                res.mult(ad.n);
-//                                toAdd.add(res);
-//                                it.remove();
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        for (Object o : toAdd) {
-//            this.sum((ExtendedNormExpression) o);
-//        }
-//        for (Object o : toRemove) {
-//            this.minus((ExtendedNormExpression) o);
-//        }
-//                                            } catch (Exception ex) {
-//                                Logger.getLogger(ExtendedNormExpression.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
-//        return this;
-//    }
     public void mult(PDDLNumber n) {
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
@@ -907,6 +849,20 @@ public class ExtendedNormExpression extends Expression {
         }
 
         bui.append(ret_val);
+    }
+
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+       
+        for (int i = 0 ; i<this.summations.size() ; i++){
+            ExtendedAddendum a = this.summations.get(i);
+            if (a.f != null){
+                a.f = (NumFluent) a.f.unifyVariablesReferences(p);
+            }
+            this.summations.set(i, a);
+        }
+        return this; 
+
     }
 
 }

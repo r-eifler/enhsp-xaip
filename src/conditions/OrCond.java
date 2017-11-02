@@ -1,29 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
@@ -50,13 +41,11 @@ import problem.State;
  *
  * @author enrico
  */
-public class OrCond extends Conditions {
+public class OrCond extends ComplexCondition {
 
-    public HashSet son; // TODO: REMOVE?
 
     public OrCond() {
         super();
-        sons = new LinkedHashSet();
     }
 
     @Override
@@ -101,11 +90,11 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
-            Conditions el = (Conditions) o;
+            Condition el = (Condition) o;
             ret.sons.add(el.ground(substitution, po));
         }
         ret.grounded = true;
@@ -113,8 +102,8 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -123,7 +112,7 @@ public class OrCond extends Conditions {
     public boolean eval(State s) {
 
         for (Object o : sons) {
-            Conditions c = (Conditions) o;
+            Condition c = (Condition) o;
             if (c.eval(s)) {
                 return true;
             }
@@ -135,7 +124,7 @@ public class OrCond extends Conditions {
     @Override
     public boolean isSatisfied(State s) {
         for (Object o : sons) {
-            Conditions c = (Conditions) o;
+            Condition c = (Condition) o;
             if (c.isSatisfied(s)) {
                 return true;
             }
@@ -147,7 +136,7 @@ public class OrCond extends Conditions {
     @Override
     public boolean can_be_true(RelState s) {
         for (Object o : sons) {
-            Conditions c = (Conditions) o;
+            Condition c = (Condition) o;
             if (c.can_be_true(s)) {
                 return true;
             }
@@ -160,13 +149,13 @@ public class OrCond extends Conditions {
     public void changeVar(Map substitution) {
 
         for (Object o : sons) {
-            Conditions el = (Conditions) o;
+            Condition el = (Condition) o;
             el.changeVar(substitution);
         }
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         OrCond ret = new OrCond();
 
 //        ret.sons = new HashSet();
@@ -197,11 +186,11 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions unGround(Map substitution) {
+    public Condition unGround(Map substitution) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
-            Conditions el = (Conditions) o;
+            Condition el = (Condition) o;
             ret.sons.add(el.unGround(substitution));
         }
         ret.grounded = false;
@@ -209,7 +198,7 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -229,9 +218,9 @@ public class OrCond extends Conditions {
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
                     ret += " " + nc.toSmtVariableString(i);
-                } else if (o instanceof Conditions) {
+                } else if (o instanceof Condition) {
                     //System.out.println(o.getClass());
-                    Conditions c = (Conditions) o;
+                    Condition c = (Condition) o;
                     ret += " " + c.toSmtVariableString(i);
                 } else {
                     System.err.println("Not Supported" + o.getClass());
@@ -254,9 +243,9 @@ public class OrCond extends Conditions {
 //                System.out.println("Testing with:"+o);
                 if (o instanceof NumFluent) {
                     ret.add((NumFluent) o);
-                } else if (o instanceof Conditions) {
+                } else if (o instanceof Condition) {
 
-                    Conditions c = (Conditions) o;
+                    Condition c = (Condition) o;
                     //System.out.println(c);
                     if (c.getInvolvedFluents() != null) {
                         ret.addAll(c.getInvolvedFluents());
@@ -278,7 +267,7 @@ public class OrCond extends Conditions {
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
                     if (nc.getSon() instanceof Predicate) {
-                        Conditions p = (Conditions) nc.getSon();
+                        Condition p = (Condition) nc.getSon();
                         if (possibleState.satisfy(p)) {
                             //System.out.println(p+" satisfiable");
                             return true;
@@ -310,7 +299,7 @@ public class OrCond extends Conditions {
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
                     if (nc.getSon() instanceof Predicate) {
-                        Conditions p = (Conditions) nc.getSon();
+                        Condition p = (Condition) nc.getSon();
                         if (possibleState.contains(p)) {
                             //System.out.println(p+" satisfiable");
                             return true;
@@ -335,14 +324,14 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         LinkedHashSet to_keep = new LinkedHashSet();
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
             while (it.hasNext()) {
                 Object o2 = it.next();
-                if (o2 instanceof Conditions) {
-                    Conditions c = (Conditions) o2;
+                if (o2 instanceof Condition) {
+                    Condition c = (Condition) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
 //                    System.out.println(c);
                     c = c.weakEval(s, invF);
@@ -386,9 +375,9 @@ public class OrCond extends Conditions {
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
                     ret += " " + nc.toSmtVariableString(k, gr, var);
-                } else if (o instanceof Conditions) {
+                } else if (o instanceof Condition) {
                     //System.out.println(o.getClass());
-                    Conditions c = (Conditions) o;
+                    Condition c = (Condition) o;
                     ret += " " + c.toSmtVariableString(k, gr, var);
                 } else {
                     System.err.println("Not Supported" + o.getClass());
@@ -402,12 +391,12 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         if (this.sons == null) {
             return this;
         }
         OrCond ret = new OrCond();
-        for (Conditions c1 : (Collection<Conditions>) this.sons) {
+        for (Condition c1 : (Collection<Condition>) this.sons) {
             ret.addConditions(c1.transform_equality());
         }
         return ret;
@@ -417,7 +406,7 @@ public class OrCond extends Conditions {
     public boolean is_affected_by(GroundAction gr) {
         if (this.sons != null && !this.sons.isEmpty()) {
 
-            for (Conditions c : (Collection<Conditions>) this.sons) {
+            for (Condition c : (Collection<Condition>) this.sons) {
                 if (c.is_affected_by(gr)) {
                     return true;
                 }
@@ -429,12 +418,12 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         OrCond con = new OrCond();
         for (Object o : this.sons) {
-            if (o instanceof Conditions) {
-                Conditions t = (Conditions) o;
-                Conditions temp = t.regress(gr);
+            if (o instanceof Condition) {
+                Condition t = (Condition) o;
+                Condition temp = t.regress(gr);
                 if (!temp.isValid()) {//needs to be satisfied
                     if (!temp.isUnsatisfiable()) {
                         if (temp instanceof OrCond) {
@@ -458,8 +447,8 @@ public class OrCond extends Conditions {
     public String pddlPrintWithExtraObject() {
         String ret_val = "(or ";
         for (Object o : sons) {
-            if (o instanceof Conditions) {
-                Conditions c = (Conditions) o;
+            if (o instanceof Condition) {
+                Condition c = (Condition) o;
                 ret_val = ret_val.concat(c.pddlPrintWithExtraObject());
             } else if (o instanceof Comparison) {
                 Comparison comp = (Comparison) o;
@@ -476,7 +465,7 @@ public class OrCond extends Conditions {
     @Override
     public boolean can_be_false(RelState s) {
         for (Object o : sons) {
-            Conditions c = (Conditions) o;
+            Condition c = (Condition) o;
             if (!c.can_be_false(s)) {
                 return false;
             }
@@ -519,8 +508,8 @@ public class OrCond extends Conditions {
     public void pddlPrint(boolean typeInformation, StringBuilder bui) {
         bui.append("(or ");
         for (Object o : sons) {
-            if (o instanceof Conditions) {
-                Conditions c = (Conditions) o;
+            if (o instanceof Condition) {
+                Condition c = (Condition) o;
                 c.pddlPrint(typeInformation, bui);
             } else {
                 System.out.println("Error in pddlPrint:" + this);
@@ -534,8 +523,8 @@ public class OrCond extends Conditions {
     public void storeInvolvedVariables(Collection<Variable> vars) {
         if (this.sons != null) {
             for (Object o : this.sons) {
-                if (o instanceof Conditions) {
-                    Conditions c = (Conditions) o;
+                if (o instanceof Condition) {
+                    Condition c = (Condition) o;
                     c.storeInvolvedVariables(vars);
                 } else if (o instanceof NumEffect) {
                     NumEffect c = (NumEffect) o;
@@ -549,12 +538,12 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         LinkedHashSet ret = new LinkedHashSet();
         if (this.sons == null) {
             return new LinkedHashSet();
         }
-        for (Conditions c : (Collection<Conditions>) this.sons) {
+        for (Condition c : (Collection<Condition>) this.sons) {
             ret.addAll(c.getTerminalConditions());
         }
         return ret;
@@ -566,7 +555,7 @@ public class OrCond extends Conditions {
             return 0f;
         }
         Float ret = Float.MAX_VALUE;
-        for (Conditions c : (Collection<Conditions>) this.sons) {
+        for (Condition c : (Collection<Condition>) this.sons) {
             if (c.estimate_cost(cond_dist, additive_h) != Float.MAX_VALUE) {
                 ret = Math.min(c.estimate_cost(cond_dist, additive_h), ret);
             }
@@ -581,7 +570,7 @@ public class OrCond extends Conditions {
         if (this.sons == null) {
             s.cost = 0f;
         } else {
-            for (Conditions c : (Collection<Conditions>) this.sons) {
+            for (Condition c : (Collection<Condition>) this.sons) {
                 achiever_set s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
                 if (s1.cost != Float.MAX_VALUE) {
                     if (s.cost > s1.cost) {
@@ -596,12 +585,12 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         if (this.sons == null) {
             return this;
         }
         OrCond res = new OrCond();
-        for (Conditions c : (Collection<Conditions>) this.sons) {
+        for (Condition c : (Collection<Condition>) this.sons) {
             c = c.push_not_to_terminals();
             res.addConditions(c);
         }
@@ -610,7 +599,7 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -619,7 +608,7 @@ public class OrCond extends Conditions {
 
     AndCond push_negation_demorgan() {
         AndCond res = new AndCond();
-        for (Conditions c : (Collection<Conditions>) this.sons) {
+        for (Condition c : (Collection<Condition>) this.sons) {
             NotCond nc = new NotCond(c);
             res.addConditions(nc);
         }
@@ -631,7 +620,7 @@ public class OrCond extends Conditions {
             return true;
         }
         boolean ret = false;
-        for (Conditions c : (Collection<Conditions>) this.sons) {
+        for (Condition c : (Collection<Condition>) this.sons) {
             if (c.isSatisfied(rs, dist, i)) {
                 ret = true;
             }
@@ -640,15 +629,24 @@ public class OrCond extends Conditions {
     }
 
     @Override
-    public Conditions introduce_red_constraints() {
+    public Condition introduce_red_constraints() {
         if (this.sons == null) {
             return this;
         }
         OrCond ret = new OrCond();
-        for (Conditions c : (Collection<Conditions>) this.sons) {
+        for (Condition c : (Collection<Condition>) this.sons) {
             ret.addConditions(c.introduce_red_constraints());
         }
         return ret;
+    }
+    
+        @Override
+    public void extendTerms(Variable v) {
+        if(this.sons == null)
+            return ;
+        for (Condition c: (Collection<Condition>)sons){
+            c.extendTerms(v);
+        }
     }
 
 }

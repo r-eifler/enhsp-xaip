@@ -1,33 +1,26 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics.advanced;
 
-import heuristics.old.Uniform_cost_search_H1;
-import heuristics.old.Uniform_cost_search_H1_RC;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.NotCond;
 import conditions.Predicate;
 import expressions.PDDLNumber;
@@ -83,12 +76,12 @@ public class hlm_refactored extends h1 {
     private boolean needs_checking_state_dependent_constraints;
     public boolean debug_landmarks_counting = false;
 
-    public hlm_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public hlm_refactored(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
 
     }
 
-    public hlm_refactored(Conditions goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public hlm_refactored(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super(goal, A, P, E);
 
     }
@@ -109,7 +102,7 @@ public class hlm_refactored extends h1 {
             try {
                 this.add_redundant_constraints();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1_RC.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Put something here");
             }
         }
         boolean reconstruct = false;
@@ -120,7 +113,7 @@ public class hlm_refactored extends h1 {
             try {
                 reconstruct = generate_achievers();
             } catch (Exception ex) {
-                Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Put something here");
             }
         } while (reconstruct);
 
@@ -156,7 +149,7 @@ public class hlm_refactored extends h1 {
             return 0f;
         }
         Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
-        ArrayList<Set<Conditions>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
+        ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
         ArrayList<Boolean> never_active = new ArrayList<>(nCopies(total_number_of_actions + 1, true));//mapping between action and boolean. True if action has not been activated yet
         // HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
         reach_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
@@ -164,7 +157,7 @@ public class hlm_refactored extends h1 {
         cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         ArrayList<Float> target_value = new ArrayList<>(nCopies(all_conditions.size() + 1, 0f));//keep track of conditions that have been reachead yet
         try {
-            for (Conditions c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+            for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
                 IloRange ilo = condition_to_cplex_constraint.get(c.getCounter());
                 //Initially, all the conditions are assumed achieved. I am going to change only the ones that really need to be satisfied
                 if (ilo != null) {
@@ -222,15 +215,14 @@ public class hlm_refactored extends h1 {
             }
 
             int goal_not_true_in_init = 0;
-            Set<Conditions> goal_landmark = new LinkedHashSet();
-            for (Conditions c : (Collection<Conditions>) this.G.sons) {
+            Set<Condition> goal_landmark = new LinkedHashSet();
+            for (Condition c : (Collection<Condition>) this.G.sons) {
                 Float distance = cond_dist.get(c.getCounter());
                 if (distance == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 } else if (distance != 0f) {
                     goal_not_true_in_init++;
                     goal_landmark.addAll(lm.get(c.getCounter()));
-                    goal_landmark.add(c);//this has not been added before. Should be a slight optimisation for the intersection problem
                 }
             }
             if (this.reacheability_setting) {
@@ -241,7 +233,7 @@ public class hlm_refactored extends h1 {
 
             if (lp_cost_partinioning) {
                 int lm_considered = 0;
-                for (Conditions c : goal_landmark) {
+                for (Condition c : goal_landmark) {
                     if (cond_dist.get(c.getCounter()) != 0f) {
                         lm_considered++;
                         //                        System.out.println("DEBUG: condition:"+c);
@@ -285,7 +277,7 @@ public class hlm_refactored extends h1 {
 
             } else {
                 float estimate = 0f;
-                for (Conditions c : goal_landmark) {//these are the landmarks for the planning task
+                for (Condition c : goal_landmark) {//these are the landmarks for the planning task
                     estimate += dplus.get(c.getCounter());
                 }
                 return estimate;
@@ -298,23 +290,23 @@ public class hlm_refactored extends h1 {
         return Float.MAX_VALUE;
     }
 
-    private boolean update_lm(Conditions p, GroundAction gr, ArrayList<Set<Conditions>> lm) {
+    private boolean update_lm(Condition p, GroundAction gr, ArrayList<Set<Condition>> lm) {
 
-        Set<Conditions> previous = lm.get(p.getCounter());
+        Set<Condition> previous = lm.get(p.getCounter());
 
         if (previous == null) {
             if (debug > 10) {
                 System.out.println("First LM for:" + p);
             }
             previous = new LinkedHashSet();
-            for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
+            for (Condition c : (Set<Condition>) gr.getPreconditions().sons) {
                 if (this.cond_dist.get(c.getCounter()) != 0f) {
                     previous.addAll(lm.get(c.getCounter()));
                     previous.add(c);
                 }
             }
             //experimental
-//            previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
+            previous.add(p);//adding itself This is now done at the end, so as to minimise number of intersection operation
             lm.set(p.getCounter(), previous);
             return true;
         } else {
@@ -331,8 +323,8 @@ public class hlm_refactored extends h1 {
             }
 
             if (smart_intersection) {
-                Set<Conditions> temp = new LinkedHashSet();
-                for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
+                Set<Condition> temp = new LinkedHashSet();
+                for (Condition c : (Set<Condition>) gr.getPreconditions().sons) {
                     if (this.cond_dist.get(c.getCounter()) != 0f) {
                         temp.addAll(lm.get(c.getCounter()));
                         temp.add(c);//the lm as implemented in this code does not contain itself
@@ -346,17 +338,17 @@ public class hlm_refactored extends h1 {
                 if (debug > 10) {
                     System.out.println("Previous" + previous);
                 }
-                Iterator<Conditions> it = previous.iterator();
+                Iterator<Condition> it = previous.iterator();
                 while (it.hasNext()) {
                     boolean found = false;
-                    Conditions prev = (Conditions) it.next();
-                    for (Conditions c : (Set<Conditions>) gr.getPreconditions().sons) {
+                    Condition prev = (Condition) it.next();
+                    for (Condition c : (Set<Condition>) gr.getPreconditions().sons) {
                         if (this.cond_dist.get(c.getCounter()) != 0f) {
                             if (prev.getCounter() == c.getCounter()) {
                                 found = true;
                                 break;
                             }
-                            for (Conditions c1 : lm.get(c.getCounter())) {
+                            for (Condition c1 : lm.get(c.getCounter())) {
                                 if (prev.getCounter() == c1.getCounter()) {
                                     found = true;
                                     break;
@@ -377,7 +369,7 @@ public class hlm_refactored extends h1 {
                 }
             }
             //experimental
-//            previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
+            previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
             lm.set(p.getCounter(), previous);
             if (previous_size != previous.size()) {
                 return true;
@@ -387,8 +379,8 @@ public class hlm_refactored extends h1 {
 
     }
 
-    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Conditions>> lm) {
-        for (Conditions comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
+    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
+        for (Condition comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getCounter()) != 0f) {//if this isn't in the init state yet
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
@@ -400,7 +392,7 @@ public class hlm_refactored extends h1 {
                 //for this specific condition check implications of having it reached.
             }
         }
-        for (Conditions comp : this.possible_achievers.get(gr.counter)) {
+        for (Condition comp : this.possible_achievers.get(gr.counter)) {
             if (cond_dist.get(comp.getCounter()) != 0f) {
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
 //                    continue;
@@ -414,7 +406,7 @@ public class hlm_refactored extends h1 {
         }
     }
 
-    private void update_action_condition(GroundAction gr, Conditions comp, ArrayList<Set<Conditions>> lm, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
+    private void update_action_condition(GroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
@@ -461,7 +453,7 @@ public class hlm_refactored extends h1 {
 
     private boolean check_conditions(GroundAction gr2) {
 
-        for (Conditions c : (Collection<Conditions>) gr2.getPreconditions().sons) {
+        for (Condition c : (Collection<Condition>) gr2.getPreconditions().sons) {
             if (cond_dist.get(c.getCounter()) == Float.MAX_VALUE) {
                 return false;
             }
@@ -471,7 +463,7 @@ public class hlm_refactored extends h1 {
 
     private void generate_link_precondition_action() {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        for (Conditions c : all_conditions) {
+        for (Condition c : all_conditions) {
             LinkedHashSet<GroundAction> set = new LinkedHashSet();
             for (GroundAction gr : A) {
                 if (gr.getPreconditions().sons.contains(c)) {
@@ -484,19 +476,19 @@ public class hlm_refactored extends h1 {
     }
 
     //TO-DO do the sensitive intersection to the metric
-    private Set<Conditions> metric_sensitive_intersection(Set<Conditions> previous, Set<Conditions> temp) {
-        Set<Conditions> newset = new LinkedHashSet();
+    private Set<Condition> metric_sensitive_intersection(Set<Condition> previous, Set<Condition> temp) {
+        Set<Condition> newset = new LinkedHashSet();
         if (debug > 0) {
             System.out.println("Previous:" + previous);
             System.out.println("Intersecting with:" + temp);
         }
-        for (Conditions c : temp) {
+        for (Condition c : temp) {
             if (c instanceof Predicate) {
                 if (previous.contains(c)) {
                     newset.add(c);
                 }
             } else if (c instanceof Comparison) {
-                for (Conditions c1 : previous) {
+                for (Condition c1 : previous) {
                     if (c1 instanceof Comparison) {
                         Comparison comp_c = (Comparison) c;
                         Comparison comp_c1 = (Comparison) c1;
@@ -516,13 +508,13 @@ public class hlm_refactored extends h1 {
         return newset;
     }
 
-    private String print_ordering(ArrayList<Set<Conditions>> lm, Conditions c) {
+    private String print_ordering(ArrayList<Set<Condition>> lm, Condition c) {
 
         if (lm.get(c.getCounter()) == null || lm.get(c.getCounter()).isEmpty()) {
             return "(" + c.toString() + "," + c.getCounter() + ")";
         } else {
             String temp = "";
-            for (Conditions c1 : lm.get(c.getCounter())) {
+            for (Condition c1 : lm.get(c.getCounter())) {
                 temp += "(" + c.toString() + "," + c.getCounter() + ")" + "<-" + print_ordering(lm, c1) + "\n";
             }
             return temp;
@@ -538,7 +530,7 @@ public class hlm_refactored extends h1 {
             action_to_variable = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
             condition_to_cplex_constraint = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             has_state_dependent_achievers = new HashMap();
-            for (Conditions c : all_conditions) {
+            for (Condition c : all_conditions) {
                 has_state_dependent_achievers.put(c.getCounter(), false);
 //                System.out.println("Condition under analysis" + c);
                 IloLinearNumExpr expr = lp_global.linearNumExpr();;
@@ -617,7 +609,7 @@ public class hlm_refactored extends h1 {
         }
     }
 
-    private void free_variable_modify_contribution_if_needed(State s_0, Conditions c, boolean revise_terms, GroundAction gr) throws IloException {
+    private void free_variable_modify_contribution_if_needed(State s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
 
         IloNumVar action_var = this.action_to_variable.get(gr.counter);
         action_var.setUB(Float.MAX_VALUE);//add only useful actions
@@ -638,8 +630,8 @@ public class hlm_refactored extends h1 {
     private boolean check_if_smark_intersection_needed() {
         for (int i = 0; i < all_conditions.toArray().length; i++) {
             for (int j = i + 1; j < all_conditions.toArray().length; j++) {
-                Conditions c1 = (Conditions) all_conditions.toArray()[i];
-                Conditions c2 = (Conditions) all_conditions.toArray()[j];
+                Condition c1 = (Condition) all_conditions.toArray()[i];
+                Condition c2 = (Condition) all_conditions.toArray()[j];
                 if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
                     Comparison comp_c1 = (Comparison) c1;
                     Comparison comp_c2 = (Comparison) c2;

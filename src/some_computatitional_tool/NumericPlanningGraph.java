@@ -1,36 +1,27 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package some_computatitional_tool;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.Predicate;
 import expressions.NumFluent;
 import java.util.ArrayList;
@@ -55,7 +46,7 @@ public class NumericPlanningGraph {
     public int levels;
     public Vector action_level;
     public Vector rel_state_level;
-    public Conditions goal;
+    public ComplexCondition goal;
     public boolean goal_reached;
     private long cpu_time;
     private long spezzTime;
@@ -101,7 +92,7 @@ public class NumericPlanningGraph {
 //        goal_reached = false;
 //    }
 
-    public ArrayList computeRelaxedPlan(State s, Conditions goal, Set actions) throws CloneNotSupportedException {
+    public ArrayList computeRelaxedPlan(State s, ComplexCondition goal, Set actions) throws CloneNotSupportedException {
 
         //System.out.println("Find relaxed plan");
         ArrayList ret = new ArrayList();
@@ -181,7 +172,7 @@ public class NumericPlanningGraph {
     public Map computeRelaxedPlans(State s, Map goal, Set actions, int i) throws CloneNotSupportedException {
         Map ret = new HashMap();
 
-        ArrayList<Conditions> kernels = new ArrayList();
+        ArrayList<Condition> kernels = new ArrayList();
 
         Map rev_goal = new HashMap();
         int r = i;
@@ -190,7 +181,7 @@ public class NumericPlanningGraph {
 
             if (o != null) {
                 rev_goal.put(o, r);
-                kernels.add((Conditions) o);
+                kernels.add((Condition) o);
                 r++;
             } else {
                 break;
@@ -209,7 +200,7 @@ public class NumericPlanningGraph {
         while (true) {
             for (Iterator it = kernels.iterator(); it.hasNext();) {
                 //System.out.println("it:::" + it.next());
-                Conditions o = (Conditions) it.next();
+                ComplexCondition o = (ComplexCondition) it.next();
                 if (current.satisfy(o)) {
                     reached.put(o, true);
                     ArrayList relaxedPlan = extractPlan(o, levels);
@@ -389,7 +380,7 @@ public class NumericPlanningGraph {
 
     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions. As before but it stops when the goal is reached in the relaxed state.
-    public Set reacheabilityTillGoal(State s, Conditions goal, Set actions) throws CloneNotSupportedException {
+    public Set reacheabilityTillGoal(State s, Condition goal, Set actions) throws CloneNotSupportedException {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -527,8 +518,8 @@ public class NumericPlanningGraph {
 
     }
 
-    private ArrayList extractPlan(Conditions goal, int levels) throws CloneNotSupportedException {
-        Conditions AG[] = new Conditions[levels + 1];
+    private ArrayList extractPlan(ComplexCondition goal, int levels) throws CloneNotSupportedException {
+        ComplexCondition AG[] = new ComplexCondition[levels + 1];
         AG[levels] = goal;
         ArrayList rel_plan = new ArrayList();
 
@@ -623,7 +614,7 @@ public class NumericPlanningGraph {
     }
 
     private ArrayList[] extractPlan_new() throws CloneNotSupportedException {
-        Conditions AG;
+        ComplexCondition AG;
         AG = this.goal;
         ArrayList rel_plan[] = new ArrayList[levels];
 
@@ -685,7 +676,7 @@ public class NumericPlanningGraph {
         return null;
     }
 
-    private GroundAction bestSupport(HashSet get, Conditions conditions, RelState s) throws CloneNotSupportedException {
+    private GroundAction bestSupport(HashSet get, Condition conditions, RelState s) throws CloneNotSupportedException {
 
         float bestDistance = 0;
         GroundAction ret = null;
@@ -796,7 +787,7 @@ public class NumericPlanningGraph {
         this.fixPoint = fixPoint;
     }
 
-    public RelState computeStateBound(State init, Conditions goals, Set actions) throws CloneNotSupportedException {
+    public RelState computeStateBound(State init, ComplexCondition goals, Set actions) throws CloneNotSupportedException {
 
         this.goal = goals;
         RelState current = init.relaxState();

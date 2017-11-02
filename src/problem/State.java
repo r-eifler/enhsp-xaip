@@ -1,36 +1,28 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package problem;
 
 import conditions.AndCond;
 import conditions.NumFluentValue;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.ExtendedAddendum;
@@ -53,7 +45,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -62,34 +53,51 @@ import java.util.Set;
  *
  * @author enrico
  */
-public class State extends Object {
+public class State extends AbstractState {
 
-    HashMap propositions;
-    private HashMap<NumFluent, PDDLNumber> num_fluents_initial_values;
-    public ArrayList<PDDLNumber> current_fluent_values;
+    HashMap<Predicate,Boolean> initPred;
+    public HashMap<NumFluent, PDDLNumber> initNumFluents;
+    public ArrayList<PDDLNumber> currNumFluentsValues;
+    public ArrayList<Boolean> currPredValues;
+    
+    public ArrayList<NumFluent> numFluents;
+    public ArrayList<Predicate> predFluents;
+    
     HashSet timedLiterals;
     private NumFluent time;
-    private Integer hash;
+    protected Integer hash;
 
     public State() {
         super();
-        propositions = new HashMap();
-        num_fluents_initial_values = new HashMap();
+        initPred = new HashMap();
+        initNumFluents = new HashMap();
         timedLiterals = new HashSet();
+        this.currNumFluentsValues = new ArrayList();
+        this.currPredValues = new ArrayList();
+        numFluents = new ArrayList();
+        predFluents = new ArrayList();
     }
+
 
     @Override
     public String toString() {
-        return "State{" + "propositions=" + propositions + "numericFs=" + getNum_fluents_value() + "timedLiterals=" + timedLiterals + '}';
+        return "State{" + "currNumFluentsValues=" + currNumFluentsValues + ", currPredValues=" + currPredValues + ", time=" + time + '}';
     }
+
+    
 
     @Override
     public State clone() throws CloneNotSupportedException {
         State ret_val = new State();
 
-        ret_val.num_fluents_initial_values = this.getNum_fluents_value();
+        ret_val.initNumFluents = this.getInitNumFluents();
 
-        ret_val.propositions = (HashMap) this.propositions.clone();
+          ret_val.initPred = this.initPred;
+        ret_val.numFluents = this.numFluents;
+        ret_val.predFluents = this.predFluents;
+        
+//        if (this.initPred.isEmpty())
+        
 
 //        for (Predicate o :(Collection<Predicate>) this.propositions.keySet()) {
 //            //ret_val.addProposition((Predicate) ele.clone());
@@ -99,16 +107,27 @@ public class State extends Object {
         //ret_val.propositions = (HashSet) this.propositions.clone();
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
         ret_val.time = this.time;
-        ret_val.current_fluent_values = (ArrayList<PDDLNumber>) this.current_fluent_values.clone();
+        ret_val.currNumFluentsValues = (ArrayList<PDDLNumber>) this.currNumFluentsValues.clone();
+        ret_val.currPredValues = (ArrayList<Boolean>) this.currPredValues.clone();
         return ret_val;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode(this.currNumFluentsValues);
+        hash = 53 * hash + Objects.hashCode(this.currPredValues);
+        return hash;
+    }
+    
+    
+
     public Iterable<NumFluent> getNumericFluents() {
-        return getNum_fluents_value().keySet();
+        return getInitNumFluents().keySet();
     }
 
     public PDDLNumber static_function_value(NumFluent f) {
-        return getNum_fluents_value().get(f);
+        return getInitNumFluents().get(f);
 
     }
 
@@ -116,20 +135,52 @@ public class State extends Object {
         if (f.getId() == null) {
             return null;
         }
-        if (f.getId() == null || f.getId() >= this.current_fluent_values.size()) {
+        if (f.getId() == null || f.getId() >= this.currNumFluentsValues.size()) {
             System.out.println("Error here: " + f + "this is probably when comparing " + f.getId());
             return null;
         }
-        return this.current_fluent_values.get(f.getId());
+        return this.currNumFluentsValues.get(f.getId());
 
     }
 
-    public void addProposition(Predicate buildInstPredicate) {
-        propositions.put(buildInstPredicate, true);
+    public void setPredTrue(Predicate p) {
+//        System.out.println(p);
+//        System.out.println(this.currPredValues);
+//        System.out.println(p.id);
+        this.currPredValues.set(p.id,true);
+//        initPred.put(p, true);
     }
+    
+    public void syncWithProblemVariables(EPddlProblem p){
+        
+//        System.out.println("Put numeric information into memory!");
+        this.currNumFluentsValues = new ArrayList();
+
+        for (NumFluent nf : p.numFluentReference.values()) {
+                nf.setId(this.currNumFluentsValues.size());
+                this.currNumFluentsValues.add(this.static_function_value(nf));
+                this.numFluents.add(nf);
+        }
+        this.currPredValues = new ArrayList();
+        for (Predicate p1 : p.predicateReference.values()) {
+                p1.id = this.currPredValues.size();
+                Boolean r = this.initPred.get(p1);
+                if (r == null || !r) {
+                    this.currPredValues.add(false);
+                } else {
+                    this.currPredValues.add(true);
+                }
+                this.predFluents.add(p1);
+        }
+//        System.out.println(this.currPredValues);
+//        System.out.println(this.init.currNumFluentsValues);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+    }
+    
 
     public void addNumericFluent(NumFluentValue a) {
-        getNum_fluents_value().put(a.getNFluent(), a.getValue());
+        getInitNumFluents().put(a.getNFluent(), a.getValue());
     }
 
     void addTimedLiteral(Predicate buildInstPredicate) {
@@ -137,17 +188,21 @@ public class State extends Object {
     }
 
     public Iterable<Predicate> getPropositions() {
-        return this.propositions.keySet();
+        return this.initPred.keySet();
 
     }
 
-    public boolean is_true(Predicate aThis) {
-
-        Boolean b = (Boolean) propositions.get(aThis);
-        if (b != null) {
-            return b;
+    public boolean holds(Predicate p) {
+        if (p.id == null){
+//            System.out.println("You need to map this predicate into the problem reference first"+p);
+            if (this.initPred.get(p) == null)
+                return false;
+            return this.initPred.get(p);
         }
-        return false;
+//        System.out.println("Is it there?"+p);
+        if (this.currPredValues.get(p.id)== null)
+            return false;
+        return this.currPredValues.get(p.id);
     }
 
     public void setFunctionValue(NumFluent f, PDDLNumber after) {
@@ -157,13 +212,13 @@ public class State extends Object {
             System.out.println("Fluent " + f + " is not in the state");
             System.exit(-1);
         } else {
-            this.current_fluent_values.set(f.getId(), after);
+            this.currNumFluentsValues.set(f.getId(), after);
         }
 
     }
 
-    public void removeProposition(Predicate aThis) {
-        propositions.remove(aThis);
+    public void setPredFalse(Predicate p) {
+        this.currPredValues.set(p.id,false);
     }
 
     public StringBuilder stringBuilderPddlPrintWithDummyTrue() {
@@ -171,21 +226,21 @@ public class State extends Object {
 
         for (Object o : this.getPropositions()) {
             Predicate a = (Predicate) o;
-            ret.append("  (" + a.getPredicateName());
+            ret.append("  (").append(a.getPredicateName());
             for (Object o1 : a.getTerms()) {
                 PDDLObject obj = (PDDLObject) o1;
-                ret.append(" " + obj.getName());
+                ret.append(" ").append(obj.getName());
             }
             ret.append(")\n");
         }
         for (Object o : this.getNumericFluents()) {
             NumFluentValue a = (NumFluentValue) o;
-            ret.append("  ( = (" + a.getNFluent().getName());
+            ret.append("  ( = (").append(a.getNFluent().getName());
             for (Object o1 : a.getNFluent().getTerms()) {
                 PDDLObject obj = (PDDLObject) o1;
-                ret.append(" " + obj.getName());
+                ret.append(" ").append(obj.getName());
             }
-            ret.append(") " + a.getValue().pddlPrint(false) + ")\n");
+            ret.append(") ").append(a.getValue().pddlPrint(false)).append(")\n");
         }
 
         ret.append(")");
@@ -297,8 +352,13 @@ public class State extends Object {
         return true;
 
     }
+    
+    public void apply(GroundAction gr){
+        gr.apply(this);
+    }
+            
 
-    public boolean satisfy(Conditions input) {
+    public boolean satisfy(Condition input) {
 
         return input.isSatisfied(this);
 
@@ -318,7 +378,7 @@ public class State extends Object {
                 }
 
             } else if (o instanceof Predicate) {
-                if (!this.is_true((Predicate) o)) {
+                if (!this.holds((Predicate) o)) {
                     System.out.println(o + "is not satisfied");
                     ret = false;
                 }
@@ -331,21 +391,32 @@ public class State extends Object {
     }
 
     public RelState relaxState() {
-        RelState ret_val = new RelState();
-
-        for (NumFluent o : this.getNum_fluents_value().keySet()) {
-            //System.out.println(o);
-
-            //System.out.println(this.numericFs.get(o));
-            if (this.functionValue(o) != null) {
-                ret_val.poss_numericFs.put(o, new Interval(this.functionValue(o).getNumber()));
-            }
+        RelState ret_val = new RelState(); 
+        
+        for (int i = 0; i<this.numFluents.size() ; i++){  
+//            System.out.println(this.numFluents.get(i));
+            ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
+        }
+        for (int i = 0; i<this.predFluents.size() ; i++){
+            if (this.currPredValues.get(i))
+                ret_val.poss_interpretation.put(this.predFluents.get(i), 1);
+            else
+                ret_val.poss_interpretation.put(this.predFluents.get(i), 0);
         }
 
-        for (Object o : this.propositions.keySet()) {
-            Predicate ele = (Predicate) o;
-            ret_val.poss_interpretation.put(ele, 1);
-        }
+//        for (NumFluent o : this.currNumFluentsValues.keySet()) {
+//            //System.out.println(o);
+//
+//            //System.out.println(this.numericFs.get(o));
+//            if (this.functionValue(o) != null) {
+//                ret_val.poss_numericFs.put(o, new Interval(this.functionValue(o).getNumber()));
+//            }
+//        }
+//
+//        for (Object o : this.initPred.keySet()) {
+//            Predicate ele = (Predicate) o;
+//            ret_val.poss_interpretation.put(ele, 1);
+//        }
         //ret_val.propositions = (HashSet) this.propositions.clone();
 
         ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
@@ -359,9 +430,9 @@ public class State extends Object {
 
         for (Object o : grActions) {
             GroundAction gr = (GroundAction) o;
-            Conditions add = gr.getAddList();
-            Conditions del = gr.getDelList();
-            Conditions num = gr.getNumericEffects();
+            Condition add = gr.getAddList();
+            Condition del = gr.getDelList();
+            Condition num = gr.getNumericEffects();
         }
 
     }
@@ -369,7 +440,7 @@ public class State extends Object {
     public String printFluentByName(String input) {
         String ret = "";
 
-        for (Object o : this.getNum_fluents_value().keySet()) {
+        for (Object o : this.getInitNumFluents().keySet()) {
             NumFluent nf = (NumFluent) o;
             if (nf.getName().equals(input)) {
                 ret = ret + this.functionValue(nf);
@@ -379,9 +450,68 @@ public class State extends Object {
         }
         return ret;
     }
+    
+    
+    
+
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (obj == null) {
+//            return false;
+//        }
+//        if (getClass() != obj.getClass()) {
+//            return false;
+//        }
+//        final State other = (State) obj;
+//
+////        System.out.println("Checking equality!!!");
+//        for (NumFluent nf : this.getNumericFluents()) {
+//            if (nf.getId() == null) {
+//                continue;
+//            }
+//            if (!nf.has_to_be_tracked()) {
+//                continue;
+//            }
+//
+//            if (nf.getName().equals("time_elapsed")) {//if they have different time elapsed doesn't matter at this stage{
+////                System.out.println("Time comparison");
+//                continue;
+//            } else {
+////                System.out.println(nf);
+//            }
+//
+//            if (other.functionValue(nf) == null && this.functionValue(nf) == null) {
+////                System.out.println("Error!!:"+ass_init.getNFluent());
+//                continue;
+//            }
+//            if (other.functionValue(nf) == null) {
+////                System.out.println(nf);
+////                System.out.println("(other is null)These two are different?a:"+this+"\nb:"+obj);
+//                return false;
+//            }
+//            if (this.functionValue(nf) == null) {
+////                System.out.println(nf);
+////                System.out.println("(this is null) These two are different?a:"+this+"\nb:"+obj);
+//                return false;
+//            }
+//
+//            if (!functionValue(nf).getNumber().equals(other.functionValue(nf).getNumber())) {
+////                System.out.println(nf);
+////                System.out.println("These two are different?a:"+this+"\nb:"+obj);
+//                return false;
+//            }
+//        }
+//        return this.currPredValues.equals(other.currPredValues);
+////        System.out.println("These two are the same?a:"+this+"\nb:"+obj);
+//
+////        return true;
+//    }
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null) {
             return false;
         }
@@ -389,91 +519,23 @@ public class State extends Object {
             return false;
         }
         final State other = (State) obj;
-
-//        System.out.println("Checking equality!!!");
-        for (NumFluent nf : this.getNumericFluents()) {
-            if (nf.getId() == null) {
-                continue;
-            }
-            if (!nf.has_to_be_tracked()) {
-                continue;
-            }
-
-            if (nf.getName().equals("time_elapsed")) {//if they have different time elapsed doesn't matter at this stage{
-//                System.out.println("Time comparison");
-                continue;
-            } else {
-//                System.out.println(nf);
-            }
-
-            if (other.functionValue(nf) == null && this.functionValue(nf) == null) {
-//                System.out.println("Error!!:"+ass_init.getNFluent());
-                continue;
-            }
-            if (other.functionValue(nf) == null) {
-//                System.out.println(nf);
-//                System.out.println("(other is null)These two are different?a:"+this+"\nb:"+obj);
-                return false;
-            }
-            if (this.functionValue(nf) == null) {
-//                System.out.println(nf);
-//                System.out.println("(this is null) These two are different?a:"+this+"\nb:"+obj);
-                return false;
-            }
-
-            if (!functionValue(nf).getNumber().equals(other.functionValue(nf).getNumber())) {
-//                System.out.println(nf);
-//                System.out.println("These two are different?a:"+this+"\nb:"+obj);
-                return false;
-            }
+        if (!Objects.equals(this.currNumFluentsValues, other.currNumFluentsValues)) {
+            return false;
         }
-        for (Object o : this.getPropositions()) {
-            Predicate p = (Predicate) o;
-            if (this.is_true(p)) {
-                if (!other.is_true(p)) {
-//                    System.out.println("These two are different?a:"+this+"\nb:"+obj);
-                    return false;
-                }
-            }
-
+        if (!Objects.equals(this.currPredValues, other.currPredValues)) {
+            return false;
         }
-//        System.out.println("These two are the same?a:"+this+"\nb:"+obj);
-
         return true;
     }
+    
+    
+    
 
-//    @Override
-//    public int hashCode() {
-//        int hash = 5;
-//        if (!this.propositions.keySet().isEmpty())
-//            hash = 19 * hash + Objects.hashCode(this.propositions);
-//        if (!this.numericFs.keySet().isEmpty())
-//            hash = 19 * hash + Objects.hashCode(this.numericFs);
-//        return hash;
-//    }
-    @Override
-    public int hashCode() {
-        if (hash == null) {
-            hash = 5;
-            hash = 19 * hash + Objects.hashCode(this.propositions);
-            int hash2 = 0;
-//            for (Entry<NumFluent,PDDLNumber> nf : this.getNum_fluents_value().entrySet()){
-//            
-//                if (nf.getKey().has_to_be_tracked() && !nf.getKey().getName().equals("time_elapsed")){
-//                    //hash2+=nf.hashCode();
-//                    hash2+=nf.hashCode();
-//                }
-//            }
-            hash2 += this.current_fluent_values.hashCode();
-            hash = 19 * hash + hash2;
-        }
-        return hash;
-    }
 
     public String printValueOfTheFluentByName(String input) {
         String ret = "";
 
-        for (Object o : this.getNum_fluents_value().keySet()) {
+        for (Object o : this.getInitNumFluents().keySet()) {
             NumFluent nf = (NumFluent) o;
             if (nf.getName().equals(input)) {
                 ret += this.functionValue(nf).getNumber();
@@ -490,7 +552,7 @@ public class State extends Object {
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (this.is_true(p)) {
+            if (this.holds(p)) {
                 ret.sons.add(p);
             }
         }
@@ -503,7 +565,7 @@ public class State extends Object {
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (!init.is_true(p)) {
+            if (!init.holds(p)) {
                 diff.add(p);
             }
 
@@ -511,7 +573,7 @@ public class State extends Object {
         it = init.getPropositions().iterator();
         while (it.hasNext()) {
             Predicate p = (Predicate) it.next();
-            if (!this.is_true(p)) {
+            if (!this.holds(p)) {
                 diff.add(p);
             }
 
@@ -563,7 +625,7 @@ public class State extends Object {
 
     }
 
-    public Float normalizedRisk(Conditions conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
+    public Float normalizedRisk(ComplexCondition conditions, RelState numericFleuntsBoundaries, String distStrategy, boolean preprocessMaxs) {
         Float total = new Float(0.0);
 
         String threateningConstraint = new String();
@@ -655,7 +717,7 @@ public class State extends Object {
 
     }
 
-    public Float normalizedDist(Conditions conditions, RelState numericFleuntsBoundaries, String distStrategy) {
+    public Float normalizedDist(ComplexCondition conditions, RelState numericFleuntsBoundaries, String distStrategy) {
         Float total = new Float(0.0);
 
         if (conditions instanceof AndCond) {
@@ -676,18 +738,7 @@ public class State extends Object {
 
                 }
             }
-        } else if (conditions instanceof Comparison) {
-            Comparison comp = (Comparison) conditions;
-
-            if (distStrategy.equals("sum")) {
-                total += comp.getDistance(this, numericFleuntsBoundaries);
-
-            } else if (distStrategy.equals("max")) {
-                total = Math.max(comp.getDistance(this, numericFleuntsBoundaries), total);
-                //System.out.println("Distance: "+dist);
-            }
-
-        }
+        } 
         return total;
 
     }
@@ -768,7 +819,7 @@ public class State extends Object {
         return total;
     }
 
-    public Float distance(Conditions c) {
+    public Float distance(Condition c) {
         Comparison comp = (Comparison) c;
         if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
@@ -823,7 +874,7 @@ public class State extends Object {
         return null;
     }
 
-    public Float distance2(Conditions c) {
+    public Float distance2(Condition c) {
         Comparison comp = (Comparison) c;
         if ((comp.getRight() instanceof ExtendedNormExpression) && (comp.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) comp.getLeft();
@@ -888,11 +939,11 @@ public class State extends Object {
         AndCond addList = new AndCond();
         AndCond numericEffects = new AndCond();
 
-        for (Object o : this.propositions.keySet()) {
+        for (Object o : this.initPred.keySet()) {
             Predicate p = (Predicate) o;
             addList.addConditions(p);
         }
-        for (Object o : this.getNum_fluents_value().keySet()) {
+        for (Object o : this.getInitNumFluents().keySet()) {
             NumFluent f = (NumFluent) o;
 
             NumEffect b = new NumEffect("assign");
@@ -916,7 +967,9 @@ public class State extends Object {
 
     public void addTimeFluent() {
         this.time = new NumFluent("time_elapsed");
-        getNum_fluents_value().put(this.time, new PDDLNumber(new Float(0.0)));
+        getInitNumFluents().put(this.time, new PDDLNumber(new Float(0.0)));
+        this.time.id = this.currNumFluentsValues.size();
+        this.currNumFluentsValues.add(new PDDLNumber(new Float(0.0)));
     }
 
     /**
@@ -939,7 +992,7 @@ public class State extends Object {
     }
 
     public Collection<Predicate> getPropositionsAsSet() {
-        return new LinkedHashSet(this.propositions.keySet());
+        return new LinkedHashSet(this.initPred.keySet());
     }
 
     public NumFluent findCorrespondenceIfAny(NumFluent nf) {
@@ -962,7 +1015,7 @@ public class State extends Object {
         return null;
     }
 
-    public Conditions getProposition(Predicate aThis) {
+    public Condition getProposition(Predicate aThis) {
         for (Predicate p : this.getPropositions()) {
             if (p.equals(aThis)) {
                 return p;
@@ -978,7 +1031,7 @@ public class State extends Object {
     void removeNumericFluents(LinkedHashSet<NumFluent> n_fluents_to_remove) {
         for (NumFluent nf : n_fluents_to_remove) {
             if (!nf.getName().equals("time_elapsed")) {
-                this.getNum_fluents_value().remove(nf);
+                this.getInitNumFluents().remove(nf);
             }
         }
     }
@@ -988,18 +1041,19 @@ public class State extends Object {
 //            System.out.println("Trying to remove p:"+p);
 //            System.out.println("from:"+this.propositions);
 
-            this.propositions.remove(p);
+            this.initPred.remove(p);
+            
 //            System.out.println("result:"+this.propositions);
         }
     }
 
     public void consolidate_propositions(RelState rs) {
-        Iterator<Predicate> it = this.propositions.keySet().iterator();
+        Iterator<Predicate> it = this.initPred.keySet().iterator();
 //        System.out.println("Consolidation");
         while (it.hasNext()) {
             Predicate p = it.next();
             if (rs.poss_interpretation.get(p) == 0) {
-                this.propositions.put(p, Boolean.FALSE);
+                this.initPred.put(p, Boolean.FALSE);
             }
         }
     }
@@ -1007,8 +1061,33 @@ public class State extends Object {
     /**
      * @return the num_fluents_value
      */
-    public HashMap<NumFluent, PDDLNumber> getNum_fluents_value() {
-        return num_fluents_initial_values;
+    public HashMap<NumFluent, PDDLNumber> getInitNumFluents() {
+        return initNumFluents;
     }
+
+    void unifyVariablesReferences(EPddlProblem aThis) {
+        HashMap<Predicate,Boolean> temp = new HashMap();
+        for (Predicate p: this.initPred.keySet()){
+            Predicate p1 = (Predicate) p.unifyVariablesReferences(aThis);
+            temp.put(p1, this.initPred.get(p));
+        }
+        this.initPred = temp;
+        HashMap<NumFluent,PDDLNumber> temp1 = new HashMap();
+        for (NumFluent x: this.initNumFluents.keySet()){
+            NumFluent p1 = (NumFluent) x.unifyVariablesReferences(aThis);
+            temp1.put(p1, this.initNumFluents.get(x));
+        }
+        this.initNumFluents = temp1;
+
+    }
+
+    public void addPredicate(Predicate p, boolean b) {
+
+        
+        this.initPred.put(p,b);
+        p.id = this.currPredValues.size();
+        this.currPredValues.add(b);
+    }
+
 
 }

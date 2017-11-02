@@ -1,30 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package wrapped_planners;
 
@@ -64,26 +54,26 @@ public class ColinClpWrapper extends planningTool {
                 this.setTimeoutFail(true);
                 this.failed = false;
                 System.out.println("....TIMEOUT");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (this.outputPlanning.contains("unsolvable")) {
+            if (this.outputPlanning.toString().contains("unsolvable")) {
                 this.failed = true;
                 System.out.println("....UNSOLVABLE");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (!this.outputPlanning.contains("Solution Found")) {
+            if (!this.outputPlanning.toString().contains("Solution Found")) {
                 this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR");
-                this.findTotalTimeInFile(outputPlanning);
+                this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
 
             System.out.println("....SUCCESS");
-            putSolutionInFile(this.outputPlanning);
-            this.findTotalTimeInFile(outputPlanning);
+            putSolutionInFile(this.outputPlanning.toString());
+            this.findTotalTimeInFile(outputPlanning.toString());
 
             return this.storedSolutionPath;
         } catch (IOException ex) {
@@ -172,7 +162,7 @@ public class ColinClpWrapper extends planningTool {
     @Override
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Utility.deleteFile("temp.SOL");
@@ -195,7 +185,7 @@ public class ColinClpWrapper extends planningTool {
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";
             while ((line = input.readLine()) != null) {
-                outputPlanning = outputPlanning.concat(line + "\n");
+                outputPlanning = outputPlanning.append(line + "\n");
                 //System.out.println(outputPlanning);
             }
             if (kill.isAlive()) {
@@ -217,7 +207,7 @@ public class ColinClpWrapper extends planningTool {
 
     public void executePlanning_PROVA() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Utility.deleteFile("temp.SOL");
@@ -249,7 +239,7 @@ public class ColinClpWrapper extends planningTool {
 
                 String line = null;
                 while ((line = input.readLine()) != null) {
-                    outputPlanning = outputPlanning.concat(line + "\n");
+                    outputPlanning = outputPlanning.append(line + "\n");
                     //System.out.println(outputPlanning);
                 }
             } else {

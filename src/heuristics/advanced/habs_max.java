@@ -6,7 +6,8 @@
 package heuristics.advanced;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
 import expressions.Interval;
@@ -43,7 +44,7 @@ public class habs_max extends Heuristic {
     private final Set<GroundProcess> processSet;
     private h1 habs;
 
-    public habs_max(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public habs_max(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
 
         this.supporters = new LinkedHashSet<>();
@@ -136,7 +137,7 @@ public class habs_max extends Heuristic {
         System.out.println("|Sup + goal|: " + supporters.size());
     }
 
-    private RelState getRelaxedGoal(Set<GroundAction> A, Conditions G, Set<GroundProcess> P, State s) {
+    private RelState getRelaxedGoal(Set<GroundAction> A, ComplexCondition G, Set<GroundProcess> P, State s) {
         Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
@@ -153,7 +154,7 @@ public class habs_max extends Heuristic {
         habs.light_setup(s);
     }
 
-    private static Heuristic habsFactory(Integer heuristicType, Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         switch (heuristicType) {
             case (1): {
                 return new h1(G, A, P);
@@ -255,6 +256,7 @@ public class habs_max extends Heuristic {
      * @param effect constant effect to generate supporters for.
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
+     * <p>
      */
     private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, State s_0) {
         GroundAction sup = new GroundAction(name);

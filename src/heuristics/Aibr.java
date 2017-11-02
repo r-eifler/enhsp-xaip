@@ -1,34 +1,28 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package heuristics;
 
 import conditions.Comparison;
+import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
-import conditions.Conditions;
-import conditions.Predicate;
-import domain.PddlDomain;
+import conditions.Condition;
+import domain.ParametersAsTerms;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
@@ -62,7 +56,7 @@ public class Aibr extends Heuristic {
     public boolean layers_counter;
     private boolean cost_oriented = true;
 
-    public Aibr(Conditions G, Set<GroundAction> actions) {
+    public Aibr(ComplexCondition G, Set<GroundAction> actions) {
         super(G, actions);
         this.supp_to_action = new HashMap();
 
@@ -71,7 +65,7 @@ public class Aibr extends Heuristic {
         generate_supporters(A);
     }
 
-    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes) {
+    public Aibr(ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
         super(G, actions, processes);
         this.supp_to_action = new HashMap();
 
@@ -83,13 +77,14 @@ public class Aibr extends Heuristic {
         //this.build_integer_representation();
     }
 
-    public Aibr(Conditions G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
+    public Aibr(ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
         super(G, actions, processes, events);
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
 //        Utils.dbg_print(debug, "Generate Supporters\n");
         generate_supporters(A);
+        
 //        Utils.dbg_print(debug, "Supporters Generated\n");
 
         //this.build_integer_representation();
@@ -131,13 +126,13 @@ public class Aibr extends Heuristic {
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-//            Utils.dbg_print(debug, "Relaxed State:" + rs + "\n");
+//            Utils.dbg_print(1, "Relaxed State:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
                 break;
             }
             LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs);
-//            Utils.dbg_print(debug, "Applicable Supporter:" + S + "\n");
+//            Utils.dbg_print(1, "Applicable Supporter:" + S + "\n");
             if (S.isEmpty()) {//if there are no applicable actions then finish!
                 if (!rs.satisfy(G)) {
                     if (reachability) {
@@ -154,6 +149,7 @@ public class Aibr extends Heuristic {
             }
 
             if (reachability) {
+
 //            if (true){
                 for (GroundAction gr : S) {
                     gr.apply(rs);
@@ -175,7 +171,10 @@ public class Aibr extends Heuristic {
         }
 //        Utils.dbg_print(debug, "Rechability finished");
 
+//        System.out.println("Number of Transitions: "+A.size());
+//        System.out.println("Number of Supporters: "+supporters.size());
         if (reachability) {
+
 //            int counter_predicates = 0;
 //            for (Predicate p : rs.poss_interpretation.keySet()){
 //                if (rs.poss_interpretation.get(p) >0)
@@ -210,7 +209,8 @@ public class Aibr extends Heuristic {
         Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {
             if (gr.cond_effects != null) {
-                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(), gr.cond_effects));
+//                System.out.println(gr);
+                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(),gr.getParameters(), gr.cond_effects));
             }
         }
         //System.out.println(actions_plus_action_for_supporters);
@@ -232,10 +232,11 @@ public class Aibr extends Heuristic {
             }
 
         }
+//        System.out.println("_");
 
     }
 
-    private GroundAction generate_constant_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_constant_supporter(NumEffect effect, String name, Condition precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name + "constantassign");
         NumEffect assign = new NumEffect("assign");
         assign.setFluentAffected(effect.getFluentAffected());
@@ -246,7 +247,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_plus_inf_supporter(NumEffect effect, String name, Condition precondition, GroundAction gr) {
         String disequality = "";
         Float asymptote = Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -263,7 +264,7 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "plusinf", precondition, gr);
     }
 
-    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_supporter(NumEffect effect, String inequality, Float asymptote, String name, Condition precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         Comparison indirect_precondition = new Comparison(inequality);
         if (effect.getOperator().equals("assign")) {
@@ -282,7 +283,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name, Conditions precondition, GroundAction gr) {
+    private GroundAction generate_minus_inf_supporter(NumEffect effect, String name, Condition precondition, GroundAction gr) {
         String disequality = "";
         Float asymptote = -Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -300,7 +301,7 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition, gr);
     }
 
-    private GroundAction generate_propositional_action(String name, Conditions cond, GroundAction gr) {
+    private GroundAction generate_propositional_action(String name, ComplexCondition cond, GroundAction gr) {
         GroundAction ret = new GroundAction(name);
         ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
@@ -378,11 +379,11 @@ public class Aibr extends Heuristic {
 
     }
 
-    private boolean check_goal_condition(Conditions G, RelState rs) {
+    private boolean check_goal_condition(Condition G, RelState rs) {
         return G.isSatisfied(rs);
     }
 
-    private boolean achiever(GroundAction gr, RelState rs2, Conditions g) {
+    private boolean achiever(GroundAction gr, RelState rs2, Condition g) {
         RelState temp = rs2.clone();
         if (gr.apply(temp).satisfy(g)) {
             return true;
@@ -391,17 +392,20 @@ public class Aibr extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name, Conditions cond_effects) {
+    private Collection<? extends GroundAction> generate_actions_for_cond_effects(String name,ParametersAsTerms p, ComplexCondition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {
             if (o instanceof ConditionalEffect) {
                 ConditionalEffect cond = (ConditionalEffect) o;
                 GroundAction a = new GroundAction(name + counter);
+                a.setParameters(p);
                 a.setPreconditions(a.getPreconditions().and(cond.activation_condition));
-                PddlDomain.create_effects_by_cases(cond.effect, a);
+                a.create_effects_by_cases(cond.effect);
                 ret.add(a);
                 counter++;
+            }else{
+                throw new RuntimeException("Error!!");
             }
         }
         return ret;

@@ -1,29 +1,25 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package problem;
 
+import conditions.AndCond;
+import conditions.ComplexCondition;
 import conditions.PDDLObject;
 import domain.ParametersAsTerms;
 import java.util.HashMap;
@@ -70,17 +66,17 @@ public class GroundEvent extends GroundAction {
     public Object clone() throws CloneNotSupportedException {
         GroundEvent ret = new GroundEvent(name);
         if (this.addList != null) {
-            ret.addList = this.addList.clone();
+            ret.addList = (AndCond) this.addList.clone();
         }
         if (this.delList != null) {
-            ret.delList = this.delList.clone();
+            ret.delList = (AndCond) this.delList.clone();
         }
         ret.normalized = this.normalized;
         if (this.numericEffects != null) {
-            ret.numericEffects = this.numericEffects.clone();
+            ret.numericEffects = (AndCond) this.numericEffects.clone();
         }
         if (this.cond_effects != null) {
-            ret.cond_effects = this.cond_effects.clone();
+            ret.cond_effects = (AndCond) this.cond_effects.clone();
         }
 
         if (this.numericFluentAffected != null) {
@@ -90,7 +86,7 @@ public class GroundEvent extends GroundAction {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
         }
         if (this.preconditions != null) {
-            ret.preconditions = this.preconditions.clone();
+            ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
         if (this.interact_with != null) {
             ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();

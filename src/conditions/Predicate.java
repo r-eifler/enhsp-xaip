@@ -1,30 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
@@ -38,7 +28,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -51,10 +43,10 @@ import problem.State;
 public class Predicate extends Terminal implements PostCondition {
 
     private String predicateName;
-    //private ArrayList variables;
     private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
     public HashSet son;
     public Integer hash_code;
+    public Integer id;
 
     @Override
     public String pddlPrintWithExtraObject() {
@@ -99,12 +91,17 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean can_be_false(RelState s) {
+        if (this.isValid())
+            return false;
+        if (this.isUnsatisfiable())
+            return true;
+        
         Integer i = s.poss_interpretation.get(this);
         return (i == null) || (i == 0) || (i == 2);
     }
 
     @Override
-    public Conditions achieve(Predicate p) {
+    public Condition achieve(Predicate p) {
         if (this.equals(p)) {
             return new Predicate(Predicate.true_false.TRUE);
         }
@@ -112,12 +109,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions delete(Predicate p) {
+    public Condition delete(Predicate p) {
         return null;
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         Set ret = new LinkedHashSet();
         ret.add(this);
         return ret;
@@ -131,6 +128,28 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Set<NumFluent> affectedNumericFluents() {
         return new HashSet();
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        LinkedHashSet ret = new LinkedHashSet();
+        ret.add(this);
+        return ret;
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        Predicate p1 = p.predicateReference.get(this.toString());
+        if (p1 == null){
+            p.predicateReference.put(this.toString(),this);
+            return this;
+        }
+        return p1;
     }
 
     public enum true_false {
@@ -264,7 +283,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
         ret.grounded = true;
@@ -288,15 +307,15 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
 
     @Override
     public boolean eval(State s) {
-        return s.is_true(this);
+        return s.holds(this);
     }
 
     @Override
@@ -307,17 +326,55 @@ public class Predicate extends Terminal implements PostCondition {
         if (isUnsatisfiable()) {
             return false;
         }
-        return s.is_true(this);
+        return s.holds(this);
     }
 
     @Override
     public boolean can_be_true(RelState s) {
+        if (this.isValid())
+            return true;
+        if (this.isUnsatisfiable())
+            return false;
         Integer i = s.poss_interpretation.get(this);
         if (i == null) {
             return false;
         }
-        return (i == 1) || (i == 2);
+        if (i>=1)
+            return true;
+        return false;           
+        //return (i == 1) || (i == 2);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.predicateName);
+        hash = 29 * hash + Objects.hashCode(this.terms);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Predicate other = (Predicate) obj;
+        if (!Objects.equals(this.predicateName, other.predicateName)) {
+            return false;
+        }
+        if (!Objects.equals(this.terms, other.terms)) {
+            return false;
+        }
+        return true;
+    }
+
+
 
 //    /**
 //     *
@@ -342,54 +399,10 @@ public class Predicate extends Terminal implements PostCondition {
 //        }
 //        return true;
 //    }
-    @Override
-    public int hashCode() {
-        if (this.hash_code == null) {
-            int hash = 7;
-            hash = 79 * hash + (this.predicateName != null ? this.predicateName.hashCode() : 0);
-            hash = 79 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-            this.hash_code = hash;
-        }
-
-        return this.hash_code;
-    }
-
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 97 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-//        return hash;
-//    }
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        if (this == obj) {
-            return true;
-        }
-        final Predicate other = (Predicate) obj;
-        if ((this.predicateName == null) ? (other.predicateName != null) : !this.predicateName.equals(other.predicateName)) {
-            return false;
-        }
-        if (this.terms == null) {
-            return false;
-        }
-        if (!this.terms.equals(other.terms)) {
-            return false;
-        }
-//        if (this.hash_code != other.hash_code && (this.hash_code == null || !this.hash_code.equals(other.hash_code))) {
-//            return false;
-//        }
-        return true;
-    }
+   
 
     public State remove(State s) {
-        s.removeProposition(this);
+        s.setPredFalse(this);
         return s;
     }
 
@@ -413,7 +426,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         return this;
     }
 
@@ -433,7 +446,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions unGround(Map substitution) {
+    public Condition unGround(Map substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(predicateName);
 
@@ -456,7 +469,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions con) {
+    public boolean isUngroundVersionOf(Condition con) {
         if (con instanceof Predicate) {
             Predicate p = (Predicate) con;
             if (this.getPredicateName().equals(p.getPredicateName())) {
@@ -519,7 +532,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
@@ -544,7 +557,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         return this;
     }
 
@@ -554,7 +567,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
 
         OrCond achievers = gr.getAdders(this);
         OrCond deleters = gr.getDels(this);
@@ -572,11 +585,11 @@ public class Predicate extends Terminal implements PostCondition {
         return or;
     }
 
-    public Conditions regress_old(GroundAction gr) {
+    public Condition regress_old(GroundAction gr) {
         PostCondition achiever = gr.getAdder(this);
         PostCondition destroyer = gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate) {
-            Conditions con = new NotCond(null); // Maybe put a dummy here?
+            Condition con = new NotCond(null); // Maybe put a dummy here?
             con.setUnsatisfiable(true);
             return con;
         }
@@ -680,7 +693,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public ComplexCondition and(Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -698,7 +711,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
     }
 

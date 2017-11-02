@@ -6,7 +6,7 @@
 package heuristics.advanced;
 
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
 import expressions.Interval;
@@ -41,7 +41,7 @@ public class habs_add extends Heuristic {
     private final Integer numOfSubdomains = 2;
     private h1 habs;
 
-    public habs_add(Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public habs_add(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
 
         this.supporters = new LinkedHashSet<>();
@@ -142,7 +142,7 @@ public class habs_add extends Heuristic {
         System.out.println("|Sup + goal|: " + supporters.size());
     }
 
-    private RelState getRelaxedGoal(Set<GroundAction> A, Conditions G, Set<GroundProcess> P, State s) {
+    private RelState getRelaxedGoal(Set<GroundAction> A, ComplexCondition G, Set<GroundProcess> P, State s) {
         Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
@@ -159,7 +159,7 @@ public class habs_add extends Heuristic {
         habs.light_setup(s);
     }
 
-    private static Heuristic habsFactory(Integer heuristicType, Conditions G, Set<GroundAction> A, Set<GroundProcess> P) {
+    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         switch (heuristicType) {
             case (1): {
                 return new h1(G, A, P);

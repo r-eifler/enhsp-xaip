@@ -1,12 +1,12 @@
 # What is PPMaJal?
 
-This repository contains the PPMaJal API, which is a planning manager library meant to build systems that speak the PDDL language. It supports many features that go way beyond classical planning, such as numeric representations, linear and non-linear constraints, autonomout processes, global constraints and other things.
+This repository contains the PPMaJal API, which is a planning manager library meant to build systems that speak the PDDL language. It supports many features that go way beyond classical planning, such as numeric representations, linear and non-linear constraints, autonomout processes, events, global constraints and other things.
 
-This API has been used as basis for many projects, all related to Automated Planning, Replanning, Plan Execution, SMT Planning and others that I cannot remember now.
+This API has been used as basis for many projects, all related to Automated Planning (deterministic, non-deterministic), Replanning, Plan Execution, SMT Planning.
 
 For more information on its applications have a look at some of the papers in [Google Scholar](https://scholar.google.com.au/citations?user=lgfpklAAAAAJ&hl=en)
 
-The most recent advances of the library refer to:
+The theoretical basis of the more recent advances of the library can be found in the following papers:
 
 E. Scala, P. Haslum, S. Thiebaux: **Heuristics for Numeric Planning via Subgoaling**, IJCAI 2016
 
@@ -16,8 +16,9 @@ E. Scala, P. Torasso, **Deordering and Numeric Macro Actions for Plan Repair**, 
 
 E. Scala, P. Haslum, S. Thiebaux, M. Ramirex, **Interval-Based Relaxation for General Numeric Planning**, ECAI 2016
 
+M Ramirez, E Scala, P Haslum, S Thiebaux, **Numerical Integration and Dynamic Discretization in Heuristic Search Planning over Hybrid Domains**, arXiv 2016
 
-Planners built on top of PPMaJaL can be downloaded following these other bitbucket repositories:
+Some of the planners built on top of PPMaJaL have be made public into the following bitbucket repositories:
 
 *The SMT Planner* can be downloaded from [here](https://bitbucket.org/enricode/springroll-smt-hybrid-planner)
 

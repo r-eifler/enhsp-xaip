@@ -1,28 +1,27 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package other_main_files;
 
 import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.Condition;
 import conditions.Predicate;
 import domain.ActionSchema;
 import domain.PddlDomain;
@@ -77,8 +76,8 @@ public class produceEntaglements {
     private static String domainFile;
     private static String problemFile;
     private static String planFile;
-    private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_init;
-    private static HashMap<ActionSchema, Set<Conditions>> action_to_entaglement_by_goal;
+    private static HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init;
+    private static HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal;
     private static String enhancedDomainFile;
     private static String multipleFilesFileName;
     private static String flawRatio;
@@ -126,8 +125,8 @@ public class produceEntaglements {
 
         parseInput(args);
 
-        PddlDomain dom = new PddlDomain();
-        dom.parseDomain(domainFile);
+        PddlDomain dom = new PddlDomain(domainFile);
+        
         if (multipleFilesFileName == null) {
 
             learn_entanglements_with_problem_given_in_input(dom);
@@ -150,36 +149,36 @@ public class produceEntaglements {
         action_to_entaglement_by_init = new HashMap();
         action_to_entaglement_by_goal = new HashMap();
         for (ActionSchema as : dom.getActionsSchema()) {
-            Set<Conditions> entanglementsByInit = new HashSet();
+            Set<Condition> entanglementsByInit = new HashSet();
             //System.out.println(as.getName());
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                if (sp.entangledByInit(as.getName(), prob.getInit(), (Conditions) o)) {
-                    entanglementsByInit.add((Conditions) o);
+                if (sp.entangledByInit(as.getName(), prob.getInit(), (Condition) o)) {
+                    entanglementsByInit.add((Condition) o);
 
                 }
             }
             action_to_entaglement_by_init.put(as, entanglementsByInit);
             System.out.print(as.getName() + " ent_init -> ");
-            for (Conditions ent : entanglementsByInit) {
+            for (Condition ent : entanglementsByInit) {
                 System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();
         }
 
         for (ActionSchema as : dom.getActionsSchema()) {
-            Set<Conditions> entanglementsByGoal = new HashSet();
+            Set<Condition> entanglementsByGoal = new HashSet();
             //System.out.println(as.getName());
             AndCond c = (AndCond) as.getAddList();
             for (Object o : c.sons) {
-                if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Conditions) o)) {
-                    entanglementsByGoal.add((Conditions) o);
+                if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Condition) o)) {
+                    entanglementsByGoal.add((Condition) o);
                 }
             }
             action_to_entaglement_by_goal.put(as, entanglementsByGoal);
             System.out.print(as.getName() + " ent_goal -> ");
-            for (Conditions ent : entanglementsByGoal) {
+            for (Condition ent : entanglementsByGoal) {
                 System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();
@@ -223,7 +222,7 @@ public class produceEntaglements {
                 AndCond c = (AndCond) as.getPreconditions();
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
-                    int holdingCount = sp.entangledByInitCounter(as.getName(), prob.getInit(), (Conditions) o);
+                    int holdingCount = sp.entangledByInitCounter(as.getName(), prob.getInit(), (Condition) o);
                     incCounter(init_condition_holding_number, o.toString() + as.getName(), holdingCount);
                 }
 
@@ -232,7 +231,7 @@ public class produceEntaglements {
                 AndCond c = (AndCond) as.getAddList();
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
-                    int holdingCount = sp.entangledByGoalCounter(as.getName(), prob.getGoals(), (Conditions) o);
+                    int holdingCount = sp.entangledByGoalCounter(as.getName(), prob.getGoals(), (Condition) o);
                     incCounter(goal_condition_holding_number, o.toString() + as.getName(), holdingCount);
                 }
 
@@ -241,8 +240,8 @@ public class produceEntaglements {
         }
 
         for (ActionSchema as : dom.getActionsSchema()) {
-            Set<Conditions> entanglementsByInit = new HashSet();
-            Set<Conditions> entanglementsByGoal = new HashSet();
+            Set<Condition> entanglementsByInit = new HashSet();
+            Set<Condition> entanglementsByGoal = new HashSet();
             //System.out.println(as.getName());
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
@@ -253,7 +252,7 @@ public class produceEntaglements {
                 //System.out.println("Flaw-ratio:"+(float) holdingCount / (float)n);
                 if ((float) holdingCount / (float) n >= (1.0 - Float.parseFloat(flawRatio))) {
                     if ((numericEntanglements && o instanceof Comparison) || (o instanceof Predicate && propEntanglements)) {
-                        entanglementsByInit.add((Conditions) o);
+                        entanglementsByInit.add((Condition) o);
                     }
                 }
             }
@@ -266,20 +265,20 @@ public class produceEntaglements {
                 //System.out.println("Flaw-ratio:"+(float) holdingCount / (float)n);
                 if ((float) holdingCount / (float) n >= (1.0 - Float.parseFloat(flawRatio))) {
                     if (propEntanglements) {
-                        entanglementsByGoal.add((Conditions) o);
+                        entanglementsByGoal.add((Condition) o);
                     }
                 }
             }
             action_to_entaglement_by_init.put(as, entanglementsByInit);
             action_to_entaglement_by_goal.put(as, entanglementsByGoal);
             System.out.print(as.getName() + " ent_init -> ");
-            for (Conditions ent : entanglementsByInit) {
+            for (Condition ent : entanglementsByInit) {
                 System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();
 
             System.out.print(as.getName() + " ent_goal -> ");
-            for (Conditions ent : entanglementsByGoal) {
+            for (Condition ent : entanglementsByGoal) {
                 System.out.print(ent.pddlPrint(false) + ", ");
             }
             System.out.println();

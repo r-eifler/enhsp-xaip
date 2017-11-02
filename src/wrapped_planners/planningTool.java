@@ -1,30 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package wrapped_planners;
 
@@ -37,7 +27,7 @@ import java.util.logging.Logger;
 
 public abstract class planningTool {
 
-    public String outputPlanning;
+    public StringBuilder outputPlanning;
     Process process;
     public String storedSolutionPath = "sol.pddl";
     protected int plannerTime;
@@ -76,14 +66,14 @@ public abstract class planningTool {
 
     public void executePlanning() {
         Runtime rt = Runtime.getRuntime();
-        outputPlanning = "";
+        outputPlanning = new StringBuilder();
         try {
 
             Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
 
-            System.out.println("This is what I am running");
-            System.out.println("Executing: " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
+//            System.out.println("This is what I am running");
+//            System.out.println("Executing: " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             process = runtime.exec(planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             /* Set up process I/O. */
 
@@ -97,7 +87,7 @@ public abstract class planningTool {
 
                 String line = null;
                 while ((line = input.readLine()) != null) {
-                    outputPlanning = outputPlanning.concat(line + "\n");
+                    outputPlanning = outputPlanning.append(line).append("\n");
                     //System.out.println(outputPlanning);
                 }
             } else {
@@ -211,6 +201,14 @@ public abstract class planningTool {
      */
     public void setPlannerError(boolean plannerError) {
         this.plannerError = plannerError;
+    }
+
+    public int computeHeuristic(String confDomainFile, String problemSampleFile) {
+        return 0;
+    }
+
+    public int computeHeuristic() {
+        return computeHeuristic(domainFile, problemFile); //To change body of generated methods, choose Tools | Templates.
     }
 
     protected static class Worker extends Thread {

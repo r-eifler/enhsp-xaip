@@ -1,35 +1,27 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package plan;
 
 import conditions.AndCond;
 import conditions.Comparison;
-import conditions.Conditions;
+import conditions.ComplexCondition;
+import conditions.Condition;
 import conditions.NotCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
@@ -66,6 +58,7 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
@@ -79,7 +72,7 @@ import problem.State;
 public class SimplePlan extends ArrayList<GroundAction> {
 
     private PddlDomain pd;
-    private PddlProblem pp;
+    public PddlProblem pp;
     private HashMap invariantFluents;
     private boolean invariantAnalysis;
     private HashMap rank;
@@ -183,9 +176,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
             System.out.println("Action not found in the domain theory!!" + actionName);
         }
         //System.out.println(par);
-        GroundAction grAction = action.ground(par, this.pp.getObjects());
+        
+        GroundAction grAction = action.ground(par, pp.getProblemObjects());
         grAction.generateAffectedNumFluents();
-        //grAction.normalizeAndCopy();
+//        if (pp instanceof EPddlProblem) 
+//            grAction.unifyVariablesReferences((EPddlProblem) pp);
         this.add(grAction);
 
     }
@@ -424,8 +419,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             GroundAction a = (GroundAction) o;
             //a.normalizeAndCopy();
 
-            Conditions con = a.getPreconditions();
-            Conditions eff = a.getNumericEffects();
+            ComplexCondition con = a.getPreconditions();
+            ComplexCondition eff = a.getNumericEffects();
 //                    System.out.println(con);
 //                    System.out.println(eff);
             if (con != null) {
@@ -443,16 +438,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             //System.out.println("after" + lValue + rValue);
                         }
                     }
-                } else if (con instanceof Predicate) {
-                } else if (con instanceof Comparison) {
-                    Comparison comp = (Comparison) con;
-                    Expression lValue = comp.getLeft();
-                    Expression rValue = comp.getRight();
-                    //System.out.println("before" + lValue + rValue);
-                    lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                    rValue = rValue.weakEval(pp.getInit(), invariantFluents);
-                    comp.setLeft(lValue);
-                    comp.setRight(rValue);
+                
                 } else {
                     System.err.println("Conditions of the type: " + con.getClass());
                     throw new UnsupportedOperationException("Not supported yet.");
@@ -690,7 +676,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return temp;
     }
 
-    public Pair<ArrayList<String>, HashSet<String>> regress_polynomial(Conditions cond, HashMap<String, Predicate> str_to_pred) throws IOException {
+    public Pair<ArrayList<String>, HashSet<String>> regress_polynomial(Condition cond, HashMap<String, Predicate> str_to_pred) throws IOException {
         Pair<ArrayList<String>, HashSet<String>> ret = new Pair();
         ArrayList<String> simulation = new ArrayList();
         ArrayList<String> preference = new ArrayList();
@@ -714,7 +700,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             //for each atom in the previous goal (updated incrementally) compute the justification for it via the action
             for (Predicate p : current_goal_predicates) {
                 //here we regress
-                Conditions c = p.regress(this.get(i));
+                Condition c = p.regress(this.get(i));
 
                 for (Predicate p3 : this.get(i).getPreconditions().getInvolvedPredicates()) {
                     if (!p3.isValid() && !p3.isUnsatisfiable()) {
@@ -763,7 +749,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
-    public Conditions regress(Conditions cond) throws IOException {
+    public Condition regress(Condition cond) throws IOException {
 
         for (int i = (this.size() - 1); i >= 0; i--) {
 //            System.out.println("DEBUG: before regressing: "+cond);
@@ -1144,7 +1130,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public DirectedAcyclicGraph buildValidationStructures(State init, Conditions g) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph buildValidationStructures(State init, ComplexCondition g) throws CloneNotSupportedException, Exception {
         DirectedAcyclicGraph po = new DirectedAcyclicGraph(DefaultEdge.class);
         po.addVertex(-1);
         //DirectedAcyclicGraph po = new DirectedAcyclicGraph();
@@ -1178,10 +1164,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 for (Object o : conds.sons) {
 
                     TreeSet<Integer> chain = new TreeSet();
-                    Conditions c = (Conditions) o;
+                    Condition c = (Condition) o;
                     if (c instanceof AndCond) {//this is a hack!!!
                         AndCond b = (AndCond) c;
-                        c = (Conditions) b.sons.iterator().next();
+                        c = (Condition) b.sons.iterator().next();
                     }
                     //Finding the numeric justification. This requires a local search in the space of actions which have been planned to be executed before i
                     //System.out.println("Looking for!:" + c );
@@ -1292,7 +1278,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return po;
     }
 
-    public DirectedAcyclicGraph deorder(State init, Conditions g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph deorder(State init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
         if (debug > 0) {
@@ -2057,11 +2043,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public boolean entangledByInit(String name, State init, Conditions con) {
+    public boolean entangledByInit(String name, State init, Condition con) {
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getPreconditions();
-                Conditions instanceOfCon = ac.requireAnInstanceOf(con);
+                Condition instanceOfCon = ac.requireAnInstanceOf(con);
                 if (instanceOfCon != null) {
                     if (!instanceOfCon.isSatisfied(init)) {
                         //System.out.println(instanceOfCon+"  is NOT satisfied by Init");
@@ -2078,14 +2064,14 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return true;
     }
 
-    public int entangledByInitCounter(String name, State init, Conditions con) {
+    public int entangledByInitCounter(String name, State init, Condition con) {
 
         int numberOfHoldings = 0;
 
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getPreconditions();
-                Conditions instanceOfCon = ac.requireAnInstanceOf(con);
+                Condition instanceOfCon = ac.requireAnInstanceOf(con);
                 if (instanceOfCon != null) {
                     if (!instanceOfCon.isSatisfied(init)) {
                         //System.out.println(instanceOfCon+"  is NOT satisfied by Init");
@@ -2101,7 +2087,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return numberOfHoldings;
     }
 
-    public boolean entangledByGoal(String name, Conditions goal, Conditions con) {
+    public boolean entangledByGoal(String name, ComplexCondition goal, Condition con) {
 
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
@@ -2129,7 +2115,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return counter;
     }
 
-    public int entangledByGoalCounter(String name, Conditions goal, Conditions con) {
+    public int entangledByGoalCounter(String name, ComplexCondition goal, Condition con) {
         int counter = 0;
 
         for (GroundAction gr : this) {
@@ -2155,7 +2141,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State current, Conditions globalConstraints) throws CloneNotSupportedException {
+    public State execute(State current, Condition globalConstraints) throws CloneNotSupportedException {
         State temp = current.clone();
         int i = 0;
         this.cost = 0f;
@@ -2345,7 +2331,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init, Conditions GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
+    public State execute(State init, Condition GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
@@ -2376,7 +2362,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 nf_trace.put(nf, nf_traj);
             }
         }
-        //current.addTimeFluent();
+        current.addTimeFluent();
         for (int i = 0; i < inst_actions.size(); i++) {
             if (print_trace) {
                 add_state_to_json(nf_trace, current);

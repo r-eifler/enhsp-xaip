@@ -1,33 +1,24 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2013
- * Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package propositionalFactory;
 
+import conditions.Condition;
 import conditions.PDDLObject;
 import domain.ActionSchema;
 import domain.EventSchema;
@@ -52,9 +43,9 @@ import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PDDLObjects;
 
-public class grounder {
+public class Grounder {
 
-    public grounder() {
+    public Grounder() {
         super();
     }
 
@@ -269,6 +260,8 @@ public class grounder {
         return ret;
 
     }
+    
+    
 
     public static Set sub(ArrayList param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
@@ -421,7 +414,6 @@ public class grounder {
         for (Object o : parameters) {
             Variable el = (Variable) o;
             substitution.put(el, par.get(i));
-            PDDLObject t = (PDDLObject) substitution.get(el);
             i++;
         }
         return substitution;

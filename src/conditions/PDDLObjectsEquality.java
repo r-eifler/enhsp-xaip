@@ -1,29 +1,20 @@
-/**
- * *******************************************************************
+/* 
+ * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
- */
-/**
- * *******************************************************************
- * Description: Part of the PPMaJaL library
- *
- * Author: Enrico Scala 2014 Contact: enricos83@gmail.com
- *
- ********************************************************************
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package conditions;
 
@@ -36,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
@@ -73,7 +65,7 @@ public class PDDLObjectsEquality extends Terminal {
      * @return a grounded copy of the condition
      */
     @Override
-    public Conditions ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         // TODO: Couldn't one of the objects be already grounded?
 
         PDDLObjectsEquality ret = null;
@@ -92,8 +84,8 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions ground(Map substitution, int c) {
-        Conditions ret = this.ground(substitution, null);
+    public Condition ground(Map substitution, int c) {
+        Condition ret = this.ground(substitution, null);
         ret.setCounter(c);
         return ret;
     }
@@ -127,7 +119,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions clone() {
+    public Condition clone() {
         PDDLObjectsEquality ret = new PDDLObjectsEquality();
         ret.grounded = this.grounded;
         if (grounded) {
@@ -215,7 +207,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions unGround(Map asbstractionOf) {
+    public Condition unGround(Map asbstractionOf) {
         PDDLObjectsEquality ret = null;
 
         Variable t1 = (Variable) asbstractionOf.get(getLeft().getName());
@@ -233,7 +225,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Conditions conditions) {
+    public boolean isUngroundVersionOf(Condition conditions) {
         if (conditions instanceof PDDLObjectsEquality) {
             PDDLObjectsEquality c = (PDDLObjectsEquality) conditions;
             Variable v1 = (Variable) this.getLeftV();
@@ -271,7 +263,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions weakEval(State s, HashMap invF) {
+    public Condition weakEval(State s, HashMap invF) {
         if (this.left.equals(this.right)) {
             this.setValid(true);
             this.setUnsatisfiable(false);
@@ -288,7 +280,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions transform_equality() {
+    public Condition transform_equality() {
         return this;
     }
 
@@ -298,7 +290,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions regress(GroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -409,7 +401,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Set<Conditions> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -419,7 +411,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions and(Conditions precondition) {
+    public ComplexCondition and(Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -429,7 +421,23 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Conditions push_not_to_terminals() {
+    public Condition push_not_to_terminals() {
         return this;
+    }
+
+    @Override
+    public void extendTerms(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<Predicate> getInvolvedPredicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        return this;
+
     }
 }
