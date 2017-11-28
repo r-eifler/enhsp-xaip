@@ -66,6 +66,7 @@ public class ExtendedNormExpression extends Expression {
 
         linear = true;
     }
+    
 
     @Override
     public boolean equals(Object obj) {

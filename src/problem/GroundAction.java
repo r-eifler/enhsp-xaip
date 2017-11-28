@@ -216,13 +216,15 @@ public class GroundAction extends GenericActionType implements Comparable {
 
     public String toFileCompliant() {
 
-        String parametri = "";
+        StringBuilder parametri = new StringBuilder();
+        StringBuilder res = new StringBuilder();
         for (Object o : getParameters()) {
             PDDLObject obj = (PDDLObject) o;
-            parametri = parametri.concat(obj.getName().concat(" "));
+            parametri = parametri.append(obj.getName().concat(" "));
         }
         if (time == null) {
-            return "(" + this.name + " " + parametri + ")";
+            res.append("(").append(this.name).append(" ").append(parametri).append(")");
+            return res.toString();
         } else {
             return String.format("%.5f", time) + ": (" + this.name + " " + parametri + ")";
         }

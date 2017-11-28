@@ -64,6 +64,12 @@ public abstract class Expression extends Object {
 
     public abstract void changeVar(Map<Variable, PDDLObject> substitution);
 
+    /**
+     *
+     * @param s
+     * @param invF
+     * @return
+     */
     public abstract Expression weakEval(State s, HashMap invF);
 
     @Override

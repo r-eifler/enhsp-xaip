@@ -34,6 +34,8 @@ import plan.SimplePlan;
 
 public class metricFFWrapper extends planningTool {
 
+    private String memoryLimit;
+
     public metricFFWrapper() {
         super();
         option1 = "";       //"-O";
@@ -66,7 +68,8 @@ public class metricFFWrapper extends planningTool {
 
 //            Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
-
+            
+           
 //            System.out.println("This is what I am running");
 //            System.out.println("Executing: " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             process = runtime.exec(planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);

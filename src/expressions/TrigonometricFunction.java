@@ -24,6 +24,7 @@ import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.State;
@@ -35,6 +36,11 @@ import problem.State;
 public class TrigonometricFunction extends BinaryOp {
 
     private Expression arg;
+
+    @Override
+    public String toString() {
+        return "("+this.operator+" "+this.arg+")";
+    }
 
     public TrigonometricFunction() {
         super();
@@ -97,6 +103,7 @@ public class TrigonometricFunction extends BinaryOp {
         if (ret.getArg() == null) {
             return null;
         }
+//        System.out.println(ret);
 
         return ret;
     }
@@ -192,5 +199,11 @@ public class TrigonometricFunction extends BinaryOp {
         bui.append("(");
         bui.append(getArg());
         bui.append("))");
+    }
+    
+    @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        this.arg = this.arg.unifyVariablesReferences(p);
+        return this;
     }
 }

@@ -231,6 +231,8 @@ public class BinaryOp extends Expression {
         rhs.freeVarSemantic = freeVarSemantic;
         ret.lhs = lhs.weakEval(s, invF);
         ret.rhs = rhs.weakEval(s, invF);
+        
+        
 
         if (ret.lhs == null || ret.rhs == null) {
             return null;

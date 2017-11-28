@@ -618,6 +618,7 @@ public class NumEffect extends Expression implements PostCondition {
     @Override
     public Expression unifyVariablesReferences(EPddlProblem p) {
         this.fluentAffected = (NumFluent) this.fluentAffected.unifyVariablesReferences(p);
+//        System.out.println("right:"+right);
         this.right = right.unifyVariablesReferences(p);
         return this;
     }

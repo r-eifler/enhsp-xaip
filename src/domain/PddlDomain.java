@@ -288,9 +288,11 @@ public final class PddlDomain extends Object {
                         break;
                     case PddlParser.PREDICATES:
                         this.predicates = (PredicateSet) addPredicates(c);
+                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
+
                         break;
                     case PddlParser.ACTION:
-                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
+                        //fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
                         addActions(c);
                         break;
                     case PddlParser.EVENT:
@@ -301,6 +303,8 @@ public final class PddlDomain extends Object {
                         break;
                     case PddlParser.FUNCTIONS:
                         addFunctions(c);
+                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
+
                         break;
                     case PddlParser.CONSTANTS:
                         addConstants(c);
@@ -905,8 +909,14 @@ public final class PddlDomain extends Object {
 
             switch (type) {
                 case (PddlParser.PRECONDITION):
+                    
+                    Condition con = null;
+                    if (a.parameters == null)
+                        con = fc.createCondition(infoAction.getChild(0), null);
+                    else
+                        con = fc.createCondition(infoAction.getChild(0), a.parameters);
+                        //con = fc.createCondition(infoAction.getChild(0), a.parameters);
 
-                    Condition con = fc.createCondition(infoAction.getChild(0), a.parameters);
                     if ((con instanceof NotCond) || (con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);

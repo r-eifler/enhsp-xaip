@@ -218,9 +218,11 @@ public class PddlProblem {
 //                + ")");
 //        
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
-        file.write("(define (problem " + this.getName() + ") ");
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.getDomainName()).append(")");
+        file.write("(define (problem temp)");
         file.write("(:domain ");
-        file.write(this.getDomainName() + ")");
+        file.write(builder.toString());
         file.write(this.getObjects().pddlPrint());
         file.write(this.init.stringBuilderPddlPrintWithDummyTrue().toString());
         file.write("(:goal (forall (?interpr - interpretation)");
