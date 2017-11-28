@@ -100,7 +100,6 @@ public class h1 extends Heuristic {
 
     public h1(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
-
     }
 
     public h1(ComplexCondition G, Set A, Set processesSet, Set events) {
@@ -158,13 +157,31 @@ public class h1 extends Heuristic {
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
         out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
-        //Utils.dbg_print(10, this.complex_condition_set.toString());
-        //System.out.println("Finished setup");
         return ret;
+    }
+    
+    public void light_setup(State s){
+        
+        goal = new GroundAction("goal");
+        goal.dummy_goal = true;
+        goal.setAction_cost(0);
+        goal.setPreconditions(G);
+        A.add(goal);
+        build_integer_representation();
+        identify_complex_conditions(A);
+
+        Utils.dbg_print(debug - 10, "Complex Condition set:" + this.complex_condition_set + "\n");
+        this.generate_link_precondition_action();
+        try {
+            generate_achievers();
+        } catch (Exception ex) {
+            Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public Float compute_estimate(State s_0) {
+        
         if (s_0.satisfy(G)) {
 //            System.out.println("Goal satisfied??");
             return 0f;
@@ -173,7 +190,6 @@ public class h1 extends Heuristic {
             established_achiever = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             action_achievers = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
             established_local_cost = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-
         }
         all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
 
@@ -291,9 +307,11 @@ public class h1 extends Heuristic {
             if (!this.is_complex.get(comp.getCounter())) {
                 Float current_distance = cond_dist.get(comp.getCounter());
                 if (current_distance != 0f) {
-
                     Float rep_needed=this.action_comp_number_execution.get(new Pair(gr.counter,comp.getCounter()));
                     if (rep_needed == null){
+                        if (gr.infinite_constant_effect){
+                            rep_needed = 1f * c_a;
+                        }
                         if (this.possible_achievers_inverted.get(comp.getCounter()).size() == 1 || this.integer_actions) {
 
                             rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
@@ -382,6 +400,7 @@ public class h1 extends Heuristic {
         }
 
     }
+
 
     private void update_reachable_actions(GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr

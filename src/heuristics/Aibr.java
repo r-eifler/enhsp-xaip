@@ -411,5 +411,23 @@ public class Aibr extends Heuristic {
         return ret;
 
     }
+    
+    public RelState get_reachable_state(State s, RelState rs2){
+        while (true) {
+            boolean fix_point = true;
+            for (GroundAction gr : this.reachable) {
+                if (gr.isApplicable(rs2)) {
+                    gr.apply_with_generalized_interval_based_relaxation(rs2);
+                    fix_point = false;
+                    if (rs2.satisfy(G)) {
+                       return rs2;
+                    }
+                }
+            }
 
+            if (fix_point) {
+                System.out.println("Anomaly!");
+            }
+        }
+    }
 }

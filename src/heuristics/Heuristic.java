@@ -115,6 +115,7 @@ public abstract class Heuristic{
     protected int total_number_of_actions;
     public Boolean weak_helpful_actions_pruning = true;
     public boolean only_mutual_exclusion_processes = false;
+
     private HashMap redundant_constraints;
 
     

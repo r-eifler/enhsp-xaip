@@ -78,6 +78,8 @@ public class GroundAction extends GenericActionType implements Comparable {
     private Boolean has_state_dependent_effects;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
     public boolean dummy_goal;
+    
+    public boolean infinite_constant_effect = false;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -2078,6 +2080,10 @@ public class GroundAction extends GenericActionType implements Comparable {
         }
 
     }
+    
+    public void clearActionCost(){
+        action_cost = null;
+    }
 
     /**
      * @param action_cost the action_cost to set
@@ -2149,7 +2155,6 @@ public class GroundAction extends GenericActionType implements Comparable {
         if (this.getNumericEffectsAsCollection().isEmpty()) {
             return false;
         }
-
         if (comp.getLeft() instanceof ExtendedNormExpression) {
             ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
             for (ExtendedAddendum ad : left.summations) {
