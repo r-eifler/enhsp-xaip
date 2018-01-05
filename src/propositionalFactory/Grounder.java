@@ -20,13 +20,13 @@ package propositionalFactory;
 
 import conditions.Condition;
 import conditions.PDDLObject;
-import domain.ActionSchema;
-import domain.EventSchema;
-import domain.ParametersAsTerms;
-import domain.ProcessSchema;
-import domain.SchemaGlobalConstraint;
-import domain.SchemaParameters;
-import domain.Variable;
+import PDDLDomain.ActionSchema;
+import PDDLDomain.EventSchema;
+import PDDLDomain.ParametersAsTerms;
+import PDDLDomain.ProcessSchema;
+import PDDLDomain.SchemaGlobalConstraint;
+import PDDLDomain.SchemaParameters;
+import PDDLDomain.Variable;
 
 import java.lang.Exception;
 
@@ -37,11 +37,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import problem.GlobalConstraint;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.PDDLObjects;
+import PDDLProblem.GlobalConstraint;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.GroundEvent;
+import PDDLProblem.GroundProcess;
+import PDDLProblem.PDDLObjects;
 
 public class Grounder {
 
@@ -219,7 +219,7 @@ public class Grounder {
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 } else {
-                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po);
+                    PDDLGroundAction toAdd = a.ground((ParametersAsTerms) o, po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 }

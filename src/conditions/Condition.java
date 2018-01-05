@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import domain.Variable;
+import PDDLDomain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
 import java.util.ArrayList;
@@ -26,12 +26,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.PDDLProblemComponent;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.PDDLProblemComponent;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -64,7 +64,7 @@ public abstract class Condition extends PDDLProblemComponent {
      * @param invF
      * @return
      */
-    public abstract Condition weakEval(State s, HashMap invF);
+    public abstract Condition weakEval(PDDLState s, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
     /*
@@ -78,7 +78,7 @@ public abstract class Condition extends PDDLProblemComponent {
                activation conditions.
     
      */
-    public abstract Condition regress(GroundAction gr);
+    public abstract Condition regress(PDDLGroundAction gr);
 
     /**
      * Substitutes the variables in this conditions with the PDDLObjects
@@ -96,11 +96,11 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition ground(Map substitution, int c);
 
-    public abstract boolean eval(State s);
+    public abstract boolean eval(PDDLState s);
 
-    public abstract String toSmtVariableString(int k, GroundAction gr, String var);
+    public abstract String toSmtVariableString(int k, PDDLGroundAction gr, String var);
 
-    public abstract boolean isSatisfied(State s);
+    public abstract boolean isSatisfied(PDDLState s);
 
     public abstract void changeVar(Map substitution);
 
@@ -187,7 +187,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition transform_equality();
 
-    public abstract boolean is_affected_by(GroundAction gr);
+    public abstract boolean is_affected_by(PDDLGroundAction gr);
 
     /**
      *
@@ -244,7 +244,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract ComplexCondition and(Condition precondition);
 
-    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever);
 
     public abstract Condition push_not_to_terminals();
 

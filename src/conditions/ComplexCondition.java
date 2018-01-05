@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import domain.Variable;
+import PDDLDomain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLObjects;
 
 /**
  *

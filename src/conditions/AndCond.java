@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import domain.Variable;
+import PDDLDomain.Variable;
 import expressions.NumEffect;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -34,11 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -76,7 +76,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -116,7 +116,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -275,8 +275,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 
-    public State transformInStateIfPossible() {
-        State ret = new State();
+    public PDDLState transformInStateIfPossible() {
+        PDDLState ret = new PDDLState();
         for (Object o : this.sons) {
             if (o instanceof Predicate) {
                 ret.setPredTrue((Predicate) o);
@@ -353,7 +353,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public Condition weakEval(State s, HashMap invF) {
+    public Condition weakEval(PDDLState s, HashMap invF) {
         LinkedHashSet to_keep = new LinkedHashSet();
 
         if (this.sons != null) {
@@ -395,7 +395,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public String toSmtVariableString(int i, GroundAction gr, String var) {
+    public String toSmtVariableString(int i, PDDLGroundAction gr, String var) {
         String ret = "";
         if (this.sons != null) {
             if (this.sons.size() > 1) {
@@ -447,7 +447,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by(PDDLGroundAction gr) {
 
         if (this.sons != null && !this.sons.isEmpty()) {
 
@@ -463,7 +463,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress(PDDLGroundAction gr) {
         AndCond con = new AndCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -568,7 +568,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public HashMap apply(State s) {
+    public HashMap apply(PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -582,7 +582,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         for (Object o : this.sons) {
 //            if ((o instanceof AndCond) 
 //                    || (o instanceof Predicate)
@@ -667,7 +667,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         achiever_set s = new achiever_set();
         if (this.sons == null) {
             s.cost = 0f;

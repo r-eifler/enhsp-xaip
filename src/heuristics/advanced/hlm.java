@@ -42,10 +42,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.State;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.GroundEvent;
+import PDDLProblem.GroundProcess;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -55,7 +55,7 @@ public class hlm extends h1 {
     
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
-    private ArrayList<Set<GroundAction>> condition_to_action;
+    private ArrayList<Set<PDDLGroundAction>> condition_to_action;
     
     public ArrayList<Set<repetition_landmark>> reachable_poss_achievers;
     public boolean compute_lp;
@@ -70,18 +70,18 @@ public class hlm extends h1 {
     private HashMap<Integer, IloNumVar> action_to_variable;
     private HashMap<Integer, IloRange> condition_to_cplex_constraint;
     
-    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public hlm(ComplexCondition goal, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
         
     }
     
-    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public hlm(ComplexCondition goal, Set<PDDLGroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super(goal, A, P, E);
         
     }
     
     @Override
-    public Float setup(State s) {
+    public Float setup(PDDLState s) {
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
@@ -129,14 +129,14 @@ public class hlm extends h1 {
     }
     
     @Override
-    public Float compute_estimate(State s_0) {
+    public Float compute_estimate(PDDLState s_0) {
         if (s_0.satisfy(G)) {
             return 0f;
         }
-        Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
+        Stack<PDDLGroundAction> a_plus = new Stack();//actions executable. Progressively updated
         ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
         ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
-        HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
+        HashMap<PDDLGroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
         reachable_poss_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
         
         dist_float = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
@@ -176,7 +176,7 @@ public class hlm extends h1 {
             reachable_poss_achievers.set(c.getCounter(), new LinkedHashSet());//this is a mapping between condition and its possible (reachable) achievers
         }
         
-        for (GroundAction gr : this.A) {//see which actions are executable at the current state
+        for (PDDLGroundAction gr : this.A) {//see which actions are executable at the current state
             if (this.check_conditions(gr)) {
                 a_plus.add(gr);//add such an action
                 never_active.set(gr.counter, false);
@@ -187,7 +187,7 @@ public class hlm extends h1 {
         }
         
         while (!a_plus.isEmpty()) {//keep going till no action is in the list. Look that here actions can be re-added
-            GroundAction gr = a_plus.pop();
+            PDDLGroundAction gr = a_plus.pop();
             update_actions_conditions(s_0, gr, a_plus, never_active, lm);//this procedure updates
             //all the conditions that can be reached by using action gr. 
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
@@ -312,7 +312,7 @@ public class hlm extends h1 {
         return Math.max(0.0001f, estimate);
     }
     
-    private boolean update_lm(Condition p, GroundAction gr, ArrayList<Set<Condition>> lm) {
+    private boolean update_lm(Condition p, PDDLGroundAction gr, ArrayList<Set<Condition>> lm) {
         
         Set<Condition> previous = lm.get(p.getCounter());
         
@@ -375,7 +375,7 @@ public class hlm extends h1 {
         
     }
     
-    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
+    private void update_actions_conditions(PDDLState s_0, PDDLGroundAction gr, Stack<PDDLGroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
         for (Condition comp : this.achieve.get(gr.counter)) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (dist_float.get(comp.getCounter()) != 0f) {//if this isn't in the init state yet
@@ -402,13 +402,13 @@ public class hlm extends h1 {
         }
     }
     
-    private void update_action_condition(GroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, Float contribution, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
+    private void update_action_condition(PDDLGroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, Float contribution, ArrayList<Boolean> never_active, Stack<PDDLGroundAction> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Set<GroundAction> set = condition_to_action.get(comp.getCounter());
+        Set<PDDLGroundAction> set = condition_to_action.get(comp.getCounter());
         //this mapping contains action that need to be triggered becasue of condition comp
-        for (GroundAction gr2 : set) {
+        for (PDDLGroundAction gr2 : set) {
             if (gr2.counter == gr.counter) {//avoids self-loop. Thanks god I have integer mapping here.
                 continue;
             }
@@ -444,7 +444,7 @@ public class hlm extends h1 {
 //        }s
     }
     
-    private boolean check_conditions(GroundAction gr2) {
+    private boolean check_conditions(PDDLGroundAction gr2) {
         
         for (Condition c : (Collection<Condition>) gr2.getPreconditions().sons) {
             if (dist_float.get(c.getCounter()) == Float.MAX_VALUE) {
@@ -457,8 +457,8 @@ public class hlm extends h1 {
     private void generate_link_precondition_action() {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
         for (Condition c : all_conditions) {
-            LinkedHashSet<GroundAction> set = new LinkedHashSet();
-            for (GroundAction gr : A) {
+            LinkedHashSet<PDDLGroundAction> set = new LinkedHashSet();
+            for (PDDLGroundAction gr : A) {
                 if (gr.getPreconditions().sons.contains(c)) {
                     set.add(gr);
                 }
@@ -515,7 +515,7 @@ public class hlm extends h1 {
         
     }
     
-    private void init_lp(LinkedHashSet<GroundAction> A, Collection<Condition> all_conditions, State s_0) {
+    private void init_lp(LinkedHashSet<PDDLGroundAction> A, Collection<Condition> all_conditions, PDDLState s_0) {
         try {
             lp_global = new IloCplex();
             objective_function = lp_global.linearNumExpr();
@@ -524,12 +524,12 @@ public class hlm extends h1 {
             for (Condition c : all_conditions) {
                 IloLinearNumExpr expr = lp_global.linearNumExpr();
                 if (c instanceof Predicate) {
-                    for (GroundAction gr : this.condition_to_action.get(c.getCounter())) {
+                    for (PDDLGroundAction gr : this.condition_to_action.get(c.getCounter())) {
                         
                     }
                 } else if (c instanceof Comparison) {
                     
-                    for (GroundAction gr : this.condition_to_action.get(c.getCounter())) {
+                    for (PDDLGroundAction gr : this.condition_to_action.get(c.getCounter())) {
                         IloNumVar action;
 //                        gr.set_unit_cost(s_0);
                         Float action_cost = gr.getAction_cost();
@@ -564,10 +564,10 @@ public class hlm extends h1 {
     
     public class repetition_landmark extends Object {
         
-        public GroundAction gr;
+        public PDDLGroundAction gr;
         public float contribution;
         
-        public repetition_landmark(GroundAction gr_input, float repetition_input) {
+        public repetition_landmark(PDDLGroundAction gr_input, float repetition_input) {
             super();
             this.gr = gr_input;
             this.contribution = repetition_input;

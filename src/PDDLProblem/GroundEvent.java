@@ -16,19 +16,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package problem;
+package PDDLProblem;
 
 import conditions.AndCond;
 import conditions.ComplexCondition;
 import conditions.PDDLObject;
-import domain.ParametersAsTerms;
+import PDDLDomain.ParametersAsTerms;
 import java.util.HashMap;
 
 /**
  *
  * @author enrico
  */
-public class GroundEvent extends GroundAction {
+public class GroundEvent extends PDDLGroundAction {
 
     public GroundEvent(String name) {
         super(name);

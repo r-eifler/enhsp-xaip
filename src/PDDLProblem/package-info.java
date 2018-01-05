@@ -16,23 +16,4 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package domain;
-
-//import java.util.Comparator;
-import java.util.Comparator;
-
-/**
- *
- * @author enrico
- */
-class ActionComparator implements Comparator<GenericActionType> {
-
-    public ActionComparator() {
-    }
-
-    @Override
-    public int compare(GenericActionType gat1, GenericActionType gat2) {
-        return gat1.name.compareTo(gat2.name);
-    }
-
-}
+package PDDLProblem;

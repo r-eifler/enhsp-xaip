@@ -16,11 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package domain;
+package PDDLDomain;
 
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ComplexCondition;
+import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.NotCond;
 
@@ -31,48 +32,28 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import problem.GroundProcess;
-import problem.PDDLObjects;
-import problem.PddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.PddlProblem;
+import propositionalFactory.Grounder;
 
 /**
  *
  * @author enrico
  */
-public class ProcessSchema extends GenericActionType {
+public class ActionSchema extends PDDLGenericAction {
 
-    //private SchemaParameters parameters;
-    //private HashSet numericFluentAffected;
-    public ProcessSchema() {
+    public ActionSchema() {
         super();
         parameters = new SchemaParameters();
+//        numericFluentAffected = new HashSet();
         this.addList = new AndCond();
         this.delList = new AndCond();
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
+        this.cond_effects = new AndCond();
+        this.forall = new AndCond();
 
-    }
-
-//
-//    public Action ground(ArrayList terms){
-//        
-//        
-//        substitution = new HashMap();
-//        
-//        
-//    }
-    /**
-     * @return the parameters
-     */
-    public SchemaParameters getParameters() {
-        return parameters;
-    }
-
-    /**
-     * @param parameters the parameters to set
-     */
-    public void setParameters(SchemaParameters parameters) {
-        this.parameters = parameters;
     }
 
     public void addParameter(Variable o) {
@@ -81,8 +62,20 @@ public class ProcessSchema extends GenericActionType {
 
     }
 
-    public GroundProcess ground(Map substitution, PDDLObjects po) {
-        GroundProcess ret = new GroundProcess(this.name);
+    public String pddlPrintWithExtraObject() {
+        String ret = "(:action " + this.name + "\n";
+
+        ret += ":parameters " + this.parameters + "\n";
+        if (this.getPreconditions() != null && !this.getPreconditions().sons.isEmpty()) {
+            ret += ":precondition (forall (?interpr - interpretation)" + this.getPreconditions().pddlPrintWithExtraObject() + ")\n";
+        }
+        ret += ":effect " + this.pddlEffectsWithExtraObject();
+
+        return ret + ")";
+    }
+
+    public PDDLGroundAction ground(Map substitution, PDDLObjects po) {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -91,17 +84,23 @@ public class ProcessSchema extends GenericActionType {
         }
         ret.setParameters(input);
 
+        if (ret.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) ret.forall.ground(substitution, po);
+            this.create_effects_by_cases(temp);
+        }
+
         ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, po));
         ret.setAddList((AndCond) this.addList.ground(substitution, po));
         ret.setDelList((AndCond) this.delList.ground(substitution, po));
         ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
+        ret.cond_effects = (AndCond) this.cond_effects.ground(substitution, po);
 
         return ret;
 
     }
 
-    public GroundProcess ground(Map substitution, int c) {
-        GroundProcess ret = new GroundProcess(this.name);
+    public PDDLGroundAction ground(Map substitution, int c) {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -117,40 +116,44 @@ public class ProcessSchema extends GenericActionType {
         return ret;
     }
 
-    public GroundProcess ground(ParametersAsTerms par, PDDLObjects po) {
-        GroundProcess ret = new GroundProcess(this.name);
-        ParametersAsTerms input = new ParametersAsTerms();
+    public PDDLGroundAction ground(ParametersAsTerms par, PDDLObjects po) {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         int i = 0;
-
-        Map substitution = new HashMap();
-        for (Object o : parameters) {
-            Variable el = (Variable) o;
-            substitution.put(el, par.get(i));
-            PDDLObject t = (PDDLObject) substitution.get(el);
-            i++;
-        }
+        Grounder g = new Grounder();
+        Map substitution = g.obtain_sub_from_instance(parameters, par);
         ret.setParameters(par);
 
-        //System.out.println(this);
+        if (this.forall != null) {//Kind of special case for now
+            AndCond temp = (AndCond) this.forall.ground(substitution, po);
+            ret.create_effects_by_cases(temp);
+        }
+
+//        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, po));
+            ret.numericEffects.sons.addAll(((AndCond)this.numericEffects.ground(substitution, po)).sons);
+//            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.setAddList((AndCond) this.addList.ground(substitution, po));
+            ret.addList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+//            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.setDelList((AndCond) this.delList.ground(substitution, po));
+            ret.delList.sons.addAll(((AndCond)this.delList.ground(substitution, po)).sons);
+
+//            ret.setDelList(this.delList.ground(substitution, po));
         }
         if (preconditions != null) {
             ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
-
+        if (cond_effects != null) {
+            ret.cond_effects.sons.addAll(((ComplexCondition) this.cond_effects.ground(substitution, po)).sons);
+        }
         return ret;
     }
 
-    public GroundProcess ground() {
-        GroundProcess ret = new GroundProcess(this.name);
+    public PDDLGroundAction fakeGround() {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 
         ret.setParameters(input);
@@ -158,7 +161,7 @@ public class ProcessSchema extends GenericActionType {
         ret.setAddList(addList);
         ret.setDelList(delList);
         ret.setNumericEffects(numericEffects);
-
+        ret.cond_effects = cond_effects;
         return ret;
     }
 
@@ -171,16 +174,17 @@ public class ProcessSchema extends GenericActionType {
 //        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
 //    }
 
-        String ret = "(:process " + this.name + "\n";
+        String ret = "(:action " + this.name + "\n";
 
-        ret += ":parameters " + this.getParameters() + "\n";
+        ret += ":parameters " + this.parameters + "\n";
         ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
-        ret += ":effect " + this.pddlEffects();
+        //ret += ":effect " + this.pddlEffectsWithExtraObject();
+        ret += ":effect " + this.pddlEffects() + "\n";
 
         return ret + ")";
     }
 
-    private String pddlEffects() {
+    protected String pddlEffects() {
         String ret = "(and ";
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
@@ -197,6 +201,13 @@ public class ProcessSchema extends GenericActionType {
         if (this.getNumericEffects() != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
+                ret += nE.pddlPrint(false);
+
+            }
+        }
+        if (this.cond_effects != null) {
+            for (Object o : this.cond_effects.sons) {
+                ConditionalEffect nE = (ConditionalEffect) o;
                 ret += nE.pddlPrint(false);
 
             }
@@ -226,18 +237,18 @@ public class ProcessSchema extends GenericActionType {
     }
 
     @Deprecated
-    public ProcessSchema append(ProcessSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
+    public ActionSchema append(ActionSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
 
         if (this.name == null) {
-            return (ProcessSchema) as2.clone();
+            return (ActionSchema) as2.clone();
         }
-        ProcessSchema a = this;
+        ActionSchema a = this;
 
-        ProcessSchema ab = new ProcessSchema();
+        ActionSchema ab = new ActionSchema();
         ab.name = this.name + "_" + as2.name;
 
-        ab.setParameters((SchemaParameters) a.getParameters().clone());
-        ab.getParameters().mergeParameters(as2.getParameters());
+        ab.setParameters((SchemaParameters) a.parameters.clone());
+        ab.parameters.mergeParameters(as2.parameters);
 
         ab.setPreconditions((ComplexCondition) this.regress(as2, a));
         this.progress(a, as2, ab);
@@ -248,7 +259,7 @@ public class ProcessSchema extends GenericActionType {
         return ab;
     }
 
-    private void progress(ProcessSchema a, ProcessSchema b, ProcessSchema ab) {
+    private void progress(ActionSchema a, ActionSchema b, ActionSchema ab) {
         /*Starting from what action a achieve*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
@@ -303,7 +314,10 @@ public class ProcessSchema extends GenericActionType {
         ab.setNumericEffects(numEff);
     }
 
-    private Condition regress(ProcessSchema b, ProcessSchema a) {
+    /**
+     * @return the numericFluentAffected
+     */
+    private Condition regress(ActionSchema b, ActionSchema a) {
         /*Propositional Part first*/
 
         AndCond result = (AndCond) b.getPreconditions().clone();
@@ -335,6 +349,38 @@ public class ProcessSchema extends GenericActionType {
         //AndCond numericCondition = 
         return result;
 
+    }
+
+    private String pddlEffectsWithExtraObject() {
+        String ret = "(and ";
+        if (this.getAddList() != null) {
+            for (Object o : this.getAddList().sons) {
+                Predicate p = (Predicate) o;
+                ret += "(forall (?interpr - interpretation) " + p.pddlPrintWithExtraObject() + ")";
+            }
+        }
+        if (this.getDelList() != null) {
+            for (Object o : this.getDelList().sons) {
+                NotCond p = (NotCond) o;
+                ret += "(forall (?interpr - interpretation) " + p.pddlPrintWithExtraObject() + ")";
+            }
+        }
+        if (this.getNumericEffects() != null) {
+            for (Object o : this.getNumericEffects().sons) {
+                NumEffect nE = (NumEffect) o;
+                ret += "(forall (?interpr - interpretation) " + nE.pddlPrint(false) + ")";
+
+            }
+        }
+        if (this.cond_effects != null) {
+            for (Object o : this.cond_effects.sons) {
+                ConditionalEffect cond_eff = (ConditionalEffect) o;
+                ret += "(forall (?interpr - interpretation) " + cond_eff.pddlPrintWithExtraObject() + ")";
+
+            }
+        }
+
+        return ret + ")";
     }
 
 }

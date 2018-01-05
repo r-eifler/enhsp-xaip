@@ -22,9 +22,9 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Condition;
 import conditions.Predicate;
-import domain.ParametersAsTerms;
-import domain.ActionSchema;
-import domain.PddlDomain;
+import PDDLDomain.ParametersAsTerms;
+import PDDLDomain.ActionSchema;
+import PDDLDomain.PddlDomain;
 import expressions.NumFluent;
 import extraUtils.Utils;
 import java.io.BufferedWriter;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import plan.SimplePlan;
-import problem.GroundAction;
+import PDDLProblem.PDDLGroundAction;
 
 /**
  *
@@ -52,10 +52,10 @@ public class DomainEnhancer {
     private HashSet<String> goalCondition_Reformulation;
     private int j;
 
-    public void addMacroOperator(String domainFile, GroundAction gr) throws CloneNotSupportedException, IOException {
+    public void addMacroOperator(String domainFile, PDDLGroundAction gr) throws CloneNotSupportedException, IOException {
 
         String constants = "(costants: " + gr.getParameters().pddlPrint() + ")";
-        GroundAction temp = (GroundAction) gr.clone();
+        PDDLGroundAction temp = (PDDLGroundAction) gr.clone();
         temp.setName("Macro");
         String action = temp.toPDDL();
 
@@ -66,7 +66,7 @@ public class DomainEnhancer {
 
     }
 
-    public void addMacroOperator(PddlDomain domain, GroundAction gr) throws CloneNotSupportedException, IOException {
+    public void addMacroOperator(PddlDomain domain, PDDLGroundAction gr) throws CloneNotSupportedException, IOException {
 
         String constants = "(:constants " + gr.getParameters().pddlPrint() + ")\n";
         //GroundAction temp = (GroundAction)gr.clone();
@@ -113,7 +113,7 @@ public class DomainEnhancer {
         int i = 0;
         for (Object o : macroOps) {
 
-            GroundAction gr = (GroundAction) o;
+            PDDLGroundAction gr = (PDDLGroundAction) o;
             constants.addALLNewObjects(gr.getParameters());
             gr.setName("macro" + i);
             ret.put(gr.getName(), gr.getPrimitives());
@@ -160,10 +160,10 @@ public class DomainEnhancer {
         int i = 0;
         for (Object o : macroOps) {
 
-            GroundAction gr = (GroundAction) o;
+            PDDLGroundAction gr = (PDDLGroundAction) o;
             constants.addALLNewObjects(gr.getParameters());
-            int first = sp.indexOf((GroundAction) gr.getPrimitives().get(0));
-            int last = sp.indexOf((GroundAction) gr.getPrimitives().get(gr.getPrimitives().size() - 1));
+            int first = sp.indexOf((PDDLGroundAction) gr.getPrimitives().get(0));
+            int last = sp.indexOf((PDDLGroundAction) gr.getPrimitives().get(gr.getPrimitives().size() - 1));
 
             gr.setName("macro_" + first + "-" + last);
             ret.put(gr.getName(), gr.getPrimitives());
@@ -214,13 +214,13 @@ public class DomainEnhancer {
         int i = 0;
         for (Object o : macroOps) {
 
-            GroundAction gr = (GroundAction) o;
+            PDDLGroundAction gr = (PDDLGroundAction) o;
             constants.addALLNewObjects(gr.getParameters());
-            int first = sp.indexOf((GroundAction) gr.getPrimitives().get(0));
-            int last = sp.indexOf((GroundAction) gr.getPrimitives().get(gr.getPrimitives().size() - 1));
+            int first = sp.indexOf((PDDLGroundAction) gr.getPrimitives().get(0));
+            int last = sp.indexOf((PDDLGroundAction) gr.getPrimitives().get(gr.getPrimitives().size() - 1));
             String nameMacro = "macro";
             for (Object temp : gr.getPrimitives()) {
-                GroundAction primitive = (GroundAction) temp;
+                PDDLGroundAction primitive = (PDDLGroundAction) temp;
                 nameMacro += "_" + sp.indexOf(primitive);
             }
             gr.setName(nameMacro);
@@ -360,7 +360,7 @@ public class DomainEnhancer {
         }
     }
 
-    public Map addMacroOperators(PddlDomain domain, List<GroundAction> macroOps, SimplePlan sp) throws IOException {
+    public Map addMacroOperators(PddlDomain domain, List<PDDLGroundAction> macroOps, SimplePlan sp) throws IOException {
 
         Writer f;
         Map ret = new HashMap();
@@ -372,7 +372,7 @@ public class DomainEnhancer {
         int i = 0;
         for (Object o : macroOps) {
 
-            GroundAction as = (GroundAction) o;
+            PDDLGroundAction as = (PDDLGroundAction) o;
             //constants.addALLNewObjects(gr.getParameters());
 
             actions += as + "\n";

@@ -18,9 +18,9 @@
  */
 package conditions;
 
-import domain.ActionParameter;
-import domain.Type;
-import domain.Variable;
+import PDDLDomain.ActionParameter;
+import PDDLDomain.Type;
+import PDDLDomain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
 import java.util.ArrayList;
@@ -28,11 +28,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -126,12 +126,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         return true;
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         return true;
     }
 
@@ -179,12 +179,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition weakEval(State s, HashMap invF) {
+    public Condition weakEval(PDDLState s, HashMap invF) {
         return this;
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString(int k, PDDLGroundAction gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -194,12 +194,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by(PDDLGroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress(PDDLGroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -242,7 +242,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

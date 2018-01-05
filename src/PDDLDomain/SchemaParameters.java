@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package domain;
+package PDDLDomain;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import problem.PDDLObjects;
+import PDDLProblem.PDDLObjects;
 
 /**
  *

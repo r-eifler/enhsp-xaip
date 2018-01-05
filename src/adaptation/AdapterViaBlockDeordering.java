@@ -25,7 +25,7 @@ package adaptation;
  */
 import adaptation.PlanAdapter;
 import some_computatitional_tool.DomainEnhancer;
-import domain.PddlDomain;
+import PDDLDomain.PddlDomain;
 import extraUtils.Utils;
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,8 +42,8 @@ import java.util.regex.Pattern;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
 import wrapped_planners.planningTool;
-import problem.PDDLObjects;
-import problem.PddlProblem;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.PddlProblem;
 
 /**
  *

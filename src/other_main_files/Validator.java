@@ -19,8 +19,8 @@
 package other_main_files;
 
 import conditions.Condition;
-import domain.ActionSchema;
-import domain.PddlDomain;
+import PDDLDomain.ActionSchema;
+import PDDLDomain.PddlDomain;
 import static extraUtils.Utils.searchParameterValue;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
-import problem.PddlProblem;
+import PDDLProblem.PddlProblem;
 
 /**
  * *******************************************************************

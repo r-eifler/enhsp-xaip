@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package domain;
+package PDDLDomain;
 
 import conditions.ForAll;
 import conditions.AndCond;
@@ -64,8 +64,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 import parser.PddlLexer;
 import parser.PddlParser;
-import problem.PDDLObjects;
-import problem.PddlProblem;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.PddlProblem;
 
 /**
  *
@@ -840,7 +840,7 @@ public final class PddlDomain extends Object {
 //        }
 //        return null;
 //    }
-    private void addEffects(GenericActionType a, Tree infoAction) {
+    private void addEffects(PDDLGenericAction a, Tree infoAction) {
         //PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
         PostCondition res = fc.createPostCondition(a.parameters, infoAction.getChild(0));
         a.create_effects_by_cases(res);

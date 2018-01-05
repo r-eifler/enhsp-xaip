@@ -22,8 +22,8 @@ import expressions.NumFluent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -39,7 +39,7 @@ public interface PostCondition {
      * @param modifications a map that associates every variable whose value is
      * assigned by the post condition with its new value (boolean or float).
      */
-    public abstract void apply(State s, Map modifications);
+    public abstract void apply(PDDLState s, Map modifications);
 
     /**
      * Applies this post condition to the specified rel state and stores the
@@ -69,7 +69,7 @@ public interface PostCondition {
      */
     public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
 
-    public abstract HashMap<Object, Object> apply(State s);
+    public abstract HashMap<Object, Object> apply(PDDLState s);
 
     public abstract HashMap<Object, Object> apply(RelState s);
 

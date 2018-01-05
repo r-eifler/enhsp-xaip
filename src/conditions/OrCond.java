@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import domain.Variable;
+import PDDLDomain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
@@ -32,10 +32,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -109,7 +109,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
 
         for (Object o : sons) {
             Condition c = (Condition) o;
@@ -122,7 +122,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
             if (c.isSatisfied(s)) {
@@ -324,7 +324,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition weakEval(State s, HashMap invF) {
+    public Condition weakEval(PDDLState s, HashMap invF) {
         LinkedHashSet to_keep = new LinkedHashSet();
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
@@ -360,7 +360,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString(int k, PDDLGroundAction gr, String var) {
         String ret = "";
 
         //System.out.println(this);
@@ -403,7 +403,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by(PDDLGroundAction gr) {
         if (this.sons != null && !this.sons.isEmpty()) {
 
             for (Condition c : (Collection<Condition>) this.sons) {
@@ -418,7 +418,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress(PDDLGroundAction gr) {
         OrCond con = new OrCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -564,7 +564,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         achiever_set s = new achiever_set();
         s.cost = Float.MAX_VALUE;
         if (this.sons == null) {

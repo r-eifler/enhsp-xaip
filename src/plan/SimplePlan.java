@@ -25,10 +25,10 @@ import conditions.Condition;
 import conditions.NotCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import domain.ActionSchema;
-import domain.ParametersAsTerms;
-import domain.PddlDomain;
-import domain.Variable;
+import PDDLDomain.ActionSchema;
+import PDDLDomain.ParametersAsTerms;
+import PDDLDomain.PddlDomain;
+import PDDLDomain.Variable;
 import expressions.Expression;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -58,18 +58,18 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.PddlProblem;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.GroundEvent;
+import PDDLProblem.GroundProcess;
+import PDDLProblem.PddlProblem;
+import PDDLProblem.PDDLState;
 
 /**
  *
  * @author enrico
  */
-public class SimplePlan extends ArrayList<GroundAction> {
+public class SimplePlan extends ArrayList<PDDLGroundAction> {
 
     private PddlDomain pd;
     public PddlProblem pp;
@@ -93,7 +93,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public float cost;
     public JSONObject numeric_plan_trace;
     public Float ending_time;
-    private ArrayList<GroundAction> inst_actions;
+    private ArrayList<PDDLGroundAction> inst_actions;
     private HashMap<NumFluent, ArrayList<Float>> nf_trace;
 
     public SimplePlan(PddlDomain dom) {
@@ -158,9 +158,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         sp.invariantAnalysis = this.invariantAnalysis;
         for (Object o : this) {
-            GroundAction gr = (GroundAction) o;
+            PDDLGroundAction gr = (PDDLGroundAction) o;
             try {
-                sp.add((GroundAction) gr.clone());
+                sp.add((PDDLGroundAction) gr.clone());
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -177,7 +177,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         //System.out.println(par);
         
-        GroundAction grAction = action.ground(par, pp.getProblemObjects());
+        PDDLGroundAction grAction = action.ground(par, pp.getProblemObjects());
         grAction.generateAffectedNumFluents();
 //        if (pp instanceof EPddlProblem) 
 //            grAction.unifyVariablesReferences((EPddlProblem) pp);
@@ -359,8 +359,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         String ret_val = "";
 
         for (Object o : this) {
-            if (o instanceof GroundAction) {
-                GroundAction a = (GroundAction) o;
+            if (o instanceof PDDLGroundAction) {
+                PDDLGroundAction a = (PDDLGroundAction) o;
 
                 ret_val = ret_val.concat(a.toEcoString() + "\n");
 
@@ -371,7 +371,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public String printAction(int index) {
 
-        GroundAction a = (GroundAction) this.get(index);
+        PDDLGroundAction a = (PDDLGroundAction) this.get(index);
 
         return a.getNumericEffects().toString();
 
@@ -381,8 +381,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         String ret_val = "";
 
         for (Object o : this) {
-            if (o instanceof GroundAction) {
-                GroundAction a = (GroundAction) o;
+            if (o instanceof PDDLGroundAction) {
+                PDDLGroundAction a = (PDDLGroundAction) o;
                 ret_val = ret_val.concat(a.toString());
 
             }
@@ -401,7 +401,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //dopo aver fatto cio' semplifico le variabili nelle azioni del piano
         this.invariantFluents = new HashMap();
         for (Object anAction : this) {
-            GroundAction a = (GroundAction) anAction;
+            PDDLGroundAction a = (PDDLGroundAction) anAction;
             for (Object o2 : a.getNumericFluentAffected().keySet()) {
                 invariantFluents.put(o2, false);
             }
@@ -416,7 +416,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
 
         for (Object o : this) {
-            GroundAction a = (GroundAction) o;
+            PDDLGroundAction a = (PDDLGroundAction) o;
             //a.normalizeAndCopy();
 
             ComplexCondition con = a.getPreconditions();
@@ -473,7 +473,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         //dopo aver fatto cio' semplifico le variabili nelle azioni del piano
         for (Object o : this) {
 
-            GroundAction a = (GroundAction) o;
+            PDDLGroundAction a = (PDDLGroundAction) o;
             //a.normalizeAndCopy();
             a.simplifyModel(pd, pp);
 
@@ -486,7 +486,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         try {
             output = new BufferedWriter(new FileWriter(nFile));
             for (Object o : this) {
-                GroundAction a = (GroundAction) o;
+                PDDLGroundAction a = (PDDLGroundAction) o;
                 output.write(a.toFileCompliant() + "\n");
             }
             output.close();
@@ -512,7 +512,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             output = new BufferedWriter(new FileWriter(nFile));
             output.write("0 \n %% \n " + this.size());
             for (Object o : this) {
-                GroundAction a = (GroundAction) o;
+                PDDLGroundAction a = (PDDLGroundAction) o;
                 output.write(a.toFileCompliant() + " ");
             }
             output.write("\n %% \n linear " + this.size());
@@ -545,7 +545,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     continue;
                 }
 
-                GroundAction a = (GroundAction) o;
+                PDDLGroundAction a = (PDDLGroundAction) o;
                 output.write(a.toFileCompliant() + "\n");
             }
             output.close();
@@ -583,7 +583,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         try {
             output = new BufferedWriter(new FileWriter(tempPlan));
             for (int j = i; j < this.size(); j++) {
-                GroundAction a = (GroundAction) this.get(j);
+                PDDLGroundAction a = (PDDLGroundAction) this.get(j);
                 output.write(a.toFileCompliant() + "\n");
             }
             output.close();
@@ -602,11 +602,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public String last_relevant_fluents_last_state(int i, State s) throws CloneNotSupportedException {
+    public String last_relevant_fluents_last_state(int i, PDDLState s) throws CloneNotSupportedException {
         String ret = "";
-        State temp = s.clone();
+        PDDLState temp = s.clone();
         for (int j = i; j < this.size(); j++) {
-            GroundAction action = (GroundAction) this.get(j);
+            PDDLGroundAction action = (PDDLGroundAction) this.get(j);
             action.apply(temp);
         }
         ret += "S[plan(" + i + ")] \n";
@@ -629,16 +629,16 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
-    public GroundAction generateMacro(int firstActionIndex, int lastActionIndex) throws CloneNotSupportedException, Exception {
+    public PDDLGroundAction generateMacro(int firstActionIndex, int lastActionIndex) throws CloneNotSupportedException, Exception {
         //GroundAction firstAct = (GroundAction) this.get(firstActionIndex);
         if (lastActionIndex > firstActionIndex) {
-            GroundAction macroPlan = (GroundAction) this.get(firstActionIndex);
+            PDDLGroundAction macroPlan = (PDDLGroundAction) this.get(firstActionIndex);
             macroPlan.setIsMacro(true);
             macroPlan.getPrimitives().add(this.get(firstActionIndex));
 
             long start = System.currentTimeMillis();
             for (int j = firstActionIndex + 1; j <= lastActionIndex; j++) {
-                macroPlan = macroPlan.buildMacroInProgression((GroundAction) this.get(j), this.pd, this.pp, false);
+                macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
             }
             System.out.println("#primitives: " + macroPlan.getPrimitives().size() + " aggregation time:" + (System.currentTimeMillis() - start));
             return macroPlan;
@@ -648,10 +648,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init) throws CloneNotSupportedException {
-        State temp = init.clone();
+    public PDDLState execute(PDDLState init) throws CloneNotSupportedException {
+        PDDLState temp = init.clone();
         int i = 0;
-        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+        for (PDDLGroundAction gr : (ArrayList<PDDLGroundAction>) this) {
             if (gr.isApplicable(temp)) {
                 i++;
                 temp = gr.apply(temp);
@@ -761,30 +761,30 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return cond;
     }
 
-    public TreeSet<GroundAction> generateMacrosSuffandPref() throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet();
-        GroundAction macroPlan = new GroundAction();
+    public TreeSet<PDDLGroundAction> generateMacrosSuffandPref() throws CloneNotSupportedException, Exception {
+        TreeSet<PDDLGroundAction> ret = new TreeSet();
+        PDDLGroundAction macroPlan = new PDDLGroundAction();
         //prefix plans computation
         for (int j = 0; j < this.size(); j++) {
-            macroPlan = macroPlan.buildMacroInProgression((GroundAction) this.get(j), this.pd, this.pp, false);
+            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
             ret.add(macroPlan);
         }
         //suffix plans computation
-        macroPlan = new GroundAction();
+        macroPlan = new PDDLGroundAction();
         //prefix plans computation
         for (int j = this.size() - 2; j > 0; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((GroundAction) this.get(j), this.pd, this.pp, false);
+            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
             ret.add(macroPlan);
         }
         return ret;
     }
 
-    public TreeSet<GroundAction> generateMacrosSuffPrefInfiss(int minLength) throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet();
-        GroundAction macroPlan = this.get(0);
+    public TreeSet<PDDLGroundAction> generateMacrosSuffPrefInfiss(int minLength) throws CloneNotSupportedException, Exception {
+        TreeSet<PDDLGroundAction> ret = new TreeSet();
+        PDDLGroundAction macroPlan = this.get(0);
         //prefix plans computation
         for (int j = 1; j < this.size(); j++) {
-            macroPlan = macroPlan.buildMacroInProgression((GroundAction) this.get(j), this.pd, this.pp, false);
+            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
             if (macroPlan.getPrimitives().size() >= minLength) {
                 ret.add(macroPlan);
             }
@@ -793,7 +793,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         macroPlan = this.get(this.size() - 1);
         //prefix plans computation
         for (int j = this.size() - 2; j > 0; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((GroundAction) this.get(j), this.pd, this.pp, false);
+            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
             if (macroPlan.getPrimitives().size() >= minLength) {
                 ret.add(macroPlan);
             }
@@ -801,17 +801,17 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         int middle = this.size() / 2;
         //System.out.println("!!!!!!!!!!  "+middle + " !!!!!!!!!!!!!!");
-        GroundAction firstAct = (GroundAction) this.get(middle);
-        GroundAction macro = (GroundAction) firstAct.clone();
+        PDDLGroundAction firstAct = (PDDLGroundAction) this.get(middle);
+        PDDLGroundAction macro = (PDDLGroundAction) firstAct.clone();
         macro.simplifyModel(pd, pp);
 
         long start = System.currentTimeMillis();
         //prefix plans computation
         for (int j = middle + 1; j <= this.size(); j++) {
-            GroundAction macroDestra = null;
+            PDDLGroundAction macroDestra = null;
 
             if (j < this.size()) {
-                macroDestra = macro.buildMacroInProgression((GroundAction) this.get(j), pd, pp, false);
+                macroDestra = macro.buildMacroInProgression((PDDLGroundAction) this.get(j), pd, pp, false);
                 if (macroDestra.getPrimitives().size() >= minLength) {
                     ret.add(macroDestra);
                 }
@@ -819,12 +819,12 @@ public class SimplePlan extends ArrayList<GroundAction> {
             int i = (this.size() % 2 == 0) ? this.size() - j : this.size() - j - 1;
             //System.out.println("Aggiungo azioni da:" +middle+","+ j + " e da: "+i);
             if (i >= 0) {
-                GroundAction macroSinistra = macro.buildMacroInRegression((GroundAction) this.get(i), pd, pp, false);
+                PDDLGroundAction macroSinistra = macro.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
                 if (macroSinistra.getPrimitives().size() >= minLength) {
                     ret.add(macroSinistra);
                 }
                 if (macroDestra != null) {
-                    GroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((GroundAction) this.get(i), pd, pp, false);
+                    PDDLGroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
                     //System.out.println("#primitives: "+(j)+" aggregation time:" + (System.currentTimeMillis()-start));
                     if (macroDestraSinistra.getPrimitives().size() >= minLength) {
                         ret.add(macroDestraSinistra);
@@ -904,31 +904,31 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public TreeSet<GroundAction> generateInfissMacros() throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet();
+    public TreeSet<PDDLGroundAction> generateInfissMacros() throws CloneNotSupportedException, Exception {
+        TreeSet<PDDLGroundAction> ret = new TreeSet();
 
         int middle = this.size() / 2;
         //System.out.println("!!!!!!!!!!  "+middle + " !!!!!!!!!!!!!!");
-        GroundAction firstAct = (GroundAction) this.get(middle);
-        GroundAction macro = (GroundAction) firstAct.clone();
+        PDDLGroundAction firstAct = (PDDLGroundAction) this.get(middle);
+        PDDLGroundAction macro = (PDDLGroundAction) firstAct.clone();
         macro.simplifyModel(pd, pp);
 
         long start = System.currentTimeMillis();
         //prefix plans computation
         for (int j = middle + 1; j <= this.size(); j++) {
-            GroundAction macroDestra = null;
+            PDDLGroundAction macroDestra = null;
 
             if (j < this.size()) {
-                macroDestra = macro.buildMacroInProgression((GroundAction) this.get(j), pd, pp, false);
+                macroDestra = macro.buildMacroInProgression((PDDLGroundAction) this.get(j), pd, pp, false);
                 ret.add(macroDestra);
             }
             int i = (this.size() % 2 == 0) ? this.size() - j : this.size() - j - 1;
             //System.out.println("Aggiungo azioni da:" +middle+","+ j + " e da: "+i);
             if (i >= 0) {
-                GroundAction macroSinistra = macro.buildMacroInRegression((GroundAction) this.get(i), pd, pp, false);
+                PDDLGroundAction macroSinistra = macro.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
                 ret.add(macroSinistra);
                 if (macroDestra != null) {
-                    GroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((GroundAction) this.get(i), pd, pp, false);
+                    PDDLGroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
                     //System.out.println("#primitives: "+(j)+" aggregation time:" + (System.currentTimeMillis()-start));
                     ret.add(macroDestraSinistra);
                     macro = macroDestraSinistra;
@@ -943,11 +943,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
-    public Set<GroundAction> generateEverySubMacros() throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet<GroundAction>();
+    public Set<PDDLGroundAction> generateEverySubMacros() throws CloneNotSupportedException, Exception {
+        TreeSet<PDDLGroundAction> ret = new TreeSet<PDDLGroundAction>();
         int n = 10000000;
         for (int i = 0; i < this.size() - 1; i++) {
-            GroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
+            PDDLGroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
             ret.add(macro);
             int rightBound = Math.min(i + 2 + n, this.size());
             for (int j = i + 2; j < rightBound; j++) {
@@ -958,11 +958,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
-    public Set<GroundAction> generateEverySubMacros(int upperBound) throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet<GroundAction>();
+    public Set<PDDLGroundAction> generateEverySubMacros(int upperBound) throws CloneNotSupportedException, Exception {
+        TreeSet<PDDLGroundAction> ret = new TreeSet<PDDLGroundAction>();
         int n = 10;
         for (int i = 0; i < this.size() - 1; i++) {
-            GroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
+            PDDLGroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
             addSubCondition(ret, macro, upperBound);
             int rightBound = Math.min(i + 2 + n, this.size());
             for (int j = i + 2; j < rightBound; j++) {
@@ -973,7 +973,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
-    private void addSubCondition(TreeSet<GroundAction> ret, GroundAction macro, int upperBound) {
+    private void addSubCondition(TreeSet<PDDLGroundAction> ret, PDDLGroundAction macro, int upperBound) {
         if (ret.size() >= upperBound) {
             if (macro.getPrevDistanceFromProblem() < ret.last().getPrevDistanceFromProblem()) {
                 ret.pollLast();
@@ -984,11 +984,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public Set<GroundAction> generateEverySubMacros(int upperBound, int maxLength) throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet<GroundAction>();
+    public Set<PDDLGroundAction> generateEverySubMacros(int upperBound, int maxLength) throws CloneNotSupportedException, Exception {
+        TreeSet<PDDLGroundAction> ret = new TreeSet<PDDLGroundAction>();
 
         for (int i = 0; i < this.size() - 1; i++) {
-            GroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
+            PDDLGroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
             addSubCondition(ret, macro, upperBound);
             int rightBound = Math.min(i + 2 + maxLength, this.size());
             for (int j = i + 2; j < rightBound; j++) {
@@ -1000,30 +1000,30 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     public Set generateMacrosSuffPrefInfissUniformely(int maxMacros) throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet();
-        TreeSet<GroundAction> ret1 = new TreeSet();
-        TreeSet<GroundAction> ret2 = new TreeSet();
+        TreeSet<PDDLGroundAction> ret = new TreeSet();
+        TreeSet<PDDLGroundAction> ret1 = new TreeSet();
+        TreeSet<PDDLGroundAction> ret2 = new TreeSet();
         int middle = this.size() / 2;
         int n = middle;
 
-        GroundAction macroPlan = this.get(0);
+        PDDLGroundAction macroPlan = this.get(0);
         //prefix plans computation
         for (int j = 1; j <= n; j++) {
-            macroPlan = macroPlan.buildMacroInProgression((GroundAction) this.get(j), this.pd, this.pp, true);
+            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, true);
             addSubCondition(ret, macroPlan, maxMacros / 3);
         }
         //suffix plans computation
         macroPlan = this.get(this.size() - 1);
         //prefix plans computation
         for (int j = this.size() - 2; j > n; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((GroundAction) this.get(j), this.pd, this.pp, true);
+            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, true);
             addSubCondition(ret1, macroPlan, maxMacros / 3);
         }
         //addSubCondition(ret1,allPlan.buildMacroInProgression(macroPlan, pd, pp),maxMacros/3);
 
         //System.out.println("!!!!!!!!!!  "+middle + " !!!!!!!!!!!!!!");
-        GroundAction firstAct = (GroundAction) this.get(middle);
-        GroundAction macro = (GroundAction) firstAct.clone();
+        PDDLGroundAction firstAct = (PDDLGroundAction) this.get(middle);
+        PDDLGroundAction macro = (PDDLGroundAction) firstAct.clone();
         macro.simplifyModel(pd, pp);
 
         long start = System.currentTimeMillis();
@@ -1032,21 +1032,21 @@ public class SimplePlan extends ArrayList<GroundAction> {
         int up = (int) (((float) this.size() / 3.0) * 2.0);
 
         for (int j = middle + 1; j <= up; j++) {
-            GroundAction macroDestra = null;
+            PDDLGroundAction macroDestra = null;
 
             if (j < this.size()) {
 //               System.out.println(macro);
 //               System.out.println(this.get(j));
-                macroDestra = macro.buildMacroInProgression((GroundAction) this.get(j), pd, pp, true);
+                macroDestra = macro.buildMacroInProgression((PDDLGroundAction) this.get(j), pd, pp, true);
                 addSubCondition(ret2, macroDestra, maxMacros / 3);
             }
             int i = (this.size() % 2 == 0) ? this.size() - j : this.size() - j - 1;
             //System.out.println("Aggiungo azioni da:" +middle+","+ j + " e da: "+i);
             if (i >= 0) {
-                GroundAction macroSinistra = macro.buildMacroInRegression((GroundAction) this.get(i), pd, pp, true);
+                PDDLGroundAction macroSinistra = macro.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, true);
                 addSubCondition(ret2, macroSinistra, maxMacros / 3);
                 if (macroDestra != null) {
-                    GroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((GroundAction) this.get(i), pd, pp, true);
+                    PDDLGroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, true);
                     //System.out.println("#primitives: "+(j)+" aggregation time:" + (System.currentTimeMillis()-start));
                     addSubCondition(ret2, macroDestraSinistra, maxMacros / 3);
                     //System.out.println("macrodestrasinitra"+i+","+j);
@@ -1072,22 +1072,22 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     public Set generateMacrosSuffPref(int maxMacros, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
-        TreeSet<GroundAction> ret = new TreeSet();
-        TreeSet<GroundAction> ret1 = new TreeSet();
+        TreeSet<PDDLGroundAction> ret = new TreeSet();
+        TreeSet<PDDLGroundAction> ret1 = new TreeSet();
         int middle = this.size() / 2;
         int n = middle;
 
-        GroundAction macroPlan = this.get(0);
+        PDDLGroundAction macroPlan = this.get(0);
         //prefix plans computation
         for (int j = 1; j <= n; j++) {
-            macroPlan = macroPlan.buildMacroInProgression((GroundAction) this.get(j), this.pd, this.pp, consideringNumericInformationInDistance);
+            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, consideringNumericInformationInDistance);
             addSubCondition(ret, macroPlan, maxMacros / 3);
         }
         //suffix plans computation
         macroPlan = this.get(this.size() - 1);
         //prefix plans computation
         for (int j = this.size() - 2; j > n; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((GroundAction) this.get(j), this.pd, this.pp, consideringNumericInformationInDistance);
+            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, consideringNumericInformationInDistance);
             addSubCondition(ret1, macroPlan, maxMacros / 3);
         }
         //addSubCondition(ret1,allPlan.buildMacroInProgression(macroPlan, pd, pp),maxMacros/3);
@@ -1130,25 +1130,25 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public DirectedAcyclicGraph buildValidationStructures(State init, ComplexCondition g) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph buildValidationStructures(PDDLState init, ComplexCondition g) throws CloneNotSupportedException, Exception {
         DirectedAcyclicGraph po = new DirectedAcyclicGraph(DefaultEdge.class);
         po.addVertex(-1);
         //DirectedAcyclicGraph po = new DirectedAcyclicGraph();
         validationStructures = new IdentityHashMap();
 
         //Create a pseudo action for the goal, having null effects but precondition equal to the goal conditions
-        GroundAction goal = new GroundAction("goal");
+        PDDLGroundAction goal = new PDDLGroundAction("goal");
         goal.setPreconditions(g);
         goal.normalize();
         this.add(goal);
         long totalTimeSpentForChainSearch = 0;
         //create init action from the initial state.
-        GroundAction start = init.transformInAction();
+        PDDLGroundAction start = init.transformInAction();
         this.add(0, start);
         System.out.println("DEBUG: Dummy Start Action" + start.toPDDL());
         //System.out.print("Building Validation Structure for : ");
         for (int i = 0; i < this.size(); i++) {
-            GroundAction a = this.get(i);
+            PDDLGroundAction a = this.get(i);
             //System.out.println(a);
             if (!(a.getPreconditions() instanceof AndCond)) {
                 System.out.println("Only AND conditions are supported");
@@ -1278,7 +1278,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return po;
     }
 
-    public DirectedAcyclicGraph deorder(State init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph deorder(PDDLState init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
         if (debug > 0) {
@@ -1444,7 +1444,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private double evaluate(TreeSet<Integer> chain, Integer z, int i, Comparison c) throws CloneNotSupportedException {
 
         //System.out.println("Candidate:"+chain);
-        State tempInit = new State();
+        PDDLState tempInit = new PDDLState();
         for (Integer index : chain) {
             tempInit = this.get(index).apply(tempInit);
             if (tempInit == null) {
@@ -1461,7 +1461,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         if (d < 0) {
             return d;//this chain does not suffice to satisfy the condition.
         }
-        tempInit = new State();
+        tempInit = new PDDLState();
 
 //        System.out.println("Condition under examination: "+c);
 //        System.out.println("Candidates:"+chain);
@@ -1483,7 +1483,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
                     //State temp = (State) tempInit.clone();
                     //get(j).apply(temp);
-                    State temp = get(j).partialApply(tempInit, toTest);
+                    PDDLState temp = get(j).partialApply(tempInit, toTest);
                     //State temp = tempInit;
                     //get(j).apply(temp);
                     Float t = temp.distance(c);
@@ -1590,7 +1590,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //             return fluentDependencyChain;
         fluentDependencyChain = new HashMap();
         for (NumFluent nf : nfSet) {
-            for (GroundAction ac : this) {
+            for (PDDLGroundAction ac : this) {
                 if (ac.influence(nf)) {
                     if (fluentDependencyChain.get(nf) != null) {
                         HashSet<NumFluent> cD = fluentDependencyChain.get(nf);
@@ -1650,7 +1650,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (Set s : getConnectedSetBuilder().connectedSets()) {
             TreeSet<Integer> ordered = new TreeSet(s);
             //System.out.println("Trying to Merge"+ordered);
-            GroundAction macro = null;
+            PDDLGroundAction macro = null;
             for (Integer v : ordered) {
                 //System.out.println("Appending:"+v);
                 if (splittingSet.contains(v)) {
@@ -1668,7 +1668,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
                 //if it is the first action or it is a splittingpoint (consequence of the step above
                 if (macro == null) {
-                    macro = (GroundAction) this.get(v);
+                    macro = (PDDLGroundAction) this.get(v);
                     macro.setIsMacro(true);
                     macro.getPrimitives().add(this.get(v));
                 } else {
@@ -1796,12 +1796,12 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private GroundAction appendMacro(GroundAction macro, GroundAction get) throws Exception {
+    private PDDLGroundAction appendMacro(PDDLGroundAction macro, PDDLGroundAction get) throws Exception {
         //GroundAction firstAct = (GroundAction) this.get(firstActionIndex);
 
         //get.normalize();
         if (macro == null) {
-            macro = new GroundAction();
+            macro = new PDDLGroundAction();
         }
 
         macro = macro.buildMacroInProgression(get, this.pd, this.pp, false);
@@ -1947,7 +1947,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (Set s : connectedSetBuilder.connectedSets()) {
             TreeSet<Integer> ordered = new TreeSet(s);
             //System.out.println("Trying to Merge"+ordered);
-            GroundAction macro = null;
+            PDDLGroundAction macro = null;
             for (Integer v : ordered) {
                 //System.out.println("Appending:"+v);
                 if (splittingSet.contains(v)) {
@@ -1964,7 +1964,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     }
                 }
                 if (macro == null) {
-                    macro = (GroundAction) this.get(v);
+                    macro = (PDDLGroundAction) this.get(v);
                     macro.setIsMacro(true);
                     macro.getPrimitives().add(this.get(v));
                 } else {
@@ -2034,7 +2034,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private Collection<? extends Integer> takeSplittingPointFromActionsGoalThreat() throws CloneNotSupportedException {
         Set ret = new HashSet();
         for (int i = 1; i < this.size() - 1; i++) {
-            GroundAction gr = this.get(i);
+            PDDLGroundAction gr = this.get(i);
             if (gr.threatGoalConditions(this.pp.getGoals(), this, i, this.pp.getInit())) {
                 ret.add(i);
             }
@@ -2043,8 +2043,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public boolean entangledByInit(String name, State init, Condition con) {
-        for (GroundAction gr : this) {
+    public boolean entangledByInit(String name, PDDLState init, Condition con) {
+        for (PDDLGroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getPreconditions();
                 Condition instanceOfCon = ac.requireAnInstanceOf(con);
@@ -2064,11 +2064,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return true;
     }
 
-    public int entangledByInitCounter(String name, State init, Condition con) {
+    public int entangledByInitCounter(String name, PDDLState init, Condition con) {
 
         int numberOfHoldings = 0;
 
-        for (GroundAction gr : this) {
+        for (PDDLGroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getPreconditions();
                 Condition instanceOfCon = ac.requireAnInstanceOf(con);
@@ -2089,7 +2089,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public boolean entangledByGoal(String name, ComplexCondition goal, Condition con) {
 
-        for (GroundAction gr : this) {
+        for (PDDLGroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getAddList();
                 Predicate p = ac.requireAnInstanceOfAndWhichis(con);
@@ -2107,7 +2107,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public int countOccurenceOf(String name) {
         int counter = 0;
-        for (GroundAction gr : this) {
+        for (PDDLGroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 counter++;
             }
@@ -2118,7 +2118,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public int entangledByGoalCounter(String name, ComplexCondition goal, Condition con) {
         int counter = 0;
 
-        for (GroundAction gr : this) {
+        for (PDDLGroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getAddList();
                 Predicate p = ac.requireAnInstanceOfAndWhichis(con);
@@ -2141,8 +2141,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State current, Condition globalConstraints) throws CloneNotSupportedException {
-        State temp = current.clone();
+    public PDDLState execute(PDDLState current, Condition globalConstraints) throws CloneNotSupportedException {
+        PDDLState temp = current.clone();
         int i = 0;
         this.cost = 0f;
 
@@ -2158,7 +2158,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 nf_trace.put(nf, nf_traj);
             }
         }
-        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+        for (PDDLGroundAction gr : (ArrayList<PDDLGroundAction>) this) {
             gr.setAction_cost(current, this.pp.getMetric());
 
             this.cost += gr.getAction_cost();
@@ -2214,7 +2214,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (List s : (List<List>) blocks) {
             TreeSet<Integer> ordered = new TreeSet(s);
             //System.out.println("Trying to Merge"+ordered);
-            GroundAction macro = null;
+            PDDLGroundAction macro = null;
 //            System.out.println("Building Macro");
             if (s.size() <= 1) {
                 continue;
@@ -2223,7 +2223,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if it is the first action or it is a splittingpoint (consequence of the step above
 //                System.out.print(" "+v);
                 if (macro == null) {
-                    macro = (GroundAction) this.get(v - 1);
+                    macro = (PDDLGroundAction) this.get(v - 1);
                     macro.setIsMacro(true);
                     macro.getPrimitives().add(this.get(v - 1));
                     //macro.getPrimitivesWithInteger().add(v-1);
@@ -2246,7 +2246,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (int k = 0; k < i; k++) {
             if (!chain.contains(k)) {
                 chain.add(k);
-                State tempInit = new State();
+                PDDLState tempInit = new PDDLState();
 //                System.out.println("DEBUG: New state created:"+tempInit);
                 for (Integer index : chain) {
 //                    System.out.println("DEBUG:Applying from chain:"+index);
@@ -2293,12 +2293,12 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public Float build_pddl_plus_plan(LinkedList<GroundAction> raw_plan, float delta, Float epsilon) {
+    public Float build_pddl_plus_plan(LinkedList<PDDLGroundAction> raw_plan, float delta, Float epsilon) {
 
         System.out.println("Epsilon set to be:" + epsilon);
         Float time = 0f;
         inst_actions = new ArrayList();
-        for (GroundAction gr : raw_plan) {
+        for (PDDLGroundAction gr : raw_plan) {
             if (gr instanceof GroundProcess) {
 //                System.out.println("Waiting:"+gr.time);
 //                System.out.println("Current Time:"+time);
@@ -2331,15 +2331,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init, Condition GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
+    public PDDLState execute(PDDLState init, Condition GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
         }
 
-        ArrayList<GroundAction> inst_actions = new ArrayList();
+        ArrayList<PDDLGroundAction> inst_actions = new ArrayList();
 
-        for (GroundAction gr : this) {
+        for (PDDLGroundAction gr : this) {
             if (!(gr instanceof GroundProcess)) {
                 inst_actions.add(gr);
             }
@@ -2347,7 +2347,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
 //        System.out.println("steps number:" + steps_number);
         System.out.println("Resolution for validation:" + resolution);
-        State current = init.clone();
+        PDDLState current = init.clone();
         this.cost = 0f;
         //current.addNumericFluent(new NumFluentValue("#t", resolution));
         nf_trace = new HashMap();
@@ -2374,7 +2374,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (debug > 0) {
                 System.out.println(current.pddlPrint());
             }
-            GroundAction gr = inst_actions.get(i);
+            PDDLGroundAction gr = inst_actions.get(i);
 
             //Execute till next action
             current = advance_time(current, processesSet, reachable_events, resolution, gr.time);
@@ -2400,7 +2400,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private Set<GroundEvent> apply_events(State s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
+    private Set<GroundEvent> apply_events(PDDLState s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
         Set<GroundEvent> ret = new LinkedHashSet();
         for (GroundEvent ev : reachable_events) {
 
@@ -2415,7 +2415,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private State advance_time(State current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
+    private PDDLState advance_time(PDDLState current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
@@ -2452,7 +2452,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return current;
     }
 
-    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, State current) {
+    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, PDDLState current) {
         for (NumFluent nf : nf_trace.keySet()) {
             nf_trace.get(nf).add(current.functionValue(nf).getNumber());
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
@@ -2463,7 +2463,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         float start = 0f;
         String ret = "";
         for (int i = 0; i < this.inst_actions.size(); i++) {
-            GroundAction gr = this.inst_actions.get(i);
+            PDDLGroundAction gr = this.inst_actions.get(i);
             if (start + 0.01 < gr.time) {
                 ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", gr.time) + ")------>waiting\n";
             }

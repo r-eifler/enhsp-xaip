@@ -18,10 +18,10 @@
  */
 package conditions;
 
-import domain.PredicateSet;
-import domain.SchemaParameters;
-import domain.Type;
-import domain.Variable;
+import PDDLDomain.PredicateSet;
+import PDDLDomain.SchemaParameters;
+import PDDLDomain.Type;
+import PDDLDomain.Variable;
 import expressions.BinaryOp;
 import expressions.ComplexFunction;
 import expressions.Expression;
@@ -34,7 +34,7 @@ import expressions.TrigonometricFunction;
 import java.util.LinkedHashSet;
 import org.antlr.runtime.tree.Tree;
 import parser.PddlParser;
-import problem.PDDLObjects;
+import PDDLProblem.PDDLObjects;
 
 /**
  *

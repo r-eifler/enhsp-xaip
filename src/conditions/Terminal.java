@@ -19,7 +19,7 @@
 package conditions;
 
 import java.util.ArrayList;
-import problem.RelState;
+import PDDLProblem.RelState;
 
 /**
  *

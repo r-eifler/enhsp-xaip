@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package problem;
+package PDDLProblem;
 
 import conditions.AndCond;
 import conditions.Comparison;
@@ -26,13 +26,13 @@ import conditions.NumFluentValue;
 import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import domain.ActionSchema;
-import domain.EventSchema;
-import domain.GenericActionType;
-import domain.ProcessSchema;
-import domain.SchemaGlobalConstraint;
-import domain.Type;
-import domain.Variable;
+import PDDLDomain.ActionSchema;
+import PDDLDomain.EventSchema;
+import PDDLDomain.PDDLGenericAction;
+import PDDLDomain.ProcessSchema;
+import PDDLDomain.SchemaGlobalConstraint;
+import PDDLDomain.Type;
+import PDDLDomain.Variable;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -72,8 +72,8 @@ public class EPddlProblem extends PddlProblem {
 
         EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
         cloned.processesSet = new LinkedHashSet();
-        for (GroundAction gr : this.actions) {
-            cloned.actions.add((GroundAction) gr.clone());
+        for (PDDLGroundAction gr : this.actions) {
+            cloned.actions.add((PDDLGroundAction) gr.clone());
         }
         for (GroundProcess pr : this.processesSet) {
             cloned.processesSet.add((GroundProcess) pr.clone());
@@ -153,7 +153,7 @@ public class EPddlProblem extends PddlProblem {
 //                this.grounding_action_processes_constraints();
 //            }
             staticFluents = new HashMap();
-            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
+            for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.getActions()) {
                 staticFluents = gr.update_invariant_fluents(staticFluents);
 
             }
@@ -201,7 +201,7 @@ public class EPddlProblem extends PddlProblem {
     @Override
     public void transformNumericConditionsInActions() throws Exception {
 
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
                 gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
             }
@@ -227,7 +227,7 @@ public class EPddlProblem extends PddlProblem {
 
     public void normalize_conditions() throws Exception {
 
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
                 gr.getPreconditions().normalize();
             }
@@ -244,10 +244,10 @@ public class EPddlProblem extends PddlProblem {
         goals.normalize();
     }
 
-    private void unify_objects_names(State init, Set<GroundAction> actions, Set<GroundProcess> processesSet) {
+    private void unify_objects_names(PDDLState init, Set<PDDLGroundAction> actions, Set<GroundProcess> processesSet) {
         this.predicates_universe = new LinkedHashSet();
         this.num_fluent_universe = new LinkedHashSet();
-        for (GroundAction gr : actions) {
+        for (PDDLGroundAction gr : actions) {
             Collection involved_nf = gr.getInvolvedNumFluents();
             Collection involved_predicates = gr.getInvolvedPredicates();
             add_if_necessary(involved_nf, this.num_fluent_universe);
@@ -262,7 +262,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         for (Predicate p : this.predicates_universe) {
-            for (GroundAction gr : actions) {
+            for (PDDLGroundAction gr : actions) {
                 gr.subst_predicate(p);
             }
             for (GroundProcess gr : processesSet) {
@@ -271,7 +271,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         for (Predicate p : this.predicates_universe) {
-            for (GroundAction gr : actions) {
+            for (PDDLGroundAction gr : actions) {
                 gr.subst_predicate(p);
             }
             for (GroundProcess gr : processesSet) {
@@ -300,11 +300,11 @@ public class EPddlProblem extends PddlProblem {
     }
 
     public void grounding_reachability() throws CloneNotSupportedException, Exception {
-        HashSet<GroundAction> reachable = new LinkedHashSet();
+        HashSet<PDDLGroundAction> reachable = new LinkedHashSet();
         RelState s = this.init.relaxState();
         System.out.println("Intelligent Grounding");
         while (true) {
-            HashSet<GroundAction> A_primo = new LinkedHashSet();
+            HashSet<PDDLGroundAction> A_primo = new LinkedHashSet();
             for (ActionSchema a : this.linkedDomain.getActionsSchema()) {
                 A_primo.addAll(ground(a, s));
                 A_primo.removeAll(reachable);
@@ -321,7 +321,7 @@ public class EPddlProblem extends PddlProblem {
             }
 
             reachable.addAll(A_primo);
-            for (GroundAction a : reachable) {
+            for (PDDLGroundAction a : reachable) {
                 s = a.apply_with_generalized_interval_based_relaxation(s);
             }
 
@@ -329,12 +329,12 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public Set<GroundAction> ground(ActionSchema a, RelState s) throws Exception {
+    public Set<PDDLGroundAction> ground(ActionSchema a, RelState s) throws Exception {
 
         Set<HashMap<Variable, PDDLObject>> subst = new LinkedHashSet();
 
         subst = find_substs(a, s);
-        Set<GroundAction> ret = new LinkedHashSet();
+        Set<PDDLGroundAction> ret = new LinkedHashSet();
         for (HashMap<Variable, PDDLObject> ele : subst) {
             ret.add(a.ground(ele, this.getObjects()));
         }
@@ -530,7 +530,7 @@ public class EPddlProblem extends PddlProblem {
     public void transform_constant_effect() throws Exception {
 
 //        HashSet to_readd = new HashSet();
-        for (GroundAction gr : this.actions) {
+        for (PDDLGroundAction gr : this.actions) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 int number_numericEffects = gr.getNumericEffects().sons.size();
                 for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
@@ -645,7 +645,7 @@ public class EPddlProblem extends PddlProblem {
         //System.out.println("prova");
 //        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
         while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
+            PDDLGroundAction act = (PDDLGroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
                 act.setAction_cost(init, this.getMetric());
             } else {
@@ -661,7 +661,7 @@ public class EPddlProblem extends PddlProblem {
         //System.out.println("prova");
 //        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
         while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
+            PDDLGroundAction act = (PDDLGroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
                 //System.out.println("Simplifying action");
@@ -766,7 +766,7 @@ public class EPddlProblem extends PddlProblem {
                         Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    GroundEvent event = event_schema.ground();
+                    GroundEvent event = event_schema.fakeGround();
                     this.eventsSet.add(event);
 
                 }
@@ -781,7 +781,7 @@ public class EPddlProblem extends PddlProblem {
 
     private void remove_static_part_of_state() throws Exception {
         //invariant fluents
-        State s = this.getInit();
+        PDDLState s = this.getInit();
         LinkedHashSet<Predicate> to_remove = new LinkedHashSet();
         for (Predicate p : s.getPropositions()) {
             if (this.getActualFluents().get((Object) p) == null) {
@@ -923,7 +923,7 @@ public class EPddlProblem extends PddlProblem {
         //System.out.println("prova");
 //        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
         while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
+            PDDLGroundAction act = (PDDLGroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
                 act.setAction_cost(init, this.getMetric());
             } else {
@@ -932,7 +932,7 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    public Boolean goalSatisfied(State s) {
+    public Boolean goalSatisfied(PDDLState s) {
         return s.satisfy(this.getGoals());
     }
 
@@ -944,14 +944,14 @@ public class EPddlProblem extends PddlProblem {
 
     public void syncAllVariables() {
 
-        for (GenericActionType act : this.actions) {
+        for (PDDLGenericAction act : this.actions) {
             act.unifyVariablesReferences(this);
         }
-        for (GenericActionType act : this.eventsSet) {
+        for (PDDLGenericAction act : this.eventsSet) {
             act.unifyVariablesReferences(this);
         }
         if (this.processesSet != null){
-            for (GenericActionType act : this.processesSet) {
+            for (PDDLGenericAction act : this.processesSet) {
                 act.unifyVariablesReferences(this);
             }
         }

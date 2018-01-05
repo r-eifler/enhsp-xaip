@@ -20,14 +20,14 @@ package expressions;
 
 import conditions.Condition;
 import conditions.PDDLObject;
-import domain.Variable;
+import PDDLDomain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -57,7 +57,7 @@ public abstract class Expression extends Object {
 
     public abstract Expression unGround(Map substitution);
 
-    public abstract PDDLNumber eval(State s);
+    public abstract PDDLNumber eval(PDDLState s);
 
     //public abstract State apply(State s);
     public abstract ExtendedNormExpression normalize();
@@ -70,7 +70,7 @@ public abstract class Expression extends Object {
      * @param invF
      * @return
      */
-    public abstract Expression weakEval(State s, HashMap invF);
+    public abstract Expression weakEval(PDDLState s, HashMap invF);
 
     @Override
     public abstract Expression clone();

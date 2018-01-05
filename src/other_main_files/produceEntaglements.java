@@ -23,8 +23,8 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Condition;
 import conditions.Predicate;
-import domain.ActionSchema;
-import domain.PddlDomain;
+import PDDLDomain.ActionSchema;
+import PDDLDomain.PddlDomain;
 import extraUtils.Utils;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,7 +38,7 @@ import java.util.Set;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
-import problem.PddlProblem;
+import PDDLProblem.PddlProblem;
 
 /**
  * *******************************************************************

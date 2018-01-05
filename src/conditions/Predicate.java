@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import domain.Variable;
+import PDDLDomain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
 
@@ -30,11 +30,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -314,12 +314,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         return s.holds(this);
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         if (isValid()) {
             return true;
         }
@@ -401,7 +401,7 @@ public class Predicate extends Terminal implements PostCondition {
 //    }
    
 
-    public State remove(State s) {
+    public PDDLState remove(PDDLState s) {
         s.setPredFalse(this);
         return s;
     }
@@ -532,7 +532,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval(State s, HashMap invF) {
+    public Condition weakEval(PDDLState s, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
@@ -552,7 +552,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString(int k, PDDLGroundAction gr, String var) {
         return " true ";
     }
 
@@ -562,12 +562,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by(PDDLGroundAction gr) {
         return gr.achieve(this) || gr.delete(this);
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress(PDDLGroundAction gr) {
 
         OrCond achievers = gr.getAdders(this);
         OrCond deleters = gr.getDels(this);
@@ -585,7 +585,7 @@ public class Predicate extends Terminal implements PostCondition {
         return or;
     }
 
-    public Condition regress_old(GroundAction gr) {
+    public Condition regress_old(PDDLGroundAction gr) {
         PostCondition achiever = gr.getAdder(this);
         PostCondition destroyer = gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate) {
@@ -640,7 +640,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(State s) {
+    public HashMap apply(PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -654,7 +654,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         modifications.put(this, Boolean.TRUE);
     }
 
@@ -701,7 +701,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         achiever_set s = new achiever_set();
         s.cost = cond_dist.get(this.getCounter());
         s.actions.add(established_achiever.get(this.getCounter()));

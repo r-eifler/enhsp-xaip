@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package problem;
+package PDDLProblem;
 
 import conditions.AndCond;
 import conditions.NumFluentValue;
@@ -53,7 +53,7 @@ import java.util.Set;
  *
  * @author enrico
  */
-public class State extends AbstractState {
+public class PDDLState  {
 
     HashMap<Predicate,Boolean> initPred;
     public HashMap<NumFluent, PDDLNumber> initNumFluents;
@@ -65,9 +65,8 @@ public class State extends AbstractState {
     
     HashSet timedLiterals;
     private NumFluent time;
-    protected Integer hash;
 
-    public State() {
+    public PDDLState() {
         super();
         initPred = new HashMap();
         initNumFluents = new HashMap();
@@ -87,8 +86,8 @@ public class State extends AbstractState {
     
 
     @Override
-    public State clone() throws CloneNotSupportedException {
-        State ret_val = new State();
+    public PDDLState clone() throws CloneNotSupportedException {
+        PDDLState ret_val = new PDDLState();
 
         ret_val.initNumFluents = this.getInitNumFluents();
 
@@ -353,7 +352,7 @@ public class State extends AbstractState {
 
     }
     
-    public void apply(GroundAction gr){
+    public void apply(PDDLGroundAction gr){
         gr.apply(this);
     }
             
@@ -429,7 +428,7 @@ public class State extends AbstractState {
     void invariantAnalysis(Set grActions) {
 
         for (Object o : grActions) {
-            GroundAction gr = (GroundAction) o;
+            PDDLGroundAction gr = (PDDLGroundAction) o;
             Condition add = gr.getAddList();
             Condition del = gr.getDelList();
             Condition num = gr.getNumericEffects();
@@ -518,7 +517,7 @@ public class State extends AbstractState {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final State other = (State) obj;
+        final PDDLState other = (PDDLState) obj;
         if (!Objects.equals(this.currNumFluentsValues, other.currNumFluentsValues)) {
             return false;
         }
@@ -560,7 +559,7 @@ public class State extends AbstractState {
 
     }
 
-    public Set compare(State init) {
+    public Set compare(PDDLState init) {
         Set diff = new HashSet();
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
@@ -933,8 +932,8 @@ public class State extends AbstractState {
         return null;
     }
 
-    public GroundAction transformInAction() {
-        GroundAction a = new GroundAction("InitAction");
+    public PDDLGroundAction transformInAction() {
+        PDDLGroundAction a = new PDDLGroundAction("InitAction");
 
         AndCond addList = new AndCond();
         AndCond numericEffects = new AndCond();
@@ -959,7 +958,7 @@ public class State extends AbstractState {
 
     }
 
-    public void updateValues(HashSet<NumFluent> toUpdate, State temp) {
+    public void updateValues(HashSet<NumFluent> toUpdate, PDDLState temp) {
         for (NumFluent n : toUpdate) {
             this.setFunctionValue(n, temp.functionValue(n));
         }

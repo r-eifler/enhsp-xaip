@@ -16,16 +16,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package problem;
+package PDDLProblem;
 
 import conditions.Condition;
 import conditions.NotCond;
 import conditions.OrCond;
 import conditions.Predicate;
-import domain.ParametersAsTerms;
-import domain.PddlDomain;
-import domain.SchemaGlobalConstraint;
-import domain.SchemaParameters;
+import PDDLDomain.ParametersAsTerms;
+import PDDLDomain.PddlDomain;
+import PDDLDomain.SchemaGlobalConstraint;
+import PDDLDomain.SchemaParameters;
 import expressions.NumFluent;
 import java.util.Collection;
 import java.util.HashMap;
@@ -120,7 +120,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         this.reachable = reacheable;
     }
 
-    public boolean isTautology(State reacheableState) {
+    public boolean isTautology(PDDLState reacheableState) {
 
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {

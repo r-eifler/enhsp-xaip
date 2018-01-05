@@ -21,18 +21,18 @@ package expressions;
 import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.PDDLObject;
-import domain.ActionParameter;
-import domain.Variable;
+import PDDLDomain.ActionParameter;
+import PDDLDomain.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.State;
+import PDDLProblem.EPddlProblem;
+import PDDLProblem.PDDLObjects;
+import PDDLProblem.RelState;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -189,7 +189,7 @@ public class NumFluent extends Expression {
 //        this.name = name;
 //    }
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         if (s == null) {
             System.out.println("stato nullo!!");
         }
@@ -234,7 +234,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression weakEval(State s, HashMap invF) {
+    public Expression weakEval(PDDLState s, HashMap invF) {
 
         if (this.name.equals("#t")) {
             //return this;

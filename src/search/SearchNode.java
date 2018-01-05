@@ -26,9 +26,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import problem.GroundAction;
-import problem.GroundProcess;
-import problem.State;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.GroundProcess;
+import PDDLProblem.PDDLState;
 
 /**
  *
@@ -36,8 +36,8 @@ import problem.State;
  */
 public class SearchNode {
 
-    public State s;
-    public GroundAction action;
+    public PDDLState s;
+    public PDDLGroundAction action;
     public float h_n;
     public SearchNode father;
     public float g_n;
@@ -49,10 +49,10 @@ public class SearchNode {
     private boolean breakties_on_g = false; //this goes for larger g
     private boolean go_for_smaller_g = false; //this goes for smaller g
     private boolean bfs = true;
-    public ArrayList<GroundAction> list_of_actions;
-    public Set<GroundAction> relaxed_plan_from_heuristic;
+    public ArrayList<PDDLGroundAction> list_of_actions;
+    public Set<PDDLGroundAction> relaxed_plan_from_heuristic;
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
+    public SearchNode(PDDLState s1, PDDLGroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
         this.action = action;
         this.h_n = goal_distance;
@@ -64,7 +64,7 @@ public class SearchNode {
         wg = 1f;
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode(PDDLState s1, PDDLGroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.action = action;
         this.h_n = goal_distance;
@@ -101,7 +101,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode(PDDLState s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.action = null;
         this.h_n = goal_distance;
@@ -138,7 +138,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode(PDDLState s1, ArrayList<PDDLGroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.action = null;
         this.h_n = goal_distance;
@@ -179,7 +179,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
+    public SearchNode(PDDLState s1, PDDLGroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
         s = s1;
         this.action = action;
         this.h_n = goal_distance;

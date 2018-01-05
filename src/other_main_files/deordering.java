@@ -19,7 +19,7 @@
 package other_main_files;
 
 import some_computatitional_tool.DomainEnhancer;
-import domain.PddlDomain;
+import PDDLDomain.PddlDomain;
 import extraUtils.Utils;
 import static extraUtils.Utils.searchParameter;
 import static extraUtils.Utils.searchParameterValue;
@@ -44,8 +44,8 @@ import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
-import problem.GroundAction;
-import problem.PddlProblem;
+import PDDLProblem.PDDLGroundAction;
+import PDDLProblem.PddlProblem;
 
 /**
  * *******************************************************************
@@ -186,7 +186,7 @@ public class deordering {
         for (Object o : po.vertexSet()) {
             Integer v = (Integer) o;
 
-            GroundAction gr = plan.get(v);
+            PDDLGroundAction gr = plan.get(v);
             System.out.println(gr.toEcoString());
             if (counter % 2 == 0) {
                 positionVertexAt(m_jgAdapter, o, 380 + y, 90 + x, plan);
@@ -209,7 +209,7 @@ public class deordering {
 
     private static void positionVertexAt(JGraphModelAdapter m_jgAdapter, Object vertex, int x, int y, SimplePlan p) {
         DefaultGraphCell cell = m_jgAdapter.getVertexCell(vertex);
-        GroundAction gr = p.get((Integer) vertex);
+        PDDLGroundAction gr = p.get((Integer) vertex);
         cell.setUserObject(gr.getName());
         Map attr = cell.getAttributes();
         Rectangle2D b = GraphConstants.getBounds(attr);
