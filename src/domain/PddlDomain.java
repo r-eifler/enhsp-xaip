@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package PDDLDomain;
+package domain;
 
 import conditions.ForAll;
 import conditions.AndCond;
@@ -64,8 +64,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 import parser.PddlLexer;
 import parser.PddlParser;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.PddlProblem;
+import problem.PDDLObjects;
+import problem.PddlProblem;
 
 /**
  *

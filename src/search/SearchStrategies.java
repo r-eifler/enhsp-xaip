@@ -38,11 +38,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.EPddlProblem;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundEvent;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.PDDLState;
+import problem.EPddlProblem;
+import problem.PDDLGroundAction;
+import problem.GroundEvent;
+import problem.GroundProcess;
+import problem.PDDLState;
 
 /**
  *

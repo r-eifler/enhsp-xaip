@@ -22,8 +22,8 @@ import expressions.NumFluent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

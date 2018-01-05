@@ -18,9 +18,9 @@
  */
 package conditions;
 
-import PDDLDomain.ParametersAsTerms;
-import PDDLDomain.SchemaParameters;
-import PDDLDomain.Variable;
+import domain.ParametersAsTerms;
+import domain.SchemaParameters;
+import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
@@ -35,10 +35,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLObjects;
+import problem.RelState;
+import problem.PDDLState;
 import propositionalFactory.Grounder;
 
 /**

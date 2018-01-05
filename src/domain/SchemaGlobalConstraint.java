@@ -16,13 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package PDDLDomain;
+package domain;
 
 import conditions.Condition;
 import java.util.HashMap;
 import java.util.Map;
-import PDDLProblem.GlobalConstraint;
-import PDDLProblem.PDDLObjects;
+import problem.GlobalConstraint;
+import problem.PDDLObjects;
 
 /**
  *

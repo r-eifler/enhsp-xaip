@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package PDDLProblem;
+package problem;
 
 import conditions.AndCond;
 import conditions.ComplexCondition;
-import PDDLDomain.ParametersAsTerms;
+import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;

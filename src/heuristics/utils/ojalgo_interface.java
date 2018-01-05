@@ -35,8 +35,8 @@ import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *

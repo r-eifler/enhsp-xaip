@@ -30,8 +30,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import plan.SimplePlan;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.RelState;
+import problem.PDDLGroundAction;
+import problem.RelState;
 
 /**
  *

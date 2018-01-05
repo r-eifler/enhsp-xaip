@@ -21,7 +21,7 @@ package heuristics.utils;
 import conditions.Condition;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import PDDLProblem.PDDLGroundAction;
+import problem.PDDLGroundAction;
 
 /**
  *

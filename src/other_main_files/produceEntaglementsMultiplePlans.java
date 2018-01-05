@@ -21,8 +21,8 @@ package other_main_files;
 import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
 import conditions.Condition;
-import PDDLDomain.ActionSchema;
-import PDDLDomain.PddlDomain;
+import domain.ActionSchema;
+import domain.PddlDomain;
 import extraUtils.Utils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ import java.util.Set;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
-import PDDLProblem.PddlProblem;
+import problem.PddlProblem;
 
 /**
  * *******************************************************************

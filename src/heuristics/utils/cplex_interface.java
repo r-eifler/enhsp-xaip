@@ -40,8 +40,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *

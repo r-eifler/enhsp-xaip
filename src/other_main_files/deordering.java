@@ -19,7 +19,7 @@
 package other_main_files;
 
 import some_computatitional_tool.DomainEnhancer;
-import PDDLDomain.PddlDomain;
+import domain.PddlDomain;
 import extraUtils.Utils;
 import static extraUtils.Utils.searchParameter;
 import static extraUtils.Utils.searchParameterValue;
@@ -44,8 +44,8 @@ import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PddlProblem;
+import problem.PDDLGroundAction;
+import problem.PddlProblem;
 
 /**
  * *******************************************************************

@@ -23,7 +23,7 @@ import conditions.Comparison;
 import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
-import PDDLDomain.PddlDomain;
+import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
@@ -36,10 +36,10 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.GroundProcess;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

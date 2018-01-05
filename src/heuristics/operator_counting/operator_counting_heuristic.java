@@ -21,8 +21,8 @@ package heuristics.operator_counting;
 import conditions.ComplexCondition;
 import heuristics.Heuristic;
 import java.util.Set;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *

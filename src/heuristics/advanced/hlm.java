@@ -42,10 +42,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundEvent;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.GroundEvent;
+import problem.GroundProcess;
+import problem.PDDLState;
 
 /**
  *

@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import PDDLDomain.Variable;
+import domain.Variable;
 import expressions.NumEffect;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -34,11 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.EPddlProblem;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.EPddlProblem;
+import problem.PDDLGroundAction;
+import problem.PDDLObjects;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

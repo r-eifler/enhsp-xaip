@@ -19,7 +19,7 @@
 package conditions;
 
 import conditions.Predicate.true_false;
-import PDDLDomain.Variable;
+import domain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
 import java.util.ArrayList;
@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.EPddlProblem;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.EPddlProblem;
+import problem.PDDLGroundAction;
+import problem.PDDLObjects;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

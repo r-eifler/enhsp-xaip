@@ -18,8 +18,8 @@
  */
 package extraUtils;
 
-import PDDLDomain.ActionSchema;
-import PDDLDomain.Type;
+import domain.ActionSchema;
+import domain.Type;
 import java.io.File;
 import java.util.Collection;
 //import static sun.org.mozilla.javascript.Token.name;

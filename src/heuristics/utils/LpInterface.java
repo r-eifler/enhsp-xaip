@@ -24,8 +24,8 @@ import conditions.Condition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *

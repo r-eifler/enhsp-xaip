@@ -33,9 +33,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

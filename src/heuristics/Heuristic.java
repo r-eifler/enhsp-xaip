@@ -47,12 +47,12 @@ import java.util.logging.Logger;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.RelState;
+import problem.PDDLState;
 import org.ojalgo.optimisation.Variable;
-import PDDLProblem.GroundEvent;
-import PDDLProblem.GroundProcess;
+import problem.GroundEvent;
+import problem.GroundProcess;
 
 /**
  *

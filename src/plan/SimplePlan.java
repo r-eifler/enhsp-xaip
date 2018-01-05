@@ -25,10 +25,10 @@ import conditions.Condition;
 import conditions.NotCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import PDDLDomain.ActionSchema;
-import PDDLDomain.ParametersAsTerms;
-import PDDLDomain.PddlDomain;
-import PDDLDomain.Variable;
+import domain.ActionSchema;
+import domain.ParametersAsTerms;
+import domain.PddlDomain;
+import domain.Variable;
 import expressions.Expression;
 import expressions.NumEffect;
 import expressions.NumFluent;
@@ -58,12 +58,12 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
-import PDDLProblem.EPddlProblem;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundEvent;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.PddlProblem;
-import PDDLProblem.PDDLState;
+import problem.EPddlProblem;
+import problem.PDDLGroundAction;
+import problem.GroundEvent;
+import problem.GroundProcess;
+import problem.PddlProblem;
+import problem.PDDLState;
 
 /**
  *

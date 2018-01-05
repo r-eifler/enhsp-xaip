@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import PDDLDomain.Variable;
+import domain.Variable;
 import expressions.ExtendedAddendum;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -26,7 +26,7 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 
 import java.util.Map;
-import PDDLProblem.PDDLState;
+import problem.PDDLState;
 import expressions.PDDLNumber;
 import expressions.Interval;
 import heuristics.utils.achiever_set;
@@ -38,10 +38,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import PDDLProblem.EPddlProblem;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.RelState;
+import problem.EPddlProblem;
+import problem.PDDLGroundAction;
+import problem.PDDLObjects;
+import problem.RelState;
 
 /**
  *

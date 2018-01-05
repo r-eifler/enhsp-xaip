@@ -16,23 +16,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package PDDLDomain;
+package domain;
 
-//import java.util.Comparator;
-import java.util.Comparator;
+import conditions.PDDLObject;
+import java.util.Map;
 
 /**
+ * An <b>action parameter</b> is either a variable (when the action is not
+ * grounded) or a PDDL Object (i.e., a constant, when the action is grounded).
  *
- * @author enrico
+ * @author Alban Grastien
  */
-class ActionComparator implements Comparator<PDDLGenericAction> {
+public interface ActionParameter {
 
-    public ActionComparator() {
-    }
-
-    @Override
-    public int compare(PDDLGenericAction gat1, PDDLGenericAction gat2) {
-        return gat1.name.compareTo(gat2.name);
-    }
+    /**
+     * Grounds this action parameter according to the specified map. Any
+     * occurrence of a variable is replaced with the corresponding PDDL object
+     * (fails if the variable does not appear in the map). PDDL objects are
+     * unchanged.
+     *
+     * @param substitution the map that indicates what the variables should be
+     * replaced with.
+     * @return the grounding of this action parameter.
+     */
+    public PDDLObject ground(Map<Variable, PDDLObject> substitution);
 
 }

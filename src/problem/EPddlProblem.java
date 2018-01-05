@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package PDDLProblem;
+package problem;
 
 import conditions.AndCond;
 import conditions.Comparison;
@@ -26,13 +26,13 @@ import conditions.NumFluentValue;
 import conditions.OrCond;
 import conditions.PDDLObject;
 import conditions.Predicate;
-import PDDLDomain.ActionSchema;
-import PDDLDomain.EventSchema;
-import PDDLDomain.PDDLGenericAction;
-import PDDLDomain.ProcessSchema;
-import PDDLDomain.SchemaGlobalConstraint;
-import PDDLDomain.Type;
-import PDDLDomain.Variable;
+import domain.ActionSchema;
+import domain.EventSchema;
+import domain.PDDLGenericAction;
+import domain.ProcessSchema;
+import domain.SchemaGlobalConstraint;
+import domain.Type;
+import domain.Variable;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;

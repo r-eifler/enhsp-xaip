@@ -19,8 +19,8 @@
 package heuristics.utils;
 
 import java.util.Comparator;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *

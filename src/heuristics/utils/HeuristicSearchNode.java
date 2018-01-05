@@ -19,7 +19,7 @@
 package heuristics.utils;
 
 import java.util.Set;
-import PDDLProblem.PDDLGroundAction;
+import problem.PDDLGroundAction;
 
 /**
  *

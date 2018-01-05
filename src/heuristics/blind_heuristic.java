@@ -27,10 +27,10 @@ import conditions.ComplexCondition;
 import conditions.Condition;
 import java.util.HashSet;
 import java.util.Set;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundEvent;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.GroundEvent;
+import problem.GroundProcess;
+import problem.PDDLState;
 
 /**
  *

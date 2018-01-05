@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package PDDLDomain;
+package domain;
 
 import conditions.AndCond;
 import conditions.ComplexCondition;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import PDDLProblem.EPddlProblem;
+import problem.EPddlProblem;
 
 public abstract class PDDLGenericAction  {
 

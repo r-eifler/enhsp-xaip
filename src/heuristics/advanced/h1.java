@@ -51,9 +51,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.GroundProcess;
+import problem.PDDLState;
 
 /**
  *
@@ -625,8 +625,8 @@ public class h1 extends Heuristic {
             }
 
             if (only_mutual_exclusion_processes) {//work from here to have hff sensible to process structure!
-                if (g instanceof PDDLProblem.GroundProcess || g instanceof PDDLProblem.GroundEvent) {//very very conservative
-                    if (gr_pair.getFirst() instanceof PDDLProblem.GroundProcess || gr_pair.getFirst() instanceof PDDLProblem.GroundEvent) {
+                if (g instanceof problem.GroundProcess || g instanceof problem.GroundEvent) {//very very conservative
+                    if (gr_pair.getFirst() instanceof problem.GroundProcess || gr_pair.getFirst() instanceof problem.GroundEvent) {
                         if (!gr_pair.getFirst().getPreconditions().mutual_exclusion_guaranteed(g.getPreconditions())) {
                             //Float current_cost = gr_pair.getSecond();
 //                            if (cost > current_cost){

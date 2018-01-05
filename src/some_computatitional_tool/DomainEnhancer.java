@@ -22,9 +22,9 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Condition;
 import conditions.Predicate;
-import PDDLDomain.ParametersAsTerms;
-import PDDLDomain.ActionSchema;
-import PDDLDomain.PddlDomain;
+import domain.ParametersAsTerms;
+import domain.ActionSchema;
+import domain.PddlDomain;
 import expressions.NumFluent;
 import extraUtils.Utils;
 import java.io.BufferedWriter;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import plan.SimplePlan;
-import PDDLProblem.PDDLGroundAction;
+import problem.PDDLGroundAction;
 
 /**
  *

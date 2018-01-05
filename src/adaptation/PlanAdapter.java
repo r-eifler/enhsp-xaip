@@ -24,7 +24,7 @@ import some_computatitional_tool.DomainEnhancer;
 import some_computatitional_tool.NumericKernel;
 import some_computatitional_tool.NumericPlanningGraph;
 import conditions.Condition;
-import PDDLDomain.PddlDomain;
+import domain.PddlDomain;
 import extraUtils.Utils;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,11 +46,11 @@ import org.jgrapht.graph.AsUndirectedGraph;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
 import wrapped_planners.planningTool;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.PddlProblem;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.PDDLGroundAction;
+import problem.PDDLObjects;
+import problem.PddlProblem;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

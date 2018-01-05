@@ -18,7 +18,7 @@
  */
 package conditions;
 
-import PDDLDomain.Variable;
+import domain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.achiever_set;
 import java.util.ArrayList;
@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import PDDLProblem.EPddlProblem;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.PDDLObjects;
-import PDDLProblem.RelState;
-import PDDLProblem.PDDLState;
+import problem.EPddlProblem;
+import problem.PDDLGroundAction;
+import problem.PDDLObjects;
+import problem.RelState;
+import problem.PDDLState;
 
 /**
  *

@@ -20,13 +20,13 @@ package propositionalFactory;
 
 import conditions.Condition;
 import conditions.PDDLObject;
-import PDDLDomain.ActionSchema;
-import PDDLDomain.EventSchema;
-import PDDLDomain.ParametersAsTerms;
-import PDDLDomain.ProcessSchema;
-import PDDLDomain.SchemaGlobalConstraint;
-import PDDLDomain.SchemaParameters;
-import PDDLDomain.Variable;
+import domain.ActionSchema;
+import domain.EventSchema;
+import domain.ParametersAsTerms;
+import domain.ProcessSchema;
+import domain.SchemaGlobalConstraint;
+import domain.SchemaParameters;
+import domain.Variable;
 
 import java.lang.Exception;
 
@@ -37,11 +37,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import PDDLProblem.GlobalConstraint;
-import PDDLProblem.PDDLGroundAction;
-import PDDLProblem.GroundEvent;
-import PDDLProblem.GroundProcess;
-import PDDLProblem.PDDLObjects;
+import problem.GlobalConstraint;
+import problem.PDDLGroundAction;
+import problem.GroundEvent;
+import problem.GroundProcess;
+import problem.PDDLObjects;
 
 public class Grounder {
 
