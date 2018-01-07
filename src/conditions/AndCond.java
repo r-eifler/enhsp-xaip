@@ -136,7 +136,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      */
     @Override
     public boolean can_be_true(RelState s) {
-        for (Object o : this.sons) {
+        for (final Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
                 if (!c.can_be_true(s)) {

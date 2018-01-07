@@ -151,13 +151,13 @@ public class Aibr extends Heuristic {
             if (reachability) {
 
 //            if (true){
-                for (PDDLGroundAction gr : S) {
+                for (final PDDLGroundAction gr : S) {
                     gr.apply(rs);
                 }
                 //S.stream().forEach((GroundAction a) -> a.apply(rs));
                 supporters_counter += S.size();
             } else {
-                for (PDDLGroundAction gr : S) {
+                for (final PDDLGroundAction gr : S) {
                     supporters_counter += S.size();
                     gr.apply(rs);
                     if (check_goal_condition(G, rs)) {
@@ -321,7 +321,7 @@ public class Aibr extends Heuristic {
 
             boolean fix_point = true;
             layer_counter++;
-            for (PDDLGroundAction gr : this.reachable) {
+            for (final PDDLGroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
                     if (debug > 10) {
