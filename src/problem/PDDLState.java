@@ -77,6 +77,10 @@ public class PDDLState  {
         predFluents = new ArrayList();
     }
 
+    public PDDLState(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
+        this.currNumFluentsValues = (ArrayList<PDDLNumber>) numFluents.clone();
+        this.currPredValues = (ArrayList<Boolean>) propFluents.clone();
+    }
 
     @Override
     public String toString() {
@@ -87,27 +91,15 @@ public class PDDLState  {
 
     @Override
     public PDDLState clone() throws CloneNotSupportedException {
-        PDDLState ret_val = new PDDLState();
+        PDDLState ret_val = new PDDLState(this.currNumFluentsValues,this.currPredValues);
 
         ret_val.initNumFluents = this.getInitNumFluents();
 
           ret_val.initPred = this.initPred;
         ret_val.numFluents = this.numFluents;
         ret_val.predFluents = this.predFluents;
-        
-//        if (this.initPred.isEmpty())
-        
-
-//        for (Predicate o :(Collection<Predicate>) this.propositions.keySet()) {
-//            //ret_val.addProposition((Predicate) ele.clone());
-//            ret_val.propositions.put(o, this.propositions.get(o));
-////            ret_val.addProposition((Predicate) ele.clone());
-//        }
-        //ret_val.propositions = (HashSet) this.propositions.clone();
-        ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
         ret_val.time = this.time;
-        ret_val.currNumFluentsValues = (ArrayList<PDDLNumber>) this.currNumFluentsValues.clone();
-        ret_val.currPredValues = (ArrayList<Boolean>) this.currPredValues.clone();
+
         return ret_val;
     }
 
@@ -402,23 +394,6 @@ public class PDDLState  {
             else
                 ret_val.poss_interpretation.put(this.predFluents.get(i), 0);
         }
-
-//        for (NumFluent o : this.currNumFluentsValues.keySet()) {
-//            //System.out.println(o);
-//
-//            //System.out.println(this.numericFs.get(o));
-//            if (this.functionValue(o) != null) {
-//                ret_val.poss_numericFs.put(o, new Interval(this.functionValue(o).getNumber()));
-//            }
-//        }
-//
-//        for (Object o : this.initPred.keySet()) {
-//            Predicate ele = (Predicate) o;
-//            ret_val.poss_interpretation.put(ele, 1);
-//        }
-        //ret_val.propositions = (HashSet) this.propositions.clone();
-
-        ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
 
         return ret_val;
 
