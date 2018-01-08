@@ -39,7 +39,7 @@ import problem.PDDLState;
  */
 public class PDDLNumber extends Expression {
 
-    private Double number;
+    private double number;
 
     public PDDLNumber() {
         super();
@@ -86,7 +86,7 @@ public class PDDLNumber extends Expression {
      * @return the number
      */
     public Float getNumber() {
-        return number.floatValue();
+        return new Float(number);
     }
 
     /**
