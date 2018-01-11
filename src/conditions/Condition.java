@@ -44,7 +44,7 @@ public abstract class Condition extends PDDLProblemComponent {
     protected boolean freeVarSemantic = false;
     private boolean unsatisfiable = false;
     private boolean valid = false;
-    protected int counter;
+    protected int heuristicId;
 
     public Condition() {
         //son = new HashSet();
@@ -159,16 +159,16 @@ public abstract class Condition extends PDDLProblemComponent {
     /**
      * @return the counter
      */
-    public int getCounter() {
-        return counter;
+    public int getHeuristicId() {
+        return heuristicId;
     }
 
     /**
      * @param counter the counter to set
      */
-    public void setCounter(int counter) {
+    public void setHeuristicId(int counter) {
 //        System.out.println(this+ "Setting counter to"+counter);
-        this.counter = counter;
+        this.heuristicId = counter;
     }
 
     /**

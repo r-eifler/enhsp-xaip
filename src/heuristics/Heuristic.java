@@ -218,7 +218,7 @@ public abstract class Heuristic{
             actions_to_consider.addAll(this.supporters);
         }
         for (PDDLGroundAction a : actions_to_consider) {
-            a.counter = total_number_of_actions++;
+            a.id = total_number_of_actions++;
             if (a.getPreconditions() != null) {
                 for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
@@ -267,10 +267,10 @@ public abstract class Heuristic{
         ComplexCondition con = (ComplexCondition)input_cond;
 
         for (Condition t : (LinkedHashSet<Condition>) con.sons) {
-            if (closed != null && !closed.get(t.getCounter()) && !greedy) {
+            if (closed != null && !closed.get(t.getHeuristicId()) && !greedy) {
                 return Float.MAX_VALUE;
             }
-            Float temp = h.get(t.getCounter());
+            Float temp = h.get(t.getHeuristicId());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
                     //System.out.println("Cost:"+);
@@ -346,7 +346,7 @@ public abstract class Heuristic{
         }
 
         for (Condition t : (LinkedHashSet<Condition>) con.sons) {
-            int temp = h.get(t.getCounter());
+            int temp = h.get(t.getHeuristicId());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
                     cost += temp;
@@ -622,7 +622,7 @@ public abstract class Heuristic{
         //update action precondition
 
         for (PDDLGroundAction gr : A1) {
-            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getCounter()) != Float.MAX_VALUE) {
+            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getHeuristicId()) != Float.MAX_VALUE) {
                 pool.add(gr);
                 this.reachable.add(gr);
                 //it.remove();
@@ -642,9 +642,9 @@ public abstract class Heuristic{
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
                 new_condition.put(comp, false);
-                is_complex.set(comp.getCounter(), false);
+                is_complex.set(comp.getHeuristicId(), false);
                 if (!comp.isLinear()) {
-                    is_complex.set(comp.getCounter(), true);
+                    is_complex.set(comp.getHeuristicId(), true);
                     complex_condition_set.add((Comparison) c);
                 }
                 for (PDDLGroundAction gr : A) {
@@ -654,7 +654,7 @@ public abstract class Heuristic{
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
                                 if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect()) || ne.getOperator().equals("assign")) {
-                                    is_complex.set(comp.getCounter(), true);
+                                    is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
                                 }
@@ -662,7 +662,7 @@ public abstract class Heuristic{
                         }
                     }
                 }
-                if (is_complex.get(comp.getCounter())) {
+                if (is_complex.get(comp.getHeuristicId())) {
                     complex_conditions++;
                 }
             }
@@ -693,7 +693,7 @@ public abstract class Heuristic{
         if (this.rep_costs.get(gr) != null && number_of_repetition > 1) {
             LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr);
             for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
-                Float rpc = h.get(p.getFirst().getFirst().getCounter());
+                Float rpc = h.get(p.getFirst().getFirst().getHeuristicId());
                 //System.out.println("Counter here:"+p.getFirst().getCounter());
                 if (number_of_repetition > p.getSecond()) {
                     if (rpc == Float.MAX_VALUE) {
@@ -708,10 +708,10 @@ public abstract class Heuristic{
         if (number_of_repetition > 1) {
             //add precondition cost violation
             for (Predicate p_del : precondition_deleted.get(gr)) {
-                if (h.get(p_del.getCounter()) == Float.MAX_VALUE) {
+                if (h.get(p_del.getHeuristicId()) == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 }
-                additional_cost += h.get(p_del.getCounter()) * (number_of_repetition - 1);
+                additional_cost += h.get(p_del.getHeuristicId()) * (number_of_repetition - 1);
 
                 //additional_cost = Math.max(h.get(p_del.getCounter()) * (number_of_repetition - 1),additional_cost);
             }
@@ -790,15 +790,15 @@ public abstract class Heuristic{
                                     }
 
                                     final Variable action;
-                                    if (action_to_variable.get(gr.counter) != null) {
-                                        action = action_to_variable.get(gr.counter);
+                                    if (action_to_variable.get(gr.id) != null) {
+                                        action = action_to_variable.get(gr.id);
                                         if (integer_variables) {
                                             action.integer(true);
                                         }
                                     } else {
                                         action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
                                         tmpModel.addVariable(action);
-                                        action_to_variable.put(gr.counter, action);
+                                        action_to_variable.put(gr.id, action);
                                     }
 
 //                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
@@ -832,7 +832,7 @@ public abstract class Heuristic{
                                     if ((comp.getComparator().contains(">") && right < 0)
                                             || (comp.getComparator().contains("<") && right > 0)) {
                                         at_least_one = true;
-                                        local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                                        local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getHeuristicId()));
                                         //this is the only action that can be used. 
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
@@ -868,12 +868,12 @@ public abstract class Heuristic{
                             }
                             at_least_one = true;
                             final Variable action;
-                            if (action_to_variable.get(gr.counter) != null) {
-                                action = action_to_variable.get(gr.counter);
+                            if (action_to_variable.get(gr.id) != null) {
+                                action = action_to_variable.get(gr.id);
                             } else {
                                 action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
                                 tmpModel.addVariable(action);
-                                action_to_variable.put(gr.counter, action);
+                                action_to_variable.put(gr.id, action);
                                 if (integer_variables) {
                                     action.integer(true);
                                 }
@@ -882,7 +882,7 @@ public abstract class Heuristic{
                             //ArithExpr prec_cost = ctx.mkRealConst(gr.toString() + "pre_cost");
                             //action_used.add(prec_cost);
 //                        Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
-                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getHeuristicId()));
                             //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
                             //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
                             condition = condition.set(action, 1);
@@ -948,18 +948,18 @@ public abstract class Heuristic{
 //            System.out.println("This happens then");
 
             integer_ref.put(c_1, counter);
-            c_1.setCounter(counter);
+            c_1.setHeuristicId(counter);
             all_conditions.add(c_1);
             counter++;
         } else if (integer_ref.get(c_1) == null) {
 //            System.out.println("bug in java");
 
             integer_ref.put(c_1, counter);
-            c_1.setCounter(counter);
+            c_1.setHeuristicId(counter);
             all_conditions.add(c_1);
             counter++;
         } else {
-            c_1.setCounter(integer_ref.get(c_1));
+            c_1.setHeuristicId(integer_ref.get(c_1));
         }
         return counter;
 

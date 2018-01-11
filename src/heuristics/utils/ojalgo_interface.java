@@ -104,12 +104,12 @@ public final class ojalgo_interface extends LpInterface {
     @Override
     public float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h) {
 
-        Collection<PDDLGroundAction> affectors = this.affectors_of_temp.get(c.getCounter());
+        Collection<PDDLGroundAction> affectors = this.affectors_of_temp.get(c.getHeuristicId());
         Iterator<PDDLGroundAction> it = affectors.iterator();
         while (it.hasNext()) {
             PDDLGroundAction gr = it.next();
-            if (active_actions.get(gr.counter)) {
-                Variable v = this.action_to_variable.get(gr.counter);
+            if (active_actions.get(gr.id)) {
+                Variable v = this.action_to_variable.get(gr.id);
                 v.upper(Integer.MAX_VALUE);
                 it.remove();
 
@@ -130,7 +130,7 @@ public final class ojalgo_interface extends LpInterface {
                 local_min = 0f;
             } else {
                 for (PDDLGroundAction gr : this.pos_affectors_of.get(c_0)) {
-                    local_min = Math.min(h.get(gr.getPreconditions().getCounter()), local_min);
+                    local_min = Math.min(h.get(gr.getPreconditions().getHeuristicId()), local_min);
                 }
             }
             if (this.additive_h) {
@@ -164,7 +164,7 @@ public final class ojalgo_interface extends LpInterface {
 //            System.out.println("considering Global Constraints:"+gC.sons);
             conditions_to_evaluate.addAll(gc.sons);
         }
-        this.affectors_of.put(c.getCounter(), new LinkedHashSet());
+        this.affectors_of.put(c.getHeuristicId(), new LinkedHashSet());
 
         for (Condition cond : conditions_to_evaluate) {
             Expression condition = lp.addExpression(cond.toString());
@@ -190,11 +190,11 @@ public final class ojalgo_interface extends LpInterface {
                                     if (action_cost.isNaN()) {
                                         continue;
                                     }
-                                    affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
+                                    affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 
                                     Variable action;
-                                    if (action_to_variable.get(gr.counter) != null) {
-                                        action = action_to_variable.get(gr.counter);
+                                    if (action_to_variable.get(gr.id) != null) {
+                                        action = action_to_variable.get(gr.id);
                                         if (integer_variables) {
                                             action.integer(true);
                                         }
@@ -203,7 +203,7 @@ public final class ojalgo_interface extends LpInterface {
                                         this.var_to_expr.put(action, new LinkedHashSet());
                                         //action.lower(0);
                                         lp.addVariable(action);
-                                        action_to_variable.put(gr.counter, action);
+                                        action_to_variable.put(gr.id, action);
                                     }
 
 //                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
@@ -246,19 +246,19 @@ public final class ojalgo_interface extends LpInterface {
                 for (PDDLGroundAction gr : pool) {
                     if (gr.achieve(p)) {
                         pos_affectors_of.get(cond).add(gr);
-                        affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
+                        affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 //                        gr.set_unit_cost(s_0);
                         Float action_cost = gr.getAction_cost();
                         if (action_cost.isNaN()) {
                             continue;
                         }
                         Variable action;
-                        if (action_to_variable.get(gr.counter) != null) {
-                            action = action_to_variable.get(gr.counter);
+                        if (action_to_variable.get(gr.id) != null) {
+                            action = action_to_variable.get(gr.id);
                         } else {
                             action = Variable.make(gr.toEcoString()).lower(0).weight(action_cost);
                             lp.addVariable(action);
-                            action_to_variable.put(gr.counter, action);
+                            action_to_variable.put(gr.id, action);
                             if (integer_variables) {
                                 action.integer(true);
                             }

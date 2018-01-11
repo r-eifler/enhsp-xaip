@@ -121,12 +121,12 @@ public class quasi_hm extends Heuristic {
         int counter2 = 0;
         all_conditions = new LinkedHashSet();
         int counter_actions = 0;
-        G.setCounter(counter2++);
+        G.setHeuristicId(counter2++);
         all_conditions.add(G);
         this.integer_ref = new HashMap();
         ArrayList<PDDLGroundAction> actions_to_consider = new ArrayList(A);
         for (PDDLGroundAction a : actions_to_consider) {
-            a.counter = counter_actions++;
+            a.id = counter_actions++;
 //            if (a.getPreconditions() != null) {
             if (a.getPreconditions() != null && a.getPreconditions().sons != null && !a.getPreconditions().sons.isEmpty()) {
                 counter2 = this.update_index_conditions(a.getPreconditions(), counter2);
@@ -139,7 +139,7 @@ public class quasi_hm extends Heuristic {
 //            }
         }
 
-        this.gC.setCounter(counter2);
+        this.gC.setHeuristicId(counter2);
         //System.out.println(conditions);;
 
     }
@@ -165,14 +165,14 @@ public class quasi_hm extends Heuristic {
             if (s.satisfy(c)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
-                cond_to_entry.put(c.getCounter(), node);
-                distance.set(c.getCounter(), 0f);
-                open_list.set(c.getCounter(), true);
-                closed.set(c.getCounter(), true);
+                cond_to_entry.put(c.getHeuristicId(), node);
+                distance.set(c.getHeuristicId(), 0f);
+                open_list.set(c.getHeuristicId(), true);
+                closed.set(c.getHeuristicId(), true);
             } else {
                 //lps.get(c.getCounter()).initialize(A, s);
 
-                lps.get(c.getCounter()).update_conditions_bound_plus_reset_variables(s);
+                lps.get(c.getHeuristicId()).update_conditions_bound_plus_reset_variables(s);
 
             }
         }
@@ -197,50 +197,50 @@ public class quasi_hm extends Heuristic {
             while (!q.isEmpty()) {//take all the elements with equal distance from the initial state
 
                 if (this.additive_h && !this.reacheability_setting) {
-                    if (distance.get(G.getCounter()) != Float.MAX_VALUE) {
-                        return distance.get(G.getCounter());
+                    if (distance.get(G.getHeuristicId()) != Float.MAX_VALUE) {
+                        return distance.get(G.getHeuristicId());
                     }
                 }
 
                 Condition cn = q.removeMin().getData();
-                if (distance.get(cn.getCounter()) == Float.MAX_VALUE) {
+                if (distance.get(cn.getHeuristicId()) == Float.MAX_VALUE) {
                     System.out.println("Anomaly!!!");//This shouldn't happen as only reachable conditions are put in the list
                     break;
                 }
                 if (first == null) {
-                    first = distance.get(cn.getCounter());
-                } else if (first < distance.get(cn.getCounter())) {//put back and stop
-                    distance.set(cn.getCounter(), distance.get(cn.getCounter()));
-                    open_list.set(cn.getCounter(), true);
+                    first = distance.get(cn.getHeuristicId());
+                } else if (first < distance.get(cn.getHeuristicId())) {//put back and stop
+                    distance.set(cn.getHeuristicId(), distance.get(cn.getHeuristicId()));
+                    open_list.set(cn.getHeuristicId(), true);
                     FibonacciHeapNode node = new FibonacciHeapNode(cn);
-                    q.insert(node, distance.get(cn.getCounter()));
-                    cond_to_entry.put(cn.getCounter(), node);
+                    q.insert(node, distance.get(cn.getHeuristicId()));
+                    cond_to_entry.put(cn.getHeuristicId(), node);
                     first = null;
 
                     break;//exit from this inner loop and compute cost for new conditons that can be achieved
                     //looking at the active actions activated by this step.
                 }
 
-                closed.set(cn.getCounter(), true);//this is the best cost so far; no need to reopen this condition again
+                closed.set(cn.getHeuristicId(), true);//this is the best cost so far; no need to reopen this condition again
 
-                if (cn.getCounter() == G.getCounter() && !this.reacheability_setting) {
-                    if (distance.get(cn.getCounter()) == Float.MAX_VALUE) {
+                if (cn.getHeuristicId() == G.getHeuristicId() && !this.reacheability_setting) {
+                    if (distance.get(cn.getHeuristicId()) == Float.MAX_VALUE) {
                         System.out.println("Anomaly");
 
                     }
-                    return Math.max(distance.get(cn.getCounter()), 1f);
+                    return Math.max(distance.get(cn.getHeuristicId()), 1f);
                 }
-                Collection<PDDLGroundAction> actions = this.cond_to_actions.get(cn.getCounter());
+                Collection<PDDLGroundAction> actions = this.cond_to_actions.get(cn.getHeuristicId());
 //                System.out.println("Action activated:"+gr);
                 if (actions != null) {
                     for (PDDLGroundAction gr : actions) {
                         if (gr != null) {
                             //System.out.println("Action identified as reachable:"+gr);
-                            active_actions.set(gr.counter, Boolean.TRUE);
+                            active_actions.set(gr.id, Boolean.TRUE);
                             if (this.reacheability_setting) {
                                 this.reachable.add(gr);
                             }
-                            temp_conditions.addAll(poss_achiever.get(gr.counter));
+                            temp_conditions.addAll(poss_achiever.get(gr.id));
 
                         }
                     }
@@ -251,14 +251,14 @@ public class quasi_hm extends Heuristic {
             for (Condition cond : temp_conditions) {
 //                System.out.println("Condition checking:"+cond);
 //                System.out.println("Action that is connected:"+this.cond_action.get(cond.getCounter()));
-                if (!closed.get(cond.getCounter())) {
+                if (!closed.get(cond.getHeuristicId())) {
 //                    System.out.println("Condition under analysis:"+cond);
 
                     Float current_cost = null;
-                    current_cost = lps.get(cond.getCounter()).update_cost(s, active_actions, distance);
+                    current_cost = lps.get(cond.getHeuristicId()).update_cost(s, active_actions, distance);
                     n_lp_invocations++;
                     if (current_cost != Float.MAX_VALUE) {
-                        if (this.greedy && cond.getCounter() == G.getCounter() && !this.reacheability_setting) {
+                        if (this.greedy && cond.getHeuristicId() == G.getHeuristicId() && !this.reacheability_setting) {
                             //System.out.println("Eary Exit");
                             return Math.max(current_cost, 1f);
                         }
@@ -278,22 +278,22 @@ public class quasi_hm extends Heuristic {
 ////            System.out.println("Dead-End in:"+s.pddlPrint());
 //        }
 //        System.out.println("Reachable actions:"+this.reachable);
-        return Math.max(distance.get(G.getCounter()), 1f);
+        return Math.max(distance.get(G.getHeuristicId()), 1f);
     }
 
     private void generate_achievers(PDDLState s_0) {
         poss_achiever = new HashMap();
         //this should also include the indirect dependencies, otherwise does not work!!
         for (PDDLGroundAction gr : this.A) {
-            poss_achiever.put(gr.counter, new ArrayList());
+            poss_achiever.put(gr.id, new ArrayList());
             for (Condition c1 : this.all_conditions) {
-                if (gr.getPreconditions().getCounter() != c1.getCounter()) {
+                if (gr.getPreconditions().getHeuristicId() != c1.getHeuristicId()) {
                     ComplexCondition c = (ComplexCondition)c1;
                     for (Condition c_in : (Collection<Condition>) c.sons) {
                         if (c_in instanceof Comparison) {
                             for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
                                 if (c_in.getInvolvedFluents().contains(nf)) {
-                                    poss_achiever.get(gr.counter).add(c);
+                                    poss_achiever.get(gr.id).add(c);
                                     break;
                                 }
                             }
@@ -303,7 +303,7 @@ public class quasi_hm extends Heuristic {
 //                            }
                         } else if (c_in instanceof Predicate) {
                             if (gr.achieve((Predicate) c_in)) {
-                                poss_achiever.get(gr.counter).add(c);
+                                poss_achiever.get(gr.id).add(c);
                                 break;
                             }
                         }
@@ -318,17 +318,17 @@ public class quasi_hm extends Heuristic {
         if (current_cost == Float.MAX_VALUE) {
             return;
         }
-        if (open_list.get(p.getCounter())) {
-            if (dist.get(p.getCounter()) > current_cost) {
-                q.decreaseKey(cond_to_entry.get(p.getCounter()), current_cost);
-                dist.set(p.getCounter(), current_cost);
+        if (open_list.get(p.getHeuristicId())) {
+            if (dist.get(p.getHeuristicId()) > current_cost) {
+                q.decreaseKey(cond_to_entry.get(p.getHeuristicId()), current_cost);
+                dist.set(p.getHeuristicId(), current_cost);
             }
         } else {
-            dist.set(p.getCounter(), current_cost);
-            open_list.set(p.getCounter(), true);
+            dist.set(p.getHeuristicId(), current_cost);
+            open_list.set(p.getHeuristicId(), true);
             FibonacciHeapNode node = new FibonacciHeapNode(p);
             q.insert(node, current_cost);
-            cond_to_entry.put(p.getCounter(), node);
+            cond_to_entry.put(p.getHeuristicId(), node);
             reacheable_conditions++;
         }
     }
@@ -347,19 +347,19 @@ public class quasi_hm extends Heuristic {
             }
             lp.additive_h = this.additive_h;
             lp.initialize(actions, s_0);
-            lps.put(c.getCounter(), lp);
+            lps.put(c.getHeuristicId(), lp);
         }
     }
 
     private void update_mapping(Condition preconditions, PDDLGroundAction a) {
-        if (this.cond_to_actions.get(preconditions.getCounter()) == null) {
+        if (this.cond_to_actions.get(preconditions.getHeuristicId()) == null) {
             LinkedHashSet actions = new LinkedHashSet();
             actions.add(a);
-            this.cond_to_actions.put(preconditions.getCounter(), actions);
+            this.cond_to_actions.put(preconditions.getHeuristicId(), actions);
         } else {
-            Collection actions = this.cond_to_actions.get(preconditions.getCounter());
+            Collection actions = this.cond_to_actions.get(preconditions.getHeuristicId());
             actions.add(a);
-            this.cond_to_actions.put(preconditions.getCounter(), actions);
+            this.cond_to_actions.put(preconditions.getHeuristicId(), actions);
 
         }
     }

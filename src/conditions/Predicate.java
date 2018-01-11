@@ -122,7 +122,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.getCounter());
+        return cond_dist.get(this.getHeuristicId());
     }
 
     @Override
@@ -309,7 +309,7 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Condition ground(Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
-        ret.setCounter(c);
+        ret.setHeuristicId(c);
         return ret;
     }
 
@@ -703,8 +703,8 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         achiever_set s = new achiever_set();
-        s.cost = cond_dist.get(this.getCounter());
-        s.actions.add(established_achiever.get(this.getCounter()));
+        s.cost = cond_dist.get(this.getHeuristicId());
+        s.actions.add(established_achiever.get(this.getHeuristicId()));
         s.target_cond.add(this);
         return s;
 

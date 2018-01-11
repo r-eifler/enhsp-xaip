@@ -144,7 +144,7 @@ public class NumFluentValue extends Terminal {
     @Override
     public Condition ground(Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
-        ret.setCounter(c);
+        ret.setHeuristicId(c);
         return ret;
     }
 

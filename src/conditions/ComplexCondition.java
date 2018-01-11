@@ -152,7 +152,7 @@ public abstract class ComplexCondition extends Condition{
     @Override
     public Condition ground(Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
-        ret.setCounter(c);
+        ret.setHeuristicId(c);
         return ret;
     }
 

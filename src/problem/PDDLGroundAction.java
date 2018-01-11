@@ -70,7 +70,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
     private boolean reacheable = false;
     private HashMap<NumFluent, Float> coefficientAffected;
     private Float action_cost;
-    public int counter;
+    public int id;
     public HashMap<Integer, Boolean> interact_with;
     private HashMap<Predicate, Boolean> achieve;
     private Integer int_depencies;
@@ -1818,7 +1818,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
             return false;
         }
         for (Condition cond : (Collection<Condition>) this.getPreconditions().sons) {
-            if (cond.getCounter() == c.getCounter()) {
+            if (cond.getHeuristicId() == c.getHeuristicId()) {
                 return true;
             }
         }
@@ -2136,13 +2136,13 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
     }
 
     private boolean interact_with(Comparison comp) {
-        Boolean ret = interact_with.get(comp.getCounter());
+        Boolean ret = interact_with.get(comp.getHeuristicId());
         if (ret == null) {
             if (comp.involve(this.getNumericFluentAffected())) {
-                interact_with.put(comp.getCounter(), Boolean.TRUE);
+                interact_with.put(comp.getHeuristicId(), Boolean.TRUE);
                 return true;
             } else {
-                interact_with.put(comp.getCounter(), Boolean.FALSE);
+                interact_with.put(comp.getHeuristicId(), Boolean.FALSE);
                 return false;
             }
         }

@@ -348,8 +348,8 @@ public class Aibr_rp extends Heuristic {
         }
 
         for (Condition c : (Collection<Condition>) G.getTerminalConditions()) {
-            Utils.dbg_print(debug, "[" + dist.get(c.getCounter()) + "]Goal atom:" + c + "\n");
-            this.conditions_sat_at_time_index.get(dist.get(c.getCounter())).add(c);
+            Utils.dbg_print(debug, "[" + dist.get(c.getHeuristicId()) + "]Goal atom:" + c + "\n");
+            this.conditions_sat_at_time_index.get(dist.get(c.getHeuristicId())).add(c);
         }
 
         HashMap<Integer, LinkedHashSet<PDDLGroundAction>> index_to_actual_actions = new HashMap();
@@ -371,8 +371,8 @@ public class Aibr_rp extends Heuristic {
                             for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
                                 //System.out.println("Precondition level:"+dist.get(c));
 //                                Utils.dbg_print(debug,"instances of"+c.getClass());
-                                Utils.dbg_print(debug, "Candidate implications:[" + this.dist.get(c.getCounter()) + "]" + c);
-                                this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
+                                Utils.dbg_print(debug, "Candidate implications:[" + this.dist.get(c.getHeuristicId()) + "]" + c);
+                                this.conditions_sat_at_time_index.get(this.dist.get(c.getHeuristicId())).add(c);
                             }
 
                         }
@@ -393,7 +393,7 @@ public class Aibr_rp extends Heuristic {
                             if (gr.getPreconditions() != null) {
                                 for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
                                     //System.out.println("Precondition level:"+dist.get(c));
-                                    this.conditions_sat_at_time_index.get(this.dist.get(c.getCounter())).add(c);
+                                    this.conditions_sat_at_time_index.get(this.dist.get(c.getHeuristicId())).add(c);
                                 }
                             }
                             to_add.get(k - 1).add(this.supp_to_action.get(gr));
@@ -479,8 +479,8 @@ public class Aibr_rp extends Heuristic {
             if (gr.getPreconditions().getTerminalConditions() != null) {
                 for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
                     if (c.can_be_true(rs)) {
-                        if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
-                            this.dist.set(c.getCounter(), i);
+                        if (this.dist.get(c.getHeuristicId()) == Integer.MAX_VALUE) {
+                            this.dist.set(c.getHeuristicId(), i);
                             this.conditions_sat_at_time_index.get(i).add(c);
                         }
                     } else {
@@ -502,8 +502,8 @@ public class Aibr_rp extends Heuristic {
         boolean goal_satisfied = true;
         for (Condition c : (Collection<Condition>) G.getTerminalConditions()) {
             if (c.can_be_true(rs)) {
-                if (this.dist.get(c.getCounter()) == Integer.MAX_VALUE) {
-                    this.dist.set(c.getCounter(), i);
+                if (this.dist.get(c.getHeuristicId()) == Integer.MAX_VALUE) {
+                    this.dist.set(c.getHeuristicId(), i);
                     this.conditions_sat_at_time_index.get(i).add(c);
                 }
             } else {

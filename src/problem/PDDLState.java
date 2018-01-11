@@ -385,8 +385,10 @@ public class PDDLState  {
         RelState ret_val = new RelState(); 
         
         for (int i = 0; i<this.numFluents.size() ; i++){  
-//            System.out.println(this.numFluents.get(i));
-            ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
+            if (this.currNumFluentsValues.get(i) == null){
+                ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(Float.NaN));
+            }else
+                ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
         }
         for (int i = 0; i<this.predFluents.size() ; i++){
             if (this.currPredValues.get(i))
