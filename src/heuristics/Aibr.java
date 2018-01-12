@@ -28,10 +28,12 @@ import expressions.NumEffect;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
 import heuristics.advanced.h1;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
@@ -412,15 +414,19 @@ public class Aibr extends Heuristic {
 
     }
     
-    public RelState get_reachable_state(State s, RelState rs2){
+    public ArrayList<RelState> get_relaxed_reachable_states(State s, RelState rs2){
+        ArrayList<RelState> ret = new ArrayList<>();
+        ret.add(rs2.clone());
+        
         while (true) {
             boolean fix_point = true;
             for (GroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
                     fix_point = false;
+                    ret.add(rs2.clone());
                     if (rs2.satisfy(G)) {
-                       return rs2;
+                       return ret;
                     }
                 }
             }
@@ -429,5 +435,23 @@ public class Aibr extends Heuristic {
                 System.out.println("Anomaly!");
             }
         }
+    }
+    
+    public RelState get_relaxed_goal_in_reachability(State s){
+        RelState rs = s.relaxState();
+        Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
+        
+        while (true) {
+            LinkedHashSet<GroundAction> S = get_applicable_supporters(temp_supporters, rs);
+            if (S.isEmpty()){
+                return rs;
+            }
+            
+            for (GroundAction gr : S) {
+                gr.apply(rs);
+            }
+                //S.stream().forEach((GroundAction a) -> a.apply(rs));
+        }
+//        return rs;
     }
 }

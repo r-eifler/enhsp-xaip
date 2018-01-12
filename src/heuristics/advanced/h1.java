@@ -167,6 +167,7 @@ public class h1 extends Heuristic {
         goal.setAction_cost(0);
         goal.setPreconditions(G);
         A.add(goal);
+        simplify_actions(s);
         build_integer_representation();
         identify_complex_conditions(A);
 
@@ -181,7 +182,6 @@ public class h1 extends Heuristic {
 
     @Override
     public Float compute_estimate(State s_0) {
-        
         if (s_0.satisfy(G)) {
 //            System.out.println("Goal satisfied??");
             return 0f;
