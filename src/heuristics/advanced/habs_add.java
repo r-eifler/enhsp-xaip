@@ -43,8 +43,6 @@ public class habs_add extends Heuristic {
     private final Integer numOfSubdomains;
     private h1 habs;
 
-
-
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
         
@@ -68,6 +66,7 @@ public class habs_add extends Heuristic {
         try {
             // abstraction step
             generate_subactions(s);
+            System.out.println("|Subactions| = " + this.supporters.size());
 //            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
@@ -170,7 +169,9 @@ public class habs_add extends Heuristic {
      */
 
     public void setup_habs(PDDLState s) {
+
         System.out.println("setting up...");
+
         habs = (h1) habsFactory(heuristic_type, G, (Set<PDDLGroundAction>) this.supporters);
         habs.light_setup(s);
         System.out.println("setup completed!");
@@ -227,7 +228,6 @@ public class habs_add extends Heuristic {
                   repSample = new ExtendedNormExpression(sup);
                 }
             }
-            
 
 //            if (Math.abs(inf) < 1e-5){ // inf = 0
 //                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
@@ -279,10 +279,10 @@ public class habs_add extends Heuristic {
         ArrayList <Interval> ret = new ArrayList<>();
         Interval temp = new Interval();
         
-        if (iis.size() > 0){
+        if (iis.size() > 0 && numOfSubdomains > 0){
             PDDLNumber l = iis.get(0).getInf();
             Integer groupSize = (int) Math.ceil(iis.size() / (float) numOfSubdomains);
-
+            
             for (int i=0; i < iis.size(); i++){
                 if (iis.get(i).getInf().getNumber() * iis.get(i).getSup().getNumber() < 0){
                     temp.setInf(l);
@@ -336,7 +336,7 @@ public class habs_add extends Heuristic {
         return ret;
     }
     
-    ArrayList <Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates){
+   private ArrayList <Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates){
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
         
 //        System.out.println("relaxed states: " + relaxedStates.toString());
@@ -370,10 +370,12 @@ public class habs_add extends Heuristic {
         return iis;
     }
 
-    
+
    
     private PDDLGroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, PDDLGroundAction gr, PDDLState s_0) {    
         PDDLGroundAction subaction = new PDDLGroundAction(subactionName);
+
+
 
         // set up effect
         NumEffect supEff = new NumEffect(effect.getOperator());
@@ -456,6 +458,7 @@ public class habs_add extends Heuristic {
 
     public Float compute_estimate(PDDLState s) {
 //        System.out.println("start compute_estimate()...");
+
         Float ret = habs.compute_estimate(s);
 //        System.out.println("h = " + ret);
         return ret;

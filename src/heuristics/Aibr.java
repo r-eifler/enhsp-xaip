@@ -414,7 +414,6 @@ public class Aibr extends Heuristic {
 
     }
     
-
     public ArrayList<RelState> get_relaxed_reachable_states(PDDLState s, RelState rs2){
         ArrayList<RelState> ret = new ArrayList<>();
         ret.add(rs2.clone());

@@ -18,10 +18,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import problem.PDDLGroundAction;
-
 import problem.GroundProcess;
 import problem.RelState;
 import problem.PDDLState;
