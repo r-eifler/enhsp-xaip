@@ -28,10 +28,12 @@ import expressions.NumEffect;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
 import heuristics.advanced.h1;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.PDDLGroundAction;
@@ -125,7 +127,7 @@ public class Aibr extends Heuristic {
         int i = 0;
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
-//            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
+//            Collection<PDDLGroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
 //            Utils.dbg_print(1, "Relaxed State:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
@@ -154,7 +156,7 @@ public class Aibr extends Heuristic {
                 for (final PDDLGroundAction gr : S) {
                     gr.apply(rs);
                 }
-                //S.stream().forEach((GroundAction a) -> a.apply(rs));
+                //S.stream().forEach((PDDLGroundAction a) -> a.apply(rs));
                 supporters_counter += S.size();
             } else {
                 for (final PDDLGroundAction gr : S) {
@@ -412,15 +414,20 @@ public class Aibr extends Heuristic {
 
     }
     
-    public RelState get_reachable_state(PDDLState s, RelState rs2){
+
+    public ArrayList<RelState> get_relaxed_reachable_states(PDDLState s, RelState rs2){
+        ArrayList<RelState> ret = new ArrayList<>();
+        ret.add(rs2.clone());
+        
         while (true) {
             boolean fix_point = true;
             for (PDDLGroundAction gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
                     fix_point = false;
+                    ret.add(rs2.clone());
                     if (rs2.satisfy(G)) {
-                       return rs2;
+                       return ret;
                     }
                 }
             }
@@ -429,5 +436,23 @@ public class Aibr extends Heuristic {
                 System.out.println("Anomaly!");
             }
         }
+    }
+    
+    public RelState get_relaxed_goal_in_reachability(PDDLState s){
+        RelState rs = s.relaxState();
+        Collection<PDDLGroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
+        
+        while (true) {
+            LinkedHashSet<PDDLGroundAction> S = get_applicable_supporters(temp_supporters, rs);
+            if (S.isEmpty()){
+                return rs;
+            }
+            
+            for (PDDLGroundAction gr : S) {
+                gr.apply(rs);
+            }
+                //S.stream().forEach((PDDLGroundAction a) -> a.apply(rs));
+        }
+//        return rs;
     }
 }

@@ -12,17 +12,19 @@ import expressions.ExtendedNormExpression;
 import expressions.Interval;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
-import heuristics.Aibr;
+import heuristics.Aibr; 
 import heuristics.Heuristic;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.PDDLGroundAction;
 import problem.GroundProcess;
+
 import problem.RelState;
 import problem.PDDLState;
 import problem.Metric;
@@ -36,16 +38,18 @@ public class habs_add extends Heuristic {
     private static final Integer heuristic_type = 1; // may use heuristics other than h1.
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
-  
-    private final Set<GroundProcess> processSet;
-    private final Integer numOfSubdomains = 2;
+    private static final Float epsilon = 0.1f;
+    
+    private final Integer numOfSubdomains;
     private h1 habs;
 
-    public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
-        super(G, A, P);
 
+
+    public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
+        super(G, A);
+        
+        this.numOfSubdomains = k;
         this.supporters = new LinkedHashSet<>();
-        this.processSet = P;
     }
 
     public void setMetric(Metric metric) {
@@ -64,6 +68,7 @@ public class habs_add extends Heuristic {
         try {
             // abstraction step
             generate_subactions(s);
+//            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
             Logger.getLogger(habs_add.class.getName()).log(Level.SEVERE, null, ex);
@@ -71,14 +76,14 @@ public class habs_add extends Heuristic {
         
         // estimation for initial state
         setup_habs(s);
-        ret = habs.compute_estimate(s);
         
+        ret = habs.compute_estimate(s);
         return ret;
-    }
+    }   
 
     private Float aibrReachabilityAnalysis(PDDLState s) {
         // reachability analysis on original problem using AIBR.
-        Aibr first_reachH = new Aibr(this.G, this.A, this.processSet);
+        Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
         Float ret = first_reachH.compute_estimate(s);
@@ -99,8 +104,10 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      * <p>
      */
+
     private void generate_subactions(PDDLState s_0) throws Exception {
-        RelState rs = getRelaxedGoal(A, G, processSet, s_0);
+        ArrayList<RelState> relaxedStates = getRelaxedGoal(A, G, s_0);
+        RelState rsReachability = getReachabilityRelaxedState(A, G, s_0);
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -121,7 +128,7 @@ public class habs_add extends Heuristic {
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
                     if (!rhs.rhsFluents().isEmpty() && rhs.linear) {
-                        addPiecewiseSubactions(gr.toFileCompliant() + " " + effect.getFluentAffected(), gr, effect, effectOnCost, rs, s_0);
+                        addPiecewiseSubactions(gr.toFileCompliant() + " " + effect.getFluentAffected(), gr, effect, effectOnCost, relaxedStates, rsReachability, s_0);
                     } else if (!rhs.linear){
                         throw new Exception("Non-linear effects not supported!");
                     } else { // constant numeric effects
@@ -139,14 +146,21 @@ public class habs_add extends Heuristic {
         }
 
         System.out.println("Generating subactions finished.");
-        System.out.println("|Sup + goal|: " + supporters.size());
     }
 
-    private RelState getRelaxedGoal(Set<PDDLGroundAction> A, ComplexCondition G, Set<GroundProcess> P, PDDLState s) {
-        Aibr aibr_handle = new Aibr(G, A, P);
+
+    private ArrayList<RelState> getRelaxedGoal(Set<PDDLGroundAction> A, ComplexCondition G, PDDLState s) {
+        Aibr aibr_handle = new Aibr(G, A);
         //aibr_handle
         aibr_handle.setup(s);
-        return aibr_handle.get_reachable_state(s, s.relaxState());
+        return aibr_handle.get_relaxed_reachable_states(s, s.relaxState());
+    }
+    
+
+    private RelState getReachabilityRelaxedState(LinkedHashSet<PDDLGroundAction> A, ComplexCondition G, PDDLState s_0) {
+        Aibr aibr_handle = new Aibr(G, A);
+        aibr_handle.setup(s_0);
+        return aibr_handle.get_relaxed_goal_in_reachability(s_0);
     }
 
     /**
@@ -154,15 +168,19 @@ public class habs_add extends Heuristic {
      *
      * @param s
      */
+
     public void setup_habs(PDDLState s) {
-        habs = (h1) habsFactory(heuristic_type, G, (Set<PDDLGroundAction>) this.supporters, processSet);
+        System.out.println("setting up...");
+        habs = (h1) habsFactory(heuristic_type, G, (Set<PDDLGroundAction>) this.supporters);
         habs.light_setup(s);
+        System.out.println("setup completed!");
     }
 
-    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
+    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<PDDLGroundAction> A) {
+
         switch (heuristicType) {
             case (1): {
-                return new h1(G, A, P);
+                return new h1(G, A, new LinkedHashSet<>()); // does not support process yet
             }
             default:
                 return null;
@@ -184,127 +202,176 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      * <p>
      */
-    private void addPiecewiseSubactions(String name, PDDLGroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, PDDLState s_0) {
+
+    private void addPiecewiseSubactions(String name, PDDLGroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, RelState rsReachability, PDDLState s_0) {
         // decomposition
-        HashSet<Interval> subdomains = decomposeRhs(effect, rs);
+        ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates, rsReachability);
         
         Expression repSample;
         String subactionName;
-        Float domain_inf = Float.MAX_VALUE;
-        Float domain_sup = - Float.MAX_VALUE;
 
-        for (Interval subdomain : subdomains) {
+        for (Interval subdomain : iis) {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
             
-            if (inf < domain_inf){
-                domain_inf = inf;
-            }
-            if (sup > domain_sup){
-                domain_sup = sup;
+            if (Math.abs(inf) < 1e-5){ // inf = 0
+                repSample = new ExtendedNormExpression(epsilon);
+//                repSample = new ExtendedNormExpression((inf + sup)/2);
+            } else if (inf > 0) {
+                repSample = new ExtendedNormExpression(inf);
+            } else { // inf < 0
+                if (Math.abs(sup) < 1e-5){ // sup = 0
+                  repSample = new ExtendedNormExpression(-epsilon);
+//                   repSample = new ExtendedNormExpression((inf + sup)/2);
+                } else {
+                  repSample = new ExtendedNormExpression(sup);
+                }
             }
             
-            if (inf * sup >= 0){
-                repSample = new ExtendedNormExpression((inf + sup) / 2);
-                subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
-                PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName, 
-                        repSample, 
-                        inf, 
-                        sup, 
-                        effect, 
-                        effectOnCost, 
-                        gr,
-                        s_0);
-                
-                supporters.add(subaction);
-                
-            } else if (inf * sup < 0){ // theorem 2, ensuring asymptotic reachability
-                repSample = new ExtendedNormExpression(sup/2);
-                subactionName = name + " (0," + sup.toString() + ") "; // + " for " + effect.getFluentAffected().toString();
-                PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName, 
-                        repSample, 
-                        0f, 
-                        sup, 
-                        effect, 
-                        effectOnCost, 
-                        gr,
-                        s_0);
-                supporters.add(subaction);
-                
-                repSample = new ExtendedNormExpression(inf/2);
-                subactionName = name + " (" + inf.toString() + ",0) ";// + " for " + effect.getFluentAffected().toString();
-                subaction = generatePiecewiseSubaction(subactionName, 
-                        repSample, 
-                        inf, 
-                        0f, 
-                        effect, 
-                        effectOnCost,
-                        gr,
-                        s_0);
-                supporters.add(subaction);
-            }
+
+//            if (Math.abs(inf) < 1e-5){ // inf = 0
+//                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
+//                    repSample = new ExtendedNormExpression(epsilon);
+//                } else { // sup > 0, but finite
+//                    repSample = new ExtendedNormExpression((inf+sup)/2);                    
+//                }
+//            } else if (inf > 0) {
+//                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
+//                    repSample = new ExtendedNormExpression(inf);
+//                } else { // sup > 0, but finite
+//                    repSample = new ExtendedNormExpression((inf+sup)/2);
+//                }
+//            } else { // inf < 0
+//                if ((Math.abs(inf) + Float.MAX_VALUE) < 1e-5){ // inf = -infty
+//                    if (Math.abs(sup) < 1e-5){ // sup = 0
+//                        repSample = new ExtendedNormExpression(epsilon);
+//                    } else { // sup < 0, but finite
+//                        repSample = new ExtendedNormExpression((inf+sup)/2);
+//                    }
+//                } else { // inf < 0, but finite
+//                    repSample = new ExtendedNormExpression((inf+sup)/2);
+//                }
+//            }
+
+            subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
+            PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName, 
+                    repSample, 
+                    inf, 
+                    sup, 
+                    effect, 
+                    effectOnCost, 
+                    gr,
+                    s_0);
+
+            supporters.add(subaction);
         }
-        
-        // add plus infinity subdomain
-        if (domain_sup != 0){
-            repSample = new ExtendedNormExpression(domain_sup);
-        } else {
-            // this is very unstable!!
-            repSample = new ExtendedNormExpression(1f);
-        }
-        subactionName = name + " (" + domain_sup.toString() + ",+inf) ";// + " for " + effect.getFluentAffected().toString();
-        PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName, 
-                repSample,  
-                domain_sup,
-                Float.MAX_VALUE,
-                effect, 
-                effectOnCost, 
-                gr,
-                s_0);
-        supporters.add(subaction);
-        
-        // add minus infinity subdomain
-        if (domain_inf != 0){
-            repSample = new ExtendedNormExpression(domain_inf);
-        } else {
-            // this is very unstable!!
-            repSample = new ExtendedNormExpression(-1f);
-        }
-        subactionName = name + " (-inf," + domain_inf.toString() + ") ";// + " for " + effect.getFluentAffected().toString();
-        subaction = generatePiecewiseSubaction(subactionName, 
-                repSample, 
-                -Float.MAX_VALUE,
-                domain_inf, 
-                effect,
-                effectOnCost, 
-                gr,
-                s_0);
-        supporters.add(subaction);
-        
     }
     
-    private HashSet<Interval> decomposeRhs(NumEffect effect, RelState rs) {
-        Interval rhsInterval = effect.getRight().eval(rs);
-        
-        Float inf, sup, strip;
-        HashSet<Interval> subdomains = new HashSet<>();
+    
+    private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
+//        System.out.println("effect: " + effect);
 
-        inf = rhsInterval.getInf().getNumber();
-        sup = rhsInterval.getSup().getNumber();
+        // ====== now generating increment interval sequence (IIS) ======
+        ArrayList<Interval> iis = getIis(effect, relaxedStates);
+        Float initialVal = effect.getRight().eval(relaxedStates.get(0)).getInf().getNumber();
         
-        // uniform decomposition
-        strip = (sup - inf) / numOfSubdomains;
-        for (int i = 0; i < numOfSubdomains; i++) {
-            Interval subdomain = new Interval();
-            subdomain.setInf(new PDDLNumber(inf + strip * i));
-            subdomain.setSup(new PDDLNumber(inf + strip * (i + 1)));
-            
-            subdomains.add(subdomain);
+//        System.out.println("iis: " + iis);
+        ArrayList <Interval> ret = new ArrayList<>();
+        Interval temp = new Interval();
+        
+        if (iis.size() > 0){
+            PDDLNumber l = iis.get(0).getInf();
+            Integer groupSize = (int) Math.ceil(iis.size() / (float) numOfSubdomains);
+
+            for (int i=0; i < iis.size(); i++){
+                if (iis.get(i).getInf().getNumber() * iis.get(i).getSup().getNumber() < 0){
+                    temp.setInf(l);
+                    temp.setSup(new PDDLNumber(0));
+                    ret.add(temp.clone());
+
+                    if (i % groupSize == 0 || i == iis.size()-1){
+                        temp.setInf(new PDDLNumber(0));
+                        temp.setSup(iis.get(i).getSup());
+                        ret.add(temp.clone());
+                        l = iis.get(i).getSup();
+                    } else {
+                        l = new PDDLNumber(0);
+                    }
+                    continue;
+                }
+
+                if (i % groupSize == 0 || i == iis.size() - 1){
+                    temp.setInf(l);
+                    temp.setSup(iis.get(i).getSup());
+                    ret.add(temp.clone());
+                    l = iis.get(i).getSup();
+                }   
+            }
         }
         
-        return subdomains;
+        // now add infinite intervals to ensure safness.
+        if (effect.getRight().eval(rsReach).getInf().getNumber() + Float.MAX_VALUE < 1e-5){
+            temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
+            if (iis.size() > 0){
+                temp.setSup(iis.get(0).getInf());
+            } else {
+                temp.setSup(new PDDLNumber(initialVal));
+            }
+            
+            ret.add(temp.clone());
+        }
+
+        
+        if (effect.getRight().eval(rsReach).getSup().getNumber() - Float.MAX_VALUE < 1e-5){
+            if (iis.size() > 0){
+                temp.setInf(iis.get(iis.size()-1).getSup());
+            } else {
+                temp.setInf(new PDDLNumber(initialVal));
+            }
+            temp.setSup(new PDDLNumber(-Float.MAX_VALUE));
+            ret.add(temp.clone());
+        }
+        
+//        System.out.println("decomposed into: " + ret + "\n\n");
+        return ret;
+    }
+    
+    ArrayList <Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates){
+        ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
+        
+//        System.out.println("relaxed states: " + relaxedStates.toString());
+        
+        Interval prevRhsInterval = null;
+        for (RelState rs : relaxedStates){
+            Interval currentRhsInterval = effect.getRight().eval(rs); 
+            if (prevRhsInterval == null) {
+                prevRhsInterval = currentRhsInterval.clone();
+            } else {
+                if (currentRhsInterval.getInf().getNumber() - prevRhsInterval.getInf().getNumber() < 0){
+                    Interval incrementInterval = new Interval();
+                    incrementInterval.setInf(currentRhsInterval.getInf());
+                    incrementInterval.setSup(prevRhsInterval.getInf());
+                    iis.add(incrementInterval);    
+                }
+                    
+                if (currentRhsInterval.getSup().getNumber() - prevRhsInterval.getSup().getNumber() > 0){
+                    Interval incrementInterval = new Interval();
+                    incrementInterval.setInf(prevRhsInterval.getSup());
+                    incrementInterval.setSup(currentRhsInterval.getSup());
+                    iis.add(incrementInterval);
+                }
+                    prevRhsInterval = currentRhsInterval.clone();
+            }   
+        }
+        
+        Collections.sort(iis, new SortByInf());
+        
+//        System.out.println("iis: " + iis.toString());
+        return iis;
     }
 
+    
+   
     private PDDLGroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, PDDLGroundAction gr, PDDLState s_0) {    
         PDDLGroundAction subaction = new PDDLGroundAction(subactionName);
 
@@ -386,10 +453,29 @@ public class habs_add extends Heuristic {
         supporters.add(sup);
     }
 
-    @Override
+
     public Float compute_estimate(PDDLState s) {
+//        System.out.println("start compute_estimate()...");
         Float ret = habs.compute_estimate(s);
-        
+//        System.out.println("h = " + ret);
         return ret;
     }
+
+    private static class SortByInf implements Comparator{
+
+        public int compare(Object o1, Object o2) {
+            Interval a = (Interval) o1;
+            Interval b = (Interval) o2;
+            
+            if (a.getInf().getNumber() > b.getInf().getNumber()){
+                return 1;
+            } else if (a.getInf().getNumber() < b.getInf().getNumber()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
 }
+

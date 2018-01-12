@@ -7,25 +7,21 @@ package heuristics.advanced;
 
 import conditions.Comparison;
 import conditions.ComplexCondition;
-import conditions.Condition;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
-import expressions.Interval;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import heuristics.Aibr;
 import heuristics.Heuristic;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.PDDLGroundAction;
+
 import problem.GroundProcess;
 import problem.RelState;
 import problem.PDDLState;
@@ -141,7 +137,8 @@ public class habs_max extends Heuristic {
         Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
-        return aibr_handle.get_reachable_state(s, s.relaxState());
+        // dxli: TODO: correct this
+        return aibr_handle.get_relaxed_reachable_states(s, s.relaxState()).get(0);
     }
 
     /**
