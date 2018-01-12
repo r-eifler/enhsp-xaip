@@ -26,11 +26,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -38,7 +39,7 @@ import problem.State;
  */
 public class PDDLNumber extends Expression {
 
-    private Float number;
+    private double number;
 
     public PDDLNumber() {
         super();
@@ -47,21 +48,21 @@ public class PDDLNumber extends Expression {
 
     public PDDLNumber(Float n) {
         grounded = true;
-        number = n;
+        number = n.doubleValue();
 
     }
 
     public PDDLNumber(float number) {
 
         grounded = true;
-        this.number = number;
+        this.number = new Double(number);
 
     }
 
     public PDDLNumber(int number) {
 
         grounded = true;
-        this.number = new Float(number);
+        this.number = new Double(number);
 
     }
 
@@ -85,18 +86,18 @@ public class PDDLNumber extends Expression {
      * @return the number
      */
     public Float getNumber() {
-        return number;
+        return new Float(number);
     }
 
     /**
      * @param number the number to set
      */
     public void setNumber(Float number) {
-        this.number = number;
+        this.number = number.doubleValue();
     }
 
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         return this;
     }
 
@@ -117,7 +118,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Expression weakEval(State s, HashMap invF) {
+    public Expression weakEval(PDDLState s, HashMap invF) {
         return this;
     }
 
@@ -170,13 +171,16 @@ public class PDDLNumber extends Expression {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 67 * hash + (this.number != null ? this.number.hashCode() : 0);
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.number);
         return hash;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null) {
             return false;
         }
@@ -184,11 +188,12 @@ public class PDDLNumber extends Expression {
             return false;
         }
         final PDDLNumber other = (PDDLNumber) obj;
-        if (this.number != other.number && (this.number == null || !this.number.equals(other.number))) {
+        if (!Objects.equals(this.number, other.number)) {
             return false;
         }
         return true;
     }
+
 
     @Override
     public String toSmtVariableString(int i) {

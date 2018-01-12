@@ -32,7 +32,7 @@ import problem.PDDLObjects;
  */
 public class EventSchema extends ActionSchema {
 
-    public GroundEvent ground() {
+    public GroundEvent fakeGround() {
         GroundEvent ret = new GroundEvent(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 

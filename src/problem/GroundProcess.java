@@ -33,13 +33,13 @@ import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GroundProcess extends GroundAction implements Comparable {
+public class GroundProcess extends PDDLGroundAction implements Comparable {
 
     public GroundProcess(String name) {
         super(name);
     }
 
-    public boolean isActive(State s) {
+    public boolean isActive(PDDLState s) {
         return this.isApplicable(s);
     }
 
@@ -73,9 +73,9 @@ public class GroundProcess extends GroundAction implements Comparable {
 
     }
 
-    public State apply(State s_in, int time) {
+    public PDDLState apply(PDDLState s_in, int time) {
 
-        State s = null;
+        PDDLState s = null;
         try {
             s = s_in.clone();
         } catch (CloneNotSupportedException ex) {

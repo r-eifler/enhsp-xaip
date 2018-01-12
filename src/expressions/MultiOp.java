@@ -29,7 +29,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -132,7 +132,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         PDDLNumber ret_val = new PDDLNumber(0);
 
         for (Object o : this.expr) {
@@ -157,7 +157,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Expression weakEval(State s, HashMap invF) {
+    public Expression weakEval(PDDLState s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

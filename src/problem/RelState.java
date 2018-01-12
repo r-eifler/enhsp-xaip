@@ -282,7 +282,7 @@ public class RelState extends Object {
     }
 
     public void update_values(HashMap subst) {
-        for (Object o : subst.keySet()) {
+        for (final Object o : subst.keySet()) {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
                 if (nf.has_to_be_tracked()) {

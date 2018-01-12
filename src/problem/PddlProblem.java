@@ -31,10 +31,9 @@ import conditions.Predicate;
 import conditions.PDDLObject;
 import domain.ParametersAsTerms;
 import domain.ActionSchema;
-import domain.GenericActionType;
+import domain.PDDLGenericAction;
 import domain.PddlDomain;
 import domain.SchemaParameters;
-
 import domain.Type;
 
 import expressions.BinaryOp;
@@ -78,7 +77,7 @@ import propositionalFactory.Grounder;
 public class PddlProblem {
 
     public PDDLObjects objects;
-    public State init;
+    public PDDLState init;
     public ComplexCondition goals;
     protected String name;
     protected Integer indexObject;
@@ -89,7 +88,7 @@ public class PddlProblem {
     protected String domainName;
     PddlDomain linkedDomain;
     protected boolean validatedAgainstDomain;
-    public Set<GroundAction> actions;
+    public Set<PDDLGroundAction> actions;
     protected long propositionalTime;
     protected boolean grounded_representation;
     protected RelState possStates;
@@ -130,7 +129,7 @@ public class PddlProblem {
     public PddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
         super();
         try {
-            init = new State();
+            init = new PDDLState();
             indexObject = 0;
             indexInit = 0;
             indexGoals = 0;
@@ -235,7 +234,7 @@ public class PddlProblem {
      */
     public PddlProblem() {
 
-        init = new State();
+        init = new PDDLState();
 
         indexObject = 0;
         indexInit = 0;
@@ -491,7 +490,7 @@ public class PddlProblem {
     /**
      * @return the init - the initial status of the problem
      */
-    public State getInit() {
+    public PDDLState getInit() {
         return init;
     }
 
@@ -522,7 +521,7 @@ public class PddlProblem {
     }
 
 
-    public void setInit(State init) {
+    public void setInit(PDDLState init) {
         this.init = init;
     }
 
@@ -609,10 +608,10 @@ public class PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
-                if (act.getPar().size() != 0) {
+                if (!act.getPar().isEmpty()) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
-                    GroundAction gr = act.ground();
+                    PDDLGroundAction gr = act.fakeGround();
                     getActions().add(gr);
                 }
             }
@@ -625,7 +624,7 @@ public class PddlProblem {
         //System.out.println("prova");
         System.out.println("|A| just after grounding:" + getActions().size());
         while (it.hasNext()) {//iteration of the action for pruning the trivial unreacheable ones (because of the grounding and weak evaluation)
-            GroundAction act = (GroundAction) it.next();
+            PDDLGroundAction act = (PDDLGroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
 //                System.out.println(act.toPDDL());
@@ -645,7 +644,7 @@ public class PddlProblem {
 
     }
 
-    public int distance(State sIn, Condition c) {
+    public int distance(PDDLState sIn, Condition c) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -657,7 +656,7 @@ public class PddlProblem {
                 distance++;
                 level = new HashSet();
                 for (Iterator it = getActions().iterator(); it.hasNext();) {
-                    GroundAction gr = (GroundAction) it.next();
+                    PDDLGroundAction gr = (PDDLGroundAction) it.next();
                     if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
                         it.remove();
@@ -667,14 +666,14 @@ public class PddlProblem {
                     return Integer.MAX_VALUE;
                 }
                 for (Object o : level) {
-                    GroundAction gr = (GroundAction) o;
+                    PDDLGroundAction gr = (PDDLGroundAction) o;
                     gr.apply(s);
                 }
             }
         }
     }
 
-    public Map distance(State sIn, List c_s) {
+    public Map distance(PDDLState sIn, List c_s) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -698,7 +697,7 @@ public class PddlProblem {
                 distance++;
                 level = new HashSet();
                 for (Iterator it = getActions().iterator(); it.hasNext();) {
-                    GroundAction gr = (GroundAction) it.next();
+                    PDDLGroundAction gr = (PDDLGroundAction) it.next();
                     if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
                         it.remove();
@@ -708,7 +707,7 @@ public class PddlProblem {
                     return order;
                 }
                 for (Object o : level) {
-                    GroundAction gr = (GroundAction) o;
+                    PDDLGroundAction gr = (PDDLGroundAction) o;
                     gr.apply(s);
                 }
             }
@@ -727,7 +726,7 @@ public class PddlProblem {
             distance++;
             level = new HashSet();
             for (Iterator it = getActions().iterator(); it.hasNext();) {
-                GroundAction gr = (GroundAction) it.next();
+                PDDLGroundAction gr = (PDDLGroundAction) it.next();
                 //System.out.println(gr.toEcoString());
                 if (gr.getPreconditions().can_be_true(s)) {
                     totalActions.add(gr);
@@ -737,7 +736,7 @@ public class PddlProblem {
             }
 
             for (Object o : level) {
-                GroundAction gr = (GroundAction) o;
+                PDDLGroundAction gr = (PDDLGroundAction) o;
                 gr.apply(s);
             }
             //if (s.satisfy(getGoals()))
@@ -798,7 +797,7 @@ public class PddlProblem {
             distance++;
             level = new HashSet();
             for (Iterator it = getActions().iterator(); it.hasNext();) {
-                GroundAction gr = (GroundAction) it.next();
+                PDDLGroundAction gr = (PDDLGroundAction) it.next();
                 //System.out.println(gr.toEcoString());
                 if (gr.getPreconditions().can_be_true(s)) {
                     totalActions.add(gr);
@@ -808,7 +807,7 @@ public class PddlProblem {
             }
 
             for (Object o : level) {
-                GroundAction gr = (GroundAction) o;
+                PDDLGroundAction gr = (PDDLGroundAction) o;
                 gr.apply(s);
             }
             for (Iterator it = toVisit.iterator(); it.hasNext();) {
@@ -912,7 +911,7 @@ public class PddlProblem {
             if (this.getActions() == null || this.getActions().isEmpty()) {
                 this.generateActions();
             }
-            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
+            for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.getActions()) {
                 for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
                     staticFluents.put(nf, Boolean.FALSE);
                 }
@@ -923,7 +922,7 @@ public class PddlProblem {
 
     public void transformNumericConditionsInActions() throws Exception {
 
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
                 gr.setPreconditions((ComplexCondition) generate_inequalities(gr.getPreconditions()));
             }
@@ -936,7 +935,7 @@ public class PddlProblem {
     }
 
     public boolean print_actions() {
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.actions) {
             System.out.println(gr.toFileCompliant());
         }
 
@@ -979,7 +978,7 @@ public class PddlProblem {
         }
     }
 
-    public void keepUniqueVariable(GenericActionType act) {
+    public void keepUniqueVariable(PDDLGenericAction act) {
         
         
         
@@ -992,7 +991,7 @@ public class PddlProblem {
         }
     }
 
-    public void keepUniqueVariable(State s) {
+    public void keepUniqueVariable(PDDLState s) {
         for (Predicate p : s.getPropositions()) {
             PddlProblem.this.keepUniqueVariable(p);
         }

@@ -53,7 +53,7 @@ import java.util.Set;
  *
  * @author enrico
  */
-public class State extends AbstractState {
+public class PDDLState  {
 
     HashMap<Predicate,Boolean> initPred;
     public HashMap<NumFluent, PDDLNumber> initNumFluents;
@@ -65,9 +65,8 @@ public class State extends AbstractState {
     
     HashSet timedLiterals;
     private NumFluent time;
-    protected Integer hash;
 
-    public State() {
+    public PDDLState() {
         super();
         initPred = new HashMap();
         initNumFluents = new HashMap();
@@ -78,6 +77,10 @@ public class State extends AbstractState {
         predFluents = new ArrayList();
     }
 
+    public PDDLState(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
+        this.currNumFluentsValues = (ArrayList<PDDLNumber>) numFluents.clone();
+        this.currPredValues = (ArrayList<Boolean>) propFluents.clone();
+    }
 
     @Override
     public String toString() {
@@ -87,28 +90,16 @@ public class State extends AbstractState {
     
 
     @Override
-    public State clone() throws CloneNotSupportedException {
-        State ret_val = new State();
+    public PDDLState clone() throws CloneNotSupportedException {
+        PDDLState ret_val = new PDDLState(this.currNumFluentsValues,this.currPredValues);
 
         ret_val.initNumFluents = this.getInitNumFluents();
 
           ret_val.initPred = this.initPred;
         ret_val.numFluents = this.numFluents;
         ret_val.predFluents = this.predFluents;
-        
-//        if (this.initPred.isEmpty())
-        
-
-//        for (Predicate o :(Collection<Predicate>) this.propositions.keySet()) {
-//            //ret_val.addProposition((Predicate) ele.clone());
-//            ret_val.propositions.put(o, this.propositions.get(o));
-////            ret_val.addProposition((Predicate) ele.clone());
-//        }
-        //ret_val.propositions = (HashSet) this.propositions.clone();
-        ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
         ret_val.time = this.time;
-        ret_val.currNumFluentsValues = (ArrayList<PDDLNumber>) this.currNumFluentsValues.clone();
-        ret_val.currPredValues = (ArrayList<Boolean>) this.currPredValues.clone();
+
         return ret_val;
     }
 
@@ -353,7 +344,7 @@ public class State extends AbstractState {
 
     }
     
-    public void apply(GroundAction gr){
+    public void apply(PDDLGroundAction gr){
         gr.apply(this);
     }
             
@@ -394,8 +385,10 @@ public class State extends AbstractState {
         RelState ret_val = new RelState(); 
         
         for (int i = 0; i<this.numFluents.size() ; i++){  
-//            System.out.println(this.numFluents.get(i));
-            ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
+            if (this.currNumFluentsValues.get(i) == null){
+                ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(Float.NaN));
+            }else
+                ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
         }
         for (int i = 0; i<this.predFluents.size() ; i++){
             if (this.currPredValues.get(i))
@@ -403,23 +396,6 @@ public class State extends AbstractState {
             else
                 ret_val.poss_interpretation.put(this.predFluents.get(i), 0);
         }
-
-//        for (NumFluent o : this.currNumFluentsValues.keySet()) {
-//            //System.out.println(o);
-//
-//            //System.out.println(this.numericFs.get(o));
-//            if (this.functionValue(o) != null) {
-//                ret_val.poss_numericFs.put(o, new Interval(this.functionValue(o).getNumber()));
-//            }
-//        }
-//
-//        for (Object o : this.initPred.keySet()) {
-//            Predicate ele = (Predicate) o;
-//            ret_val.poss_interpretation.put(ele, 1);
-//        }
-        //ret_val.propositions = (HashSet) this.propositions.clone();
-
-        ret_val.timedLiterals = (HashSet) this.timedLiterals.clone();
 
         return ret_val;
 
@@ -429,7 +405,7 @@ public class State extends AbstractState {
     void invariantAnalysis(Set grActions) {
 
         for (Object o : grActions) {
-            GroundAction gr = (GroundAction) o;
+            PDDLGroundAction gr = (PDDLGroundAction) o;
             Condition add = gr.getAddList();
             Condition del = gr.getDelList();
             Condition num = gr.getNumericEffects();
@@ -518,7 +494,7 @@ public class State extends AbstractState {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final State other = (State) obj;
+        final PDDLState other = (PDDLState) obj;
         if (!Objects.equals(this.currNumFluentsValues, other.currNumFluentsValues)) {
             return false;
         }
@@ -560,7 +536,7 @@ public class State extends AbstractState {
 
     }
 
-    public Set compare(State init) {
+    public Set compare(PDDLState init) {
         Set diff = new HashSet();
         Iterator it = this.getPropositions().iterator();
         while (it.hasNext()) {
@@ -933,8 +909,8 @@ public class State extends AbstractState {
         return null;
     }
 
-    public GroundAction transformInAction() {
-        GroundAction a = new GroundAction("InitAction");
+    public PDDLGroundAction transformInAction() {
+        PDDLGroundAction a = new PDDLGroundAction("InitAction");
 
         AndCond addList = new AndCond();
         AndCond numericEffects = new AndCond();
@@ -959,7 +935,7 @@ public class State extends AbstractState {
 
     }
 
-    public void updateValues(HashSet<NumFluent> toUpdate, State temp) {
+    public void updateValues(HashSet<NumFluent> toUpdate, PDDLState temp) {
         for (NumFluent n : toUpdate) {
             this.setFunctionValue(n, temp.functionValue(n));
         }

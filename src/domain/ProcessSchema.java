@@ -39,7 +39,7 @@ import problem.PddlProblem;
  *
  * @author enrico
  */
-public class ProcessSchema extends GenericActionType {
+public class ProcessSchema extends PDDLGenericAction {
 
     //private SchemaParameters parameters;
     //private HashSet numericFluentAffected;

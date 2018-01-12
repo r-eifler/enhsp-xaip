@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -119,7 +119,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         PDDLNumber ret_val = null;
         PDDLNumber first = this.lhs.eval(s);
         PDDLNumber second = this.rhs.eval(s);
@@ -223,7 +223,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Expression weakEval(State s, HashMap invF) {
+    public Expression weakEval(PDDLState s, HashMap invF) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;

@@ -24,8 +24,8 @@ import conditions.Condition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import problem.GroundAction;
-import problem.State;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *
@@ -52,16 +52,16 @@ public abstract class LpInterface {
         gc = global_constraint;
     }
 
-    public abstract void initialize(Collection<GroundAction> actions, State s_0);
+    public abstract void initialize(Collection<PDDLGroundAction> actions, PDDLState s_0);
 
-    public abstract void update_conditions_bound_plus_reset_variables(State s_0);
+    public abstract void update_conditions_bound_plus_reset_variables(PDDLState s_0);
 
-    protected abstract void update_local_global_conditions(State s_0);
+    protected abstract void update_local_global_conditions(PDDLState s_0);
 
-    public abstract float update_cost(State s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h);
+    public abstract float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h);
 
-    protected abstract void init_condition(Collection<GroundAction> pool, State s_0);
+    protected abstract void init_condition(Collection<PDDLGroundAction> pool, PDDLState s_0);
 
-    protected abstract void update_condition(State s_0, ComplexCondition temp);
+    protected abstract void update_condition(PDDLState s_0, ComplexCondition temp);
 
 }

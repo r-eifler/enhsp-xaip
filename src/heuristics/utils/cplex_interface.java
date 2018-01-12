@@ -40,8 +40,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.GroundAction;
-import problem.State;
+import problem.PDDLGroundAction;
+import problem.PDDLState;
 
 /**
  *
@@ -49,10 +49,10 @@ import problem.State;
  */
 public final class cplex_interface extends LpInterface {
 
-    public final HashMap<Integer, Collection<GroundAction>> affectors_of;
-    public HashMap<Integer, Collection<GroundAction>> affectors_of_temp;
+    public final HashMap<Integer, Collection<PDDLGroundAction>> affectors_of;
+    public HashMap<Integer, Collection<PDDLGroundAction>> affectors_of_temp;
 
-    public final HashMap<Condition, Collection<GroundAction>> pos_affectors_of;
+    public final HashMap<Condition, Collection<PDDLGroundAction>> pos_affectors_of;
     public ArrayList<Boolean> first_time;
 
     public final IloCplex lp;
@@ -77,7 +77,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    public void initialize(Collection<GroundAction> actions, State s_0) {
+    public void initialize(Collection<PDDLGroundAction> actions, PDDLState s_0) {
 
         //first_time.set(c.getCounter(),true);
         this.init_condition(actions, s_0);
@@ -85,7 +85,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    public void update_conditions_bound_plus_reset_variables(State s_0) {
+    public void update_conditions_bound_plus_reset_variables(PDDLState s_0) {
         this.update_local_global_conditions(s_0);
 
         for (IloNumVar v : this.action_to_variable.values()) {
@@ -104,7 +104,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    protected void update_local_global_conditions(State s_0) {
+    protected void update_local_global_conditions(PDDLState s_0) {
 
         update_condition(s_0, c);
         if (this.gc != null) {
@@ -114,15 +114,15 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    public float update_cost(State s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h) {
+    public float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h) {
 
-        Collection<GroundAction> affectors = this.affectors_of_temp.get(c.getCounter());
-        Iterator<GroundAction> it = affectors.iterator();
+        Collection<PDDLGroundAction> affectors = this.affectors_of_temp.get(c.getHeuristicId());
+        Iterator<PDDLGroundAction> it = affectors.iterator();
         while (it.hasNext()) {
-            GroundAction gr = it.next();
-            if (active_actions.get(gr.counter)) {
+            PDDLGroundAction gr = it.next();
+            if (active_actions.get(gr.id)) {
                 try {
-                    IloNumVar v = this.action_to_variable.get(gr.counter);
+                    IloNumVar v = this.action_to_variable.get(gr.id);
                     v.setUB(Float.MAX_VALUE);//activate action in the LP model
                     it.remove();
                 } catch (IloException ex) {
@@ -145,8 +145,8 @@ public final class cplex_interface extends LpInterface {
                 }
                 local_min = 0f;
             } else {
-                for (GroundAction gr : this.pos_affectors_of.get(c_0)) {
-                    local_min = Math.min(h.get(gr.getPreconditions().getCounter()), local_min);
+                for (PDDLGroundAction gr : this.pos_affectors_of.get(c_0)) {
+                    local_min = Math.min(h.get(gr.getPreconditions().getHeuristicId()), local_min);
                 }
             }
             if (this.additive_h) {
@@ -183,7 +183,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    protected void init_condition(Collection<GroundAction> pool, State s_0) {
+    protected void init_condition(Collection<PDDLGroundAction> pool, PDDLState s_0) {
 
         action_to_variable = new HashMap();
         Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
@@ -197,7 +197,7 @@ public final class cplex_interface extends LpInterface {
         } catch (IloException ex) {
             Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.affectors_of.put(c.getCounter(), new LinkedHashSet());
+        this.affectors_of.put(c.getHeuristicId(), new LinkedHashSet());
 
         for (Condition cond : conditions_to_evaluate) {
 
@@ -214,7 +214,7 @@ public final class cplex_interface extends LpInterface {
                     ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                     for (ExtendedAddendum ad : left.summations) {
                         if (ad.f != null) {
-                            for (GroundAction gr : pool) {
+                            for (PDDLGroundAction gr : pool) {
 //                                                        System.out.println(gr);
 
                                 if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
@@ -229,14 +229,14 @@ public final class cplex_interface extends LpInterface {
                                         if (action_cost.isNaN()) {
                                             continue;
                                         }
-                                        affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
+                                        affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 
                                         IloNumVar action;
-                                        if (action_to_variable.get(gr.counter) != null) {
-                                            action = action_to_variable.get(gr.counter);
+                                        if (action_to_variable.get(gr.id) != null) {
+                                            action = action_to_variable.get(gr.id);
                                         } else {
                                             action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
-                                            action_to_variable.put(gr.counter, action);
+                                            action_to_variable.put(gr.id, action);
                                             objective.addTerm(action, action_cost);
                                         }
 
@@ -277,21 +277,21 @@ public final class cplex_interface extends LpInterface {
                 try {
                     IloLinearNumExpr e = lp.linearNumExpr();
                     Predicate p = (Predicate) cond;
-                    for (GroundAction gr : pool) {
+                    for (PDDLGroundAction gr : pool) {
                         if (gr.achieve(p)) {
                             pos_affectors_of.get(cond).add(gr);
-                            affectors_of.get(c.getCounter()).add(gr);//add the actions to the affectors list
+                            affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 //                            gr.set_unit_cost(s_0);
                             Float action_cost = gr.getAction_cost();
                             if (action_cost.isNaN()) {
                                 continue;
                             }
                             IloNumVar action;
-                            if (action_to_variable.get(gr.counter) != null) {
-                                action = action_to_variable.get(gr.counter);
+                            if (action_to_variable.get(gr.id) != null) {
+                                action = action_to_variable.get(gr.id);
                             } else {
                                 action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
-                                action_to_variable.put(gr.counter, action);
+                                action_to_variable.put(gr.id, action);
 
                                 objective.addTerm(action, action_cost);
                             }
@@ -326,7 +326,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    protected void update_condition(State s_0, ComplexCondition temp) {
+    protected void update_condition(PDDLState s_0, ComplexCondition temp) {
 
         for (Condition c_0 : (Collection<Condition>) temp.sons) {
             IloRange lp_cond = this.cond_to_cplex_cond.get(c_0);

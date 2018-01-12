@@ -36,7 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import problem.EPddlProblem;
 
-public abstract class GenericActionType extends Object {
+public abstract class PDDLGenericAction  {
 
     protected String name;
     protected AndCond addList;
@@ -119,7 +119,6 @@ public abstract class GenericActionType extends Object {
         this.preconditions = preconditions;
     }
 
-    @Override
     public String toString() {
         return "GenericActionType{" + "name=" + name + ", addList=" + addList + ", delList=" + delList + ", numericEffects=" + numericEffects + ", preconditions=" + preconditions + ", cond_effects=" + cond_effects + '}';
     }
@@ -322,4 +321,5 @@ public abstract class GenericActionType extends Object {
         numericEffects = (AndCond) numericEffects.unifyVariablesReferences(p);
         cond_effects = (AndCond) cond_effects.unifyVariablesReferences(p);
     }
+
 }

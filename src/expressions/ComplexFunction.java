@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -59,7 +59,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         double arg_val = getArg().eval(s).getNumber();
         switch (this.operator) {
             case "abs":
@@ -84,7 +84,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Expression weakEval(State s, HashMap invF) {
+    public Expression weakEval(PDDLState s, HashMap invF) {
         ComplexFunction ret = new ComplexFunction();
 
         ret.operator = this.operator;

@@ -840,7 +840,7 @@ public final class PddlDomain extends Object {
 //        }
 //        return null;
 //    }
-    private void addEffects(GenericActionType a, Tree infoAction) {
+    private void addEffects(PDDLGenericAction a, Tree infoAction) {
         //PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
         PostCondition res = fc.createPostCondition(a.parameters, infoAction.getChild(0));
         a.create_effects_by_cases(res);

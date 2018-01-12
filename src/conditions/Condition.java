@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import problem.EPddlProblem;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.PDDLProblemComponent;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -44,7 +44,7 @@ public abstract class Condition extends PDDLProblemComponent {
     protected boolean freeVarSemantic = false;
     private boolean unsatisfiable = false;
     private boolean valid = false;
-    protected int counter;
+    protected int heuristicId;
 
     public Condition() {
         //son = new HashSet();
@@ -64,7 +64,7 @@ public abstract class Condition extends PDDLProblemComponent {
      * @param invF
      * @return
      */
-    public abstract Condition weakEval(State s, HashMap invF);
+    public abstract Condition weakEval(PDDLState s, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
     /*
@@ -78,7 +78,7 @@ public abstract class Condition extends PDDLProblemComponent {
                activation conditions.
     
      */
-    public abstract Condition regress(GroundAction gr);
+    public abstract Condition regress(PDDLGroundAction gr);
 
     /**
      * Substitutes the variables in this conditions with the PDDLObjects
@@ -96,11 +96,11 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition ground(Map substitution, int c);
 
-    public abstract boolean eval(State s);
+    public abstract boolean eval(PDDLState s);
 
-    public abstract String toSmtVariableString(int k, GroundAction gr, String var);
+    public abstract String toSmtVariableString(int k, PDDLGroundAction gr, String var);
 
-    public abstract boolean isSatisfied(State s);
+    public abstract boolean isSatisfied(PDDLState s);
 
     public abstract void changeVar(Map substitution);
 
@@ -159,16 +159,16 @@ public abstract class Condition extends PDDLProblemComponent {
     /**
      * @return the counter
      */
-    public int getCounter() {
-        return counter;
+    public int getHeuristicId() {
+        return heuristicId;
     }
 
     /**
      * @param counter the counter to set
      */
-    public void setCounter(int counter) {
+    public void setHeuristicId(int counter) {
 //        System.out.println(this+ "Setting counter to"+counter);
-        this.counter = counter;
+        this.heuristicId = counter;
     }
 
     /**
@@ -187,7 +187,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition transform_equality();
 
-    public abstract boolean is_affected_by(GroundAction gr);
+    public abstract boolean is_affected_by(PDDLGroundAction gr);
 
     /**
      *
@@ -244,7 +244,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract ComplexCondition and(Condition precondition);
 
-    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever);
 
     public abstract Condition push_not_to_terminals();
 

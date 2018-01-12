@@ -32,10 +32,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import problem.EPddlProblem;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -73,7 +73,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
         return null;
     }
 
-    public ConditionalEffect weakEval(State s, HashMap invF) {
+    public ConditionalEffect weakEval(PDDLState s, HashMap invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
@@ -115,17 +115,17 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString(int k, PDDLGroundAction gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         return s.satisfy(activation_condition);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -181,12 +181,12 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by(PDDLGroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress(PDDLGroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -276,14 +276,14 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public HashMap<Object, Object> apply(State s) {
+    public HashMap<Object, Object> apply(PDDLState s) {
         final HashMap<Object, Object> ret = new HashMap<>();
         apply(s, ret);
         return ret;
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         if (s.satisfy(activation_condition)) {
             effect.apply(s, modifications);
         }
@@ -334,7 +334,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

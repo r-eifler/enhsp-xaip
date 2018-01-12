@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 import propositionalFactory.Grounder;
@@ -41,7 +41,7 @@ import propositionalFactory.Grounder;
  *
  * @author enrico
  */
-public class ActionSchema extends GenericActionType {
+public class ActionSchema extends PDDLGenericAction {
 
     public ActionSchema() {
         super();
@@ -74,8 +74,8 @@ public class ActionSchema extends GenericActionType {
         return ret + ")";
     }
 
-    public GroundAction ground(Map substitution, PDDLObjects po) {
-        GroundAction ret = new GroundAction(this.name);
+    public PDDLGroundAction ground(Map substitution, PDDLObjects po) {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -99,8 +99,8 @@ public class ActionSchema extends GenericActionType {
 
     }
 
-    public GroundAction ground(Map substitution, int c) {
-        GroundAction ret = new GroundAction(this.name);
+    public PDDLGroundAction ground(Map substitution, int c) {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -116,8 +116,8 @@ public class ActionSchema extends GenericActionType {
         return ret;
     }
 
-    public GroundAction ground(ParametersAsTerms par, PDDLObjects po) {
-        GroundAction ret = new GroundAction(this.name);
+    public PDDLGroundAction ground(ParametersAsTerms par, PDDLObjects po) {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         int i = 0;
         Grounder g = new Grounder();
         Map substitution = g.obtain_sub_from_instance(parameters, par);
@@ -152,8 +152,8 @@ public class ActionSchema extends GenericActionType {
         return ret;
     }
 
-    public GroundAction ground() {
-        GroundAction ret = new GroundAction(this.name);
+    public PDDLGroundAction fakeGround() {
+        PDDLGroundAction ret = new PDDLGroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 
         ret.setParameters(input);

@@ -25,13 +25,13 @@ import java.util.Comparator;
  *
  * @author enrico
  */
-class ActionComparator implements Comparator<GenericActionType> {
+class ActionComparator implements Comparator<PDDLGenericAction> {
 
     public ActionComparator() {
     }
 
     @Override
-    public int compare(GenericActionType gat1, GenericActionType gat2) {
+    public int compare(PDDLGenericAction gat1, PDDLGenericAction gat2) {
         return gat1.name.compareTo(gat2.name);
     }
 

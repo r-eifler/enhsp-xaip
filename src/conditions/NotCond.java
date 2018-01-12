@@ -32,10 +32,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.EPddlProblem;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -79,21 +79,21 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition ground(Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
-        ret.setCounter(c);
+        ret.setHeuristicId(c);
         return ret;
     }
 
     //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
     //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
 
         return !son.eval(s);
 
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
 
         return !son.isSatisfied(s);
 
@@ -179,7 +179,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval(State s, HashMap invF) {
+    public Condition weakEval(PDDLState s, HashMap invF) {
 
         Condition el = (Condition) son;
         el.setFreeVarSemantic(freeVarSemantic);
@@ -199,7 +199,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int i, GroundAction gr, String var) {
+    public String toSmtVariableString(int i, PDDLGroundAction gr, String var) {
         return "(not " + son.toSmtVariableString(i, gr, var) + ")";
     }
 
@@ -215,7 +215,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by(PDDLGroundAction gr) {
 
         if (son.is_affected_by(gr)) {
             return true;
@@ -225,7 +225,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress(PDDLGroundAction gr) {
 
         Condition temp = son.regress(gr);
         if (temp.isValid()) {
@@ -308,7 +308,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(State s) {
+    public HashMap apply(PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -323,7 +323,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
             modifications.put(p, Boolean.FALSE);
@@ -388,7 +388,7 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.getCounter());
+        return cond_dist.get(this.getHeuristicId());
     }
 
     @Override
@@ -400,10 +400,10 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
         achiever_set s = new achiever_set();
-        s.cost = cond_dist.get(this.getCounter());
-        s.actions.add(established_achiever.get(this.getCounter()));
+        s.cost = cond_dist.get(this.getHeuristicId());
+        s.actions.add(established_achiever.get(this.getHeuristicId()));
         s.target_cond.add(this);
         return s;
     }

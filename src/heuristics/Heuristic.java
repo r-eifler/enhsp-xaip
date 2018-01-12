@@ -47,9 +47,9 @@ import java.util.logging.Logger;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import org.ojalgo.optimisation.Variable;
 import problem.GroundEvent;
 import problem.GroundProcess;
@@ -62,22 +62,22 @@ public abstract class Heuristic{
 
     static public LinkedHashSet usefulActions = new LinkedHashSet();
     protected LinkedList<NumEffect> sorted_nodes;
-    public LinkedHashSet<GroundAction> reachable;
+    public LinkedHashSet<PDDLGroundAction> reachable;
     public boolean additive_h = true;
-    protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
+    protected HashMap<PDDLGroundAction, HashSet<PDDLGroundAction>> influence_graph;
     public int max_depth;
     public int debug = 0;
     protected boolean internal_update;
     public LinkedHashSet<Predicate> reacheable_predicates;
 
     protected Collection<Condition> all_conditions;
-    HashMap<GroundAction, HashSet<Condition>> influenced_by;
-    HashMap<GroundAction, GroundAction> depends_on;
+    HashMap<PDDLGroundAction, HashSet<Condition>> influenced_by;
+    HashMap<PDDLGroundAction, PDDLGroundAction> depends_on;
 
-    public HashMap<Condition, GroundAction> achievers;
+    public HashMap<Condition, PDDLGroundAction> achievers;
     public HashMap<Comparison, Comparison> add_achievers;
     protected int index_of_last_static_atom;
-    public LinkedHashSet<GroundAction> A;
+    public LinkedHashSet<PDDLGroundAction> A;
     public ComplexCondition G;
     private Set<NumFluent> def_num_fluents;
     protected LinkedHashSet orderings;
@@ -87,20 +87,20 @@ public abstract class Heuristic{
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Condition, Boolean> new_condition;
     protected int complex_conditions;
-    protected HashMap<GroundAction, HashSet<Predicate>> precondition_deleted;
+    protected HashMap<PDDLGroundAction, HashSet<Predicate>> precondition_deleted;
     protected boolean sat_test_within_cost = true;
-    protected HashMap<GroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
+    protected HashMap<PDDLGroundAction, LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>>> rep_costs;
 
-    public Set<GroundAction> helpful_actions;
-    public HashMap<Integer, GroundAction> final_achiever;
+    public Set<PDDLGroundAction> helpful_actions;
+    public HashMap<Integer, PDDLGroundAction> final_achiever;
     public boolean preferred_operators;
-    protected LinkedHashSet<GroundAction> temp_preferred_operators_ibr;
+    protected LinkedHashSet<PDDLGroundAction> temp_preferred_operators_ibr;
     public int reacheable_conditions;
     private boolean no_plan_extraction = true;
     public int horizon = Integer.MAX_VALUE;
     protected int hard_conditions;
-    HashMap<NumEffect, GroundAction> num_eff_action;
-    public Collection<GroundAction> supporters;
+    HashMap<NumEffect, PDDLGroundAction> num_eff_action;
+    public Collection<PDDLGroundAction> supporters;
     public RelState reacheable_state;
     protected Collection<Comparison> complex_condition_set;
     protected boolean check_mutex = false;
@@ -123,12 +123,12 @@ public abstract class Heuristic{
         
     }
     
-    public Heuristic(Set<GroundAction> A){
-        this.A = (LinkedHashSet<GroundAction>) A;
+    public Heuristic(Set<PDDLGroundAction> A){
+        this.A = (LinkedHashSet<PDDLGroundAction>) A;
         
     }
     
-    public Heuristic(ComplexCondition G, Set<GroundAction> A) {
+    public Heuristic(ComplexCondition G, Set<PDDLGroundAction> A) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -143,7 +143,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public Heuristic(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -159,7 +159,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public Heuristic(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -176,7 +176,7 @@ public abstract class Heuristic{
         //build_integer_representation(A,G);
     }
 
-    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundAction> P, ComplexCondition GC) {
+    public Heuristic(ComplexCondition G, Set<PDDLGroundAction> A, Set<PDDLGroundAction> P, ComplexCondition GC) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -194,7 +194,7 @@ public abstract class Heuristic{
     }
 
     //this initializer is mandatory for being executed before each invocation of the heuristic
-    public abstract Float setup(State s_0);
+    public abstract Float setup(PDDLState s_0);
 
 //        this.build_integer_representation();//for each proposition and comparison there is a unique integer representation
 //        influenced_by = computeInflueced_by();
@@ -213,12 +213,12 @@ public abstract class Heuristic{
 
         integer_ref = new HashMap();
         total_number_of_actions = 0;
-        ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
+        ArrayList<PDDLGroundAction> actions_to_consider = new ArrayList(A);
         if (this.supporters != null) {
             actions_to_consider.addAll(this.supporters);
         }
-        for (GroundAction a : actions_to_consider) {
-            a.counter = total_number_of_actions++;
+        for (PDDLGroundAction a : actions_to_consider) {
+            a.id = total_number_of_actions++;
             if (a.getPreconditions() != null) {
                 for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
@@ -227,7 +227,7 @@ public abstract class Heuristic{
                 }
             }
         }
-        for (GroundAction a : actions_to_consider) {
+        for (PDDLGroundAction a : actions_to_consider) {
             if (a.getAddList() != null && a.getAddList().sons != null) {
                 for (Condition c_1 : (Set<Condition>) a.getAddList().sons) {
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
@@ -254,23 +254,23 @@ public abstract class Heuristic{
      * @param s_0
      * @return
      */
-    abstract public Float compute_estimate(State s_0);
+    abstract public Float compute_estimate(PDDLState s_0);
 
-    protected Float compute_precondition_cost(State s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {
+    protected Float compute_precondition_cost(PDDLState s_0, ArrayList<Float> h, PDDLGroundAction gr, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, gr.getPreconditions(), closed);
     }
 
-    protected Float compute_cost(State s_0, ArrayList<Float> h, Condition input_cond, ArrayList<Boolean> closed) {
+    protected Float compute_cost(PDDLState s_0, ArrayList<Float> h, Condition input_cond, ArrayList<Boolean> closed) {
         Float cost = 0f;
 
         
         ComplexCondition con = (ComplexCondition)input_cond;
 
         for (Condition t : (LinkedHashSet<Condition>) con.sons) {
-            if (closed != null && !closed.get(t.getCounter()) && !greedy) {
+            if (closed != null && !closed.get(t.getHeuristicId()) && !greedy) {
                 return Float.MAX_VALUE;
             }
-            Float temp = h.get(t.getCounter());
+            Float temp = h.get(t.getHeuristicId());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
                     //System.out.println("Cost:"+);
@@ -286,7 +286,7 @@ public abstract class Heuristic{
         return cost;
     }
 
-    protected Float check_goal_conditions(State s_0, Condition G, ArrayList<Float> h, ArrayList<Boolean> closed) {
+    protected Float check_goal_conditions(PDDLState s_0, Condition G, ArrayList<Float> h, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, G, closed);
     }
 
@@ -305,7 +305,7 @@ public abstract class Heuristic{
         return new_condition;
     }
 
-    protected int compute_precondition_cost(State s_0, Map<Condition, Integer> h, GroundAction gr) {
+    protected int compute_precondition_cost(PDDLState s_0, Map<Condition, Integer> h, PDDLGroundAction gr) {
 
         int cost = 0;
         if (gr.getPreconditions() != null) {
@@ -334,11 +334,11 @@ public abstract class Heuristic{
         return cost;
     }
 
-    protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
+    protected int compute_precondition_cost(PDDLState s_0, ArrayList<Integer> h, PDDLGroundAction gr) {
         return this.compute_cost(s_0, h, gr.getPreconditions());
     }
 
-    protected int compute_cost(State s_0, ArrayList<Integer> h, ComplexCondition con) {
+    protected int compute_cost(PDDLState s_0, ArrayList<Integer> h, ComplexCondition con) {
         int cost = 0;
 
         if (con == null) {
@@ -346,7 +346,7 @@ public abstract class Heuristic{
         }
 
         for (Condition t : (LinkedHashSet<Condition>) con.sons) {
-            int temp = h.get(t.getCounter());
+            int temp = h.get(t.getHeuristicId());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
                     cost += temp;
@@ -419,7 +419,7 @@ public abstract class Heuristic{
         return cyclic;
     }
 
-    private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
+    private Boolean compute_enclosure(Collection<PDDLGroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
         Boolean ret = null;
         boolean cyclic = false;
 
@@ -427,7 +427,7 @@ public abstract class Heuristic{
         HashMap<NumEffect, Boolean> temp_mark = new HashMap();
         HashMap<NumEffect, Boolean> per_mark = new HashMap();
         num_eff_action = new HashMap();
-        for (GroundAction gr : pool) {
+        for (PDDLGroundAction gr : pool) {
             for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
                 num_eff_action.put(nf, gr);
                 temp_mark.put(nf, false);
@@ -495,7 +495,7 @@ public abstract class Heuristic{
 
     }
 
-    protected Float interval_based_relaxation_actions_with_cost(State s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
+    protected Float interval_based_relaxation_actions_with_cost(PDDLState s_0, Condition c, Collection<PDDLGroundAction> pool, HashMap<PDDLGroundAction, Float> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -604,11 +604,11 @@ public abstract class Heuristic{
 //                return Float.MAX_VALUE;
 //            }
 //        }
-    protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
+    protected void init_pool(Collection pool, Collection<PDDLGroundAction> A1, PDDLState s_0, ArrayList<Float> h) {
 
         Iterator it = A1.iterator();
         while (it.hasNext()) {
-            GroundAction gr = (GroundAction) it.next();
+            PDDLGroundAction gr = (PDDLGroundAction) it.next();
             if (this.compute_precondition_cost(s_0, h, gr, null) != Float.MAX_VALUE) {
 //                gr.set_unit_cost(s_0);
                 pool.add(new HeuristicSearchNode(gr, null, 0, 0));
@@ -618,11 +618,11 @@ public abstract class Heuristic{
         }
     }
 
-    protected void update_pool(Collection<GroundAction> pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
+    protected void update_pool(Collection<PDDLGroundAction> pool, Collection<PDDLGroundAction> A1, PDDLState s_0, ArrayList<Float> h) {
         //update action precondition
 
-        for (GroundAction gr : A1) {
-            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getCounter()) != Float.MAX_VALUE) {
+        for (PDDLGroundAction gr : A1) {
+            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getHeuristicId()) != Float.MAX_VALUE) {
                 pool.add(gr);
                 this.reachable.add(gr);
                 //it.remove();
@@ -630,7 +630,7 @@ public abstract class Heuristic{
         }
     }
 
-    protected void identify_complex_conditions(Collection<GroundAction> A) {
+    protected void identify_complex_conditions(Collection<PDDLGroundAction> A) {
         //For each condition, identify whether there is at least an action whose effects are not simple. This condition
         // will be considered complex in that checking its satisfaction is hard
         is_complex = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
@@ -642,19 +642,19 @@ public abstract class Heuristic{
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
                 new_condition.put(comp, false);
-                is_complex.set(comp.getCounter(), false);
+                is_complex.set(comp.getHeuristicId(), false);
                 if (!comp.isLinear()) {
-                    is_complex.set(comp.getCounter(), true);
+                    is_complex.set(comp.getHeuristicId(), true);
                     complex_condition_set.add((Comparison) c);
                 }
-                for (GroundAction gr : A) {
+                for (PDDLGroundAction gr : A) {
                     if (gr.getNumericEffects() != null) {
                         AndCond effects = (AndCond) gr.getNumericEffects();
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
                                 if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect()) || ne.getOperator().equals("assign")) {
-                                    is_complex.set(comp.getCounter(), true);
+                                    is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
                                 }
@@ -662,7 +662,7 @@ public abstract class Heuristic{
                         }
                     }
                 }
-                if (is_complex.get(comp.getCounter())) {
+                if (is_complex.get(comp.getHeuristicId())) {
                     complex_conditions++;
                 }
             }
@@ -671,7 +671,7 @@ public abstract class Heuristic{
 
     protected void generate_self_precondition_delete_sets() {
         precondition_deleted = new HashMap();
-        for (GroundAction gr : this.A) {
+        for (PDDLGroundAction gr : this.A) {
             HashSet precondition = new HashSet();
             if (gr.getPreconditions() == null || gr.getPreconditions().sons == null) {
                 continue;
@@ -688,12 +688,12 @@ public abstract class Heuristic{
         }
     }
 
-    protected Float compute_additional_cost(Float number_of_repetition, GroundAction gr, ArrayList<Float> h) {
+    protected Float compute_additional_cost(Float number_of_repetition, PDDLGroundAction gr, ArrayList<Float> h) {
         Float additional_cost = 0f;
         if (this.rep_costs.get(gr) != null && number_of_repetition > 1) {
             LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr);
             for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
-                Float rpc = h.get(p.getFirst().getFirst().getCounter());
+                Float rpc = h.get(p.getFirst().getFirst().getHeuristicId());
                 //System.out.println("Counter here:"+p.getFirst().getCounter());
                 if (number_of_repetition > p.getSecond()) {
                     if (rpc == Float.MAX_VALUE) {
@@ -708,10 +708,10 @@ public abstract class Heuristic{
         if (number_of_repetition > 1) {
             //add precondition cost violation
             for (Predicate p_del : precondition_deleted.get(gr)) {
-                if (h.get(p_del.getCounter()) == Float.MAX_VALUE) {
+                if (h.get(p_del.getHeuristicId()) == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 }
-                additional_cost += h.get(p_del.getCounter()) * (number_of_repetition - 1);
+                additional_cost += h.get(p_del.getHeuristicId()) * (number_of_repetition - 1);
 
                 //additional_cost = Math.max(h.get(p_del.getCounter()) * (number_of_repetition - 1),additional_cost);
             }
@@ -719,7 +719,7 @@ public abstract class Heuristic{
         return additional_cost;
     }
 
-    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, ComplexCondition c, ArrayList<Float> h) {
+    protected float compute_current_cost_via_lp(Collection<PDDLGroundAction> pool, PDDLState s_0, ComplexCondition c, ArrayList<Float> h) {
 
         n_lp_invocations = n_lp_invocations + 1;
 //        System.out.println(invocation);
@@ -773,7 +773,7 @@ public abstract class Heuristic{
                 }
                 for (ExtendedAddendum ad : left.summations) {
                     if (ad.f != null) {
-                        for (GroundAction gr : pool) {
+                        for (PDDLGroundAction gr : pool) {
                             boolean condition_investigated = false;
 
 //                                                        System.out.println(gr);
@@ -790,15 +790,15 @@ public abstract class Heuristic{
                                     }
 
                                     final Variable action;
-                                    if (action_to_variable.get(gr.counter) != null) {
-                                        action = action_to_variable.get(gr.counter);
+                                    if (action_to_variable.get(gr.id) != null) {
+                                        action = action_to_variable.get(gr.id);
                                         if (integer_variables) {
                                             action.integer(true);
                                         }
                                     } else {
                                         action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
                                         tmpModel.addVariable(action);
-                                        action_to_variable.put(gr.counter, action);
+                                        action_to_variable.put(gr.id, action);
                                     }
 
 //                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
@@ -832,7 +832,7 @@ public abstract class Heuristic{
                                     if ((comp.getComparator().contains(">") && right < 0)
                                             || (comp.getComparator().contains("<") && right > 0)) {
                                         at_least_one = true;
-                                        local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                                        local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getHeuristicId()));
                                         //this is the only action that can be used. 
                                     }
 //                                    if (local_minimum == Float.MAX_VALUE){
@@ -859,7 +859,7 @@ public abstract class Heuristic{
                     Predicate p = (Predicate) cond;
                     Expression condition = tmpModel.addExpression(((Predicate) cond).toString()).lower(1);
 
-                    for (GroundAction gr : pool) {
+                    for (PDDLGroundAction gr : pool) {
                         if (gr.achieve(p)) {
 //                            gr.set_unit_cost(s_0);
                             Float cost_action = gr.getAction_cost();
@@ -868,12 +868,12 @@ public abstract class Heuristic{
                             }
                             at_least_one = true;
                             final Variable action;
-                            if (action_to_variable.get(gr.counter) != null) {
-                                action = action_to_variable.get(gr.counter);
+                            if (action_to_variable.get(gr.id) != null) {
+                                action = action_to_variable.get(gr.id);
                             } else {
                                 action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
                                 tmpModel.addVariable(action);
-                                action_to_variable.put(gr.counter, action);
+                                action_to_variable.put(gr.id, action);
                                 if (integer_variables) {
                                     action.integer(true);
                                 }
@@ -882,7 +882,7 @@ public abstract class Heuristic{
                             //ArithExpr prec_cost = ctx.mkRealConst(gr.toString() + "pre_cost");
                             //action_used.add(prec_cost);
 //                        Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
-                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
+                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getHeuristicId()));
                             //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
                             //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
                             condition = condition.set(action, 1);
@@ -948,18 +948,18 @@ public abstract class Heuristic{
 //            System.out.println("This happens then");
 
             integer_ref.put(c_1, counter);
-            c_1.setCounter(counter);
+            c_1.setHeuristicId(counter);
             all_conditions.add(c_1);
             counter++;
         } else if (integer_ref.get(c_1) == null) {
 //            System.out.println("bug in java");
 
             integer_ref.put(c_1, counter);
-            c_1.setCounter(counter);
+            c_1.setHeuristicId(counter);
             all_conditions.add(c_1);
             counter++;
         } else {
-            c_1.setCounter(integer_ref.get(c_1));
+            c_1.setHeuristicId(integer_ref.get(c_1));
         }
         return counter;
 
@@ -968,7 +968,7 @@ public abstract class Heuristic{
         protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 
-        for (GroundAction a : A) {
+        for (PDDLGroundAction a : A) {
             if (a.getPreconditions() != null) {
                 compute_redundant_constraint((Set<ComplexCondition>) a.getPreconditions().sons);
             }

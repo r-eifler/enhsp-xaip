@@ -46,11 +46,11 @@ import org.jgrapht.graph.AsUndirectedGraph;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
 import wrapped_planners.planningTool;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -297,7 +297,7 @@ public class PlanAdapter {
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
             /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
-            GroundAction macro = input_plan.generateMacro(0, input_plan.size() - 1);
+            PDDLGroundAction macro = input_plan.generateMacro(0, input_plan.size() - 1);
             //System.out.println("Dist(macro,problem):"+macro.computeDistance(prob));
 
             //the model of the action is simplified according to the domain and the problem at hand
@@ -321,10 +321,10 @@ public class PlanAdapter {
 
             //in case the planning was successfull, rebuild the solution by decomposing the macro-operator
             SimplePlan new_plan = new SimplePlan(domain, problem);
-            for (GroundAction gr : (ArrayList<GroundAction>) temp_new_plan) {
+            for (PDDLGroundAction gr : (ArrayList<PDDLGroundAction>) temp_new_plan) {
                 if (gr.getName().equalsIgnoreCase(macro.getName())) {
                     //System.out.println("#primitives: " + macro.getPrimitives().size());
-                    for (GroundAction primitive_action : (ArrayList<GroundAction>) macro.getPrimitives()) {
+                    for (PDDLGroundAction primitive_action : (ArrayList<PDDLGroundAction>) macro.getPrimitives()) {
                         new_plan.add(primitive_action);
                     }
                     setEmployedMacros(1);
@@ -514,7 +514,7 @@ public class PlanAdapter {
             /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             ArrayList macros = new ArrayList();
-            GroundAction macro = null;
+            PDDLGroundAction macro = null;
             float bestDist = Float.MAX_VALUE;
             for (int i = 1; i <= input_plan.size(); i++) {
                 macro = input_plan.generateMacro(0, i - 1);
@@ -528,7 +528,7 @@ public class PlanAdapter {
             }
             Iterator it = macros.iterator();
             while (it.hasNext()) {
-                GroundAction gr = (GroundAction) it.next();
+                PDDLGroundAction gr = (PDDLGroundAction) it.next();
                 if (gr.computeDistance(problem) > bestDist * 1.50) {
                     it.remove();
                 }
@@ -551,10 +551,10 @@ public class PlanAdapter {
 
             //in case the planning was successfull, rebuild the solution by decomposing the macro-operator
             SimplePlan sp2 = new SimplePlan(domain, problem);
-            for (GroundAction gr : (ArrayList<GroundAction>) sp1) {
+            for (PDDLGroundAction gr : (ArrayList<PDDLGroundAction>) sp1) {
                 if (gr.getName().equalsIgnoreCase(macro.getName())) {
                     System.out.println("#primitives: " + macro.getPrimitives().size());
-                    for (GroundAction gr1 : (ArrayList<GroundAction>) macro.getPrimitives()) {
+                    for (PDDLGroundAction gr1 : (ArrayList<PDDLGroundAction>) macro.getPrimitives()) {
                         sp2.add(gr1);
 
                     }
@@ -594,7 +594,7 @@ public class PlanAdapter {
             /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
             ArrayList macros = new ArrayList();
-            GroundAction macro = null;
+            PDDLGroundAction macro = null;
             float bestDist = Float.MAX_VALUE;
             for (int i = 1; i <= input_plan.size(); i++) {
                 macro = input_plan.generateMacro(0, i - 1);
@@ -608,7 +608,7 @@ public class PlanAdapter {
             }
             Iterator it = macros.iterator();
             while (it.hasNext()) {
-                GroundAction gr = (GroundAction) it.next();
+                PDDLGroundAction gr = (PDDLGroundAction) it.next();
                 if (gr.computeDistance(problem) > bestDist * 1.20) {
                     it.remove();
                 }
@@ -790,7 +790,7 @@ public class PlanAdapter {
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
             /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
-            Set<GroundAction> macros = sp.generateEverySubMacros(maxMacros, maxLength);
+            Set<PDDLGroundAction> macros = sp.generateEverySubMacros(maxMacros, maxLength);
             //System.out.println("Macro Actions: "+ macros.size());
 
             long start4 = System.currentTimeMillis();
@@ -832,8 +832,8 @@ public class PlanAdapter {
             //Preprocessing. Computing the enhanced domain by adding the previous plan as macro action
             /**/ long start = System.currentTimeMillis();
             DomainEnhancer dEnh = new DomainEnhancer();
-            Set<GroundAction> macros = sp.generateEverySubMacros(maxMacros, maxLength);
-            Set<GroundAction> macros2 = sp.generateMacrosSuffPrefInfiss(maxLength + 1);
+            Set<PDDLGroundAction> macros = sp.generateEverySubMacros(maxMacros, maxLength);
+            Set<PDDLGroundAction> macros2 = sp.generateMacrosSuffPrefInfiss(maxLength + 1);
             //System.out.println("Macro Actions: "+ macros.size());
 
             long start4 = System.currentTimeMillis();
@@ -892,8 +892,8 @@ public class PlanAdapter {
 
         long beforeMacrogeneration = System.currentTimeMillis();
         int j = 0;
-        State current = problem.getInit().clone();
-        for (GroundAction gr : input_plan) {
+        PDDLState current = problem.getInit().clone();
+        for (PDDLGroundAction gr : input_plan) {
             if (!gr.isApplicable(current)) {
                 splittingPoints.add(j);
             } else if (gr.threatGoalConditions(problem.getGoals(), input_plan, j, current)) {
@@ -925,7 +925,7 @@ public class PlanAdapter {
 
         //System.out.println("Index of: states that do not satisfy action precondition, state in which the action application threats the goal condition:" + splittingPoints);
         for (Integer i : splittingPoints) {
-            GroundAction macro = input_plan.generateMacro(j, i - 1);
+            PDDLGroundAction macro = input_plan.generateMacro(j, i - 1);
             j = i;
             if (macro != null) {
                 macros.add(macro);
@@ -1151,7 +1151,7 @@ public class PlanAdapter {
 
     protected TreeSet pruneSmallMacros(List c, int i) {
 
-        TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
+        TreeSet<PDDLGroundAction> ret = new TreeSet(new GroundActionComparator());
         ret.addAll(c);
 
         while (ret.size() > i) {
@@ -1169,10 +1169,10 @@ public class PlanAdapter {
         //Planning with off-the shelf planner on the extended domain representation
     }
 
-    public class GroundActionComparator implements Comparator<GroundAction> {
+    public class GroundActionComparator implements Comparator<PDDLGroundAction> {
 
         @Override
-        public int compare(GroundAction x, GroundAction y) {
+        public int compare(PDDLGroundAction x, PDDLGroundAction y) {
             if (x.getPrimitives().size() <= y.getPrimitives().size()) {
                 return -1;
             }

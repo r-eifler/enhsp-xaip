@@ -19,7 +19,7 @@
 package heuristics.utils;
 
 import java.util.Set;
-import problem.GroundAction;
+import problem.PDDLGroundAction;
 
 /**
  *
@@ -27,13 +27,13 @@ import problem.GroundAction;
  */
 public class HeuristicSearchNode implements Comparable {
 
-    public GroundAction action;
+    public PDDLGroundAction action;
     public int goal_distance;
     public HeuristicSearchNode father;
     public int action_cost_to_get_here;
     public Set orderings;
 
-    public HeuristicSearchNode(GroundAction action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
+    public HeuristicSearchNode(PDDLGroundAction action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
 
         this.action = action;
         this.goal_distance = goal_distance;
