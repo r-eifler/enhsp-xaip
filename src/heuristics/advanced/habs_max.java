@@ -141,7 +141,8 @@ public class habs_max extends Heuristic {
         Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
-        return aibr_handle.get_reachable_state(s, s.relaxState());
+        // dxli: TODO: correct this
+        return aibr_handle.get_relaxed_reachable_states(s, s.relaxState()).get(0);
     }
 
     /**
