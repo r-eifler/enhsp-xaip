@@ -31,7 +31,7 @@ import problem.Metric;
  *
  * @author dxli
  */
-public class habs_add extends Heuristic {
+public class habs_add_old extends Heuristic {
 
     private static final Integer heuristic_type = 1; // may use heuristics other than h1.
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
@@ -41,7 +41,7 @@ public class habs_add extends Heuristic {
     private final Integer numOfSubdomains = 2;
     private h1 habs;
 
-    public habs_add(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public habs_add_old(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
 
         this.supporters = new LinkedHashSet<>();
@@ -66,7 +66,7 @@ public class habs_add extends Heuristic {
             generate_subactions(s);
         } catch (Exception ex) {
             // non-linear effects not supported
-            Logger.getLogger(habs_add.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(habs_add_old.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         // estimation for initial state
