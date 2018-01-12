@@ -65,6 +65,7 @@ public class habs_add extends Heuristic {
         try {
             // abstraction step
             generate_subactions(s);
+            System.out.println("|Subactions| = " + this.supporters.size());
 //            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
@@ -271,10 +272,10 @@ public class habs_add extends Heuristic {
         ArrayList <Interval> ret = new ArrayList<>();
         Interval temp = new Interval();
         
-        if (iis.size() > 0){
+        if (iis.size() > 0 && numOfSubdomains > 0){
             PDDLNumber l = iis.get(0).getInf();
             Integer groupSize = (int) Math.ceil(iis.size() / (float) numOfSubdomains);
-
+            
             for (int i=0; i < iis.size(); i++){
                 if (iis.get(i).getInf().getNumber() * iis.get(i).getSup().getNumber() < 0){
                     temp.setInf(l);
