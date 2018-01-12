@@ -12,7 +12,7 @@ import expressions.ExtendedNormExpression;
 import expressions.Interval;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
-import heuristics.Aibr;
+import heuristics.Aibr; 
 import heuristics.Heuristic;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,13 +74,9 @@ public class habs_add extends Heuristic {
         // estimation for initial state
         setup_habs(s);
         
-//        for (GroundAction gr : habs.A){
-//            System.out.println(gr.toPDDL() + "\n");
-//        }
-//        System.exit(0);
         ret = habs.compute_estimate(s);
         return ret;
-    }
+    }   
 
     private Float aibrReachabilityAnalysis(State s) {
         // reachability analysis on original problem using AIBR.
@@ -210,43 +206,43 @@ public class habs_add extends Heuristic {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
             
-//            if (Math.abs(inf) < 1e-5){
-////                repSample = new ExtendedNormExpression(epsilon);
-//                repSample = new ExtendedNormExpression((inf + sup)/2);
-//            } else if (inf > 0) {
-//                repSample = new ExtendedNormExpression(inf);
-//            } else { // inf < 0
-//                if (Math.abs(sup) < 1e-5){
-////                  repSample = new ExtendedNormExpression(-epsilon);
-//                   repSample = new ExtendedNormExpression((inf + sup)/2);
-//                } else {
-//                  repSample = new ExtendedNormExpression(sup);
-//                }
-//            }
-            
             if (Math.abs(inf) < 1e-5){ // inf = 0
-                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
-                    repSample = new ExtendedNormExpression(epsilon);
-                } else { // sup > 0, but finite
-                    repSample = new ExtendedNormExpression((inf+sup)/2);                    
-                }
+                repSample = new ExtendedNormExpression(epsilon);
+//                repSample = new ExtendedNormExpression((inf + sup)/2);
             } else if (inf > 0) {
-                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
-                    repSample = new ExtendedNormExpression(inf);
-                } else { // sup > 0, but finite
-                    repSample = new ExtendedNormExpression((inf+sup)/2);
-                }
+                repSample = new ExtendedNormExpression(inf);
             } else { // inf < 0
-                if ((Math.abs(inf) + Float.MAX_VALUE) < 1e-5){ // inf = -infty
-                    if (Math.abs(sup) < 1e-5){ // sup = 0
-                        repSample = new ExtendedNormExpression(epsilon);
-                    } else { // sup < 0, but finite
-                        repSample = new ExtendedNormExpression((inf+sup)/2);
-                    }
-                } else { // inf < 0, but finite
-                    repSample = new ExtendedNormExpression((inf+sup)/2);
+                if (Math.abs(sup) < 1e-5){ // sup = 0
+                  repSample = new ExtendedNormExpression(-epsilon);
+//                   repSample = new ExtendedNormExpression((inf + sup)/2);
+                } else {
+                  repSample = new ExtendedNormExpression(sup);
                 }
             }
+            
+//            if (Math.abs(inf) < 1e-5){ // inf = 0
+//                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
+//                    repSample = new ExtendedNormExpression(epsilon);
+//                } else { // sup > 0, but finite
+//                    repSample = new ExtendedNormExpression((inf+sup)/2);                    
+//                }
+//            } else if (inf > 0) {
+//                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
+//                    repSample = new ExtendedNormExpression(inf);
+//                } else { // sup > 0, but finite
+//                    repSample = new ExtendedNormExpression((inf+sup)/2);
+//                }
+//            } else { // inf < 0
+//                if ((Math.abs(inf) + Float.MAX_VALUE) < 1e-5){ // inf = -infty
+//                    if (Math.abs(sup) < 1e-5){ // sup = 0
+//                        repSample = new ExtendedNormExpression(epsilon);
+//                    } else { // sup < 0, but finite
+//                        repSample = new ExtendedNormExpression((inf+sup)/2);
+//                    }
+//                } else { // inf < 0, but finite
+//                    repSample = new ExtendedNormExpression((inf+sup)/2);
+//                }
+//            }
 
             subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
             GroundAction subaction = generatePiecewiseSubaction(subactionName, 
@@ -277,7 +273,6 @@ public class habs_add extends Heuristic {
         if (iis.size() > 0){
             PDDLNumber l = iis.get(0).getInf();
             Integer groupSize = (int) Math.ceil(iis.size() / (float) numOfSubdomains);
-    //        System.out.println("group size: " + groupSize);
 
             for (int i=0; i < iis.size(); i++){
                 if (iis.get(i).getInf().getNumber() * iis.get(i).getSup().getNumber() < 0){
