@@ -219,30 +219,9 @@ public class habs_add extends Heuristic {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
       
-            repSample = sampling(inf, sup);
-      //            if (Math.abs(inf) < 1e-5){ // inf = 0
-//                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
-//                    repSample = new ExtendedNormExpression(epsilon);
-//                } else { // sup > 0, but finite
-//                    repSample = new ExtendedNormExpression((inf+sup)/2);                    
-//                }
-//            } else if (inf > 0) {
-//                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
-//                    repSample = new ExtendedNormExpression(inf);
-//                } else { // sup > 0, but finite
-//                    repSample = new ExtendedNormExpression((inf+sup)/2);
-//                }
-//            } else { // inf < 0
-//                if ((Math.abs(inf) + Float.MAX_VALUE) < 1e-5){ // inf = -infty
-//                    if (Math.abs(sup) < 1e-5){ // sup = 0
-//                        repSample = new ExtendedNormExpression(epsilon);
-//                    } else { // sup < 0, but finite
-//                        repSample = new ExtendedNormExpression((inf+sup)/2);
-//                    }
-//                } else { // inf < 0, but finite
-//                    repSample = new ExtendedNormExpression((inf+sup)/2);
-//                }
-//            }
+            repSample = conservativeSampling(inf, sup);
+            
+//            repSample = midSampling(inf, sup);
 
             subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
             PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName, 
@@ -259,7 +238,7 @@ public class habs_add extends Heuristic {
     }
     
     
-    private Expression sampling(Float inf, Float sup) {
+    private Expression conservativeSampling(Float inf, Float sup) {
         Expression repSample;
         if (Math.abs(inf) < 1e-5){ // inf = 0
             repSample = new ExtendedNormExpression(epsilon);
@@ -276,15 +255,46 @@ public class habs_add extends Heuristic {
         }
         return repSample;
     }
-    
+//    
+//    private Expression midSampling(Float inf, Float sup){
+//        Expression repSample;
+//        
+//        if (Math.abs(inf) < 1e-5){ // inf = 0
+//            if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
+//                repSample = new ExtendedNormExpression(epsilon);
+//            } else { // sup > 0, but finite
+//                repSample = new ExtendedNormExpression((inf+sup)/2);                    
+//            }
+//        } else if (inf > 0) {
+//            if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
+//                repSample = new ExtendedNormExpression(inf);
+//            } else { // sup > 0, but finite
+//                repSample = new ExtendedNormExpression((inf+sup)/2);
+//            }
+//        } else { // inf < 0
+//            if ((Math.abs(inf) + Float.MAX_VALUE) < 1e-5){ // inf = -infty
+//                if (Math.abs(sup) < 1e-5){ // sup = 0
+//                    repSample = new ExtendedNormExpression(-epsilon);
+//                } else { // sup < 0, but finite
+//                    repSample = new ExtendedNormExpression(sup);
+//                }
+//            } else { // inf < 0, but finite
+//                repSample = new ExtendedNormExpression((inf+sup)/2);
+//            }
+//        }
+//
+//        return repSample;
+//    }
+//    
+//    
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
-//        System.out.println("effect: " + effect);
+        System.out.println("effect: " + effect);
 
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
         Float initialVal = effect.getRight().eval(relaxedStates.get(0)).getInf().getNumber();
         
-//        System.out.println("iis: " + iis);
+        System.out.println("iis: " + iis);
 
         // ====== now start merging IIS into subdomains ======
         ArrayList <Interval> ret = new ArrayList<>();
@@ -322,6 +332,7 @@ public class habs_add extends Heuristic {
         
         // ====== now add infinite intervals to ensure safness ======
         ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
+        System.out.println("decomposed into: " + ret + "\n\n");
         return ret;
     }
     
