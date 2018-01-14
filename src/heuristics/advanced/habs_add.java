@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.PDDLGroundAction;
 import problem.GroundProcess;
+
 import problem.RelState;
 import problem.PDDLState;
 import problem.Metric;
@@ -64,8 +65,12 @@ public class habs_add extends Heuristic {
         
         try {
             // abstraction step
+            // TODO: check this!!!
             generate_subactions(s);
             System.out.println("|Subactions| = " + this.supporters.size());
+            for (PDDLGroundAction gr : this.supporters){
+                System.out.println(gr.toPDDL() + "\n\n");
+            }
 //            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
@@ -102,6 +107,7 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      * <p>
      */
+
     private void generate_subactions(PDDLState s_0) throws Exception {
         ArrayList<RelState> relaxedStates = getRelaxedGoal(A, G, s_0);
         RelState rsReachability = getReachabilityRelaxedState(A, G, s_0);
@@ -145,6 +151,7 @@ public class habs_add extends Heuristic {
         System.out.println("Generating subactions finished.");
     }
 
+
     private ArrayList<RelState> getRelaxedGoal(Set<PDDLGroundAction> A, ComplexCondition G, PDDLState s) {
         Aibr aibr_handle = new Aibr(G, A);
         //aibr_handle
@@ -166,12 +173,16 @@ public class habs_add extends Heuristic {
      */
 
     public void setup_habs(PDDLState s) {
+
+        System.out.println("setting up...");
+
         habs = (h1) habsFactory(heuristic_type, G, (Set<PDDLGroundAction>) this.supporters);
         habs.light_setup(s);
         System.out.println("setup completed!");
     }
 
     private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<PDDLGroundAction> A) {
+
         switch (heuristicType) {
             case (1): {
                 return new h1(G, A, new LinkedHashSet<>()); // does not support process yet
@@ -196,7 +207,7 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      * <p>
      */
-    
+
     private void addPiecewiseSubactions(String name, PDDLGroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, RelState rsReachability, PDDLState s_0) {
         // decomposition
         ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates, rsReachability);
@@ -208,20 +219,8 @@ public class habs_add extends Heuristic {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
             
-            if (Math.abs(inf) < 1e-5){ // inf = 0
-                repSample = new ExtendedNormExpression(epsilon);
-//                repSample = new ExtendedNormExpression((inf + sup)/2);
-            } else if (inf > 0) {
-                repSample = new ExtendedNormExpression(inf);
-            } else { // inf < 0
-                if (Math.abs(sup) < 1e-5){ // sup = 0
-                  repSample = new ExtendedNormExpression(-epsilon);
-//                   repSample = new ExtendedNormExpression((inf + sup)/2);
-                } else {
-                  repSample = new ExtendedNormExpression(sup);
-                }
-            }
-           
+            repSample = sampling(inf, sup);
+      
 //            if (Math.abs(inf) < 1e-5){ // inf = 0
 //                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
 //                    repSample = new ExtendedNormExpression(epsilon);
@@ -261,6 +260,24 @@ public class habs_add extends Heuristic {
     }
     
     
+    private Expression sampling(Float inf, Float sup) {
+        Expression repSample;
+        if (Math.abs(inf) < 1e-5){ // inf = 0
+            repSample = new ExtendedNormExpression(epsilon);
+//                repSample = new ExtendedNormExpression((inf + sup)/2);
+        } else if (inf > 0) {
+            repSample = new ExtendedNormExpression(inf);
+        } else { // inf < 0
+            if (Math.abs(sup) < 1e-5){ // sup = 0
+              repSample = new ExtendedNormExpression(-epsilon);
+//                   repSample = new ExtendedNormExpression((inf + sup)/2);
+            } else {
+              repSample = new ExtendedNormExpression(sup);
+            }
+        }
+        return repSample;
+    }
+    
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
 //        System.out.println("effect: " + effect);
 
@@ -269,6 +286,8 @@ public class habs_add extends Heuristic {
         Float initialVal = effect.getRight().eval(relaxedStates.get(0)).getInf().getNumber();
         
 //        System.out.println("iis: " + iis);
+
+        // ====== now start merging IIS into subdomains ======
         ArrayList <Interval> ret = new ArrayList<>();
         Interval temp = new Interval();
         
@@ -302,29 +321,9 @@ public class habs_add extends Heuristic {
             }
         }
         
-        // now add infinite intervals to ensure safness.
-        if (effect.getRight().eval(rsReach).getInf().getNumber() + Float.MAX_VALUE < 1e-5){
-            temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
-            if (iis.size() > 0){
-                temp.setSup(iis.get(0).getInf());
-            } else {
-                temp.setSup(new PDDLNumber(initialVal));
-            }
-            
-            ret.add(temp.clone());
-        }
-        
-        if (effect.getRight().eval(rsReach).getSup().getNumber() - Float.MAX_VALUE < 1e-5){
-            if (iis.size() > 0){
-                temp.setInf(iis.get(iis.size()-1).getSup());
-            } else {
-                temp.setInf(new PDDLNumber(initialVal));
-            }
-            temp.setSup(new PDDLNumber(-Float.MAX_VALUE));
-            ret.add(temp.clone());
-        }
-        
-//        System.out.println("decomposed into: " + ret + "\n\n");
+        // ====== now add infinite intervals to ensure safness ======
+        ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
+
         return ret;
     }
     
@@ -361,10 +360,63 @@ public class habs_add extends Heuristic {
 //        System.out.println("iis: " + iis.toString());
         return iis;
     }
-
+   
+   private ArrayList <Interval> addFiniteIntervals(Float initialVal, NumEffect effect, RelState rsReach, ArrayList<Interval> iis, ArrayList<Interval> ret){   
+       Interval temp = new Interval();
+       
+       if (effect.getRight().eval(rsReach).getInf().getNumber() + Float.MAX_VALUE < 1e-5){
+            temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
+            
+            Float supToSet;
+            if (iis.size() > 0){
+                supToSet = iis.get(0).getInf().getNumber();
+            } else {
+                supToSet = initialVal;
+            }
+            
+            if (supToSet <= 0){
+                temp.setSup(new PDDLNumber(supToSet));            
+                ret.add(temp.clone());
+            } else {
+                 // iis.get(0).getInf().getNumber() > 0, now (-infty, inf) crosses 0, again!
+                    // add (-infty, 0) and (0, n), instead.
+                temp.setSup(new PDDLNumber(0));            
+                ret.add(temp.clone());
+                temp.setInf(new PDDLNumber(0));
+                temp.setSup(new PDDLNumber(supToSet));
+                ret.add(temp.clone());
+            }            
+        }
+//        
+        // rhs(e).eval() = +infty
+        if (effect.getRight().eval(rsReach).getSup().getNumber() - Float.MAX_VALUE < 1e-5){
+            temp.setSup(new PDDLNumber(Float.MAX_VALUE));
+            
+            Float infToSet;
+            if (iis.size() > 0){
+                infToSet = iis.get(iis.size()-1).getSup().getNumber();
+            } else {
+                infToSet = initialVal;
+            }
+            
+            if (infToSet >= 0){
+                temp.setInf(new PDDLNumber(infToSet));            
+                ret.add(temp.clone());
+            } else {
+                temp.setInf(new PDDLNumber(0));            
+                ret.add(temp.clone());
+                temp.setSup(new PDDLNumber(0));
+                temp.setInf(new PDDLNumber(infToSet));
+                ret.add(temp.clone());
+            } 
+        } 
+        
+        return ret;
+   }
    
     private PDDLGroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, PDDLGroundAction gr, PDDLState s_0) {    
         PDDLGroundAction subaction = new PDDLGroundAction(subactionName);
+
 
 
         // set up effect
@@ -445,9 +497,10 @@ public class habs_add extends Heuristic {
         supporters.add(sup);
     }
 
-    @Override
 
     public Float compute_estimate(PDDLState s) {
+//        System.out.println("start compute_estimate()...");
+
         Float ret = habs.compute_estimate(s);
 //        System.out.println("h = " + ret);
         return ret;

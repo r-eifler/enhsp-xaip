@@ -180,9 +180,8 @@ public class h1 extends Heuristic {
         }
     }
 
-    @Override
     public Float compute_estimate(PDDLState s_0) {
-        
+
         if (s_0.satisfy(G)) {
 //            System.out.println("Goal satisfied??");
             return 0f;

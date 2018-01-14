@@ -127,7 +127,7 @@ public class Aibr extends Heuristic {
         int i = 0;
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
-//            Collection<GroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
+//            Collection<PDDLGroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
 //            Utils.dbg_print(1, "Relaxed State:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
@@ -156,7 +156,7 @@ public class Aibr extends Heuristic {
                 for (final PDDLGroundAction gr : S) {
                     gr.apply(rs);
                 }
-                //S.stream().forEach((GroundAction a) -> a.apply(rs));
+                //S.stream().forEach((PDDLGroundAction a) -> a.apply(rs));
                 supporters_counter += S.size();
             } else {
                 for (final PDDLGroundAction gr : S) {
@@ -417,6 +417,7 @@ public class Aibr extends Heuristic {
     public ArrayList<RelState> get_relaxed_reachable_states(PDDLState s, RelState rs2){
         ArrayList<RelState> ret = new ArrayList<>();
         ret.add(rs2.clone());
+        
         while (true) {
             boolean fix_point = true;
             for (PDDLGroundAction gr : this.reachable) {
@@ -449,7 +450,7 @@ public class Aibr extends Heuristic {
             for (PDDLGroundAction gr : S) {
                 gr.apply(rs);
             }
-                //S.stream().forEach((GroundAction a) -> a.apply(rs));
+                //S.stream().forEach((PDDLGroundAction a) -> a.apply(rs));
         }
 //        return rs;
     }
