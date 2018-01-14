@@ -218,10 +218,9 @@ public class habs_add extends Heuristic {
         for (Interval subdomain : iis) {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
-            
-            repSample = sampling(inf, sup);
       
-//            if (Math.abs(inf) < 1e-5){ // inf = 0
+            repSample = sampling(inf, sup);
+      //            if (Math.abs(inf) < 1e-5){ // inf = 0
 //                if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
 //                    repSample = new ExtendedNormExpression(epsilon);
 //                } else { // sup > 0, but finite
@@ -323,7 +322,6 @@ public class habs_add extends Heuristic {
         
         // ====== now add infinite intervals to ensure safness ======
         ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
-
         return ret;
     }
     
