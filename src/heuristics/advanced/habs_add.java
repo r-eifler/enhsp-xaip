@@ -288,13 +288,13 @@ public class habs_add extends Heuristic {
 //    
 //    
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
-        System.out.println("effect: " + effect);
+//        System.out.println("effect: " + effect);
 
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
         Float initialVal = effect.getRight().eval(relaxedStates.get(0)).getInf().getNumber();
         
-        System.out.println("iis: " + iis);
+//        System.out.println("iis: " + iis);
 
         // ====== now start merging IIS into subdomains ======
         ArrayList <Interval> ret = new ArrayList<>();
@@ -332,7 +332,7 @@ public class habs_add extends Heuristic {
         
         // ====== now add infinite intervals to ensure safness ======
         ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
-        System.out.println("decomposed into: " + ret + "\n\n");
+//        System.out.println("decomposed into: " + ret + "\n\n");
         return ret;
     }
     
