@@ -68,9 +68,9 @@ public class habs_add extends Heuristic {
             // TODO: check this!!!
             generate_subactions(s);
             System.out.println("|Subactions| = " + this.supporters.size());
-            for (PDDLGroundAction gr : this.supporters){
-                System.out.println(gr.toPDDL() + "\n\n");
-            }
+//            for (PDDLGroundAction gr : this.supporters){
+//                System.out.println(gr.toPDDL() + "\n\n");
+//            }
 //            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
