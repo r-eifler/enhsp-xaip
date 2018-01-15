@@ -297,6 +297,16 @@ public class habs_add extends Heuristic {
         System.out.println("iis: " + iis);
 
         // ====== now start merging IIS into subdomains ======
+        ArrayList <Interval> ret = mergeIis(iis);
+
+        // ====== now add infinite intervals to ensure safness ======
+        ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
+        System.out.println("decomposed into: " + ret + "\n\n");
+        return ret;
+    }
+    
+    
+    private ArrayList<Interval> mergeIis(ArrayList<Interval> iis) {
         ArrayList <Interval> ret = new ArrayList<>();
         Interval temp = new Interval();
         Boolean skip = false;
@@ -334,13 +344,11 @@ public class habs_add extends Heuristic {
             }
         }
         
-        // ====== now add infinite intervals to ensure safness ======
-        ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
-        System.out.println("decomposed into: " + ret + "\n\n");
         return ret;
-    }
+    } 
     
-   private ArrayList <Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates){
+   
+    private ArrayList <Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates){
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
         
 //        System.out.println("relaxed states: " + relaxedStates.toString());
