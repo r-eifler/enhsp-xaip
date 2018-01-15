@@ -219,7 +219,7 @@ public class habs_add extends Heuristic {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
       
-            repSample = conservativeSampling(inf, sup);
+            repSample = lowerBoundSampling(inf, sup);
             
 //            repSample = midSampling(inf, sup);
 
@@ -238,15 +238,15 @@ public class habs_add extends Heuristic {
     }
     
     
-    private Expression conservativeSampling(Float inf, Float sup) {
+    private Expression lowerBoundSampling(Float inf, Float sup) {
         Expression repSample;
-        if (Math.abs(inf) < 1e-5){ // inf = 0
+        if (inf.compareTo(0f) == 0){ // inf = 0
             repSample = new ExtendedNormExpression(epsilon);
 //                repSample = new ExtendedNormExpression((inf + sup)/2);
         } else if (inf > 0) {
             repSample = new ExtendedNormExpression(inf);
         } else { // inf < 0
-            if (Math.abs(sup) < 1e-5){ // sup = 0
+            if (sup.compareTo(0f) == 0){ // sup = 0
               repSample = new ExtendedNormExpression(-epsilon);
 //                   repSample = new ExtendedNormExpression((inf + sup)/2);
             } else {
@@ -288,27 +288,29 @@ public class habs_add extends Heuristic {
 //    
 //    
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
-//        System.out.println("effect: " + effect);
+        System.out.println("effect: " + effect);
 
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
         Float initialVal = effect.getRight().eval(relaxedStates.get(0)).getInf().getNumber();
         
-//        System.out.println("iis: " + iis);
+        System.out.println("iis: " + iis);
 
         // ====== now start merging IIS into subdomains ======
         ArrayList <Interval> ret = new ArrayList<>();
         Interval temp = new Interval();
+        Boolean skip = false;
         
         if (iis.size() > 0 && numOfSubdomains > 0){
             PDDLNumber l = iis.get(0).getInf();
             Integer groupSize = (int) Math.ceil(iis.size() / (float) numOfSubdomains);
             
             for (int i=0; i < iis.size(); i++){
-                if (iis.get(i).getInf().getNumber() * iis.get(i).getSup().getNumber() < 0){
+                if (iis.get(i).getInf().getNumber() * iis.get(i).getSup().getNumber() < 0 && !skip){
                     temp.setInf(l);
                     temp.setSup(new PDDLNumber(0));
                     ret.add(temp.clone());
+                    skip = true;
 
                     if (i % groupSize == 0 || i == iis.size()-1){
                         temp.setInf(new PDDLNumber(0));
@@ -322,17 +324,19 @@ public class habs_add extends Heuristic {
                 }
 
                 if (i % groupSize == 0 || i == iis.size() - 1){
-                    temp.setInf(l);
-                    temp.setSup(iis.get(i).getSup());
-                    ret.add(temp.clone());
-                    l = iis.get(i).getSup();
+                    if (i != 0 || i == iis.size() - 1){
+                        temp.setInf(l);
+                        temp.setSup(iis.get(i).getSup());
+                        ret.add(temp.clone());
+                        l = iis.get(i).getSup();
+                    }
                 }   
             }
         }
         
         // ====== now add infinite intervals to ensure safness ======
         ret = addFiniteIntervals(initialVal, effect, rsReach, iis, ret);
-//        System.out.println("decomposed into: " + ret + "\n\n");
+        System.out.println("decomposed into: " + ret + "\n\n");
         return ret;
     }
     
@@ -373,8 +377,9 @@ public class habs_add extends Heuristic {
    private ArrayList <Interval> addFiniteIntervals(Float initialVal, NumEffect effect, RelState rsReach, ArrayList<Interval> iis, ArrayList<Interval> ret){   
        Interval temp = new Interval();
        
-       if (effect.getRight().eval(rsReach).getInf().getNumber() + Float.MAX_VALUE < 1e-5){
-            temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
+       if (effect.getRight().eval(rsReach).getInf().getNumber().compareTo(Float.NEGATIVE_INFINITY) *
+               effect.getRight().eval(rsReach).getInf().getNumber().compareTo(Float.MAX_VALUE) == 0){
+            temp.setInf(new PDDLNumber(Float.NEGATIVE_INFINITY));
             
             Float supToSet;
             if (iis.size() > 0){
@@ -398,8 +403,10 @@ public class habs_add extends Heuristic {
         }
 //        
         // rhs(e).eval() = +infty
-        if (effect.getRight().eval(rsReach).getSup().getNumber() - Float.MAX_VALUE < 1e-5){
-            temp.setSup(new PDDLNumber(Float.MAX_VALUE));
+        if (effect.getRight().eval(rsReach).getSup().getNumber().compareTo(Float.POSITIVE_INFINITY) *
+                effect.getRight().eval(rsReach).getInf().getNumber().compareTo(-Float.MAX_VALUE) == 0)     
+        {
+            temp.setSup(new PDDLNumber(Float.POSITIVE_INFINITY));
             
             Float infToSet;
             if (iis.size() > 0){
@@ -426,8 +433,6 @@ public class habs_add extends Heuristic {
     private PDDLGroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, PDDLGroundAction gr, PDDLState s_0) {    
         PDDLGroundAction subaction = new PDDLGroundAction(subactionName);
 
-
-
         // set up effect
         NumEffect supEff = new NumEffect(effect.getOperator());
         supEff.setFluentAffected(effect.getFluentAffected());
@@ -450,9 +455,9 @@ public class habs_add extends Heuristic {
         
         if (inf < 0){
             indirect_precondition_gt = new Comparison(">=");
-            indirect_precondition_lt = new Comparison("<");
+            indirect_precondition_lt = new Comparison("<=");
         } else {
-            indirect_precondition_gt = new Comparison(">");
+            indirect_precondition_gt = new Comparison(">=");
             indirect_precondition_lt = new Comparison("<=");
         }
         
