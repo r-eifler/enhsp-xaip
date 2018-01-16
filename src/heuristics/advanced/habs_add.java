@@ -49,6 +49,7 @@ public class habs_add extends Heuristic {
     public boolean onlineRepresentatives;
     private HashMap<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> subactionsMap;
     private HashMap<Comparison, Float> comparisonBound;
+    public boolean midPointSampling;
 
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
@@ -227,8 +228,10 @@ public class habs_add extends Heuristic {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
 
-            repSample = lowerBoundSampling(inf, sup);
-
+            if (!midPointSampling)
+                repSample = lowerBoundSampling(inf, sup);
+            else
+                repSample = this.midSampling(inf, sup);
 //            repSample = midSampling(inf, sup);
             subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
             PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName,
@@ -262,35 +265,35 @@ public class habs_add extends Heuristic {
         return repSample;
     }
 //    
-//    private Expression midSampling(Float inf, Float sup){
-//        Expression repSample;
-//        
-//        if (Math.abs(inf) < 1e-5){ // inf = 0
-//            if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
-//                repSample = new ExtendedNormExpression(epsilon);
-//            } else { // sup > 0, but finite
-//                repSample = new ExtendedNormExpression((inf+sup)/2);                    
-//            }
-//        } else if (inf > 0) {
-//            if (Math.abs(sup - Float.MAX_VALUE) < 1e-5){ // sup = +infty
-//                repSample = new ExtendedNormExpression(inf);
-//            } else { // sup > 0, but finite
-//                repSample = new ExtendedNormExpression((inf+sup)/2);
-//            }
-//        } else { // inf < 0
-//            if ((Math.abs(inf) + Float.MAX_VALUE) < 1e-5){ // inf = -infty
-//                if (Math.abs(sup) < 1e-5){ // sup = 0
-//                    repSample = new ExtendedNormExpression(-epsilon);
-//                } else { // sup < 0, but finite
-//                    repSample = new ExtendedNormExpression(sup);
-//                }
-//            } else { // inf < 0, but finite
-//                repSample = new ExtendedNormExpression((inf+sup)/2);
-//            }
-//        }
-//
-//        return repSample;
-//    }
+    private Expression midSampling(Float inf, Float sup){
+        Expression repSample;
+        
+        if (Math.abs(inf) < 1e-5){ // inf = 0
+            if (sup == Float.POSITIVE_INFINITY){ // sup = +infty
+                repSample = new ExtendedNormExpression(epsilon);
+            } else { // sup > 0, but finite
+                repSample = new ExtendedNormExpression((inf+sup)/2.0f);                    
+            }
+        } else if (inf > 0) {
+            if (sup == Float.POSITIVE_INFINITY){ // sup = +infty
+                repSample = new ExtendedNormExpression(inf);
+            } else { // sup > 0, but finite
+                repSample = new ExtendedNormExpression((inf+sup)/2.0f);
+            }
+        } else { // inf < 0
+            if (inf == Float.NEGATIVE_INFINITY){ // inf = -infty
+                if (Math.abs(sup) < 1e-5){ // sup = 0
+                    repSample = new ExtendedNormExpression(-epsilon);
+                } else { // sup < 0, but finite
+                    repSample = new ExtendedNormExpression(sup);
+                }
+            } else { // inf < 0, but finite
+                repSample = new ExtendedNormExpression((inf+sup)/2.0f);
+            }
+        }
+
+        return repSample;
+    }
 //    
 //    
 
