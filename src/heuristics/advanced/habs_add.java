@@ -81,9 +81,11 @@ public class habs_add extends Heuristic {
             // abstraction step
             generate_subactions(s);
             System.out.println("|Subactions| = " + this.supporters.size());
-//            for (PDDLGroundAction gr : this.supporters){
-//                System.out.println(gr.toPDDL() + "\n\n");
-//            }
+            if (debug > 100) {
+                for (PDDLGroundAction gr : this.supporters) {
+                    System.out.println(gr.toPDDL() + "\n\n");
+                }
+            }
 //            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
@@ -221,6 +223,9 @@ public class habs_add extends Heuristic {
         // decomposition
         ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates, rsReachability);
 
+        if (debug > 101){
+            System.out.println(iis);
+        }
         Expression repSample;
         String subactionName;
 
@@ -228,10 +233,11 @@ public class habs_add extends Heuristic {
             Float inf = subdomain.getInf().getNumber();
             Float sup = subdomain.getSup().getNumber();
 
-            if (!midPointSampling)
+            if (!midPointSampling) {
                 repSample = lowerBoundSampling(inf, sup);
-            else
+            } else {
                 repSample = this.midSampling(inf, sup);
+            }
 //            repSample = midSampling(inf, sup);
             subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
             PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName,
@@ -254,42 +260,41 @@ public class habs_add extends Heuristic {
 //                repSample = new ExtendedNormExpression((inf + sup)/2);
         } else if (inf > 0) {
             repSample = new ExtendedNormExpression(inf);
-        } else { // inf < 0
-            if (Math.abs(sup) == 0) { // sup = 0
-                repSample = new ExtendedNormExpression(-epsilon);
+        } else // inf < 0
+        if (Math.abs(sup) == 0) { // sup = 0
+            repSample = new ExtendedNormExpression(-epsilon);
 //                   repSample = new ExtendedNormExpression((inf + sup)/2);
-            } else {
-                repSample = new ExtendedNormExpression(sup);
-            }
+        } else {
+            repSample = new ExtendedNormExpression(sup);
         }
         return repSample;
     }
 //    
-    private Expression midSampling(Float inf, Float sup){
+
+    private Expression midSampling(Float inf, Float sup) {
         Expression repSample;
-        
-        if (Math.abs(inf) < 1e-5){ // inf = 0
-            if (sup == Float.POSITIVE_INFINITY){ // sup = +infty
+
+        if (Math.abs(inf) < 1e-5) { // inf = 0
+            if (sup == Float.MAX_VALUE) { // sup = +infty
                 repSample = new ExtendedNormExpression(epsilon);
             } else { // sup > 0, but finite
-                repSample = new ExtendedNormExpression((inf+sup)/2.0f);                    
+                repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
         } else if (inf > 0) {
-            if (sup == Float.POSITIVE_INFINITY){ // sup = +infty
+            if (sup == Float.MAX_VALUE) { // sup = +infty
                 repSample = new ExtendedNormExpression(inf);
             } else { // sup > 0, but finite
-                repSample = new ExtendedNormExpression((inf+sup)/2.0f);
+                repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
-        } else { // inf < 0
-            if (inf == Float.NEGATIVE_INFINITY){ // inf = -infty
-                if (Math.abs(sup) < 1e-5){ // sup = 0
-                    repSample = new ExtendedNormExpression(-epsilon);
-                } else { // sup < 0, but finite
-                    repSample = new ExtendedNormExpression(sup);
-                }
-            } else { // inf < 0, but finite
-                repSample = new ExtendedNormExpression((inf+sup)/2.0f);
+        } else // inf < 0
+        if (inf == -Float.MAX_VALUE) { // inf = -infty
+            if (Math.abs(sup) < 1e-5) { // sup = 0
+                repSample = new ExtendedNormExpression(-epsilon);
+            } else { // sup < 0, but finite
+                repSample = new ExtendedNormExpression(sup);
             }
+        } else { // inf < 0, but finite
+            repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
         }
 
         return repSample;
@@ -585,13 +590,13 @@ public class habs_add extends Heuristic {
             NumEffect original = e.getValue().getFirst();
             NumEffect sampled = e.getValue().getSecond();
             PDDLNumber rhsEval = original.eval(s);
-            
+
             throw new UnsupportedOperationException("This needs to be implemented");
             // I think from here you can start the reasoning by cases and update the sampled numeffect
             // I started doing something but I failed as I am not sure how to interpret the representation of the constraint
             // In particular it is not clear to me when the strict >0 comes to play. It is in fact
             // necessary that such a thing is done to enforce intervals containing zero (e.g., (0,something]).
-            
+
 //            PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
 //            if (lb.getNumber() == 0f){
 //                lb.setNumber(epsilon);
@@ -612,7 +617,6 @@ public class habs_add extends Heuristic {
 //            } else {
 //                throw new RuntimeException("Something very wrong just happened");
 //            }
-
         }
     }
 
