@@ -81,7 +81,6 @@ public class habs_add extends Heuristic {
 
         // estimation for initial state
         setup_habs(s);
-
         ret = habs.compute_estimate(s);
         return ret;
     }
@@ -312,7 +311,6 @@ public class habs_add extends Heuristic {
         
 //        System.out.println("inf: " + iis.get(0).getInf().getNumber());
         if (iis.get(0).getInf().getNumber().compareTo(-0f) >= 0){
-//            System.out.println(">=0");
             posIis = iis;
         } else if (iis.get(iis.size()-1).getSup().getNumber().compareTo(-0f) <= 0){
             negIis = iis;
@@ -350,17 +348,21 @@ public class habs_add extends Heuristic {
         
         if (iis.size() > 0){
             l = iis.get(0).getInf();
-                
+            
             int i;
             int j = (Math.min(this.k, iis.size()) - 1) * size;
             for (i = 0; i < j; i++){
-                if (i == j - 1 || i % size == 1){
+                if (i == j - 1 || (i + 1) % size == 0){
                     temp.setInf(l);
                     temp.setSup(iis.get(i).getSup());
                     l = iis.get(i).getSup();
                     ret.add(temp.clone());
+//                    System.out.println("add: " + temp);
                 }
             }
+            
+//            System.out.println("j: " + j);
+//            System.out.println("size: " + size);
             
             if (i != iis.size()){
                 temp.setInf(l);
