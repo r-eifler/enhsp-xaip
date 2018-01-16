@@ -12,13 +12,16 @@ import expressions.ExtendedNormExpression;
 import expressions.Interval;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
+import extraUtils.Pair;
 import heuristics.Aibr;
 import heuristics.Heuristic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +30,7 @@ import problem.PDDLGroundAction;
 import problem.RelState;
 import problem.PDDLState;
 import problem.Metric;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -39,9 +43,12 @@ public class habs_add extends Heuristic {
     public Metric metric = null;
     private static final Float epsilon = 0.1f;
     private h1 h1_handle;
-    
+
     private final Integer k;
     private h1 habs;
+    public boolean onlineRepresentatives;
+    private HashMap<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> subactionsMap;
+    private HashMap<Comparison, Float> comparisonBound;
 
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
@@ -62,7 +69,10 @@ public class habs_add extends Heuristic {
             // not reachable!
             return ret;
         }
-        
+        if (onlineRepresentatives) {
+            subactionsMap = new HashMap();
+            comparisonBound = new HashMap();
+        }
         h1_handle = new h1(G, A, new LinkedHashSet<>());
         h1_handle.simplify_actions(s);
 
@@ -109,7 +119,7 @@ public class habs_add extends Heuristic {
      * <p>
      */
     private void generate_subactions(PDDLState s_0) throws Exception {
-        
+
         ArrayList<RelState> relaxedStates = getRelaxedGoal(h1_handle.A, h1_handle.G, s_0);
         RelState rsReachability = getReachabilityRelaxedState(h1_handle.A, h1_handle.G, s_0);
         NumEffect effectOnCost = null;
@@ -286,14 +296,14 @@ public class habs_add extends Heuristic {
 
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
 //        System.out.println("effect: " + effect);
-        
+
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
-        
+
         // ====== now add infinite intervals to IIS to ensure safness ======
-        addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size()-1));
-   
-        Collections.sort(iis, new SortByInf());   
+        addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size() - 1));
+
+        Collections.sort(iis, new SortByInf());
 //        System.out.println("iis: " + iis);
 //        System.exit(0);
 
@@ -308,16 +318,16 @@ public class habs_add extends Heuristic {
         // ===== separate positive from negative intervals =====
         ArrayList<Interval> posIis = new ArrayList<>();
         ArrayList<Interval> negIis = new ArrayList<>();
-        
+
 //        System.out.println("inf: " + iis.get(0).getInf().getNumber());
-        if (iis.get(0).getInf().getNumber().compareTo(-0f) >= 0){
+        if (iis.get(0).getInf().getNumber().compareTo(-0f) >= 0) {
             posIis = iis;
-        } else if (iis.get(iis.size()-1).getSup().getNumber().compareTo(-0f) <= 0){
+        } else if (iis.get(iis.size() - 1).getSup().getNumber().compareTo(-0f) <= 0) {
             negIis = iis;
         } else {
             ArrayList<Interval> dest = negIis;
-            for (Interval elem : iis){
-                if (elem.getInf().getNumber().compareTo(-0f) >= 0){
+            for (Interval elem : iis) {
+                if (elem.getInf().getNumber().compareTo(-0f) >= 0) {
                     dest = posIis;
                 }
                 dest.add(elem);
@@ -327,32 +337,32 @@ public class habs_add extends Heuristic {
         // ====== prepare to merge ======
         int P = posIis.size();
         int N = negIis.size();
-        int PS =  (int) Math.floor(Math.max(P, k)/ k);
-        int NS = (int) Math.floor(Math.max(N, k)/ k);
-        
+        int PS = (int) Math.floor(Math.max(P, k) / k);
+        int NS = (int) Math.floor(Math.max(N, k) / k);
+
         // ====== now start merging ======
         ArrayList<Interval> ret = new ArrayList<>();
         merge(negIis, NS, ret);
         merge(posIis, PS, ret);
-        
+
 //        System.out.println("negIis: " + negIis);
 //        System.out.println("posIis: " + posIis);
 //        System.out.println(ret);
 //        System.exit(0);
         return ret;
     }
-    
-    private void merge(ArrayList<Interval> iis, int size, ArrayList<Interval> ret){
+
+    private void merge(ArrayList<Interval> iis, int size, ArrayList<Interval> ret) {
         Interval temp = new Interval();
         PDDLNumber l;
-        
-        if (iis.size() > 0){
+
+        if (iis.size() > 0) {
             l = iis.get(0).getInf();
-            
+
             int i;
             int j = (Math.min(this.k, iis.size()) - 1) * size;
-            for (i = 0; i < j; i++){
-                if (i == j - 1 || (i + 1) % size == 0){
+            for (i = 0; i < j; i++) {
+                if (i == j - 1 || (i + 1) % size == 0) {
                     temp.setInf(l);
                     temp.setSup(iis.get(i).getSup());
                     l = iis.get(i).getSup();
@@ -360,21 +370,20 @@ public class habs_add extends Heuristic {
 //                    System.out.println("add: " + temp);
                 }
             }
-            
+
 //            System.out.println("j: " + j);
 //            System.out.println("size: " + size);
-            
-            if (i != iis.size()){
+            if (i != iis.size()) {
                 temp.setInf(l);
                 temp.setSup(iis.get(iis.size() - 1).getSup());
-                ret.add(temp.clone());   
+                ret.add(temp.clone());
             }
         }
     }
 
     private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates) {
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
-        
+
 //        System.out.println("relaxed states: " + relaxedStates.toString());
         Interval prevRhsInterval = null;
         for (RelState rs : relaxedStates) {
@@ -395,12 +404,11 @@ public class habs_add extends Heuristic {
 //        System.out.println("iis: " + iis.toString());
         return iis;
     }
-    
-    
-    private void addIis(ArrayList<Interval> iis, PDDLNumber inf, PDDLNumber sup){
+
+    private void addIis(ArrayList<Interval> iis, PDDLNumber inf, PDDLNumber sup) {
         Interval incrementInterval = new Interval();
         // inf * sup < 0, the interval crosses 0
-        if (inf.getNumber() * sup.getNumber() < 0){
+        if (inf.getNumber() * sup.getNumber() < 0) {
             // add (inf, 0)
             incrementInterval.setInf(inf);
             incrementInterval.setSup(new PDDLNumber(0));
@@ -416,17 +424,16 @@ public class habs_add extends Heuristic {
             iis.add(incrementInterval.clone());
         }
     }
-    
-    
+
     private void addInfiniteIntervals(ArrayList<Interval> iis, NumEffect effect, RelState rsReach, RelState rsCounting) {
 
         Interval temp = new Interval();
-        
+
         // rhs(e).eval().getInf() = -infty
         if (effect.getRight().eval(rsReach).getInf().getNumber().compareTo(Float.NEGATIVE_INFINITY)
                 * effect.getRight().eval(rsReach).getInf().getNumber().compareTo(-Float.MAX_VALUE) == 0) {
             temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
-            
+
             PDDLNumber supToSet = effect.getRight().eval(rsCounting).getInf();
 
             if (supToSet.getNumber() <= 0) {
@@ -508,6 +515,20 @@ public class habs_add extends Heuristic {
         subaction.getPreconditions().sons.add(indirect_precondition_gt);
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
 
+        if (onlineRepresentatives) {
+            //the following is just a speculative data structure to speed up the update of the sample in the subactions
+            Pair<Comparison, Comparison> preconditions = new Pair();
+            preconditions.setFirst(indirect_precondition_gt);
+            this.comparisonBound.put(indirect_precondition_gt, inf);
+            preconditions.setSecond(indirect_precondition_lt);
+            this.comparisonBound.put(indirect_precondition_lt, sup);
+            Pair<NumEffect, NumEffect> effects = new Pair();
+            effects.setFirst(effect);
+            effects.setSecond(supEff);
+            this.subactionsMap.put(preconditions, effects);
+            throw new UnsupportedOperationException("This needs to be implemented");
+        }
+
         return subaction;
     }
 
@@ -548,9 +569,48 @@ public class habs_add extends Heuristic {
     public Float compute_estimate(PDDLState s) {
 //        System.out.println("start compute_estimate()...");
 
+        if (onlineRepresentatives) {
+            updateRepresentatives(s);
+        }
         Float ret = habs.compute_estimate(s);
 //        System.out.println("h = " + ret);
         return ret;
+    }
+
+    private void updateRepresentatives(PDDLState s) {
+        for (Entry<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> e : this.subactionsMap.entrySet()) {
+            NumEffect original = e.getValue().getFirst();
+            NumEffect sampled = e.getValue().getSecond();
+            PDDLNumber rhsEval = original.eval(s);
+            
+            throw new UnsupportedOperationException("This needs to be implemented");
+            // I think from here you can start the reasoning by cases and update the sampled numeffect
+            // I started doing something but I failed as I am not sure how to interpret the representation of the constraint
+            // In particular it is not clear to me when the strict >0 comes to play. It is in fact
+            // necessary that such a thing is done to enforce intervals containing zero (e.g., (0,something]).
+            
+//            PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
+//            if (lb.getNumber() == 0f){
+//                lb.setNumber(epsilon);
+//            }
+//            if (rhsEval.getNumber() == 0f){
+//                rhsEval.setNumber(epsilon);
+//            }
+//            PDDLNumber ub = new PDDLNumber(this.comparisonBound.get(e.getKey().getSecond()));
+//            if (ub.getNumber() == 0f){
+//                ub.setNumber(epsilon);
+//            }
+//            if (s.satisfy(e.getKey().getFirst()) && s.satisfy(e.getKey().getSecond())) {
+//                sampled.setRight(rhsEval.normalize());
+//            } else if (s.satisfy(e.getKey().getFirst())) {
+//                sampled.setRight(ub.normalize());
+//            } else if (s.satisfy(e.getKey().getSecond())) {
+//                sampled.setRight(lb.normalize());
+//            } else {
+//                throw new RuntimeException("Something very wrong just happened");
+//            }
+
+        }
     }
 
     private static class SortByInf implements Comparator {
