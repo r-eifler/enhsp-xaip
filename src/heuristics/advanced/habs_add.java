@@ -70,9 +70,9 @@ public class habs_add extends Heuristic {
             // abstraction step
             generate_subactions(s);
             System.out.println("|Subactions| = " + this.supporters.size());
-            for (PDDLGroundAction gr : this.supporters){
-                System.out.println(gr.toPDDL() + "\n\n");
-            }
+//            for (PDDLGroundAction gr : this.supporters){
+//                System.out.println(gr.toPDDL() + "\n\n");
+//            }
 //            System.exit(0);
         } catch (Exception ex) {
             // non-linear effects not supported
@@ -286,7 +286,7 @@ public class habs_add extends Heuristic {
 //    
 
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
-        System.out.println("effect: " + effect);
+//        System.out.println("effect: " + effect);
         
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
@@ -295,13 +295,13 @@ public class habs_add extends Heuristic {
         addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size()-1));
    
         Collections.sort(iis, new SortByInf());   
-        System.out.println("iis: " + iis);
+//        System.out.println("iis: " + iis);
 //        System.exit(0);
 
         // ====== now start merging IIS into subdomains ======
         ArrayList<Interval> ret = mergeIis(iis);
 
-        System.out.println("decomposed into: " + ret + "\n\n");
+//        System.out.println("decomposed into: " + ret + "\n\n");
         return ret;
     }
 
@@ -337,8 +337,8 @@ public class habs_add extends Heuristic {
         merge(negIis, NS, ret);
         merge(posIis, PS, ret);
         
-        System.out.println("negIis: " + negIis);
-        System.out.println("posIis: " + posIis);
+//        System.out.println("negIis: " + negIis);
+//        System.out.println("posIis: " + posIis);
 //        System.out.println(ret);
 //        System.exit(0);
         return ret;
