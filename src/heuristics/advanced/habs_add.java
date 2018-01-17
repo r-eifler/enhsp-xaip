@@ -585,11 +585,28 @@ public class habs_add extends Heuristic {
     public Float compute_estimate(PDDLState s) {
 //        System.out.println("start compute_estimate()...");
 
+        if (debug > 10){
+            System.out.println("State: " + s);
+            System.out.println("Before updating subactions are: ");
+            for (PDDLGroundAction gr : this.supporters){
+                System.out.println(gr.toPDDL() + "\n");
+            }
+            System.out.println("===================\n\n");
+        }
+        
         if (onlineRepresentatives) {
             updateRepresentatives(s);
         }
+
+        if (debug > 10){
+            System.out.println("After updating subactions are: ");
+            for (PDDLGroundAction gr : this.supporters){
+                System.out.println(gr.toPDDL() + "\n");
+            }
+            System.out.println("finish compute_estimate()!\n===================\n\n\n\n");
+        }
+
         Float ret = habs.compute_estimate(s);
-//        System.out.println("h = " + ret);
         return ret;
     }
 
@@ -597,7 +614,7 @@ public class habs_add extends Heuristic {
         for (Entry<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> e : this.subactionsMap.entrySet()) {
             NumEffect original = e.getValue().getFirst();
             NumEffect sampled = e.getValue().getSecond();
-            PDDLNumber rhsEval = original.eval(s);
+            PDDLNumber rhsEval = original.getRight().eval(s);
 
 //            throw new UnsupportedOperationException("This needs to be implemented");
             // I think from here you can start the reasoning by cases and update the sampled numeffect
@@ -616,25 +633,29 @@ public class habs_add extends Heuristic {
             if (ub.getNumber() == 0f){
                 ub.setNumber(-epsilon);
             }
-//            System.out.println("eval is: " + rhsEval.normalize());
-//            System.out.println("gt: " + e.getKey().getFirst());
-//            System.out.println("lt: " + e.getKey().getSecond());
+            
+            if (debug > 15){
+                System.out.println("eval is: " + rhsEval.normalize());
+                System.out.println("gt: " + this.comparisonBound.get(e.getKey().getFirst()));
+                System.out.println("lt: " + this.comparisonBound.get(e.getKey().getSecond()));
+            }
             
             if (s.satisfy(e.getKey().getFirst()) && s.satisfy(e.getKey().getSecond())) {
                 sampled.setRight(rhsEval.normalize());
-//                System.out.println("update to eval: " + rhsEval.normalize());
+                if (debug > 15)
+                    System.out.println("update to eval, becomes " + e.getValue().getSecond().getRight());
             } else if (s.satisfy(e.getKey().getFirst())) {
                 sampled.setRight(ub.normalize());
-//                System.out.println("update to ub: " + ub.normalize());
+                if (debug > 15)
+                    System.out.println("update to ub, becomes " + e.getValue().getSecond().getRight());
             } else if (s.satisfy(e.getKey().getSecond())) {
                 sampled.setRight(lb.normalize());
-//                System.out.println("update to lb: " + lb.normalize());
+                if (debug > 15)
+                    System.out.println("update to lb, becomes " + e.getValue().getSecond().getRight());
             } else {
                 throw new RuntimeException("Something very wrong just happened");
             }
             
-//            System.out.println("\n\n");
-//            System.exit(0);
         }
     }
 
