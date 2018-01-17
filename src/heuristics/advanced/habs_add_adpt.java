@@ -18,10 +18,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ojalgo.optimisation.ExpressionsBasedModelTest;
 import problem.PDDLGroundAction;
 
 import problem.RelState;
@@ -40,6 +43,17 @@ public class habs_add_adpt extends Heuristic {
     private static final Float epsilon = 0.1f;
     private h1 h1_handle;
     
+    // e.g. a: e1: increase val_c0 by rate_c0 
+    // a1 --> lhs(e11) --> [rate_c0 >= 1, rate_c0 <= 2]
+    //    --> lhs(e12) --> ...
+    //    --> lhs(e13) --> ...
+    // 
+    // a2 --> ...
+    private HashMap<PDDLGroundAction, HashMap<Expression, LinkedList<Comparison>>> action_to_indirect_precond;
+    // a mapping from subaction to NON-CONSTANT LINEAR effect. Constant subactions are not included.
+    private HashMap<PDDLGroundAction, NumEffect> subaction_to_effect;
+    private HashMap<PDDLGroundAction, Interval> subaction_to_subdomain;
+    
     private final Integer k;
     private h1 habs;
 
@@ -48,6 +62,10 @@ public class habs_add_adpt extends Heuristic {
 
         this.k = k;
         this.supporters = new LinkedHashSet<>();
+        
+        action_to_indirect_precond = new HashMap<>();
+        subaction_to_effect = new HashMap<>();
+        subaction_to_subdomain = new HashMap<>();
     }
 
     public void setMetric(Metric metric) {
@@ -502,11 +520,28 @@ public class habs_add_adpt extends Heuristic {
 
         indirect_precondition_gt.normalize();
         indirect_precondition_lt.normalize();
-
+        
         // set pre-conditions for subactions
         subaction.getPreconditions().sons.add(indirect_precondition_lt);
         subaction.getPreconditions().sons.add(indirect_precondition_gt);
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
+        
+        // update mapping
+        HashMap<Expression, LinkedList<Comparison>> tempMap = new HashMap<>();
+        LinkedList<Comparison> tempList = new LinkedList<>();
+        tempList.add(indirect_precondition_gt);
+        tempList.add(indirect_precondition_lt);
+        tempMap.put(effect.getFluentAffected(), tempList);
+        action_to_indirect_precond.put(subaction, tempMap);
+        
+        // update mapping
+        subaction_to_effect.put(subaction, effect);
+        
+        // update mapping
+        Interval temp = new Interval();
+        temp.setInf(new PDDLNumber(inf));
+        temp.setSup(new PDDLNumber(sup));
+        subaction_to_subdomain.put(subaction, temp);
 
         return subaction;
     }
@@ -519,38 +554,79 @@ public class habs_add_adpt extends Heuristic {
      * @param gr the grounded action.
      */
     private void addConstantSubaction(String name, PDDLGroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
-        PDDLGroundAction sup = new PDDLGroundAction(name);
+        PDDLGroundAction constSubaction = new PDDLGroundAction(name);
 
         // add preconditions
-        sup.setPreconditions(gr.getPreconditions());
+        constSubaction.setPreconditions(gr.getPreconditions());
 
         // add constant numeric effect
         for (NumEffect effect : allConstantEffects) {
-            sup.getNumericEffects().sons.add(effect);
+            constSubaction.getNumericEffects().sons.add(effect);
         }
 
         // add propositional effects
-        sup.setAddList(gr.getAddList());
-        sup.setDelList(gr.getDelList());
+        constSubaction.setAddList(gr.getAddList());
+        constSubaction.setDelList(gr.getDelList());
 
         // add effect on metric
         if (cost_sensitive && effectOnCost != null) {
-            sup.getNumericEffects().sons.add(effectOnCost);
-            sup.setAction_cost(s_0, metric);
+            constSubaction.getNumericEffects().sons.add(effectOnCost);
+            constSubaction.setAction_cost(s_0, metric);
         } else {
             // if not metric sensitive, set uniform action cost
-            sup.setAction_cost(1);
+            constSubaction.setAction_cost(1);
         }
 
-        supporters.add(sup);
+        supporters.add(constSubaction);
     }
 
     public Float compute_estimate(PDDLState s) {
 //        System.out.println("start compute_estimate()...");
+        update_subactions(s);
 
         Float ret = habs.compute_estimate(s);
 //        System.out.println("h = " + ret);
         return ret;
+    }
+
+    private void update_subactions(PDDLState s) {
+        for (PDDLGroundAction subaction : this.supporters){
+            if (!subaction.getName().contains("const")){ // for now, very drafty approach. Better to add an attribute to differentiate between constant and non-constant actions
+                LinkedHashSet<NumEffect> effects = subaction.getNumericEffects().sons;
+                for (NumEffect eff : effects){
+                    // note: assuming single effect action here (subaction)
+//                    if (eff.getFluentAffected())
+                      NumEffect subEffect = subaction_to_effect.get(subaction);
+                      Interval subdomain = subaction_to_subdomain.get(subaction);
+                      Expression rhs = subEffect.getRight();
+//                      System.out.println(subaction);
+//                      System.out.println(action_to_indirect_precond.get(subaction) + "\n");
+                      Comparison indirect_precond_gt = action_to_indirect_precond.get(subaction).get(eff.getFluentAffected()).get(0);
+                      Comparison indirect_precond_lt = action_to_indirect_precond.get(subaction).get(eff.getFluentAffected()).get(1);
+                      
+                      Expression repSample;
+                      if (indirect_precond_lt.isSatisfied(s) && indirect_precond_gt.isSatisfied(s)){
+                          repSample = new ExtendedNormExpression(rhs.eval(s).getNumber());
+                      } else if (indirect_precond_lt.isSatisfied(s)) {
+                          if (((Float) Math.abs(subdomain.getInf().getNumber())).compareTo(0f) == 0){
+                              repSample = new ExtendedNormExpression(epsilon);
+                          } else {
+                              repSample = new ExtendedNormExpression(subdomain.getInf().getNumber());
+                          }
+                      } else { // indirect_precond_lt.isSatisfied(s)
+                          if (((Float) Math.abs(subdomain.getSup().getNumber())).compareTo(0f) == 0){
+                              repSample = new ExtendedNormExpression(-epsilon);
+                          } else {
+                              repSample = new ExtendedNormExpression(subdomain.getSup().getNumber());
+                          }
+                          
+                      }
+                      
+                      eff.setRight(repSample);
+                }
+            }
+        }
+//        System.exit(0);
     }
 
     private static class SortByInf implements Comparator {
