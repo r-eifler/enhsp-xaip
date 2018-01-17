@@ -132,7 +132,7 @@ public class habs_add extends Heuristic {
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
-        for (PDDLGroundAction gr : reachable) {
+        for (PDDLGroundAction gr : h1_handle.A) {
             allConstantEffects.clear();
 
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
@@ -163,6 +163,7 @@ public class habs_add extends Heuristic {
         }
 
         System.out.println("Generating subactions finished.");
+//        System.exit(0);
     }
 
     private ArrayList<RelState> getRelaxedGoal(Set<PDDLGroundAction> A, ComplexCondition G, PDDLState s) {
@@ -234,7 +235,7 @@ public class habs_add extends Heuristic {
             Float sup = subdomain.getSup().getNumber();
 
             if (!midPointSampling) {
-                repSample = lowerBoundSampling(inf, sup);
+                repSample = this.lowerBoundSampling(inf, sup);
             } else {
                 repSample = this.midSampling(inf, sup);
             }
@@ -273,21 +274,24 @@ public class habs_add extends Heuristic {
 
     private Expression midSampling(Float inf, Float sup) {
         Expression repSample;
-
+        
+//        System.out.println("inf: " + inf);
+//        System.out.println("sup: " + sup);
+        
         if (Math.abs(inf) < 1e-5) { // inf = 0
-            if (sup == Float.MAX_VALUE) { // sup = +infty
+            if (sup == Float.MAX_VALUE || sup == Float.POSITIVE_INFINITY) { // sup = +infty
                 repSample = new ExtendedNormExpression(epsilon);
             } else { // sup > 0, but finite
                 repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
         } else if (inf > 0) {
-            if (sup == Float.MAX_VALUE) { // sup = +infty
+            if (sup == Float.MAX_VALUE || sup == Float.POSITIVE_INFINITY) { // sup = +infty
                 repSample = new ExtendedNormExpression(inf);
             } else { // sup > 0, but finite
                 repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
         } else // inf < 0
-        if (inf == -Float.MAX_VALUE) { // inf = -infty
+        if (inf == -Float.MAX_VALUE || inf == Float.NEGATIVE_INFINITY) { // inf = -infty
             if (Math.abs(sup) < 1e-5) { // sup = 0
                 repSample = new ExtendedNormExpression(-epsilon);
             } else { // sup < 0, but finite
@@ -296,7 +300,8 @@ public class habs_add extends Heuristic {
         } else { // inf < 0, but finite
             repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
         }
-
+        
+//        System.out.println("rep is: " + repSample + "\n\n");
         return repSample;
     }
 //    
@@ -502,9 +507,12 @@ public class habs_add extends Heuristic {
         Comparison indirect_precondition_gt;
         Comparison indirect_precondition_lt;
 
-        if (inf.compareTo(-0f) < 0) {
-            indirect_precondition_gt = new Comparison(">=");
+        if (Math.abs(inf) == 0) {
+            indirect_precondition_gt = new Comparison(">");
             indirect_precondition_lt = new Comparison("<=");
+        } else if (Math.abs(sup) == 0){
+            indirect_precondition_gt = new Comparison(">=");
+            indirect_precondition_lt = new Comparison("<");
         } else {
             indirect_precondition_gt = new Comparison(">=");
             indirect_precondition_lt = new Comparison("<=");
@@ -534,7 +542,7 @@ public class habs_add extends Heuristic {
             effects.setFirst(effect);
             effects.setSecond(supEff);
             this.subactionsMap.put(preconditions, effects);
-            throw new UnsupportedOperationException("This needs to be implemented");
+//            throw new UnsupportedOperationException("This needs to be implemented");
         }
 
         return subaction;
@@ -591,32 +599,42 @@ public class habs_add extends Heuristic {
             NumEffect sampled = e.getValue().getSecond();
             PDDLNumber rhsEval = original.eval(s);
 
-            throw new UnsupportedOperationException("This needs to be implemented");
+//            throw new UnsupportedOperationException("This needs to be implemented");
             // I think from here you can start the reasoning by cases and update the sampled numeffect
             // I started doing something but I failed as I am not sure how to interpret the representation of the constraint
             // In particular it is not clear to me when the strict >0 comes to play. It is in fact
             // necessary that such a thing is done to enforce intervals containing zero (e.g., (0,something]).
 
-//            PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
-//            if (lb.getNumber() == 0f){
-//                lb.setNumber(epsilon);
-//            }
+            PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
+            if (lb.getNumber() == 0f){
+                lb.setNumber(epsilon);
+            }
 //            if (rhsEval.getNumber() == 0f){
 //                rhsEval.setNumber(epsilon);
 //            }
-//            PDDLNumber ub = new PDDLNumber(this.comparisonBound.get(e.getKey().getSecond()));
-//            if (ub.getNumber() == 0f){
-//                ub.setNumber(epsilon);
-//            }
-//            if (s.satisfy(e.getKey().getFirst()) && s.satisfy(e.getKey().getSecond())) {
-//                sampled.setRight(rhsEval.normalize());
-//            } else if (s.satisfy(e.getKey().getFirst())) {
-//                sampled.setRight(ub.normalize());
-//            } else if (s.satisfy(e.getKey().getSecond())) {
-//                sampled.setRight(lb.normalize());
-//            } else {
-//                throw new RuntimeException("Something very wrong just happened");
-//            }
+            PDDLNumber ub = new PDDLNumber(this.comparisonBound.get(e.getKey().getSecond()));
+            if (ub.getNumber() == 0f){
+                ub.setNumber(-epsilon);
+            }
+//            System.out.println("eval is: " + rhsEval.normalize());
+//            System.out.println("gt: " + e.getKey().getFirst());
+//            System.out.println("lt: " + e.getKey().getSecond());
+            
+            if (s.satisfy(e.getKey().getFirst()) && s.satisfy(e.getKey().getSecond())) {
+                sampled.setRight(rhsEval.normalize());
+//                System.out.println("update to eval: " + rhsEval.normalize());
+            } else if (s.satisfy(e.getKey().getFirst())) {
+                sampled.setRight(ub.normalize());
+//                System.out.println("update to ub: " + ub.normalize());
+            } else if (s.satisfy(e.getKey().getSecond())) {
+                sampled.setRight(lb.normalize());
+//                System.out.println("update to lb: " + lb.normalize());
+            } else {
+                throw new RuntimeException("Something very wrong just happened");
+            }
+            
+//            System.out.println("\n\n");
+//            System.exit(0);
         }
     }
 
