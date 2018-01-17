@@ -119,7 +119,7 @@ public class habs_add extends Heuristic {
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
-        for (PDDLGroundAction gr : reachable) {
+        for (PDDLGroundAction gr : h1_handle.A) {
             allConstantEffects.clear();
 
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
