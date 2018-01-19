@@ -25,12 +25,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.GroundEvent;
+import problem.GroundProcess;
 import problem.PDDLGroundAction;
 
 import problem.RelState;
 import problem.PDDLState;
 import problem.Metric;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -53,6 +54,13 @@ public class habs_add extends Heuristic {
 
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
+
+        this.k = k;
+        this.supporters = new LinkedHashSet<>();
+    }
+    
+    public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, Integer k) {
+        super(G, A, P, E);
 
         this.k = k;
         this.supporters = new LinkedHashSet<>();
@@ -626,9 +634,9 @@ public class habs_add extends Heuristic {
             if (lb.getNumber() == 0f){
                 lb.setNumber(epsilon);
             }
-//            if (rhsEval.getNumber() == 0f){
-//                rhsEval.setNumber(epsilon);
-//            }
+            if (rhsEval.getNumber() == 0f){
+                rhsEval.setNumber(epsilon);
+            }
             PDDLNumber ub = new PDDLNumber(this.comparisonBound.get(e.getKey().getSecond()));
             if (ub.getNumber() == 0f){
                 ub.setNumber(-epsilon);
@@ -645,7 +653,7 @@ public class habs_add extends Heuristic {
                 if (debug > 15)
                     System.out.println("update to eval, becomes " + e.getValue().getSecond().getRight());
             } else if (s.satisfy(e.getKey().getFirst())) {
-                sampled.setRight(ub.normalize());
+                sampled.setRight(ub .normalize());
                 if (debug > 15)
                     System.out.println("update to ub, becomes " + e.getValue().getSecond().getRight());
             } else if (s.satisfy(e.getKey().getSecond())) {
