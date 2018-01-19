@@ -917,18 +917,18 @@ public class Comparison extends Terminal {
         Comparison comp = (Comparison) this;
         if (comp.getComparator().equals("=")) {
             Comparison dual = (Comparison) comp.clone();
-            ExtendedNormExpression right = (ExtendedNormExpression) dual.getRight();
-            ExtendedNormExpression left = (ExtendedNormExpression) dual.getLeft();
+            ExtendedNormExpression localRight = (ExtendedNormExpression) dual.getRight();
+            ExtendedNormExpression localLeft = (ExtendedNormExpression) dual.getLeft();
 
             try {
-                dual.setLeft(right.minus(left));
+                dual.setLeft(localRight.minus(localLeft));
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
             }
             dual.setRight(new PDDLNumber(0));
             dual.setComparator(">=");
             dual.normalize();
-            comp.setComparator(">=");
+            comp.setComparator("<=");
             comp.normalize();
             ret.addConditions(dual);
             ret.addConditions(comp);
