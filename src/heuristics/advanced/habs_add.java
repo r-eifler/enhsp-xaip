@@ -85,6 +85,7 @@ public class habs_add extends Heuristic {
             // not reachable!
             return ret;
         }
+        
         if (onlineRepresentatives) {
             subactionsMap = new HashMap();
             comparisonBound = new HashMap();
@@ -94,7 +95,14 @@ public class habs_add extends Heuristic {
 
         try {
             // abstraction step
-            generate_subactions(s);
+            generate_subactions(s);        
+//            
+//            Aibr aibr_handle_2 = new Aibr(this.G, (Set<PDDLGroundAction>) this.supporters);
+//            aibr_handle_2.setup(s);
+//            aibr_handle_2.set(true, true);
+//            System.out.println(aibr_handle_2.compute_estimate(s));
+//            System.exit(0);
+//            
             System.out.println("|Subactions| = " + this.supporters.size());
             if (debug > 100) {
                 for (PDDLGroundAction gr : this.supporters) {
