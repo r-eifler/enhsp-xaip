@@ -201,7 +201,7 @@ public class habs_add extends Heuristic {
         System.out.println("setup completed!");
     }
 
-    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<PDDLGroundAction> A) {
+    private Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<PDDLGroundAction> A) {
 
         switch (heuristicType) {
             case (1): {
