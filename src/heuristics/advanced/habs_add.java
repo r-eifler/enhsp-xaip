@@ -7,6 +7,7 @@ package heuristics.advanced;
 
 import conditions.Comparison;
 import conditions.ComplexCondition;
+import expressions.BinaryOp;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
 import expressions.Interval;
@@ -20,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -43,14 +45,15 @@ public class habs_add extends Heuristic {
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
     private static final Float epsilon = 0.1f;
-    private h1 h1_handle;
-
+    
     private final Integer k;
     private h1 habs;
+    private Aibr aibr_handle;
     public boolean onlineRepresentatives;
     private HashMap<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> subactionsMap;
     private HashMap<Comparison, Float> comparisonBound;
     public boolean midPointSampling;
+    private boolean risky = true;
 
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
@@ -71,7 +74,11 @@ public class habs_add extends Heuristic {
     }
 
     @Override
-    public Float setup(PDDLState s) {
+    public Float setup(PDDLState s) {        
+        
+        this.aibr_handle = new Aibr(this.G, this.A);
+        this.aibr_handle.setup(s);
+        this.aibr_handle.set(true, true);
         // reachablity analysis by AIBR
         Float ret = aibrReachabilityAnalysis(s);
         if (ret == Float.MAX_VALUE) {
@@ -82,8 +89,8 @@ public class habs_add extends Heuristic {
             subactionsMap = new HashMap();
             comparisonBound = new HashMap();
         }
-        h1_handle = new h1(G, A, new LinkedHashSet<>());
-        h1_handle.simplify_actions(s);
+        
+        simplify_actions(s);
 
         try {
             // abstraction step
@@ -108,12 +115,9 @@ public class habs_add extends Heuristic {
 
     private Float aibrReachabilityAnalysis(PDDLState s) {
         // reachability analysis on original problem using AIBR.
-        Aibr first_reachH = new Aibr(this.G, this.A);
-        first_reachH.setup(s);
-        first_reachH.set(true, true);
-        Float ret = first_reachH.compute_estimate(s);
-        A = first_reachH.reachable;
-        reachable = first_reachH.reachable;
+        Float ret = this.aibr_handle.compute_estimate(s);
+        A = this.aibr_handle.reachable;
+        reachable = this.aibr_handle.reachable;
 
         return ret;
     }
@@ -131,8 +135,8 @@ public class habs_add extends Heuristic {
      */
     private void generate_subactions(PDDLState s_0) throws Exception {
 
-        ArrayList<RelState> relaxedStates = getRelaxedGoal(h1_handle.A, h1_handle.G, s_0);
-        RelState rsReachability = getReachabilityRelaxedState(h1_handle.A, h1_handle.G, s_0);
+        ArrayList<RelState> relaxedStates = getRelaxedGoal(s_0);
+        RelState rsReachability = getReachabilityRelaxedState(s_0);
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -140,7 +144,7 @@ public class habs_add extends Heuristic {
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
-        for (PDDLGroundAction gr : h1_handle.A) {
+        for (PDDLGroundAction gr : A) {
             allConstantEffects.clear();
 
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
@@ -174,16 +178,11 @@ public class habs_add extends Heuristic {
 //        System.exit(0);
     }
 
-    private ArrayList<RelState> getRelaxedGoal(Set<PDDLGroundAction> A, ComplexCondition G, PDDLState s) {
-        Aibr aibr_handle = new Aibr(G, A);
-        //aibr_handle
-        aibr_handle.setup(s);
+    private ArrayList<RelState> getRelaxedGoal(PDDLState s) {
         return aibr_handle.get_relaxed_reachable_states(s, s.relaxState());
     }
 
-    private RelState getReachabilityRelaxedState(LinkedHashSet<PDDLGroundAction> A, ComplexCondition G, PDDLState s_0) {
-        Aibr aibr_handle = new Aibr(G, A);
-        aibr_handle.setup(s_0);
+    private RelState getReachabilityRelaxedState(PDDLState s_0) {
         return aibr_handle.get_relaxed_goal_in_reachability(s_0);
     }
 
@@ -196,20 +195,9 @@ public class habs_add extends Heuristic {
 
         System.out.println("setting up...");
 
-        habs = (h1) habsFactory(heuristic_type, G, (Set<PDDLGroundAction>) this.supporters);
+        habs = new h1(G, (Set<PDDLGroundAction>) this.supporters, new LinkedHashSet<>());
         habs.light_setup(s);
         System.out.println("setup completed!");
-    }
-
-    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<PDDLGroundAction> A) {
-
-        switch (heuristicType) {
-            case (1): {
-                return new h1(G, A, new LinkedHashSet<>()); // does not support process yet
-            }
-            default:
-                return null;
-        }
     }
 
     /**
@@ -325,13 +313,10 @@ public class habs_add extends Heuristic {
         addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size() - 1));
 
         Collections.sort(iis, new SortByInf());
-//        System.out.println("iis: " + iis);
-//        System.exit(0);
 
         // ====== now start merging IIS into subdomains ======
         ArrayList<Interval> ret = mergeIis(iis);
 
-//        System.out.println("decomposed into: " + ret + "\n\n");
         return ret;
     }
 
@@ -340,7 +325,6 @@ public class habs_add extends Heuristic {
         ArrayList<Interval> posIis = new ArrayList<>();
         ArrayList<Interval> negIis = new ArrayList<>();
 
-//        System.out.println("inf: " + iis.get(0).getInf().getNumber());
         if (iis.get(0).getInf().getNumber().compareTo(-0f) >= 0) {
             posIis = iis;
         } else if (iis.get(iis.size() - 1).getSup().getNumber().compareTo(-0f) <= 0) {
@@ -365,11 +349,7 @@ public class habs_add extends Heuristic {
         ArrayList<Interval> ret = new ArrayList<>();
         merge(negIis, NS, ret);
         merge(posIis, PS, ret);
-
-//        System.out.println("negIis: " + negIis);
-//        System.out.println("posIis: " + posIis);
-//        System.out.println(ret);
-//        System.exit(0);
+        
         return ret;
     }
 
@@ -388,12 +368,9 @@ public class habs_add extends Heuristic {
                     temp.setSup(iis.get(i).getSup());
                     l = iis.get(i).getSup();
                     ret.add(temp.clone());
-//                    System.out.println("add: " + temp);
                 }
             }
 
-//            System.out.println("j: " + j);
-//            System.out.println("size: " + size);
             if (i != iis.size()) {
                 temp.setInf(l);
                 temp.setSup(iis.get(iis.size() - 1).getSup());
@@ -405,7 +382,6 @@ public class habs_add extends Heuristic {
     private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates) {
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
 
-//        System.out.println("relaxed states: " + relaxedStates.toString());
         Interval prevRhsInterval = null;
         for (RelState rs : relaxedStates) {
             Interval currentRhsInterval = effect.getRight().eval(rs);
@@ -422,7 +398,6 @@ public class habs_add extends Heuristic {
             }
         }
 
-//        System.out.println("iis: " + iis.toString());
         return iis;
     }
 
@@ -665,6 +640,43 @@ public class habs_add extends Heuristic {
             }
             
         }
+    }
+    
+    protected void simplify_actions(PDDLState init) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.A) {
+            try {
+                if (gr.getPreconditions() != null) {
+                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
+                }
+                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                    int number_numericEffects = gr.getNumericEffects().sons.size();
+                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                        NumEffect neff = (NumEffect) it.next();
+                        if (neff.getOperator().equals("assign")) {
+                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                            try {
+                                if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                                    //Utils.dbg_print(3,neff.toString());
+    //                            if (number_numericEffects == 1) {
+                                    neff.setOperator("increase");
+                                    neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                                    neff.setPseudo_num_effect(true);
+    //                            }
+                                }
+                            } catch (Exception ex) {
+                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+
+                    }
+                }
+                gr.normalize();
+            } catch (Exception ex) {
+                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.G = (ComplexCondition) this.G.transform_equality();
+        this.G.normalize();
     }
 
     private static class SortByInf implements Comparator {
