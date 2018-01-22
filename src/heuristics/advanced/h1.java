@@ -90,7 +90,7 @@ public class h1 extends Heuristic {
     protected boolean reacheability_setting;
     
     
-        protected HashMap<Integer, LinkedHashSet<Condition>> achieve;
+    protected HashMap<Integer, LinkedHashSet<Condition>> achieve;
     protected HashMap<Integer, LinkedHashSet<PDDLGroundAction>> achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<Comparison>> interact_with;
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;

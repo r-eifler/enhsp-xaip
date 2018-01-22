@@ -96,7 +96,6 @@ public class EPddlProblem extends PddlProblem {
         globalConstraintGrounded = false;
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond();
-        metric = new Metric();
         grounding = false;
     }
 
