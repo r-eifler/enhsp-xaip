@@ -41,7 +41,6 @@ import problem.Metric;
  */
 public class habs_add extends Heuristic {
 
-    private static final Integer heuristic_type = 1; // may use heuristics other than h1.
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
     private static final Float epsilon = 0.1f;
@@ -98,7 +97,6 @@ public class habs_add extends Heuristic {
             generate_subactions(s);        
 //            
 //            Aibr aibr_handle_2 = new Aibr(this.G, (Set<PDDLGroundAction>) this.supporters);
-//            aibr_handle_2.setup(s);
 //            aibr_handle_2.set(true, true);
 //            System.out.println(aibr_handle_2.compute_estimate(s));
 //            System.exit(0);
@@ -498,14 +496,11 @@ public class habs_add extends Heuristic {
         Comparison indirect_precondition_gt;
         Comparison indirect_precondition_lt;
 
-        if (Math.abs(inf) == 0) {
-            indirect_precondition_gt = new Comparison(">");
-            indirect_precondition_lt = new Comparison("<=");
-        } else if (Math.abs(sup) == 0){
+        if (inf < 0) {
             indirect_precondition_gt = new Comparison(">=");
             indirect_precondition_lt = new Comparison("<");
         } else {
-            indirect_precondition_gt = new Comparison(">=");
+            indirect_precondition_gt = new Comparison(">");
             indirect_precondition_lt = new Comparison("<=");
         }
 
