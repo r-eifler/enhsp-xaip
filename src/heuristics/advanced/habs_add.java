@@ -322,8 +322,6 @@ public class habs_add extends Heuristic {
 //    
 
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
-//        System.out.println("effect: " + effect);
-
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
 
@@ -342,7 +340,11 @@ public class habs_add extends Heuristic {
         // ===== separate positive from negative intervals =====
         ArrayList<Interval> posIis = new ArrayList<>();
         ArrayList<Interval> negIis = new ArrayList<>();
-
+        
+        if (iis.isEmpty()){
+            return new ArrayList<>();
+        }
+        
         if (iis.get(0).getInf().getNumber().compareTo(-0f) >= 0) {
             posIis = iis;
         } else if (iis.get(iis.size() - 1).getSup().getNumber().compareTo(-0f) <= 0) {
@@ -415,7 +417,7 @@ public class habs_add extends Heuristic {
                 prevRhsInterval = currentRhsInterval.clone();
             }
         }
-
+        
         return iis;
     }
 
