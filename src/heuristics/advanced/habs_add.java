@@ -150,7 +150,7 @@ public class habs_add extends Heuristic {
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
-        for (PDDLGroundAction gr : this.A) {
+        for (PDDLGroundAction gr : A) {
             allConstantEffects.clear();
 
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
@@ -643,6 +643,43 @@ public class habs_add extends Heuristic {
             }
             
         }
+    }
+    
+    protected void simplify_actions(PDDLState init) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.A) {
+            try {
+                if (gr.getPreconditions() != null) {
+                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
+                }
+                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                    int number_numericEffects = gr.getNumericEffects().sons.size();
+                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                        NumEffect neff = (NumEffect) it.next();
+                        if (neff.getOperator().equals("assign")) {
+                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                            try {
+                                if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                                    //Utils.dbg_print(3,neff.toString());
+    //                            if (number_numericEffects == 1) {
+                                    neff.setOperator("increase");
+                                    neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+                                    neff.setPseudo_num_effect(true);
+    //                            }
+                                }
+                            } catch (Exception ex) {
+                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+
+                    }
+                }
+                gr.normalize();
+            } catch (Exception ex) {
+                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.G = (ComplexCondition) this.G.transform_equality();
+        this.G.normalize();
     }
 
     private static class SortByInf implements Comparator {
