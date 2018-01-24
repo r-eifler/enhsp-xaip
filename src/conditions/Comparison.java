@@ -928,7 +928,7 @@ public class Comparison extends Terminal {
             dual.setRight(new PDDLNumber(0));
             dual.setComparator(">=");
             dual.normalize();
-            comp.setComparator("<=");
+            comp.setComparator(">=");
             comp.normalize();
             ret.addConditions(dual);
             ret.addConditions(comp);
