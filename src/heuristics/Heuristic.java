@@ -24,6 +24,7 @@ import conditions.Comparison;
 import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
+import expressions.BinaryOp;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -32,6 +33,7 @@ import expressions.PDDLNumber;
 import expressions.Interval;
 import extraUtils.Pair;
 import extraUtils.Utils;
+import heuristics.advanced.h1;
 import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
@@ -58,7 +60,7 @@ import problem.GroundProcess;
  *
  * @author enrico
  */
-public abstract class Heuristic{
+public abstract class Heuristic {
 
     static public LinkedHashSet usefulActions = new LinkedHashSet();
     protected LinkedList<NumEffect> sorted_nodes;
@@ -117,17 +119,17 @@ public abstract class Heuristic{
     public boolean only_mutual_exclusion_processes = false;
 
     private HashMap redundant_constraints;
+    private boolean risky = false;
 
-    
-    public Heuristic(){
-        
+    public Heuristic() {
+
     }
-    
-    public Heuristic(Set<PDDLGroundAction> A){
+
+    public Heuristic(Set<PDDLGroundAction> A) {
         this.A = (LinkedHashSet<PDDLGroundAction>) A;
-        
+
     }
-    
+
     public Heuristic(ComplexCondition G, Set<PDDLGroundAction> A) {
         super();
         achievers = new HashMap();
@@ -263,8 +265,7 @@ public abstract class Heuristic{
     protected Float compute_cost(PDDLState s_0, ArrayList<Float> h, Condition input_cond, ArrayList<Boolean> closed) {
         Float cost = 0f;
 
-        
-        ComplexCondition con = (ComplexCondition)input_cond;
+        ComplexCondition con = (ComplexCondition) input_cond;
 
         for (Condition t : (LinkedHashSet<Condition>) con.sons) {
             if (closed != null && !closed.get(t.getHeuristicId()) && !greedy) {
@@ -964,8 +965,8 @@ public abstract class Heuristic{
         return counter;
 
     }
-    
-        protected void add_redundant_constraints() throws Exception {
+
+    protected void add_redundant_constraints() throws Exception {
         redundant_constraints = new HashMap();
 
         for (PDDLGroundAction a : A) {
@@ -1016,6 +1017,51 @@ public abstract class Heuristic{
 //        System.out.println("Set before:"+set.size());
         set.addAll(temp);
 //        System.out.println("Set after:"+set.size());
+    }
+
+    protected void simplify_actions(PDDLState init) {
+        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.A) {
+            try {
+                if (gr.getPreconditions() != null) {
+                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
+                }
+                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+                    int number_numericEffects = gr.getNumericEffects().sons.size();
+                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                        NumEffect neff = (NumEffect) it.next();
+                        if (neff.getOperator().equals("assign")) {
+                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
+                            try {
+                                
+                                //The following has been disabled as it is not clear whether particular assignments can indeed be treated
+                                //as pseudo increase effects which aren't state dependent.
+//                                if (true) {
+//
+//                                } else {
+//                                    if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {
+//                                        //constant effect
+//                                        //Utils.dbg_print(3,neff.toString());
+//                                        //                            if (number_numericEffects == 1) {
+//                                        System.out.println(neff);
+//                                        neff.setOperator("increase");
+//                                        neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+//                                        neff.setPseudo_num_effect(true);
+//                                        //                            }
+//                                    }
+//                                }
+                            } catch (Exception ex) {
+                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+                }
+                gr.normalize();
+            } catch (Exception ex) {
+                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.G = (ComplexCondition) this.G.transform_equality();
+        this.G.normalize();
     }
 
 }

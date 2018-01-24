@@ -44,7 +44,7 @@ public class habs_add extends Heuristic {
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
     private static final Float epsilon = 0.1f;
-    
+
     private final Integer k;
     private h1 habs;
     private Aibr aibr_handle;
@@ -52,7 +52,7 @@ public class habs_add extends Heuristic {
     private HashMap<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> subactionsMap;
     private HashMap<Comparison, Float> comparisonBound;
     public boolean midPointSampling;
-    private boolean risky = true;
+    private boolean risky = false;
 
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
@@ -60,7 +60,7 @@ public class habs_add extends Heuristic {
         this.k = k;
         this.supporters = new LinkedHashSet<>();
     }
-    
+
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, Integer k) {
         super(G, A, P, E);
 
@@ -73,8 +73,8 @@ public class habs_add extends Heuristic {
     }
 
     @Override
-    public Float setup(PDDLState s) {        
-        
+    public Float setup(PDDLState s) {
+
         this.aibr_handle = new Aibr(this.G, this.A);
         this.aibr_handle.setup(s);
         this.aibr_handle.set(true, true);
@@ -84,17 +84,17 @@ public class habs_add extends Heuristic {
             // not reachable!
             return ret;
         }
-        
+
         if (onlineRepresentatives) {
             subactionsMap = new HashMap();
             comparisonBound = new HashMap();
         }
-        
+
         simplify_actions(s);
 
         try {
             // abstraction step
-            generate_subactions(s);        
+            generate_subactions(s);
 //            
 //            Aibr aibr_handle_2 = new Aibr(this.G, (Set<PDDLGroundAction>) this.supporters);
 //            aibr_handle_2.set(true, true);
@@ -162,11 +162,24 @@ public class habs_add extends Heuristic {
 
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
-                    if (!rhs.rhsFluents().isEmpty() && rhs.linear) {
-                        addPiecewiseSubactions(gr.toFileCompliant() + " " + effect.getFluentAffected(), gr, effect, effectOnCost, relaxedStates, rsReachability, s_0);
+                    // ENRICO : DOUBLE CHECK
+                    if (((!rhs.rhsFluents().isEmpty()|| effect.getOperator().equalsIgnoreCase("assign")) && rhs.linear)) {
+                        NumEffect temp;
+                        if (effect.getOperator().equalsIgnoreCase("assign")) {//This is additive transformation\
+                            temp  = new NumEffect("increase");
+                            temp.setFluentAffected(effect.getFluentAffected());
+                            temp.setRight(new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true).normalize());
+                        } else {
+                            temp = effect;
+                        }
+                        addPiecewiseSubactions(gr.toFileCompliant() + " " + temp.getFluentAffected(), gr, temp, effectOnCost, relaxedStates, rsReachability, s_0);
+                        
+
                     } else if (!rhs.linear) {
                         throw new Exception("Non-linear effects not supported!");
                     } else { // constant numeric effects
+//                        System.out.println("Constant case");
+//                        System.out.println(effect);
                         allConstantEffects.add(effect);
                     }
                 }
@@ -226,7 +239,7 @@ public class habs_add extends Heuristic {
         // decomposition
         ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates, rsReachability);
 
-        if (debug > 101){
+        if (debug > 101) {
             System.out.println(iis);
         }
         Expression repSample;
@@ -276,10 +289,9 @@ public class habs_add extends Heuristic {
 
     private Expression midSampling(Float inf, Float sup) {
         Expression repSample;
-        
+
 //        System.out.println("inf: " + inf);
 //        System.out.println("sup: " + sup);
-        
         if (Math.abs(inf) < 1e-5) { // inf = 0
             if (sup == Float.MAX_VALUE) { // sup = +infty
                 repSample = new ExtendedNormExpression(epsilon);
@@ -302,7 +314,7 @@ public class habs_add extends Heuristic {
         } else { // inf < 0, but finite
             repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
         }
-        
+
 //        System.out.println("rep is: " + repSample + "\n\n");
         return repSample;
     }
@@ -355,7 +367,7 @@ public class habs_add extends Heuristic {
         ArrayList<Interval> ret = new ArrayList<>();
         merge(negIis, NS, ret);
         merge(posIis, PS, ret);
-        
+
         return ret;
     }
 
@@ -571,22 +583,22 @@ public class habs_add extends Heuristic {
     public Float compute_estimate(PDDLState s) {
 //        System.out.println("start compute_estimate()...");
 
-        if (debug > 10){
+        if (debug > 10) {
             System.out.println("State: " + s);
             System.out.println("Before updating subactions are: ");
-            for (PDDLGroundAction gr : this.supporters){
+            for (PDDLGroundAction gr : this.supporters) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("===================\n\n");
         }
-        
+
         if (onlineRepresentatives) {
             updateRepresentatives(s);
         }
 
-        if (debug > 10){
+        if (debug > 10) {
             System.out.println("After updating subactions are: ");
-            for (PDDLGroundAction gr : this.supporters){
+            for (PDDLGroundAction gr : this.supporters) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("finish compute_estimate()!\n===================\n\n\n\n");
@@ -607,80 +619,46 @@ public class habs_add extends Heuristic {
             // I started doing something but I failed as I am not sure how to interpret the representation of the constraint
             // In particular it is not clear to me when the strict >0 comes to play. It is in fact
             // necessary that such a thing is done to enforce intervals containing zero (e.g., (0,something]).
-
             PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
-            if (lb.getNumber() == 0f){
+            if (lb.getNumber() == 0f) {
                 lb.setNumber(epsilon);
             }
-            if (rhsEval.getNumber() == 0f){
+            if (rhsEval.getNumber() == 0f) {
                 rhsEval.setNumber(epsilon);
             }
             PDDLNumber ub = new PDDLNumber(this.comparisonBound.get(e.getKey().getSecond()));
-            if (ub.getNumber() == 0f){
+            if (ub.getNumber() == 0f) {
                 ub.setNumber(-epsilon);
             }
-            
-            if (debug > 15){
+
+            if (debug > 15) {
                 System.out.println("eval is: " + rhsEval.normalize());
                 System.out.println("gt: " + this.comparisonBound.get(e.getKey().getFirst()));
                 System.out.println("lt: " + this.comparisonBound.get(e.getKey().getSecond()));
             }
-            
+
             if (s.satisfy(e.getKey().getFirst()) && s.satisfy(e.getKey().getSecond())) {
                 sampled.setRight(rhsEval.normalize());
-                if (debug > 15)
+                if (debug > 15) {
                     System.out.println("update to eval, becomes " + e.getValue().getSecond().getRight());
+                }
             } else if (s.satisfy(e.getKey().getFirst())) {
-                sampled.setRight(ub .normalize());
-                if (debug > 15)
+                sampled.setRight(ub.normalize());
+                if (debug > 15) {
                     System.out.println("update to ub, becomes " + e.getValue().getSecond().getRight());
+                }
             } else if (s.satisfy(e.getKey().getSecond())) {
                 sampled.setRight(lb.normalize());
-                if (debug > 15)
+                if (debug > 15) {
                     System.out.println("update to lb, becomes " + e.getValue().getSecond().getRight());
+                }
             } else {
                 throw new RuntimeException("Something very wrong just happened");
             }
-            
-        }
-    }
-    
-    protected void simplify_actions(PDDLState init) {
-        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.A) {
-            try {
-                if (gr.getPreconditions() != null) {
-                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
-                }
-                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-                    int number_numericEffects = gr.getNumericEffects().sons.size();
-                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
-                        NumEffect neff = (NumEffect) it.next();
-                        if (neff.getOperator().equals("assign")) {
-                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                            try {
-                                if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
-                                    //Utils.dbg_print(3,neff.toString());
-    //                            if (number_numericEffects == 1) {
-                                    neff.setOperator("increase");
-                                    neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
-                                    neff.setPseudo_num_effect(true);
-    //                            }
-                                }
-                            } catch (Exception ex) {
-                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
 
-                    }
-                }
-                gr.normalize();
-            } catch (Exception ex) {
-                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
-        this.G = (ComplexCondition) this.G.transform_equality();
-        this.G.normalize();
     }
+
 
     private static class SortByInf implements Comparator {
 
