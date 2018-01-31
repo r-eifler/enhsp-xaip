@@ -95,12 +95,7 @@ public class habs_add extends Heuristic {
         try {
             // abstraction step
             generate_subactions(s);
-//            
-//            Aibr aibr_handle_2 = new Aibr(this.G, (Set<PDDLGroundAction>) this.supporters);
-//            aibr_handle_2.set(true, true);
-//            System.out.println(aibr_handle_2.compute_estimate(s));
-//            System.exit(0);
-//            
+            
             System.out.println("|Subactions| = " + this.supporters.size());
             if (debug > 100) {
                 for (PDDLGroundAction gr : this.supporters) {
@@ -162,7 +157,6 @@ public class habs_add extends Heuristic {
 
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
-                    // ENRICO : DOUBLE CHECK
                     if (((!rhs.rhsFluents().isEmpty()|| effect.getOperator().equalsIgnoreCase("assign")) && rhs.linear)) {
                         NumEffect temp;
                         if (effect.getOperator().equalsIgnoreCase("assign")) {//This is additive transformation\
@@ -178,8 +172,6 @@ public class habs_add extends Heuristic {
                     } else if (!rhs.linear) {
                         throw new Exception("Non-linear effects not supported!");
                     } else { // constant numeric effects
-//                        System.out.println("Constant case");
-//                        System.out.println(effect);
                         allConstantEffects.add(effect);
                     }
                 }
@@ -323,10 +315,10 @@ public class habs_add extends Heuristic {
 
     private ArrayList<Interval> decomposeRhs(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
         // ====== now generating increment interval sequence (IIS) ======
-        ArrayList<Interval> iis = getIis(effect, relaxedStates);
+        ArrayList<Interval> iis = getIis(effect, relaxedStates, rsReach);
 
         // ====== now add infinite intervals to IIS to ensure safness ======
-        addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size() - 1));
+//        addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size() - 1));
 
         Collections.sort(iis, new SortByInf());
 
@@ -399,9 +391,10 @@ public class habs_add extends Heuristic {
         }
     }
 
-    private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates) {
+    private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
-
+        relaxedStates.add(rsReach);
+        
         Interval prevRhsInterval = null;
         for (RelState rs : relaxedStates) {
             Interval currentRhsInterval = effect.getRight().eval(rs);
