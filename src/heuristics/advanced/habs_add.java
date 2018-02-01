@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -53,6 +53,8 @@ public class habs_add extends Heuristic {
     private HashMap<Comparison, Float> comparisonBound;
     public boolean midPointSampling;
     private boolean risky = false;
+    public boolean planExtraction = false;
+    private HashMap<PDDLGroundAction,PDDLGroundAction> subactionOf;
 
     public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
         super(G, A);
@@ -91,7 +93,10 @@ public class habs_add extends Heuristic {
         }
 
         simplify_actions(s);
-
+        if (this.helpful_actions_computation){
+            this.subactionOf = new HashMap();
+            this.helpful_actions = new HashSet();
+        }
         try {
             // abstraction step
             generate_subactions(s);
@@ -115,6 +120,9 @@ public class habs_add extends Heuristic {
 
         // estimation for initial state
         setup_habs(s);
+        habs.relaxed_plan_extraction = this.planExtraction;
+        habs.helpful_actions_computation = this.helpful_actions_computation;
+
         ret = habs.compute_estimate(s);
         return ret;
     }
@@ -265,6 +273,12 @@ public class habs_add extends Heuristic {
                     gr,
                     s_0);
 
+            if (this.helpful_actions_computation){
+                if (this.subactionOf.get(subaction) == null){
+                    this.subactionOf.put(subaction,gr);
+                }
+            }
+            
             supporters.add(subaction);
         }
     }
@@ -605,8 +619,18 @@ public class habs_add extends Heuristic {
             }
             System.out.println("finish compute_estimate()!\n===================\n\n\n\n");
         }
-
+        
         Float ret = habs.compute_estimate(s);
+        if (this.helpful_actions_computation){
+            this.helpful_actions = new HashSet();
+            for (PDDLGroundAction gr : habs.helpful_actions){
+                PDDLGroundAction subaction = this.subactionOf.get(gr);
+                if (subaction != null)
+                    this.helpful_actions.add(this.subactionOf.get(gr));
+                else
+                    this.helpful_actions.add(gr);
+            }
+        }
         return ret;
     }
 

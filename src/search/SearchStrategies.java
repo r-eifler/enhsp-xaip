@@ -561,7 +561,7 @@ public class SearchStrategies {
                     reachable_actions = current_node.relaxed_plan_from_heuristic;
                 }
 
-                for (PDDLGroundAction act : reachable_actions) {
+                for (final PDDLGroundAction act : reachable_actions) {
                     if ((act instanceof GroundProcess) || (act instanceof GroundEvent)) {
                         continue;
                     }
