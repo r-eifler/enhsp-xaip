@@ -51,12 +51,12 @@ import problem.PDDLState;
 public class SearchStrategies {
 
     private float hw = 4;
-    public static int priority_queue_size;
+    public  int priority_queue_size;
     private boolean checking_visited = true;
     private Heuristic heuristic;
     private boolean decreasing_heuristic_pruning = false;
     private float gw;
-    public static int states_evaluated;
+    public  int states_evaluated;
     private boolean interactive_search_debug = false;
     public boolean json_rep_saving = false;
     public SearchNode search_space_handle;
@@ -65,8 +65,8 @@ public class SearchStrategies {
     public boolean processes = false;
     public float delta;
     public int depth_limit = 10000000;
-    public static int num_dead_end_detected;
-    public static int number_duplicates;
+    public  int num_dead_end_detected;
+    public  int number_duplicates;
 
     public boolean breakties_on_larger_g = false;
     public boolean breakties_on_smaller_g = false;
@@ -745,7 +745,7 @@ public class SearchStrategies {
         return temp;
     }
 
-    private static LinkedList extract_plan(SearchNode c) {
+    private  LinkedList extract_plan(SearchNode c) {
         LinkedList plan = new LinkedList();
         while (c.action != null || c.list_of_actions != null) {
             try {

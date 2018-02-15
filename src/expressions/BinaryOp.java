@@ -426,8 +426,10 @@ public class BinaryOp extends Expression {
 
     @Override
     public Expression unifyVariablesReferences(EPddlProblem p) {
-        this.lhs = this.lhs.unifyVariablesReferences(p);
-        this.rhs = this.rhs.unifyVariablesReferences(p);
+        if (this.lhs != null)
+            this.lhs = this.lhs.unifyVariablesReferences(p);
+        if (this.rhs != null)
+            this.rhs = this.rhs.unifyVariablesReferences(p);
         return this;
     }
 }

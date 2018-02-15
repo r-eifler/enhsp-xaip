@@ -36,17 +36,17 @@ import problem.PDDLState;
  *
  * @author enrico
  */
-public class blind_heuristic extends Aibr {
+public class blindHeuristic extends Aibr {
 
-    public blind_heuristic(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
+    public blindHeuristic(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
     }
 
-    public blind_heuristic(ComplexCondition G, Set<PDDLGroundAction> A) {
+    public blindHeuristic(ComplexCondition G, Set<PDDLGroundAction> A) {
         super(G, A);
     }
 
-    public blind_heuristic(ComplexCondition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
+    public blindHeuristic(ComplexCondition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
         super(goals, actions, processesSet, eventsSet);
 
     }
