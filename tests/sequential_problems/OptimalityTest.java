@@ -33,9 +33,9 @@ import static org.junit.Assert.*;
  *
  * @author enrico
  */
-public class NonLinearPlanSizeTest {
+public class OptimalityTest {
 
-    public NonLinearPlanSizeTest() {
+    public OptimalityTest() {
     }
 
     @BeforeClass
@@ -58,22 +58,13 @@ public class NonLinearPlanSizeTest {
     public void hello() throws Exception {
         
         //get pddl description
-        List<String> heuristics = Arrays.asList("blind","aibr","hadd");
+        List<String> heuristics = Arrays.asList("blind","hrmax");
         PlanGetResult temp = new PlanGetResult();
-        for (String h : heuristics){
-            assertEquals(7, temp.getPlanSize("unit_test_instances/absolute_value/domain.pddl", 
-                    "unit_test_instances/absolute_value/sample.pddl", h));
+        for (final String h : heuristics){
+            assertEquals(3, temp.getPlanSize("unit_test_instances/cost_optimal_planning/domain.pddl", 
+                    "unit_test_instances/cost_optimal_planning/sample.pddl", h));
         }
 
-        for (String h : heuristics){
-            assertEquals(12, temp.getPlanSize("unit_test_instances/trigonometric_functions/domain.pddl", 
-                    "unit_test_instances/trigonometric_functions/sample.pddl", h));
-        }
-        
-        for (String h : heuristics){
-            assertEquals(12, temp.getPlanSize("unit_test_instances/trigonometric_functions/domain.pddl", 
-                    "unit_test_instances/trigonometric_functions/sample.pddl", h));
-        }
         
     }
 }

@@ -2,10 +2,9 @@ package extraUtils;
 
 import domain.PddlDomain;
 import heuristics.Aibr;
+import heuristics.advanced.h1;
 import heuristics.blindHeuristic;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import problem.EPddlProblem;
 import search.SearchStrategies;
 
@@ -27,20 +26,20 @@ import search.SearchStrategies;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 /**
  *
  * @author enrico
  */
 public class PlanGetResult {
-    public int getPlanSize(String domainFileName, String problemFileName, String heuristic) throws Exception{
+
+    public int getPlanSize(String domainFileName, String problemFileName, String heuristic) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
         domain.validate(problem);
-        
+
         final SearchStrategies searchStrategies = new SearchStrategies(); //manager of the search strategies
-        
+
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
             //this is when you have processes
@@ -53,16 +52,21 @@ public class PlanGetResult {
         problem.grounding_action_processes_constraints();
         problem.simplifications_action_processes_constraints();
 
-        
         //set heuristic
-        if (heuristic.equals("aibr")){
+        if (heuristic.equals("aibr")) {
             searchStrategies.setup_heuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
             Aibr h = (Aibr) searchStrategies.getHeuristic();
             h.set(false, true);
-        }else{
+        }
+        if (heuristic.equals("hadd")) {
+            searchStrategies.setup_heuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+            h1 h = (h1) searchStrategies.getHeuristic();
+            h.red_constraints = false;
+            h.additive_h = true;
+        } else {
             searchStrategies.setup_heuristic(new blindHeuristic(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
         }
-        
+
         searchStrategies.set_w_g(1);
         searchStrategies.set_w_h(1);
         LinkedList raw_plan = searchStrategies.wa_star(problem);
