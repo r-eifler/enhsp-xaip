@@ -233,6 +233,7 @@ public class NumEffect extends Expression implements PostCondition {
             this.setFluentAffected(nf);
         } else {//this can become a state variable; so conservatively keeps track of it
             //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
+            
             s.getInitNumFluents().put(fluentAffected, null);
         }
         return this;

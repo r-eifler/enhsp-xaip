@@ -427,9 +427,6 @@ public class PddlProblem {
                     //System.out.println(a);
                     init.addNumericFluent(a);
                     break;
-                case PddlParser.INIT_AT:
-                    init.addTimedLiteral(buildInstPredicate(c, null));
-                    break;
                 case PddlParser.UNKNOWN:
 //                    System.out.println("DEBUG: unknonw");
                     this.unknonw_predicates.add((Predicate) addUnknown(c));

@@ -851,15 +851,15 @@ public class EPddlProblem extends PddlProblem {
                 this.init.numFluents.add(nf);
             }
         }
-        this.init.currPredValues = new ArrayList();
+        this.init.boolVars = new ArrayList();
         for (Predicate p : this.predicateReference.values()) {
             if (this.getActualFluents().get(p) != null) {
-                p.id = this.init.currPredValues.size();
+                p.id = this.init.boolVars.size();
                 Boolean r = this.init.initPred.get(p);
                 if (r == null || !r) {
-                    this.init.currPredValues.add(false);
+                    this.init.boolVars.add(false);
                 } else {
-                    this.init.currPredValues.add(true);
+                    this.init.boolVars.add(true);
                 }
                 this.init.predFluents.add(p);
             }
@@ -878,14 +878,14 @@ public class EPddlProblem extends PddlProblem {
                 this.init.currNumFluentsValues.add(this.init.static_function_value(nf));
                 this.init.numFluents.add(nf);
         }
-        this.init.currPredValues = new ArrayList();
+        this.init.boolVars = new ArrayList();
         for (Predicate p : this.predicateReference.values()) {
-                p.id = this.init.currPredValues.size();
+                p.id = this.init.boolVars.size();
                 Boolean r = this.init.initPred.get(p);
                 if (r == null || !r) {
-                    this.init.currPredValues.add(false);
+                    this.init.boolVars.add(false);
                 } else {
-                    this.init.currPredValues.add(true);
+                    this.init.boolVars.add(true);
                 }
                 this.init.predFluents.add(p);
         }

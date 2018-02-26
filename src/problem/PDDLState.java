@@ -55,51 +55,33 @@ import java.util.Set;
  */
 public class PDDLState  {
 
-    HashMap<Predicate,Boolean> initPred;
-    public HashMap<NumFluent, PDDLNumber> initNumFluents;
     public ArrayList<PDDLNumber> currNumFluentsValues;
-    public ArrayList<Boolean> currPredValues;
-    
-    public ArrayList<NumFluent> numFluents;
-    public ArrayList<Predicate> predFluents;
-    
-    HashSet timedLiterals;
+    public ArrayList<Boolean> boolVars;
     private NumFluent time;
 
     public PDDLState() {
         super();
-        initPred = new HashMap();
-        initNumFluents = new HashMap();
-        timedLiterals = new HashSet();
         this.currNumFluentsValues = new ArrayList();
-        this.currPredValues = new ArrayList();
-        numFluents = new ArrayList();
-        predFluents = new ArrayList();
+        this.boolVars = new ArrayList();
+
     }
 
     public PDDLState(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
         this.currNumFluentsValues = (ArrayList<PDDLNumber>) numFluents.clone();
-        this.currPredValues = (ArrayList<Boolean>) propFluents.clone();
+        this.boolVars = (ArrayList<Boolean>) propFluents.clone();
     }
 
     @Override
     public String toString() {
-        return "State{" + "currNumFluentsValues=" + currNumFluentsValues + ", currPredValues=" + currPredValues + ", time=" + time + '}';
+        return "State{" + "currNumFluentsValues=" + currNumFluentsValues + ", currPredValues=" + boolVars + ", time=" + time + '}';
     }
 
     
 
     @Override
     public PDDLState clone() throws CloneNotSupportedException {
-        PDDLState ret_val = new PDDLState(this.currNumFluentsValues,this.currPredValues);
-
-        ret_val.initNumFluents = this.getInitNumFluents();
-
-          ret_val.initPred = this.initPred;
-        ret_val.numFluents = this.numFluents;
-        ret_val.predFluents = this.predFluents;
+        PDDLState ret_val = new PDDLState(this.currNumFluentsValues,this.boolVars);
         ret_val.time = this.time;
-
         return ret_val;
     }
 
@@ -107,7 +89,7 @@ public class PDDLState  {
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.currNumFluentsValues);
-        hash = 53 * hash + Objects.hashCode(this.currPredValues);
+        hash = 53 * hash + Objects.hashCode(this.boolVars);
         return hash;
     }
     
@@ -138,7 +120,7 @@ public class PDDLState  {
 //        System.out.println(p);
 //        System.out.println(this.currPredValues);
 //        System.out.println(p.id);
-        this.currPredValues.set(p.id,true);
+        this.boolVars.set(p.id,true);
 //        initPred.put(p, true);
     }
     
@@ -152,14 +134,14 @@ public class PDDLState  {
                 this.currNumFluentsValues.add(this.static_function_value(nf));
                 this.numFluents.add(nf);
         }
-        this.currPredValues = new ArrayList();
+        this.boolVars = new ArrayList();
         for (Predicate p1 : p.predicateReference.values()) {
-                p1.id = this.currPredValues.size();
+                p1.id = this.boolVars.size();
                 Boolean r = this.initPred.get(p1);
                 if (r == null || !r) {
-                    this.currPredValues.add(false);
+                    this.boolVars.add(false);
                 } else {
-                    this.currPredValues.add(true);
+                    this.boolVars.add(true);
                 }
                 this.predFluents.add(p1);
         }
@@ -170,18 +152,12 @@ public class PDDLState  {
     }
     
 
-    public void addNumericFluent(NumFluentValue a) {
-        getInitNumFluents().put(a.getNFluent(), a.getValue());
+    public void addNumericFluent(NumFluent a, Double value) {
+        a.id = this.currNumFluentsValues.size();
+        this.currNumFluentsValues.add(value);
+        
     }
 
-    void addTimedLiteral(Predicate buildInstPredicate) {
-        timedLiterals.add(buildInstPredicate);
-    }
-
-    public Iterable<Predicate> getPropositions() {
-        return this.initPred.keySet();
-
-    }
 
     public boolean holds(Predicate p) {
         if (p.id == null){
@@ -191,9 +167,9 @@ public class PDDLState  {
             return this.initPred.get(p);
         }
 //        System.out.println("Is it there?"+p);
-        if (this.currPredValues.get(p.id)== null)
+        if (this.boolVars.get(p.id)== null)
             return false;
-        return this.currPredValues.get(p.id);
+        return this.boolVars.get(p.id);
     }
 
     public void setFunctionValue(NumFluent f, PDDLNumber after) {
@@ -209,7 +185,7 @@ public class PDDLState  {
     }
 
     public void setPredFalse(Predicate p) {
-        this.currPredValues.set(p.id,false);
+        this.boolVars.set(p.id,false);
     }
 
     public StringBuilder stringBuilderPddlPrintWithDummyTrue() {
@@ -391,7 +367,7 @@ public class PDDLState  {
                 ret_val.poss_numericFs.put(this.numFluents.get(i), new Interval(this.currNumFluentsValues.get(i).getNumber()));
         }
         for (int i = 0; i<this.predFluents.size() ; i++){
-            if (this.currPredValues.get(i))
+            if (this.boolVars.get(i))
                 ret_val.poss_interpretation.put(this.predFluents.get(i), 1);
             else
                 ret_val.poss_interpretation.put(this.predFluents.get(i), 0);
@@ -498,7 +474,7 @@ public class PDDLState  {
         if (!Objects.equals(this.currNumFluentsValues, other.currNumFluentsValues)) {
             return false;
         }
-        if (!Objects.equals(this.currPredValues, other.currPredValues)) {
+        if (!Objects.equals(this.boolVars, other.boolVars)) {
             return false;
         }
         return true;
@@ -1004,65 +980,10 @@ public class PDDLState  {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    void removeNumericFluents(LinkedHashSet<NumFluent> n_fluents_to_remove) {
-        for (NumFluent nf : n_fluents_to_remove) {
-            if (!nf.getName().equals("time_elapsed")) {
-                this.getInitNumFluents().remove(nf);
-            }
-        }
-    }
-
-    void removePropositions(LinkedHashSet<Predicate> to_remove) {
-        for (Predicate p : to_remove) {
-//            System.out.println("Trying to remove p:"+p);
-//            System.out.println("from:"+this.propositions);
-
-            this.initPred.remove(p);
-            
-//            System.out.println("result:"+this.propositions);
-        }
-    }
-
-    public void consolidate_propositions(RelState rs) {
-        Iterator<Predicate> it = this.initPred.keySet().iterator();
-//        System.out.println("Consolidation");
-        while (it.hasNext()) {
-            Predicate p = it.next();
-            if (rs.poss_interpretation.get(p) == 0) {
-                this.initPred.put(p, Boolean.FALSE);
-            }
-        }
-    }
-
-    /**
-     * @return the num_fluents_value
-     */
-    public HashMap<NumFluent, PDDLNumber> getInitNumFluents() {
-        return initNumFluents;
-    }
-
-    void unifyVariablesReferences(EPddlProblem aThis) {
-        HashMap<Predicate,Boolean> temp = new HashMap();
-        for (Predicate p: this.initPred.keySet()){
-            Predicate p1 = (Predicate) p.unifyVariablesReferences(aThis);
-            temp.put(p1, this.initPred.get(p));
-        }
-        this.initPred = temp;
-        HashMap<NumFluent,PDDLNumber> temp1 = new HashMap();
-        for (NumFluent x: this.initNumFluents.keySet()){
-            NumFluent p1 = (NumFluent) x.unifyVariablesReferences(aThis);
-            temp1.put(p1, this.initNumFluents.get(x));
-        }
-        this.initNumFluents = temp1;
-
-    }
 
     public void addPredicate(Predicate p, boolean b) {
-
-        
-        this.initPred.put(p,b);
-        p.id = this.currPredValues.size();
-        this.currPredValues.add(b);
+        p.id = this.boolVars.size();
+        this.boolVars.add(b);
     }
 
 
