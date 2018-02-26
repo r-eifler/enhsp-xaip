@@ -1,4 +1,4 @@
-image: java
+image: frekele/ant
 
 test:
   script:
