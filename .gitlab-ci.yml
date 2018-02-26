@@ -1,4 +1,4 @@
-image: webratio/ant
+image: java
 
 test:
   script:
