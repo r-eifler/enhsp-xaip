@@ -1,4 +1,5 @@
+image: webratio/ant
+
 test:
   script:
-    - bundle exec test
-
+  - run.sh
