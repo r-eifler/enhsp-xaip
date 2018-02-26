@@ -2,4 +2,4 @@ image: webratio/ant
 
 test:
   script:
-  - run.sh
+  - ./run.sh
