@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -46,7 +46,7 @@ public class OneOf extends ComplexCondition {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

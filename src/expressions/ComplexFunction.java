@@ -27,6 +27,7 @@ import java.util.Set;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -84,7 +85,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Expression weakEval(PDDLState s, HashMap invF) {
+    public Expression weakEval(PddlProblem s, HashMap invF) {
         ComplexFunction ret = new ComplexFunction();
 
         ret.operator = this.operator;

@@ -110,18 +110,18 @@ public class GroundProcess extends PDDLGroundAction implements Comparable {
                         System.exit(-1);
                     }
                     if (all.getOperator().equals("increase")) {
-                        if (s.functionValue(f) == null) {
+                        if (s.fluentValue(f) == null) {
                             newN = null;
                         } else {
-                            newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
+                            newN = new PDDLNumber(s.fluentValue(f).getNumber() + rValue);
                         }
                     } else if (all.getOperator().equals("decrease")) {
                         //                    System.out.print("Valore di " + f);
                         //                    System.out.println(" :"+ s.functionValue(f).getNumber());
-                        if (s.functionValue(f) == null) {
+                        if (s.fluentValue(f) == null) {
                             newN = null;
                         } else {
-                            newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
+                            newN = new PDDLNumber(s.fluentValue(f).getNumber() - rValue);
                         }
                     } else if (all.getOperator().equals("assign")) {
                         //System.out.println("================ASSIGN===========");
@@ -135,7 +135,7 @@ public class GroundProcess extends PDDLGroundAction implements Comparable {
             for (Object o : temporaryMod) {
                 NumFluent f = (NumFluent) o;
                 PDDLNumber n = (PDDLNumber) fun2numb.get(f);
-                s.setFunctionValue(f, n);
+                s.setNumFluent(f, n);
             }
 
         }

@@ -35,6 +35,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -421,7 +422,7 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret += a.bin.eval(s).getNumber();
             } else if (a.f != null) {
-                PDDLNumber n = s.functionValue(a.f);
+                PDDLNumber n = s.fluentValue(a.f);
 
                 if (n == null) {
                     return null;
@@ -441,7 +442,7 @@ public class ExtendedNormExpression extends Expression {
      * @return
      */
     @Override
-    public ExtendedNormExpression weakEval(PDDLState s, HashMap invFluents) {
+    public ExtendedNormExpression weakEval(PddlProblem s, HashMap invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         PDDLNumber c = new PDDLNumber(0);
         for (ExtendedAddendum a : this.summations) {
@@ -453,12 +454,12 @@ public class ExtendedNormExpression extends Expression {
 //                }
 
                 if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
-                    if (s.static_function_value(a.f).getNumber().isNaN()) {
+                    if (s.initNumFluentsValues.get(a.f).getNumber().isNaN()) {
                         return null;
                     }
-                    c = new PDDLNumber(c.getNumber() + s.static_function_value(a.f).getNumber() * a.n.getNumber());
+                    c = new PDDLNumber(c.getNumber() + s.initNumFluentsValues.get(a.f).getNumber() * a.n.getNumber());
                 } else {
-                    a.f = s.findCorrespondenceIfAny(a.f);
+                    a.f = s.getNumFluent(a.f);
                     ret.summations.add(a);
                 }
             } else {
@@ -790,12 +791,12 @@ public class ExtendedNormExpression extends Expression {
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (a.f != null) {
-                if (s.functionValue(a.f) == null) {
+                if (s.fluentValue(a.f) == null) {
                     System.out.println("Value not found!!! Grave Error");
                     System.exit(-1);
                 }
                 if (!a.f.equals(f)) {
-                    ret += s.functionValue(a.f).getNumber() * a.n.getNumber();
+                    ret += s.fluentValue(a.f).getNumber() * a.n.getNumber();
                 }
             } else {
 

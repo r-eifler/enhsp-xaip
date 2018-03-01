@@ -35,6 +35,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -96,7 +97,7 @@ public class Predicate extends Terminal implements PostCondition {
         if (this.isUnsatisfiable())
             return true;
         
-        Integer i = s.poss_interpretation.get(this);
+        Integer i = s.possBollValues.get(this.id);
         return (i == null) || (i == 0) || (i == 2);
     }
 
@@ -335,7 +336,7 @@ public class Predicate extends Terminal implements PostCondition {
             return true;
         if (this.isUnsatisfiable())
             return false;
-        Integer i = s.poss_interpretation.get(this);
+        Integer i = s.possBollValues.get(this.id);
         if (i == null) {
             return false;
         }
@@ -402,7 +403,7 @@ public class Predicate extends Terminal implements PostCondition {
    
 
     public PDDLState remove(PDDLState s) {
-        s.setPredFalse(this);
+        s.setPropFluent(this,false);
         return s;
     }
 
@@ -431,12 +432,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     public RelState make_positive(RelState s) {
-        s.make_positive(this);
+        s.makePositive(this);
         return s;
     }
 
     RelState make_negative(RelState s) {
-        s.make_negative(this);
+        s.makeNegative(this);
         return s;
     }
 
@@ -532,12 +533,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
         if (invF.get(this) == null) {//this means it is a static predicate
-            if (s.satisfy(this)) {
+            if (s.initBoolFluentsValues.get(this)) {
                 this.setValid(true);
                 this.setUnsatisfiable(false);
 
@@ -547,7 +548,7 @@ public class Predicate extends Terminal implements PostCondition {
             }
             return this;
         } else {//this is meant to couple all the predicates in a unique representation
-            return s.getProposition(this);
+            return s.getPredicate(this);
         }
     }
 
@@ -660,7 +661,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public void apply(RelState s, Map modifications) {
-        Integer inter = s.poss_interpretation.get(this);
+        Integer inter = s.possBollValues.get(this.id);
         if (inter == null || inter == 0) {
             modifications.put(this, 2);
         }

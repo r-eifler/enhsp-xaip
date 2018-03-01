@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.PDDLGroundAction;
 import problem.PDDLObjects;
+import problem.PddlProblem;
 import problem.RelState;
 
 /**
@@ -561,60 +562,9 @@ public class Comparison extends Terminal {
         this.normalized = normalized;
     }
 
-    public Float getDistance(PDDLState init, RelState rel_state) {
+   
 
-        Float ret = new Float(0);
-        if (!init.satisfy(this)) {
-
-            if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
-                ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
-                Float num = new Float(0.0);
-                //Float den = new Float(0.0);
-                for (ExtendedAddendum a : lExpr.summations) {
-                    if (a.f == null) {
-                        num += a.n.getNumber();
-                    } else {
-                        PDDLNumber evaluation = (PDDLNumber) a.f.eval(init);
-                        //System.out.println("Evaluation of " + a.f +" "+evaluation);
-                        num += a.n.getNumber() * evaluation.getNumber();
-                        //System.out.println("Coefficient: " + a.n );
-                        //System.out.println(num);
-                        //den += new Float(Math.pow(a.n.getNumber(),2));
-                    }
-                }
-                //System.out.println("Comparison under process: " + comp);
-                //System.out.println("Num: " + num +" Den: "+den);
-                //System.out.println("Dist: " +  new Float(1.0)/ ( new Float(Math.abs(num))/(new Float(Math.pow(den,0.5)))));
-
-                /*Contribution of each comparison*/
-                //Float dist = Math.max((float) 1.0, Math.abs(num));
-                Float dist = Math.abs(num);
-
-                if (rel_state == null) {
-                    num = new Float(1);
-                } else {
-                    for (ExtendedAddendum a : lExpr.summations) {
-                        if (a.f == null) {
-                            num += a.n.getNumber();
-                        } else {
-                            num += Math.max(a.n.getNumber() * rel_state.functionInfValue(a.f).getNumber(), a.n.getNumber() * rel_state.functionSupValue(a.f).getNumber());
-                        }
-                    }
-                }
-
-                Float maxDist = Math.abs(num);
-                ret = (dist / maxDist);
-            } else {
-                System.out.println("Comparison must be normalized for computing the euclidean distance");
-                System.exit(-1);
-            }
-        }
-
-        //System.out.println("D("+this+")="+ret);
-        return ret;
-
-    }
-
+ 
     public void computeMaxDist(RelState numericFleuntsBoundaries) {
 
         if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
@@ -845,7 +795,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         Comparison comp = this;
         Expression lValue = comp.getLeft();
         Expression rValue = comp.getRight();
@@ -888,7 +838,7 @@ public class Comparison extends Terminal {
     public boolean is_evaluable(PDDLState tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
         for (NumFluent f : set) {
-            if (tempInit.functionValue(f) == null) {
+            if (tempInit.fluentValue(f) == null) {
                 return false;
             }
         }

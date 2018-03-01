@@ -276,14 +276,14 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
                 if (nf.has_to_be_tracked()) {
-                    s.setFunctionValue(nf, (PDDLNumber) subst.get(o));
+                    s.setNumFluent(nf, (PDDLNumber) subst.get(o));
                 }
             } else {
                 Boolean newval = (Boolean) subst.get(o);
                 if (!newval) {
-                    s.setPredFalse((Predicate) o);
+                    s.setPropFluent((Predicate) o,false);
                 } else {
-                    s.setPredTrue((Predicate) o);
+                    s.setPropFluent((Predicate) o,true);
 //                    s.initPred.put((Predicate)o, (Boolean)subst.get(o));
                     
                 }
@@ -423,43 +423,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         return ab;
     }
 
-    public PDDLGroundAction buildMacroInProgression(PDDLGroundAction b, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
-        if (this.name == null) {
-
-            return (PDDLGroundAction) b.clone();
-        }
-        PDDLGroundAction a = this;
-
-        PDDLGroundAction ab = new PDDLGroundAction(a.name + "_" + b.name);
-        if (a.getPrimitives().isEmpty()) {
-            a.getPrimitives().add(a);
-        }
-        ab.setPrimitives((ArrayList) a.getPrimitives().clone());
-        if (b.isMacro) {
-            ab.getPrimitives().addAll(b.getPrimitives());
-        }
-
-        ab.getPrimitives().add(b);
-
-        ab.setParameters((ParametersAsTerms) a.getParameters().clone());
-        ab.getParameters().addALLNewObjects(b.getParameters());
-
-        //System.out.println(b.pddlEffects());
-        //      System.out.println(a.pddlEffects());
-        ab.setPreconditions((ComplexCondition) regress(b, a));
-        progress(a, b, ab);
-        ab.setIsMacro(true);
-//        System.out.println("Da dentro l'azione..."+ab);
-        ab.simplifyModel(pd, pp);
-        ab.computeDistance(pd, pp, consideringNumericInformationInDistance);
-
-        if (ab.getName() == null) {
-            System.out.println(a + " " + b + " created a null action");
-        }
-
-        return ab;
-    }
-
+ 
     public Condition regress(PDDLGroundAction b, PDDLGroundAction a) {
 
         /*Propositional Part first*/
@@ -693,7 +657,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
 
         if (con != null) {
 
-            con = con.weakEval(problem.getInit(), invariantFluents);
+            con = con.weakEval(problem, invariantFluents);
 
             if (con == null) {
                 //System.out.println("A precondition is never satisfiable");
@@ -704,7 +668,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         Condition eff = a.getNumericEffects();
 
         //System.out.println(abstractInvariantFluents);
-        eff = eff.weakEval(problem.getInit(), invariantFluents);
+        eff = eff.weakEval(problem, invariantFluents);
 
         if (eff == null) {
             return false;
@@ -831,30 +795,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         return hiddenParametersNumber - this.getParameters().size();
     }
 
-    public PDDLGroundAction buildMacroInRegression(PDDLGroundAction a, PddlDomain pd, PddlProblem pp, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
-        if (this.name == null) {
-            return (PDDLGroundAction) a.clone();
-        }
-        PDDLGroundAction b = (PDDLGroundAction) this;
-
-        PDDLGroundAction ba = new PDDLGroundAction(a.name + "_" + b.name);
-        if (b.getPrimitives().isEmpty()) {
-            b.getPrimitives().add(b);
-        }
-        ba.setPrimitives((ArrayList) b.getPrimitives().clone());
-        ba.getPrimitives().add(0, a);
-
-        ba.setParameters((ParametersAsTerms) b.getParameters().clone());
-        ba.getParameters().addALLNewObjects(a.getParameters());
-
-        ba.setPreconditions((ComplexCondition) regress(b, a));
-        progress(a, b, ba);
-        ba.setIsMacro(true);
-        ba.simplifyModel(pd, pp);
-        ba.computeDistance(pd, pp, consideringNumericInformationInDistance);
-
-        return ba;
-    }
+   
 
     public Float getDistance() {
         return getPrevDistanceFromProblem();
@@ -953,83 +894,6 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         return false;
     }
 
-    private float computeDistance(PddlDomain pd, PddlProblem prob, boolean consideringNumericInformationInDistance) throws Exception {
-        int missingGoals = 0;
-        int destroyingGoals = 0;
-        int missingPreconditions = 0;
-        int cumulativeComparisonDistance = 0;
-        AndCond prec = new AndCond();
-
-        //NumericPlanningGraph gr = new NumericPlanningGraph();
-        //prob.generateActions();
-        //System.out.println("Propositional Time:"+pp.getPropositionalTime());
-        //RelState rel_state = gr.computeStateBound(prob.getInit(),prob.getGoals(),prob.getActions());
-        float dist = 0;//this.getPrimitives().size()/2;
-         if (this.preconditions instanceof AndCond) {
-            prec = (AndCond) this.preconditions;
-        } else {
-            System.out.println(this.preconditions.getClass() + " is not supported");
-        }
-
-        for (Object o : prec.sons) {
-            if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                if (!p.isSatisfied(prob.getInit())) {
-                    missingPreconditions++;
-                }
-            }
-        }
-        cumulativeComparisonDistance += prob.getInit().normalizedDist(prec, prob.getPossStates(), "sum");
-        AndCond goal = new AndCond();
-        if (prob.getGoals() instanceof AndCond) {
-            goal = (AndCond) prob.getGoals();
-        } else {
-            System.out.println(prob.getGoals().getClass() + " is not supported");
-        }
-
-        for (Object o : goal.sons) {
-            if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                if (this.addList instanceof AndCond) {
-                    if (!this.addList.sons.contains(o)) {
-                        missingGoals++;
-                    }
-                }
-            } else if (o instanceof Comparison) {
-                //System.out.println("distanza da comparison del goal da fare!");
-            }
-        }
-        if (delList instanceof AndCond) {
-            for (NotCond o : (HashSet<NotCond>) delList.sons) {
-                //System.out.println(o);
-                if (goal.sons.contains(o.getSon())) {
-                    //System.out.println(o);
-                    destroyingGoals++;
-                }
-            }
-        }
-
-        float malus = 0;
-        //System.out.println("Primitives:" + this.primitives.size());
-//        float rA = (float) this.computeReputedActions();
-//        //System.out.println(rA);
-//        if (rA / (float) this.primitives.size() < 0.1) {
-//            malus = 100*(float) this.primitives.size()/rA;
-//        }
-
-        if (!consideringNumericInformationInDistance) {
-            cumulativeComparisonDistance = 0;
-        }
-        dist = (float) (missingGoals + destroyingGoals + missingPreconditions + cumulativeComparisonDistance);
-
-        float a = 0;// 1-this.getParametersFusionNumber()/(float)this.hiddenParametersNumber;
-
-        //System.out.println("Missing Goal!!:" +missingGoals +" Normalizzato" + (float)(prob.getGoals().sons.size()-missingGoals)/(float)prob.getGoals().sons.size());
-        this.setPrevDistanceFromProblem((Float) dist + a);
-        //this.prevDistanceFromProblem = dist;
-
-        return getPrevDistanceFromProblem();
-    }
 
     public Condition regressAndStoreFatherPointer(ComplexCondition cond) {
         /*Propositional Part first*/
@@ -1159,112 +1023,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
 
     }
 
-    @Deprecated
-    public Pair<Boolean, Integer> improve_k_old(PDDLState s_0, Comparison c, int k, HashMap<PDDLGroundAction, HashSet<PDDLGroundAction>> influence_graph, HashMap<PDDLGroundAction, Boolean> visited) throws Exception {
-        Pair<Boolean, Integer> ret = new Pair(Boolean.FALSE, 0);
-        int res = this.improve_new(s_0, c);
-        if (res == 1) {
-            ret.setFirst(Boolean.TRUE);
-            return ret;
-        }
-        if (res == -1) {//when it does not influence
-            return ret;
-        }
-        if (!this.effects_might_be_influenced()) {//when it cannot be influenced (the right side is a number)
-            return ret;
-        }
-
-        //System.out.println("gr:"+this.pddlEffects());
-        if (k == 0) {
-            ret.setSecond(1);
-            return ret;
-        }
-        if (visited == null) {
-            visited = new HashMap();
-        }
-        visited.put(this, Boolean.TRUE);
-        //System.out.println(this);
-        for (PDDLGroundAction gr : influence_graph.get(this)) {
-            if (visited.get(gr) != null) {
-                continue;
-            }
-            Pair<Boolean, Integer> temp = gr.improve_k(s_0, this.regressComparison((Comparison) c.clone()), k - 1, influence_graph, visited);
-            if (temp.getFirst()) {
-                ret.setFirst(Boolean.TRUE);
-                return ret;
-            } else if (temp.getSecond() > 0) {
-                ret.setSecond(temp.getSecond() + 1);
-            }
-
-        }
-        return ret;
-
-    }
-
-    public Pair<Boolean, Integer> improve_k(PDDLState s_0, Comparison c, int k, HashMap<PDDLGroundAction, HashSet<PDDLGroundAction>> influence_graph, HashMap<PDDLGroundAction, Boolean> visited) throws Exception {
-        Pair<Boolean, Integer> ret = new Pair(Boolean.FALSE, 0);
-        ret.setSecond(0);
-        int res = this.improve_new(s_0, c);
-        if (res == 1) {
-            ret.setFirst(Boolean.TRUE);
-            return ret;
-        }
-        if (res == -1) {//when it does not influence
-            return ret;
-        }
-//        if (!this.effects_might_be_influenced()) {//when it cannot be influenced (the right side is a number)
-//            return ret;
-//        }
-
-        if (res == 2) {
-            //check for invariant to be put;
-            //System.out.println("To Undefined State");
-            ret.setSecond(1);
-            return ret;
-        }
-
-        //System.out.println("gr:"+this.pddlEffects());
-        if (k == 0) {
-            ret.setSecond(1);
-            return ret;
-        }
-
-        visited = new HashMap();
-
-        //System.out.println(this);
-        Queue<RegressedSearchNode> q = new ArrayDeque();
-
-        q.add(new RegressedSearchNode(this, 0));
-
-        Comparison current = (Comparison) c.clone();
-        while (!q.isEmpty()) {
-            RegressedSearchNode node = q.poll();
-            if (node.action_cost_to_get_here >= k) {
-                ret.setSecond(node.action_cost_to_get_here);
-                //System.out.println("limit reached:"+node.action_cost_to_get_here);
-                return ret;
-            }
-            if (visited.get(node.action) == null) {
-                visited.put(node.action, Boolean.TRUE);
-                if (!this.equals(node.action)) {
-                    if (node.action.improve_new(s_0, current) == 1) {
-                        ret.setSecond(node.action_cost_to_get_here);
-                        //System.out.println("Indirect influence found at cost:"+node.action_cost_to_get_here);
-                        return ret;
-                    }
-                }
-                current = node.action.regressComparison((Comparison) current);
-                //System.out.println(node.action);
-                if (influence_graph.get(node.action) != null) {
-                    for (PDDLGroundAction gr : influence_graph.get(node.action)) {
-                        q.add(new RegressedSearchNode(gr, node.action_cost_to_get_here + 1));
-                    }
-                }
-            }
-        }
-        return ret;
-
-    }
+   
 
     public boolean influence(HashMap<NumFluent, HashSet<NumFluent>> dependsOn) {
 
@@ -1316,7 +1075,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
 
         for (Object o : toTest) {
             NumFluent f = (NumFluent) o;
-            ret.setFunctionValue(f, f.eval(s));
+            ret.setNumFluent(f, f.eval(s));
             //System.out.println(s.printFluentByName("in-at"));
         }
 
@@ -1336,18 +1095,18 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
                     rValue = all.getRight().eval(s).getNumber();
                     //System.out.println("Rvalue!!:" + rValue);
                     if (all.getOperator().equals("increase")) {
-                        if (s.functionValue(f) == null) {
+                        if (s.fluentValue(f) == null) {
                             newN = null;
                         } else {
-                            newN = new PDDLNumber(s.functionValue(f).getNumber() + rValue);
+                            newN = new PDDLNumber(s.fluentValue(f).getNumber() + rValue);
                         }
                     } else if (all.getOperator().equals("decrease")) {
                         //                    System.out.print("Valore di " + f);
                         //                    System.out.println(" :"+ s.functionValue(f).getNumber());
-                        if (s.functionValue(f) == null) {
+                        if (s.fluentValue(f) == null) {
                             newN = null;
                         } else {
-                            newN = new PDDLNumber(s.functionValue(f).getNumber() - rValue);
+                            newN = new PDDLNumber(s.fluentValue(f).getNumber() - rValue);
                         }
                     } else if (all.getOperator().equals("assign")) {
                         //System.out.println("================ASSIGN===========");
@@ -1362,7 +1121,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
                 NumFluent f = (NumFluent) o;
                 PDDLNumber n = (PDDLNumber) fun2numb.get(f);
 
-                ret.setFunctionValue(f, n);
+                ret.setNumFluent(f, n);
                 //System.out.println(s.printFluentByName("in-at"));
             }
 
@@ -1507,96 +1266,6 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public boolean improve(PDDLState init, Comparison t1) throws Exception {
-        if (!this.mayInfluence(t1)) {
-            //System.out.println("Does not influence...");
-            return false;
-        }
-
-        //System.out.println("Trying with:"+this);
-        this.normalize();
-        Float currentD = init.distance2(t1);
-        if (currentD.isNaN()) {
-            //System.out.println("The value of the current distance is not defined");
-            currentD = -Float.MIN_VALUE;
-        }
-        Comparison regr = this.regressComparison((Comparison) t1.clone());
-        regr.normalize();
-//        System.out.println("Constraint:"+t1);
-//        System.out.println("Regressed Constraint:"+regr);
-        Float newDist = init.distance2(regr);
-//        System.out.println("newDist:"+newDist);
-//        System.out.println("prevDist:"+currentD);
-        if (newDist > currentD) {
-
-            return true;
-        }
-        return false;
-    }
-
-    public int improve_new(PDDLState init, Comparison t1) throws Exception {
-        if (!this.mayInfluence(t1)) {
-            //System.out.println("Does not influence...");
-            return -1;
-        }
-
-//        System.out.println("Trying with:"+this);
-        this.normalize();
-        Float currentD = init.distance2(t1);
-
-        Comparison regr = this.regressComparison((Comparison) t1.clone());
-        regr.normalize();
-        if (regr.isUnsatisfiable()) {
-            return 0;
-        }
-//        System.out.println("Constraint:"+t1);
-//        System.out.println("Regressed Constraint:"+regr);
-        Float newDist = init.distance2(regr);
-//        System.out.println("newDist:"+newDist);
-//        System.out.println("prevDist:"+currentD);
-
-        if (!newDist.isNaN() && currentD.isNaN()) {
-            //System.out.println("The value of the current distance is not defined");
-            return 1;
-        }
-
-        if (newDist > currentD) {
-
-            return 1;
-        }
-        if (currentD.isNaN()) {
-            //System.out.println("The value of the current distance is not defined");
-            return 2;// this is the case in which the state has an undefined value.
-        }
-        return 0;
-    }
-
-    public Comparison improve2(PDDLState init, Comparison t1) throws Exception {
-        if (!this.mayInfluence(t1)) {
-            //System.out.println("Does not influence...");
-            return null;
-        }
-
-        //System.out.println("Trying with:"+this);
-        this.normalize();
-        Float currentD = init.distance2(t1);
-        if (currentD.isNaN()) {
-            //System.out.println("The value of the current distance is not defined");
-            currentD = -Float.MIN_VALUE;
-        }
-        Comparison regr = this.regressComparison((Comparison) t1.clone());
-        regr.normalize();
-//        System.out.println("Constraint:"+t1);
-//        System.out.println("Regressed Constraint:"+regr);
-        Float newDist = init.distance2(regr);
-//        System.out.println("newDist:"+newDist);
-//        System.out.println("prevDist:"+currentD);
-        if (newDist > currentD) {
-
-            return regr;
-        }
-        return null;
-    }
 
     private boolean numericEffectUndefined(RelState current) {
 
@@ -1633,7 +1302,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         Condition con = a.getPreconditions();
         if (con != null) {
             con.setFreeVarSemantic(free_var_semantics);
-            con = con.weakEval(problem.getInit(), invariantFluents);
+            con = con.weakEval(problem, invariantFluents);
 
             if (con == null || con.isUnsatisfiable()) {
                 return false;
@@ -1647,9 +1316,9 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
 
         Condition eff = a.getNumericEffects();
         eff.setFreeVarSemantic(free_var_semantics);
-        eff = eff.weakEval(problem.getInit(), invariantFluents);
+        eff = eff.weakEval(problem, invariantFluents);
 
-        a.cond_effects =  (AndCond) a.cond_effects.weakEval(problem.getInit(), invariantFluents);
+        a.cond_effects =  (AndCond) a.cond_effects.weakEval(problem, invariantFluents);
         if (eff == null) {
 //            System.out.println("Pruning because of the effect");
             return false;
@@ -1674,7 +1343,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
 //                    System.out.println(eff);
         con.setFreeVarSemantic(true);
 
-        con = con.weakEval(problem.getInit(), abstractInvariantFluents);
+        con = con.weakEval(problem, abstractInvariantFluents);
         if (con == null) {
             this.setName("");
             return;
@@ -1686,7 +1355,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
                 //System.out.println(nEff.getRight().getClass());
                 Expression rValue = nEff.getRight();
                 //System.out.println("before" + rValue);
-                rValue = rValue.weakEval(problem.getInit(), abstractInvariantFluents);
+                rValue = rValue.weakEval(problem, abstractInvariantFluents);
                 if (rValue == null) {
                     this.setName("");
                     return;
@@ -1787,7 +1456,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
             NumEffect all = (NumEffect) o;
             PDDLNumber newN;
             NumFluent f = all.getFluentAffected();
-            if (s.functionValue(f) == null) {
+            if (s.fluentValue(f) == null) {
                 if (all.getOperator().equals("assign")) {
                     //System.out.println("================ASSIGN===========");
                     Float rValue = all.getRight().eval(s).getNumber();
@@ -1802,7 +1471,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         for (Object o : temporaryMod) {
             NumFluent f = (NumFluent) o;
             PDDLNumber n = (PDDLNumber) fun2numb.get(f);
-            s.setFunctionValue(f, n);
+            s.setNumFluent(f, n);
             //System.out.println(s.printFluentByName("in-at"));
         }
 
@@ -2283,7 +1952,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
 
                 }
             } else {
-                s.poss_interpretation.put((Predicate) o, (Integer) subst.get(o));
+                s.possBollValues.set(((Predicate) o).id, (Integer) subst.get(o));
             }
         }
         return s;
@@ -2575,7 +2244,7 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         for (NumEffect e : this.getNumericEffectsAsCollection()) {
             if (e.getOperator().equalsIgnoreCase("increase") || e.getOperator().equalsIgnoreCase("decrease")) {
 
-                if (s.functionValue(e.getFluentAffected()) == null) {
+                if (s.fluentValue(e.getFluentAffected()) == null) {
                     return false;
                 }
             }
@@ -2636,6 +2305,45 @@ public class PDDLGroundAction extends PDDLGenericAction implements Comparable{
         return false;
 
     }
+   public PDDLGroundAction buildMacroInProgression(PDDLGroundAction b, PddlDomain pd, PddlProblem pp) throws CloneNotSupportedException, Exception {
+        if (this.name == null) {
 
+            return (PDDLGroundAction) b.clone();
+        }
+        PDDLGroundAction a = this;
+
+        PDDLGroundAction ab = new PDDLGroundAction(a.name + "_" + b.name);
+        if (a.getPrimitives().isEmpty()) {
+            a.getPrimitives().add(a);
+        }
+        ab.setPrimitives((ArrayList) a.getPrimitives().clone());
+        if (b.isMacro) {
+            ab.getPrimitives().addAll(b.getPrimitives());
+        }
+
+        ab.getPrimitives().add(b);
+
+        ab.setParameters((ParametersAsTerms) a.getParameters().clone());
+        ab.getParameters().addALLNewObjects(b.getParameters());
+
+        //System.out.println(b.pddlEffects());
+        //      System.out.println(a.pddlEffects());
+        ab.setPreconditions((ComplexCondition) regress(b, a));
+        progress(a, b, ab);
+        ab.setIsMacro(true);
+//        System.out.println("Da dentro l'azione..."+ab);
+        ab.simplifyModel(pd, pp);
+
+        if (ab.getName() == null) {
+            System.out.println(a + " " + b + " created a null action");
+        }
+
+        return ab;
+    }
+
+
+    
+
+    
 
 }

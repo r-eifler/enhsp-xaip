@@ -28,6 +28,7 @@ import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -70,7 +71,7 @@ public abstract class Expression extends Object {
      * @param invF
      * @return
      */
-    public abstract Expression weakEval(PDDLState s, HashMap invF);
+    public abstract Expression weakEval(PddlProblem p, HashMap invF);
 
     @Override
     public abstract Expression clone();

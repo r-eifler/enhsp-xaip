@@ -74,7 +74,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
 
         //This needs to be fixed. The semantics of global constraints is different
         //from that of the actions. 
-        con = con.weakEval(problem.getInit(), invariantFluents);
+        con = con.weakEval(problem, invariantFluents);
 
         this.condition = con;
 

@@ -36,6 +36,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -324,7 +325,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         LinkedHashSet to_keep = new LinkedHashSet();
         if (this.sons != null) {
             Iterator it = this.sons.iterator();

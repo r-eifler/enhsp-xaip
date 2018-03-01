@@ -32,6 +32,7 @@ import domain.Variable;
 import expressions.Expression;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import extraUtils.Converter;
 import extraUtils.Pair;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -64,6 +65,7 @@ import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PddlProblem;
 import problem.PDDLState;
+import problem.Printer;
 
 /**
  *
@@ -408,7 +410,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         }
 
         //invariantFluents.put(pp.getFunctions(), true);
-        for (NumFluent o3 : pp.getInit().getNumericFluents()) {
+        for (NumFluent o3 : pp.getNumericFluents()) {
             if (invariantFluents.get(o3) == null) {
                 invariantFluents.put(o3, true);
 
@@ -431,8 +433,8 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                             Expression lValue = comp.getLeft();
                             Expression rValue = comp.getRight();
                             //System.out.println("before" + lValue + rValue);
-                            lValue = lValue.weakEval(pp.getInit(), invariantFluents);
-                            rValue = rValue.weakEval(pp.getInit(), invariantFluents);
+                            lValue = lValue.weakEval(pp, invariantFluents);
+                            rValue = rValue.weakEval(pp, invariantFluents);
                             comp.setLeft(lValue);
                             comp.setRight(rValue);
                             //System.out.println("after" + lValue + rValue);
@@ -452,7 +454,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                         //System.out.println(nEff.getRight().getClass());
                         Expression rValue = nEff.getRight();
                         //System.out.println("before" + rValue);
-                        rValue = rValue.weakEval(pp.getInit(), invariantFluents);
+                        rValue = rValue.weakEval(pp, invariantFluents);
                         nEff.setRight(rValue);
                         //System.out.println("after" + rValue);
 
@@ -602,7 +604,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
 
     }
 
-    public String last_relevant_fluents_last_state(int i, PDDLState s) throws CloneNotSupportedException {
+    public String last_relevant_fluents_last_state(int i, PDDLState s, PddlProblem p) throws CloneNotSupportedException {
         String ret = "";
         PDDLState temp = s.clone();
         for (int j = i; j < this.size(); j++) {
@@ -612,7 +614,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         ret += "S[plan(" + i + ")] \n";
         //System.out.println(this.getInvariantFluents());
 
-        for (NumFluent o : temp.getNumericFluents()) {
+        for (NumFluent o : p.getNumericFluents()) {
             Object o1 = this.getInvariantFluents().get(o);
             if (o1 != null) {
                 //System.out.println(o1);
@@ -629,24 +631,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         return ret;
     }
 
-    public PDDLGroundAction generateMacro(int firstActionIndex, int lastActionIndex) throws CloneNotSupportedException, Exception {
-        //GroundAction firstAct = (GroundAction) this.get(firstActionIndex);
-        if (lastActionIndex > firstActionIndex) {
-            PDDLGroundAction macroPlan = (PDDLGroundAction) this.get(firstActionIndex);
-            macroPlan.setIsMacro(true);
-            macroPlan.getPrimitives().add(this.get(firstActionIndex));
-
-            long start = System.currentTimeMillis();
-            for (int j = firstActionIndex + 1; j <= lastActionIndex; j++) {
-                macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
-            }
-            System.out.println("#primitives: " + macroPlan.getPrimitives().size() + " aggregation time:" + (System.currentTimeMillis() - start));
-            return macroPlan;
-        } else {
-            return null;
-        }
-
-    }
+  
 
     public PDDLState execute(PDDLState init) throws CloneNotSupportedException {
         PDDLState temp = init.clone();
@@ -666,7 +651,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                     System.out.println("Step:" + i);
 
                     //AndCond c= (AndCond)gr.getPreconditions();
-                    System.out.println(temp.pddlPrint());
+                    System.out.println(Printer.pddlPrint(pp, temp));
 
                     System.out.println(temp.whatIsNotsatisfied((AndCond) gr.getPreconditions()));
                 }
@@ -761,86 +746,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         return cond;
     }
 
-    public TreeSet<PDDLGroundAction> generateMacrosSuffandPref() throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet();
-        PDDLGroundAction macroPlan = new PDDLGroundAction();
-        //prefix plans computation
-        for (int j = 0; j < this.size(); j++) {
-            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
-            ret.add(macroPlan);
-        }
-        //suffix plans computation
-        macroPlan = new PDDLGroundAction();
-        //prefix plans computation
-        for (int j = this.size() - 2; j > 0; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
-            ret.add(macroPlan);
-        }
-        return ret;
-    }
-
-    public TreeSet<PDDLGroundAction> generateMacrosSuffPrefInfiss(int minLength) throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet();
-        PDDLGroundAction macroPlan = this.get(0);
-        //prefix plans computation
-        for (int j = 1; j < this.size(); j++) {
-            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
-            if (macroPlan.getPrimitives().size() >= minLength) {
-                ret.add(macroPlan);
-            }
-        }
-        //suffix plans computation
-        macroPlan = this.get(this.size() - 1);
-        //prefix plans computation
-        for (int j = this.size() - 2; j > 0; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, false);
-            if (macroPlan.getPrimitives().size() >= minLength) {
-                ret.add(macroPlan);
-            }
-        }
-
-        int middle = this.size() / 2;
-        //System.out.println("!!!!!!!!!!  "+middle + " !!!!!!!!!!!!!!");
-        PDDLGroundAction firstAct = (PDDLGroundAction) this.get(middle);
-        PDDLGroundAction macro = (PDDLGroundAction) firstAct.clone();
-        macro.simplifyModel(pd, pp);
-
-        long start = System.currentTimeMillis();
-        //prefix plans computation
-        for (int j = middle + 1; j <= this.size(); j++) {
-            PDDLGroundAction macroDestra = null;
-
-            if (j < this.size()) {
-                macroDestra = macro.buildMacroInProgression((PDDLGroundAction) this.get(j), pd, pp, false);
-                if (macroDestra.getPrimitives().size() >= minLength) {
-                    ret.add(macroDestra);
-                }
-            }
-            int i = (this.size() % 2 == 0) ? this.size() - j : this.size() - j - 1;
-            //System.out.println("Aggiungo azioni da:" +middle+","+ j + " e da: "+i);
-            if (i >= 0) {
-                PDDLGroundAction macroSinistra = macro.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
-                if (macroSinistra.getPrimitives().size() >= minLength) {
-                    ret.add(macroSinistra);
-                }
-                if (macroDestra != null) {
-                    PDDLGroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
-                    //System.out.println("#primitives: "+(j)+" aggregation time:" + (System.currentTimeMillis()-start));
-                    if (macroDestraSinistra.getPrimitives().size() >= minLength) {
-                        ret.add(macroDestraSinistra);
-                    }
-                    macro = macroDestraSinistra;
-                } else {
-                    macro = macroSinistra;
-                }
-            } else {
-                macro = macroDestra;
-            }
-
-        }
-
-        return ret;
-    }
+   
 
     public void parseSolutionWithMacro(String solutionString, Map macroToPrimitives) throws FileNotFoundException {
         Scanner sc = new Scanner((new File(solutionString)));
@@ -904,74 +810,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         }
     }
 
-    public TreeSet<PDDLGroundAction> generateInfissMacros() throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet();
-
-        int middle = this.size() / 2;
-        //System.out.println("!!!!!!!!!!  "+middle + " !!!!!!!!!!!!!!");
-        PDDLGroundAction firstAct = (PDDLGroundAction) this.get(middle);
-        PDDLGroundAction macro = (PDDLGroundAction) firstAct.clone();
-        macro.simplifyModel(pd, pp);
-
-        long start = System.currentTimeMillis();
-        //prefix plans computation
-        for (int j = middle + 1; j <= this.size(); j++) {
-            PDDLGroundAction macroDestra = null;
-
-            if (j < this.size()) {
-                macroDestra = macro.buildMacroInProgression((PDDLGroundAction) this.get(j), pd, pp, false);
-                ret.add(macroDestra);
-            }
-            int i = (this.size() % 2 == 0) ? this.size() - j : this.size() - j - 1;
-            //System.out.println("Aggiungo azioni da:" +middle+","+ j + " e da: "+i);
-            if (i >= 0) {
-                PDDLGroundAction macroSinistra = macro.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
-                ret.add(macroSinistra);
-                if (macroDestra != null) {
-                    PDDLGroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, false);
-                    //System.out.println("#primitives: "+(j)+" aggregation time:" + (System.currentTimeMillis()-start));
-                    ret.add(macroDestraSinistra);
-                    macro = macroDestraSinistra;
-                } else {
-                    macro = macroSinistra;
-                }
-            } else {
-                macro = macroDestra;
-            }
-
-        }
-        return ret;
-    }
-
-    public Set<PDDLGroundAction> generateEverySubMacros() throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet<PDDLGroundAction>();
-        int n = 10000000;
-        for (int i = 0; i < this.size() - 1; i++) {
-            PDDLGroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
-            ret.add(macro);
-            int rightBound = Math.min(i + 2 + n, this.size());
-            for (int j = i + 2; j < rightBound; j++) {
-                macro = macro.buildMacroInProgression(this.get(j), pd, pp, false);
-                ret.add(macro);
-            }
-        }
-        return ret;
-    }
-
-    public Set<PDDLGroundAction> generateEverySubMacros(int upperBound) throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet<PDDLGroundAction>();
-        int n = 10;
-        for (int i = 0; i < this.size() - 1; i++) {
-            PDDLGroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
-            addSubCondition(ret, macro, upperBound);
-            int rightBound = Math.min(i + 2 + n, this.size());
-            for (int j = i + 2; j < rightBound; j++) {
-                macro = macro.buildMacroInProgression(this.get(j), pd, pp, false);
-                addSubCondition(ret, macro, upperBound);
-            }
-        }
-        return ret;
-    }
+    
 
     private void addSubCondition(TreeSet<PDDLGroundAction> ret, PDDLGroundAction macro, int upperBound) {
         if (ret.size() >= upperBound) {
@@ -984,120 +823,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         }
     }
 
-    public Set<PDDLGroundAction> generateEverySubMacros(int upperBound, int maxLength) throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet<PDDLGroundAction>();
-
-        for (int i = 0; i < this.size() - 1; i++) {
-            PDDLGroundAction macro = this.get(i).buildMacroInProgression(this.get(i + 1), pd, pp, false);
-            addSubCondition(ret, macro, upperBound);
-            int rightBound = Math.min(i + 2 + maxLength, this.size());
-            for (int j = i + 2; j < rightBound; j++) {
-                macro = macro.buildMacroInProgression(this.get(j), pd, pp, false);
-                addSubCondition(ret, macro, upperBound);
-            }
-        }
-        return ret;
-    }
-
-    public Set generateMacrosSuffPrefInfissUniformely(int maxMacros) throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet();
-        TreeSet<PDDLGroundAction> ret1 = new TreeSet();
-        TreeSet<PDDLGroundAction> ret2 = new TreeSet();
-        int middle = this.size() / 2;
-        int n = middle;
-
-        PDDLGroundAction macroPlan = this.get(0);
-        //prefix plans computation
-        for (int j = 1; j <= n; j++) {
-            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, true);
-            addSubCondition(ret, macroPlan, maxMacros / 3);
-        }
-        //suffix plans computation
-        macroPlan = this.get(this.size() - 1);
-        //prefix plans computation
-        for (int j = this.size() - 2; j > n; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, true);
-            addSubCondition(ret1, macroPlan, maxMacros / 3);
-        }
-        //addSubCondition(ret1,allPlan.buildMacroInProgression(macroPlan, pd, pp),maxMacros/3);
-
-        //System.out.println("!!!!!!!!!!  "+middle + " !!!!!!!!!!!!!!");
-        PDDLGroundAction firstAct = (PDDLGroundAction) this.get(middle);
-        PDDLGroundAction macro = (PDDLGroundAction) firstAct.clone();
-        macro.simplifyModel(pd, pp);
-
-        long start = System.currentTimeMillis();
-        //prefix plans computation
-
-        int up = (int) (((float) this.size() / 3.0) * 2.0);
-
-        for (int j = middle + 1; j <= up; j++) {
-            PDDLGroundAction macroDestra = null;
-
-            if (j < this.size()) {
-//               System.out.println(macro);
-//               System.out.println(this.get(j));
-                macroDestra = macro.buildMacroInProgression((PDDLGroundAction) this.get(j), pd, pp, true);
-                addSubCondition(ret2, macroDestra, maxMacros / 3);
-            }
-            int i = (this.size() % 2 == 0) ? this.size() - j : this.size() - j - 1;
-            //System.out.println("Aggiungo azioni da:" +middle+","+ j + " e da: "+i);
-            if (i >= 0) {
-                PDDLGroundAction macroSinistra = macro.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, true);
-                addSubCondition(ret2, macroSinistra, maxMacros / 3);
-                if (macroDestra != null) {
-                    PDDLGroundAction macroDestraSinistra = macroDestra.buildMacroInRegression((PDDLGroundAction) this.get(i), pd, pp, true);
-                    //System.out.println("#primitives: "+(j)+" aggregation time:" + (System.currentTimeMillis()-start));
-                    addSubCondition(ret2, macroDestraSinistra, maxMacros / 3);
-                    //System.out.println("macrodestrasinitra"+i+","+j);
-                    //System.out.println(macroDestraSinistra);
-                    macro = macroDestraSinistra;
-                } else {
-                    //System.out.println("macrosinitra");
-                    macro = macroSinistra;
-                }
-            } else {
-                //System.out.println("macrodestra");
-                macro = macroDestra;
-            }
-
-        }
-
-        HashSet union = new HashSet();
-        union.addAll(ret);
-        union.addAll(ret1);
-        //union.addAll(ret2);
-
-        return union;
-    }
-
-    public Set generateMacrosSuffPref(int maxMacros, boolean consideringNumericInformationInDistance) throws CloneNotSupportedException, Exception {
-        TreeSet<PDDLGroundAction> ret = new TreeSet();
-        TreeSet<PDDLGroundAction> ret1 = new TreeSet();
-        int middle = this.size() / 2;
-        int n = middle;
-
-        PDDLGroundAction macroPlan = this.get(0);
-        //prefix plans computation
-        for (int j = 1; j <= n; j++) {
-            macroPlan = macroPlan.buildMacroInProgression((PDDLGroundAction) this.get(j), this.pd, this.pp, consideringNumericInformationInDistance);
-            addSubCondition(ret, macroPlan, maxMacros / 3);
-        }
-        //suffix plans computation
-        macroPlan = this.get(this.size() - 1);
-        //prefix plans computation
-        for (int j = this.size() - 2; j > n; j--) {
-            macroPlan = macroPlan.buildMacroInRegression((PDDLGroundAction) this.get(j), this.pd, this.pp, consideringNumericInformationInDistance);
-            addSubCondition(ret1, macroPlan, maxMacros / 3);
-        }
-        //addSubCondition(ret1,allPlan.buildMacroInProgression(macroPlan, pd, pp),maxMacros/3);
-
-        HashSet union = new HashSet();
-        union.addAll(ret);
-        union.addAll(ret1);
-
-        return union;
-    }
+   
 
     /**
      * @return the macroEmployed
@@ -1143,7 +869,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         this.add(goal);
         long totalTimeSpentForChainSearch = 0;
         //create init action from the initial state.
-        PDDLGroundAction start = init.transformInAction();
+        PDDLGroundAction start = Converter.transformInAction(pp, init);
         this.add(0, start);
         System.out.println("DEBUG: Dummy Start Action" + start.toPDDL());
         //System.out.print("Building Validation Structure for : ");
@@ -1441,146 +1167,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         return po;
     }
 
-    private double evaluate(TreeSet<Integer> chain, Integer z, int i, Comparison c) throws CloneNotSupportedException {
-
-        //System.out.println("Candidate:"+chain);
-        PDDLState tempInit = new PDDLState();
-        for (Integer index : chain) {
-            tempInit = this.get(index).apply(tempInit);
-            if (tempInit == null) {
-                return -100000000000000.0;
-            }
-        }
-
-        Float d = tempInit.distance(c);
-
-        if (false) {
-            return d;
-        }
-
-        if (d < 0) {
-            return d;//this chain does not suffice to satisfy the condition.
-        }
-        tempInit = new PDDLState();
-
-//        System.out.println("Condition under examination: "+c);
-//        System.out.println("Candidates:"+chain);
-//        System.out.println("Condition Distance "+d);
-        for (int j = chain.first(); j < i; j++) {
-            //if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))){
-            //System.out.println("Entrando");
-            if (chain.contains(j)) {
-                this.get(j).apply(tempInit);
-
-                d = tempInit.distance(c);
-                //System.out.println("");
-
-            } //
-            else {
-                HashSet<NumFluent> toTest = new HashSet(c.getLeft().rhsFluents());
-                toTest.addAll(c.getRight().rhsFluents());
-                if (c.isDirectlyOrIndirectlyAffected(computeFluentDependencePlanDependant(toTest), this.get(j))) {
-
-                    //State temp = (State) tempInit.clone();
-                    //get(j).apply(temp);
-                    PDDLState temp = get(j).partialApply(tempInit, toTest);
-                    //State temp = tempInit;
-                    //get(j).apply(temp);
-                    Float t = temp.distance(c);
-                    //System.out.println(t);
-                    if (t < d) {
-                        //                    System.out.println("Considering the implication of"+this.get(j));
-                        d = t;
-
-                    }
-                    //distances can be not monotonic. So I have to keep trace of the current state
-                    tempInit.updateValues(toTest, temp);
-                }
-
-            }
-
-//            else {
-//                //State temp = (State) tempInit.clone();
-//                get(j).apply(tempInit);
-//                Float t = tempInit.distance(c);
-//
-//                if (t < d) {
-////                    System.out.println("Considering the implication of"+this.get(j));
-//                    d = t;
-//                    //tempInit = temp;
-//                }
-//
-//            }
-//            System.out.println("Current Distance:"+d);
-            //}
-        }
-        //System.out.println("Distance with negative interactions!:"+d);
-
-        return d;
-    }
-
-    private Float computeFlexibility(DirectedAcyclicGraph po) {
-        int ret = 0;
-        //System.out.println(po);
-
-        DirectedAcyclicGraph po1 = new DirectedAcyclicGraph(DefaultEdge.class);
-
-        for (Object v1 : po.vertexSet()) {
-            po1.addVertex(v1);
-        }
-        for (Object v1 : po.vertexSet()) {
-            for (Object v2 : po.vertexSet()) {
-                if (po.getEdge(v1, v2) != null) {
-                    po1.addEdge(v1, v2);
-                }
-            }
-        }
-
-        for (Object v1 : po1.vertexSet()) {
-            for (Object v2 : po1.vertexSet()) {
-                for (Object v3 : po1.vertexSet()) {
-                    //System.out.println("v1:"+v1+" v2:"+v2+" v1:"+v3);
-                    if ((po1.getEdge(v1, v2) != null) && (po1.getEdge(v2, v3) != null)) {
-//                        System.out.println("yes");
-                        po1.addEdge(v1, v3);
-                    }
-                }
-            }
-        }
-        //System.out.println(po);
-
-        for (Object v1 : po1.vertexSet()) {
-//            System.out.print("in("+v1+") "+po.inDegreeOf(v1));
-//            System.out.println(" out("+v1+"):"+po.outDegreeOf(v1));
-            for (Object v2 : po1.vertexSet()) {
-
-//                System.out.println("v1:"+v1+" v2:"+v2);
-                if ((po1.getEdge(v1, v2) == null) && (po1.getEdge(v2, v1) == null) && (v1 != v2)) {
-                    //System.out.println("DEBUG");
-                    ret = ret + 1;
-                }
-            }
-
-        }
-
-        return (float) ret / (float) size();
-    }
-
-    private void removeIndirectOrdering(DirectedAcyclicGraph po1) {
-
-        for (Object v1 : po1.vertexSet()) {
-            for (Object v2 : po1.vertexSet()) {
-                for (Object v3 : po1.vertexSet()) {
-                    if (po1.containsEdge(v1, v3) && po1.containsEdge(v1, v2) && po1.containsEdge(v2, v3)) {
-                        po1.removeEdge(v1, v3);
-                    }
-
-                }
-            }
-
-        }
-
-    }
+ 
 
     private HashMap<NumFluent, HashSet<NumFluent>> computeFluentDependencePlanDependant(HashSet<NumFluent> nfSet) {
 
@@ -1673,7 +1260,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                     macro.getPrimitives().add(this.get(v));
                 } else {
                     //append to previous computed action
-                    macro = macro.buildMacroInProgression(this.get(v), this.pd, this.pp, false);
+                    macro = macro.buildMacroInProgression(this.get(v), this.pd, this.pp);
                 }
                 //
                 if (achieveGoal != null) {
@@ -1796,19 +1383,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
 
     }
 
-    private PDDLGroundAction appendMacro(PDDLGroundAction macro, PDDLGroundAction get) throws Exception {
-        //GroundAction firstAct = (GroundAction) this.get(firstActionIndex);
-
-        //get.normalize();
-        if (macro == null) {
-            macro = new PDDLGroundAction();
-        }
-
-        macro = macro.buildMacroInProgression(get, this.pd, this.pp, false);
-        //System.out.println(macro);
-
-        return macro;
-    }
+   
 
     private void performBesttCut(DirectedAcyclicGraph po) {
 
@@ -1923,90 +1498,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         return validationStructures;
     }
 
-    public List generateMacrosFromPop2(DirectedAcyclicGraph po, HashMap achieveGoal, Set cutpoints, boolean missingServicesCut) throws Exception {
-
-        List result = new ArrayList();
-
-        //System.out.println(po);
-        //System.out.println(achieveGoal);
-        Set<Integer> splittingSet = cutpoints;
-        if (missingServicesCut) {
-            cutpoints.addAll(takeSplittingPointFromMissingServices(po));
-        } else {
-            po.removeEdge(po.edgesOf(-1));
-            po.removeVertex(-1);
-        }
-        this.connectedSetBuilder = new ConnectivityInspector<Object, Object>(po);
-
-        //Set temp = new HashSet();
-        //if (a.connectedSets().size()<4)    
-        // a =performBesttCut(po,a);
-        //System.out.println("Rimozioni"+(counter));
-        //System.out.println("Connected Components:"+a.connectedSets().size());
-        //System.out.println("Splittingset to use:"+splittingSet);
-        for (Set s : connectedSetBuilder.connectedSets()) {
-            TreeSet<Integer> ordered = new TreeSet(s);
-            //System.out.println("Trying to Merge"+ordered);
-            PDDLGroundAction macro = null;
-            for (Integer v : ordered) {
-                //System.out.println("Appending:"+v);
-                if (splittingSet.contains(v)) {
-                    System.out.println("Found an action that should be splitted (if any:" + v);
-                    if (macro != null) {
-                        if (macro.getName() != null) {
-                            System.out.println("Action Splitting:" + v);
-                            //System.out.println(macro);
-                            if (macro.getPrimitives().size() >= 2) {
-                                result.add(macro);
-                            }
-                            macro = null;
-                        }
-                    }
-                }
-                if (macro == null) {
-                    macro = (PDDLGroundAction) this.get(v);
-                    macro.setIsMacro(true);
-                    macro.getPrimitives().add(this.get(v));
-                } else {
-                    macro = macro.buildMacroInProgression(this.get(v), this.pd, this.pp, false);
-                }
-                //System.out.println("#primitives: " + macro.getPrimitives().size());
-
-                //macro = macro.buildMacroInProgression(this.get(v), pd);
-                //macro.normalize();
-                if (achieveGoal != null) {
-                    if (achieveGoal.get(v) != null) {
-                        System.out.println("Goal Achiever:" + v);
-                        if (macro != null) {
-                            if (macro.getName() != null) {
-                                System.out.println("Goal Achiever Splitting:" + v);
-                                //System.out.println(macro);
-                                if (macro.getPrimitives().size() >= 2) {
-                                    result.add(macro);
-                                }
-                                macro = null;
-                            }
-                        }
-                    }
-                }
-
-            }
-            if (macro != null) {
-                if (macro.getName() != null) {
-                    //System.out.println("Merged");
-                    if (macro.getPrimitives().size() >= 2) {
-                        result.add(macro);
-                    }
-                }
-            }
-        }
-
-        System.out.println("Number of Connected Components:" + connectedSetBuilder.connectedSets().size());
-
-        System.out.println("Number of Macros Generated:" + result.size());
-
-        return result;
-    }
+  
 
     /**
      * @return the connectedSetBuilder
@@ -2150,11 +1642,11 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
-            Iterator<NumFluent> it = current.getNumericFluents().iterator();
+            Iterator<NumFluent> it = this.pp.getNumericFluents().iterator();
             while (it.hasNext()) {
                 NumFluent nf = it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.functionValue(nf).getNumber());
+                nf_traj.add(current.fluentValue(nf).getNumber());
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -2173,13 +1665,13 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                 i++;
                 // MRJ: Prints the state, meant for debugging
                 if (debug > 1) {
-                    System.out.println(temp.pddlPrint());
+                    System.out.println(Printer.pddlPrint(pp,temp));
                 }
                 temp = gr.apply(temp);
 
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
-                    System.out.println(temp.pddlPrint());
+                    System.out.println(Printer.pddlPrint(pp,temp));
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
@@ -2188,7 +1680,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                     System.out.println("Step:" + i);
 
                     //AndCond c= (AndCond)gr.getPreconditions();
-                    System.out.println(temp.pddlPrint());
+                    System.out.println(Printer.pddlPrint(pp,temp));
 
                     System.out.println(temp.whatIsNotsatisfied((AndCond) gr.getPreconditions()));
                 }
@@ -2202,7 +1694,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         }
         if (debug == 1) {
             System.out.println("Last State:");
-            System.out.println(temp.pddlPrint());
+            System.out.println(Printer.pddlPrint(pp,temp));
         }
         System.out.println("Plan is executed correctly");
         return temp;
@@ -2229,7 +1721,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                     //macro.getPrimitivesWithInteger().add(v-1);
                 } else {
                     //append to previous computed action
-                    macro = macro.buildMacroInProgression(this.get(v - 1), this.pd, this.pp, false);
+                    macro = macro.buildMacroInProgression(this.get(v - 1), this.pd, this.pp);
                 }
             }
 //            System.out.println("");
@@ -2260,14 +1752,13 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                     }
                 }
                 if (c.is_evaluable(tempInit)) {
-                    Float current = tempInit.distance2(c);
-                    if (current > best) {
-//                        System.out.println(current);
-//                        System.out.println(tempInit);
-//                        System.out.println(chain);
-                        best = current;
-                        bestIndex = k;
-                    }
+                    throw new RuntimeException("Reintroduce distance function");
+//                    Float current = tempInit.distance2(c);
+//                    if (current > best) {
+//
+//                        best = current;
+//                        bestIndex = k;
+//                    }
                 } else if (bestIndex == -1) {
                     bestIndex = k;
                 }
@@ -2354,15 +1845,16 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
-            Iterator it = current.getNumericFluents().iterator();
+            Iterator it = pp.getNumericFluents().iterator();
             while (it.hasNext()) {
                 NumFluent nf = (NumFluent) it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.functionValue(nf).getNumber());
+                nf_traj.add(current.fluentValue(nf).getNumber());
                 nf_trace.put(nf, nf_traj);
             }
         }
-        current.addTimeFluent();
+        
+        //current.addTimeFluent();
         for (int i = 0; i < inst_actions.size(); i++) {
             if (print_trace) {
                 add_state_to_json(nf_trace, current);
@@ -2372,7 +1864,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
                 return current;
             }
             if (debug > 0) {
-                System.out.println(current.pddlPrint());
+                System.out.println(Printer.pddlPrint(pp, current));
             }
             PDDLGroundAction gr = inst_actions.get(i);
 
@@ -2419,7 +1911,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
-        while (current.functionValue(current.getTime()).getNumber() < time) {
+        while (current.fluentValue(current.time).getNumber() < time) {
 
             if (print_trace) {
                 add_state_to_json(nf_trace, current);
@@ -2428,7 +1920,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
 //            System.out.println("StartTime:"+start_time);
             GroundProcess waiting = new GroundProcess("waiting");
             waiting.setNumericEffects(new AndCond());
-            waiting.add_time_effects(current.getTime(), delta);
+            waiting.add_time_effects(current.time, delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
             for (GroundProcess act : processesSet) {
                 GroundProcess gp = (GroundProcess) act;
@@ -2454,7 +1946,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
 
     private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, PDDLState current) {
         for (NumFluent nf : nf_trace.keySet()) {
-            nf_trace.get(nf).add(current.functionValue(nf).getNumber());
+            nf_trace.get(nf).add(current.fluentValue(nf).getNumber());
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }

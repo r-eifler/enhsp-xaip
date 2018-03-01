@@ -33,6 +33,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -179,7 +180,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         return this;
     }
 

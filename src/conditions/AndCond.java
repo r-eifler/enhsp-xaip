@@ -18,7 +18,6 @@
  */
 package conditions;
 
-import domain.Variable;
 import expressions.NumEffect;
 import expressions.Expression;
 import expressions.ExtendedNormExpression;
@@ -34,11 +33,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
 import problem.PDDLGroundAction;
-import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -279,7 +277,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         PDDLState ret = new PDDLState();
         for (Object o : this.sons) {
             if (o instanceof Predicate) {
-                ret.setPredTrue((Predicate) o);
+                ret.setPropFluent((Predicate) o, true);
             } else {
                 System.out.println("This AndCond cannot be transformed into a State");
                 return null;
@@ -353,7 +351,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         LinkedHashSet to_keep = new LinkedHashSet();
 
         if (this.sons != null) {

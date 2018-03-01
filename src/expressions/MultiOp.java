@@ -30,6 +30,7 @@ import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -157,7 +158,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Expression weakEval(PDDLState s, HashMap invF) {
+    public Expression weakEval(PddlProblem s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

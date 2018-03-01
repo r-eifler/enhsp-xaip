@@ -26,12 +26,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.EPddlProblem;
 import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.PDDLProblemComponent;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -60,11 +60,12 @@ public abstract class Condition extends PDDLProblemComponent {
 
     /**
      *
+     * @param p
      * @param s
      * @param invF
      * @return
      */
-    public abstract Condition weakEval(PDDLState s, HashMap invF);
+    public abstract Condition weakEval(PddlProblem p, HashMap invF);
     //public abstract void addConditions(Conditions o);
 
     /*

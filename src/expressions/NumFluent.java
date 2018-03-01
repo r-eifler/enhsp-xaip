@@ -33,6 +33,7 @@ import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -193,7 +194,7 @@ public class NumFluent extends Expression {
         if (s == null) {
             System.out.println("stato nullo!!");
         }
-        return s.functionValue(this);
+        return s.fluentValue(this);
     }
 
     @Override
@@ -234,43 +235,43 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression weakEval(PDDLState s, HashMap invF) {
+    public Expression weakEval(PddlProblem problem, HashMap invF) {
 
         if (this.name.equals("#t")) {
             //return this;
-            return s.static_function_value(this);
+            return problem.initNumFluentsValues.get(this);
         }
 
         if ((invF.get(this) == null)) {//this means that the fluent cannot be in principle assigned
-            PDDLNumber o = s.static_function_value(this);
+            PDDLNumber o = problem.initNumFluentsValues.get(this);
             if (o == null && this.freeVarSemantic) {
-                return s.findCorrespondenceIfAny(this);
+                return problem.getNumFluent(this);
             }
-            return s.static_function_value(this);
+            return problem.getInitialNumFluentValue(this);
         }
         if (invF.get(this) != null) {
             if ((Boolean) invF.get(this)) {
                 if (invF.get(this.getName()) == null) {
-                    return s.static_function_value(this);
+                    return problem.getInitialNumFluentValue(this);
                 }
                 if ((Boolean) invF.get(this.getName())) {
-                    return s.static_function_value(this);
+                    return problem.getInitialNumFluentValue(this);
                 }
-                return s.findCorrespondenceIfAny(this);
+                return problem.getNumFluent(this);
 
             } else {
-                return s.findCorrespondenceIfAny(this);
+                return problem.getNumFluent(this);
             }
         }
         if (invF.get(this.getName()) != null) {
             if ((Boolean) invF.get(this.getName())) {
-                return s.static_function_value(this);
+                return problem.getInitialNumFluentValue(this);
             } else {
-                return s.findCorrespondenceIfAny(this);
+                return problem.getNumFluent(this);
 
             }
         }
-        return s.findCorrespondenceIfAny(this);
+        return problem.getNumFluent(this);
 
     }
 

@@ -36,6 +36,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -179,7 +180,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
 
         Condition el = (Condition) son;
         el.setFreeVarSemantic(freeVarSemantic);
@@ -336,12 +337,9 @@ public class NotCond extends Terminal implements PostCondition {
     public void apply(RelState s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
-            if (s.poss_interpretation.get(p) != null) {
-                if (s.poss_interpretation.get(p) == 1) {
-                    modifications.put(p, 2);
-                }
+            if (s.possBollValues.get(p.id) == 1) {
+                modifications.put(p, 2);
             }
-
         } else {
             sonHasIncorrectType();
         }
