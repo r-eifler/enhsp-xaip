@@ -412,6 +412,8 @@ public class PddlProblem {
     }
 
     protected void addInitFacts(Tree child) {
+        this.initNumFluentsValues = new HashMap();
+        this.initBoolFluentsValues = new HashMap();
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
             switch (c.getType()) {
