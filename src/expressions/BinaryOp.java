@@ -31,6 +31,7 @@ import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -223,7 +224,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Expression weakEval(PDDLState s, HashMap invF) {
+    public Expression weakEval(PddlProblem s, HashMap invF) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;

@@ -35,6 +35,7 @@ import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -165,11 +166,11 @@ public class NumEffect extends Expression implements PostCondition {
     public PDDLState applyAndCreateNew(PDDLState state) throws CloneNotSupportedException {
         PDDLNumber after = null;
         if (this.operator.equals("increase")) {
-            PDDLNumber current = state.functionValue(fluentAffected);
+            PDDLNumber current = state.fluentValue(fluentAffected);
             PDDLNumber eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() + eval.getNumber());
         } else if (this.operator.equals("decrease")) {
-            PDDLNumber current = state.functionValue(fluentAffected);
+            PDDLNumber current = state.fluentValue(fluentAffected);
             PDDLNumber eval = this.getRight().eval(state);
             after = new PDDLNumber(current.getNumber() - eval.getNumber());
         } else if (this.operator.equals("assign")) {
@@ -179,7 +180,7 @@ public class NumEffect extends Expression implements PostCondition {
         PDDLState ret = state.clone();
 
         if (after != null) {
-            ret.setFunctionValue(fluentAffected, after);
+            ret.setNumFluent(fluentAffected, after);
         }
 
         return ret;
@@ -213,7 +214,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression weakEval(PDDLState s, HashMap invF) {
+    public Expression weakEval(PddlProblem s, HashMap invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.right.setFreeVarSemantic(freeVarSemantic);
@@ -228,13 +229,13 @@ public class NumEffect extends Expression implements PostCondition {
             }
         }
 //        System.out.println(this);
-        NumFluent nf = s.getNumericFluent(this.getFluentAffected());
+        NumFluent nf = s.getNumFluent(this.getFluentAffected());
         if (nf != null) {
             this.setFluentAffected(nf);
         } else {//this can become a state variable; so conservatively keeps track of it
             //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
             
-            s.getInitNumFluents().put(fluentAffected, null);
+            s.initNumFluentsValues.put(fluentAffected, null);
         }
         return this;
     }
@@ -504,7 +505,7 @@ public class NumEffect extends Expression implements PostCondition {
         }
 
         if (this.operator.equals("increase")) {
-            PDDLNumber current = s.functionValue(fluentAffected);
+            PDDLNumber current = s.fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("State:"+s);
                 //System.out.println("This effect cannot be applied!:" + this);
@@ -513,7 +514,7 @@ public class NumEffect extends Expression implements PostCondition {
                 after = new PDDLNumber(current.getNumber() + eval.getNumber());
             }
         } else if (this.operator.equals("decrease")) {
-            PDDLNumber current = s.functionValue(fluentAffected);
+            PDDLNumber current = s.fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);

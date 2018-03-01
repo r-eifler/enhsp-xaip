@@ -22,7 +22,6 @@ import antlr.RecognitionException;
 import conditions.AndCond;
 import conditions.ComplexCondition;
 
-import conditions.NumFluentValue;
 import conditions.Condition;
 import conditions.FactoryConditions;
 import conditions.OneOf;
@@ -107,6 +106,8 @@ public class PddlProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     public HashMap<String, Predicate> predicateReference;
     public HashMap<String, NumFluent> numFluentReference;
+    public HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
+    public HashMap<Predicate, Boolean> initBoolFluentsValues;
 
     /**
      * Get the value of groundedActions
@@ -200,7 +201,7 @@ public class PddlProblem {
         String toWrite = "(define (problem " + this.getName() + ") "
                 + "(:domain " + this.getDomainName() + ") "
                 + this.getObjects().pddlPrint() + "\n"
-                + this.init.pddlPrint() + "\n"
+                + Printer.pddlPrint(this,init) + "\n"
                 + "(:goal " + this.getGoals().pddlPrint(false) + ")\n"
                 + this.metric.pddlPrint() + "\n"
                 + ")";
@@ -223,7 +224,7 @@ public class PddlProblem {
         file.write("(:domain ");
         file.write(builder.toString());
         file.write(this.getObjects().pddlPrint());
-        file.write(this.init.stringBuilderPddlPrintWithDummyTrue().toString());
+        file.write(Printer.stringBuilderPddlPrintWithDummyTrue(this,init).toString());
         file.write("(:goal (forall (?interpr - interpretation)");
         file.write(this.getGoals().pddlPrintWithExtraObject() + ")))");
         file.close();
@@ -415,29 +416,18 @@ public class PddlProblem {
             Tree c = child.getChild(i);
             switch (c.getType()) {
                 case PddlParser.PRED_INST:
-                    init.initPred.put(buildInstPredicate(c, null), true);
-//                    init.setPredTrue(buildInstPredicate(c, null));
+                    initBoolFluentsValues.put(buildInstPredicate(c, null), true);
                     break;
                 case PddlParser.INIT_EQ:
-                    counterNumericFluents++;
-                    NumFluentValue a = new NumFluentValue("=");
-                    
-                    a.setNFluent((NumFluent) createExpression(c.getChild(0)));
-                    a.setValue((PDDLNumber) createExpression(c.getChild(1)));
-                    //System.out.println(a);
-                    init.addNumericFluent(a);
+                    this.initNumFluentsValues.put((NumFluent)createExpression(c.getChild(0)),(PDDLNumber) createExpression(c.getChild(1)));
                     break;
                 case PddlParser.UNKNOWN:
-//                    System.out.println("DEBUG: unknonw");
                     this.unknonw_predicates.add((Predicate) addUnknown(c));
                     break;
                 case PddlParser.ONEOF:
-//                    System.out.println("DEBUG: oneof");
-//                    fc.createCondition(c, null);
                     this.one_of_s.add((OneOf) fc.createCondition(c, null));
                     break;
                 case PddlParser.OR_GD:
-//                    System.out.println("DEBUG: or Conditition");
                     this.or_s.add((OrCond) fc.createCondition(c, null));
                     break;
                 default:
@@ -557,41 +547,22 @@ public class PddlProblem {
     }
 
     public Float getInitFunctionValue(NumFluent f) {
-        return init.functionValue(f).getNumber();
+        return init.fluentValue(f).getNumber();
     }
 
-    public NumFluent getFunction(String string, ArrayList terms) {
-        for (Object o : init.getNumericFluents()) {
-
-            if (o instanceof NumFluentValue) {
-                NumFluentValue ele = (NumFluentValue) o;
-                NumFluent fAssign = ele.getNFluent();
-
+    public NumFluent getNumFluent(String string, ArrayList terms) {
+        for (NumFluent fAssign : this.initNumFluentsValues.keySet()) {
                 if (fAssign.getName().equals(string)) {
                     if (fAssign.getTerms().equals(terms)) {
                         return fAssign;
                     }
                 }
             }
-
-        }
         return null;
     }
 
-    public ArrayList getFunctions() {
-        ArrayList res = new ArrayList();
-
-        for (Object o : init.getNumericFluents()) {
-
-            if (o instanceof NumFluentValue) {
-                NumFluentValue ele = (NumFluentValue) o;
-                NumFluent fAssign = ele.getNFluent();
-                res.add(fAssign);
-
-            }
-
-        }
-        return res;
+    public ArrayList getNumFluents() {
+        return new ArrayList(this.initNumFluentsValues.keySet());
     }
 
     public void setDomain(PddlDomain aThis) {
@@ -989,10 +960,10 @@ public class PddlProblem {
     }
 
     public void keepUniqueVariable(PDDLState s) {
-        for (Predicate p : s.getPropositions()) {
+        for (Predicate p : this.initBoolFluentsValues.keySet()) {
             PddlProblem.this.keepUniqueVariable(p);
         }
-        for (NumFluent x : s.getNumericFluents()) {
+        for (NumFluent x : this.initNumFluentsValues.keySet()) {
             PddlProblem.this.keepUniqueVariable(x);
         }
     }
@@ -1017,5 +988,33 @@ public class PddlProblem {
                 PddlProblem.this.keepUniqueVariable(x);
             }
         }    
+    }
+
+    public Condition getPredicate(Predicate aThis) {
+        for (Predicate p: this.initBoolFluentsValues.keySet()){
+            if (p.equals(aThis)){
+                return p;
+            }
+        }
+        this.initBoolFluentsValues.put(aThis,null);
+        return aThis;
+    }
+
+    public NumFluent getNumFluent(NumFluent f) {
+        for (NumFluent p: this.initNumFluentsValues.keySet()){
+            if (p.equals(f)){
+                return p;
+            }
+        }
+        this.initNumFluentsValues.put(f,null);
+        return f;
+    }
+
+    public PDDLNumber getInitialNumFluentValue(NumFluent aThis) {
+        return this.initNumFluentsValues.get(aThis);
+    }
+
+    public Iterable<NumFluent> getNumericFluents() {
+        return this.initNumFluentsValues.keySet();
     }
 }

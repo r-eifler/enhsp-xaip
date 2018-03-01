@@ -222,9 +222,7 @@ public class SearchStrategies {
                     GroundEvent ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
-                    if (debug == 111) {
-                        System.out.println("Event Applied (" + delta1 + s.findCorrespondenceIfAny(s.getTime()) + "): " + ev);
-                    }
+
                 }
             }
             if (!at_least_one) {
@@ -704,8 +702,8 @@ public class SearchStrategies {
                 gr = (PDDLGroundAction) c.action.clone();
             }
 //
-            if (c.father.s.functionValue(new NumFluent("time_elapsed")) != null) {
-                gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+            if (c.father.s.fluentValue(new NumFluent("time_elapsed")) != null) {
+                gr.time = c.father.s.fluentValue(new NumFluent("time_elapsed")).getNumber();
             } else {
                 gr.time = 0f;
             }
@@ -730,8 +728,8 @@ public class SearchStrategies {
                 gr = (PDDLGroundAction) c.action.clone();
             }
 //
-            if (c.father.s.functionValue(new NumFluent("time_elapsed")) != null) {
-                gr.time = c.father.s.functionValue(new NumFluent("time_elapsed")).getNumber();
+            if (c.father.s.fluentValue(new NumFluent("time_elapsed")) != null) {
+                gr.time = c.father.s.fluentValue(new NumFluent("time_elapsed")).getNumber();
             } else {
                 gr.time = 0f;
             }
@@ -749,7 +747,7 @@ public class SearchStrategies {
         LinkedList plan = new LinkedList();
         while (c.action != null || c.list_of_actions != null) {
             try {
-                PDDLNumber time = c.father.s.functionValue(new NumFluent("time_elapsed"));
+                PDDLNumber time = c.father.s.fluentValue(new NumFluent("time_elapsed"));
                 if (c.action != null) {//this is an action
                     PDDLGroundAction gr = (PDDLGroundAction) c.action.clone();
                     if (time != null) {
@@ -865,16 +863,13 @@ public class SearchStrategies {
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
-                waiting.add_time_effects(temp.getTime(), delta);
+                waiting.add_time_effects(temp.time, delta);
                 waiting.time = delta;//this is the waiting time associated with this step
                 for (PDDLGroundAction act : this.reachable_processes) {
                     if (act instanceof GroundProcess) {
                         GroundProcess gp = (GroundProcess) act;
                         if (gp.isActive(temp_temp)) {
                             //System.out.println(gp.toEcoString());
-                            if (debug == 111) {
-                                System.out.println("Process Applied (" + i + temp_temp.findCorrespondenceIfAny(temp_temp.getTime()) + "): " + gp);
-                            }
                             AndCond precondition = (AndCond) waiting.getPreconditions();
                             precondition.addConditions(gp.getPreconditions());
                             for (NumEffect eff : gp.getNumericEffectsAsCollection()) {

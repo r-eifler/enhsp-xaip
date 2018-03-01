@@ -36,6 +36,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -73,7 +74,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
         return null;
     }
 
-    public ConditionalEffect weakEval(PDDLState s, HashMap invF) {
+    public ConditionalEffect weakEval(PddlProblem s, HashMap invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;

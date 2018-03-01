@@ -50,7 +50,7 @@ public class PlanGetResult {
         } else {//this is when you have processes
         }
         problem.grounding_action_processes_constraints();
-        problem.simplifications_action_processes_constraints();
+        problem.simplifyAndSetupInit();
 
         //set heuristic
         if (heuristic.equals("aibr")) {

@@ -129,10 +129,9 @@ public final class PddlDomain extends Object {
             }
         }
 
-        for (Object o : p.getInit().getPropositions()) {
-            if (o instanceof NumFluentValue) {
-                NumFluentValue nf = (NumFluentValue) o;
-                for (Object o1 : nf.getNFluent().getTerms()) {
+        for (NumFluent nf : p.initNumFluentsValues.keySet()) {
+ 
+                for (Object o1 : nf.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator<Type> it = types.iterator();
                     boolean founded = false;
@@ -149,8 +148,8 @@ public final class PddlDomain extends Object {
                         System.exit(-1);
                     }
                 }
-            } else {
-                Predicate t1 = (Predicate) o;
+        }
+        for (Predicate t1 : p.initBoolFluentsValues.keySet()) {
                 for (Object o1 : t1.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator<Type> it = types.iterator();
@@ -169,9 +168,9 @@ public final class PddlDomain extends Object {
                     }
                 }
             }
-        }
+        
 
-        for (Object o : p.getInit().getNumericFluents()) {
+        for (Object o : p.initNumFluentsValues.keySet()) {
 
             if (o instanceof NumFluent) {
 

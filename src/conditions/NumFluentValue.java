@@ -34,6 +34,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -150,7 +151,7 @@ public class NumFluentValue extends Terminal {
 
     @Override
     public boolean eval(PDDLState s) {
-        if (s.functionValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
+        if (s.fluentValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
             return true;
         } else {
             return false;
@@ -159,7 +160,7 @@ public class NumFluentValue extends Terminal {
 
     @Override
     public boolean isSatisfied(PDDLState s) {
-        if (s.functionValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
+        if (s.fluentValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
             return true;
         } else {
             return false;
@@ -259,7 +260,7 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

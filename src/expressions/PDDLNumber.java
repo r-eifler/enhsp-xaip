@@ -21,10 +21,8 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +30,7 @@ import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -49,6 +48,12 @@ public class PDDLNumber extends Expression {
     public PDDLNumber(Float n) {
         grounded = true;
         number = n.doubleValue();
+
+    }
+    
+    public PDDLNumber(Double n) {
+        grounded = true;
+        number = n;
 
     }
 
@@ -118,7 +123,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Expression weakEval(PDDLState s, HashMap invF) {
+    public Expression weakEval(PddlProblem s, HashMap invF) {
         return this;
     }
 

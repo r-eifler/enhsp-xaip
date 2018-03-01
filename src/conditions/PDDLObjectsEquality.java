@@ -32,6 +32,7 @@ import problem.PDDLGroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
+import problem.PddlProblem;
 
 /**
  *
@@ -263,7 +264,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Condition weakEval(PDDLState s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
         if (this.left.equals(this.right)) {
             this.setValid(true);
             this.setUnsatisfiable(false);
