@@ -209,19 +209,19 @@ public class PDDLState  {
 
     public RelState relaxState() {
         RelState ret_val = new RelState(); 
-        for (int i = 0; i<this.numFluents.size() ; i++){              
-            ret_val.possNumValues.set(i, new Interval(this.numFluents.get(i).getNumber()));
-
-            if (this.numFluents.get(i) == null){
-                ret_val.possNumValues.set(i, new Interval(Float.NaN));
+        for (int i = 0; i<this.numFluents.size() ; i++){      
+            PDDLNumber n = this.numFluents.get(i) ;
+            if (n == null){
+                ret_val.possNumValues.add(new Interval(Float.NaN));
             }else
-                ret_val.possNumValues.set(i, new Interval(this.numFluents.get(i).getNumber()));
+                ret_val.possNumValues.add(new Interval(this.numFluents.get(i).getNumber()));
+            
         }
         for (int i = 0; i<this.boolFluents.size() ; i++){
             if (this.boolFluents.get(i))
-                ret_val.possBollValues.set(i, 1);
+                ret_val.possBollValues.add(1);
             else
-                ret_val.possBollValues.set(i, 0);
+                ret_val.possBollValues.add(0);
         }
 
         return ret_val;
@@ -237,11 +237,6 @@ public class PDDLState  {
     void increase_time_by_epsilon() {
         Float new_value = this.fluentValue(time).getNumber() + 0.1f;
         this.setNumFluent(time, new PDDLNumber(new_value));
-    }
-
-    public void addPredicate(Predicate p, boolean b) {
-        p.id = this.boolFluents.size();
-        this.boolFluents.add(b);
     }
 
 

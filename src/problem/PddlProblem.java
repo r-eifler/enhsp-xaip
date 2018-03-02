@@ -98,16 +98,14 @@ public class PddlProblem {
     public Collection<Predicate> unknonw_predicates;
     public Collection<OneOf> one_of_s;
     public Collection<OrCond> or_s;
-    public Collection<NumFluent> num_fluent_universe;
-    public Collection<Predicate> predicates_universe;
     private FactoryConditions fc;
     public Set<Type> types;
 
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
-    public HashMap<String, Predicate> predicateReference;
-    public HashMap<String, NumFluent> numFluentReference;
-    public HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
-    public HashMap<Predicate, Boolean> initBoolFluentsValues;
+    protected HashMap<String, Predicate> predicateReference;
+    protected HashMap<String, NumFluent> numFluentReference;
+    protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
+    protected HashMap<Predicate, Boolean> initBoolFluentsValues;
 
     /**
      * Get the value of groundedActions
@@ -1012,11 +1010,25 @@ public class PddlProblem {
         return f;
     }
 
-    public PDDLNumber getInitialNumFluentValue(NumFluent aThis) {
+    public PDDLNumber getNumFluentInitialValue(NumFluent aThis) {
         return this.initNumFluentsValues.get(aThis);
     }
 
-    public Iterable<NumFluent> getNumericFluents() {
+    public Iterable<NumFluent> getNumFluentsInvolvedInInit() {
         return this.initNumFluentsValues.keySet();
     }
+
+    public boolean getInitBoolFluentValue(Predicate aThis) {
+        return this.initBoolFluentsValues.get(aThis);
+    }
+
+    public Iterable<Predicate> getPredicatesInvolvedInInit() {
+        return this.initBoolFluentsValues.keySet();
+        
+    }
+
+    public void setNumFluentReference(NumFluent nf) {
+        this.numFluentReference.put(nf.toString(), nf);
+    }
+    
 }

@@ -239,23 +239,23 @@ public class NumFluent extends Expression {
 
         if (this.name.equals("#t")) {
             //return this;
-            return problem.initNumFluentsValues.get(this);
+            return problem.getNumFluentInitialValue(this);
         }
 
         if ((invF.get(this) == null)) {//this means that the fluent cannot be in principle assigned
-            PDDLNumber o = problem.initNumFluentsValues.get(this);
+            PDDLNumber o = problem.getNumFluentInitialValue(this);
             if (o == null && this.freeVarSemantic) {
                 return problem.getNumFluent(this);
             }
-            return problem.getInitialNumFluentValue(this);
+            return problem.getNumFluentInitialValue(this);
         }
         if (invF.get(this) != null) {
             if ((Boolean) invF.get(this)) {
                 if (invF.get(this.getName()) == null) {
-                    return problem.getInitialNumFluentValue(this);
+                    return problem.getNumFluentInitialValue(this);
                 }
                 if ((Boolean) invF.get(this.getName())) {
-                    return problem.getInitialNumFluentValue(this);
+                    return problem.getNumFluentInitialValue(this);
                 }
                 return problem.getNumFluent(this);
 
@@ -265,7 +265,7 @@ public class NumFluent extends Expression {
         }
         if (invF.get(this.getName()) != null) {
             if ((Boolean) invF.get(this.getName())) {
-                return problem.getInitialNumFluentValue(this);
+                return problem.getNumFluentInitialValue(this);
             } else {
                 return problem.getNumFluent(this);
 
@@ -486,13 +486,13 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
-        NumFluent t = p.numFluentReference.get(this.toString());
-        if (t == null){
-            p.numFluentReference.put(this.toString(),this);
+    public Expression unifyVariablesReferences(EPddlProblem problem) {
+        NumFluent nf = problem.getNumfluentReference(this.toString());
+        if (nf == null){
+            problem.setNumFluentReference(this);
             return this;
         }
-        return t;
+        return nf;
 
     }
 }

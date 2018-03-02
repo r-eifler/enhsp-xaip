@@ -437,12 +437,12 @@ public class ExtendedNormExpression extends Expression {
 
     /**
      *
-     * @param s
+     * @param problem
      * @param invFluents
      * @return
      */
     @Override
-    public ExtendedNormExpression weakEval(PddlProblem s, HashMap invFluents) {
+    public ExtendedNormExpression weakEval(PddlProblem problem, HashMap invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         PDDLNumber c = new PDDLNumber(0);
         for (ExtendedAddendum a : this.summations) {
@@ -454,12 +454,12 @@ public class ExtendedNormExpression extends Expression {
 //                }
 
                 if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
-                    if (s.initNumFluentsValues.get(a.f).getNumber().isNaN()) {
+                    if (problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
                         return null;
                     }
-                    c = new PDDLNumber(c.getNumber() + s.initNumFluentsValues.get(a.f).getNumber() * a.n.getNumber());
+                    c = new PDDLNumber(c.getNumber() + problem.getNumFluentInitialValue(a.f).getNumber() * a.n.getNumber());
                 } else {
-                    a.f = s.getNumFluent(a.f);
+                    a.f = problem.getNumFluent(a.f);
                     ret.summations.add(a);
                 }
             } else {

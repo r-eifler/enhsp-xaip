@@ -209,16 +209,16 @@ public class NumEffect extends Expression implements PostCondition {
 
     /**
      *
-     * @param s
+     * @param problem
      * @param invF
      * @return
      */
     @Override
-    public Expression weakEval(PddlProblem s, HashMap invF) {
+    public Expression weakEval(PddlProblem problem, HashMap invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.right.setFreeVarSemantic(freeVarSemantic);
-        this.setRight(this.right.weakEval(s, invF));
+        this.setRight(this.right.weakEval(problem, invF));
         if (this.right == null) {
             //System.out.println(this);
             return null;
@@ -229,13 +229,11 @@ public class NumEffect extends Expression implements PostCondition {
             }
         }
 //        System.out.println(this);
-        NumFluent nf = s.getNumFluent(this.getFluentAffected());
+        NumFluent nf = problem.getNumFluent(this.getFluentAffected());
         if (nf != null) {
             this.setFluentAffected(nf);
-        } else {//this can become a state variable; so conservatively keeps track of it
-            //s.addNumericFluent(new NumFluentValue(fluentAffected,null));
-            
-            s.initNumFluentsValues.put(fluentAffected, null);
+        } else {
+            problem.setNumFluentReference(nf);
         }
         return this;
     }

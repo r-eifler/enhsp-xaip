@@ -22,23 +22,13 @@ import conditions.ForAll;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
 import conditions.Condition;
 import conditions.FactoryConditions;
 import conditions.NotCond;
-import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.PostCondition;
 import conditions.Predicate;
-import expressions.ComplexFunction;
-import expressions.BinaryOp;
-import expressions.Expression;
-import expressions.MinusUnary;
-import expressions.MultiOp;
-import expressions.NumEffect;
 import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.TrigonometricFunction;
 import extraUtils.Utils;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -129,7 +119,7 @@ public final class PddlDomain extends Object {
             }
         }
 
-        for (NumFluent nf : p.initNumFluentsValues.keySet()) {
+        for (NumFluent nf : p.getNumFluentsInvolvedInInit()) {
  
                 for (Object o1 : nf.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
@@ -149,7 +139,7 @@ public final class PddlDomain extends Object {
                     }
                 }
         }
-        for (Predicate t1 : p.initBoolFluentsValues.keySet()) {
+        for (Predicate t1 : p.getPredicatesInvolvedInInit()) {
                 for (Object o1 : t1.getTerms()) {
                     PDDLObject t = (PDDLObject) o1;
                     Iterator<Type> it = types.iterator();
@@ -170,7 +160,7 @@ public final class PddlDomain extends Object {
             }
         
 
-        for (Object o : p.initNumFluentsValues.keySet()) {
+        for (Object o : p.getNumFluentsInvolvedInInit()) {
 
             if (o instanceof NumFluent) {
 

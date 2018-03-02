@@ -32,16 +32,16 @@ import problem.PddlProblem;
  */
 public class Converter {
     
-    static public PDDLGroundAction transformInAction(PddlProblem p, PDDLState s) {
+    static public PDDLGroundAction createInitAction(PddlProblem p, PDDLState s) {
         PDDLGroundAction a = new PDDLGroundAction("InitAction");
 
         AndCond addList = new AndCond();
         AndCond numericEffects = new AndCond();
 
-        for (Predicate pred : p.initBoolFluentsValues.keySet()) {
+        for (Predicate pred : p.getPredicatesInvolvedInInit()) {
             addList.addConditions(pred);
         }
-        for (Object o : p.initNumFluentsValues.keySet()) {
+        for (Object o : p.getNumFluentsInvolvedInInit()) {
             NumFluent f = (NumFluent) o;
 
             NumEffect b = new NumEffect("assign");

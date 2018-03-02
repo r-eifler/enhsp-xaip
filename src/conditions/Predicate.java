@@ -145,9 +145,9 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Condition unifyVariablesReferences(EPddlProblem p) {
-        Predicate p1 = p.predicateReference.get(this.toString());
+        Predicate p1 = p.getPredicateReference(this.toString());
         if (p1 == null){
-            p.predicateReference.put(this.toString(),this);
+            p.setPredicateReference(this);
             return this;
         }
         return p1;
@@ -533,22 +533,21 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval(PddlProblem problem, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
         if (invF.get(this) == null) {//this means it is a static predicate
-            if (s.initBoolFluentsValues.get(this)) {
+            if (problem.getInitBoolFluentValue(this)) {
                 this.setValid(true);
                 this.setUnsatisfiable(false);
-
             } else {
                 this.setValid(false);
                 this.setUnsatisfiable(true);
             }
             return this;
         } else {//this is meant to couple all the predicates in a unique representation
-            return s.getPredicate(this);
+            return problem.getPredicate(this);
         }
     }
 

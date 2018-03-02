@@ -410,7 +410,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         }
 
         //invariantFluents.put(pp.getFunctions(), true);
-        for (NumFluent o3 : pp.getNumericFluents()) {
+        for (NumFluent o3 : pp.getNumFluentsInvolvedInInit()) {
             if (invariantFluents.get(o3) == null) {
                 invariantFluents.put(o3, true);
 
@@ -614,7 +614,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         ret += "S[plan(" + i + ")] \n";
         //System.out.println(this.getInvariantFluents());
 
-        for (NumFluent o : p.getNumericFluents()) {
+        for (NumFluent o : p.getNumFluentsInvolvedInInit()) {
             Object o1 = this.getInvariantFluents().get(o);
             if (o1 != null) {
                 //System.out.println(o1);
@@ -869,7 +869,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         this.add(goal);
         long totalTimeSpentForChainSearch = 0;
         //create init action from the initial state.
-        PDDLGroundAction start = Converter.transformInAction(pp, init);
+        PDDLGroundAction start = Converter.createInitAction(pp, init);
         this.add(0, start);
         System.out.println("DEBUG: Dummy Start Action" + start.toPDDL());
         //System.out.print("Building Validation Structure for : ");
@@ -1642,7 +1642,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
-            Iterator<NumFluent> it = this.pp.getNumericFluents().iterator();
+            Iterator<NumFluent> it = this.pp.getNumFluentsInvolvedInInit().iterator();
             while (it.hasNext()) {
                 NumFluent nf = it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
@@ -1845,7 +1845,7 @@ public class SimplePlan extends ArrayList<PDDLGroundAction> {
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
-            Iterator it = pp.getNumericFluents().iterator();
+            Iterator it = pp.getNumFluentsInvolvedInInit().iterator();
             while (it.hasNext()) {
                 NumFluent nf = (NumFluent) it.next();
                 ArrayList<Float> nf_traj = new ArrayList();

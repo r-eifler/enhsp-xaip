@@ -747,7 +747,7 @@ public class SearchStrategies {
         LinkedList plan = new LinkedList();
         while (c.action != null || c.list_of_actions != null) {
             try {
-                PDDLNumber time = c.father.s.fluentValue(new NumFluent("time_elapsed"));
+                PDDLNumber time = c.father.s.fluentValue(c.father.s.time);
                 if (c.action != null) {//this is an action
                     PDDLGroundAction gr = (PDDLGroundAction) c.action.clone();
                     if (time != null) {

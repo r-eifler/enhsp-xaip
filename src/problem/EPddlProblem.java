@@ -242,60 +242,7 @@ public class EPddlProblem extends PddlProblem {
         goals.normalize();
     }
 
-    private void unify_objects_names(PDDLState init, Set<PDDLGroundAction> actions, Set<GroundProcess> processesSet) {
-        this.predicates_universe = new LinkedHashSet();
-        this.num_fluent_universe = new LinkedHashSet();
-        for (PDDLGroundAction gr : actions) {
-            Collection involved_nf = gr.getInvolvedNumFluents();
-            Collection involved_predicates = gr.getInvolvedPredicates();
-            add_if_necessary(involved_nf, this.num_fluent_universe);
-            add_if_necessary(involved_predicates, this.predicates_universe);
-        }
 
-        for (GroundProcess gr : processesSet) {
-            Collection involved_nf = gr.getInvolvedNumFluents();
-            Collection involved_predicates = gr.getInvolvedPredicates();
-            add_if_necessary(involved_nf, this.num_fluent_universe);
-            add_if_necessary(involved_predicates, this.predicates_universe);
-        }
-
-        for (Predicate p : this.predicates_universe) {
-            for (PDDLGroundAction gr : actions) {
-                gr.subst_predicate(p);
-            }
-            for (GroundProcess gr : processesSet) {
-                gr.subst_predicate(p);
-            }
-        }
-
-        for (Predicate p : this.predicates_universe) {
-            for (PDDLGroundAction gr : actions) {
-                gr.subst_predicate(p);
-            }
-            for (GroundProcess gr : processesSet) {
-                gr.subst_predicate(p);
-            }
-        }
-
-    }
-
-    private void add_if_necessary(Collection to_be_modified, Collection set) {
-        for (Object nf : to_be_modified) {
-            Iterator it = set.iterator();
-            boolean to_add = true;
-            while (it.hasNext()) {
-                Object target = it.next();
-                if (target.equals(nf)) {
-                    to_add = false;
-                    break;
-                }
-            }
-            if (to_add) {
-                set.add(nf);
-            }
-        }
-
-    }
 
     public void grounding_reachability() throws CloneNotSupportedException, Exception {
         HashSet<PDDLGroundAction> reachable = new LinkedHashSet();
@@ -743,7 +690,10 @@ public class EPddlProblem extends PddlProblem {
         
         propagate_new_num_fluents_hash();
         set_actions_costs();
+        
         makeInit();
+        //if (!this.processesSet.isEmpty() || !this.eventsSet.isEmpty())
+        addTimeFluentToInit();
     }
 
     public void setDeltaTimeVariable(String delta_t) {
@@ -843,8 +793,11 @@ public class EPddlProblem extends PddlProblem {
 
         for (NumFluent nf : this.numFluentReference.values()) {
             if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
-                nf.setId(this.init.numFluents.size());
-                this.init.numFluents.add(this.initNumFluentsValues.get(nf));
+                PDDLNumber number = this.initNumFluentsValues.get(nf);
+                if (number != null){
+                    nf.setId(this.init.numFluents.size());
+                    this.init.numFluents.add(number);
+                }
             }
         }
         this.init.boolFluents = new ArrayList();
@@ -910,6 +863,13 @@ public class EPddlProblem extends PddlProblem {
 
     public void syncAllVariables() {
 
+        for(Predicate p: this.initBoolFluentsValues.keySet()){
+           this.predicateReference.put(p.toString(), p);
+        }
+        for(NumFluent nf: this.initNumFluentsValues.keySet()){
+           this.numFluentReference.put(nf.toString(), nf);
+        }
+        
         for (PDDLGenericAction act : this.actions) {
             act.unifyVariablesReferences(this);
         }
@@ -932,12 +892,23 @@ public class EPddlProblem extends PddlProblem {
     }
     
     
-    
     public void addTimeFluentToInit() {
         time = new NumFluent("time_elapsed");
         initNumFluentsValues.put(time, new PDDLNumber(new Float(0.0)));
         init.setNumFluent(time, initNumFluentsValues.get(time));
         this.init.time = time;
+    }
+
+    public NumFluent getNumfluentReference(String stringRepresentation) {
+        return this.numFluentReference.get(stringRepresentation);
+    }
+
+    public Predicate getPredicateReference(String stringRepresentation) {
+        return this.predicateReference.get(stringRepresentation);
+    }
+
+    public void setPredicateReference(Predicate predicate) {
+        this.predicateReference.put(predicate.toString(),predicate);
     }
 
 }
