@@ -147,9 +147,6 @@ public class EPddlProblem extends PddlProblem {
     @Override
     public HashMap getActualFluents() {
         if (staticFluents == null) {
-//            if ((this.getActions() == null || this.getActions().isEmpty()) && (this.processesSet == null || this.processesSet.isEmpty())) {
-//                this.grounding_action_processes_constraints();
-//            }
             staticFluents = new HashMap();
             for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.getActions()) {
                 staticFluents = gr.update_invariant_fluents(staticFluents);
