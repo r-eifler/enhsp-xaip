@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -120,7 +120,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public PDDLNumber eval(State s) {
         PDDLNumber ret_val = null;
         PDDLNumber first = this.lhs.eval(s);
         PDDLNumber second = this.rhs.eval(s);

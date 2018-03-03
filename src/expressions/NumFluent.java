@@ -32,7 +32,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -190,7 +190,7 @@ public class NumFluent extends Expression {
 //        this.name = name;
 //    }
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public PDDLNumber eval(State s) {
         if (s == null) {
             System.out.println("stato nullo!!");
         }
@@ -245,34 +245,16 @@ public class NumFluent extends Expression {
         if ((invF.get(this) == null)) {//this means that the fluent cannot be in principle assigned
             PDDLNumber o = problem.getNumFluentInitialValue(this);
             if (o == null && this.freeVarSemantic) {
-                return problem.getNumFluent(this);
+                return this;
             }
             return problem.getNumFluentInitialValue(this);
-        }
-        if (invF.get(this) != null) {
-            if ((Boolean) invF.get(this)) {
-                if (invF.get(this.getName()) == null) {
-                    return problem.getNumFluentInitialValue(this);
-                }
-                if ((Boolean) invF.get(this.getName())) {
-                    return problem.getNumFluentInitialValue(this);
-                }
-                return problem.getNumFluent(this);
-
-            } else {
-                return problem.getNumFluent(this);
+        }else{
+            if (!(Boolean) invF.get(this)) {
+                return this;
+            }else{
+                return  problem.getNumFluentInitialValue(this);
             }
         }
-        if (invF.get(this.getName()) != null) {
-            if ((Boolean) invF.get(this.getName())) {
-                return problem.getNumFluentInitialValue(this);
-            } else {
-                return problem.getNumFluent(this);
-
-            }
-        }
-        return problem.getNumFluent(this);
-
     }
 
     @Override

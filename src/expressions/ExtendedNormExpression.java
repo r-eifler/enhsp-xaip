@@ -31,10 +31,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.EPddlProblem;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -412,7 +412,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public PDDLNumber eval(State s) {
         //PDDLNumber ret = new PDDLNumber(0);
         float ret = 0f;
         for (Object o : this.summations) {
@@ -453,12 +453,13 @@ public class ExtendedNormExpression extends Expression {
 //                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
 //                }
 
-                if (invFluents.get(a.f) != null && (Boolean) invFluents.get(a.f)) {
+                if (invFluents.get(a.f) == null || (Boolean) invFluents.get(a.f)) {
                     if (problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
                         return null;
                     }
                     c = new PDDLNumber(c.getNumber() + problem.getNumFluentInitialValue(a.f).getNumber() * a.n.getNumber());
                 } else {
+//                    
                     a.f = problem.getNumFluent(a.f);
                     ret.summations.add(a);
                 }
@@ -745,7 +746,7 @@ public class ExtendedNormExpression extends Expression {
         return ret_val;
     }
 
-    public float eval_not_affected(PDDLState s_0, PDDLGroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_not_affected(State s_0, GroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
@@ -774,7 +775,7 @@ public class ExtendedNormExpression extends Expression {
         return new Float(0);
     }
 
-    public float eval_affected(PDDLState s_0, PDDLGroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_affected(State s_0, GroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
@@ -786,7 +787,7 @@ public class ExtendedNormExpression extends Expression {
         return current;
     }
 
-    public float eval_apart_from_f(NumFluent f, PDDLState s) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_apart_from_f(NumFluent f, State s) {//this applies only to linear expression. In the other cases the behavior is undefined
         float ret = 0;
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;

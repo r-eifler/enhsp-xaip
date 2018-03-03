@@ -34,7 +34,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -141,7 +141,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a PDDLNumber or Null in case the operation is not supported
      */
     @Override
-    public PDDLNumber eval(PDDLState state) {
+    public PDDLNumber eval(State state) {
         PDDLNumber first = this.fluentAffected.eval(state);
         PDDLNumber second = this.right.eval(state);
         if (this.getOperator().equals("increase")) {
@@ -163,7 +163,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      * @throws CloneNotSupportedException
      */
-    public PDDLState applyAndCreateNew(PDDLState state) throws CloneNotSupportedException {
+    public State applyAndCreateNew(State state) throws CloneNotSupportedException {
         PDDLNumber after = null;
         if (this.operator.equals("increase")) {
             PDDLNumber current = state.fluentValue(fluentAffected);
@@ -177,7 +177,7 @@ public class NumEffect extends Expression implements PostCondition {
             PDDLNumber eval = this.getRight().eval(state);
             after = eval;
         }
-        PDDLState ret = state.clone();
+        State ret = state.clone();
 
         if (after != null) {
             ret.setNumFluent(fluentAffected, after);
@@ -475,7 +475,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public HashMap apply(PDDLState state) {
+    public HashMap apply(State state) {
         HashMap ret = new HashMap();
         apply(state, ret);
         return ret;
@@ -489,7 +489,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public void apply(PDDLState s, Map modifications) {
+    public void apply(State s, Map modifications) {
         if (!fluentAffected.has_to_be_tracked()) {
             return;
         }

@@ -19,7 +19,6 @@
 package problem;
 
 import conditions.AndCond;
-import conditions.NumFluentValue;
 import conditions.Comparison;
 import conditions.Condition;
 import conditions.Predicate;
@@ -27,31 +26,28 @@ import expressions.Interval;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  *
  * @author enrico
  */
-public class PDDLState  {
+public class State  {
 
     public ArrayList<PDDLNumber> numFluents;
     public ArrayList<Boolean> boolFluents;
-    public NumFluent time;
+    public Double time;
 
-    public PDDLState() {
+    public State() {
         super();
         this.numFluents = new ArrayList();
         this.boolFluents = new ArrayList();
 
     }
 
-    public PDDLState(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
+    public State(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
         this.numFluents = (ArrayList<PDDLNumber>) numFluents.clone();
         this.boolFluents = (ArrayList<Boolean>) propFluents.clone();
     }
@@ -64,8 +60,8 @@ public class PDDLState  {
     
 
     @Override
-    public PDDLState clone() throws CloneNotSupportedException {
-        PDDLState ret_val = new PDDLState(this.numFluents,this.boolFluents);
+    public State clone() throws CloneNotSupportedException {
+        State ret_val = new State(this.numFluents,this.boolFluents);
         ret_val.time = this.time;
         return ret_val;
     }
@@ -89,7 +85,7 @@ public class PDDLState  {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final PDDLState other = (PDDLState) obj;
+        final State other = (State) obj;
         if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
@@ -103,29 +99,14 @@ public class PDDLState  {
 
     public PDDLNumber fluentValue(NumFluent f) {
         if (f.getId() == null) {
-            throw new RuntimeException("Numeric Fluent "+f+" hasn't been assigned with a unique id");
+            throw new RuntimeException("Numeric Fluent "+f+" hasn't been assigned with a unique id ");
+//            System.out.println("Numeric Fluent "+f+" hasn't been assigned with a unique id "+ "Current mapping is" + this.idOf);
+//            return null;
         }
         return this.numFluents.get(f.getId());
 
     }
 
-    
-    public void populateBoolFloatMap(EPddlProblem p){
-        
-//        System.out.println("Put numeric information into memory!");
-        numFluents = new ArrayList();
-        for (Entry<NumFluent,PDDLNumber> numFluentValue : p.initNumFluentsValues.entrySet()) {
-            NumFluent nf = numFluentValue.getKey();
-            nf.id = this.numFluents.size();
-            this.numFluents.add(numFluentValue.getValue());
-        }
-        boolFluents = new ArrayList();
-        for (Entry<Predicate,Boolean> boolFluentValue : p.initBoolFluentsValues.entrySet()) {
-                Predicate pred = boolFluentValue.getKey();
-                pred.id = this.boolFluents.size();
-                boolFluents.add(boolFluentValue.getValue());
-        }
-    }
 
     public boolean holds(Predicate p) {
         return (p.id != null && (this.boolFluents.get(p.id)));
@@ -133,16 +114,18 @@ public class PDDLState  {
 
     public void setNumFluent(NumFluent f, PDDLNumber after) {
         if (f.getId() == null) {
-            f.id = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
-            this.numFluents.add(after);
+            throw new RuntimeException("This shouldn't happen and is a bug. Numeric fluent wasn't on the table");
+//            f.id = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
+//            this.numFluents.add(after);
         } else {
             this.numFluents.set(f.getId(), after);
         }
     }
     public void setPropFluent(Predicate f, Boolean after) {
         if (f.id == null) {
-            f.id = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
-            this.boolFluents.add(after);
+            throw new RuntimeException("This shouldn't happen and is a bug. Predicate fluent wasn't on the table");
+//            f.id = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
+//            this.boolFluents.add(after);
         } else {
             this.boolFluents.set(f.id, after);
         }
@@ -170,7 +153,7 @@ public class PDDLState  {
 
     }
     
-    public void apply(PDDLGroundAction gr){
+    public void apply(GroundAction gr){
         gr.apply(this);
     }
             
@@ -228,15 +211,14 @@ public class PDDLState  {
 
     }
 
-    public void updateValues(HashSet<NumFluent> toUpdate, PDDLState temp) {
+    public void updateValues(HashSet<NumFluent> toUpdate, State temp) {
         for (NumFluent n : toUpdate) {
             this.setNumFluent(n, temp.fluentValue(n));
         }
     }
 
     void increase_time_by_epsilon() {
-        Float new_value = this.fluentValue(time).getNumber() + 0.1f;
-        this.setNumFluent(time, new PDDLNumber(new_value));
+        time+=0.1f;
     }
 
 

@@ -20,6 +20,7 @@ package problem;
 
 import conditions.AndCond;
 import conditions.ComplexCondition;
+import conditions.Predicate;
 import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -33,13 +34,15 @@ import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GroundProcess extends PDDLGroundAction implements Comparable {
+public class GroundProcess extends GroundAction implements Comparable {
+
+    private double delta;
 
     public GroundProcess(String name) {
         super(name);
     }
 
-    public boolean isActive(PDDLState s) {
+    public boolean isActive(State s) {
         return this.isApplicable(s);
     }
 
@@ -73,9 +76,9 @@ public class GroundProcess extends PDDLGroundAction implements Comparable {
 
     }
 
-    public PDDLState apply(PDDLState s_in, int time) {
+    public State apply(State s_in, int time) {
 
-        PDDLState s = null;
+        State s = null;
         try {
             s = s_in.clone();
         } catch (CloneNotSupportedException ex) {
@@ -199,13 +202,15 @@ public class GroundProcess extends PDDLGroundAction implements Comparable {
 
     }
 
-    public void add_time_effects(NumFluent time_nf, float delta) {
-
-        NumEffect time = new NumEffect("increase");
-        time.setFluentAffected(time_nf);
-        time.setRight(new PDDLNumber(delta));
-        time.getRight().normalize();
-        this.numericEffects.sons.add(time);
+    public void addDelta(double delta) {
+        this.delta = delta;
+    }
+    
+    public State apply(State s) {
+        s = super.apply(s);
+        s.time+=delta;
+//        System.out.println("DEBUG: Subst within action application:"+subst);
+        return s;
     }
 
 }

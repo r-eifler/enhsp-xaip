@@ -32,10 +32,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -110,7 +110,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
 
         for (Object o : sons) {
             Condition c = (Condition) o;
@@ -123,7 +123,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
             if (c.isSatisfied(s)) {
@@ -361,7 +361,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public String toSmtVariableString(int k, PDDLGroundAction gr, String var) {
+    public String toSmtVariableString(int k, GroundAction gr, String var) {
         String ret = "";
 
         //System.out.println(this);
@@ -404,7 +404,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean is_affected_by(PDDLGroundAction gr) {
+    public boolean is_affected_by(GroundAction gr) {
         if (this.sons != null && !this.sons.isEmpty()) {
 
             for (Condition c : (Collection<Condition>) this.sons) {
@@ -419,7 +419,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition regress(PDDLGroundAction gr) {
+    public Condition regress(GroundAction gr) {
         OrCond con = new OrCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -565,7 +565,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         achiever_set s = new achiever_set();
         s.cost = Float.MAX_VALUE;
         if (this.sons == null) {

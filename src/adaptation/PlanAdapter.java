@@ -46,11 +46,11 @@ import org.jgrapht.graph.AsUndirectedGraph;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
 import wrapped_planners.planningTool;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 
 /**
  *
@@ -612,7 +612,7 @@ public class PlanAdapter {
 
     protected TreeSet pruneSmallMacros(List c, int i) {
 
-        TreeSet<PDDLGroundAction> ret = new TreeSet(new GroundActionComparator());
+        TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
         ret.addAll(c);
 
         while (ret.size() > i) {
@@ -630,10 +630,10 @@ public class PlanAdapter {
         //Planning with off-the shelf planner on the extended domain representation
     }
 
-    public class GroundActionComparator implements Comparator<PDDLGroundAction> {
+    public class GroundActionComparator implements Comparator<GroundAction> {
 
         @Override
-        public int compare(PDDLGroundAction x, PDDLGroundAction y) {
+        public int compare(GroundAction x, GroundAction y) {
             if (x.getPrimitives().size() <= y.getPrimitives().size()) {
                 return -1;
             }

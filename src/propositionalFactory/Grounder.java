@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import problem.GlobalConstraint;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PDDLObjects;
@@ -219,7 +219,7 @@ public class Grounder {
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 } else {
-                    PDDLGroundAction toAdd = a.ground((ParametersAsTerms) o, po);
+                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 }

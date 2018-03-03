@@ -24,9 +24,10 @@ import domain.Variable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -41,6 +42,13 @@ public class ComplexFunction extends BinaryOp {
         super();
     }
 
+        @Override
+    public Expression unifyVariablesReferences(EPddlProblem p) {
+        super.unifyVariablesReferences(p);
+        this.arg = this.arg.unifyVariablesReferences(p);  
+        return this;
+    }
+    
     @Override
     public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ComplexFunction ret = new ComplexFunction();
@@ -60,7 +68,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public PDDLNumber eval(State s) {
         double arg_val = getArg().eval(s).getNumber();
         switch (this.operator) {
             case "abs":

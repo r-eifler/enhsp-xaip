@@ -32,10 +32,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.EPddlProblem;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -87,14 +87,14 @@ public class NotCond extends Terminal implements PostCondition {
     //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
     //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
 
         return !son.eval(s);
 
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
 
         return !son.isSatisfied(s);
 
@@ -200,7 +200,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int i, PDDLGroundAction gr, String var) {
+    public String toSmtVariableString(int i, GroundAction gr, String var) {
         return "(not " + son.toSmtVariableString(i, gr, var) + ")";
     }
 
@@ -216,7 +216,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(PDDLGroundAction gr) {
+    public boolean is_affected_by(GroundAction gr) {
 
         if (son.is_affected_by(gr)) {
             return true;
@@ -226,7 +226,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition regress(PDDLGroundAction gr) {
+    public Condition regress(GroundAction gr) {
 
         Condition temp = son.regress(gr);
         if (temp.isValid()) {
@@ -309,7 +309,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(PDDLState s) {
+    public HashMap apply(State s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -324,7 +324,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(PDDLState s, Map modifications) {
+    public void apply(State s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
             modifications.put(p, Boolean.FALSE);
@@ -398,7 +398,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         achiever_set s = new achiever_set();
         s.cost = cond_dist.get(this.getHeuristicId());
         s.actions.add(established_achiever.get(this.getHeuristicId()));

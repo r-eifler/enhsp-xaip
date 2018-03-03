@@ -29,10 +29,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundEvent;
 import problem.GroundProcess;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.Metric;
 
 /**
@@ -54,16 +54,16 @@ public class habs_add extends Heuristic {
     public boolean midPointSampling;
     private boolean risky = false;
     public boolean planExtraction = false;
-    private HashMap<PDDLGroundAction,PDDLGroundAction> subactionOf;
+    private HashMap<GroundAction,GroundAction> subactionOf;
 
-    public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Integer k) {
+    public habs_add(ComplexCondition G, Set<GroundAction> A, Integer k) {
         super(G, A);
 
         this.k = k;
         this.supporters = new LinkedHashSet<>();
     }
 
-    public habs_add(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, Integer k) {
+    public habs_add(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, Integer k) {
         super(G, A, P, E);
 
         this.k = k;
@@ -75,7 +75,7 @@ public class habs_add extends Heuristic {
     }
 
     @Override
-    public Float setup(PDDLState s) {
+    public Float setup(State s) {
 
         this.aibr_handle = new Aibr(this.G, this.A);
         this.aibr_handle.setup(s);
@@ -108,7 +108,7 @@ public class habs_add extends Heuristic {
 //            
             System.out.println("|Subactions| = " + this.supporters.size());
             if (debug > 100) {
-                for (PDDLGroundAction gr : this.supporters) {
+                for (GroundAction gr : this.supporters) {
                     System.out.println(gr.toPDDL() + "\n\n");
                 }
             }
@@ -127,7 +127,7 @@ public class habs_add extends Heuristic {
         return ret;
     }
 
-    private Float aibrReachabilityAnalysis(PDDLState s) {
+    private Float aibrReachabilityAnalysis(State s) {
         // reachability analysis on original problem using AIBR.
         Float ret = this.aibr_handle.compute_estimate(s);
         A = this.aibr_handle.reachable;
@@ -147,7 +147,7 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      * <p>
      */
-    private void generate_subactions(PDDLState s_0) throws Exception {
+    private void generate_subactions(State s_0) throws Exception {
 
         ArrayList<RelState> relaxedStates = getRelaxedGoal(s_0);
         RelState rsReachability = getReachabilityRelaxedState(s_0);
@@ -158,7 +158,7 @@ public class habs_add extends Heuristic {
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
-        for (PDDLGroundAction gr : A) {
+        for (GroundAction gr : A) {
             allConstantEffects.clear();
 
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
@@ -205,11 +205,11 @@ public class habs_add extends Heuristic {
 //        System.exit(0);
     }
 
-    private ArrayList<RelState> getRelaxedGoal(PDDLState s) {
+    private ArrayList<RelState> getRelaxedGoal(State s) {
         return aibr_handle.get_relaxed_reachable_states(s, s.relaxState());
     }
 
-    private RelState getReachabilityRelaxedState(PDDLState s_0) {
+    private RelState getReachabilityRelaxedState(State s_0) {
         return aibr_handle.get_relaxed_goal_in_reachability(s_0);
     }
 
@@ -218,11 +218,11 @@ public class habs_add extends Heuristic {
      *
      * @param s
      */
-    public void setup_habs(PDDLState s) {
+    public void setup_habs(State s) {
 
         System.out.println("setting up...");
 
-        habs = new h1(G, (Set<PDDLGroundAction>) this.supporters, new LinkedHashSet<>());
+        habs = new h1(G, (Set<GroundAction>) this.supporters, new LinkedHashSet<>());
         habs.light_setup(s);
         System.out.println("setup completed!");
     }
@@ -243,7 +243,7 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      * <p>
      */
-    private void addPiecewiseSubactions(String name, PDDLGroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, RelState rsReachability, PDDLState s_0) {
+    private void addPiecewiseSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, RelState rsReachability, State s_0) {
         // decomposition
         ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates, rsReachability);
 
@@ -264,7 +264,7 @@ public class habs_add extends Heuristic {
             }
 //            repSample = midSampling(inf, sup);
             subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
-            PDDLGroundAction subaction = generatePiecewiseSubaction(subactionName,
+            GroundAction subaction = generatePiecewiseSubaction(subactionName,
                     repSample,
                     inf,
                     sup,
@@ -501,8 +501,8 @@ public class habs_add extends Heuristic {
 //           System.exit(0);
     }
 
-    private PDDLGroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, PDDLGroundAction gr, PDDLState s_0) {
-        PDDLGroundAction subaction = new PDDLGroundAction(subactionName);
+    private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, State s_0) {
+        GroundAction subaction = new GroundAction(subactionName);
 
         // set up effect
         NumEffect supEff = new NumEffect(effect.getOperator());
@@ -569,8 +569,8 @@ public class habs_add extends Heuristic {
      * @param name a string to distinguish between effects.
      * @param gr the grounded action.
      */
-    private void addConstantSubaction(String name, PDDLGroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
-        PDDLGroundAction sup = new PDDLGroundAction(name);
+    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, State s_0) {
+        GroundAction sup = new GroundAction(name);
 
         // add preconditions
         sup.setPreconditions(gr.getPreconditions());
@@ -596,13 +596,13 @@ public class habs_add extends Heuristic {
         supporters.add(sup);
     }
 
-    public Float compute_estimate(PDDLState s) {
+    public Float compute_estimate(State s) {
 //        System.out.println("start compute_estimate()...");
 
         if (debug > 10) {
             System.out.println("State: " + s);
             System.out.println("Before updating subactions are: ");
-            for (PDDLGroundAction gr : this.supporters) {
+            for (GroundAction gr : this.supporters) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("===================\n\n");
@@ -614,7 +614,7 @@ public class habs_add extends Heuristic {
 
         if (debug > 10) {
             System.out.println("After updating subactions are: ");
-            for (PDDLGroundAction gr : this.supporters) {
+            for (GroundAction gr : this.supporters) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("finish compute_estimate()!\n===================\n\n\n\n");
@@ -623,8 +623,8 @@ public class habs_add extends Heuristic {
         Float ret = habs.compute_estimate(s);
         if (this.helpful_actions_computation){
             this.helpful_actions = new HashSet();
-            for (PDDLGroundAction gr : habs.helpful_actions){
-                PDDLGroundAction subaction = this.subactionOf.get(gr);
+            for (GroundAction gr : habs.helpful_actions){
+                GroundAction subaction = this.subactionOf.get(gr);
                 if (subaction != null)
                     this.helpful_actions.add(this.subactionOf.get(gr));
                 else
@@ -634,7 +634,7 @@ public class habs_add extends Heuristic {
         return ret;
     }
 
-    private void updateRepresentatives(PDDLState s) {
+    private void updateRepresentatives(State s) {
         for (Entry<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> e : this.subactionsMap.entrySet()) {
             NumEffect original = e.getValue().getFirst();
             NumEffect sampled = e.getValue().getSecond();

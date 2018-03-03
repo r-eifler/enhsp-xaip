@@ -22,8 +22,8 @@ import conditions.AndCond;
 import conditions.Predicate;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import problem.PDDLGroundAction;
-import problem.PDDLState;
+import problem.GroundAction;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -32,8 +32,8 @@ import problem.PddlProblem;
  */
 public class Converter {
     
-    static public PDDLGroundAction createInitAction(PddlProblem p, PDDLState s) {
-        PDDLGroundAction a = new PDDLGroundAction("InitAction");
+    static public GroundAction createInitAction(PddlProblem p, State s) {
+        GroundAction a = new GroundAction("InitAction");
 
         AndCond addList = new AndCond();
         AndCond numericEffects = new AndCond();

@@ -120,7 +120,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         this.reachable = reacheable;
     }
 
-    public boolean isTautology(PDDLState reacheableState) {
+    public boolean isTautology(State reacheableState) {
 
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {

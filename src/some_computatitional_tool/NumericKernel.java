@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import plan.SimplePlan;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.RelState;
 
 /**
@@ -62,7 +62,7 @@ public class NumericKernel extends HashMap {
         this.put(pianoClonato.size(), goal.clone());
 
         for (int i = pianoClonato.size() - 1; i >= 0; i--) {
-            PDDLGroundAction a = (PDDLGroundAction) pianoClonato.get(i);
+            GroundAction a = (GroundAction) pianoClonato.get(i);
             goal = a.regress(goal);//TODO to verify...
 
             this.put(i, goal.clone());
@@ -83,7 +83,7 @@ public class NumericKernel extends HashMap {
         this.put(pianoClonato.size(), goal);
 
         for (int i = pianoClonato.size() - 1; i >= 0; i--) {
-            PDDLGroundAction a = (PDDLGroundAction) pianoClonato.get(i);
+            GroundAction a = (GroundAction) pianoClonato.get(i);
 
             goal = (ComplexCondition) a.regressAndStoreFatherPointer(goal);
             this.put(i, goal);
@@ -170,8 +170,8 @@ public class NumericKernel extends HashMap {
         this.put(sp.size(), goal.clone());
 
         for (int i = sp.size() - 1; i >= 0; i--) {
-            PDDLGroundAction a = (PDDLGroundAction) sp.get(i);
-            oplus((PDDLGroundAction) a, (AndCond) goal);
+            GroundAction a = (GroundAction) sp.get(i);
+            oplus((GroundAction) a, (AndCond) goal);
             this.put(i, goal.clone());
         }
 
@@ -183,7 +183,7 @@ public class NumericKernel extends HashMap {
      * @param con
      * @return
      */
-    public AndCond oplus(PDDLGroundAction a, AndCond con) throws Exception {
+    public AndCond oplus(GroundAction a, AndCond con) throws Exception {
 
         //AndCond result = (AndCond)con.clone();
         if (!a.normalized) {

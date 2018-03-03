@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -74,7 +74,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -114,7 +114,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -273,8 +273,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 
-    public PDDLState transformInStateIfPossible() {
-        PDDLState ret = new PDDLState();
+    public State transformInStateIfPossible() {
+        State ret = new State();
         for (Object o : this.sons) {
             if (o instanceof Predicate) {
                 ret.setPropFluent((Predicate) o, true);
@@ -393,7 +393,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public String toSmtVariableString(int i, PDDLGroundAction gr, String var) {
+    public String toSmtVariableString(int i, GroundAction gr, String var) {
         String ret = "";
         if (this.sons != null) {
             if (this.sons.size() > 1) {
@@ -445,7 +445,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(PDDLGroundAction gr) {
+    public boolean is_affected_by(GroundAction gr) {
 
         if (this.sons != null && !this.sons.isEmpty()) {
 
@@ -461,7 +461,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition regress(PDDLGroundAction gr) {
+    public Condition regress(GroundAction gr) {
         AndCond con = new AndCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -566,7 +566,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public HashMap apply(PDDLState s) {
+    public HashMap apply(State s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -580,7 +580,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public void apply(PDDLState s, Map modifications) {
+    public void apply(State s, Map modifications) {
         for (Object o : this.sons) {
 //            if ((o instanceof AndCond) 
 //                    || (o instanceof Predicate)
@@ -665,7 +665,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         achiever_set s = new achiever_set();
         if (this.sons == null) {
             s.cost = 0f;

@@ -19,8 +19,8 @@
 package heuristics.utils;
 
 import java.util.Comparator;
-import problem.PDDLGroundAction;
-import problem.PDDLState;
+import problem.GroundAction;
+import problem.State;
 
 /**
  *
@@ -28,12 +28,12 @@ import problem.PDDLState;
  */
 public class RegressedSearchNode implements Comparable {
 
-    public PDDLGroundAction action;
+    public GroundAction action;
 
     public RegressedSearchNode father;
     public int action_cost_to_get_here;
 
-    public RegressedSearchNode(PDDLGroundAction action, int action_cost_to_get_here) {
+    public RegressedSearchNode(GroundAction action, int action_cost_to_get_here) {
         this.action = action;
         this.father = father;
         this.action_cost_to_get_here = action_cost_to_get_here;

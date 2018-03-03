@@ -29,7 +29,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -133,7 +133,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public PDDLNumber eval(State s) {
         PDDLNumber ret_val = new PDDLNumber(0);
 
         for (Object o : this.expr) {

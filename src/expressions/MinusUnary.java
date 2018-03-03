@@ -27,7 +27,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -66,7 +66,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public PDDLNumber eval(State s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

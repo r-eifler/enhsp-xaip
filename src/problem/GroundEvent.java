@@ -28,7 +28,7 @@ import java.util.HashMap;
  *
  * @author enrico
  */
-public class GroundEvent extends PDDLGroundAction {
+public class GroundEvent extends GroundAction {
 
     public GroundEvent(String name) {
         super(name);

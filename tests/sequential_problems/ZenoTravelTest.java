@@ -33,9 +33,9 @@ import static org.junit.Assert.*;
  *
  * @author enrico
  */
-public class BlocksWorldTest {
+public class ZenoTravelTest {
 
-    public BlocksWorldTest() {
+    public ZenoTravelTest() {
     }
 
     @BeforeClass
@@ -58,11 +58,11 @@ public class BlocksWorldTest {
     public void hello() throws Exception {
         
         //get pddl description
-        List<String> heuristics = Arrays.asList("blind","hrmax");
+        List<String> heuristics = Arrays.asList("hadd");
         PlanGetResult temp = new PlanGetResult();
         for (String h : heuristics){
-            assertEquals(20, temp.getPlanSize("unit_test_instances/blocks/domain.pddl", 
-                    "unit_test_instances/blocks/task12.pddl", h));
+            assertEquals(9, temp.getPlanSize("unit_test_instances/zenotravel/domain.pddl", 
+                    "unit_test_instances/zenotravel/sample.pddl", h));
         }
 
         

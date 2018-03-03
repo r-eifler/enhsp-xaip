@@ -28,10 +28,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import problem.EPddlProblem;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
+import problem.State;
 import problem.PddlProblem;
 
 /**
@@ -92,7 +92,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         if (!grounded) {
             System.out.println(this + "  condition should be grounded..exit!");
@@ -103,7 +103,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         if (!grounded) {
             System.out.println(this + "  condition should be grounded..exit!");
@@ -276,7 +276,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public String toSmtVariableString(int k, PDDLGroundAction gr, String var) {
+    public String toSmtVariableString(int k, GroundAction gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -286,12 +286,12 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean is_affected_by(PDDLGroundAction gr) {
+    public boolean is_affected_by(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition regress(PDDLGroundAction gr) {
+    public Condition regress(GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -417,7 +417,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<PDDLGroundAction> established_achiever) {
+    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

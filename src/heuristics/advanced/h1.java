@@ -51,9 +51,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.GroundProcess;
-import problem.PDDLState;
+import problem.State;
 
 /**
  *
@@ -63,7 +63,7 @@ public class h1 extends Heuristic {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
 
-    private ArrayList<Set<PDDLGroundAction>> condition_to_action;
+    private ArrayList<Set<GroundAction>> condition_to_action;
 
     public boolean compute_lp;
     private ArrayList<Float> cond_dist;
@@ -71,33 +71,33 @@ public class h1 extends Heuristic {
 
     public boolean red_constraints = false;
     public boolean mip;
-    private ArrayList<PDDLGroundAction> established_achiever;
+    private ArrayList<GroundAction> established_achiever;
     private ArrayList<achiever_set> action_achievers;
     public boolean relaxed_plan_extraction = false;
-    private PDDLGroundAction goal;
-    private ArrayList<LinkedHashSet<PDDLGroundAction>> all_achievers;
-    private Set<PDDLGroundAction> reachable_here;
+    private GroundAction goal;
+    private ArrayList<LinkedHashSet<GroundAction>> all_achievers;
+    private Set<GroundAction> reachable_here;
 //    private Aibr aibr_handler;
     private boolean all_achievers_to_consider = false;
     private ArrayList<Boolean> closed;
     private float min_cost_action;
     public boolean conservativehmax = true;
     public boolean ibr_deactivated = false;
-    private LinkedList<Pair<PDDLGroundAction, Float>> relaxed_plan;
+    private LinkedList<Pair<GroundAction, Float>> relaxed_plan;
     private ArrayList<Float> established_local_cost;
     private HashMap<Pair<Integer,Integer>,Float> action_comp_number_execution;
     protected boolean reacheability_setting;
     
     
     protected HashMap<Integer, LinkedHashSet<Condition>> achieve;
-    protected HashMap<Integer, LinkedHashSet<PDDLGroundAction>> achievers_inverted;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> achievers_inverted;
     protected HashMap<Integer, LinkedHashSet<Comparison>> interact_with;
     protected HashMap<Integer, LinkedHashSet<Comparison>> possible_achievers;
-    protected HashMap<Integer, LinkedHashSet<PDDLGroundAction>> possible_achievers_inverted;
-    protected HashMap<Integer, LinkedHashSet<PDDLGroundAction>> precondition_mapping;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> possible_achievers_inverted;
+    protected HashMap<Integer, LinkedHashSet<GroundAction>> precondition_mapping;
     protected HashMap<Condition, Boolean> redundant_constraints;
 
-    public h1(ComplexCondition goal, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
+    public h1(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
     }
 
@@ -106,7 +106,7 @@ public class h1 extends Heuristic {
     }
 
     @Override
-    public Float setup(PDDLState s) {
+    public Float setup(State s) {
 
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
@@ -131,7 +131,7 @@ public class h1 extends Heuristic {
         } else {
             min_cost_action = 0.0f;
         }
-        goal = new PDDLGroundAction("goal");
+        goal = new GroundAction("goal");
         goal.dummy_goal = true;
         goal.setAction_cost(0);
         goal.setPreconditions(G);
@@ -159,9 +159,9 @@ public class h1 extends Heuristic {
         return ret;
     }
     
-    public void light_setup(PDDLState s){
+    public void light_setup(State s){
         
-        goal = new PDDLGroundAction("goal");
+        goal = new GroundAction("goal");
         goal.dummy_goal = true;
         goal.setAction_cost(0);
         goal.setPreconditions(G);
@@ -179,7 +179,7 @@ public class h1 extends Heuristic {
         }
     }
 
-    public Float compute_estimate(PDDLState s_0) {
+    public Float compute_estimate(State s_0) {
 
         if (s_0.satisfy(G)) {
 //            System.out.println("Goal satisfied??");
@@ -193,13 +193,13 @@ public class h1 extends Heuristic {
         all_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
 
         Float estimate = Float.MAX_VALUE;
-        FibonacciHeap<PDDLGroundAction> a_plus = new FibonacciHeap();//actions executable. Progressively updated
+        FibonacciHeap<GroundAction> a_plus = new FibonacciHeap();//actions executable. Progressively updated
         ArrayList<FibonacciHeapNode> action_to_fib_node = new ArrayList<>(nCopies(total_number_of_actions + 1, null));//mapping between action and boolean. True if action has not been activated yet
         cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         action_dist = new ArrayList<>(nCopies(total_number_of_actions + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet        
         closed = new ArrayList<>(nCopies(total_number_of_actions + 1, false));
         action_comp_number_execution = new HashMap();
-        for (PDDLGroundAction gr : this.A) {//see which actions are executable at the current state
+        for (GroundAction gr : this.A) {//see which actions are executable at the current state
 //            gr.set_unit_cost(s_0);
             if (gr.isApplicable(s_0)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(gr);
@@ -227,7 +227,7 @@ public class h1 extends Heuristic {
         reachable_here = new LinkedHashSet();
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
 
-            PDDLGroundAction gr = a_plus.removeMin().getData();
+            GroundAction gr = a_plus.removeMin().getData();
             //if (!conservativehmax || this.additive_h)
             closed.set(gr.id, true);
             reachable_here.add(gr);
@@ -278,8 +278,8 @@ public class h1 extends Heuristic {
         return estimate;
     }
 
-    private void update_reachable_conditions_actions(PDDLState s_0, PDDLGroundAction gr, FibonacciHeap<PDDLGroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
-        float c_a = Math.max(gr.getAction_cost(), min_cost_action);
+    private void update_reachable_conditions_actions(State s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
+        float c_a = Math.max(gr.getActionCost(), min_cost_action);
         for (Condition comp : this.achieve.get(gr.id)) {//This is the set of all predicates reachable because of gr
             Float current_distance = cond_dist.get(comp.getHeuristicId());
             if (current_distance != 0f) {
@@ -401,12 +401,12 @@ public class h1 extends Heuristic {
     }
 
 
-    private void update_reachable_actions(PDDLGroundAction gr, Condition comp, FibonacciHeap<PDDLGroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
+    private void update_reachable_actions(GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Set<PDDLGroundAction> set = condition_to_action.get(comp.getHeuristicId());
+        Set<GroundAction> set = condition_to_action.get(comp.getHeuristicId());
         //this mapping contains action that need to be triggered becasue of condition comp
-        for (PDDLGroundAction gr2 : set) {
+        for (GroundAction gr2 : set) {
             if (closed.get(gr2.id)) {
                 if (this.additive_h || !this.conservativehmax) {
                     continue;
@@ -435,7 +435,7 @@ public class h1 extends Heuristic {
         }
     }
 
-    private Float check_conditions(PDDLGroundAction gr2) {
+    private Float check_conditions(GroundAction gr2) {
         if (relaxed_plan_extraction || this.helpful_actions_computation) {
             achiever_set s = gr2.getPreconditions().estimate_cost(cond_dist, additive_h, established_achiever);
             action_achievers.set(gr2.id, s);
@@ -449,8 +449,8 @@ public class h1 extends Heuristic {
     private void generate_link_precondition_action() {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
         for (Condition c : all_conditions) {
-            LinkedHashSet<PDDLGroundAction> set = new LinkedHashSet();
-            for (PDDLGroundAction gr : A) {
+            LinkedHashSet<GroundAction> set = new LinkedHashSet();
+            for (GroundAction gr : A) {
                 if (gr.getPreconditions().getTerminalConditions().contains(c)) {
                     set.add(gr);
                 }
@@ -461,12 +461,12 @@ public class h1 extends Heuristic {
     }
 
     private void compute_helpful_actions() {
-        LinkedList<PDDLGroundAction> list = new LinkedList();
+        LinkedList<GroundAction> list = new LinkedList();
         helpful_actions = new LinkedHashSet();
         achiever_set s = this.action_achievers.get(goal.id);
         getHelpfulActions(list, s);
         while (!list.isEmpty()) {
-            PDDLGroundAction gr2 = list.pollLast();
+            GroundAction gr2 = list.pollLast();
 //            System.out.println(gr);
             s = this.action_achievers.get(gr2.id);
             getHelpfulActions(list, s);
@@ -490,12 +490,12 @@ public class h1 extends Heuristic {
             Condition c = list.pollLast();
             Float cost = this.cond_dist.get(c.getHeuristicId());
             if (cost != 0) {
-                PDDLGroundAction gr = this.established_achiever.get(c.getHeuristicId());
+                GroundAction gr = this.established_achiever.get(c.getHeuristicId());
                 this.update_relaxed_plan(relaxed_plan, gr, this.established_local_cost.get(c.getHeuristicId()));
                 if (this.is_complex.get(c.getHeuristicId()) || weak_helpful_actions_pruning) {
                     if (this.all_achievers.get(c.getHeuristicId()) != null) {
                         //System.out.println("Getting all the achievers as helpful actions..");
-                        for (PDDLGroundAction gr2 : this.all_achievers.get(c.getHeuristicId())) {
+                        for (GroundAction gr2 : this.all_achievers.get(c.getHeuristicId())) {
                             if (this.action_dist.get(gr2.id) == 0) {
                                 this.helpful_actions.add(gr2);
                             }
@@ -522,7 +522,7 @@ public class h1 extends Heuristic {
 //      
     }
 
-    private void update_achiever(Condition comp, PDDLGroundAction gr) {
+    private void update_achiever(Condition comp, GroundAction gr) {
 
         LinkedHashSet s = all_achievers.get(comp.getHeuristicId());
         if (s == null) {
@@ -543,7 +543,7 @@ public class h1 extends Heuristic {
 
     }
 
-    private void getHelpfulActions(LinkedList<PDDLGroundAction> list, achiever_set s) {
+    private void getHelpfulActions(LinkedList<GroundAction> list, achiever_set s) {
         if (s != null) {
             for (Condition o : s.target_cond) {
                 if (cond_dist.get(o.getHeuristicId()) == 0) {
@@ -554,7 +554,7 @@ public class h1 extends Heuristic {
                 if (this.is_complex.get(o.getHeuristicId()) || weak_helpful_actions_pruning) {
                     if (this.all_achievers.get(o.getHeuristicId()) != null) {
                         //System.out.println("Getting all the achievers as helpful actions..");
-                        for (PDDLGroundAction gr : this.all_achievers.get(o.getHeuristicId())) {
+                        for (GroundAction gr : this.all_achievers.get(o.getHeuristicId())) {
                             if (this.action_dist.get(gr.id) == 0) {
                                 this.helpful_actions.add(gr);
                             }
@@ -562,7 +562,7 @@ public class h1 extends Heuristic {
                     }
                 } else {//Add helpful action if this action is an established achiever of any condition in the target condition and is applicable
                     //in the initial state
-                    PDDLGroundAction gr = this.established_achiever.get(o.getHeuristicId());
+                    GroundAction gr = this.established_achiever.get(o.getHeuristicId());
 //                        if (gr==null && cond_dist.get(o.getCounter())!=0){
 //                            System.out.println("this is bizzare");
 //                            System.out.println(o);
@@ -580,7 +580,7 @@ public class h1 extends Heuristic {
                 }
 //                }
             }
-            for (PDDLGroundAction gr : s.actions) {
+            for (GroundAction gr : s.actions) {
                 if (gr != null) {
                     list.addFirst(gr);
                 }
@@ -588,7 +588,7 @@ public class h1 extends Heuristic {
         }
     }
 
-    private void find_reasons_of_unsat(ArrayList<Float> cond_dist, PDDLGroundAction goal) {
+    private void find_reasons_of_unsat(ArrayList<Float> cond_dist, GroundAction goal) {
 
         //works only for conjunction
         for (Condition c : goal.getPreconditions().getTerminalConditions()) {
@@ -600,9 +600,9 @@ public class h1 extends Heuristic {
     }
 
     private Float min_over_possible_achievers(Condition comp) {
-        Set<PDDLGroundAction> set = this.all_achievers.get(comp.getHeuristicId());
+        Set<GroundAction> set = this.all_achievers.get(comp.getHeuristicId());
         Float min = Float.MAX_VALUE;
-        for (PDDLGroundAction gr : set) {
+        for (GroundAction gr : set) {
             min = Math.min(action_dist.get(gr.id), min);
             if (min == 0) {
                 return 0f;
@@ -611,10 +611,10 @@ public class h1 extends Heuristic {
         return min;
     }
 
-    private void update_relaxed_plan(LinkedList<Pair<PDDLGroundAction, Float>> plan, PDDLGroundAction g, Float cost) {
+    private void update_relaxed_plan(LinkedList<Pair<GroundAction, Float>> plan, GroundAction g, Float cost) {
 
         for (int i = plan.size() - 1; i >= 0; i--) {
-            Pair<PDDLGroundAction, Float> gr_pair = plan.get(i);
+            Pair<GroundAction, Float> gr_pair = plan.get(i);
 //            System.out.println(g.getClass());
             if (gr_pair.getFirst().equals(g)) {
 //                System.out.println("DEBUG!");
@@ -645,9 +645,9 @@ public class h1 extends Heuristic {
         plan.addFirst(new Pair(g, cost));
     }
 
-    private Float extract_tot_cost(LinkedList<Pair<PDDLGroundAction, Float>> plan) {
+    private Float extract_tot_cost(LinkedList<Pair<GroundAction, Float>> plan) {
         Float cost = 0f;
-        for (Pair<PDDLGroundAction, Float> p : plan) {
+        for (Pair<GroundAction, Float> p : plan) {
             cost += p.getSecond();
         }
         return cost;
@@ -665,8 +665,8 @@ public class h1 extends Heuristic {
         precondition_mapping = new HashMap();
 
         //this should also include the indirect dependencies, otherwise does not work!!
-        Set<PDDLGroundAction> useless_actions = new HashSet();
-        for (PDDLGroundAction gr : this.A) {
+        Set<GroundAction> useless_actions = new HashSet();
+        for (GroundAction gr : this.A) {
             LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
             LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
             LinkedHashSet<Condition> literals = new LinkedHashSet();
@@ -676,7 +676,7 @@ public class h1 extends Heuristic {
                 if (precondition_mapping.get(c.getHeuristicId()) == null) {
                     precondition_mapping.put(c.getHeuristicId(), new LinkedHashSet());
                 }
-                LinkedHashSet<PDDLGroundAction> action_list = new LinkedHashSet();
+                LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
                 if (c instanceof Comparison) {
 //                    System.out.println("Condition under analysis:"+c);
 //                    System.out.println("Counter is:"+c.getCounter());
@@ -696,7 +696,7 @@ public class h1 extends Heuristic {
                     if (this.possible_achievers_inverted.get(comp.getHeuristicId()) == null) {
                         this.possible_achievers_inverted.put(comp.getHeuristicId(), action_list);
                     } else {
-                        LinkedHashSet<PDDLGroundAction> temp = this.possible_achievers_inverted.get(comp.getHeuristicId());
+                        LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getHeuristicId());
                         temp.addAll(action_list);
                         this.possible_achievers_inverted.put(comp.getHeuristicId(), temp);
                     }
@@ -710,7 +710,7 @@ public class h1 extends Heuristic {
                     if (this.achievers_inverted.get(p.getHeuristicId()) == null) {
                         this.achievers_inverted.put(p.getHeuristicId(), action_list);
                     } else {
-                        LinkedHashSet<PDDLGroundAction> temp = this.achievers_inverted.get(p.getHeuristicId());
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(p.getHeuristicId());
                         temp.addAll(action_list);
                         this.achievers_inverted.put(p.getHeuristicId(), temp);
                     }
@@ -730,7 +730,7 @@ public class h1 extends Heuristic {
                     if (this.achievers_inverted.get(c1.getHeuristicId()) == null) {
                         this.achievers_inverted.put(c1.getHeuristicId(), action_list);
                     } else {
-                        LinkedHashSet<PDDLGroundAction> temp = this.achievers_inverted.get(c1.getHeuristicId());
+                        LinkedHashSet<GroundAction> temp = this.achievers_inverted.get(c1.getHeuristicId());
                         temp.addAll(action_list);
                         this.achievers_inverted.put(c1.getHeuristicId(), temp);
                     }
@@ -745,7 +745,7 @@ public class h1 extends Heuristic {
 //                        Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
 //                    }
 
-                    LinkedHashSet<PDDLGroundAction> temp = this.precondition_mapping.get(c.getHeuristicId());
+                    LinkedHashSet<GroundAction> temp = this.precondition_mapping.get(c.getHeuristicId());
                     temp.add(gr);
                     this.precondition_mapping.put(c.getHeuristicId(), temp);
 
@@ -770,7 +770,7 @@ public class h1 extends Heuristic {
             HashMap<NumEffect, Boolean> temp_mark = new HashMap();
             HashMap<NumEffect, Boolean> per_mark = new HashMap();
             sorted_nodes = new LinkedList();
-            for (PDDLGroundAction gr : A) {
+            for (GroundAction gr : A) {
                 for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
                     temp_mark.put(nf, false);
                     per_mark.put(nf, false);
@@ -782,8 +782,8 @@ public class h1 extends Heuristic {
                     visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
                 }
             }
-            LinkedHashSet<PDDLGroundAction> action_list = new LinkedHashSet();
-            for (PDDLGroundAction gr : A) {
+            LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+            for (GroundAction gr : A) {
                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
 
                     if (sorted_nodes.contains(neff)) {
@@ -796,7 +796,7 @@ public class h1 extends Heuristic {
             if (this.possible_achievers_inverted.get(comp.getHeuristicId()) == null) {
                 this.possible_achievers_inverted.put(comp.getHeuristicId(), action_list);
             } else {
-                LinkedHashSet<PDDLGroundAction> temp = this.possible_achievers_inverted.get(comp.getHeuristicId());
+                LinkedHashSet<GroundAction> temp = this.possible_achievers_inverted.get(comp.getHeuristicId());
                 temp.addAll(action_list);
                 this.possible_achievers_inverted.put(comp.getHeuristicId(), temp);
             }

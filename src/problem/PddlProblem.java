@@ -76,7 +76,7 @@ import propositionalFactory.Grounder;
 public class PddlProblem {
 
     public PDDLObjects objects;
-    public PDDLState init;
+    public State init;
     public ComplexCondition goals;
     protected String name;
     protected Integer indexObject;
@@ -87,7 +87,7 @@ public class PddlProblem {
     protected String domainName;
     PddlDomain linkedDomain;
     protected boolean validatedAgainstDomain;
-    public Set<PDDLGroundAction> actions;
+    public Set<GroundAction> actions;
     protected long propositionalTime;
     protected boolean grounded_representation;
     protected RelState possStates;
@@ -128,7 +128,7 @@ public class PddlProblem {
     public PddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
         super();
         try {
-            init = new PDDLState();
+            init = new State();
             indexObject = 0;
             indexInit = 0;
             indexGoals = 0;
@@ -233,7 +233,7 @@ public class PddlProblem {
      */
     public PddlProblem() {
 
-        init = new PDDLState();
+        init = new State();
 
         indexObject = 0;
         indexInit = 0;
@@ -477,7 +477,7 @@ public class PddlProblem {
     /**
      * @return the init - the initial status of the problem
      */
-    public PDDLState getInit() {
+    public State getInit() {
         return init;
     }
 
@@ -508,7 +508,7 @@ public class PddlProblem {
     }
 
 
-    public void setInit(PDDLState init) {
+    public void setInit(State init) {
         this.init = init;
     }
 
@@ -579,7 +579,7 @@ public class PddlProblem {
                 if (!act.getPar().isEmpty()) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
-                    PDDLGroundAction gr = act.fakeGround();
+                    GroundAction gr = act.fakeGround();
                     getActions().add(gr);
                 }
             }
@@ -592,7 +592,7 @@ public class PddlProblem {
         //System.out.println("prova");
         System.out.println("|A| just after grounding:" + getActions().size());
         while (it.hasNext()) {//iteration of the action for pruning the trivial unreacheable ones (because of the grounding and weak evaluation)
-            PDDLGroundAction act = (PDDLGroundAction) it.next();
+            GroundAction act = (GroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
 //                System.out.println(act.toPDDL());
@@ -612,7 +612,7 @@ public class PddlProblem {
 
     }
 
-    public int distance(PDDLState sIn, Condition c) {
+    public int distance(State sIn, Condition c) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -624,7 +624,7 @@ public class PddlProblem {
                 distance++;
                 level = new HashSet();
                 for (Iterator it = getActions().iterator(); it.hasNext();) {
-                    PDDLGroundAction gr = (PDDLGroundAction) it.next();
+                    GroundAction gr = (GroundAction) it.next();
                     if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
                         it.remove();
@@ -634,14 +634,14 @@ public class PddlProblem {
                     return Integer.MAX_VALUE;
                 }
                 for (Object o : level) {
-                    PDDLGroundAction gr = (PDDLGroundAction) o;
+                    GroundAction gr = (GroundAction) o;
                     gr.apply(s);
                 }
             }
         }
     }
 
-    public Map distance(PDDLState sIn, List c_s) {
+    public Map distance(State sIn, List c_s) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -665,7 +665,7 @@ public class PddlProblem {
                 distance++;
                 level = new HashSet();
                 for (Iterator it = getActions().iterator(); it.hasNext();) {
-                    PDDLGroundAction gr = (PDDLGroundAction) it.next();
+                    GroundAction gr = (GroundAction) it.next();
                     if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
                         it.remove();
@@ -675,7 +675,7 @@ public class PddlProblem {
                     return order;
                 }
                 for (Object o : level) {
-                    PDDLGroundAction gr = (PDDLGroundAction) o;
+                    GroundAction gr = (GroundAction) o;
                     gr.apply(s);
                 }
             }
@@ -694,7 +694,7 @@ public class PddlProblem {
             distance++;
             level = new HashSet();
             for (Iterator it = getActions().iterator(); it.hasNext();) {
-                PDDLGroundAction gr = (PDDLGroundAction) it.next();
+                GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
                 if (gr.getPreconditions().can_be_true(s)) {
                     totalActions.add(gr);
@@ -704,7 +704,7 @@ public class PddlProblem {
             }
 
             for (Object o : level) {
-                PDDLGroundAction gr = (PDDLGroundAction) o;
+                GroundAction gr = (GroundAction) o;
                 gr.apply(s);
             }
             //if (s.satisfy(getGoals()))
@@ -765,7 +765,7 @@ public class PddlProblem {
             distance++;
             level = new HashSet();
             for (Iterator it = getActions().iterator(); it.hasNext();) {
-                PDDLGroundAction gr = (PDDLGroundAction) it.next();
+                GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
                 if (gr.getPreconditions().can_be_true(s)) {
                     totalActions.add(gr);
@@ -775,7 +775,7 @@ public class PddlProblem {
             }
 
             for (Object o : level) {
-                PDDLGroundAction gr = (PDDLGroundAction) o;
+                GroundAction gr = (GroundAction) o;
                 gr.apply(s);
             }
             for (Iterator it = toVisit.iterator(); it.hasNext();) {
@@ -879,7 +879,7 @@ public class PddlProblem {
             if (this.getActions() == null || this.getActions().isEmpty()) {
                 this.generateActions();
             }
-            for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.getActions()) {
+            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
                 for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
                     staticFluents.put(nf, Boolean.FALSE);
                 }
@@ -890,7 +890,7 @@ public class PddlProblem {
 
     public void transformNumericConditionsInActions() throws Exception {
 
-        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.actions) {
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
             if (gr.getPreconditions() != null) {
                 gr.setPreconditions((ComplexCondition) generate_inequalities(gr.getPreconditions()));
             }
@@ -903,7 +903,7 @@ public class PddlProblem {
     }
 
     public boolean print_actions() {
-        for (PDDLGroundAction gr : (Collection<PDDLGroundAction>) this.actions) {
+        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
             System.out.println(gr.toFileCompliant());
         }
 
@@ -959,7 +959,7 @@ public class PddlProblem {
         }
     }
 
-    public void keepUniqueVariable(PDDLState s) {
+    public void keepUniqueVariable(State s) {
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
             PddlProblem.this.keepUniqueVariable(p);
         }
@@ -996,7 +996,6 @@ public class PddlProblem {
                 return p;
             }
         }
-        this.initBoolFluentsValues.put(aThis,null);
         return aThis;
     }
 
@@ -1006,11 +1005,13 @@ public class PddlProblem {
                 return p;
             }
         }
-        this.initNumFluentsValues.put(f,null);
         return f;
     }
 
     public PDDLNumber getNumFluentInitialValue(NumFluent aThis) {
+        PDDLNumber nf = this.initNumFluentsValues.get(aThis);
+        if (nf == null)
+            return null;
         return this.initNumFluentsValues.get(aThis);
     }
 
@@ -1019,7 +1020,9 @@ public class PddlProblem {
     }
 
     public boolean getInitBoolFluentValue(Predicate aThis) {
-        return this.initBoolFluentsValues.get(aThis);
+        Boolean b = this.initBoolFluentsValues.get(aThis);
+        
+        return b!=null && b;
     }
 
     public Iterable<Predicate> getPredicatesInvolvedInInit() {

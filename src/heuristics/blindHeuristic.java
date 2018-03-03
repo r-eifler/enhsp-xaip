@@ -27,10 +27,10 @@ import conditions.ComplexCondition;
 import conditions.Condition;
 import java.util.HashSet;
 import java.util.Set;
-import problem.PDDLGroundAction;
+import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
-import problem.PDDLState;
+import problem.State;
 
 /**
  *
@@ -38,11 +38,11 @@ import problem.PDDLState;
  */
 public class blindHeuristic extends Aibr {
 
-    public blindHeuristic(ComplexCondition G, Set<PDDLGroundAction> A, Set<GroundProcess> P) {
+    public blindHeuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
     }
 
-    public blindHeuristic(ComplexCondition G, Set<PDDLGroundAction> A) {
+    public blindHeuristic(ComplexCondition G, Set<GroundAction> A) {
         super(G, A);
     }
 
@@ -52,7 +52,7 @@ public class blindHeuristic extends Aibr {
     }
 
     @Override
-    public Float compute_estimate(PDDLState s_0) {
+    public Float compute_estimate(State s_0) {
 //        if (reachability) {
 //
 //            return super.compute_estimate(s_0);
