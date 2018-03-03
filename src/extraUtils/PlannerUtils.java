@@ -30,7 +30,7 @@ import search.SearchStrategies;
  *
  * @author enrico
  */
-public class PlanGetResult {
+public class PlannerUtils {
 
     public int getPlanSize(String domainFileName, String problemFileName, String heuristic) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
@@ -72,5 +72,41 @@ public class PlanGetResult {
         LinkedList raw_plan = searchStrategies.wa_star(problem);
         //System.out.println(raw_plan.size());
         return raw_plan.size();
+    }
+
+    public int heuristicEstimate(String domainFileName, String problemFileName, String heuristic) throws Exception {
+        final PddlDomain domain = new PddlDomain(domainFileName);
+        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
+        domain.prettyPrint();
+        domain.validate(problem);
+
+        final SearchStrategies searchStrategies = new SearchStrategies(); //manager of the search strategies
+
+        //set deltas in case is a pddl+ problem
+        if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
+            //this is when you have processes
+            problem.setDeltaTimeVariable("1");
+            searchStrategies.delta = Float.parseFloat("1");
+            searchStrategies.processes = true;
+            searchStrategies.delta_max = Float.parseFloat("1");
+        } else {//this is when you have processes
+        }
+        problem.grounding_action_processes_constraints();
+        problem.simplifyAndSetupInit();
+
+        //set heuristic
+        searchStrategies.setup_heuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+        h1 h = (h1) searchStrategies.getHeuristic();
+        h.red_constraints = false;
+        h.additive_h = true;
+
+        searchStrategies.getHeuristic().setup(problem.init);
+        long start = System.nanoTime();
+        Float hs0 = searchStrategies.getHeuristic().compute_estimate(problem.init);
+        long totaltime = System.nanoTime()-start;
+        System.out.println("hs0:" + hs0 +  " in " + (float)totaltime/1000000000.0 +"s" );
+        
+        //System.out.println(raw_plan.size());
+        return hs0.intValue();
     }
 }

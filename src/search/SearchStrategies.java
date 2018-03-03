@@ -22,7 +22,6 @@ import heuristics.Heuristic;
 import conditions.AndCond;
 import conditions.Condition;
 import expressions.NumEffect;
-import expressions.NumFluent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -154,9 +153,7 @@ public class SearchStrategies {
     private void setup_reachable_actions_processes(EPddlProblem problem) {
         set_reachable_actions(problem);
         set_reachable_processes_events(problem);
-
         System.out.println("Actions used at init:" + reachable_actions.size());
-
     }
 
     /*

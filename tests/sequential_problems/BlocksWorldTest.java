@@ -19,7 +19,7 @@
 package sequential_problems;
 
 
-import extraUtils.PlanGetResult;
+import extraUtils.PlannerUtils;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
@@ -59,7 +59,7 @@ public class BlocksWorldTest {
         
         //get pddl description
         List<String> heuristics = Arrays.asList("blind","hrmax");
-        PlanGetResult temp = new PlanGetResult();
+        PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics){
             assertEquals(20, temp.getPlanSize("unit_test_instances/blocks/domain.pddl", 
                     "unit_test_instances/blocks/task12.pddl", h));

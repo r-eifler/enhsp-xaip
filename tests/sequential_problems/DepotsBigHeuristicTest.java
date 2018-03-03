@@ -33,9 +33,9 @@ import static org.junit.Assert.*;
  *
  * @author enrico
  */
-public class ZenoTravelTest {
+public class DepotsBigHeuristicTest {
 
-    public ZenoTravelTest() {
+    public DepotsBigHeuristicTest() {
     }
 
     @BeforeClass
@@ -58,12 +58,9 @@ public class ZenoTravelTest {
     public void hello() throws Exception {
         
         //get pddl description
-        List<String> heuristics = Arrays.asList("hadd");
         PlannerUtils temp = new PlannerUtils();
-        for (String h : heuristics){
-            assertEquals(9, temp.getPlanSize("unit_test_instances/zenotravel/domain.pddl", 
-                    "unit_test_instances/zenotravel/sample.pddl", h));
-        }
+        assertEquals(27, temp.heuristicEstimate("unit_test_instances/depotsbig/domain.pddl", 
+                    "unit_test_instances/depotsbig/sample.pddl", "hadd"));
 
         
     }
