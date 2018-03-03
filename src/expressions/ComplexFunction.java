@@ -27,7 +27,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -68,7 +68,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         double arg_val = getArg().eval(s).getNumber();
         switch (this.operator) {
             case "abs":

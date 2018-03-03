@@ -32,7 +32,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -190,7 +190,7 @@ public class NumFluent extends Expression {
 //        this.name = name;
 //    }
     @Override
-    public PDDLNumber eval(State s) {
+    public PDDLNumber eval(PDDLState s) {
         if (s == null) {
             System.out.println("stato nullo!!");
         }

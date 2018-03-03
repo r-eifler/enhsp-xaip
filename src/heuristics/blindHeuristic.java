@@ -24,8 +24,6 @@
 package heuristics;
 
 import conditions.ComplexCondition;
-import conditions.Condition;
-import java.util.HashSet;
 import java.util.Set;
 import problem.GroundAction;
 import problem.GroundEvent;

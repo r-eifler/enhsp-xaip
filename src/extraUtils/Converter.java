@@ -23,7 +23,7 @@ import conditions.Predicate;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import problem.GroundAction;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -32,7 +32,7 @@ import problem.PddlProblem;
  */
 public class Converter {
     
-    static public GroundAction createInitAction(PddlProblem p, State s) {
+    static public GroundAction createInitAction(PddlProblem p, PDDLState s) {
         GroundAction a = new GroundAction("InitAction");
 
         AndCond addList = new AndCond();

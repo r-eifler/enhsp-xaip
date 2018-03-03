@@ -30,7 +30,7 @@ import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PDDLProblemComponent;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -97,11 +97,11 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition ground(Map substitution, int c);
 
-    public abstract boolean eval(State s);
+    public abstract boolean eval(PDDLState s);
 
     public abstract String toSmtVariableString(int k, GroundAction gr, String var);
 
-    public abstract boolean isSatisfied(State s);
+    public abstract boolean isSatisfied(PDDLState s);
 
     public abstract void changeVar(Map substitution);
 
@@ -255,7 +255,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i);
 
-//    public abstract Conditionss unify_num_fluent(State init);
+//    public abstract Conditionss unify_num_fluent(PDDLState init);
     public abstract Condition introduce_red_constraints();
 
     public boolean mutual_exclusion_guaranteed(Condition preconditions) {

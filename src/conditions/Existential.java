@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 import propositionalFactory.Grounder;
 
@@ -91,7 +91,7 @@ public class Existential extends ComplexCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -101,7 +101,7 @@ public class Existential extends ComplexCondition {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

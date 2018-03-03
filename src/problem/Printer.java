@@ -29,7 +29,7 @@ import expressions.NumFluent;
  */
 public class Printer {
     
-    static public StringBuilder stringBuilderPddlPrintWithDummyTrue(PddlProblem p, State s) {
+    static public StringBuilder stringBuilderPddlPrintWithDummyTrue(PddlProblem p, PDDLState s) {
         final StringBuilder ret = new StringBuilder("(:init (true)\n");
 
         for (Predicate a : p.initBoolFluentsValues.keySet()) {
@@ -57,11 +57,11 @@ public class Printer {
         return ret;
     }
 
-    static public String pddlPrintWithDummyTrue(PddlProblem p, State s) {
+    static public String pddlPrintWithDummyTrue(PddlProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
     }
 
-    static public String pddlPrint(PddlProblem p, State s) {
+    static public String pddlPrint(PddlProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
     }
     

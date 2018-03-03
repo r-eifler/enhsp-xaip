@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -74,7 +74,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -114,7 +114,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -273,8 +273,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 
-    public State transformInStateIfPossible() {
-        State ret = new State();
+    public PDDLState transformInStateIfPossible() {
+        PDDLState ret = new PDDLState();
         for (Object o : this.sons) {
             if (o instanceof Predicate) {
                 ret.setPropFluent((Predicate) o, true);
@@ -566,7 +566,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public HashMap apply(State s) {
+    public HashMap apply(PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -580,7 +580,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         for (Object o : this.sons) {
 //            if ((o instanceof AndCond) 
 //                    || (o instanceof Predicate)
@@ -731,7 +731,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 //    @Override
-//    public Conditions unify_num_fluent(State init) {
+//    public Conditions unify_num_fluent(PDDLState init) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
     @Override

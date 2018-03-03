@@ -20,7 +20,7 @@ package heuristics.utils;
 
 import java.util.Comparator;
 import problem.GroundAction;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *

@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -110,7 +110,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
 
         for (Object o : sons) {
             Condition c = (Condition) o;
@@ -123,7 +123,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
             if (c.isSatisfied(s)) {

@@ -27,7 +27,7 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -58,9 +58,9 @@ public abstract class Expression extends Object {
 
     public abstract Expression unGround(Map substitution);
 
-    public abstract PDDLNumber eval(State s);
+    public abstract PDDLNumber eval(PDDLState s);
 
-    //public abstract State apply(State s);
+    //public abstract PDDLState apply(PDDLState s);
     public abstract ExtendedNormExpression normalize();
 
     public abstract void changeVar(Map<Variable, PDDLObject> substitution);

@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import problem.GroundAction;
-import problem.GroundProcess;
+import problem.State;
 import problem.State;
 
 /**

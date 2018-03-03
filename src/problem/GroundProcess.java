@@ -76,14 +76,11 @@ public class GroundProcess extends GroundAction implements Comparable {
 
     }
 
-    public State apply(State s_in, int time) {
+    public PDDLState apply(PDDLState s_in, int time) {
 
-        State s = null;
-        try {
-            s = s_in.clone();
-        } catch (CloneNotSupportedException ex) {
-            Logger.getLogger(GroundProcess.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        PDDLState s = null;
+        s = s_in.clone();
+
         AndCond del = (AndCond) delList;
         if (del != null) {
             del.apply(s);
@@ -206,7 +203,7 @@ public class GroundProcess extends GroundAction implements Comparable {
         this.delta = delta;
     }
     
-    public State apply(State s) {
+    public PDDLState apply(PDDLState s) {
         s = super.apply(s);
         s.time+=delta;
 //        System.out.println("DEBUG: Subst within action application:"+subst);

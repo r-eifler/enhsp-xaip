@@ -23,7 +23,6 @@ import conditions.AndCond;
 import conditions.Condition;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import expressions.PDDLNumber;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -42,6 +41,7 @@ import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
+import problem.PDDLState;
 import problem.State;
 
 /**
@@ -218,7 +218,7 @@ public class SearchStrategies {
 
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
-                    s = ev.apply(s);
+                    s.apply(ev);
                     GroundEvent ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
@@ -400,7 +400,7 @@ public class SearchStrategies {
                     continue;
                 }
                 if (act.isApplicable(node.s)) {
-                    State temp = node.s.clone();
+                    State temp = (State) node.s.clone();
                     temp.apply(act);
 //                    System.out.println("Depth:"+node.g_n);
                     //act.normalize();
@@ -650,7 +650,8 @@ public class SearchStrategies {
             for (GroundAction act : getHeuristic().reachable) {
                 if (act instanceof GroundProcess) {
                 } else if (act.isApplicable(current_node.s)) {
-                    State temp = act.apply(current_node.s.clone());
+                    State temp = current_node.s.clone();
+                    temp.apply(act);
                     //act.normalize();
                     if (!temp.satisfy(problem.globalConstraints)) {
                         continue;
@@ -691,63 +692,15 @@ public class SearchStrategies {
         return this.wa_star(problem);
     }
 
-    private static LinkedList add_actions(SearchNode c) throws CloneNotSupportedException {
-        LinkedList temp = new LinkedList();
-        while (c.father != null) {
-            GroundAction gr = null;
-
-            if (c.action instanceof GroundProcess) {
-                gr = (GroundProcess) c.action.clone();
-            } else {
-                gr = (GroundAction) c.action.clone();
-            }
-//
-            if (c.father.s.fluentValue(new NumFluent("time_elapsed")) != null) {
-                gr.time = c.father.s.fluentValue(new NumFluent("time_elapsed")).getNumber();
-            } else {
-                gr.time = 0f;
-            }
-            if (c.action instanceof GroundProcess) {
-                gr.setName("--------->waiting");
-            }//else{
-            temp.addFirst(gr);
-            //}
-            c = c.father;
-        }
-        return temp;
-    }
-
-    private static LinkedList add_actions_old(SearchNode c) throws CloneNotSupportedException {
-        LinkedList temp = new LinkedList();
-        while (c.father != null) {
-            GroundAction gr = null;
-
-            if (c.action instanceof GroundProcess) {
-                gr = (GroundProcess) c.action.clone();
-            } else {
-                gr = (GroundAction) c.action.clone();
-            }
-//
-            if (c.father.s.fluentValue(new NumFluent("time_elapsed")) != null) {
-                gr.time = c.father.s.fluentValue(new NumFluent("time_elapsed")).getNumber();
-            } else {
-                gr.time = 0f;
-            }
-            if (c.action instanceof GroundProcess) {
-                gr.setName("--------->waiting");
-            }//else{
-            temp.addFirst(gr);
-            //}
-            c = c.father;
-        }
-        return temp;
-    }
-
+   
     private  LinkedList extract_plan(SearchNode c) {
         LinkedList plan = new LinkedList();
         while (c.action != null || c.list_of_actions != null) {
             try {
-                Double time = c.father.s.time;
+                Double time = null;
+                if (c.father.s instanceof PDDLState){
+                    time = ((PDDLState)c.father.s).time;
+                }
                 if (c.action != null) {//this is an action
                     GroundAction gr = (GroundAction) c.action.clone();
                     if (time != null) {
@@ -881,7 +834,7 @@ public class SearchStrategies {
                 }
                 waiting_list.add(waiting);
 
-                temp_temp = waiting.apply(temp_temp);
+                temp_temp.apply(waiting);
                 waiting_list.addAll(apply_events(temp_temp, i));
 
                 //the next has to be written better!!!! Spend a bit of time on that!

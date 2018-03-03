@@ -35,7 +35,7 @@ import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -116,7 +116,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -126,7 +126,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         return s.satisfy(activation_condition);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -277,14 +277,14 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public HashMap<Object, Object> apply(State s) {
+    public HashMap<Object, Object> apply(PDDLState s) {
         final HashMap<Object, Object> ret = new HashMap<>();
         apply(s, ret);
         return ret;
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         if (s.satisfy(activation_condition)) {
             effect.apply(s, modifications);
         }

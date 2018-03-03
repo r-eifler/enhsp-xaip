@@ -26,7 +26,7 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 
 import java.util.Map;
-import problem.State;
+import problem.PDDLState;
 import expressions.PDDLNumber;
 import expressions.Interval;
 import heuristics.utils.achiever_set;
@@ -192,7 +192,7 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    public boolean eval_to_null(State s) {
+    public boolean eval_to_null(PDDLState s) {
         PDDLNumber first = left.eval(s);
         PDDLNumber second = right.eval(s);
         if ((first == null) || (second == null)) {
@@ -202,7 +202,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         PDDLNumber first = left.eval(s);
         PDDLNumber second = right.eval(s);
         if ((first == null) || (second == null)) {
@@ -226,7 +226,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         PDDLNumber first = left.eval(s);
         PDDLNumber second = right.eval(s);
         if ((first == null) || (second == null)) {
@@ -516,7 +516,7 @@ public class Comparison extends Terminal {
     }
 
     @Deprecated
-    public Float satisfactionDistance(State s) {
+    public Float satisfactionDistance(PDDLState s) {
         Float ret = new Float(0);
 
         PDDLNumber left = this.left.eval(s);
@@ -819,7 +819,7 @@ public class Comparison extends Terminal {
         return comp;
     }
 
-    public float eval_not_affected(State s_0, GroundAction aThis) {
+    public float eval_not_affected(PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
             System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
@@ -828,7 +828,7 @@ public class Comparison extends Terminal {
         return exp.eval_not_affected(s_0, aThis);
     }
 
-    public float eval_affected(State s_0, GroundAction aThis) {
+    public float eval_affected(PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
             System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
@@ -837,7 +837,7 @@ public class Comparison extends Terminal {
         return exp.eval_affected(s_0, aThis);
     }
 
-    public boolean is_evaluable(State tempInit) {
+    public boolean is_evaluable(PDDLState tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
         for (NumFluent f : set) {
             if (tempInit.fluentValue(f) == null) {
@@ -847,7 +847,7 @@ public class Comparison extends Terminal {
         return true;
     }
 
-    public String regress_repeatedely(GroundAction action, int number_of_repetition, State s_0) {
+    public String regress_repeatedely(GroundAction action, int number_of_repetition, PDDLState s_0) {
         float a1;
         float b;
 

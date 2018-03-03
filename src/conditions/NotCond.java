@@ -35,7 +35,7 @@ import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -87,14 +87,14 @@ public class NotCond extends Terminal implements PostCondition {
     //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
     //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
 
         return !son.eval(s);
 
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
 
         return !son.isSatisfied(s);
 
@@ -309,7 +309,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(State s) {
+    public HashMap apply(PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -324,7 +324,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
             modifications.put(p, Boolean.FALSE);

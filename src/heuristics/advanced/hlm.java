@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
+import problem.PDDLState;
 import problem.State;
 
 /**
@@ -87,7 +88,9 @@ public class hlm extends h1 {
     }
 
     @Override
-    public Float setup(State s) {
+    public Float setup(State gs) {
+
+        PDDLState s = (PDDLState)gs;
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
@@ -144,8 +147,9 @@ public class hlm extends h1 {
     }
 
     @Override
-    public Float compute_estimate(State s_0) {
-        if (s_0.satisfy(G)) {
+    public Float compute_estimate(State gs) {
+        PDDLState s = (PDDLState)gs;
+        if (s.satisfy(G)) {
             return 0f;
         }
         Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
@@ -164,7 +168,7 @@ public class hlm extends h1 {
                     ilo.setLB(0f);
                 }
                 //System.out.println(c);
-                if (c.isSatisfied(s_0)) {
+                if (c.isSatisfied(s)) {
                     cond_dist.set(c.getHeuristicId(), 0f);
                 } else if (c instanceof Predicate) {
                     target_value.set(c.getHeuristicId(), 1f);
@@ -172,10 +176,10 @@ public class hlm extends h1 {
                     target_value.set(c.getHeuristicId(), 1f);
                 } else {
                     Comparison comp = (Comparison) c;
-                    PDDLNumber number = comp.getLeft().eval(s_0);
+                    PDDLNumber number = comp.getLeft().eval(s);
                     if (number == null) {
                     } else {
-                        Float t = comp.getLeft().eval(s_0).getNumber();
+                        Float t = comp.getLeft().eval(s).getNumber();
                         target_value.set(c.getHeuristicId(), -t);
                     }
 
@@ -205,7 +209,7 @@ public class hlm extends h1 {
                 if (never_active.get(gr.id) == null) {
                     continue;
                 }
-                update_actions_conditions(s_0, gr, a_plus, never_active, lm);//this procedure updates
+                update_actions_conditions(s, gr, a_plus, never_active, lm);//this procedure updates
                 //all the conditions that can be reached by using action gr. 
                 //This also changes the set a_plus whenever some new action becomes active becasue of gr
             }
@@ -255,7 +259,7 @@ public class hlm extends h1 {
                             }
                         }
                         for (GroundAction gr : set) {
-                            free_variable_modify_contribution_if_needed(s_0, c, revise_terms, gr);
+                            free_variable_modify_contribution_if_needed(s, c, revise_terms, gr);
 
                         }
                     }
@@ -379,7 +383,7 @@ public class hlm extends h1 {
 
     }
 
-    private void update_actions_conditions(State s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
+    private void update_actions_conditions(PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
         for (Condition comp : this.achieve.get(gr.id)) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {//if this isn't in the init state yet
@@ -522,7 +526,7 @@ public class hlm extends h1 {
 
     }
 
-    private void init_lp(State s_0) {
+    private void init_lp(PDDLState s_0) {
         try {
             lp_global = new IloCplex();
             lp_global.setOut(null);
@@ -609,7 +613,7 @@ public class hlm extends h1 {
         }
     }
 
-    private void free_variable_modify_contribution_if_needed(State s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
+    private void free_variable_modify_contribution_if_needed(PDDLState s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
 
         IloNumVar action_var = this.action_to_variable.get(gr.id);
         action_var.setUB(Float.MAX_VALUE);//add only useful actions

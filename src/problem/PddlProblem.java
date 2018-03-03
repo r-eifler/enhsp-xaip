@@ -76,7 +76,7 @@ import propositionalFactory.Grounder;
 public class PddlProblem {
 
     public PDDLObjects objects;
-    public State init;
+    public PDDLState init;
     public ComplexCondition goals;
     protected String name;
     protected Integer indexObject;
@@ -128,7 +128,7 @@ public class PddlProblem {
     public PddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
         super();
         try {
-            init = new State();
+            init = new PDDLState();
             indexObject = 0;
             indexInit = 0;
             indexGoals = 0;
@@ -233,7 +233,7 @@ public class PddlProblem {
      */
     public PddlProblem() {
 
-        init = new State();
+        init = new PDDLState();
 
         indexObject = 0;
         indexInit = 0;
@@ -477,7 +477,7 @@ public class PddlProblem {
     /**
      * @return the init - the initial status of the problem
      */
-    public State getInit() {
+    public PDDLState getInit() {
         return init;
     }
 
@@ -508,7 +508,7 @@ public class PddlProblem {
     }
 
 
-    public void setInit(State init) {
+    public void setInit(PDDLState init) {
         this.init = init;
     }
 
@@ -612,7 +612,7 @@ public class PddlProblem {
 
     }
 
-    public int distance(State sIn, Condition c) {
+    public int distance(PDDLState sIn, Condition c) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -641,7 +641,7 @@ public class PddlProblem {
         }
     }
 
-    public Map distance(State sIn, List c_s) {
+    public Map distance(PDDLState sIn, List c_s) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -959,7 +959,7 @@ public class PddlProblem {
         }
     }
 
-    public void keepUniqueVariable(State s) {
+    public void keepUniqueVariable(PDDLState s) {
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
             PddlProblem.this.keepUniqueVariable(p);
         }

@@ -21,8 +21,9 @@ import java.util.Set;
 import problem.GroundAction;
 import problem.GroundProcess;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.Metric;
+import problem.State;
 
 /**
  *
@@ -49,8 +50,8 @@ public class habs_max extends Heuristic {
     }
   
     @Override
-    public Float setup(State s) {
-        
+    public Float setup(State gs) {
+        PDDLState s = (PDDLState)gs;
         // reachablity analysis by AIBR
         Float ret = aibrReachabilityAnalysis(s);
         if (ret == Float.MAX_VALUE) {
@@ -71,7 +72,7 @@ public class habs_max extends Heuristic {
         return ret;
     }
 
-    private Float aibrReachabilityAnalysis(State s) {
+    private Float aibrReachabilityAnalysis(PDDLState s) {
         // reachability analysis on original problem using AIBR.
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
@@ -89,7 +90,7 @@ public class habs_max extends Heuristic {
      * 
      * <p>
      */
-    private void generate_subactions(State s_0) {
+    private void generate_subactions(PDDLState s_0) {
         RelState rs = getRelaxedGoal(A, G, processSet, s_0);
         NumEffect effectOnCost = null;
 
@@ -130,7 +131,7 @@ public class habs_max extends Heuristic {
         System.out.println("|Sup + goal|: " + supporters.size());
     }
 
-    private RelState getRelaxedGoal(Set<GroundAction> A, ComplexCondition G, Set<GroundProcess> P, State s) {
+    private RelState getRelaxedGoal(Set<GroundAction> A, ComplexCondition G, Set<GroundProcess> P, PDDLState s) {
         Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
@@ -143,7 +144,7 @@ public class habs_max extends Heuristic {
      *
      * @param s
      */
-    public void setup_habs(State s) {
+    public void setup_habs(PDDLState s) {
         habs = (h1) habsFactory(TYPE_UCSH1, G, (Set<GroundAction>) this.supporters, processSet);
         habs.light_setup(s);
     }
@@ -161,7 +162,7 @@ public class habs_max extends Heuristic {
     /**
      * <p>
      */
-    private void addinfiniteSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, State s_0) {
+    private void addinfiniteSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, PDDLState s_0) {
         Expression repSample;
         String subactionName;
         Float domain_inf = - Float.MAX_VALUE;
@@ -197,7 +198,7 @@ public class habs_max extends Heuristic {
         
     }
     
-    private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, State s_0) {    
+    private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {    
         GroundAction subaction = new GroundAction(subactionName);
 
         // set up effect
@@ -252,7 +253,7 @@ public class habs_max extends Heuristic {
      * @param gr the grounded action.
      * <p>
      */
-    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, State s_0) {
+    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
         GroundAction sup = new GroundAction(name);
 
         // add preconditions
@@ -280,7 +281,8 @@ public class habs_max extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate(State s) {
+     public Float compute_estimate(State gs) {
+        PDDLState s = (PDDLState)gs;
         Float ret = habs.compute_estimate(s);
         return ret;
     }

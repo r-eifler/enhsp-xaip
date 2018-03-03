@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.Vector;
 import problem.GroundAction;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *
@@ -53,7 +53,7 @@ public class NumericPlanningGraph {
     private int numberOfActions;
     private long FPCTime;
     private Set relevantActions;
-    private State init;
+    private PDDLState init;
     private RelState fixPoint;
     public Map<Predicate, Set<Predicate>> firstAchiever;
     public int goal_reached_at;
@@ -70,7 +70,7 @@ public class NumericPlanningGraph {
         relevantActions = new HashSet();
     }
 
-    public NumericPlanningGraph(State init) {
+    public NumericPlanningGraph(PDDLState init) {
         super();
         levels = 0;
         action_level = new Vector();
@@ -92,7 +92,7 @@ public class NumericPlanningGraph {
 //        goal_reached = false;
 //    }
 
-    public ArrayList computeRelaxedPlan(State s, ComplexCondition goal, Set actions) throws CloneNotSupportedException {
+    public ArrayList computeRelaxedPlan(PDDLState s, ComplexCondition goal, Set actions) throws CloneNotSupportedException {
 
         //System.out.println("Find relaxed plan");
         ArrayList ret = new ArrayList();
@@ -169,7 +169,7 @@ public class NumericPlanningGraph {
 
     }
 
-    public Map computeRelaxedPlans(State s, Map goal, Set actions, int i) throws CloneNotSupportedException {
+    public Map computeRelaxedPlans(PDDLState s, Map goal, Set actions, int i) throws CloneNotSupportedException {
         Map ret = new HashMap();
 
         ArrayList<Condition> kernels = new ArrayList();
@@ -244,7 +244,7 @@ public class NumericPlanningGraph {
 
     }
 
-    public int computeUntilFixedPoint(State s, Set actions) throws CloneNotSupportedException {
+    public int computeUntilFixedPoint(PDDLState s, Set actions) throws CloneNotSupportedException {
 
         RelState current = s.relaxState();
         ArrayList acts = new ArrayList(100000);
@@ -285,7 +285,7 @@ public class NumericPlanningGraph {
         return numberOfActions;
     }
 
-    public Set computeActionsUntilFixedPoint(State s, Set actions) throws CloneNotSupportedException {
+    public Set computeActionsUntilFixedPoint(PDDLState s, Set actions) throws CloneNotSupportedException {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -328,7 +328,7 @@ public class NumericPlanningGraph {
 
     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions
-    public Set reacheability(State s, Set actions) throws CloneNotSupportedException, Exception {
+    public Set reacheability(PDDLState s, Set actions) throws CloneNotSupportedException, Exception {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -380,7 +380,7 @@ public class NumericPlanningGraph {
 
     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions. As before but it stops when the goal is reached in the relaxed state.
-    public Set reacheabilityTillGoal(State s, Condition goal, Set actions) throws CloneNotSupportedException {
+    public Set reacheabilityTillGoal(PDDLState s, Condition goal, Set actions) throws CloneNotSupportedException {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -702,7 +702,7 @@ public class NumericPlanningGraph {
         this.fixPoint = fixPoint;
     }
 
-    public RelState computeStateBound(State init, ComplexCondition goals, Set actions) throws CloneNotSupportedException {
+    public RelState computeStateBound(PDDLState init, ComplexCondition goals, Set actions) throws CloneNotSupportedException {
 
         this.goal = goals;
         RelState current = init.relaxState();

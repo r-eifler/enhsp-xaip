@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 import propositionalFactory.Grounder;
 
@@ -95,7 +95,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -105,7 +105,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -298,7 +298,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -308,7 +308,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public HashMap<Object, Object> apply(State s) {
+    public HashMap<Object, Object> apply(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

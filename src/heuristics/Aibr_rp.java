@@ -23,7 +23,6 @@ import conditions.Comparison;
 import conditions.ComplexCondition;
 import conditions.ConditionalEffect;
 import conditions.Condition;
-import domain.PddlDomain;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
@@ -39,6 +38,7 @@ import java.util.stream.Collectors;
 import problem.GroundAction;
 import problem.GroundProcess;
 import problem.RelState;
+import problem.PDDLState;
 import problem.State;
 
 /**
@@ -96,7 +96,8 @@ public class Aibr_rp extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate(State s) {
+    public Float compute_estimate(State gs) {
+        PDDLState s = (PDDLState)gs;
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;
@@ -291,7 +292,7 @@ public class Aibr_rp extends Heuristic {
         return ret;
     }
 
-    private Float fix_point_computation(State s, RelState rs2) {
+    private Float fix_point_computation(PDDLState s, RelState rs2) {
         Float counter = 0f;
         Float layer_counter = 0f;
         while (counter <= horizon) {
@@ -339,7 +340,7 @@ public class Aibr_rp extends Heuristic {
     }
 
     //The following is to weak as it only reason qualitatively! Needs to define concept of regression in the interval case.
-    private Float extract_plan(RelState rs2, int i, State s) {
+    private Float extract_plan(RelState rs2, int i, PDDLState s) {
         HashMap<Integer, LinkedHashSet<GroundAction>> to_add = new HashMap();
 
         for (int t = 0; t <= i; t++) {

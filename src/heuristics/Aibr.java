@@ -33,13 +33,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.RelState;
+import problem.PDDLState;
 import problem.State;
 
 /**
@@ -110,7 +110,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    public void light_setup(State s_0, h1 aThis) {
+    public void light_setup(PDDLState s_0, h1 aThis) {
         this.all_conditions = aThis.all_conditions;
 
         reachability = false;
@@ -119,7 +119,8 @@ public class Aibr extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate(State s) {
+    public Float compute_estimate(State gs) {
+        PDDLState s = (PDDLState)gs;
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         int supporters_counter = 0;
@@ -128,7 +129,7 @@ public class Aibr extends Heuristic {
         boolean exit = false;
         while (!exit) {//until  the goal is not satisfied || the procedure has been called in reacheability setting
 //            Collection<PDDLGroundAction> S = temp_supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toSet());//lambda function, Take the applicable action
-//            Utils.dbg_print(1, "Relaxed State:" + rs + "\n");
+//            Utils.dbg_print(1, "Relaxed PDDLState:" + rs + "\n");
 
             if (check_goal_condition(G, rs) && !reachability) {
                 break;
@@ -313,7 +314,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private Float fix_point_computation(State s, RelState rs2) {
+    private Float fix_point_computation(PDDLState s, RelState rs2) {
         Float counter = 0f;
         Float layer_counter = 0f;
         while (counter <= horizon) {
@@ -414,7 +415,7 @@ public class Aibr extends Heuristic {
 
     }
     
-    public ArrayList<RelState> get_relaxed_reachable_states(State s, RelState rs2){
+    public ArrayList<RelState> get_relaxed_reachable_states(PDDLState s, RelState rs2){
         ArrayList<RelState> ret = new ArrayList<>();
         ret.add(rs2.clone());
         
@@ -437,7 +438,7 @@ public class Aibr extends Heuristic {
         }
     }
     
-    public RelState get_relaxed_goal_in_reachability(State s){
+    public RelState get_relaxed_goal_in_reachability(PDDLState s){
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source
         

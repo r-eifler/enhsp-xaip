@@ -30,8 +30,6 @@ import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.NotCond;
 import conditions.Predicate;
-import expressions.BinaryOp;
-import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import extraUtils.Pair;
 import extraUtils.Utils;
@@ -39,11 +37,9 @@ import heuristics.Aibr;
 import heuristics.Heuristic;
 import static java.lang.System.out;
 import java.util.ArrayList;
-import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -53,6 +49,7 @@ import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.GroundProcess;
+import problem.PDDLState;
 import problem.State;
 
 /**
@@ -117,7 +114,7 @@ public class h1 extends Heuristic {
             return ret;
         }
         A = first_reachH.reachable;
-        simplify_actions(s);
+        simplify_actions((PDDLState)s);
 
         if (red_constraints) {
             try {
@@ -159,7 +156,7 @@ public class h1 extends Heuristic {
         return ret;
     }
     
-    public void light_setup(State s){
+    public void light_setup(PDDLState s){
         
         goal = new GroundAction("goal");
         goal.dummy_goal = true;
@@ -179,9 +176,11 @@ public class h1 extends Heuristic {
         }
     }
 
-    public Float compute_estimate(State s_0) {
+    @Override
+    public Float compute_estimate(State gs) {
+        PDDLState s = (PDDLState)gs;
 
-        if (s_0.satisfy(G)) {
+        if (s.satisfy(G)) {
 //            System.out.println("Goal satisfied??");
             return 0f;
         }
@@ -201,7 +200,7 @@ public class h1 extends Heuristic {
         action_comp_number_execution = new HashMap();
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
 //            gr.set_unit_cost(s_0);
-            if (gr.isApplicable(s_0)) {
+            if (gr.isApplicable(s)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(gr);
                 action_to_fib_node.set(gr.id, node);
                 a_plus.insert(node, 0f);//add such an action
@@ -214,7 +213,7 @@ public class h1 extends Heuristic {
 
 //        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
         for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
-            if (c.isSatisfied(s_0)) {
+            if (c.isSatisfied(s)) {
                 cond_dist.set(c.getHeuristicId(), 0f);
 //                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
 //                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
@@ -248,7 +247,7 @@ public class h1 extends Heuristic {
                     return estimate;
                 }
             }
-            update_reachable_conditions_actions(s_0, gr, a_plus, action_to_fib_node);//this procedure updates
+            update_reachable_conditions_actions(s, gr, a_plus, action_to_fib_node);//this procedure updates
             //all the conditions that can be reached by using action gr. 
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
         }
@@ -278,7 +277,7 @@ public class h1 extends Heuristic {
         return estimate;
     }
 
-    private void update_reachable_conditions_actions(State s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
+    private void update_reachable_conditions_actions(PDDLState s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
         float c_a = Math.max(gr.getActionCost(), min_cost_action);
         for (Condition comp : this.achieve.get(gr.id)) {//This is the set of all predicates reachable because of gr
             Float current_distance = cond_dist.get(comp.getHeuristicId());

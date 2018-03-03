@@ -34,7 +34,7 @@ import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -315,12 +315,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval(PDDLState s) {
         return s.holds(this);
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied(PDDLState s) {
         if (isValid()) {
             return true;
         }
@@ -402,7 +402,7 @@ public class Predicate extends Terminal implements PostCondition {
 //    }
    
 
-    public State remove(State s) {
+    public PDDLState remove(PDDLState s) {
         s.setPropFluent(this,false);
         return s;
     }
@@ -640,7 +640,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(State s) {
+    public HashMap apply(PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -654,7 +654,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply(PDDLState s, Map modifications) {
         modifications.put(this, Boolean.TRUE);
     }
 

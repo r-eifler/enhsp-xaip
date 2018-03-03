@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Collections.nCopies;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -49,6 +48,7 @@ import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
+import problem.PDDLState;
 import problem.State;
 
 /**
@@ -85,8 +85,9 @@ public class quasi_hm extends Heuristic {
     }
 
     @Override
-    public Float setup(State s) {
+    public Float setup(State gs) {
 
+        PDDLState s = (PDDLState)gs;
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
@@ -145,7 +146,8 @@ public class quasi_hm extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate(State s) {
+    public Float compute_estimate(State gs) {
+        PDDLState s = (PDDLState)gs;
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
         if (s.satisfy(G)) {
             return 0f;
@@ -281,7 +283,7 @@ public class quasi_hm extends Heuristic {
         return Math.max(distance.get(G.getHeuristicId()), 1f);
     }
 
-    private void generate_achievers(State s_0) {
+    private void generate_achievers(PDDLState s_0) {
         poss_achiever = new HashMap();
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
@@ -333,7 +335,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void generate_linear_programs(Collection<GroundAction> actions, State s_0) throws IloException {
+    private void generate_linear_programs(Collection<GroundAction> actions, PDDLState s_0) throws IloException {
         lps = new HashMap();
         for (Condition c : all_conditions) {
             LpInterface lp = null;
@@ -364,7 +366,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    protected void simplify_actions(State init) {
+    protected void simplify_actions(PDDLState init) {
         for (GroundAction gr : (Collection<GroundAction>) this.A) {
             try {
                 if (gr.getPreconditions() != null) {

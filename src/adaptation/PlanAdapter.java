@@ -50,7 +50,7 @@ import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 
 /**
  *

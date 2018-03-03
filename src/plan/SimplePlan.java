@@ -64,7 +64,7 @@ import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PddlProblem;
-import problem.State;
+import problem.PDDLState;
 import problem.Printer;
 
 /**
@@ -604,9 +604,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public String last_relevant_fluents_last_state(int i, State s, PddlProblem p) throws CloneNotSupportedException {
+    public String last_relevant_fluents_last_state(int i, PDDLState s, PddlProblem p) throws CloneNotSupportedException {
         String ret = "";
-        State temp = s.clone();
+        PDDLState temp = s.clone();
         for (int j = i; j < this.size(); j++) {
             GroundAction action = (GroundAction) this.get(j);
             action.apply(temp);
@@ -633,8 +633,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
   
 
-    public State execute(State init) throws CloneNotSupportedException {
-        State temp = init.clone();
+    public PDDLState execute(PDDLState init) throws CloneNotSupportedException {
+        PDDLState temp = init.clone();
         int i = 0;
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
             if (gr.isApplicable(temp)) {
@@ -856,7 +856,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public DirectedAcyclicGraph buildValidationStructures(State init, ComplexCondition g) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph buildValidationStructures(PDDLState init, ComplexCondition g) throws CloneNotSupportedException, Exception {
         DirectedAcyclicGraph po = new DirectedAcyclicGraph(DefaultEdge.class);
         po.addVertex(-1);
         //DirectedAcyclicGraph po = new DirectedAcyclicGraph();
@@ -1004,7 +1004,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return po;
     }
 
-    public DirectedAcyclicGraph deorder(State init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph deorder(PDDLState init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
         if (debug > 0) {
@@ -1535,7 +1535,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public boolean entangledByInit(String name, State init, Condition con) {
+    public boolean entangledByInit(String name, PDDLState init, Condition con) {
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
                 AndCond ac = (AndCond) gr.getPreconditions();
@@ -1556,7 +1556,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return true;
     }
 
-    public int entangledByInitCounter(String name, State init, Condition con) {
+    public int entangledByInitCounter(String name, PDDLState init, Condition con) {
 
         int numberOfHoldings = 0;
 
@@ -1633,8 +1633,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State current, Condition globalConstraints) throws CloneNotSupportedException {
-        State temp = current.clone();
+    public PDDLState execute(PDDLState current, Condition globalConstraints) throws CloneNotSupportedException {
+        PDDLState temp = current.clone();
         int i = 0;
         this.cost = 0f;
 
@@ -1738,7 +1738,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (int k = 0; k < i; k++) {
             if (!chain.contains(k)) {
                 chain.add(k);
-                State tempInit = new State();
+                PDDLState tempInit = new PDDLState();
 //                System.out.println("DEBUG: New state created:"+tempInit);
                 for (Integer index : chain) {
 //                    System.out.println("DEBUG:Applying from chain:"+index);
@@ -1822,7 +1822,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public State execute(State init, Condition GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
+    public PDDLState execute(PDDLState init, Condition GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
@@ -1838,7 +1838,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
 //        System.out.println("steps number:" + steps_number);
         System.out.println("Resolution for validation:" + resolution);
-        State current = init.clone();
+        PDDLState current = init.clone();
         this.cost = 0f;
         //current.addNumericFluent(new NumFluentValue("#t", resolution));
         nf_trace = new HashMap();
@@ -1892,7 +1892,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private Set<GroundEvent> apply_events(State s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
+    private Set<GroundEvent> apply_events(PDDLState s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
         Set<GroundEvent> ret = new LinkedHashSet();
         for (GroundEvent ev : reachable_events) {
 
@@ -1907,7 +1907,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private State advance_time(State current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
+    private PDDLState advance_time(PDDLState current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");
@@ -1944,7 +1944,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return current;
     }
 
-    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, State current) {
+    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, PDDLState current) {
         for (NumFluent nf : nf_trace.keySet()) {
             nf_trace.get(nf).add(current.fluentValue(nf).getNumber());
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));

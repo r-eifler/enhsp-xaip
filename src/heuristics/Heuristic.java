@@ -24,7 +24,6 @@ import conditions.Comparison;
 import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.Predicate;
-import expressions.BinaryOp;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -51,10 +50,11 @@ import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import problem.GroundAction;
 import problem.RelState;
-import problem.State;
+import problem.PDDLState;
 import org.ojalgo.optimisation.Variable;
 import problem.GroundEvent;
 import problem.GroundProcess;
+import problem.State;
 
 /**
  *
@@ -258,11 +258,11 @@ public abstract class Heuristic {
      */
     abstract public Float compute_estimate(State s_0);
 
-    protected Float compute_precondition_cost(State s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {
+    protected Float compute_precondition_cost(PDDLState s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, gr.getPreconditions(), closed);
     }
 
-    protected Float compute_cost(State s_0, ArrayList<Float> h, Condition input_cond, ArrayList<Boolean> closed) {
+    protected Float compute_cost(PDDLState s_0, ArrayList<Float> h, Condition input_cond, ArrayList<Boolean> closed) {
         Float cost = 0f;
 
         ComplexCondition con = (ComplexCondition) input_cond;
@@ -287,7 +287,7 @@ public abstract class Heuristic {
         return cost;
     }
 
-    protected Float check_goal_conditions(State s_0, Condition G, ArrayList<Float> h, ArrayList<Boolean> closed) {
+    protected Float check_goal_conditions(PDDLState s_0, Condition G, ArrayList<Float> h, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, G, closed);
     }
 
@@ -306,7 +306,7 @@ public abstract class Heuristic {
         return new_condition;
     }
 
-    protected int compute_precondition_cost(State s_0, Map<Condition, Integer> h, GroundAction gr) {
+    protected int compute_precondition_cost(PDDLState s_0, Map<Condition, Integer> h, GroundAction gr) {
 
         int cost = 0;
         if (gr.getPreconditions() != null) {
@@ -335,11 +335,11 @@ public abstract class Heuristic {
         return cost;
     }
 
-    protected int compute_precondition_cost(State s_0, ArrayList<Integer> h, GroundAction gr) {
+    protected int compute_precondition_cost(PDDLState s_0, ArrayList<Integer> h, GroundAction gr) {
         return this.compute_cost(s_0, h, gr.getPreconditions());
     }
 
-    protected int compute_cost(State s_0, ArrayList<Integer> h, ComplexCondition con) {
+    protected int compute_cost(PDDLState s_0, ArrayList<Integer> h, ComplexCondition con) {
         int cost = 0;
 
         if (con == null) {
@@ -361,7 +361,7 @@ public abstract class Heuristic {
         return cost;
     }
 
-//    protected float interval_based_relaxation_actions(State s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Float> action_to_cost) {
+//    protected float interval_based_relaxation_actions(PDDLState s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Float> action_to_cost) {
 //        RelState rel_state = s_0.relaxState();
 //        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
 //        float cost = 0;
@@ -496,7 +496,7 @@ public abstract class Heuristic {
 
     }
 
-    protected Float interval_based_relaxation_actions_with_cost(State s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
+    protected Float interval_based_relaxation_actions_with_cost(PDDLState s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
         RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -605,7 +605,7 @@ public abstract class Heuristic {
 //                return Float.MAX_VALUE;
 //            }
 //        }
-    protected void init_pool(Collection pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
+    protected void init_pool(Collection pool, Collection<GroundAction> A1, PDDLState s_0, ArrayList<Float> h) {
 
         Iterator it = A1.iterator();
         while (it.hasNext()) {
@@ -619,7 +619,7 @@ public abstract class Heuristic {
         }
     }
 
-    protected void update_pool(Collection<GroundAction> pool, Collection<GroundAction> A1, State s_0, ArrayList<Float> h) {
+    protected void update_pool(Collection<GroundAction> pool, Collection<GroundAction> A1, PDDLState s_0, ArrayList<Float> h) {
         //update action precondition
 
         for (GroundAction gr : A1) {
@@ -720,7 +720,7 @@ public abstract class Heuristic {
         return additional_cost;
     }
 
-    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, State s_0, ComplexCondition c, ArrayList<Float> h) {
+    protected float compute_current_cost_via_lp(Collection<GroundAction> pool, PDDLState s_0, ComplexCondition c, ArrayList<Float> h) {
 
         n_lp_invocations = n_lp_invocations + 1;
 //        System.out.println(invocation);
@@ -1019,7 +1019,7 @@ public abstract class Heuristic {
 //        System.out.println("Set after:"+set.size());
     }
 
-    protected void simplify_actions(State init) {
+    protected void simplify_actions(PDDLState init) {
         for (GroundAction gr : (Collection<GroundAction>) this.A) {
             try {
                 if (gr.getPreconditions() != null) {

@@ -34,20 +34,20 @@ import java.util.Objects;
  *
  * @author enrico
  */
-public class State  {
+public class PDDLState extends State  {
 
     public ArrayList<PDDLNumber> numFluents;
     public ArrayList<Boolean> boolFluents;
     public Double time;
 
-    public State() {
+    public PDDLState() {
         super();
         this.numFluents = new ArrayList();
         this.boolFluents = new ArrayList();
 
     }
 
-    public State(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
+    public PDDLState(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
         this.numFluents = (ArrayList<PDDLNumber>) numFluents.clone();
         this.boolFluents = (ArrayList<Boolean>) propFluents.clone();
     }
@@ -60,8 +60,8 @@ public class State  {
     
 
     @Override
-    public State clone() throws CloneNotSupportedException {
-        State ret_val = new State(this.numFluents,this.boolFluents);
+    public PDDLState clone() {
+        PDDLState ret_val = new PDDLState(this.numFluents,this.boolFluents);
         ret_val.time = this.time;
         return ret_val;
     }
@@ -85,7 +85,7 @@ public class State  {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final State other = (State) obj;
+        final PDDLState other = (PDDLState) obj;
         if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
@@ -211,7 +211,7 @@ public class State  {
 
     }
 
-    public void updateValues(HashSet<NumFluent> toUpdate, State temp) {
+    public void updateValues(HashSet<NumFluent> toUpdate, PDDLState temp) {
         for (NumFluent n : toUpdate) {
             this.setNumFluent(n, temp.fluentValue(n));
         }
