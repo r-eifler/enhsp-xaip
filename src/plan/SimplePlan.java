@@ -812,17 +812,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     
 
-    private void addSubCondition(TreeSet<GroundAction> ret, GroundAction macro, int upperBound) {
-        if (ret.size() >= upperBound) {
-            if (macro.getPrevDistanceFromProblem() < ret.last().getPrevDistanceFromProblem()) {
-                ret.pollLast();
-                ret.add(macro);
-            }
-        } else {
-            ret.add(macro);
-        }
-    }
-
    
 
     /**

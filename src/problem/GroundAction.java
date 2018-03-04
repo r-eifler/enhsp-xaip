@@ -40,42 +40,32 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
-import extraUtils.Pair;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plan.SimplePlan;
-import heuristics.utils.RegressedSearchNode;
 
-public class GroundAction extends PDDLGenericAction implements Comparable{
-
+public class GroundAction extends PDDLGenericAction {
+    
+    public int id;
     protected ParametersAsTerms parameters_as_terms;
     public Boolean numeric_effect_undefined;
     public boolean normalized;
     private ArrayList primitives;
     private boolean isMacro;
     public int hiddenParametersNumber;
-    private Float prevDistanceFromProblem;
-    public Comparison achievedComparison = null;
-    public GroundAction generator;
-    public HashSet<Condition> achievedComparisons;
     private boolean reacheable = false;
     private HashMap<NumFluent, Float> coefficientAffected;
-    private Float action_cost;
-    public int id;
-    public HashMap<Integer, Boolean> interact_with;
+    private Float actionCost;
+    
     private HashMap<Predicate, Boolean> achieve;
-    private Integer int_depencies;
     public Float time = null;
-    private Boolean has_state_dependent_effects;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
     public boolean dummy_goal;
     
@@ -107,9 +97,7 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         if (this.preconditions != null) {
             ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
-        if (this.interact_with != null) {
-            ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();
-        }
+
         return ret;
 
     }
@@ -133,29 +121,15 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         return hash;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 11 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
-//        return hash;
-//    }
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 37 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
-//        return hash;
-//    }
     public GroundAction() {
         super();
-        this.name = name;
         numericFluentAffected = null;
         this.parameters_as_terms = new ParametersAsTerms();
         this.preconditions = new AndCond();
         this.numericEffects = new AndCond();
         this.cond_effects = new AndCond();
         //numericFluentAffected = new HashMap();
-        action_cost = null;
-        interact_with = new HashMap();
+        actionCost = null;
         achieve = new HashMap();
     }
 
@@ -170,8 +144,7 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         this.delList = new AndCond();
         this.cond_effects = new AndCond();
         //numericFluentAffected = new HashMap();
-        action_cost = null;
-        interact_with = new HashMap();
+        actionCost = null;
         achieve = new HashMap();
     }
 
@@ -710,78 +683,6 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         return primitives;
     }
 
-    public Float computeDistance(PddlProblem prob) {
-        int missingGoals = 0;
-        int destroyingGoals = 0;
-        int missingPreconditions = 0;
-        int cumulativeComparisonDistance = 0;
-        AndCond prec = new AndCond();
-        float dist = 0;//this.getPrimitives().size()/2;
-        if (this.preconditions instanceof AndCond) {
-            prec = (AndCond) this.preconditions;
-        } else {
-            System.out.println(this.preconditions.getClass() + " is not supported");
-        }
-
-        for (Object o : prec.sons) {
-            if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                if (!p.isSatisfied(prob.getInit())) {
-                    missingPreconditions++;
-                }
-            } else if (o instanceof Comparison) {
-                Comparison comp = (Comparison) o;
-                cumulativeComparisonDistance += (Math.max(comp.satisfactionDistance(prob.getInit()), 0));
-            }
-        }
-        AndCond goal = new AndCond();
-        if (prob.getGoals() instanceof AndCond) {
-            goal = (AndCond) prob.getGoals();
-        } else {
-            System.out.println(prob.getGoals().getClass() + " is not supported");
-        }
-
-        for (Object o : goal.sons) {
-            if (o instanceof Predicate) {
-                Predicate p = (Predicate) o;
-                if (this.addList instanceof AndCond) {
-                    if (!this.addList.sons.contains(o)) {
-                        missingGoals++;
-                    }
-                }
-            } else if (o instanceof Comparison) {
-
-                //System.out.println("distanza da comparison del goal da fare!");
-            }
-        }
-        if (delList instanceof AndCond) {
-            for (NotCond o : (HashSet<NotCond>) delList.sons) {
-                //System.out.println(o);
-                if (goal.sons.contains(o.getSon())) {
-                    //System.out.println(o);
-                    destroyingGoals++;
-                }
-            }
-        }
-
-        float malus = 0;
-        //System.out.println("Primitives:" + this.primitives.size());
-//        float rA = (float) this.computeReputedActions();
-//        //System.out.println(rA);
-//        if (rA / (float) this.primitives.size() < 0.1) {
-//            malus = 100*(float) this.primitives.size()/rA;
-//        }
-
-        dist = (float) (missingGoals + destroyingGoals + missingPreconditions);
-
-        float a = 0;// 1-this.getParametersFusionNumber()/(float)this.hiddenParametersNumber;
-
-        //System.out.println("Missing Goal!!:" +missingGoals +" Normalizzato" + (float)(prob.getGoals().sons.size()-missingGoals)/(float)prob.getGoals().sons.size());
-        this.setPrevDistanceFromProblem((Float) dist + a);
-        //this.prevDistanceFromProblem = dist;
-
-        return getPrevDistanceFromProblem();
-    }
 
     public int getParametersFusionNumber() {
         hiddenParametersNumber = 0;
@@ -793,47 +694,6 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
             }
         }
         return hiddenParametersNumber - this.getParameters().size();
-    }
-
-   
-
-    public Float getDistance() {
-        return getPrevDistanceFromProblem();
-    }
-
-    @Override
-    public int compareTo(Object t) {
-        GroundAction gr = (GroundAction) t;
-        if (this.getPrevDistanceFromProblem().equals(gr.getPrevDistanceFromProblem())) {
-            return -1;
-        }
-
-        return this.getPrevDistanceFromProblem().compareTo(gr.getPrevDistanceFromProblem());
-    }
-
-    private int computeReputedActions() {
-
-        HashSet counter = new HashSet();
-        for (Object o : this.primitives) {
-            GroundAction a = (GroundAction) o;
-            counter.add(a.getName());
-        }
-        //System.out.println(ret);
-        return counter.size();
-    }
-
-    /**
-     * @return the prevDistanceFromProblem
-     */
-    public Float getPrevDistanceFromProblem() {
-        return prevDistanceFromProblem;
-    }
-
-    /**
-     * @param prevDistanceFromProblem the prevDistanceFromProblem to set
-     */
-    public void setPrevDistanceFromProblem(Float prevDistanceFromProblem) {
-        this.prevDistanceFromProblem = prevDistanceFromProblem;
     }
 
     public boolean threatenConditions(ComplexCondition goal, SimplePlan sp, PDDLState current) {
@@ -1422,13 +1282,6 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         return false;
     }
 
-    public void addAchievedComparison(Condition c_1) {
-        if (this.achievedComparisons == null) {
-            this.achievedComparisons = new HashSet();
-        }
-        this.achievedComparisons.add(c_1);
-    }
-
     /**
      * @return the reacheable
      */
@@ -1737,26 +1590,26 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
      * @return the action_cost
      */
     public float getActionCost() {
-        return action_cost;
+        return actionCost;
     }
 
     public void set_unit_cost(PDDLState s_0) {
-        if (action_cost == null) {
+        if (actionCost == null) {
 
-            action_cost = 1f;
+            actionCost = 1f;
         }
 
     }
     
     public void clearActionCost(){
-        action_cost = null;
+        actionCost = null;
     }
 
     /**
      * @param action_cost the action_cost to set
      */
     public void setAction_cost(float action_cost) {
-        this.action_cost = action_cost;
+        this.actionCost = action_cost;
     }
 
     public NumEffect getAffectorOf(NumFluent f) {
@@ -1803,19 +1656,7 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         return false;
     }
 
-    private boolean interact_with(Comparison comp) {
-        Boolean ret = interact_with.get(comp.getHeuristicId());
-        if (ret == null) {
-            if (comp.involve(this.getNumericFluentAffected())) {
-                interact_with.put(comp.getHeuristicId(), Boolean.TRUE);
-                return true;
-            } else {
-                interact_with.put(comp.getHeuristicId(), Boolean.FALSE);
-                return false;
-            }
-        }
-        return ret;
-    }
+ 
 
     public boolean is_possible_achiever_of(Comparison comp) {
         float positiveness = 0;
@@ -1881,40 +1722,6 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
         return false;
     }
 
-    public int internal_dependencies_length() {
-
-        if (this.int_depencies != null) {
-            return this.int_depencies;
-        }
-        int_depencies = 0;
-        if (this.getNumericEffects() != null) {
-            Collection<NumEffect> col = this.getNumericEffects().sons;
-            HashMap<NumEffect, Boolean> visited = new HashMap();
-            for (NumEffect a : col) {
-                int_depencies = Math.max(int_depencies, dependency_length(a, col, visited));
-            }
-        }
-
-        return this.int_depencies;
-
-    }
-
-    private int dependency_length(NumEffect a, Collection<NumEffect> col, HashMap<NumEffect, Boolean> visited) {
-        if (visited.get(a) == null) {
-            visited.put(a, true);//to prevent cycle
-            int max_dependency_length = 0;
-            for (NumEffect b : col) {
-                if (!a.equals(b)) {
-                    if (a.getInvolvedFluents().contains(b.getFluentAffected())) {
-                        max_dependency_length = Math.max(max_dependency_length, dependency_length(b, col, (HashMap<NumEffect, Boolean>) visited.clone()) + 1);
-                    }
-                }
-            }
-            return max_dependency_length;
-        } else {
-            return 0;
-        }
-    }
 
     public RelState apply_with_generalized_interval_based_relaxation_copy(RelState s) {
         RelState s_copied = null;
@@ -2031,24 +1838,7 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
 
     }
 
-    public boolean has_state_dependent_effects() {
-        if (has_state_dependent_effects != null) {
-            return has_state_dependent_effects;
-        }
-
-        if (this.getNumericEffects() == null || this.getNumericEffects().sons.isEmpty()) {
-            has_state_dependent_effects = false;
-        } else {
-            for (NumEffect neff : this.getNumericEffectsAsCollection()) {
-                if (!(neff.getRight() instanceof PDDLNumber)) {
-                    has_state_dependent_effects = true;
-                    break;
-                }
-            }
-        }
-
-        return has_state_dependent_effects;
-    }
+   
 
     public boolean delete_own_preconditions() {//to do
 
@@ -2268,17 +2058,17 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
             this.getNumericEffects().sons.remove(neff);
             this.forcedGenerateAffectedNumFluents();
             if (cont == 0) {
-                this.action_cost = 0f;
+                this.actionCost = 0f;
             } else if (metric.getOptimization().equals("maximise")) {
                 if (cont < 0) {
-                    this.action_cost = cont;
+                    this.actionCost = cont;
                 } else {
-                    this.action_cost = 0f;
+                    this.actionCost = 0f;
                 }
             } else if (cont > 0) {
-                this.action_cost = cont;
+                this.actionCost = cont;
             } else {
-                this.action_cost = 0f;
+                this.actionCost = 0f;
             }
         } else {
             this.set_unit_cost(init);
@@ -2341,8 +2131,10 @@ public class GroundAction extends PDDLGenericAction implements Comparable{
     }
 
     public float getActionCost(State s) {
-        return this.action_cost;
+        return this.actionCost;
     }
+    
+    
 
 
     

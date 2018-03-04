@@ -34,7 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GroundProcess extends GroundAction implements Comparable {
+public class GroundProcess extends GroundAction{
 
     private double delta;
 
@@ -69,9 +69,7 @@ public class GroundProcess extends GroundAction implements Comparable {
         if (this.preconditions != null) {
             ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
-        if (this.interact_with != null) {
-            ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();
-        }
+
         return ret;
 
     }

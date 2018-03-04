@@ -88,9 +88,7 @@ public class GroundEvent extends GroundAction {
         if (this.preconditions != null) {
             ret.preconditions = (ComplexCondition) this.preconditions.clone();
         }
-        if (this.interact_with != null) {
-            ret.interact_with = (HashMap<Integer, Boolean>) this.interact_with.clone();
-        }
+
         return ret;
 
     }
