@@ -384,7 +384,7 @@ public class hlm extends h1 {
     }
 
     private void update_actions_conditions(PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
-        for (Condition comp : this.achieve.get(gr.id)) {//This is the set of all predicates reachable because of gr
+        for (Condition comp : this.achieve[gr.id]) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {//if this isn't in the init state yet
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
@@ -396,7 +396,7 @@ public class hlm extends h1 {
                 //for this specific condition check implications of having it reached.
             }
         }
-        for (Condition comp : this.possible_achievers.get(gr.id)) {
+        for (Condition comp : this.possibleAchievers[gr.id]) {
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
 //                    continue;
@@ -540,9 +540,9 @@ public class hlm extends h1 {
                 IloLinearNumExpr expr = lp_global.linearNumExpr();;
                 Set<GroundAction> set = null;
                 if (c instanceof Predicate) {
-                    set = this.achievers_inverted.get(c.getHeuristicId());
+                    set = this.invertedAchievers[c.getHeuristicId()];
                 } else if (c instanceof Comparison) {
-                    set = this.possible_achievers_inverted.get(c.getHeuristicId());
+                    set = this.invertedPossibleAchievers[c.getHeuristicId()];
                 }
                 if (set != null) {
 //                    System.out.println("Possible achievers...");

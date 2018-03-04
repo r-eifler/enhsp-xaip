@@ -21,7 +21,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import heuristics.utils.achiever_set;
+import heuristics.utils.AchieverSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -335,7 +335,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

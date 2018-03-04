@@ -27,13 +27,13 @@ import problem.GroundAction;
  *
  * @author enrico
  */
-public class achiever_set {
+public class AchieverSet {
 
     public Float cost;
     public HashSet<GroundAction> actions;
     public HashSet<Condition> target_cond;
 
-    public achiever_set() {
+    public AchieverSet() {
         actions = new HashSet();
         target_cond = new HashSet();
     }

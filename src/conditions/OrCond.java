@@ -21,7 +21,7 @@ package conditions;
 import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import heuristics.utils.achiever_set;
+import heuristics.utils.AchieverSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -565,14 +565,14 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
-        achiever_set s = new achiever_set();
+    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        AchieverSet s = new AchieverSet();
         s.cost = Float.MAX_VALUE;
         if (this.sons == null) {
             s.cost = 0f;
         } else {
             for (Condition c : (Collection<Condition>) this.sons) {
-                achiever_set s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
+                AchieverSet s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
                 if (s1.cost != Float.MAX_VALUE) {
                     if (s.cost > s1.cost) {
                         s.actions = s1.actions;

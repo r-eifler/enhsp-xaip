@@ -20,7 +20,7 @@ package conditions;
 
 import domain.Variable;
 import expressions.NumFluent;
-import heuristics.utils.achiever_set;
+import heuristics.utils.AchieverSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -245,7 +245,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract ComplexCondition and(Condition precondition);
 
-    public abstract achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+    public abstract AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
 
     public abstract Condition push_not_to_terminals();
 

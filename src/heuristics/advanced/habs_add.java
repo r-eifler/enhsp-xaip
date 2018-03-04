@@ -122,7 +122,7 @@ public class habs_add extends Heuristic {
 
         // estimation for initial state
         setup_habs(s);
-        habs.relaxed_plan_extraction = this.planExtraction;
+        habs.extractRelaxedPlan = this.planExtraction;
         habs.helpful_actions_computation = this.helpful_actions_computation;
 
         ret = habs.compute_estimate(s);

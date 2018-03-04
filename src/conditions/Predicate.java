@@ -20,7 +20,7 @@ package conditions;
 
 import domain.Variable;
 import expressions.NumFluent;
-import heuristics.utils.achiever_set;
+import heuristics.utils.AchieverSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -701,8 +701,8 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public achiever_set estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
-        achiever_set s = new achiever_set();
+    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+        AchieverSet s = new AchieverSet();
         s.cost = cond_dist.get(this.getHeuristicId());
         s.actions.add(established_achiever.get(this.getHeuristicId()));
         s.target_cond.add(this);

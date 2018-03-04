@@ -61,7 +61,7 @@ public class PlannerUtils {
         if (heuristic.equals("hadd")) {
             searchStrategies.setup_heuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
             h1 h = (h1) searchStrategies.getHeuristic();
-            h.red_constraints = false;
+            h.useRedundantConstraints = false;
             h.additive_h = true;
         } else {
             searchStrategies.setup_heuristic(new blindHeuristic(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
@@ -97,7 +97,7 @@ public class PlannerUtils {
         //set heuristic
         searchStrategies.setup_heuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
         h1 h = (h1) searchStrategies.getHeuristic();
-        h.red_constraints = false;
+        h.useRedundantConstraints = false;
         h.additive_h = true;
 
         searchStrategies.getHeuristic().setup(problem.init);
