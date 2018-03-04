@@ -128,7 +128,6 @@ public class PddlProblem {
     public PddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
         super();
         try {
-            init = new PDDLState();
             indexObject = 0;
             indexInit = 0;
             indexGoals = 0;
@@ -232,8 +231,6 @@ public class PddlProblem {
      *
      */
     public PddlProblem() {
-
-        init = new PDDLState();
 
         indexObject = 0;
         indexInit = 0;
@@ -547,7 +544,7 @@ public class PddlProblem {
     }
 
     public Float getInitFunctionValue(NumFluent f) {
-        return init.fluentValue(f).getNumber();
+        return init.fluentValue(f).floatValue();
     }
 
     public NumFluent getNumFluent(String string, ArrayList terms) {

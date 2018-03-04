@@ -836,7 +836,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 if (problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())) == null) {
                     return new Float(this.size());
                 }
-                return problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())).getNumber();
+                return problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())).floatValue();
             } else {
                 return new Float(this.size());
             }
@@ -1635,7 +1635,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             while (it.hasNext()) {
                 NumFluent nf = it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.fluentValue(nf).getNumber());
+                nf_traj.add(current.fluentValue(nf).floatValue());
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -1838,7 +1838,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             while (it.hasNext()) {
                 NumFluent nf = (NumFluent) it.next();
                 ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.fluentValue(nf).getNumber());
+                nf_traj.add(current.fluentValue(nf).floatValue());
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -1935,7 +1935,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, PDDLState current) {
         for (NumFluent nf : nf_trace.keySet()) {
-            nf_trace.get(nf).add(current.fluentValue(nf).getNumber());
+            nf_trace.get(nf).add(current.fluentValue(nf).floatValue());
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }

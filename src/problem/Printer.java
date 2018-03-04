@@ -18,7 +18,6 @@
  */
 package problem;
 
-import conditions.NumFluentValue;
 import conditions.PDDLObject;
 import conditions.Predicate;
 import expressions.NumFluent;
@@ -49,7 +48,7 @@ public class Printer {
                     PDDLObject obj = (PDDLObject) o1;
                     ret.append(" ").append(obj.getName());
                 }
-                ret.append(") ").append(s.numFluents.get(nf.id)).append(")\n");
+                ret.append(") ").append(s.numFluents[nf.id]).append(")\n");
             }
         }
 

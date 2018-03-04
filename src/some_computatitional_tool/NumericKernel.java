@@ -236,12 +236,12 @@ public class NumericKernel extends HashMap {
 
     protected Float maximizationBound(ExtendedNormExpression lExpr, RelState numericFleuntsBoundaries) {
 
-        Float b = new Float(0.0);
+        Double b = 0d;
         ArrayList<ExtendedAddendum> variables = new ArrayList();
         for (Object o : lExpr.summations) {
             ExtendedAddendum add = (ExtendedAddendum) o;
             if (add.f == null) {
-                b = add.n.getNumber();
+                b = add.n;
             } else {
                 variables.add(add);
             }
@@ -254,7 +254,7 @@ public class NumericKernel extends HashMap {
         Float max = -Float.MIN_VALUE;
         int i = 0;
         while (i < Math.pow(2, variables.size())) {
-            Float temp = new Float(0.0);
+            Double temp = 0d;
             String bit = Integer.toBinaryString(i);
             //System.out.println(bit);
 
@@ -270,15 +270,15 @@ public class NumericKernel extends HashMap {
             for (int j = 0; j < variables.size(); j++) {
                 if (bit.length() > j) {
                     if (bit.charAt(j) == '0') {
-                        temp += variables.get(j).n.getNumber() * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
+                        temp += variables.get(j).n * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
                         //System.out.println("Inf:"+j);
                     } else {
-                        temp += variables.get(j).n.getNumber() * numericFleuntsBoundaries.functionSupValue(variables.get(j).f).getNumber();
+                        temp += variables.get(j).n * numericFleuntsBoundaries.functionSupValue(variables.get(j).f).getNumber();
                         //System.out.println("sup:"+j);
                     }
                 } else {
 //                    System.out.println("inf:"+j);
-                    temp += variables.get(j).n.getNumber() * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
+                    temp += variables.get(j).n * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
                 }
             }
             if (Math.abs((double) temp + (double) b) > max) {
@@ -356,12 +356,12 @@ public class NumericKernel extends HashMap {
     }
 
     protected Float maximizationBoundViaPlanBounds(ExtendedNormExpression lExpr, HashMap higherNFValues, HashMap lowerNFValues) {
-        Float b = new Float(0.0);
+        Double b = 0d;
         ArrayList<ExtendedAddendum> variables = new ArrayList();
         for (Object o : lExpr.summations) {
             ExtendedAddendum add = (ExtendedAddendum) o;
             if (add.f == null) {
-                b = add.n.getNumber();
+                b = add.n;
             } else {
                 variables.add(add);
             }
@@ -374,7 +374,7 @@ public class NumericKernel extends HashMap {
         Float max = -Float.MIN_VALUE;
         int i = 0;
         while (i < Math.pow(2, variables.size())) {
-            Float temp = new Float(0.0);
+            Double temp = 0d;
             String bit = Integer.toBinaryString(i);
             //System.out.println(bit);
 
@@ -392,15 +392,15 @@ public class NumericKernel extends HashMap {
                     if (bit.charAt(j) == '0') {
                         //System.out.println((Float)lowerNFValues.get(variables.get(j).f));
 
-                        temp += variables.get(j).n.getNumber() * (Float) lowerNFValues.get(variables.get(j).f);
+                        temp += variables.get(j).n * (Double) lowerNFValues.get(variables.get(j).f);
 //                        System.out.println("Inf:"+j);
                     } else {
-                        temp += variables.get(j).n.getNumber() * (Float) higherNFValues.get(variables.get(j).f);
+                        temp += variables.get(j).n * (Double) higherNFValues.get(variables.get(j).f);
 //                        System.out.println("sup:"+j);
                     }
                 } else {
 //                    System.out.println("inf:"+j);
-                    temp += variables.get(j).n.getNumber() * (Float) lowerNFValues.get(variables.get(j).f);
+                    temp += variables.get(j).n * (Float) lowerNFValues.get(variables.get(j).f);
                 }
             }
             if (Math.abs((double) temp + (double) b) > max) {

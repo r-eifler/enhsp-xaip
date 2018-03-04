@@ -66,8 +66,8 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
-        double arg_val = getArg().eval(s).getNumber();
+    public Double eval(PDDLState s) {
+        double arg_val = getArg().eval(s);
         switch (this.operator) {
             case "sin":
                 arg_val = Math.sin(arg_val);
@@ -79,7 +79,7 @@ public class TrigonometricFunction extends BinaryOp {
                 System.out.println("Eval error in: " + this);
                 System.exit(-1);
         }
-        return new PDDLNumber(new Float(arg_val));
+        return arg_val;
     }
 
     @Override

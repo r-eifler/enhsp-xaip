@@ -151,7 +151,7 @@ public class NumFluentValue extends Terminal {
 
     @Override
     public boolean eval(PDDLState s) {
-        if (s.fluentValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
+        if (s.fluentValue(nFluent).equals(nFluentValue.getNumber())) {
             return true;
         } else {
             return false;
@@ -160,7 +160,7 @@ public class NumFluentValue extends Terminal {
 
     @Override
     public boolean isSatisfied(PDDLState s) {
-        if (s.fluentValue(nFluent).getNumber().equals(nFluentValue.getNumber())) {
+        if (s.fluentValue(nFluent).equals(nFluentValue.getNumber())) {
             return true;
         } else {
             return false;

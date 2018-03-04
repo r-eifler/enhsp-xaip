@@ -753,7 +753,7 @@ public abstract class Heuristic {
                 Comparison comp = (Comparison) cond;
                 ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                 boolean at_least_one = false;
-                Float num = comp.getLeft().eval(s_0).getNumber();
+                Double num = comp.getLeft().eval(s_0);
                 Expression condition = null;
                 switch (comp.getComparator()) {
                     case ">":
@@ -805,15 +805,15 @@ public abstract class Heuristic {
 //                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
                                     //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
                                     //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
-                                    Float right = null;
+                                    Double right = null;
                                     switch (neff.getOperator()) {
                                         case "increase":
-                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                            right = neff.getRight().eval(s_0) * ad.n;
                                             right = condition.get(action).floatValue() - right;
                                             condition = condition.set(action, right);
                                             break;
                                         case "decrease":
-                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                            right = neff.getRight().eval(s_0) * ad.n;
                                             right = condition.get(action).floatValue() + right;
                                             condition = condition.set(action, right);
                                             break;
@@ -1000,7 +1000,7 @@ public abstract class Heuristic {
                     }
                     Comparison newC = new Comparison(new_comparator);
                     newC.setLeft(expr);
-                    newC.setRight(new ExtendedNormExpression(new Float(0.0)));
+                    newC.setRight(new ExtendedNormExpression(0d));
                     newC.normalize();
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();

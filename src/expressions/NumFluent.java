@@ -190,7 +190,7 @@ public class NumFluent extends Expression {
 //        this.name = name;
 //    }
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public Double eval(PDDLState s) {
         if (s == null) {
             System.out.println("stato nullo!!");
         }
@@ -214,7 +214,7 @@ public class NumFluent extends Expression {
     @Override
     public ExtendedNormExpression normalize() {
         ExtendedAddendum a = new ExtendedAddendum();
-        a.n = new PDDLNumber(1);
+        a.n = 1d;
         a.f = this;
         ExtendedNormExpression ret = new ExtendedNormExpression();
         ret.summations.add(a);

@@ -51,10 +51,19 @@ public class ExtendedNormExpression extends Expression {
         linear = true;
     }
 
+    public ExtendedNormExpression(Double ele) {
+        this.summations = new ArrayList();
+        ExtendedAddendum a = new ExtendedAddendum();
+        a.n = ele;
+        this.summations.add(a);
+        linear = true;
+
+    }
+    
     public ExtendedNormExpression(Float ele) {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum();
-        a.n = new PDDLNumber(ele);
+        a.n = ele.doubleValue();
         this.summations.add(a);
         linear = true;
 
@@ -156,17 +165,17 @@ public class ExtendedNormExpression extends Expression {
                 for (ExtendedAddendum b : copy_of_right) {
                     if (b.linear && b.bin == null) {
                         if ((b.f == null) && (a.f == null)) {
-                            ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
-                            if (ele_to_add.n.getNumber() == 0.0) {
+                            ele_to_add.n = a.n + b.n;
+                            if (ele_to_add.n == 0.0) {
                                 add = false;
                             }
                             already_added.put(b, true);
                             break;
                         } else if (b.f != null && a.f != null) {
                             if (b.f.equals(a.f)) {
-                                ele_to_add.n = new PDDLNumber(a.n.getNumber() + b.n.getNumber());
+                                ele_to_add.n = a.n+ b.n;
                                 ele_to_add.f = (NumFluent) a.f.clone();
-                                if (ele_to_add.n.getNumber() == 0.0) {
+                                if (ele_to_add.n == 0.0) {
                                     add = false;
                                 }
                                 already_added.put(b, true);
@@ -190,7 +199,7 @@ public class ExtendedNormExpression extends Expression {
             }
         }
         if (result.summations.isEmpty()) {
-            return new ExtendedNormExpression(0f);
+            return new ExtendedNormExpression(0d);
         }
 
         return result;
@@ -213,17 +222,17 @@ public class ExtendedNormExpression extends Expression {
                 for (ExtendedAddendum b : copy_of_right) {
                     if (b.linear && b.bin == null) {
                         if ((b.f == null) && (a.f == null)) {
-                            ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
-                            if (ele_to_add.n.getNumber() == 0.0) {
+                            ele_to_add.n = a.n - b.n;
+                            if (ele_to_add.n == 0.0) {
                                 add = false;
                             }
                             already_added.put(b, true);
                             break;
                         } else if (b.f != null && a.f != null) {
                             if (b.f.equals(a.f)) {
-                                ele_to_add.n = new PDDLNumber(a.n.getNumber() - b.n.getNumber());
+                                ele_to_add.n = a.n - b.n;
                                 ele_to_add.f = (NumFluent) a.f.clone();
-                                if (ele_to_add.n.getNumber() == 0.0) {
+                                if (ele_to_add.n == 0.0) {
                                     add = false;
                                 }
                                 already_added.put(b, true);
@@ -244,7 +253,7 @@ public class ExtendedNormExpression extends Expression {
         copy_of_right.stream().filter((b) -> (already_added.get(b) == null)).forEach((b) -> {
             if (b.linear && b.bin == null) {
                 ExtendedAddendum ele = new ExtendedAddendum();
-                ele.n = new PDDLNumber(-1f * b.n.getNumber());
+                ele.n = -1f * b.n;
                 if (b.f != null) {
                     ele.f = b.f;
                 }
@@ -261,7 +270,7 @@ public class ExtendedNormExpression extends Expression {
             }
         });
         if (result.summations.isEmpty()) {
-            return new ExtendedNormExpression(0f);
+            return new ExtendedNormExpression(0d);
         }
 
         return result;
@@ -279,37 +288,37 @@ public class ExtendedNormExpression extends Expression {
                 boolean adding = true;
                 if (a.linear && a.f == null && b.linear && b.f == null) {
 
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() * b.n.getNumber());
-                    if (ele_to_add.n.getNumber() == 0.0) {
+                    ele_to_add.n = a.n * b.n;
+                    if (ele_to_add.n == 0.0) {
                         adding = false;
                     }
                 } else if (a.linear && b.linear && b.f == null) {
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() * b.n.getNumber());
+                    ele_to_add.n = a.n * b.n;
                     ele_to_add.f = (NumFluent) a.f.clone();
-                    if (ele_to_add.n.getNumber() == 0.0) {
+                    if (ele_to_add.n == 0.0) {
                         adding = false;
                     }
                 } else if (a.linear && a.f == null && b.linear) {
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() * b.n.getNumber());
+                    ele_to_add.n = a.n* b.n;
                     ele_to_add.f = (NumFluent) b.f.clone();
 
-                    if (ele_to_add.n.getNumber() == 0.0) {
+                    if (ele_to_add.n == 0.0) {
                         adding = false;
                     }
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() * b.n.getNumber()), "*", new BinaryOp(a.f, "*", b.f, true), true);
+                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n * b.n), "*", new BinaryOp(a.f, "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f == null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", b.n.clone(), true);
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", new PDDLNumber(b.n), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", new BinaryOp(new PDDLNumber(b.n), "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f == null && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(b.bin.clone(), "*", a.n.clone(), true);
+                    ele_to_add.bin = new BinaryOp(b.bin.clone(), "*", new PDDLNumber(a.n), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f != null && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(new BinaryOp(a.n, "*", a.f, true), "*", b.bin.clone(), true);
+                    ele_to_add.bin = new BinaryOp(new BinaryOp(new PDDLNumber(a.n), "*", a.f, true), "*", b.bin.clone(), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && !b.linear) {
                     ele_to_add.bin = new BinaryOp(a.bin.clone(), "*", b.bin.clone(), true);
@@ -337,36 +346,36 @@ public class ExtendedNormExpression extends Expression {
                 ExtendedAddendum ele_to_add = new ExtendedAddendum();
                 boolean adding = true;
                 if ((a.linear && a.f == null && b.linear && b.f == null)) {
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
-                    if (ele_to_add.n.getNumber() == 0.0) {
+                    ele_to_add.n = a.n / b.n;
+                    if (ele_to_add.n == 0.0) {
                         adding = false;
                     }
 
                 } else if (a.linear && b.linear && b.f == null) {
-                    ele_to_add.n = new PDDLNumber(a.n.getNumber() / b.n.getNumber());
+                    ele_to_add.n = a.n/ b.n;
                     ele_to_add.f = (NumFluent) a.f.clone();
-                    if (ele_to_add.n.getNumber() == 0.0) {
+                    if (ele_to_add.n == 0.0) {
                         adding = false;
                     }
                 } else if (a.linear && a.f == null && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(a.n, "/", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n), "/", new BinaryOp(new PDDLNumber(b.n), "*", b.f, true), true);
                     ele_to_add.linear = false;
 
                 } else if (a.linear && a.f != null && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n.getNumber() / b.n.getNumber()), "*", new BinaryOp(a.f, "/", b.f, true), true);
+                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n / b.n), "*", new BinaryOp(a.f, "/", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f == null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", b.n.clone(), true);
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", new PDDLNumber(b.n), true);
                     ele_to_add.linear = false;
                 } else if (!a.linear && b.linear && b.f != null) {
-                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", new BinaryOp(b.n, "*", b.f, true), true);
+                    ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", new BinaryOp(new PDDLNumber(b.n), "*", b.f, true), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f == null && !b.linear) {
-                    ele_to_add.bin = new BinaryOp(a.n.clone(), "/", b.bin.clone(), true);
+                    ele_to_add.bin = new BinaryOp(new PDDLNumber(a.n), "/", b.bin.clone(), true);
                     ele_to_add.linear = false;
                 } else if (a.linear && a.f != null && !b.linear) {
                     ele_to_add.linear = false;
-                    ele_to_add.bin = new BinaryOp(new BinaryOp(a.n, "*", a.f, true), "/", b.bin.clone(), true);
+                    ele_to_add.bin = new BinaryOp(new BinaryOp(new PDDLNumber(a.n), "*", a.f, true), "/", b.bin.clone(), true);
                 } else if (!a.linear && !b.linear) {
                     ele_to_add.linear = false;
                     ele_to_add.bin = new BinaryOp(a.bin.clone(), "/", b.bin.clone(), true);
@@ -391,7 +400,7 @@ public class ExtendedNormExpression extends Expression {
             if (a.f != null) {
                 newA.f = (NumFluent) a.f.ground(substitution, po);
             }
-            newA.n = new PDDLNumber(a.n.getNumber());
+            newA.n = a.n;
             ret.summations.add(newA);
         }
         return ret;
@@ -404,7 +413,7 @@ public class ExtendedNormExpression extends Expression {
             ExtendedAddendum a = (ExtendedAddendum) o;
             ExtendedAddendum newA = new ExtendedAddendum();
             newA.f = (NumFluent) a.f.unGround(substitution);
-            newA.n = new PDDLNumber(a.n.getNumber());
+            newA.n = a.n;
             ret.summations.add(newA);
         }
         ret.grounded = false;
@@ -412,27 +421,27 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public Double eval(PDDLState s) {
         //PDDLNumber ret = new PDDLNumber(0);
-        float ret = 0f;
-        for (Object o : this.summations) {
-            ExtendedAddendum a = (ExtendedAddendum) o;
+        Double ret = 0d;
+        for (final Object o : this.summations) {
+            final ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
 //                System.out.println(a.bin);
 //                Float temp =  a.bin.eval(s).getNumber();
-                ret += a.bin.eval(s).getNumber();
+                ret += a.bin.eval(s);
             } else if (a.f != null) {
-                PDDLNumber n = s.fluentValue(a.f);
+                Double n = s.fluentValue(a.f);
 
                 if (n == null) {
                     return null;
                 }
-                ret += n.getNumber() * a.n.getNumber();
+                ret += n * a.n;
             } else {
-                ret += a.n.getNumber();
+                ret += a.n;
             }
         }
-        return new PDDLNumber(ret);
+        return ret;
     }
 
     /**
@@ -444,7 +453,7 @@ public class ExtendedNormExpression extends Expression {
     @Override
     public ExtendedNormExpression weakEval(PddlProblem problem, HashMap invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
-        PDDLNumber c = new PDDLNumber(0);
+         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
             if (a.f != null) {
 //                System.out.println(a.f);
@@ -457,7 +466,7 @@ public class ExtendedNormExpression extends Expression {
                     if (problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
                         return null;
                     }
-                    c = new PDDLNumber(c.getNumber() + problem.getNumFluentInitialValue(a.f).getNumber() * a.n.getNumber());
+                    c += problem.getNumFluentInitialValue(a.f).getNumber() * a.n;
                 } else {
 //                    
                     a.f = problem.getNumFluent(a.f);
@@ -465,7 +474,7 @@ public class ExtendedNormExpression extends Expression {
                 }
             } else {
 //                System.out.println("BAaaaaa... c:"+c+"a:"+a);
-                c = new PDDLNumber(c.getNumber() + a.n.getNumber());
+                c = c + a.n;
             }
         }
         ret.summations.add(new ExtendedAddendum(null, c));
@@ -552,12 +561,24 @@ public class ExtendedNormExpression extends Expression {
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
             if (ad.linear) {
-                ad.n = new PDDLNumber(ad.n.getNumber() * n.getNumber());
+                ad.n = ad.n * n.getNumber();
             } else {
                 ad.bin = new BinaryOp(ad.bin, "*", n, true);
             }
         }
     }
+    
+    public void mult(Double n) {
+        for (Object o : summations) {
+            ExtendedAddendum ad = (ExtendedAddendum) o;
+            if (ad.linear) {
+                ad.n = ad.n * n;
+            } else {
+                ad.bin = new BinaryOp(ad.bin, "*", new PDDLNumber(n), true);
+            }
+        }
+    }
+    
 
     @Override
     public Expression clone() {
@@ -597,12 +618,12 @@ public class ExtendedNormExpression extends Expression {
                 }
                 //System.out.println(temp);
 
-                temp = temp.mult(a.n.getNumber());
+                temp = temp.mult(a.n.floatValue());
                 ret = ret.sum(temp);
                 //ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
                 //ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
             } else {
-                ret = ret.sum(a.n.getNumber());
+                ret = ret.sum(a.n.floatValue());
             }
         }
         return ret;
@@ -662,12 +683,12 @@ public class ExtendedNormExpression extends Expression {
         return true;
     }
 
-    public PDDLNumber getNumber() throws Exception {
+    public Double getNumber() throws Exception {
         if (this.isNumber()) {
-            PDDLNumber temp = new PDDLNumber(0);
+            Double temp = 0d;
             for (Object o : summations) {
                 ExtendedAddendum ad = (ExtendedAddendum) o;
-                temp = new PDDLNumber(ad.n.getNumber() + temp.getNumber());
+                temp = ad.n + temp;
             }
             return temp;
 
@@ -717,9 +738,9 @@ public class ExtendedNormExpression extends Expression {
             if (ad.bin == null) {
                 if (ad.f == null) {
 
-                    ret_val = " " + ad.n.toSmtVariableString(j) + " ";
+                    ret_val = " " + ad.n + " ";
                 } else {
-                    ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.toSmtVariableString(j) + ")";
+                    ret_val = "(* " + ad.f.toSmtVariableString(j) + " " + ad.n + ")";
                 }
             } else {
 //                System.out.println(ad);
@@ -733,9 +754,9 @@ public class ExtendedNormExpression extends Expression {
                 if (ad.bin == null) {
 
                     if (ad.f == null) {
-                        ret_val = "(+ " + ret_val + " " + ad.n.toSmtVariableString(i) + " )";
+                        ret_val = "(+ " + ret_val + " " + ad.n + " )";
                     } else {
-                        ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n.toSmtVariableString(j) + "))";
+                        ret_val = "(+ " + ret_val + " " + "(* " + ad.f.toSmtVariableString(j) + " " + ad.n + "))";
                     }
                 } else {
                     ret_val = "(+ " + ret_val + " " + ad.bin.toSmtVariableString(j) + ")";
@@ -750,29 +771,29 @@ public class ExtendedNormExpression extends Expression {
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
-                current += ad.n.getNumber();
+                current += ad.n;
             } else if (action.getNumericFluentAffected().get(ad.f) == null) {
-                current += ad.n.getNumber() * ad.f.eval(s_0).getNumber();
+                current += ad.n * ad.f.eval(s_0);
             } else if (action.getCoefficientAffected(ad.f) != null) {
                 //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
 
-                PDDLNumber num = ad.f.eval(s_0);
+                Double num = ad.f.eval(s_0);
                 if (num == null) {
                     return Float.NaN;
                 }
-                current += ad.n.getNumber() * action.getCoefficientAffected(ad.f) * num.getNumber();
+                current += ad.n * action.getCoefficientAffected(ad.f) * num;
             }
         }
         return current;
     }
 
-    public Float getCoefficient(NumFluent fluentAffected) {
+    public Double getCoefficient(NumFluent fluentAffected) {
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null && ad.f.equals(fluentAffected)) {
-                return ad.n.getNumber();
+                return ad.n;
             }
         }
-        return new Float(0);
+        return 0d;
     }
 
     public float eval_affected(PDDLState s_0, GroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
@@ -780,7 +801,7 @@ public class ExtendedNormExpression extends Expression {
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
                 if (aThis.getNumericFluentAffected().get(ad.f) != null) {
-                    current += ad.n.getNumber() * aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
+                    current += ad.n* aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 }
             }
         }
@@ -797,11 +818,11 @@ public class ExtendedNormExpression extends Expression {
                     System.exit(-1);
                 }
                 if (!a.f.equals(f)) {
-                    ret += s.fluentValue(a.f).getNumber() * a.n.getNumber();
+                    ret += s.fluentValue(a.f) * a.n;
                 }
             } else {
 
-                ret += a.n.getNumber();
+                ret += a.n;
             }
         }
         return ret;
@@ -810,9 +831,9 @@ public class ExtendedNormExpression extends Expression {
     ExtendedNormExpression pow(ExtendedNormExpression r) throws Exception {
         ExtendedNormExpression res = null;
         if (this.isNumber() && r.isNumber()) {
-            Float a = this.getNumber().getNumber();
-            Float b = r.getNumber().getNumber();
-            res = new ExtendedNormExpression((float) Math.pow(a, b));
+            Double a = this.getNumber();
+            Double b = r.getNumber();
+            res = new ExtendedNormExpression(Math.pow(a, b));
         } else {
             System.out.println("Not supported to-the-power operation");
             System.exit(-1);
@@ -833,9 +854,9 @@ public class ExtendedNormExpression extends Expression {
             if (!ad.linear) {
                 ret_val = ad.bin.toString();
             } else if (ad.f == null) {
-                ret_val = " " + ad.n.pddlPrint(typeInformation) + " ";
+                ret_val = " " + ad.n + " ";
             } else {
-                ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + ")";
+                ret_val = "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n + ")";
             }
         }
         {
@@ -844,9 +865,9 @@ public class ExtendedNormExpression extends Expression {
                 if (!ad.linear) {
                     ret_val = ad.bin.toString();
                 } else if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n.pddlPrint(typeInformation) + " )";
+                    ret_val = "(+ " + ret_val + " " + ad.n + " )";
                 } else {
-                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n.pddlPrint(typeInformation) + "))";
+                    ret_val = "(+ " + ret_val + " " + "(* " + ad.f.pddlPrint(typeInformation) + " " + ad.n + "))";
                 }
             }
         }

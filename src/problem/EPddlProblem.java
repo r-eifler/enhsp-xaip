@@ -788,32 +788,29 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private void makeInit() {
-        this.init.numFluents = new ArrayList();
-//        init.idOf = new HashMap();
+        ArrayList<PDDLNumber> numFluents = new ArrayList();
         for (NumFluent nf : this.numFluentReference.values()) {
             if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
                 PDDLNumber number = this.initNumFluentsValues.get(nf);
-//                System.out.println(nf);
-//                if (number != null){
-                nf.setId(this.init.numFluents.size());
-                this.init.numFluents.add(number);
-//                }
-//                init.idOf.put(nf, nf.id);
+                nf.setId(numFluents.size());
+                numFluents.add(number);
             }
         }
-        this.init.boolFluents = new ArrayList();
+
+        ArrayList<Boolean> boolFluents = new ArrayList();
         for (Predicate p : this.predicateReference.values()) {
             if (this.getActualFluents().get(p) != null) {
-                p.id = this.init.boolFluents.size();
+                p.id = boolFluents.size();
                 Boolean r = this.initBoolFluentsValues.get(p);
 //                init.idOf.put(p, p.id);
                 if (r == null || !r) {
-                    this.init.boolFluents.add(false);
+                    boolFluents.add(false);
                 } else {
-                    this.init.boolFluents.add(true);
+                    boolFluents.add(true);
                 }
             }
         }
+        this.init = new PDDLState(numFluents,boolFluents);
     }
 
 

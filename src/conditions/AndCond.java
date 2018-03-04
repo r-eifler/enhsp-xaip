@@ -761,7 +761,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
                     Comparison newC = new Comparison(new_comparator);
                     newC.setLeft(expr);
-                    newC.setRight(new ExtendedNormExpression(new Float(0.0)));
+                    newC.setRight(new ExtendedNormExpression(0d));
                     newC.normalize();
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();

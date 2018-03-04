@@ -141,15 +141,15 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a PDDLNumber or Null in case the operation is not supported
      */
     @Override
-    public PDDLNumber eval(PDDLState state) {
-        PDDLNumber first = this.fluentAffected.eval(state);
-        PDDLNumber second = this.right.eval(state);
+    public Double eval(PDDLState state) {
+        Double first = this.fluentAffected.eval(state);
+        Double second = this.right.eval(state);
         if (this.getOperator().equals("increase")) {
-            return new PDDLNumber(new Float(first.getNumber()) + new Float(second.getNumber()));
+            return first + second;
         } else if (this.getOperator().equals("decrease")) {
-            return new PDDLNumber(new Float(first.getNumber()) - new Float(second.getNumber()));
+            return first - second;
         } else if (this.getOperator().equals("assign")) {
-            return new PDDLNumber(new Float(second.getNumber()));
+            return second;
         } else {
             System.out.println(this.getOperator() + " does not supported");
         }
@@ -164,17 +164,17 @@ public class NumEffect extends Expression implements PostCondition {
      * @throws CloneNotSupportedException
      */
     public PDDLState applyAndCreateNew(PDDLState state) throws CloneNotSupportedException {
-        PDDLNumber after = null;
+        Double after = null;
         if (this.operator.equals("increase")) {
-            PDDLNumber current = state.fluentValue(fluentAffected);
-            PDDLNumber eval = this.getRight().eval(state);
-            after = new PDDLNumber(current.getNumber() + eval.getNumber());
+            Double current = state.fluentValue(fluentAffected);
+            Double eval = this.getRight().eval(state);
+            after = current + eval;
         } else if (this.operator.equals("decrease")) {
-            PDDLNumber current = state.fluentValue(fluentAffected);
-            PDDLNumber eval = this.getRight().eval(state);
-            after = new PDDLNumber(current.getNumber() - eval.getNumber());
+            Double current = state.fluentValue(fluentAffected);
+            Double eval = this.getRight().eval(state);
+            after = current - eval;
         } else if (this.operator.equals("assign")) {
-            PDDLNumber eval = this.getRight().eval(state);
+            Double eval = this.getRight().eval(state);
             after = eval;
         }
         PDDLState ret = state.clone();
@@ -371,8 +371,8 @@ public class NumEffect extends Expression implements PostCondition {
             return "(- " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + this.getRight().toSmtVariableString(i) + " ))";
         } else if (this.operator.equals("assign")) {
             ExtendedNormExpression r = (ExtendedNormExpression) this.getRight();
-            ExtendedNormExpression new_right = new ExtendedNormExpression(0f);
-            PDDLNumber alpha = null;
+            ExtendedNormExpression new_right = new ExtendedNormExpression(0d);
+            Double alpha = null;
             for (ExtendedAddendum ad : r.summations) {
                 if (ad.bin != null) {
                     System.out.println("Error: Trying to roll up an unrollable action");
@@ -380,7 +380,7 @@ public class NumEffect extends Expression implements PostCondition {
                 }
 
                 if (ad.f != null && ad.f.equals(this.getFluentAffected())) {
-                    if (ad.n.getNumber() > 0f || ad.n.getNumber() == -1f) {
+                    if (ad.n > 0f || ad.n == -1f) {
                         ///setting the alpha...
                         alpha = ad.n;
                     } else {
@@ -393,13 +393,13 @@ public class NumEffect extends Expression implements PostCondition {
             }
             if (alpha == null) {
                 return new_right.toSmtVariableString(i);
-            } else if (alpha.getNumber() == -1f) {
+            } else if (alpha == -1f) {
                 return "(- " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + new_right.toSmtVariableString(i) + " ))";
-            } else if (alpha.getNumber() == 1f) {
+            } else if (alpha == 1f) {
                 return "(+ " + this.getFluentAffected().toSmtVariableString(i) + " (* " + var + " " + new_right.toSmtVariableString(i) + " ))";
             } else {
-                String exp_variable = "(/ (^ " + alpha.getNumber() + " (+ " + var + " 1) )(- " + alpha.getNumber() + " 1) )";
-                return "(+ (* (^ " + alpha.toSmtVariableString(i) + " " + var + " ) " + this.getFluentAffected().toSmtVariableString(i) + " )" + " "
+                String exp_variable = "(/ (^ " + alpha + " (+ " + var + " 1) )(- " + alpha + " 1) )";
+                return "(+ (* (^ " + alpha + " " + var + " ) " + this.getFluentAffected().toSmtVariableString(i) + " )" + " "
                         + "(* " + exp_variable + " " + new_right.toSmtVariableString(i) + " ))";
             }
         }
@@ -494,8 +494,8 @@ public class NumEffect extends Expression implements PostCondition {
             return;
         }
 
-        PDDLNumber after = null;
-        PDDLNumber eval = this.getRight().eval(s);
+        Double after = null;
+        Double eval = this.getRight().eval(s);
         if (eval == null) {
             System.out.print("State:" + s);
             System.out.println("Applying a not applicable effect!:" + this);
@@ -503,21 +503,21 @@ public class NumEffect extends Expression implements PostCondition {
         }
 
         if (this.operator.equals("increase")) {
-            PDDLNumber current = s.fluentValue(fluentAffected);
+            Double current = s.fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("PDDLState:"+s);
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);
             } else {
-                after = new PDDLNumber(current.getNumber() + eval.getNumber());
+                after = current + eval;
             }
         } else if (this.operator.equals("decrease")) {
-            PDDLNumber current = s.fluentValue(fluentAffected);
+            Double current = s.fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);
             } else {
-                after = new PDDLNumber(current.getNumber() - eval.getNumber());
+                after = current - eval;
             }
         } else if (this.operator.equals("assign")) {
             after = eval;

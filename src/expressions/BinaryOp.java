@@ -120,34 +120,34 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
-        PDDLNumber ret_val = null;
-        PDDLNumber first = this.lhs.eval(s);
-        PDDLNumber second = this.rhs.eval(s);
+    public Double eval(PDDLState s) {
+        Double ret_val = null;
+        Double first = this.lhs.eval(s);
+        Double second = this.rhs.eval(s);
         if ((first == null) || (second == null)) {
             return null;//negation by failure.
         }
         switch (this.getOperator()) {
             case "+":
-                ret_val = new PDDLNumber(first.getNumber() + second.getNumber());
+                ret_val = first + second;
                 break;
             case "-":
-                ret_val = new PDDLNumber(first.getNumber() - second.getNumber());
+                ret_val = first - second;
                 break;
             case "*":
-                ret_val = new PDDLNumber(first.getNumber() * second.getNumber());
+                ret_val = first* second;
                 break;
             case "/":
                 //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
-                ret_val = new PDDLNumber(first.getNumber() / second.getNumber());
+                ret_val = first / second;
                 break;
             case "min":
                 //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
-                ret_val = new PDDLNumber(Math.min(first.getNumber(), second.getNumber()));
+                ret_val = Math.min(first, second);
                 break;
             case "^":
                 //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
-                ret_val = new PDDLNumber((float) Math.pow(first.getNumber(), second.getNumber()));
+                ret_val =  Math.pow(first, second);
                 break;
             default:
                 System.out.println(this.operator + " not supported");

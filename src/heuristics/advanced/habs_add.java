@@ -44,7 +44,7 @@ public class habs_add extends Heuristic {
 
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     public Metric metric = null;
-    private static final Float epsilon = 0.1f;
+    private static final Double epsilon = 0.1d;
 
     private final Integer k;
     private h1 habs;
@@ -291,13 +291,13 @@ public class habs_add extends Heuristic {
             repSample = new ExtendedNormExpression(epsilon);
 //                repSample = new ExtendedNormExpression((inf + sup)/2);
         } else if (inf > 0) {
-            repSample = new ExtendedNormExpression(inf);
+            repSample = new ExtendedNormExpression(inf.doubleValue());
         } else // inf < 0
         if (Math.abs(sup) == 0) { // sup = 0
             repSample = new ExtendedNormExpression(-epsilon);
 //                   repSample = new ExtendedNormExpression((inf + sup)/2);
         } else {
-            repSample = new ExtendedNormExpression(sup);
+            repSample = new ExtendedNormExpression(sup.doubleValue());
         }
         return repSample;
     }
@@ -316,14 +316,14 @@ public class habs_add extends Heuristic {
             }
         } else if (inf > 0) {
             if (sup == Float.MAX_VALUE) { // sup = +infty
-                repSample = new ExtendedNormExpression(inf);
+                repSample = new ExtendedNormExpression(inf.doubleValue());
             } else { // sup > 0, but finite
                 repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
         } else // inf < 0
         if (inf == -Float.MAX_VALUE) { // inf = -infty
             if (Math.abs(sup) < 1e-5) { // sup = 0
-                repSample = new ExtendedNormExpression(-epsilon);
+                repSample = new ExtendedNormExpression(-epsilon.floatValue());
             } else { // sup < 0, but finite
                 repSample = new ExtendedNormExpression(sup);
             }
@@ -642,7 +642,7 @@ public class habs_add extends Heuristic {
         for (Entry<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> e : this.subactionsMap.entrySet()) {
             NumEffect original = e.getValue().getFirst();
             NumEffect sampled = e.getValue().getSecond();
-            PDDLNumber rhsEval = original.getRight().eval(s);
+            Double rhsEval = original.getRight().eval(s);
 
 //            throw new UnsupportedOperationException("This needs to be implemented");
             // I think from here you can start the reasoning by cases and update the sampled numeffect
@@ -651,24 +651,24 @@ public class habs_add extends Heuristic {
             // necessary that such a thing is done to enforce intervals containing zero (e.g., (0,something]).
             PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
             if (lb.getNumber() == 0f) {
-                lb.setNumber(epsilon);
+                lb.setNumber(epsilon.floatValue());
             }
-            if (rhsEval.getNumber() == 0f) {
-                rhsEval.setNumber(epsilon);
+            if (rhsEval == 0d) {
+                rhsEval = epsilon;
             }
             PDDLNumber ub = new PDDLNumber(this.comparisonBound.get(e.getKey().getSecond()));
             if (ub.getNumber() == 0f) {
-                ub.setNumber(-epsilon);
+                ub.setNumber(-epsilon.floatValue());
             }
 
             if (debug > 15) {
-                System.out.println("eval is: " + rhsEval.normalize());
+                System.out.println("eval is: " + (new PDDLNumber(rhsEval)).normalize());
                 System.out.println("gt: " + this.comparisonBound.get(e.getKey().getFirst()));
                 System.out.println("lt: " + this.comparisonBound.get(e.getKey().getSecond()));
             }
 
             if (s.satisfy(e.getKey().getFirst()) && s.satisfy(e.getKey().getSecond())) {
-                sampled.setRight(rhsEval.normalize());
+                sampled.setRight((new PDDLNumber(rhsEval)).normalize());
                 if (debug > 15) {
                     System.out.println("update to eval, becomes " + e.getValue().getSecond().getRight());
                 }

@@ -55,13 +55,13 @@ public class GroundAction extends PDDLGenericAction {
     
     public int id;
     protected ParametersAsTerms parameters_as_terms;
-    public Boolean numeric_effect_undefined;
+    public boolean numeric_effect_undefined;
     public boolean normalized;
     private ArrayList primitives;
     private boolean isMacro;
     public int hiddenParametersNumber;
     private boolean reacheable = false;
-    private HashMap<NumFluent, Float> coefficientAffected;
+    private HashMap<NumFluent, Double> coefficientAffected;
     private Float actionCost;
     
     private HashMap<Predicate, Boolean> achieve;
@@ -249,7 +249,7 @@ public class GroundAction extends PDDLGenericAction {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
                 if (nf.has_to_be_tracked()) {
-                    s.setNumFluent(nf, (PDDLNumber) subst.get(o));
+                    s.setNumFluent(nf, (Double)subst.get(o));
                 }
             } else {
                 Boolean newval = (Boolean) subst.get(o);
@@ -929,67 +929,7 @@ public class GroundAction extends PDDLGenericAction {
         return null;
     }
 
-    public PDDLState partialApply(PDDLState s, HashSet<NumFluent> toTest) {
-
-        PDDLState ret = new PDDLState();
-
-        for (Object o : toTest) {
-            NumFluent f = (NumFluent) o;
-            ret.setNumFluent(f, f.eval(s));
-            //System.out.println(s.printFluentByName("in-at"));
-        }
-
-        AndCond c = (AndCond) this.getNumericEffects();
-        if (c != null) {
-            ArrayList temporaryMod = new ArrayList();
-            HashMap fun2numb = new HashMap();
-            for (Object o : c.sons) {
-                NumEffect all = (NumEffect) o;
-                NumFluent f = all.getFluentAffected();
-                PDDLNumber newN = null;
-
-                Float rValue;
-                if (all.getRight().eval(s) == null) {
-                    newN = null;
-                } else {
-                    rValue = all.getRight().eval(s).getNumber();
-                    //System.out.println("Rvalue!!:" + rValue);
-                    if (all.getOperator().equals("increase")) {
-                        if (s.fluentValue(f) == null) {
-                            newN = null;
-                        } else {
-                            newN = new PDDLNumber(s.fluentValue(f).getNumber() + rValue);
-                        }
-                    } else if (all.getOperator().equals("decrease")) {
-                        //                    System.out.print("Valore di " + f);
-                        //                    System.out.println(" :"+ s.functionValue(f).getNumber());
-                        if (s.fluentValue(f) == null) {
-                            newN = null;
-                        } else {
-                            newN = new PDDLNumber(s.fluentValue(f).getNumber() - rValue);
-                        }
-                    } else if (all.getOperator().equals("assign")) {
-                        //System.out.println("================ASSIGN===========");
-                        newN = new PDDLNumber(rValue);
-                    }
-                }
-                temporaryMod.add(f);
-                fun2numb.put(f, newN);
-            }
-
-            for (Object o : temporaryMod) {
-                NumFluent f = (NumFluent) o;
-                PDDLNumber n = (PDDLNumber) fun2numb.get(f);
-
-                ret.setNumFluent(f, n);
-                //System.out.println(s.printFluentByName("in-at"));
-            }
-
-        }
-        return ret;
-
-    }
-
+    
 //    public String to_smtlib_with_repetition() {
 //        String parametri = "";
 //        for (Object o : getParameters()) {
@@ -1296,40 +1236,7 @@ public class GroundAction extends PDDLGenericAction {
         this.reacheable = reacheable;
     }
 
-    public boolean assign_unassigned_fluent(PDDLState s) {
-        if (this.getNumericEffects() == null) {
-            return false;
-        }
-        boolean some_change = false;
-        //for (Conditions c = this.getNumericEffects().sons){
-        ArrayList temporaryMod = new ArrayList();
-        HashMap fun2numb = new HashMap();
-        for (Object o : this.getNumericEffects().sons) {
-
-            NumEffect all = (NumEffect) o;
-            PDDLNumber newN;
-            NumFluent f = all.getFluentAffected();
-            if (s.fluentValue(f) == null) {
-                if (all.getOperator().equals("assign")) {
-                    //System.out.println("================ASSIGN===========");
-                    Float rValue = all.getRight().eval(s).getNumber();
-                    newN = new PDDLNumber(rValue);
-                    temporaryMod.add(f);
-                    fun2numb.put(f, newN);
-                    some_change = true;
-                }
-
-            }
-        }
-        for (Object o : temporaryMod) {
-            NumFluent f = (NumFluent) o;
-            PDDLNumber n = (PDDLNumber) fun2numb.get(f);
-            s.setNumFluent(f, n);
-            //System.out.println(s.printFluentByName("in-at"));
-        }
-
-        return some_change;
-    }
+  
 
     public boolean preconditioned_on(Condition c) {
         if (this.getPreconditions() == null) {
@@ -1539,7 +1446,7 @@ public class GroundAction extends PDDLGenericAction {
         }
     }
 
-    public Float getCoefficientAffected(NumFluent f) {
+    public Double getCoefficientAffected(NumFluent f) {
         this.generateCoefficeintAffected();
         return this.coefficientAffected.get(f);
     }
@@ -1685,20 +1592,20 @@ public class GroundAction extends PDDLGenericAction {
 
                                 } else {
                                     try {
-                                        positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
+                                        positiveness += rhs.getNumber() * ad.n;
                                     } catch (Exception ex) {
                                         Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                 }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {
-                                    positiveness += (-1) * rhs.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += (-1) * rhs.getNumber() * ad.n;
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             } else if (ne.getOperator().equals("assign")) {
                                 try {
-                                    positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += rhs.getNumber() * ad.n;
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
@@ -1811,7 +1718,7 @@ public class GroundAction extends PDDLGenericAction {
                     }
                     if (ad.f != null) {
                         if (ad.f.equals(nf)) {
-                            if (ad.n.getNumber() != 1.0f || ad.n.getNumber() != .0f) {
+                            if (ad.n != 1.0f || ad.n != .0f) {
                                 return true;
                             }
                         }
@@ -1951,13 +1858,13 @@ public class GroundAction extends PDDLGenericAction {
         return or;
     }
 
-    public Float getStaticContribution(PDDLState s_0, Condition c) {
+    public Double getStaticContribution(PDDLState s_0, Condition c) {
 
         if (c instanceof Predicate) {
             if (this.achieve((Predicate) c)) {
-                return 1f;
+                return 1d;
             } else {
-                return 0f;
+                return 0d;
             }
         } else {
             return this.getStaticContribution((Comparison) c);
@@ -1974,8 +1881,8 @@ public class GroundAction extends PDDLGenericAction {
         return b;
     }
 
-    public Float getStaticContribution(Comparison comp) {
-        Float positiveness = 0f;
+    public Double getStaticContribution(Comparison comp) {
+        Double positiveness = 0d;
 
         if (comp.getLeft() instanceof ExtendedNormExpression) {
             ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
@@ -1990,34 +1897,34 @@ public class GroundAction extends PDDLGenericAction {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
 
                             if (!rhs.linear) {
-                                return Float.MAX_VALUE;
+                                return Double.MAX_VALUE;
                             }
                             if (ne.getOperator().equals("increase")) {
                                 if (ne.isPseudo_num_effect()) {
 
                                 } else {
                                     try {
-                                        positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
+                                        positiveness += rhs.getNumber() * ad.n;
                                     } catch (Exception ex) {
                                         Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                 }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {
-                                    positiveness += (-1) * rhs.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += (-1) * rhs.getNumber() * ad.n;
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             } else if (ne.getOperator().equals("assign")) {
                                 try {
-                                    positiveness += rhs.getNumber().getNumber() * ad.n.getNumber();
+                                    positiveness += rhs.getNumber() * ad.n;
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
 
                         } else {
-                            return Float.MAX_VALUE;
+                            return Double.MAX_VALUE;
                         }
 
                     }

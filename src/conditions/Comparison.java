@@ -193,8 +193,8 @@ public class Comparison extends Terminal {
     }
 
     public boolean eval_to_null(PDDLState s) {
-        PDDLNumber first = left.eval(s);
-        PDDLNumber second = right.eval(s);
+        Double first = left.eval(s);
+        Double second = right.eval(s);
         if ((first == null) || (second == null)) {
             return true;
         }
@@ -203,21 +203,21 @@ public class Comparison extends Terminal {
 
     @Override
     public boolean eval(PDDLState s) {
-        PDDLNumber first = left.eval(s);
-        PDDLNumber second = right.eval(s);
+        Double first = left.eval(s);
+        Double second = right.eval(s);
         if ((first == null) || (second == null)) {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first.getNumber() < second.getNumber();
+            return first < second;
         } else if (this.getComparator().equals("<=")) {
-            return first.getNumber() <= second.getNumber();
+            return first <= second;
         } else if (this.getComparator().equals(">")) {
-            return first.getNumber() > second.getNumber();
+            return first > second;
         } else if (this.getComparator().equals(">=")) {
-            return first.getNumber() >= second.getNumber();
+            return first >= second;
         } else if (this.getComparator().equals("=")) {
-            return first.getNumber() == second.getNumber();
+            return first == second;
         } else {
             System.out.println(this.getComparator() + "  does not supported");
         }
@@ -227,21 +227,21 @@ public class Comparison extends Terminal {
 
     @Override
     public boolean isSatisfied(PDDLState s) {
-        PDDLNumber first = left.eval(s);
-        PDDLNumber second = right.eval(s);
+        Double first = left.eval(s);
+        Double second = right.eval(s);
         if ((first == null) || (second == null)) {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first.getNumber() < second.getNumber();
+            return first< second;
         } else if (this.getComparator().equals("<=")) {
-            return first.getNumber() <= second.getNumber();
+            return first <= second;
         } else if (this.getComparator().equals(">")) {
-            return first.getNumber() > second.getNumber();
+            return first > second;
         } else if (this.getComparator().equals(">=")) {
-            return first.getNumber() >= second.getNumber();
+            return first >= second;
         } else if (this.getComparator().equals("=")) {
-            return first.getNumber().equals(second.getNumber());
+            return first.equals(second);
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
@@ -347,27 +347,27 @@ public class Comparison extends Terminal {
         //System.out.println(leftExpr);
         ExtendedNormExpression rightExpr = (ExtendedNormExpression) this.right;
         if (leftExpr.isNumber() && rightExpr.isNumber()) {
-            PDDLNumber first;
+            Double first;
             first = leftExpr.getNumber();
-            PDDLNumber second = rightExpr.getNumber();
+            Double second = rightExpr.getNumber();
             if (this.getComparator().equals("<")) {
-                if ((first.getNumber() < second.getNumber())) {
+                if ((first < second)) {
                     return null;
                 }
             } else if (this.getComparator().equals("<=")) {
-                if ((first.getNumber() <= second.getNumber())) {
+                if ((first <= second)) {
                     return null;
                 }
             } else if (this.getComparator().equals(">")) {
-                if ((first.getNumber() > second.getNumber())) {
+                if ((first > second)) {
                     return null;
                 }
             } else if (this.getComparator().equals(">=")) {
-                if ((first.getNumber() >= second.getNumber())) {
+                if ((first >= second)) {
                     return null;
                 }
             } else if (this.getComparator().equals("=")) {
-                Float res = new Float(Math.abs(first.getNumber() - second.getNumber()));
+                Float res = new Float(Math.abs(first - second));
                 if (res < 0.00000000000000000000000000000000001) {
                     return null;
                 }
@@ -381,11 +381,11 @@ public class Comparison extends Terminal {
             //System.out.println("DEBUG");
             if (this.comparator.equals("<") || this.comparator.equals("<=") || this.comparator.equals("=")) {
                 setLeft(rightExpr.minus(leftExpr));
-                setRight(new ExtendedNormExpression(new Float(0.0)));
+                setRight(new ExtendedNormExpression(0d));
 
             } else {
                 setLeft(leftExpr.minus(rightExpr));
-                setRight(new ExtendedNormExpression(new Float(0.0)));
+                setRight(new ExtendedNormExpression(0d));
             }
 
             if (!this.comparator.equals("=")) {
@@ -447,28 +447,28 @@ public class Comparison extends Terminal {
         //System.out.println(l);
         try {
             if (l.isNumber() && r.isNumber()) {
-                PDDLNumber first;
+                Double first;
                 first = l.getNumber();
-                PDDLNumber second = r.getNumber();
+                Double second = r.getNumber();
                 if (this.getComparator().equals("<")) {
-                    if ((first.getNumber() < second.getNumber())) {
+                    if ((first < second)) {
                         return;
                     }
                 } else if (this.getComparator().equals("<=")) {
-                    if ((first.getNumber() <= second.getNumber())) {
+                    if ((first <= second)) {
                         return;
                     }
                 } else if (this.getComparator().equals(">")) {
-                    if ((first.getNumber() > second.getNumber())) {
+                    if ((first > second)) {
                         return;
                     }
                 } else if (this.getComparator().equals(">=")) {
-                    if ((first.getNumber() >= second.getNumber())) {
+                    if ((first >= second)) {
                         return;
                     }
                 } else if (this.getComparator().equals("=")) {
-                    Float res = Math.abs(first.getNumber() - second.getNumber());
-                    if (res < Float.MIN_VALUE) {
+                    Double res = Math.abs(first - second);
+                    if (res < Double.MIN_VALUE) {
                         return;
                     }
                 }
@@ -484,7 +484,7 @@ public class Comparison extends Terminal {
         if ("<".equals(this.comparator) || "<=".equals(this.comparator) || "=".equals(this.comparator)) {
             try {
                 setLeft(r.minus(l));
-                setRight(new ExtendedNormExpression(new Float(0.0)));
+                setRight(new ExtendedNormExpression(0d));
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -494,7 +494,7 @@ public class Comparison extends Terminal {
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
             }
-            setRight(new ExtendedNormExpression((float) 0.0));
+            setRight(new ExtendedNormExpression(0d));
 
         }
 
@@ -515,38 +515,7 @@ public class Comparison extends Terminal {
 
     }
 
-    @Deprecated
-    public Float satisfactionDistance(PDDLState s) {
-        Float ret = new Float(0);
-
-        PDDLNumber left = this.left.eval(s);
-        PDDLNumber right = this.right.eval(s);
-        if ((left == null) || (right == null)) {
-            return Float.MAX_VALUE;
-        }
-        if (this.getComparator().equals("<")) {
-            Float t = right.getNumber() - left.getNumber();
-            return (t - 0.00001f) * -1;
-
-        } else if (this.getComparator().equals("<=")) {
-            Float t = right.getNumber() - left.getNumber();
-            return t * -1;
-        } else if (this.getComparator().equals(">")) {
-            Float t = left.getNumber() - right.getNumber();
-            return (t - 0.00001f) * -1;
-        } else if (this.getComparator().equals(">=")) {
-            Float t = left.getNumber() - right.getNumber();
-            return t * (-1);
-        } else if (this.getComparator().equals("=")) {
-            ret = Math.max(left.getNumber() - right.getNumber(), right.getNumber() - left.getNumber());
-            return (ret + 0.00001f) * -1;
-
-        } else {
-            System.out.println(this.getComparator() + "  is not supported");
-        }
-
-        return ret;
-    }
+    
 
     /**
      * @return the normalized
@@ -570,16 +539,16 @@ public class Comparison extends Terminal {
         if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
 
-            Float num = new Float(0.0);
+            Double num = 0d;
 
             for (ExtendedAddendum a : lExpr.summations) {
                 if (a.f == null) {
-                    num += Math.abs(a.n.getNumber());
+                    num += Math.abs(a.n);
                 } else {
-                    num += Math.max(Math.abs(a.n.getNumber() * numericFleuntsBoundaries.functionInfValue(a.f).getNumber()), Math.abs(a.n.getNumber() * numericFleuntsBoundaries.functionSupValue(a.f).getNumber()));
+                    num += Math.max(Math.abs(a.n * numericFleuntsBoundaries.functionInfValue(a.f).getNumber()), Math.abs(a.n * numericFleuntsBoundaries.functionSupValue(a.f).getNumber()));
                 }
             }
-            this.maxDist = num;
+            this.maxDist = num.floatValue();
         } else {
             System.out.println("Errore!!!");
             System.exit(-1);
@@ -637,12 +606,12 @@ public class Comparison extends Terminal {
 //            System.out.println(this.getRight());
 
             ExtendedNormExpression toTest = lExprNew.minus((ExtendedNormExpression) lExpr.clone());
-            Float total = (float) 0.0;
+            Double total = 0d;
             for (ExtendedAddendum add : toTest.summations) {
                 if (add.f != null) {
                     return true;
                 } else {
-                    total += add.n.getNumber();
+                    total += add.n;
                 }
             }
             if (this.getComparator().equals(">=")) {
@@ -749,7 +718,7 @@ public class Comparison extends Terminal {
                 System.exit(-1);
             }
             if (ad.f == null) {
-                ret_val = " " + ad.n.toSmtVariableString(k) + " ";
+                ret_val = " " + ad.n + " ";
             } else {
                 NumEffect neff = (NumEffect) affector.get(ad.f);
                 if (neff != null) {
@@ -758,14 +727,14 @@ public class Comparison extends Terminal {
                     ret_val = ad.f.toSmtVariableString(k);
                 }
 
-                ret_val = "(* " + ret_val + " " + ad.n.toSmtVariableString(k) + ")";
+                ret_val = "(* " + ret_val + " " + ad.n + ")";
             }
         }
         {
             for (int i = 1; i < norm.summations.size(); i++) {
                 ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(i);
                 if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n.toSmtVariableString(i) + " )";
+                    ret_val = "(+ " + ret_val + " " + ad.n + " )";
                 } else {
                     NumEffect neff = (NumEffect) affector.get(ad.f);
                     String temp = null;
@@ -774,7 +743,7 @@ public class Comparison extends Terminal {
                     } else {
                         temp = ad.f.toSmtVariableString(k);
                     }
-                    ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n.toSmtVariableString(i) + "))";
+                    ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n + "))";
 
 //                    ret_val += "(* " + temp + " " + ad.n.pddlPrint(false) + ")";
                 }
@@ -971,7 +940,7 @@ public class Comparison extends Terminal {
                     if (!sumC2.contains(ead1)) {
                         return false;
                     }
-                } else if (ead1.n.getNumber() > 0) {
+                } else if (ead1.n > 0) {
                     return false;
                 }
             }
@@ -983,7 +952,7 @@ public class Comparison extends Terminal {
                     if (!sumC1.contains(ead2)) {
                         return false;
                     }
-                } else if (ead2.n.getNumber() > 0) {
+                } else if (ead2.n > 0) {
                     return false;
                 }
             }
@@ -997,10 +966,10 @@ public class Comparison extends Terminal {
                         return false;
                     }
                 } else {
-                    float constC1 = ead1.n.getNumber();
+                    double constC1 = ead1.n;
                     for (ExtendedAddendum ead2 : sumC2) {
                         if (ead2.f == null) {
-                            if (constC1 > ead2.n.getNumber()) {
+                            if (constC1 > ead2.n) {
                                 return false;
                             }
                         }

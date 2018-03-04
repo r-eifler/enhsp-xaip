@@ -51,15 +51,12 @@ public class SearchStrategies {
 
     private float hw = 4;
     public  int priority_queue_size;
-    private boolean checking_visited = true;
     private Heuristic heuristic;
     private boolean decreasing_heuristic_pruning = false;
     private float gw;
     public  int states_evaluated;
-    private boolean interactive_search_debug = false;
     public boolean json_rep_saving = false;
     public SearchNode search_space_handle;
-    private boolean high_verbosity = false;
     public boolean preferred_operators_active = false;
     public boolean processes = false;
     public float delta;
@@ -79,10 +76,10 @@ public class SearchStrategies {
     private boolean optimality = true;
     private Collection<GroundProcess> reachable_processes;
     private Collection<GroundEvent> reachable_events;
-
+    private Collection<GroundAction> reachable_actions;
+    
     public float delta_max;
     public int constraints_violations;
-    private Collection<GroundAction> reachable_actions;
     public boolean helpful_actions_pruning;
     public int debug;
     public boolean json_eco_rep_saving;

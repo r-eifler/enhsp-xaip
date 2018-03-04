@@ -176,10 +176,10 @@ public class hlm extends h1 {
                     target_value.set(c.getHeuristicId(), 1f);
                 } else {
                     Comparison comp = (Comparison) c;
-                    PDDLNumber number = comp.getLeft().eval(s);
+                    Double number = comp.getLeft().eval(s);
                     if (number == null) {
                     } else {
-                        Float t = comp.getLeft().eval(s).getNumber();
+                        Float t = comp.getLeft().eval(s).floatValue();
                         target_value.set(c.getHeuristicId(), -t);
                     }
 
@@ -587,12 +587,12 @@ public class hlm extends h1 {
                     trg_value = 1f;
                 } else {
                     Comparison comp = (Comparison) c;
-                    PDDLNumber number = comp.getLeft().eval(s_0);
+                    Double number = comp.getLeft().eval(s_0);
                     if (number == null) {
                         System.out.println("Condition that cannot be evaluated are not supported:" + c);
                         System.exit(-1);
                     } else {
-                        Float t = comp.getLeft().eval(s_0).getNumber();
+                        float t = comp.getLeft().eval(s_0).floatValue();
                         trg_value = -1 * t;
                     }
 

@@ -66,7 +66,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
+    public Double eval(PDDLState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

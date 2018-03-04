@@ -22,6 +22,7 @@ import conditions.AndCond;
 import conditions.Predicate;
 import expressions.NumEffect;
 import expressions.NumFluent;
+import expressions.PDDLNumber;
 import problem.GroundAction;
 import problem.PDDLState;
 import problem.PddlProblem;
@@ -47,7 +48,7 @@ public class Converter {
             NumEffect b = new NumEffect("assign");
             b.setFluentAffected(f);
 
-            b.setRight(s.fluentValue(f));
+            b.setRight(new PDDLNumber(s.fluentValue(f)));
             numericEffects.addExpression(b);
         }
         a.setAddList(addList);

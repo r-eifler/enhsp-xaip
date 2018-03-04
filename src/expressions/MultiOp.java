@@ -133,13 +133,13 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
-        PDDLNumber ret_val = new PDDLNumber(0);
+    public Double eval(PDDLState s) {
+        Double ret_val = 0d;
 
         for (Object o : this.expr) {
             Expression e = (Expression) o;
             if (this.getOperator().equals("+")) {
-                ret_val = new PDDLNumber(new Float(e.eval(s).getNumber()) + ret_val.getNumber());
+                ret_val = e.eval(s) + ret_val;
             } else {
                 System.out.println(this.operator + " not supported");
             }

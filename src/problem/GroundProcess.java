@@ -95,13 +95,13 @@ public class GroundProcess extends GroundAction{
             for (Object o : c.sons) {
                 NumEffect all = (NumEffect) o;
                 NumFluent f = all.getFluentAffected();
-                PDDLNumber newN = null;
+                Double newN = null;
 
-                Float rValue;
+                Double rValue;
                 if (all.getRight().eval(s) == null) {
                     newN = null;
                 } else {
-                    rValue = all.getRight().eval(s).getNumber();
+                    rValue = all.getRight().eval(s);
                     if (rValue == null) {
                         System.out.println("Trying to applying an action with invalid effects!!");
                         System.out.println(this);
@@ -111,7 +111,7 @@ public class GroundProcess extends GroundAction{
                         if (s.fluentValue(f) == null) {
                             newN = null;
                         } else {
-                            newN = new PDDLNumber(s.fluentValue(f).getNumber() + rValue);
+                            newN = s.fluentValue(f) + rValue;
                         }
                     } else if (all.getOperator().equals("decrease")) {
                         //                    System.out.print("Valore di " + f);
@@ -119,11 +119,11 @@ public class GroundProcess extends GroundAction{
                         if (s.fluentValue(f) == null) {
                             newN = null;
                         } else {
-                            newN = new PDDLNumber(s.fluentValue(f).getNumber() - rValue);
+                            newN = s.fluentValue(f) - rValue;
                         }
                     } else if (all.getOperator().equals("assign")) {
                         //System.out.println("================ASSIGN===========");
-                        newN = new PDDLNumber(rValue);
+                        newN = rValue;
                     }
                 }
                 temporaryMod.add(f);
@@ -132,8 +132,7 @@ public class GroundProcess extends GroundAction{
 
             for (Object o : temporaryMod) {
                 NumFluent f = (NumFluent) o;
-                PDDLNumber n = (PDDLNumber) fun2numb.get(f);
-                s.setNumFluent(f, n);
+                s.setNumFluent(f,(Double) fun2numb.get(f));
             }
 
         }

@@ -24,7 +24,7 @@ package expressions;
  */
 public class ExtendedAddendum {
 
-    public PDDLNumber n;
+    public Double n;
     public NumFluent f;
     public BinaryOp bin;
     public boolean linear;
@@ -34,7 +34,7 @@ public class ExtendedAddendum {
 
     }
 
-    public ExtendedAddendum(NumFluent f, PDDLNumber n) {
+    public ExtendedAddendum(NumFluent f, Double n) {
 
         this.f = f;
         this.n = n;
@@ -70,7 +70,7 @@ public class ExtendedAddendum {
             if (this.n == null) {
                 System.out.println("Error:" + this);
             }
-            ret.n = (PDDLNumber) this.n.clone();
+            ret.n =  this.n;
         }
         return ret;
     }
@@ -117,12 +117,12 @@ public class ExtendedAddendum {
         return hash;
     }
 
-    public Float scale(ExtendedAddendum obj) {
+    public Double scale(ExtendedAddendum obj) {
         if (this.f != obj.f) {
             return null;
         }
-        Float a = this.n.getNumber();
-        Float b = obj.n.getNumber();
+        Double a = this.n;
+        Double b = obj.n;
         return a / b;
     }
 

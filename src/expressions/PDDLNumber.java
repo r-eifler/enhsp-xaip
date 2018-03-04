@@ -102,14 +102,14 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
-        return this;
+    public Double eval(PDDLState s) {
+        return this.number;
     }
 
     @Override
     public ExtendedNormExpression normalize() {
         ExtendedAddendum a = new ExtendedAddendum();
-        a.n = this;
+        a.n = this.number;
         a.f = null;
         ExtendedNormExpression ret = new ExtendedNormExpression();
         ret.summations.add(a);

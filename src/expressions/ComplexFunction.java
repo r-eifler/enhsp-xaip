@@ -68,8 +68,8 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public PDDLNumber eval(PDDLState s) {
-        double arg_val = getArg().eval(s).getNumber();
+    public Double eval(PDDLState s) {
+        Double arg_val = getArg().eval(s);
         switch (this.operator) {
             case "abs":
                 arg_val = Math.abs(arg_val);
@@ -78,7 +78,7 @@ public class ComplexFunction extends BinaryOp {
                 System.out.println("Eval error in: " + this);
                 System.exit(-1);
         }
-        return new PDDLNumber(new Float(arg_val));
+        return arg_val;
     }
 
     @Override

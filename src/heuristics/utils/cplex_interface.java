@@ -240,15 +240,15 @@ public final class cplex_interface extends LpInterface {
                                             objective.addTerm(action, action_cost);
                                         }
 
-                                        Float right = null;
+                                        Double right = null;
                                         switch (neff.getOperator()) {
                                             case "increase":
-                                                right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                                right = neff.getRight().eval(s_0) * ad.n;
 //                                                expr = lp.sum(expr, lp.prod(right,action));
                                                 expr.addTerm(action, right);
                                                 break;
                                             case "decrease":
-                                                right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+                                                right = neff.getRight().eval(s_0) * ad.n;
                                                 //var_to_expr.get(action).add(new Constraint(condition,-right));
                                                 expr.addTerm(action, -right);
 //                                                System.out.println(expr.getClass());
@@ -332,7 +332,7 @@ public final class cplex_interface extends LpInterface {
             IloRange lp_cond = this.cond_to_cplex_cond.get(c_0);
             if (c_0 instanceof Comparison) {
                 Comparison comp = (Comparison) c_0;
-                PDDLNumber eval = comp.getLeft().eval(s_0);
+                Double eval = comp.getLeft().eval(s_0);
                 if (eval == null) {
                     try {
                         lp_cond.setLB(Float.MAX_VALUE);//This is a little hack. It may happen that the constraints cannot be evaluated. In 
@@ -340,7 +340,7 @@ public final class cplex_interface extends LpInterface {
                         Logger.getLogger(cplex_interface.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    Float number = eval.getNumber();
+                    Double number = eval;
                     //                System.out.println("DEBUG: expression before:" + lp.getExpression(lp_cond.getName()));
                     try {
 
