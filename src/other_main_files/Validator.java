@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
+import problem.PDDLState;
 import wrapped_planners.metricFFWrapper;
 import problem.PddlProblem;
 
@@ -112,12 +113,12 @@ public class Validator {
         }
 
         sp.setInvariantFluents(prob.getActualFluents());
-        System.out.println(sp.last_relevant_fluents_last_state(0, prob.getInit().clone(),prob));
+        System.out.println(sp.last_relevant_fluents_last_state(0, (PDDLState)prob.getInit().clone(),prob));
         if (last_state_file != null) {
-            save_last_state_to_a_file(last_state_file, sp.last_relevant_fluents_last_state(0, prob.getInit().clone(),prob));
+            save_last_state_to_a_file(last_state_file, sp.last_relevant_fluents_last_state(0, (PDDLState)prob.getInit().clone(),prob));
         }
 
-        System.out.println("Is the plan valid? " + sp.execute(prob.getInit()).satisfy(prob.getGoals()));
+        System.out.println("Is the plan valid? " + sp.execute((PDDLState)prob.getInit()).satisfy(prob.getGoals()));
 
         //System.out.println(action_to_entaglement_by_init);
     }

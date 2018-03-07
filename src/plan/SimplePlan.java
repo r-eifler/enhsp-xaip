@@ -59,13 +59,13 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
-import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.PddlProblem;
 import problem.PDDLState;
 import problem.Printer;
+import problem.State;
 
 /**
  *
@@ -639,7 +639,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundAction gr : (ArrayList<GroundAction>) this) {
             if (gr.isApplicable(temp)) {
                 i++;
-                temp = gr.apply(temp);
+                temp = (PDDLState)gr.apply(temp);
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
                     //System.out.println(temp.pddlPrint());
@@ -833,10 +833,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
         if (problem.getMetric() != null) {
             if (problem.getMetric().getMetExpr() != null) {
                 //System.out.println(problem.getMetric().getMetExpr());
-                if (problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())) == null) {
+                if (problem.getMetric().getMetExpr().eval(this.execute((PDDLState)problem.getInit())) == null) {
                     return new Float(this.size());
                 }
-                return problem.getMetric().getMetExpr().eval(this.execute(problem.getInit())).floatValue();
+                return problem.getMetric().getMetExpr().eval(this.execute((PDDLState)problem.getInit())).floatValue();
             } else {
                 return new Float(this.size());
             }
@@ -1516,7 +1516,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         Set ret = new HashSet();
         for (int i = 1; i < this.size() - 1; i++) {
             GroundAction gr = this.get(i);
-            if (gr.threatGoalConditions(this.pp.getGoals(), this, i, this.pp.getInit())) {
+            if (gr.threatGoalConditions(this.pp.getGoals(), this, i, (PDDLState)this.pp.getInit())) {
                 ret.add(i);
             }
         }
@@ -1623,7 +1623,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     public PDDLState execute(PDDLState current, Condition globalConstraints) throws CloneNotSupportedException {
-        PDDLState temp = current.clone();
+        State temp = current.clone();
         int i = 0;
         this.cost = 0f;
 
@@ -1645,7 +1645,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             this.cost += gr.getActionCost();
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                 System.out.println("Global Constraint is not satisfied:" + globalConstraints);
-                return temp;
+                return (PDDLState)temp;
             }
             // MRJ: Meant for debugging
             //System.out.println(constr.condition.pddlPrint(false));
@@ -1654,13 +1654,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 i++;
                 // MRJ: Prints the state, meant for debugging
                 if (debug > 1) {
-                    System.out.println(Printer.pddlPrint(pp,temp));
+                    System.out.println(Printer.pddlPrint(pp,(PDDLState)temp));
                 }
                 temp = gr.apply(temp);
 
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
-                    System.out.println(Printer.pddlPrint(pp,temp));
+                    System.out.println(Printer.pddlPrint(pp,(PDDLState)temp));
                 }
                 //System.out.println("in-at"+ temp.printFluentByName("in-at"));
             } else {
@@ -1669,24 +1669,24 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     System.out.println("Step:" + i);
 
                     //AndCond c= (AndCond)gr.getPreconditions();
-                    System.out.println(Printer.pddlPrint(pp,temp));
+                    System.out.println(Printer.pddlPrint(pp,(PDDLState)temp));
 
-                    System.out.println(temp.whatIsNotsatisfied((AndCond) gr.getPreconditions()));
+                    System.out.println(((PDDLState)temp).whatIsNotsatisfied((AndCond) gr.getPreconditions()));
                 }
-                return temp;
+                return (PDDLState)temp;
             }
             //System.out.println(constr.condition.pddlPrint(false));
             if (print_trace) {
-                add_state_to_json(nf_trace, temp);
+                add_state_to_json(nf_trace, (PDDLState)temp);
             }
 
         }
         if (debug == 1) {
             System.out.println("Last State:");
-            System.out.println(Printer.pddlPrint(pp,temp));
+            System.out.println(Printer.pddlPrint(pp,(PDDLState)temp));
         }
         System.out.println("Plan is executed correctly");
-        return temp;
+        return (PDDLState)temp;
     }
 
     public List generateMacrosFromBlocks(List blocks) throws Exception {
@@ -1736,7 +1736,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                    System.out.println("DEBUG:Applying:"+this.get(index).toPDDL());
 //                    System.out.println("DEBUG:on the state:"+tempInit);
                     if (this.get(index).hasApplicableEffects(tempInit)) {
-                        tempInit = this.get(index).apply(tempInit);
+                        tempInit = (PDDLState)this.get(index).apply(tempInit);
 //                        System.out.println("DEBUG: After Modification"+tempInit);
                     }
                 }
@@ -1862,7 +1862,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr instanceof GroundEvent) {
 
             } else if (gr.isApplicable(current)) {
-                current = gr.apply(current);
+                current = (PDDLState)gr.apply(current);
 
                 //current_time = gr.time;
             } else {
@@ -1886,7 +1886,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundEvent ev : reachable_events) {
 
             if (ev.isApplicable(s)) {
-                s = ev.apply(s);
+                s = (PDDLState)ev.apply(s);
                 GroundEvent ev1 = (GroundEvent) ev.clone();
                 ret.add(ev1);
 //                System.out.println("Applying event"+ev1);

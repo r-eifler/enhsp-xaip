@@ -32,9 +32,10 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
-import problem.RelState;
 import problem.PDDLState;
+import problem.RelState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -150,8 +151,9 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
-        if (s.fluentValue(nFluent).equals(nFluentValue.getNumber())) {
+    public boolean eval(State s) {
+        
+        if (((PDDLState)s).fluentValue(nFluent).equals(nFluentValue.getNumber())) {
             return true;
         } else {
             return false;
@@ -159,8 +161,8 @@ public class NumFluentValue extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
-        if (s.fluentValue(nFluent).equals(nFluentValue.getNumber())) {
+    public boolean isSatisfied(State s) {
+        if (((PDDLState)s).fluentValue(nFluent).equals(nFluentValue.getNumber())) {
             return true;
         } else {
             return false;

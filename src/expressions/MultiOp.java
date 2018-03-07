@@ -29,8 +29,8 @@ import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -133,7 +133,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Double eval(PDDLState s) {
+    public Double eval(State s) {
         Double ret_val = 0d;
 
         for (Object o : this.expr) {

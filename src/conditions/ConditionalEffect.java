@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +36,7 @@ import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -116,7 +116,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -126,7 +126,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         return s.satisfy(activation_condition);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -284,7 +284,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public void apply(PDDLState s, Map modifications) {
+    public void apply(State s, Map modifications) {
         if (s.satisfy(activation_condition)) {
             effect.apply(s, modifications);
         }

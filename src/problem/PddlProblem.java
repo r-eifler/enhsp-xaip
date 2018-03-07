@@ -76,7 +76,7 @@ import propositionalFactory.Grounder;
 public class PddlProblem {
 
     public PDDLObjects objects;
-    public PDDLState init;
+    public State init;
     public ComplexCondition goals;
     protected String name;
     protected Integer indexObject;
@@ -198,7 +198,7 @@ public class PddlProblem {
         String toWrite = "(define (problem " + this.getName() + ") "
                 + "(:domain " + this.getDomainName() + ") "
                 + this.getObjects().pddlPrint() + "\n"
-                + Printer.pddlPrint(this,init) + "\n"
+                + Printer.pddlPrint(this,(PDDLState)init) + "\n"
                 + "(:goal " + this.getGoals().pddlPrint(false) + ")\n"
                 + this.metric.pddlPrint() + "\n"
                 + ")";
@@ -221,7 +221,7 @@ public class PddlProblem {
         file.write("(:domain ");
         file.write(builder.toString());
         file.write(this.getObjects().pddlPrint());
-        file.write(Printer.stringBuilderPddlPrintWithDummyTrue(this,init).toString());
+        file.write(Printer.stringBuilderPddlPrintWithDummyTrue(this,(PDDLState)init).toString());
         file.write("(:goal (forall (?interpr - interpretation)");
         file.write(this.getGoals().pddlPrintWithExtraObject() + ")))");
         file.close();
@@ -313,7 +313,7 @@ public class PddlProblem {
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(),this.getObjects());
         this.keepCopyOfVariables(goals);
         this.keepCopyOfVariables(belief);
-        this.keepUniqueVariable(init);
+        this.keepUniqueVariable((PDDLState)init);
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
@@ -474,7 +474,7 @@ public class PddlProblem {
     /**
      * @return the init - the initial status of the problem
      */
-    public PDDLState getInit() {
+    public State getInit() {
         return init;
     }
 
@@ -505,7 +505,7 @@ public class PddlProblem {
     }
 
 
-    public void setInit(PDDLState init) {
+    public void setInit(State init) {
         this.init = init;
     }
 
@@ -544,7 +544,7 @@ public class PddlProblem {
     }
 
     public Float getInitFunctionValue(NumFluent f) {
-        return init.fluentValue(f).floatValue();
+        return ((PDDLState)init).fluentValue(f).floatValue();
     }
 
     public NumFluent getNumFluent(String string, ArrayList terms) {
@@ -683,7 +683,7 @@ public class PddlProblem {
         boolean finished = false;
         boolean goalReached = false;
         Set level;
-        RelState s = this.init.relaxState();
+        RelState s = ((PDDLState)this.init).relaxState();
         int prec = 0;
         int distance = 0;
         Set totalActions = new HashSet();
@@ -751,7 +751,7 @@ public class PddlProblem {
         boolean finished = false;
         boolean kernelVisited = false;
         Set level;
-        RelState s = this.init.relaxState();
+        RelState s = ((PDDLState)this.init).relaxState();
         int prec = 0;
         ArrayList toVisit = new ArrayList();
         toVisit.addAll(k);

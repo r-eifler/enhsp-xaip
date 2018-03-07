@@ -30,8 +30,8 @@ import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -120,7 +120,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Double eval(PDDLState s) {
+    public Double eval(State s) {
         Double ret_val = null;
         Double first = this.lhs.eval(s);
         Double second = this.rhs.eval(s);

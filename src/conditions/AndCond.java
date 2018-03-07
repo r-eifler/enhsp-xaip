@@ -37,6 +37,7 @@ import problem.GroundAction;
 import problem.RelState;
 import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -74,7 +75,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -114,7 +115,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      * @return
      */
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         for (Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
@@ -580,7 +581,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public void apply(PDDLState s, Map modifications) {
+    public void apply(State s, Map modifications) {
         for (Object o : this.sons) {
 //            if ((o instanceof AndCond) 
 //                    || (o instanceof Predicate)

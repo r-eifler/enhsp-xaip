@@ -243,7 +243,7 @@ public class EPddlProblem extends PddlProblem {
 
     public void grounding_reachability() throws CloneNotSupportedException, Exception {
         HashSet<GroundAction> reachable = new LinkedHashSet();
-        RelState s = this.init.relaxState();
+        RelState s = ((PDDLState)this.init).relaxState();
         System.out.println("Intelligent Grounding");
         while (true) {
             HashSet<GroundAction> A_primo = new LinkedHashSet();
@@ -589,9 +589,9 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost(init, this.getMetric());
+                act.setAction_cost((PDDLState)init, this.getMetric());
             } else {
-                act.set_unit_cost(init);
+                act.set_unit_cost((PDDLState)init);
             }
         }
 
@@ -840,9 +840,9 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost(init, this.getMetric());
+                act.setAction_cost((PDDLState)init, this.getMetric());
             } else {
-                act.set_unit_cost(init);
+                act.set_unit_cost((PDDLState)init);
             }
         }
     }
@@ -895,7 +895,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     public void addTimeFluentToInit() {
-        this.init.time = 0d;
+        ((PDDLState)this.init).time = 0d;
     }
 
     public NumFluent getNumfluentReference(String stringRepresentation) {

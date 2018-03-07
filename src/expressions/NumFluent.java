@@ -31,9 +31,10 @@ import java.util.Objects;
 import java.util.Set;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
-import problem.RelState;
 import problem.PDDLState;
+import problem.RelState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -190,11 +191,11 @@ public class NumFluent extends Expression {
 //        this.name = name;
 //    }
     @Override
-    public Double eval(PDDLState s) {
+    public Double eval(State s) {
         if (s == null) {
             System.out.println("stato nullo!!");
         }
-        return s.fluentValue(this);
+        return ((PDDLState)s).fluentValue(this);
     }
 
     @Override

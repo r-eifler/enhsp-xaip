@@ -32,8 +32,8 @@ import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -127,12 +127,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         return true;
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         return true;
     }
 

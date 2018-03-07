@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
+import problem.PDDLState;
 import wrapped_planners.metricFFWrapper;
 import problem.PddlProblem;
 
@@ -127,7 +128,7 @@ public class produceEntaglementsMultiplePlans {
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                if (sp.entangledByInit(as.getName(), prob.getInit(), (Condition) o)) {
+                if (sp.entangledByInit(as.getName(), (PDDLState)prob.getInit(), (Condition) o)) {
                     entanglementsByInit.add((Condition) o);
 
                 }

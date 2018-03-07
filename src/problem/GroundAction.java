@@ -219,7 +219,7 @@ public class GroundAction extends PDDLGenericAction {
         this.parameters_as_terms = parameters;
     }
 
-    public PDDLState apply(PDDLState s) {
+    public State apply(State s) {
         
 //        System.out.println(this.getClass());
 //        System.out.println(s.getClass());
@@ -249,14 +249,14 @@ public class GroundAction extends PDDLGenericAction {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
                 if (nf.has_to_be_tracked()) {
-                    s.setNumFluent(nf, (Double)subst.get(o));
+                    ((PDDLState)s).setNumFluent(nf, (Double)subst.get(o));
                 }
             } else {
                 Boolean newval = (Boolean) subst.get(o);
                 if (!newval) {
-                    s.setPropFluent((Predicate) o,false);
+                    ((PDDLState)s).setPropFluent((Predicate) o,false);
                 } else {
-                    s.setPropFluent((Predicate) o,true);
+                    ((PDDLState)s).setPropFluent((Predicate) o,true);
 //                    s.initPred.put((Predicate)o, (Boolean)subst.get(o));
                     
                 }

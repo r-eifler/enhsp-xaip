@@ -43,6 +43,7 @@ import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 import problem.RelState;
+import problem.State;
 
 /**
  *
@@ -202,7 +203,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
         if ((first == null) || (second == null)) {
@@ -226,7 +227,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
         if ((first == null) || (second == null)) {

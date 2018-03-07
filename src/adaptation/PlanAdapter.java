@@ -244,7 +244,7 @@ public class PlanAdapter {
         gr = new NumericPlanningGraph();
         //compute a relaxed plan for each kernel starting from the init. Then the function gets a map (order2) 
         //between kernel and the distance given by the size of such plans.
-        Map order2 = gr.computeRelaxedPlans(problem.getInit(), kerns, problem.getActions(), i);
+        Map order2 = gr.computeRelaxedPlans((PDDLState)problem.getInit(), kerns, problem.getActions(), i);
         //System.out.println(order2);
         for (Object o : order2.keySet()) {
             int candidate = (Integer) o;
@@ -471,7 +471,7 @@ public class PlanAdapter {
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
         long beforeMacrogeneration = System.currentTimeMillis();
-        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(), goalachievingCut);
+        DirectedAcyclicGraph po = plan.deorder((PDDLState)prob.getInit(), prob.getGoals(), goalachievingCut);
         //System.out.println(po);
         if (endlessActionPruning) {
             removeUselessActions(po, plan.size() - 1);
@@ -532,7 +532,7 @@ public class PlanAdapter {
 
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
-        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(), false);
+        DirectedAcyclicGraph po = plan.deorder((PDDLState)prob.getInit(), prob.getGoals(), false);
 
         if (goalPruning) {
             this.removeUselessActions(po, plan.size() - 1);

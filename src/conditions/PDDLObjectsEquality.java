@@ -31,8 +31,8 @@ import problem.EPddlProblem;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.RelState;
-import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -92,7 +92,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean eval(PDDLState s) {
+    public boolean eval(State s) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         if (!grounded) {
             System.out.println(this + "  condition should be grounded..exit!");
@@ -103,7 +103,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(PDDLState s) {
+    public boolean isSatisfied(State s) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         if (!grounded) {
             System.out.println(this + "  condition should be grounded..exit!");

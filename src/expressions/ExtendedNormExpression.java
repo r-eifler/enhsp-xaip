@@ -36,6 +36,7 @@ import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -421,7 +422,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Double eval(PDDLState s) {
+    public Double eval(State s) {
         //PDDLNumber ret = new PDDLNumber(0);
         Double ret = 0d;
         for (final Object o : this.summations) {
@@ -431,7 +432,7 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret += a.bin.eval(s);
             } else if (a.f != null) {
-                Double n = s.fluentValue(a.f);
+                Double n = ((PDDLState)s).fluentValue(a.f);
 
                 if (n == null) {
                     return null;

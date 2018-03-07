@@ -201,7 +201,7 @@ public class GroundProcess extends GroundAction{
     }
     
     public PDDLState apply(PDDLState s) {
-        s = super.apply(s);
+        s = (PDDLState)super.apply(s);
         s.time+=delta;
 //        System.out.println("DEBUG: Subst within action application:"+subst);
         return s;

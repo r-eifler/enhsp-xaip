@@ -45,6 +45,7 @@ import org.jgrapht.graph.DefaultEdge;
 import plan.SimplePlan;
 import wrapped_planners.metricFFWrapper;
 import problem.GroundAction;
+import problem.PDDLState;
 import problem.PddlProblem;
 
 /**
@@ -142,7 +143,7 @@ public class deordering {
 //            System.out.println("Piano non valido!!");
 //            System.exit(-1);
 //        }
-        DirectedAcyclicGraph po = plan.deorder(prob.getInit(), prob.getGoals(), false);
+        DirectedAcyclicGraph po = plan.deorder((PDDLState)prob.getInit(), prob.getGoals(), false);
         JGraphModelAdapter m_jgAdapter = new JGraphModelAdapter(po);
 
         //po = this.removeUselessActions(po,plan.size()-1);

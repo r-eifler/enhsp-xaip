@@ -32,6 +32,7 @@ import problem.PDDLProblemComponent;
 import problem.RelState;
 import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -97,11 +98,11 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition ground(Map substitution, int c);
 
-    public abstract boolean eval(PDDLState s);
+    public abstract boolean eval(State s);
 
     public abstract String toSmtVariableString(int k, GroundAction gr, String var);
 
-    public abstract boolean isSatisfied(PDDLState s);
+    public abstract boolean isSatisfied(State s);
 
     public abstract void changeVar(Map substitution);
 

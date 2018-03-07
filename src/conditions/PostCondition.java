@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import problem.RelState;
 import problem.PDDLState;
+import problem.State;
 
 /**
  *
@@ -39,7 +40,7 @@ public interface PostCondition {
      * @param modifications a map that associates every variable whose value is
      * assigned by the post condition with its new value (boolean or float).
      */
-    public abstract void apply(PDDLState s, Map modifications);
+    public abstract void apply(State s, Map modifications);
 
     /**
      * Applies this post condition to the specified rel state and stores the

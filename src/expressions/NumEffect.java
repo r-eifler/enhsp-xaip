@@ -36,6 +36,7 @@ import problem.PDDLObjects;
 import problem.RelState;
 import problem.PDDLState;
 import problem.PddlProblem;
+import problem.State;
 
 /**
  *
@@ -141,7 +142,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a PDDLNumber or Null in case the operation is not supported
      */
     @Override
-    public Double eval(PDDLState state) {
+    public Double eval(State state) {
         Double first = this.fluentAffected.eval(state);
         Double second = this.right.eval(state);
         if (this.getOperator().equals("increase")) {
@@ -489,7 +490,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public void apply(PDDLState s, Map modifications) {
+    public void apply(State s, Map modifications) {
         if (!fluentAffected.has_to_be_tracked()) {
             return;
         }
@@ -503,7 +504,7 @@ public class NumEffect extends Expression implements PostCondition {
         }
 
         if (this.operator.equals("increase")) {
-            Double current = s.fluentValue(fluentAffected);
+            Double current = ((PDDLState)s).fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("PDDLState:"+s);
                 //System.out.println("This effect cannot be applied!:" + this);
@@ -512,7 +513,7 @@ public class NumEffect extends Expression implements PostCondition {
                 after = current + eval;
             }
         } else if (this.operator.equals("decrease")) {
-            Double current = s.fluentValue(fluentAffected);
+            Double current = ((PDDLState)s).fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);

@@ -37,6 +37,7 @@ import java.util.Scanner;
 import java.util.Set;
 import org.antlr.runtime.RecognitionException;
 import plan.SimplePlan;
+import problem.PDDLState;
 import wrapped_planners.metricFFWrapper;
 import problem.PddlProblem;
 
@@ -154,7 +155,7 @@ public class produceEntaglements {
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                if (sp.entangledByInit(as.getName(), prob.getInit(), (Condition) o)) {
+                if (sp.entangledByInit(as.getName(), (PDDLState)prob.getInit(), (Condition) o)) {
                     entanglementsByInit.add((Condition) o);
 
                 }
@@ -222,7 +223,7 @@ public class produceEntaglements {
                 AndCond c = (AndCond) as.getPreconditions();
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
-                    int holdingCount = sp.entangledByInitCounter(as.getName(), prob.getInit(), (Condition) o);
+                    int holdingCount = sp.entangledByInitCounter(as.getName(), (PDDLState)prob.getInit(), (Condition) o);
                     incCounter(init_condition_holding_number, o.toString() + as.getName(), holdingCount);
                 }
 
