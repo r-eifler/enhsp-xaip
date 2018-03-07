@@ -250,6 +250,10 @@ public abstract class Heuristic {
         index_of_last_static_atom = counter_conditions;//index of the last atom
 
     }
+    
+    public Float gValue(State s, GroundAction gr, State next, Float previousG){
+        return previousG+gr.getActionCost(s);
+    }
 
     /**
      *

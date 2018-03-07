@@ -568,7 +568,7 @@ public class SearchStrategies {
                             continue;
                         }
 
-                        float succ_g = current_node.g_n + act.getActionCost(current_node.s);
+                        float succ_g = this.heuristic.gValue(current_node.s, act, successor_state, current_node.g_n);
                         Float prev_cost = g.get(successor_state);
                         this.queue_successor(frontier, successor_state, current_node, act, prev_cost, succ_g);
 
