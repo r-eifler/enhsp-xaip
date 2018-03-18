@@ -18,6 +18,7 @@
  */
 package problem;
 
+import com.carrotsearch.hppc.DoubleArrayList;
 import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Condition;
@@ -36,8 +37,8 @@ import java.util.Objects;
  */
 public class PDDLState extends State  {
 
-    public Double[] numFluents;
-    public Boolean[] boolFluents;
+    public DoubleArrayList numFluents;
+    public boolean[] boolFluents;
     public Double time;
 
     public PDDLState() {
@@ -45,27 +46,27 @@ public class PDDLState extends State  {
         
     }
 
-    public PDDLState(ArrayList<PDDLNumber> numFluents, ArrayList<Boolean> propFluents) {
-        this.numFluents = new Double[numFluents.size()];
-        for (int i=0;i<numFluents.size();i++){
-            if (numFluents.get(i)==null){
-                this.numFluents[i] = null;
+    public PDDLState(ArrayList<PDDLNumber> initialNumFluents, ArrayList<Boolean> initialPropFluents) {
+        this.numFluents = new DoubleArrayList(initialNumFluents.size());
+        for (int i=0;i<initialNumFluents.size();i++){
+            if (initialNumFluents.get(i)==null){
+                this.numFluents.add(Double.NaN);
             }else
-                this.numFluents[i] = numFluents.get(i).getNumber().doubleValue();
+                this.numFluents.add(initialNumFluents.get(i).getNumber().doubleValue());
         }
-        this.boolFluents = new Boolean[propFluents.size()];
-        for (int i=0;i<propFluents.size();i++){
-            if (propFluents.get(i)==null){
-                this.boolFluents[i] = null;
+        this.boolFluents = new boolean[initialPropFluents.size()];
+        for (int i=0;i<initialPropFluents.size();i++){
+            if (initialPropFluents.get(i)==null){
+                this.boolFluents[i] = false;
             }else
-                this.boolFluents[i] = propFluents.get(i);
+                this.boolFluents[i] = initialPropFluents.get(i);
         }
 
     }
     
-    public PDDLState(Double[] numFluents, Boolean[] propFluents) {
+    public PDDLState(DoubleArrayList numFluents, boolean[] propFluents) {
         this.numFluents = numFluents.clone();
-        this.boolFluents = propFluents.clone();
+        this.boolFluents = Arrays.copyOf(propFluents, propFluents.length);
     }
     
 
@@ -86,8 +87,9 @@ public class PDDLState extends State  {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 31 * hash + Arrays.deepHashCode(this.numFluents);
-        hash = 31 * hash + Arrays.deepHashCode(this.boolFluents);
+        this.numFluents.hashCode();
+        hash = 59 * hash + this.numFluents.hashCode();
+        hash = 59 * hash + Arrays.hashCode(this.boolFluents);
         return hash;
     }
 
@@ -102,15 +104,20 @@ public class PDDLState extends State  {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        
         final PDDLState other = (PDDLState) obj;
-        if (!Arrays.deepEquals(this.numFluents, other.numFluents)) {
+        if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
-        if (!Arrays.deepEquals(this.boolFluents, other.boolFluents)) {
+        if (!Arrays.equals(this.boolFluents, other.boolFluents)) {
             return false;
         }
         return true;
     }
+
+ 
+
+
 
 
 
@@ -122,7 +129,7 @@ public class PDDLState extends State  {
 //            System.out.println("Numeric Fluent "+f+" hasn't been assigned with a unique id "+ "Current mapping is" + this.idOf);
 //            return null;
         }
-        return this.numFluents[f.getId()];
+        return this.numFluents.get(f.getId());
 
     }
 
@@ -137,7 +144,7 @@ public class PDDLState extends State  {
 //            f.id = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
         } else {
-            this.numFluents[f.getId()] = after;
+            this.numFluents.set(f.getId(),after);
         }
     }
     public void setPropFluent(Predicate f, Boolean after) {
@@ -211,12 +218,12 @@ public class PDDLState extends State  {
 
     public RelState relaxState() {
         RelState ret_val = new RelState(); 
-        for (int i = 0; i<this.numFluents.length ; i++){      
-            Double n = this.numFluents[i] ;
+        for (int i = 0; i<this.numFluents.size() ; i++){      
+            Double n = this.numFluents.get(i) ;
             if (n == null){
                 ret_val.possNumValues.add(new Interval(Float.NaN));
             }else
-                ret_val.possNumValues.add(new Interval(new Float(this.numFluents[i])));
+                ret_val.possNumValues.add(new Interval(new Float(this.numFluents.get(i))));
             
         }
         for (int i = 0; i<this.boolFluents.length ; i++){

@@ -26,8 +26,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import problem.GroundAction;
-import problem.State;
 import problem.State;
 
 /**
@@ -93,7 +94,14 @@ public class SearchNode {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
-            json_rep.put("state", s1.toString());
+            JSONParser parser = new JSONParser();
+            JSONObject json;
+            try {
+                json = (JSONObject) parser.parse(s1.toString());
+                json_rep.put("state", json);
+            } catch (ParseException ex) {
+                json_rep.put("state", s1.toString());
+            }
 
         } else {
             json_rep = null;
@@ -130,7 +138,14 @@ public class SearchNode {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
-            json_rep.put("state", s1.toString());
+            JSONParser parser = new JSONParser();
+            JSONObject json;
+            try {
+                json = (JSONObject) parser.parse(s1.toString());
+                json_rep.put("state", json);
+            } catch (ParseException ex) {
+                json_rep.put("state", s1.toString());
+            }
 
         } else {
             json_rep = null;
@@ -138,7 +153,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh)  {
         s = s1;
         this.action = null;
         this.h_n = goal_distance;
@@ -171,7 +186,15 @@ public class SearchNode {
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
             json_rep.put("descendants", new JSONArray());
-            json_rep.put("state", s1.toString());
+            JSONParser parser = new JSONParser();
+            JSONObject json;
+            try {
+                json = (JSONObject) parser.parse(s1.toString());
+                json_rep.put("state", json);
+            } catch (ParseException ex) {
+                json_rep.put("state", s1.toString());
+            }
+            
 
         } else {
             json_rep = null;

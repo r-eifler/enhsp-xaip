@@ -62,6 +62,7 @@ public class NumFluent extends Expression {
 
     @Override
     public boolean equals(Object obj) {
+        
         if (this == obj) {
             return true;
         }
@@ -75,7 +76,6 @@ public class NumFluent extends Expression {
         
         
         final NumFluent other = (NumFluent) obj;
-        
 
         
         if (!Objects.equals(this.name, other.name)) {

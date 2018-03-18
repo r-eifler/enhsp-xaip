@@ -40,6 +40,7 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
 import expressions.Interval;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class GroundAction extends PDDLGenericAction {
     private boolean isMacro;
     public int hiddenParametersNumber;
     private boolean reacheable = false;
-    private HashMap<NumFluent, Double> coefficientAffected;
+    private Object2DoubleOpenHashMap<NumFluent> coefficientAffected;
     private Float actionCost;
     
     private HashMap<Predicate, Boolean> achieve;
@@ -1460,7 +1461,7 @@ public class GroundAction extends PDDLGenericAction {
             return;
         }
 
-        coefficientAffected = new HashMap();
+        coefficientAffected = new Object2DoubleOpenHashMap();
         for (Object c : this.getNumericEffects().sons) {
             NumEffect nEff = (NumEffect) c;
             ExtendedNormExpression right = (ExtendedNormExpression) nEff.getRight();
