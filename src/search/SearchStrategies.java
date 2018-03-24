@@ -18,11 +18,12 @@
  */
 package search;
 
-import com.carrotsearch.hppc.ObjectFloatHashMap;
 import heuristics.Heuristic;
 import conditions.AndCond;
 import conditions.Condition;
 import expressions.NumEffect;
+import it.unimi.dsi.fastutil.objects.Object2FloatLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,15 +66,11 @@ public class SearchStrategies {
     public long depth_limit = Long.MAX_VALUE;
     public int num_dead_end_detected;
     public int number_duplicates;
-
-    public boolean breakties_on_larger_g = false;
-    public boolean breakties_on_smaller_g = false;
-
     public boolean bfs = true;
     static public int node_reopened;
     public boolean cost_optimal;
     public Condition goal;
-    ObjectFloatHashMap<State> g = new ObjectFloatHashMap();
+    Object2FloatMap<State> g = new Object2FloatLinkedOpenHashMap();
 
     private boolean optimality = true;
     private Collection<GroundProcess> reachable_processes;
@@ -88,6 +85,17 @@ public class SearchStrategies {
     public float current_g;
     public boolean forgetting_ehc = false;
     private float G_DEFAULT = -1;
+    public TieBreaking tbRule;
+
+    public enum TieBreaking {
+        LOWERG,
+        HIGHERG,
+        ARBITRARY
+    };
+
+    public SearchStrategies() {
+        
+    }
 
     private void set_reachable_actions(EPddlProblem problem) {
 
@@ -173,7 +181,7 @@ public class SearchStrategies {
                 if (action_s instanceof Collection) {
                     new_node = new SearchNode(successor_state, (ArrayList<GroundAction>) action_s, current_node, succ_g, d, this.json_rep_saving, this.gw, this.hw);
                 } else {
-                    GroundAction gr = (GroundAction) action_s;
+                    final GroundAction gr = (GroundAction) action_s;
                     new_node = new SearchNode(successor_state, gr, current_node, succ_g, d, this.json_rep_saving, this.gw, this.hw);
                 }
                 if (this.helpful_actions_pruning) {
@@ -197,7 +205,7 @@ public class SearchStrategies {
 
     private boolean queue_successor(Object frontier, State successor_state, SearchNode current_node, Object action_s) {
         float succ_g = current_node.g_n + 1;
-        float prev_cost = g.getOrDefault(successor_state,this.G_DEFAULT);
+        float prev_cost = g.getOrDefault(successor_state, this.G_DEFAULT);
 //        System.out.println("G:"+g.keySet());
 //        System.out.println("Current State:"+successor_state);
 //        System.out.println("Cost: "+prev_cost);
@@ -233,11 +241,11 @@ public class SearchStrategies {
 
         //frontier.
 //        frontier.re
-        if (frontier instanceof Queue)
-            ((Queue)frontier).add(new_node);
-        else if (frontier instanceof ObjectHeapPriorityQueue){
-            
-            ((ObjectHeapPriorityQueue)frontier).enqueue(new_node);
+        if (frontier instanceof Queue) {
+            ((Queue) frontier).add(new_node);
+        } else if (frontier instanceof ObjectHeapPriorityQueue) {
+
+            ((ObjectHeapPriorityQueue) frontier).enqueue(new_node);
         }
 
     }
@@ -246,68 +254,6 @@ public class SearchStrategies {
         this.gw = 1f;
         this.hw = 1f;
         return this.wa_star(problem);
-    }
-
-    public class FrontierOrder implements Comparator<SearchNode> {
-
-        Heuristic h;
-
-        public FrontierOrder(Heuristic h) {
-            super();
-            this.h = h;
-        }
-
-        public FrontierOrder() {
-            super();
-            this.h = null;
-        }
-
-        @Override
-        public int compare(SearchNode o1, SearchNode o2) {
-            final SearchNode other = (SearchNode) o2;
-            final SearchNode a = o1;
-            if (a.f == other.f) {
-                if (breakties_on_larger_g) {
-//                System.out.println(this.g_n);
-                    if (a.g_n < other.g_n)//goal is farer
-                    {
-                        return +1;
-                    } else if (a.g_n > other.g_n) //goal is closer
-                    {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                } else if (breakties_on_smaller_g) {
-                    if (a.g_n < other.g_n)//goal is farer
-                    {
-                        return -1;
-                    } else if (a.g_n > other.g_n) //goal is closer
-                    {
-                        return +1;
-                    } else {
-                        return 0;
-                    }
-                } else {
-                    return 0;
-                }
-            }
-            if (bfs) {
-                if (a.f <= other.f) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            } else//dfs
-            {
-                if (a.f <= other.f) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        }
-
     }
 
     public void setup_heuristic(Heuristic input) {
@@ -467,9 +413,11 @@ public class SearchStrategies {
      */
     public LinkedList wa_star(EPddlProblem problem) throws Exception {
         num_dead_end_detected = 0;
-
         long start_global = System.currentTimeMillis();
-        ObjectHeapPriorityQueue<SearchNode> frontier = new ObjectHeapPriorityQueue(new FrontierOrder());
+
+        if (this.tbRule == null)
+            tbRule = TieBreaking.ARBITRARY;
+        ObjectHeapPriorityQueue<SearchNode> frontier = new ObjectHeapPriorityQueue(new TieBreaker(this.tbRule));
         if (!problem.getInit().satisfy(problem.globalConstraints)) {
             System.out.println("Initial State is not valid");
             return null;
@@ -525,7 +473,7 @@ public class SearchStrategies {
                 current_node.set_visited(nodes_expanded);
             }
 
-            final float previous_g = g.get(current_node.s);
+            final float previous_g = g.getOrDefault(current_node.s, this.G_DEFAULT);
             final float g_node = current_node.g_n;
 
             if (g_node == previous_g) {
@@ -587,7 +535,7 @@ public class SearchStrategies {
                             this.num_dead_end_detected++;
                             continue;
                         }
-                        final float prev_cost = g.getOrDefault(successor_state,G_DEFAULT);
+                        final float prev_cost = g.getOrDefault(successor_state, G_DEFAULT);
                         this.queue_successor(frontier, successor_state, current_node, act, prev_cost, succ_g);
 
                     }
@@ -611,8 +559,11 @@ public class SearchStrategies {
     public LinkedList blindSearch(EPddlProblem problem) throws Exception {
 
         System.out.println("Blind Search");
+        if (this.tbRule == null)
+            tbRule = TieBreaking.ARBITRARY;
+
         long start_global = System.currentTimeMillis();
-        PriorityQueue<SearchNode> frontier = new PriorityQueue(new FrontierOrder());
+        PriorityQueue<SearchNode> frontier = new PriorityQueue(new TieBreaker(this.tbRule, bfs));
         State current = (State) problem.getInit();
         //problem.generateActions();
         //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
@@ -880,6 +831,73 @@ public class SearchStrategies {
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(SearchStrategies.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public class TieBreaker implements Comparator<SearchNode> {
+
+        final SearchStrategies.TieBreaking tb;
+        public boolean bfs;
+
+        public TieBreaker(SearchStrategies.TieBreaking tb) {
+            super();
+            this.tb = tb;
+            bfs = true;
+        }
+
+        public TieBreaker(SearchStrategies.TieBreaking tieBreaking, boolean b) {
+            this(tieBreaking);
+            bfs = b;
+        }
+
+        @Override
+        public int compare(SearchNode o1, SearchNode o2) {
+            final SearchNode other = (SearchNode) o2;
+            final SearchNode a = o1;
+            if (a.f == other.f) {
+                switch (tb) {
+                    case HIGHERG:
+                        //                System.out.println(this.g_n);
+                        if (a.g_n < other.g_n)//goal is farer
+                        {
+                            return +1;
+                        } else if (a.g_n > other.g_n) //goal is closer
+                        {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    case LOWERG:
+                        if (a.g_n < other.g_n)//goal is farer
+                        {
+                            return -1;
+                        } else if (a.g_n > other.g_n) //goal is closer
+                        {
+                            return +1;
+                        } else {
+                            return 0;
+                        }
+                    case ARBITRARY:
+                        return 0;
+                    default:
+                        throw new RuntimeException("This shouldn't happen. Wrong tie breaking");
+                }
+            }
+            if (bfs) {
+                if (a.f <= other.f) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else//dfs
+            {
+                if (a.f <= other.f) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        }
+
     }
 
 }
