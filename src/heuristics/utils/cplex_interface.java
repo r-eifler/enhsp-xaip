@@ -25,23 +25,14 @@ import conditions.Predicate;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
-import expressions.PDDLNumber;
-import ilog.concert.IloConstraint;
-import ilog.concert.IloException;
-import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumVar;
-import ilog.concert.IloNumVarType;
-import ilog.concert.IloRange;
+import ilog.concert.*;
 import ilog.cplex.IloCplex;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import problem.GroundAction;
 import problem.PDDLState;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

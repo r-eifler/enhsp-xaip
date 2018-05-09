@@ -18,11 +18,7 @@
  */
 package heuristics.advanced;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.Predicate;
+import conditions.*;
 import expressions.BinaryOp;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
@@ -34,22 +30,19 @@ import heuristics.utils.LpInterface;
 import heuristics.utils.cplex_interface;
 import heuristics.utils.ojalgo_interface;
 import ilog.concert.IloException;
-import static java.lang.Float.MAX_VALUE;
-import static java.lang.System.out;
-import java.util.ArrayList;
-import java.util.Collection;
-import static java.util.Collections.nCopies;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.PDDLState;
 import problem.State;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.lang.Float.MAX_VALUE;
+import static java.lang.System.out;
+import static java.util.Collections.nCopies;
 
 /**
  *

@@ -18,35 +18,17 @@
  */
 package search;
 
-import heuristics.Heuristic;
 import conditions.AndCond;
 import conditions.Condition;
 import expressions.NumEffect;
-import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
+import extraUtils.Pair;
+import heuristics.Heuristic;
+import it.unimi.dsi.fastutil.objects.*;
+import problem.*;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.PDDLState;
-import problem.State;
 
 /**
  *
@@ -131,6 +113,7 @@ public class SearchStrategies {
                 }
             }
         }
+        problem.setReachableActions(reachable_actions);
     }
 
     private void set_reachable_processes_events(EPddlProblem problem) {
@@ -570,39 +553,31 @@ public class SearchStrategies {
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
                 if (this.helpful_actions_pruning) {
-                    reachable_actions = current_node.relaxed_plan_from_heuristic;
+                    problem.setReachableActions(current_node.relaxed_plan_from_heuristic);
                 }
 
-                for (final GroundAction act : reachable_actions) {
-                    if ((act instanceof GroundProcess) || (act instanceof GroundEvent)) {
+                for (Iterator<Pair<State,GroundAction>> it = problem.getSuccessors(current_node.s); it.hasNext(); ) {
+                    final Pair<State,GroundAction> next = it.next();
+                    final State successor_state = next.getFirst();
+                    final GroundAction act = next.getSecond();
+                    //skip this if violates global constraints
+
+                    final Float succ_g = this.heuristic.gValue(current_node.s, act, successor_state, current_node.g_n);
+                    if (succ_g == null) {
+                        this.num_dead_end_detected++;
                         continue;
                     }
-                    if (act.isApplicable(current_node.s)) {
-                        final State successor_state = current_node.s.clone();
-                        successor_state.apply(act);
-//                        act.set_unit_cost(successor_state);
-//                        System.out.println(act);
-
-                        //skip this if violates global constraints
-                        if (!successor_state.satisfy(problem.globalConstraints)) {
-                            continue;
+                    final float prev_cost = g.getOrDefault(successor_state, G_DEFAULT);
+                    if (exitOnBestH){
+                        SearchNode succNode = this.queue_successor(frontier, successor_state, current_node, act, prev_cost, succ_g,g);
+                        if (succNode != null && succNode.h_n < hAtInit && problem.isSafeState(successor_state)){
+                            System.out.println("***************Best H: " + succNode.h_n);
+                            return succNode;
                         }
-                        final Float succ_g = this.heuristic.gValue(current_node.s, act, successor_state, current_node.g_n);
-                        if (succ_g == null) {
-                            this.num_dead_end_detected++;
-                            continue;
-                        }
-                        final float prev_cost = g.getOrDefault(successor_state, G_DEFAULT);
-                        if (exitOnBestH){
-                            SearchNode succNode = this.queue_successor(frontier, successor_state, current_node, act, prev_cost, succ_g,g);
-                            if (succNode != null && succNode.h_n < hAtInit && problem.isSafeState(successor_state)){
-                                System.out.println("***************Best H: "+succNode.h_n);
-                                return succNode;
-                            }
-                        }else{
-                            this.queue_successor(frontier, successor_state, current_node, act, prev_cost, succ_g,g);
-                        }
+                    }else{
+                        this.queue_successor(frontier, successor_state, current_node, act, prev_cost, succ_g,g);
                     }
+
                 }
             }
         }
@@ -624,8 +599,6 @@ public class SearchStrategies {
      * be used in a depth first search manner (going towards the highest f nodes
      * first, if search strategy is called with the bfs = false option.
      *
-     * @param problem. This is an EpddlProblem containing all the necessary
-     * information
      * @return A sequence of actions
      * @throws Exception Throws generic expression for now.
      */

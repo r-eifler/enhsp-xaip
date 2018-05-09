@@ -18,35 +18,9 @@
  */
 package domain;
 
-import conditions.ForAll;
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.FactoryConditions;
-import conditions.NotCond;
-import conditions.PDDLObject;
-import conditions.PostCondition;
-import conditions.Predicate;
+import conditions.*;
 import expressions.NumFluent;
 import extraUtils.Utils;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -56,6 +30,11 @@ import parser.PddlLexer;
 import parser.PddlParser;
 import problem.PDDLObjects;
 import problem.PddlProblem;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

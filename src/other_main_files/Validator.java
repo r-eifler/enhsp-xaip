@@ -21,19 +21,19 @@ package other_main_files;
 import conditions.Condition;
 import domain.ActionSchema;
 import domain.PddlDomain;
-import static extraUtils.Utils.searchParameterValue;
+import plan.SimplePlan;
+import problem.PDDLState;
+import problem.PddlProblem;
+import wrapped_planners.metricFFWrapper;
+
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.antlr.runtime.RecognitionException;
-import plan.SimplePlan;
-import problem.PDDLState;
-import wrapped_planners.metricFFWrapper;
-import problem.PddlProblem;
+
+import static extraUtils.Utils.searchParameterValue;
 
 /**
  * *******************************************************************

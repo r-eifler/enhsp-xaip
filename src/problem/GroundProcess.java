@@ -20,17 +20,12 @@ package problem;
 
 import conditions.AndCond;
 import conditions.ComplexCondition;
-import conditions.Predicate;
 import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import expressions.PDDLNumber;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

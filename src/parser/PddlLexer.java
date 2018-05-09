@@ -18,10 +18,18 @@
  */
 package parser;
 
-import org.antlr.runtime.*;
-import java.util.Stack;
-import java.util.List;
-import java.util.ArrayList;
+import static jdk.nashorn.tools.ShellFunctions.input;
+import org.antlr.runtime.BaseRecognizer;
+import static org.antlr.runtime.BaseRecognizer.DEFAULT_TOKEN_CHANNEL;
+import static org.antlr.runtime.BaseRecognizer.HIDDEN;
+import org.antlr.runtime.CharStream;
+import org.antlr.runtime.DFA;
+import org.antlr.runtime.EarlyExitException;
+import org.antlr.runtime.Lexer;
+import org.antlr.runtime.MismatchedSetException;
+import org.antlr.runtime.NoViableAltException;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.RecognizerSharedState;
 
 @SuppressWarnings("all")
 public class PddlLexer extends Lexer {

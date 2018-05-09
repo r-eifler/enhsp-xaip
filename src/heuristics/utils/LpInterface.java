@@ -20,12 +20,12 @@ package heuristics.utils;
 
 import conditions.AndCond;
 import conditions.ComplexCondition;
-import conditions.Condition;
+import problem.GroundAction;
+import problem.PDDLState;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import problem.GroundAction;
-import problem.PDDLState;
 
 /**
  *

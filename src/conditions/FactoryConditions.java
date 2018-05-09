@@ -22,19 +22,12 @@ import domain.PredicateSet;
 import domain.SchemaParameters;
 import domain.Type;
 import domain.Variable;
-import expressions.BinaryOp;
-import expressions.ComplexFunction;
-import expressions.Expression;
-import expressions.MinusUnary;
-import expressions.MultiOp;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.TrigonometricFunction;
-import java.util.LinkedHashSet;
+import expressions.*;
 import org.antlr.runtime.tree.Tree;
 import parser.PddlParser;
 import problem.PDDLObjects;
+
+import java.util.LinkedHashSet;
 
 /**
  *

@@ -18,21 +18,20 @@
  */
 package other_main_files;
 
-import some_computatitional_tool.DomainEnhancer;
 import conditions.AndCond;
 import conditions.Condition;
 import domain.ActionSchema;
 import domain.PddlDomain;
 import extraUtils.Utils;
-import java.io.IOException;
+import plan.SimplePlan;
+import problem.PDDLState;
+import problem.PddlProblem;
+import some_computatitional_tool.DomainEnhancer;
+import wrapped_planners.metricFFWrapper;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import org.antlr.runtime.RecognitionException;
-import plan.SimplePlan;
-import problem.PDDLState;
-import wrapped_planners.metricFFWrapper;
-import problem.PddlProblem;
 
 /**
  * *******************************************************************

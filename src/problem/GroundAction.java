@@ -18,39 +18,15 @@
  */
 package problem;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
-import conditions.Condition;
-import conditions.NotCond;
-import conditions.OrCond;
-import conditions.PDDLObject;
-import conditions.PostCondition;
-import conditions.Predicate;
-import domain.ParametersAsTerms;
-import domain.ActionSchema;
-import domain.PDDLGenericAction;
-import domain.PddlDomain;
-import domain.Variable;
-import expressions.ExtendedAddendum;
-import expressions.Expression;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.Interval;
+import conditions.*;
+import domain.*;
+import expressions.*;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import plan.SimplePlan;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import plan.SimplePlan;
 
 public class GroundAction extends PDDLGenericAction {
     

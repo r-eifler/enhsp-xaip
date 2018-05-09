@@ -19,13 +19,14 @@
 package problem;
 
 import conditions.Comparison;
-import conditions.NumFluentValue;
 import conditions.Condition;
+import conditions.NumFluentValue;
 import conditions.Predicate;
 import expressions.Expression;
+import expressions.Interval;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-import expressions.Interval;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 

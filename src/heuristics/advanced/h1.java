@@ -23,37 +23,26 @@
  */
 package heuristics.advanced;
 
-import conditions.AndCond;
-import heuristics.utils.AchieverSet;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.NotCond;
-import conditions.OrCond;
-import conditions.Predicate;
+import conditions.*;
 import expressions.NumEffect;
 import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.Aibr;
 import heuristics.Heuristic;
-import static java.lang.System.out;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import static java.util.Collections.nCopies;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import heuristics.utils.AchieverSet;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.GroundProcess;
 import problem.PDDLState;
 import problem.State;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.lang.System.out;
+import static java.util.Collections.nCopies;
 
 /**
  *

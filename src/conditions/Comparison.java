@@ -19,31 +19,13 @@
 package conditions;
 
 import domain.Variable;
-import expressions.ExtendedAddendum;
-import expressions.Expression;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-
-import java.util.Map;
-import problem.PDDLState;
-import expressions.PDDLNumber;
-import expressions.Interval;
+import expressions.*;
 import heuristics.utils.AchieverSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import problem.*;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.PddlProblem;
-import problem.RelState;
-import problem.State;
 
 /**
  *

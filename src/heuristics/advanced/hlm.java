@@ -18,38 +18,19 @@
  */
 package heuristics.advanced;
 
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.NotCond;
-import conditions.Predicate;
-import expressions.PDDLNumber;
+import conditions.*;
 import extraUtils.Utils;
 import heuristics.Aibr;
-import ilog.concert.IloException;
-import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloLinearNumExprIterator;
-import ilog.concert.IloNumVar;
-import ilog.concert.IloNumVarType;
-import ilog.concert.IloRange;
+import ilog.concert.*;
 import ilog.cplex.IloCplex;
-import static java.lang.System.out;
-import java.util.ArrayList;
-import java.util.Collection;
-import static java.util.Collections.nCopies;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.Stack;
+import problem.*;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.PDDLState;
-import problem.State;
+
+import static java.lang.System.out;
+import static java.util.Collections.nCopies;
 
 /**
  *

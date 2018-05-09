@@ -19,6 +19,7 @@
 package wrapped_planners;
 
 import extraUtils.Utils;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.io.Writer;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import plan.SimplePlan;
 
 public class metricFF21Wrapper extends planningTool {
 

@@ -26,6 +26,7 @@ import conditions.Predicate;
 import expressions.Interval;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

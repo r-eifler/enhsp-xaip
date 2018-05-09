@@ -24,14 +24,11 @@ import conditions.ComplexCondition;
 import conditions.Condition;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 import plan.SimplePlan;
 import problem.GroundAction;
 import problem.RelState;
+
+import java.util.*;
 
 /**
  *

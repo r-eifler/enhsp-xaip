@@ -18,23 +18,12 @@
  */
 package domain;
 
-import conditions.AndCond;
-import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
-import conditions.Condition;
-import conditions.ForAll;
-import conditions.NotCond;
-import conditions.PostCondition;
-import conditions.Predicate;
-
+import conditions.*;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import problem.EPddlProblem;
+
+import java.util.*;
 
 public abstract class PDDLGenericAction  {
 

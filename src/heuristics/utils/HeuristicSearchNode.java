@@ -18,8 +18,9 @@
  */
 package heuristics.utils;
 
-import java.util.Set;
 import problem.GroundAction;
+
+import java.util.Set;
 
 /**
  *

@@ -22,21 +22,11 @@ import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import problem.*;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.PDDLState;
-import problem.PddlProblem;
-import problem.State;
 
 /**
  *

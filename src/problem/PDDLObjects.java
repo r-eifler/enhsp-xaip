@@ -19,7 +19,6 @@
 package problem;
 
 import conditions.PDDLObject;
-
 import domain.Type;
 
 import java.util.LinkedHashSet;

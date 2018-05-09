@@ -24,11 +24,12 @@
 package heuristics;
 
 import conditions.ComplexCondition;
-import java.util.Set;
 import problem.GroundAction;
 import problem.GroundEvent;
 import problem.GroundProcess;
 import problem.State;
+
+import java.util.Set;
 
 /**
  *

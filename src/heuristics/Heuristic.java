@@ -18,43 +18,23 @@
  */
 package heuristics;
 
-import heuristics.utils.HeuristicSearchNode;
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.Predicate;
-import expressions.ExtendedAddendum;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.Interval;
+import conditions.*;
+import expressions.*;
 import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.advanced.h1;
-import java.util.ArrayList;
-import java.util.Collection;
-import static java.util.Collections.nCopies;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import heuristics.utils.HeuristicSearchNode;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
-import problem.GroundAction;
-import problem.RelState;
-import problem.PDDLState;
 import org.ojalgo.optimisation.Variable;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.State;
+import problem.*;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.util.Collections.nCopies;
 
 /**
  *
@@ -252,7 +232,7 @@ public abstract class Heuristic {
     }
     
     public Float gValue(State s, GroundAction gr, State next, Float previousG){
-        return previousG+gr.getActionCost(s);
+        return previousG + gr.getActionCost(s);
     }
 
     /**

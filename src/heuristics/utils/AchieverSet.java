@@ -19,9 +19,9 @@
 package heuristics.utils;
 
 import conditions.Condition;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import problem.GroundAction;
+
+import java.util.HashSet;
 
 /**
  *

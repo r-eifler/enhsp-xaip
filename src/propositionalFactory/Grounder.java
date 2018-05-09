@@ -18,30 +18,11 @@
  */
 package propositionalFactory;
 
-import conditions.Condition;
 import conditions.PDDLObject;
-import domain.ActionSchema;
-import domain.EventSchema;
-import domain.ParametersAsTerms;
-import domain.ProcessSchema;
-import domain.SchemaGlobalConstraint;
-import domain.SchemaParameters;
-import domain.Variable;
+import domain.*;
+import problem.*;
 
-import java.lang.Exception;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import problem.GlobalConstraint;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.PDDLObjects;
+import java.util.*;
 
 public class Grounder {
 

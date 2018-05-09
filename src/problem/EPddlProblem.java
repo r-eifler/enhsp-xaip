@@ -18,36 +18,15 @@
  */
 package problem;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.NotCond;
-import conditions.OrCond;
-import conditions.PDDLObject;
-import conditions.Predicate;
-import domain.ActionSchema;
-import domain.EventSchema;
-import domain.PDDLGenericAction;
-import domain.ProcessSchema;
-import domain.SchemaGlobalConstraint;
-import domain.Type;
-import domain.Variable;
-import expressions.BinaryOp;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import heuristics.Aibr;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import conditions.*;
+import domain.*;
+import expressions.*;
+import extraUtils.Pair;
+import propositionalFactory.Grounder;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import propositionalFactory.Grounder;
 
 /**
  *
@@ -930,6 +909,42 @@ public class EPddlProblem extends PddlProblem {
 //        }
 //        System.out.println("After Reachability |BoolVar| = "+this.init.boolFluents.size());
 //        
+    }
+
+    public Iterator<Pair<State,GroundAction>> getSuccessors(State s) {
+        return new stateContainer(s, getReachableActions());
+    }
+
+
+    private class stateContainer implements Iterator{
+        final private State source;
+        final private Collection<GroundAction> actionsSet;
+        GroundAction current;
+        State newState;
+        private Iterator<GroundAction> it;
+        public stateContainer(State source, Collection<GroundAction> actionsSet) {
+            this.source = source;
+            this.actionsSet = actionsSet;
+            it = actionsSet.iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            while (it.hasNext()){
+                current = it.next();
+                if (current.isApplicable(source)){
+                    newState = source.clone();
+                    return newState.satisfy(globalConstraints);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Pair<State,GroundAction> next() {
+            newState.apply(current);
+            return new Pair(newState,current);
+        }
     }
 
     

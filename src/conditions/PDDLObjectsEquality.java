@@ -21,18 +21,9 @@ package conditions;
 import domain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.PddlProblem;
-import problem.State;
+import problem.*;
+
+import java.util.*;
 
 /**
  *

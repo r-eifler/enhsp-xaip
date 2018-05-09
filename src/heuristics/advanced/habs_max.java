@@ -13,17 +13,12 @@ import expressions.NumEffect;
 import expressions.PDDLNumber;
 import heuristics.Aibr;
 import heuristics.Heuristic;
+import problem.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import problem.GroundAction;
-import problem.GroundProcess;
-import problem.RelState;
-import problem.PDDLState;
-import problem.Metric;
-import problem.State;
 
 /**
  *

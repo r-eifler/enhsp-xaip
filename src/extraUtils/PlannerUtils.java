@@ -4,9 +4,10 @@ import domain.PddlDomain;
 import heuristics.Aibr;
 import heuristics.advanced.h1;
 import heuristics.blindHeuristic;
-import java.util.LinkedList;
 import problem.EPddlProblem;
 import search.SearchStrategies;
+
+import java.util.LinkedList;
 
 /*
  * Copyright (C) 2018 enrico.

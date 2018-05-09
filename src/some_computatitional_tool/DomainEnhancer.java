@@ -22,23 +22,19 @@ import conditions.AndCond;
 import conditions.Comparison;
 import conditions.Condition;
 import conditions.Predicate;
-import domain.ParametersAsTerms;
 import domain.ActionSchema;
+import domain.ParametersAsTerms;
 import domain.PddlDomain;
 import expressions.NumFluent;
 import extraUtils.Utils;
+import plan.SimplePlan;
+import problem.GroundAction;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import plan.SimplePlan;
-import problem.GroundAction;
+import java.util.*;
 
 /**
  *

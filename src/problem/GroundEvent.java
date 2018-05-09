@@ -22,6 +22,7 @@ import conditions.AndCond;
 import conditions.ComplexCondition;
 import conditions.PDDLObject;
 import domain.ParametersAsTerms;
+
 import java.util.HashMap;
 
 /**
