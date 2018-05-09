@@ -40,7 +40,7 @@ public interface PostCondition {
      * @param modifications a map that associates every variable whose value is
      * assigned by the post condition with its new value (boolean or float).
      */
-    public abstract void apply(State s, Map modifications);
+    void apply(State s, Map modifications);
 
     /**
      * Applies this post condition to the specified rel state and stores the
@@ -50,7 +50,7 @@ public interface PostCondition {
      * @param modifications a map that associates every variable whose value is
      * assigned by the post condition with its new value (boolean or float).
      */
-    public abstract void apply(RelState s, Map modifications);
+    void apply(RelState s, Map modifications);
 
     /**
      * Returns a string representation of this condition in PDDL format.
@@ -59,7 +59,7 @@ public interface PostCondition {
      * if the type of the object should be printed as well.
      * @return a string representation in PDDL format of this condition.
      */
-    public abstract String pddlPrint(boolean typeInformation);
+    String pddlPrint(boolean typeInformation);
 
     /**
      * Prints this condition in PDDL format in the specified string builder.
@@ -68,20 +68,20 @@ public interface PostCondition {
      * if the type of the object should be printed as well.
      * @param bui the string builder where this condition is printed.
      */
-    public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
+    void pddlPrint(boolean typeInformation, StringBuilder bui);
 
-    public abstract HashMap<Object, Object> apply(PDDLState s);
+    HashMap<Object, Object> apply(PDDLState s);
 
-    public abstract HashMap<Object, Object> apply(RelState s);
+    HashMap<Object, Object> apply(RelState s);
 
-    public abstract Object clone();
+    Object clone();
 
-    public abstract String pddlPrintWithExtraObject();
+    String pddlPrintWithExtraObject();
 
-    public abstract Condition achieve(Predicate p);
+    Condition achieve(Predicate p);
 
-    public abstract Condition delete(Predicate p);
+    Condition delete(Predicate p);
 
-    public abstract Set<NumFluent> affectedNumericFluents();
+    Set<NumFluent> affectedNumericFluents();
 
 }

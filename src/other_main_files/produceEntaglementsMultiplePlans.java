@@ -98,7 +98,7 @@ public class produceEntaglementsMultiplePlans {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException, RecognitionException, antlr.RecognitionException, Exception {
+    public static void main(String[] args) throws Exception {
 
         parseInput(args);
 
@@ -144,7 +144,7 @@ public class produceEntaglementsMultiplePlans {
         for (ActionSchema as : dom.getActionsSchema()) {
             Set<Condition> entanglementsByGoal = new HashSet();
             //System.out.println(as.getName());
-            AndCond c = (AndCond) as.getAddList();
+            AndCond c = as.getAddList();
             for (Object o : c.sons) {
                 if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Condition) o)) {
                     entanglementsByGoal.add((Condition) o);

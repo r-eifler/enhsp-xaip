@@ -157,9 +157,7 @@ public class PDDLNumber extends Expression {
     public boolean isUngroundVersionOf(Expression expr) {
         if (expr instanceof PDDLNumber) {
             PDDLNumber num = (PDDLNumber) expr;
-            if (this.getNumber().equals(num.getNumber())) {
-                return true;
-            }
+            return this.getNumber().equals(num.getNumber());
         }
         return false;
     }
@@ -193,10 +191,7 @@ public class PDDLNumber extends Expression {
             return false;
         }
         final PDDLNumber other = (PDDLNumber) obj;
-        if (!Objects.equals(this.number, other.number)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.number, other.number);
     }
 
 

@@ -90,7 +90,7 @@ public class Validator {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException, RecognitionException, antlr.RecognitionException, Exception {
+    public static void main(String[] args) throws Exception {
 
         parseInput(args);
 

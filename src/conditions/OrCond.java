@@ -268,24 +268,18 @@ public class OrCond extends ComplexCondition {
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
                     if (nc.getSon() instanceof Predicate) {
-                        Condition p = (Condition) nc.getSon();
-                        if (possibleState.satisfy(p)) {
-                            //System.out.println(p+" satisfiable");
-                            return true;
-                        } else {
-                            //System.out.println(p);
-                            return false;//System.out.println(";Predicate "+p+" is not possible");
-                        }
+                        Condition p = nc.getSon();
+                        //System.out.println(p+" satisfiable");
+//System.out.println(p);
+//System.out.println(";Predicate "+p+" is not possible");
+                        return possibleState.satisfy(p);
                     }
                 } else if (o instanceof Predicate) {
                     Predicate p = (Predicate) o;
-                    if (possibleState.satisfy(p)) {
-                        //System.out.println(p+" satisfiable");
-                        return true;
-                    } else {
-                        //System.out.println(p);
-                        return false;//System.out.println(";Predicate "+p+" is not possible");
-                    }
+                    //System.out.println(p+" satisfiable");
+//System.out.println(p);
+//System.out.println(";Predicate "+p+" is not possible");
+                    return possibleState.satisfy(p);
                 }
             }
         }
@@ -300,24 +294,18 @@ public class OrCond extends ComplexCondition {
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
                     if (nc.getSon() instanceof Predicate) {
-                        Condition p = (Condition) nc.getSon();
-                        if (possibleState.contains(p)) {
-                            //System.out.println(p+" satisfiable");
-                            return true;
-                        } else {
-                            //System.out.println(p);
-                            return false;//System.out.println(";Predicate "+p+" is not possible");
-                        }
+                        Condition p = nc.getSon();
+                        //System.out.println(p+" satisfiable");
+//System.out.println(p);
+//System.out.println(";Predicate "+p+" is not possible");
+                        return possibleState.contains(p);
                     }
                 } else if (o instanceof Predicate) {
                     Predicate p = (Predicate) o;
-                    if (possibleState.contains(p)) {
-                        //System.out.println(p+" satisfiable");
-                        return true;
-                    } else {
-                        //System.out.println(p);
-                        return false;//System.out.println(";Predicate "+p+" is not possible");
-                    }
+                    //System.out.println(p+" satisfiable");
+//System.out.println(p);
+//System.out.println(";Predicate "+p+" is not possible");
+                    return possibleState.contains(p);
                 }
             }
         }
@@ -498,11 +486,7 @@ public class OrCond extends ComplexCondition {
 
         final OrCond other = (OrCond) obj;
 
-        if (!this.sons.equals(other.sons)) {
-            return false;
-        }
-
-        return true;
+        return this.sons.equals(other.sons);
     }
 
     @Override

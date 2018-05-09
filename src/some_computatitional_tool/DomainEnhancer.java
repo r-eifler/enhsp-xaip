@@ -66,7 +66,7 @@ public class DomainEnhancer {
 
     }
 
-    public void addMacroOperator(PddlDomain domain, GroundAction gr) throws CloneNotSupportedException, IOException {
+    public void addMacroOperator(PddlDomain domain, GroundAction gr) throws IOException {
 
         String constants = "(:constants " + gr.getParameters().pddlPrint() + ")\n";
         //GroundAction temp = (GroundAction)gr.clone();
@@ -162,8 +162,8 @@ public class DomainEnhancer {
 
             GroundAction gr = (GroundAction) o;
             constants.addALLNewObjects(gr.getParameters());
-            int first = sp.indexOf((GroundAction) gr.getPrimitives().get(0));
-            int last = sp.indexOf((GroundAction) gr.getPrimitives().get(gr.getPrimitives().size() - 1));
+            int first = sp.indexOf(gr.getPrimitives().get(0));
+            int last = sp.indexOf(gr.getPrimitives().get(gr.getPrimitives().size() - 1));
 
             gr.setName("macro_" + first + "-" + last);
             ret.put(gr.getName(), gr.getPrimitives());
@@ -216,8 +216,8 @@ public class DomainEnhancer {
 
             GroundAction gr = (GroundAction) o;
             constants.addALLNewObjects(gr.getParameters());
-            int first = sp.indexOf((GroundAction) gr.getPrimitives().get(0));
-            int last = sp.indexOf((GroundAction) gr.getPrimitives().get(gr.getPrimitives().size() - 1));
+            int first = sp.indexOf(gr.getPrimitives().get(0));
+            int last = sp.indexOf(gr.getPrimitives().get(gr.getPrimitives().size() - 1));
             String nameMacro = "macro";
             for (Object temp : gr.getPrimitives()) {
                 GroundAction primitive = (GroundAction) temp;

@@ -51,10 +51,7 @@ public class HeuristicSearchNode implements Comparable {
         }
         final HeuristicSearchNode other = (HeuristicSearchNode) obj;
 
-        if (!this.action.equals(other.action) || this.action_cost_to_get_here != other.action_cost_to_get_here) {
-            return false;
-        }
-        return true;
+        return this.action.equals(other.action) && this.action_cost_to_get_here == other.action_cost_to_get_here;
     }
 //
 //    @Override

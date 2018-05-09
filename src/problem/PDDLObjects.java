@@ -38,11 +38,8 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
             return true;
         }
 
-        if (o1.getName().equalsIgnoreCase(o2.getName())) {
-            return true;
-        }
+        return o1.getName().equalsIgnoreCase(o2.getName());
 
-        return false;
     }
 
     /**

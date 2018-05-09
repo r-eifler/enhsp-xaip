@@ -122,7 +122,7 @@ public class produceEntaglements {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException, RecognitionException, antlr.RecognitionException, Exception {
+    public static void main(String[] args) throws Exception {
 
         parseInput(args);
 
@@ -139,7 +139,7 @@ public class produceEntaglements {
 
     }
 
-    private static void learn_entanglements_with_problem_given_in_input(PddlDomain dom) throws IOException, antlr.RecognitionException, RecognitionException, Exception {
+    private static void learn_entanglements_with_problem_given_in_input(PddlDomain dom) throws Exception {
         PddlProblem prob = new PddlProblem();
         prob.setDomain(dom);
         prob.parseProblem(problemFile);
@@ -171,7 +171,7 @@ public class produceEntaglements {
         for (ActionSchema as : dom.getActionsSchema()) {
             Set<Condition> entanglementsByGoal = new HashSet();
             //System.out.println(as.getName());
-            AndCond c = (AndCond) as.getAddList();
+            AndCond c = as.getAddList();
             for (Object o : c.sons) {
                 if (sp.entangledByGoal(as.getName(), prob.getGoals(), (Condition) o)) {
                     entanglementsByGoal.add((Condition) o);
@@ -189,7 +189,7 @@ public class produceEntaglements {
         dom.saveDomain(enhancedDomainFile);
     }
 
-    private static void learn_entanglements_via_many_problems(PddlDomain dom) throws FileNotFoundException, IOException, antlr.RecognitionException, RecognitionException, Exception {
+    private static void learn_entanglements_via_many_problems(PddlDomain dom) throws Exception {
 
         Scanner scanner = new Scanner(new File(multipleFilesFileName));
         scanner.useDelimiter(",");
@@ -229,7 +229,7 @@ public class produceEntaglements {
 
             }
             for (ActionSchema as : dom.getActionsSchema()) {
-                AndCond c = (AndCond) as.getAddList();
+                AndCond c = as.getAddList();
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
                     int holdingCount = sp.entangledByGoalCounter(as.getName(), prob.getGoals(), (Condition) o);
@@ -257,7 +257,7 @@ public class produceEntaglements {
                     }
                 }
             }
-            c = (AndCond) as.getAddList();
+            c = as.getAddList();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
                 int holdingCount = goal_condition_holding_number.get(o.toString() + as.getName());
@@ -308,9 +308,9 @@ public class produceEntaglements {
 
     private static void incCounter(HashMap<Object, Integer> counter_of_entanglement_by_init, Object o, int n) {
         if (counter_of_entanglement_by_init.get(o) == null) {
-            counter_of_entanglement_by_init.put((Object) o, n);
+            counter_of_entanglement_by_init.put(o, n);
         } else {
-            counter_of_entanglement_by_init.put((Object) o, counter_of_entanglement_by_init.get(o) + n);
+            counter_of_entanglement_by_init.put(o, counter_of_entanglement_by_init.get(o) + n);
         }
 
     }

@@ -188,7 +188,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     //to be done....
-    public void parseSolutionWithoutProblem(String solution_file) throws FileNotFoundException, Exception {
+    public void parseSolutionWithoutProblem(String solution_file) throws Exception {
         Scanner sc = new Scanner((new File(solution_file)));
         String nameOperator;
 
@@ -297,7 +297,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     //to be done....
-    public void parseSolution(String solution_file) throws FileNotFoundException, Exception {
+    public void parseSolution(String solution_file) throws Exception {
         Scanner sc = new Scanner((new File(solution_file)));
         String nameOperator;
 
@@ -373,7 +373,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public String printAction(int index) {
 
-        GroundAction a = (GroundAction) this.get(index);
+        GroundAction a = this.get(index);
 
         return a.getNumericEffects().toString();
 
@@ -585,7 +585,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         try {
             output = new BufferedWriter(new FileWriter(tempPlan));
             for (int j = i; j < this.size(); j++) {
-                GroundAction a = (GroundAction) this.get(j);
+                GroundAction a = this.get(j);
                 output.write(a.toFileCompliant() + "\n");
             }
             output.close();
@@ -604,11 +604,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public String last_relevant_fluents_last_state(int i, PDDLState s, PddlProblem p) throws CloneNotSupportedException {
+    public String last_relevant_fluents_last_state(int i, PDDLState s, PddlProblem p) {
         String ret = "";
         PDDLState temp = s.clone();
         for (int j = i; j < this.size(); j++) {
-            GroundAction action = (GroundAction) this.get(j);
+            GroundAction action = this.get(j);
             action.apply(temp);
         }
         ret += "S[plan(" + i + ")] \n";
@@ -623,7 +623,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     if (!b) {
                         ret += o.toString() + "\n";
                     }
-                    ;
                 }
             }
 
@@ -633,10 +632,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
   
 
-    public PDDLState execute(PDDLState init) throws CloneNotSupportedException {
+    public PDDLState execute(PDDLState init) {
         PDDLState temp = init.clone();
         int i = 0;
-        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+        for (GroundAction gr : this) {
             if (gr.isApplicable(temp)) {
                 i++;
                 temp = (PDDLState)gr.apply(temp);
@@ -661,7 +660,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return temp;
     }
 
-    public Pair<ArrayList<String>, HashSet<String>> regress_polynomial(Condition cond, HashMap<String, Predicate> str_to_pred) throws IOException {
+    public Pair<ArrayList<String>, HashSet<String>> regress_polynomial(Condition cond, HashMap<String, Predicate> str_to_pred) {
         Pair<ArrayList<String>, HashSet<String>> ret = new Pair();
         ArrayList<String> simulation = new ArrayList();
         ArrayList<String> preference = new ArrayList();
@@ -734,7 +733,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
-    public Condition regress(Condition cond) throws IOException {
+    public Condition regress(Condition cond) {
 
         for (int i = (this.size() - 1); i >= 0; i--) {
 //            System.out.println("DEBUG: before regressing: "+cond);
@@ -845,7 +844,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public DirectedAcyclicGraph buildValidationStructures(PDDLState init, ComplexCondition g) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph buildValidationStructures(PDDLState init, ComplexCondition g) throws Exception {
         DirectedAcyclicGraph po = new DirectedAcyclicGraph(DefaultEdge.class);
         po.addVertex(-1);
         //DirectedAcyclicGraph po = new DirectedAcyclicGraph();
@@ -993,7 +992,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return po;
     }
 
-    public DirectedAcyclicGraph deorder(PDDLState init, ComplexCondition g, boolean computeGoalAchievers) throws CloneNotSupportedException, Exception {
+    public DirectedAcyclicGraph deorder(PDDLState init, ComplexCondition g, boolean computeGoalAchievers) throws Exception {
 
         DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
         if (debug > 0) {
@@ -1244,7 +1243,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
                 //if it is the first action or it is a splittingpoint (consequence of the step above
                 if (macro == null) {
-                    macro = (GroundAction) this.get(v);
+                    macro = this.get(v);
                     macro.setIsMacro(true);
                     macro.getPrimitives().add(this.get(v));
                 } else {
@@ -1572,7 +1571,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
-                AndCond ac = (AndCond) gr.getAddList();
+                AndCond ac = gr.getAddList();
                 Predicate p = ac.requireAnInstanceOfAndWhichis(con);
                 if (p != null) {
                     if (!goal.sons.contains(p)) {
@@ -1601,7 +1600,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         for (GroundAction gr : this) {
             if (gr.getName().equals(name)) {
-                AndCond ac = (AndCond) gr.getAddList();
+                AndCond ac = gr.getAddList();
                 Predicate p = ac.requireAnInstanceOfAndWhichis(con);
                 if (p != null) {
                     if (!goal.sons.contains(p)) {
@@ -1622,7 +1621,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public PDDLState execute(PDDLState current, Condition globalConstraints) throws CloneNotSupportedException {
+    public PDDLState execute(PDDLState current, Condition globalConstraints) {
         State temp = current.clone();
         int i = 0;
         this.cost = 0f;
@@ -1639,7 +1638,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 nf_trace.put(nf, nf_traj);
             }
         }
-        for (GroundAction gr : (ArrayList<GroundAction>) this) {
+        for (GroundAction gr : this) {
             gr.setAction_cost(current, this.pp.getMetric());
 
             this.cost += gr.getActionCost();
@@ -1704,7 +1703,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 //if it is the first action or it is a splittingpoint (consequence of the step above
 //                System.out.print(" "+v);
                 if (macro == null) {
-                    macro = (GroundAction) this.get(v - 1);
+                    macro = this.get(v - 1);
                     macro.setIsMacro(true);
                     macro.getPrimitives().add(this.get(v - 1));
                     //macro.getPrimitivesWithInteger().add(v-1);
@@ -1912,7 +1911,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             waiting.addDelta(delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
             for (GroundProcess act : processesSet) {
-                GroundProcess gp = (GroundProcess) act;
+                GroundProcess gp = act;
                 if (gp.isActive(current)) {
 //                    System.out.println("---Active Process:" + gp.toPDDL());
                     for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
@@ -1927,7 +1926,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //            System.out.println(current);    
 //            System.out.println(current);
 //            System.out.println("StartTime:"+start_time);
-        };
+        }
 //        System.out.println((start_time+delta));
 //        System.out.println((time));
         return current;

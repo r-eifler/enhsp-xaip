@@ -103,10 +103,7 @@ public class Interval {
     }
 
     public boolean contain_zero() {
-        if (getInf().getNumber() <= 0 && getSup().getNumber() >= 0) {
-            return true;
-        }
-        return false;
+        return getInf().getNumber() <= 0 && getSup().getNumber() >= 0;
     }
 
 //    public Interval div(Interval b) {

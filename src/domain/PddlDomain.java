@@ -265,7 +265,7 @@ public final class PddlDomain extends Object {
             CommonTree t = (CommonTree) root.getTree();
             int i;
             for (i = 0; i < t.getChildCount(); i++) {
-                Tree c = (Tree) t.getChild(i);
+                Tree c = t.getChild(i);
                 int type = c.getType();
 //            System.out.println("Tipo: " + c.getText());
                 switch (type) {
@@ -368,14 +368,12 @@ public final class PddlDomain extends Object {
         for (int i = 0; i < c.getChildCount(); i++) {
             Type tip = new Type(c.getChild(i).getText());
 
-            Tree tipo = (Tree) c.getChild(i);
+            Tree tipo = c.getChild(i);
             if (tipo.getChildCount() > 0) {
                 boolean subTypeOfExist = false;
                 Type father = new Type(tipo.getChild(0).getText());
                 if (father.isObject()) {
-                    if (!(types.contains(father))) {
-                        types.add(father);
-                    }
+                    types.add(father);
                     tip.setSubTypeOf(father);
                     subTypeOfExist = true;
                 } else {
@@ -588,7 +586,7 @@ public final class PddlDomain extends Object {
                 abstractInvariantFluents.put(nf.getName(), false);
             }
         }
-        for (NumFluent nf : (Collection<NumFluent>) this.get_derived_variables()) {
+        for (NumFluent nf : this.get_derived_variables()) {
             abstractInvariantFluents.put(nf.getName(), false);
         }
 
@@ -596,7 +594,7 @@ public final class PddlDomain extends Object {
     }
 
     public Type getTypeByName(String text) {
-        for (Type t : (List<Type>) this.getTypes()) {
+        for (Type t : this.getTypes()) {
             if (t.getName().equals(text)) {
                 return t;
             }
@@ -702,7 +700,7 @@ public final class PddlDomain extends Object {
         this.getSchemaGlobalConstraints().add(con);
 
         for (int i = 1; i < c.getChildCount(); i++) {
-            Tree infoConstraint = (Tree) c.getChild(i);
+            Tree infoConstraint = c.getChild(i);
             int type = infoConstraint.getType();
 
             switch (type) {
@@ -714,7 +712,7 @@ public final class PddlDomain extends Object {
                         and.addConditions(condition);
                         con.condition = condition;
                     } else {
-                        con.condition = condition;;
+                        con.condition = condition;
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -759,13 +757,13 @@ public final class PddlDomain extends Object {
 
     private void addProcess(Tree c) {
         ProcessSchema a = new ProcessSchema();
-        Tree process = (Tree) c.getChild(0);
+        Tree process = c.getChild(0);
         a.setName(process.getText());
 //        System.out.println("DEBUG: Adding:"+a.getName());
         this.ProcessesSchema.add(a);
 
         for (int i = 1; i < c.getChildCount(); i++) {
-            Tree infoAction = (Tree) c.getChild(i);
+            Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
 
             switch (type) {
@@ -883,7 +881,7 @@ public final class PddlDomain extends Object {
 
     private void addGenericActionSchemas(Tree c, ActionSchema a) {
 
-        Tree action = (Tree) c.getChild(0);
+        Tree action = c.getChild(0);
         a.setName(action.getText());
         //System.out.println("Adding:"+a.getName());
         if (a instanceof EventSchema) {
@@ -893,7 +891,7 @@ public final class PddlDomain extends Object {
             this.ActionsSchema.add(a);
         }
         for (int i = 1; i < c.getChildCount(); i++) {
-            Tree infoAction = (Tree) c.getChild(i);
+            Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
 
             switch (type) {

@@ -424,7 +424,7 @@ public abstract class Heuristic {
         return cyclic;
     }
 
-    private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) throws CloneNotSupportedException {
+    private Boolean compute_enclosure(Collection<GroundAction> pool, RelState rel_state, Comparison c) {
         Boolean ret = null;
         boolean cyclic = false;
 
@@ -500,7 +500,7 @@ public abstract class Heuristic {
 
     }
 
-    protected Float interval_based_relaxation_actions_with_cost(PDDLState s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) throws CloneNotSupportedException {
+    protected Float interval_based_relaxation_actions_with_cost(PDDLState s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) {
         RelState rel_state = s_0.relaxState();
 //        System.out.println(rel_state);
         //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
@@ -508,11 +508,8 @@ public abstract class Heuristic {
 //        float current_distance = rel_state.satisfaction_distance((Comparison) c);
         //this terminates correctly whenever the numeric dependency graph is acyclic. If it is cyclic it terminates with null
         Boolean proven_reachable = null;
-        try {
             proven_reachable = compute_enclosure(pool, rel_state.clone(), (Comparison) c);
-        } catch (CloneNotSupportedException ex) {
-            Logger.getLogger(Heuristic.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         if (proven_reachable != null && proven_reachable == false) {
             return Float.MAX_VALUE;
         }
@@ -654,7 +651,7 @@ public abstract class Heuristic {
                 }
                 for (GroundAction gr : A) {
                     if (gr.getNumericEffects() != null) {
-                        AndCond effects = (AndCond) gr.getNumericEffects();
+                        AndCond effects = gr.getNumericEffects();
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
@@ -761,19 +758,19 @@ public abstract class Heuristic {
                 Expression condition = null;
                 switch (comp.getComparator()) {
                     case ">":
-                        condition = tmpModel.addExpression(((Comparison) cond).toString()).upper(num);
+                        condition = tmpModel.addExpression(cond.toString()).upper(num);
                         break;
                     case ">=":
-                        condition = tmpModel.addExpression(((Comparison) cond).toString()).upper(num);
+                        condition = tmpModel.addExpression(cond.toString()).upper(num);
                         break;
                     case "<":
-                        condition = tmpModel.addExpression(((Comparison) cond).toString()).lower(num);
+                        condition = tmpModel.addExpression(cond.toString()).lower(num);
                         break;
                     case "<=":
-                        condition = tmpModel.addExpression(((Comparison) cond).toString()).lower(num);
+                        condition = tmpModel.addExpression(cond.toString()).lower(num);
                         break;
                     case "=":
-                        condition = tmpModel.addExpression(((Comparison) cond).toString()).upper(num).lower(num);
+                        condition = tmpModel.addExpression(cond.toString()).upper(num).lower(num);
                         break;
                 }
                 for (ExtendedAddendum ad : left.summations) {
@@ -862,7 +859,7 @@ public abstract class Heuristic {
                 if (!cond.isSatisfied(s_0)) {
                     boolean at_least_one = false;
                     Predicate p = (Predicate) cond;
-                    Expression condition = tmpModel.addExpression(((Predicate) cond).toString()).lower(1);
+                    Expression condition = tmpModel.addExpression(cond.toString()).lower(1);
 
                     for (GroundAction gr : pool) {
                         if (gr.achieve(p)) {
@@ -1024,7 +1021,7 @@ public abstract class Heuristic {
     }
 
     protected void simplify_actions(PDDLState init) {
-        for (GroundAction gr : (Collection<GroundAction>) this.A) {
+        for (GroundAction gr : this.A) {
             try {
                 if (gr.getPreconditions() != null) {
                     gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());

@@ -52,17 +52,16 @@ public class NumericKernel extends HashMap {
      *
      * @param pianoClonato
      * @param g
-     * @throws CloneNotSupportedException
      */
-    public void construct(SimplePlan sp, Condition g) throws CloneNotSupportedException {
+    public void construct(SimplePlan sp, Condition g) {
 
         SimplePlan pianoClonato = (SimplePlan) sp.clone();
-        Condition goal = (Condition) g.clone();
+        Condition goal = g.clone();
         //HashMap kerns = new HashMap();
         this.put(pianoClonato.size(), goal.clone());
 
         for (int i = pianoClonato.size() - 1; i >= 0; i--) {
-            GroundAction a = (GroundAction) pianoClonato.get(i);
+            GroundAction a = pianoClonato.get(i);
             goal = a.regress(goal);//TODO to verify...
 
             this.put(i, goal.clone());
@@ -83,7 +82,7 @@ public class NumericKernel extends HashMap {
         this.put(pianoClonato.size(), goal);
 
         for (int i = pianoClonato.size() - 1; i >= 0; i--) {
-            GroundAction a = (GroundAction) pianoClonato.get(i);
+            GroundAction a = pianoClonato.get(i);
 
             goal = (ComplexCondition) a.regressAndStoreFatherPointer(goal);
             this.put(i, goal);
@@ -160,18 +159,17 @@ public class NumericKernel extends HashMap {
      *
      * @param sp Simple Plan
      * @param g the Goal condition
-     * @throws CloneNotSupportedException
      */
     @Deprecated
-    public void construct_old(SimplePlan sp, Condition g) throws CloneNotSupportedException, Exception {
+    public void construct_old(SimplePlan sp, Condition g) throws Exception {
 
-        Condition goal = (Condition) g.clone();
+        Condition goal = g.clone();
         //HashMap kerns = new HashMap();
         this.put(sp.size(), goal.clone());
 
         for (int i = sp.size() - 1; i >= 0; i--) {
-            GroundAction a = (GroundAction) sp.get(i);
-            oplus((GroundAction) a, (AndCond) goal);
+            GroundAction a = sp.get(i);
+            oplus(a, (AndCond) goal);
             this.put(i, goal.clone());
         }
 
@@ -281,8 +279,8 @@ public class NumericKernel extends HashMap {
                     temp += variables.get(j).n * numericFleuntsBoundaries.functionInfValue(variables.get(j).f).getNumber();
                 }
             }
-            if (Math.abs((double) temp + (double) b) > max) {
-                max = (float) Math.abs((double) temp + (double) b);
+            if (Math.abs(temp + b) > max) {
+                max = (float) Math.abs(temp + b);
             }
             i++;
 
@@ -403,8 +401,8 @@ public class NumericKernel extends HashMap {
                     temp += variables.get(j).n * (Float) lowerNFValues.get(variables.get(j).f);
                 }
             }
-            if (Math.abs((double) temp + (double) b) > max) {
-                max = (float) Math.abs((double) temp + (double) b);
+            if (Math.abs(temp + b) > max) {
+                max = (float) Math.abs(temp + b);
             }
             i++;
 

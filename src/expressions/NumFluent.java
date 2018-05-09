@@ -81,10 +81,7 @@ public class NumFluent extends Expression {
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-        if (!Objects.equals(this.terms, other.terms)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.terms, other.terms);
     }
 
     

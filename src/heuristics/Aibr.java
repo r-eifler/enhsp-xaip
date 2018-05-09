@@ -388,10 +388,7 @@ public class Aibr extends Heuristic {
 
     private boolean achiever(GroundAction gr, RelState rs2, Condition g) {
         RelState temp = rs2.clone();
-        if (gr.apply(temp).satisfy(g)) {
-            return true;
-        }
-        return false;
+        return gr.apply(temp).satisfy(g);
 
     }
 

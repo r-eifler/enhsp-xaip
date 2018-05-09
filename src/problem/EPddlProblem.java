@@ -117,7 +117,7 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
-            for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
+            for (ActionSchema act : linkedDomain.getActionsSchema()) {
 //                af.Propositionalize(act, objects);
                 //if (act.getPar().size() != 0) {
                 getActions().addAll(af.Propositionalize(act, getObjects()));
@@ -155,13 +155,13 @@ public class EPddlProblem extends PddlProblem {
 
             }
             if (this.processesSet != null) {
-                for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+                for (GroundProcess pr : this.processesSet) {
                     staticFluents = pr.update_invariant_fluents(staticFluents);
 
                 }
             }
             if (this.eventsSet != null) {
-                for (GroundEvent ev : (Collection<GroundEvent>) this.eventsSet) {
+                for (GroundEvent ev : this.eventsSet) {
                     staticFluents = ev.update_invariant_fluents(staticFluents);
 
                 }
@@ -175,7 +175,7 @@ public class EPddlProblem extends PddlProblem {
         processesSet = new LinkedHashSet();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
-            for (ProcessSchema process : (Set<ProcessSchema>) linkedDomain.getProcessesSchema()) {
+            for (ProcessSchema process : linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
                 if (process.getParameters().size() != 0) {
                     processesSet.addAll(af.Propositionalize(process, getObjects()));
@@ -196,21 +196,21 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void transformNumericConditionsInActions() throws Exception {
+    public void transformNumericConditionsInActions() {
 
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (GroundAction gr : this.actions) {
             if (gr.getPreconditions() != null) {
                 gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
             }
         }
 
-        for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+        for (GroundProcess pr : this.processesSet) {
             if (pr.getPreconditions() != null) {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
         }
 
-        for (GroundEvent pr : (Collection<GroundEvent>) this.eventsSet) {
+        for (GroundEvent pr : this.eventsSet) {
             if (pr.getPreconditions() != null) {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
@@ -222,15 +222,15 @@ public class EPddlProblem extends PddlProblem {
         this.goals = generate_inequalities(goals);
     }
 
-    public void normalize_conditions() throws Exception {
+    public void normalize_conditions() {
 
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (GroundAction gr : this.actions) {
             if (gr.getPreconditions() != null) {
                 gr.getPreconditions().normalize();
             }
         }
 
-        for (GroundProcess pr : (Collection<GroundProcess>) this.processesSet) {
+        for (GroundProcess pr : this.processesSet) {
             if (pr.getPreconditions() != null) {
                 pr.getPreconditions().normalize();
             }
@@ -241,7 +241,7 @@ public class EPddlProblem extends PddlProblem {
         goals.normalize();
     }
 
-    public void grounding_reachability() throws CloneNotSupportedException, Exception {
+    public void grounding_reachability() throws Exception {
         HashSet<GroundAction> reachable = new LinkedHashSet();
         RelState s = ((PDDLState)this.init).relaxState();
         System.out.println("Intelligent Grounding");
@@ -462,10 +462,7 @@ public class EPddlProblem extends PddlProblem {
         if (get0.getName().equals("#Universe#")) {
             return false;
         }
-        if (get0.equals(get)) {
-            return false;
-        }
-        return true;
+        return !get0.equals(get);
 
     }
 
@@ -540,7 +537,7 @@ public class EPddlProblem extends PddlProblem {
     public void generateConstraints() throws Exception {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
-            for (SchemaGlobalConstraint constr : (Set<SchemaGlobalConstraint>) linkedDomain.getSchemaGlobalConstraints()) {
+            for (SchemaGlobalConstraint constr : linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
 
                 if (constr.parameters.size() != 0) {
@@ -702,7 +699,7 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
-            for (EventSchema event_schema : (Collection<EventSchema>) linkedDomain.eventsSchema) {
+            for (EventSchema event_schema : linkedDomain.eventsSchema) {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
                     try {
@@ -724,17 +721,17 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void removeStaticPart() throws Exception {
+    private void removeStaticPart() {
         //invariant fluents
         LinkedHashSet<Predicate> predicateToRemove = new LinkedHashSet();
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
-            if (this.getActualFluents().get((Object) p) == null) {
+            if (this.getActualFluents().get(p) == null) {
                 predicateToRemove.add(p);
             }
         }
         LinkedHashSet<NumFluent> numFluentsToRemove = new LinkedHashSet();
         for (NumFluent p : this.initNumFluentsValues.keySet()) {
-            if (this.getActualFluents().get((Object) p) == null) {
+            if (this.getActualFluents().get(p) == null) {
                 numFluentsToRemove.add(p);
             }
         }
@@ -934,5 +931,7 @@ public class EPddlProblem extends PddlProblem {
 //        System.out.println("After Reachability |BoolVar| = "+this.init.boolFluents.size());
 //        
     }
+
+    
 
 }

@@ -559,11 +559,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
         final AndCond other = (AndCond) obj;
 
-        if (!this.sons.equals(other.sons)) {
-            return false;
-        }
-
-        return true;
+        return this.sons.equals(other.sons);
     }
 
     @Override

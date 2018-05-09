@@ -118,7 +118,7 @@ public class NotCond extends Terminal implements PostCondition {
                 Logger.getLogger(NotCond.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            Condition c = (Condition) son;
+            Condition c = son;
             c.normalize();
         }
 
@@ -141,11 +141,9 @@ public class NotCond extends Terminal implements PostCondition {
     public boolean isUngroundVersionOf(Condition con) {
         if (con instanceof NotCond) {
             NotCond nc = (NotCond) con;
-            Condition c1 = (Condition) this.son;
-            Condition c2 = (Condition) nc.son;
-            if (c1.isUngroundVersionOf(c2)) {
-                return true;
-            }
+            Condition c1 = this.son;
+            Condition c2 = nc.son;
+            return c1.isUngroundVersionOf(c2);
 
         }
         return false;
@@ -169,7 +167,7 @@ public class NotCond extends Terminal implements PostCondition {
         Set<NumFluent> ret = new HashSet();
 
         if (son instanceof Condition) {
-            Condition c = (Condition) son;
+            Condition c = son;
             if (c.getInvolvedFluents() != null) {
                 ret.addAll(c.getInvolvedFluents());
             }
@@ -183,7 +181,7 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition weakEval(PddlProblem s, HashMap invF) {
 
-        Condition el = (Condition) son;
+        Condition el = son;
         el.setFreeVarSemantic(freeVarSemantic);
         el = el.weakEval(s, invF);
         if (el == null) {
@@ -219,11 +217,8 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public boolean is_affected_by(GroundAction gr) {
 
-        if (son.is_affected_by(gr)) {
-            return true;
-        }
+        return son.is_affected_by(gr);
 
-        return false;
     }
 
     @Override
@@ -247,7 +242,7 @@ public class NotCond extends Terminal implements PostCondition {
     public String pddlPrintWithExtraObject() {
         String ret_val = "(not ";
         if (son instanceof Condition) {
-            Condition c = (Condition) son;
+            Condition c = son;
             ret_val = ret_val.concat(c.pddlPrintWithExtraObject());
         } else {
             System.out.println("Error in pddlPrint:" + this);
@@ -302,11 +297,7 @@ public class NotCond extends Terminal implements PostCondition {
 
         final NotCond other = (NotCond) obj;
 
-        if (!this.son.equals(other.son)) {
-            return false;
-        }
-
-        return true;
+        return this.son.equals(other.son);
     }
 
     @Override
@@ -439,10 +430,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     public boolean isTerminal() {
-        if (this.son instanceof Predicate) {
-            return true;
-        }
-        return false;
+        return this.son instanceof Predicate;
     }
 
     @Override

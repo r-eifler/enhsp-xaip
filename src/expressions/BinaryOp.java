@@ -377,9 +377,7 @@ public class BinaryOp extends Expression {
         if (expr instanceof BinaryOp) {
             BinaryOp bin = (BinaryOp) expr;
             if (bin.getOperator().equals(this.getOperator())) {
-                if (this.getOne().isUngroundVersionOf(bin.getOne()) && this.getRight().isUngroundVersionOf(bin.getRight())) {
-                    return true;
-                }
+                return this.getOne().isUngroundVersionOf(bin.getOne()) && this.getRight().isUngroundVersionOf(bin.getRight());
             }
         }
         return false;

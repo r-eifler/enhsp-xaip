@@ -235,7 +235,7 @@ public final class cplex_interface extends LpInterface {
                                         if (action_to_variable.get(gr.id) != null) {
                                             action = action_to_variable.get(gr.id);
                                         } else {
-                                            action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
+                                            action = lp.numVar(0.0, 0.0, IloNumVarType.Float);
                                             action_to_variable.put(gr.id, action);
                                             objective.addTerm(action, action_cost);
                                         }
@@ -290,7 +290,7 @@ public final class cplex_interface extends LpInterface {
                             if (action_to_variable.get(gr.id) != null) {
                                 action = action_to_variable.get(gr.id);
                             } else {
-                                action = (IloNumVar) lp.numVar(0.0, 0.0, IloNumVarType.Float);
+                                action = lp.numVar(0.0, 0.0, IloNumVarType.Float);
                                 action_to_variable.put(gr.id, action);
 
                                 objective.addTerm(action, action_cost);

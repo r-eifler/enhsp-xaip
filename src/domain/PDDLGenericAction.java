@@ -156,7 +156,7 @@ public abstract class PDDLGenericAction  {
             ret.addAll(this.addList.getInvolvedPredicates());
         }
         if (this.cond_effects != null) {
-           AndCond temp2 = (AndCond)this.cond_effects;
+           AndCond temp2 = this.cond_effects;
            for (Condition cEff: (Collection<Condition>)temp2.sons){
                if (cEff instanceof ConditionalEffect){
                     ConditionalEffect conditional = (ConditionalEffect)cEff;
@@ -164,7 +164,7 @@ public abstract class PDDLGenericAction  {
                     for (Condition c : temp) {
                          if (c instanceof NotCond) {
                              NotCond nc = (NotCond) c;
-                             ret.add((Predicate) nc.getSon());
+                             ret.add(nc.getSon());
                          }else if (c instanceof Predicate){
                              ret.add(c);
                          }else{
@@ -180,10 +180,10 @@ public abstract class PDDLGenericAction  {
         if (this.delList != null ) {
             if (this.delList instanceof ComplexCondition){
                 
-                for (Condition c : (Collection<Condition>) ((ComplexCondition)this.delList).sons) {
+                for (Condition c : (Collection<Condition>) this.delList.sons) {
                     if (c instanceof NotCond) {
                         NotCond nc = (NotCond) c;
-                        ret.add((Predicate) nc.getSon());
+                        ret.add(nc.getSon());
                     }
                 }
             }
@@ -209,7 +209,7 @@ public abstract class PDDLGenericAction  {
     public void forcedGenerateAffectedNumFluents() {
 
         numericFluentAffected = new HashMap();
-        AndCond num = (AndCond) this.getNumericEffects();
+        AndCond num = this.getNumericEffects();
         if (num != null) {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {
@@ -219,7 +219,7 @@ public abstract class PDDLGenericAction  {
             }
         }
         if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) ((ComplexCondition)this.cond_effects).sons) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
                 for (NumFluent nf : c_eff.affectedNumericFluents()) {
                     this.numericFluentAffected.put(nf, Boolean.TRUE);
                 }
@@ -232,7 +232,7 @@ public abstract class PDDLGenericAction  {
             return;
         }
         numericFluentAffected = new HashMap();
-        AndCond num = (AndCond) this.getNumericEffects();
+        AndCond num = this.getNumericEffects();
         if (num != null) {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {
@@ -243,7 +243,7 @@ public abstract class PDDLGenericAction  {
         }
 
         if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) ((ComplexCondition)this.cond_effects).sons) {
+            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
                 for (NumFluent nf : c_eff.affectedNumericFluents()) {
                     this.numericFluentAffected.put(nf, Boolean.TRUE);
                 }
@@ -254,7 +254,7 @@ public abstract class PDDLGenericAction  {
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {
         Set<NumFluent> ret = new HashSet();
-        for (NumEffect neff : (Collection<NumEffect>) ((ComplexCondition)this.getNumericEffects()).sons) {
+        for (NumEffect neff : (Collection<NumEffect>) this.getNumericEffects().sons) {
             ret.addAll(neff.getRight().rhsFluents());
         }
         return ret;

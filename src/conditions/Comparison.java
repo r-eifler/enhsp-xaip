@@ -85,11 +85,7 @@ public class Comparison extends Terminal {
         ExtendedNormExpression left_expr = (ExtendedNormExpression) left;
         ExtendedNormExpression left_expr2 = (ExtendedNormExpression) other.left;
 
-        if (!left_expr.equals(left_expr2)) {
-            return false;
-        }
-        //System.out.println("Equal Comparison:"+other+this);
-        return true;
+        return left_expr.equals(left_expr2);
     }
 
     @Override
@@ -196,10 +192,7 @@ public class Comparison extends Terminal {
     public boolean eval_to_null(PDDLState s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
-        if ((first == null) || (second == null)) {
-            return true;
-        }
-        return false;
+        return (first == null) || (second == null);
     }
 
     @Override
@@ -277,11 +270,7 @@ public class Comparison extends Terminal {
 //            else
 //                return true;
 //            
-            if (!((first.getInf().getNumber() > second.getSup().getNumber()) || (second.getInf().getNumber() > first.getSup().getNumber()))) {
-                return true;
-            } else {
-                return false;
-            }
+            return !((first.getInf().getNumber() > second.getSup().getNumber()) || (second.getInf().getNumber() > first.getSup().getNumber()));
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
@@ -576,11 +565,7 @@ public class Comparison extends Terminal {
         }
 
         //If the action affects one of the fluent the comparison depends on, then the comparison can be prevented
-        if (!get.influence(dependsOn)) {
-            //System.out.println("Ordering for indirect influence");
-            return false;
-        }
-        return true;
+        return get.influence(dependsOn);
 
     }
 
@@ -597,7 +582,7 @@ public class Comparison extends Terminal {
         }
         //todo add the == case
         //if the action does not threaten the dependant fluents, then let see if it is a proper threat for c.
-        Comparison c = (Comparison) get.regress((Comparison) this.clone());
+        Comparison c = (Comparison) get.regress(this.clone());
 
         if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
@@ -616,34 +601,16 @@ public class Comparison extends Terminal {
                 }
             }
             if (this.getComparator().equals(">=")) {
-                if (total >= 0) {
-                    return false;
-                }
+                return total < 0;
 
             } else if (this.getComparator().equals(">")) {
-                if (total > 0) {
-                    return false;
-                }
+                return total <= 0;
             } else if (this.getComparator().equals("<=")) {
-                if (total <= 0) {
-                    return false;
-                }
+                return total > 0;
             } else if (this.getComparator().equals("<")) {
-                if (total < 0) {
-
-//                    System.out.println("Conservative deordering");
-//                    System.out.println(get);
-//                    System.out.println("Before:"+lExpr);
-//                    System.out.println("Regressed:"+lExprNew);
-//                    System.out.println("After: "+toTest);
-//                    System.out.println(total);
-                    return false;
-                }
+                return total >= 0;
             } else if (this.getComparator().equals("=")) {
-                if (total == 0) {
-
-                    return false;
-                }
+                return total != 0;
             }
         } else {
             System.out.println("Non valutata");
@@ -664,9 +631,7 @@ public class Comparison extends Terminal {
             Comparison comp = (Comparison) c;
             if (comp.getComparator().equals(this.getComparator())) {
 
-                if (this.getLeft().isUngroundVersionOf(comp.getLeft()) && this.getRight().isUngroundVersionOf(comp.getRight())) {
-                    return true;
-                }
+                return this.getLeft().isUngroundVersionOf(comp.getLeft()) && this.getRight().isUngroundVersionOf(comp.getRight());
             }
         }
         return false;
@@ -713,7 +678,7 @@ public class Comparison extends Terminal {
         }
         {
             //System.out.println(summations);
-            ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(0);
+            ExtendedAddendum ad = norm.summations.get(0);
             if (ad.bin != null) {
                 System.out.println("repetition cannot be activated for actions having non-linear constraints");
                 System.exit(-1);
@@ -721,7 +686,7 @@ public class Comparison extends Terminal {
             if (ad.f == null) {
                 ret_val = " " + ad.n + " ";
             } else {
-                NumEffect neff = (NumEffect) affector.get(ad.f);
+                NumEffect neff = affector.get(ad.f);
                 if (neff != null) {
                     ret_val = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
                 } else {
@@ -733,11 +698,11 @@ public class Comparison extends Terminal {
         }
         {
             for (int i = 1; i < norm.summations.size(); i++) {
-                ExtendedAddendum ad = (ExtendedAddendum) norm.summations.get(i);
+                ExtendedAddendum ad = norm.summations.get(i);
                 if (ad.f == null) {
                     ret_val = "(+ " + ret_val + " " + ad.n + " )";
                 } else {
-                    NumEffect neff = (NumEffect) affector.get(ad.f);
+                    NumEffect neff = affector.get(ad.f);
                     String temp = null;
                     if (neff != null) {
                         temp = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
@@ -836,7 +801,7 @@ public class Comparison extends Terminal {
     @Override
     public Condition transform_equality() {
         AndCond ret = new AndCond();
-        Comparison comp = (Comparison) this;
+        Comparison comp = this;
         if (comp.getComparator().equals("=")) {
             Comparison dual = (Comparison) comp.clone();
             ExtendedNormExpression right = (ExtendedNormExpression) dual.getRight();
@@ -862,10 +827,7 @@ public class Comparison extends Terminal {
 
     @Override
     public boolean is_affected_by(GroundAction gr) {
-        if (this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected())) {
-            return true;
-        }
-        return false;
+        return this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected());
     }
 
     @Override

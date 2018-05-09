@@ -83,7 +83,7 @@ public class habs_add extends Heuristic {
         this.aibr_handle.setup(s);
         this.aibr_handle.set(true, true);
         // reachablity analysis by AIBR
-        Float ret = aibrReachabilityAnalysis((PDDLState)s);
+        Float ret = aibrReachabilityAnalysis(s);
         if (ret == Float.MAX_VALUE) {
             // not reachable!
             return ret;

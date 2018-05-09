@@ -265,10 +265,7 @@ public class SearchNode {
         }
         final SearchNode other = (SearchNode) obj;
 
-        if (!this.s.equals(other.s)) {
-            return false;
-        }
-        return true;
+        return this.s.equals(other.s);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class GroundProcess extends GroundAction{
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() {
         GroundProcess ret = new GroundProcess(name);
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();
@@ -79,16 +79,16 @@ public class GroundProcess extends GroundAction{
         PDDLState s = null;
         s = s_in.clone();
 
-        AndCond del = (AndCond) delList;
+        AndCond del = delList;
         if (del != null) {
             del.apply(s);
         }
-        AndCond add = (AndCond) addList;
+        AndCond add = addList;
         if (add != null) {
             add.apply(s);
         }
 
-        AndCond c = (AndCond) this.getNumericEffects();
+        AndCond c = this.getNumericEffects();
         if (c != null) {
             ArrayList temporaryMod = new ArrayList();
             HashMap fun2numb = new HashMap();

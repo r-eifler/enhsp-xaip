@@ -117,7 +117,7 @@ public class ProbeWrapper extends planningTool {
 
     }
 
-    private void putSolutionInFile(String s) throws IOException {
+    private void putSolutionInFile(String s) {
 
     }
 

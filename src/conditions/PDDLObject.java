@@ -60,11 +60,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     public boolean equals(Object o) {
         if (o instanceof PDDLObject) {
             PDDLObject o1 = (PDDLObject) o;
-            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
-                return true;
-            } else {
-                return false;
-            }
+            return (o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()));
         }
         return false;
     }

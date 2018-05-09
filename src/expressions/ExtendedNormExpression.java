@@ -277,7 +277,7 @@ public class ExtendedNormExpression extends Expression {
         return result;
     }
 
-    ExtendedNormExpression mult(ExtendedNormExpression right) throws CloneNotSupportedException {
+    ExtendedNormExpression mult(ExtendedNormExpression right) {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
         for (ExtendedAddendum a : this.summations) {
@@ -399,7 +399,7 @@ public class ExtendedNormExpression extends Expression {
 //            System.out.println(substitution);
 //            System.out.println(a);
             if (a.f != null) {
-                newA.f = (NumFluent) a.f.ground(substitution, po);
+                newA.f = a.f.ground(substitution, po);
             }
             newA.n = a.n;
             ret.summations.add(newA);
@@ -588,11 +588,7 @@ public class ExtendedNormExpression extends Expression {
         ret.summations = new ArrayList();
 
         for (ExtendedAddendum ad : this.summations) {
-            try {
                 ret.summations.add((ExtendedAddendum) ad.clone());
-            } catch (CloneNotSupportedException ex) {
-                Logger.getLogger(ExtendedNormExpression.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
 
         ret.grounded = this.grounded;
@@ -670,7 +666,7 @@ public class ExtendedNormExpression extends Expression {
         return false;
     }
 
-    public boolean isNumber() throws Exception {
+    public boolean isNumber() {
         //System.out.println(this);
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
@@ -735,7 +731,7 @@ public class ExtendedNormExpression extends Expression {
 
         {
             //System.out.println(summations);
-            ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
+            ExtendedAddendum ad = summations.get(0);
             if (ad.bin == null) {
                 if (ad.f == null) {
 
@@ -751,7 +747,7 @@ public class ExtendedNormExpression extends Expression {
         }
         {
             for (int i = 1; i < summations.size(); i++) {
-                ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
+                ExtendedAddendum ad = summations.get(i);
                 if (ad.bin == null) {
 
                     if (ad.f == null) {
@@ -851,7 +847,7 @@ public class ExtendedNormExpression extends Expression {
 
         {
             //System.out.println(summations);
-            ExtendedAddendum ad = (ExtendedAddendum) summations.get(0);
+            ExtendedAddendum ad = summations.get(0);
             if (!ad.linear) {
                 ret_val = ad.bin.toString();
             } else if (ad.f == null) {
@@ -862,7 +858,7 @@ public class ExtendedNormExpression extends Expression {
         }
         {
             for (int i = 1; i < summations.size(); i++) {
-                ExtendedAddendum ad = (ExtendedAddendum) summations.get(i);
+                ExtendedAddendum ad = summations.get(i);
                 if (!ad.linear) {
                     ret_val = ad.bin.toString();
                 } else if (ad.f == null) {

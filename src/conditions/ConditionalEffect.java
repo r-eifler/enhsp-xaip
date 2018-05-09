@@ -261,10 +261,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
         if (!Objects.equals(this.activation_condition, other.activation_condition)) {
             return false;
         }
-        if (!Objects.equals(this.effect, other.effect)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.effect, other.effect);
     }
 
 

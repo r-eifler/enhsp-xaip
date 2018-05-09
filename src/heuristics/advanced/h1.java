@@ -742,7 +742,7 @@ public class h1 extends Heuristic {
         return cost;
     }
 
-    protected boolean generate_achievers() throws Exception {
+    protected boolean generate_achievers() {
         achieve = new LinkedHashSet[this.total_number_of_actions+1];
         possibleAchievers = new LinkedHashSet[this.total_number_of_actions+1];
         this.invertedPossibleAchievers = new LinkedHashSet[this.all_conditions.size()+1];

@@ -135,7 +135,7 @@ public class Aibr_rp extends Heuristic {
                     break;
                 }
             }
-            this.supporters_exec_at_time_index.put(i, (LinkedHashSet<GroundAction>) S);
+            this.supporters_exec_at_time_index.put(i, S);
 
             if (reachability || extract_plan) {
 //            if (true){
@@ -348,7 +348,7 @@ public class Aibr_rp extends Heuristic {
             this.conditions_sat_at_time_index.put(t, new LinkedHashSet());
         }
 
-        for (Condition c : (Collection<Condition>) G.getTerminalConditions()) {
+        for (Condition c : G.getTerminalConditions()) {
             Utils.dbg_print(debug, "[" + dist.get(c.getHeuristicId()) + "]Goal atom:" + c + "\n");
             this.conditions_sat_at_time_index.get(dist.get(c.getHeuristicId())).add(c);
         }
@@ -369,7 +369,7 @@ public class Aibr_rp extends Heuristic {
                     Utils.dbg_print(debug, "Trying this action:" + gr);
                     if (achiever(gr, rs2, g)) {
                         if (gr.getPreconditions() != null) {
-                            for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
+                            for (Condition c : gr.getPreconditions().getTerminalConditions()) {
                                 //System.out.println("Precondition level:"+dist.get(c));
 //                                Utils.dbg_print(debug,"instances of"+c.getClass());
                                 Utils.dbg_print(debug, "Candidate implications:[" + this.dist.get(c.getHeuristicId()) + "]" + c);
@@ -392,7 +392,7 @@ public class Aibr_rp extends Heuristic {
                         for (GroundAction gr : this.supporters_exec_at_time_index.get(t)) {
                             gr.apply(temp);
                             if (gr.getPreconditions() != null) {
-                                for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
+                                for (Condition c : gr.getPreconditions().getTerminalConditions()) {
                                     //System.out.println("Precondition level:"+dist.get(c));
                                     this.conditions_sat_at_time_index.get(this.dist.get(c.getHeuristicId())).add(c);
                                 }
@@ -478,7 +478,7 @@ public class Aibr_rp extends Heuristic {
             GroundAction gr = it.next();
             boolean add_action = true;
             if (gr.getPreconditions().getTerminalConditions() != null) {
-                for (Condition c : (Collection<Condition>) gr.getPreconditions().getTerminalConditions()) {
+                for (Condition c : gr.getPreconditions().getTerminalConditions()) {
                     if (c.can_be_true(rs)) {
                         if (this.dist.get(c.getHeuristicId()) == Integer.MAX_VALUE) {
                             this.dist.set(c.getHeuristicId(), i);
@@ -501,7 +501,7 @@ public class Aibr_rp extends Heuristic {
 
     private boolean check_goal_condition(Condition G, int i, RelState rs) {
         boolean goal_satisfied = true;
-        for (Condition c : (Collection<Condition>) G.getTerminalConditions()) {
+        for (Condition c : G.getTerminalConditions()) {
             if (c.can_be_true(rs)) {
                 if (this.dist.get(c.getHeuristicId()) == Integer.MAX_VALUE) {
                     this.dist.set(c.getHeuristicId(), i);
@@ -516,10 +516,7 @@ public class Aibr_rp extends Heuristic {
 
     private boolean achiever(GroundAction gr, RelState rs2, Condition g) {
         RelState temp = rs2.clone();
-        if (gr.apply(temp).satisfy(g)) {
-            return true;
-        }
-        return false;
+        return gr.apply(temp).satisfy(g);
 
     }
 

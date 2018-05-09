@@ -49,10 +49,7 @@ public class RegressedSearchNode implements Comparable {
         }
         final RegressedSearchNode other = (RegressedSearchNode) obj;
 
-        if (!this.action.equals(other.action)) {
-            return false;
-        }
-        return true;
+        return this.action.equals(other.action);
     }
 
     @Override

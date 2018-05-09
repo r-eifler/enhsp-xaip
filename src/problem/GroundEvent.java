@@ -63,7 +63,7 @@ public class GroundEvent extends GroundAction {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone() {
         GroundEvent ret = new GroundEvent(name);
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();

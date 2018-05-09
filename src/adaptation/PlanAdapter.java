@@ -170,7 +170,7 @@ public class PlanAdapter {
         return this.adaptKernelBasedMethod(domain, problem, input_plan);
     }
 
-    private SimplePlan adaptKernelBasedMethod(PddlDomain dom, PddlProblem prob, SimplePlan sp) throws FileNotFoundException, Exception {
+    private SimplePlan adaptKernelBasedMethod(PddlDomain dom, PddlProblem prob, SimplePlan sp) throws Exception {
 
         try {
             //Kernel Construction; mandatory for both strategies
@@ -190,7 +190,7 @@ public class PlanAdapter {
             //Temporary Problem to emulate a new goal in a PDDL problem description
             PddlProblem tempProblem = new PddlProblem();
             tempProblem.parseProblem(prob.getPddlFileReference());
-            tempProblem.setGoals((ComplexCondition) (Condition) nk.get(i));
+            tempProblem.setGoals((ComplexCondition) nk.get(i));
             tempProblem.saveProblem("temp.pddl");
 
             //Computing the patch toward the kernel by means of a general purpose planner

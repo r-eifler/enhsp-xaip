@@ -229,20 +229,20 @@ public class GroundAction extends PDDLGenericAction {
 //            return null;
 //        }
         HashMap subst = new HashMap();
-        AndCond del = (AndCond) delList;
+        AndCond del = delList;
         if (del != null) {
             del.apply(s, subst);
         }
-        AndCond add = (AndCond) addList;
+        AndCond add = addList;
         if (add != null) {
             add.apply(s, subst);
         }
 
-        AndCond c = (AndCond) this.getNumericEffects();
+        AndCond c = this.getNumericEffects();
         c.apply(s, subst);
 
         if (this.cond_effects != null) {
-            AndCond c_eff = (AndCond) this.cond_effects;
+            AndCond c_eff = this.cond_effects;
             c_eff.apply(s, subst);
         }
 
@@ -269,7 +269,7 @@ public class GroundAction extends PDDLGenericAction {
 
     public Collection<NumEffect> getNumericEffectsAsCollection() {
         if (this.list_of_numeric_fluents_affected == null) {
-            AndCond num = (AndCond) this.getNumericEffects();
+            AndCond num = this.getNumericEffects();
             list_of_numeric_fluents_affected = new LinkedHashSet();
             this.numericFluentAffected = new HashMap();
             if (num != null) {
@@ -285,7 +285,7 @@ public class GroundAction extends PDDLGenericAction {
         return list_of_numeric_fluents_affected;
     }
 
-    public void normalize() throws Exception {
+    public void normalize() {
 
         if (normalized) {
             return;
@@ -298,7 +298,7 @@ public class GroundAction extends PDDLGenericAction {
             }
         }
 
-        AndCond num = (AndCond) this.getNumericEffects();
+        AndCond num = this.getNumericEffects();
         if (num != null) {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {
@@ -321,20 +321,20 @@ public class GroundAction extends PDDLGenericAction {
     public RelState apply(RelState s) {
 
         HashMap subst = new HashMap();
-        AndCond del = (AndCond) delList;
+        AndCond del = delList;
         if (del != null) {
             del.apply(s, subst);
         }
-        AndCond add = (AndCond) addList;
+        AndCond add = addList;
         if (add != null) {
             add.apply(s, subst);
         }
 
-        AndCond c = (AndCond) this.getNumericEffects();
+        AndCond c = this.getNumericEffects();
         c.apply(s, subst);
 
         if (this.cond_effects != null) {
-            AndCond c_eff = (AndCond) this.cond_effects;
+            AndCond c_eff = this.cond_effects;
             c_eff.apply(s, subst);
         }
 
@@ -365,7 +365,7 @@ public class GroundAction extends PDDLGenericAction {
         return this.getPreconditions().isSatisfied(current);
     }
 
-    public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd) throws CloneNotSupportedException, Exception {
+    public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd) throws Exception {
         if (this.name == null) {
             return (GroundAction) b.clone();
         }
@@ -431,7 +431,7 @@ public class GroundAction extends PDDLGenericAction {
 
     public Comparison regressComparison(Comparison cond) {
 
-        Comparison c = (Comparison) cond;
+        Comparison c = cond;
         c.setNormalized(false);
         c.setLeft(c.getLeft().subst(this.getNumericEffects()));
         c.setRight(c.getRight().subst(this.getNumericEffects()));
@@ -513,7 +513,7 @@ public class GroundAction extends PDDLGenericAction {
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/
-        localAddList.subtractElements((AndCond) b.getDelList());
+        localAddList.subtractElements(b.getDelList());
 
         /*atoms achieved by b*/
         //System.out.println(b);
@@ -527,7 +527,7 @@ public class GroundAction extends PDDLGenericAction {
         if (a.delList != null) {
             localDelList = (AndCond) a.delList.clone();
             /*remove those atoms which will be added by b*/
-            localDelList.subtractNegation((AndCond) b.getAddList());
+            localDelList.subtractNegation(b.getAddList());
         } else {
             localDelList = new AndCond();
         }
@@ -621,7 +621,7 @@ public class GroundAction extends PDDLGenericAction {
 
         HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
+        for (NumFluent nf : domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 
@@ -716,7 +716,7 @@ public class GroundAction extends PDDLGenericAction {
 
     }
 
-    public boolean threatGoalConditions(ComplexCondition goal, SimplePlan sp, int j, PDDLState current) throws CloneNotSupportedException {
+    public boolean threatGoalConditions(ComplexCondition goal, SimplePlan sp, int j, PDDLState current) {
         boolean threatened = false;
 
         Set threatenedAtoms = new HashSet();
@@ -847,7 +847,7 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public boolean delete(Predicate p) {
-        AndCond add = (AndCond) this.getDelList();
+        AndCond add = this.getDelList();
         //System.out.println(this.toPDDL());
         //System.out.println(this.getDelList());
         if (add == null) {
@@ -1093,7 +1093,7 @@ public class GroundAction extends PDDLGenericAction {
 
         HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
+        for (NumFluent nf : domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 
@@ -1619,9 +1619,7 @@ public class GroundAction extends PDDLGenericAction {
                     }
                 }
             }
-            if (positiveness > 0) {
-                return true;
-            }
+            return positiveness > 0;
 
         } else {
             System.out.println("At the moment only normalized expressions are considered");
@@ -1639,21 +1637,21 @@ public class GroundAction extends PDDLGenericAction {
 
     public RelState apply_with_generalized_interval_based_relaxation(RelState s) {
         HashMap subst = new HashMap();
-        AndCond del = (AndCond) delList;
+        AndCond del = delList;
         if (del != null) {
             subst.putAll(del.apply(s));
         }
-        AndCond add = (AndCond) addList;
+        AndCond add = addList;
         if (add != null) {
             subst.putAll(add.apply(s));
         }
 
-        AndCond c = (AndCond) this.getNumericEffects();
+        AndCond c = this.getNumericEffects();
 //        System.out.println("GroundAction:"+this);
         subst.putAll(c.apply(s));
 
         if (this.cond_effects != null) {
-            AndCond c_eff = (AndCond) this.cond_effects;
+            AndCond c_eff = this.cond_effects;
             subst.putAll(c_eff.apply(s));
         }
 
@@ -1756,7 +1754,7 @@ public class GroundAction extends PDDLGenericAction {
 
     public PostCondition getAdder(Predicate aThis) {
         for (PostCondition eff : (Collection<PostCondition>) this.addList.sons) {
-            if (((Predicate) eff).equals(aThis)) {
+            if (eff.equals(aThis)) {
                 return eff;
             }
         }
@@ -1825,7 +1823,7 @@ public class GroundAction extends PDDLGenericAction {
         or.addConditions(new Predicate(Predicate.true_false.FALSE));
 
         if (this.addList instanceof AndCond) {
-            AndCond and = (AndCond) this.addList;
+            AndCond and = this.addList;
             Condition c = and.achieve(aThis);
             if (c != null) {
                 or.addConditions(c);
@@ -1844,7 +1842,7 @@ public class GroundAction extends PDDLGenericAction {
         OrCond or = new OrCond();
         or.addConditions(new Predicate(Predicate.true_false.FALSE));
         if (this.delList instanceof AndCond) {
-            AndCond and = (AndCond) this.delList;
+            AndCond and = this.delList;
             Condition c = and.delete(aThis);
             if (c != null) {
                 or.addConditions(c);
@@ -2002,7 +2000,7 @@ public class GroundAction extends PDDLGenericAction {
         return false;
 
     }
-   public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd, PddlProblem pp) throws CloneNotSupportedException, Exception {
+   public GroundAction buildMacroInProgression(GroundAction b, PddlDomain pd, PddlProblem pp) throws Exception {
         if (this.name == null) {
 
             return (GroundAction) b.clone();

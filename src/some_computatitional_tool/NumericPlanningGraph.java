@@ -244,7 +244,7 @@ public class NumericPlanningGraph {
 
     }
 
-    public int computeUntilFixedPoint(PDDLState s, Set actions) throws CloneNotSupportedException {
+    public int computeUntilFixedPoint(PDDLState s, Set actions) {
 
         RelState current = s.relaxState();
         ArrayList acts = new ArrayList(100000);
@@ -285,7 +285,7 @@ public class NumericPlanningGraph {
         return numberOfActions;
     }
 
-    public Set computeActionsUntilFixedPoint(PDDLState s, Set actions) throws CloneNotSupportedException {
+    public Set computeActionsUntilFixedPoint(PDDLState s, Set actions) {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -328,7 +328,7 @@ public class NumericPlanningGraph {
 
     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions
-    public Set reacheability(PDDLState s, Set actions) throws CloneNotSupportedException, Exception {
+    public Set reacheability(PDDLState s, Set actions) {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -380,7 +380,7 @@ public class NumericPlanningGraph {
 
     //The following function computes reacheability for the propositional part of the problem. The numeric part is also considered but there just for the purpose of identifying a
     //the relevant set of actions. As before but it stops when the goal is reached in the relaxed state.
-    public Set reacheabilityTillGoal(PDDLState s, Condition goal, Set actions) throws CloneNotSupportedException {
+    public Set reacheabilityTillGoal(PDDLState s, Condition goal, Set actions) {
 
         RelState current = s.relaxState();
         Set acts = new HashSet();
@@ -433,7 +433,7 @@ public class NumericPlanningGraph {
     }
 
 
-    private ArrayList extractPlan(ComplexCondition goal, int levels) throws CloneNotSupportedException {
+    private ArrayList extractPlan(ComplexCondition goal, int levels) {
         ComplexCondition AG[] = new ComplexCondition[levels + 1];
         AG[levels] = goal;
         ArrayList rel_plan = new ArrayList();
@@ -509,7 +509,7 @@ public class NumericPlanningGraph {
 //                                  System.out.println(rel_plan[z]);
 //                               }
 //                            }
-                        if (comp.involve((HashMap<NumFluent, Boolean>) gr.getNumericFluentAffected())) {
+                        if (comp.involve(gr.getNumericFluentAffected())) {
                             //System.out.println(gr.getNumericFluentAffected());
                             gr.apply(s);
                             AG[t].sons.addAll(gr.getPreconditions().sons);
@@ -528,7 +528,7 @@ public class NumericPlanningGraph {
 
     }
 
-    private ArrayList[] extractPlan_new() throws CloneNotSupportedException {
+    private ArrayList[] extractPlan_new() {
         ComplexCondition AG;
         AG = this.goal;
         ArrayList rel_plan[] = new ArrayList[levels];
@@ -591,7 +591,7 @@ public class NumericPlanningGraph {
         return null;
     }
 
-    private GroundAction bestSupport(HashSet get, Condition conditions, RelState s) throws CloneNotSupportedException {
+    private GroundAction bestSupport(HashSet get, Condition conditions, RelState s) {
 
         float bestDistance = 0;
         GroundAction ret = null;
@@ -614,7 +614,7 @@ public class NumericPlanningGraph {
 //                if (gr.getName().contains("comm"))
 //                   System.out.println("comm");
                 Float distance2 = new Float(0);
-                RelState s1 = (RelState) s.clone();
+                RelState s1 = s.clone();
                 gr.apply(s1);
                 for (Object o : c.sons) {
                     if (o instanceof Comparison) {
@@ -702,7 +702,7 @@ public class NumericPlanningGraph {
         this.fixPoint = fixPoint;
     }
 
-    public RelState computeStateBound(PDDLState init, ComplexCondition goals, Set actions) throws CloneNotSupportedException {
+    public RelState computeStateBound(PDDLState init, ComplexCondition goals, Set actions) {
 
         this.goal = goals;
         RelState current = init.relaxState();

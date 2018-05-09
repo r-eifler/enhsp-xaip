@@ -324,7 +324,7 @@ public class ColinClpWrapper extends planningTool {
         @Override
         public void run() {
             try {
-                Thread.currentThread().sleep(this.timeout);
+                sleep(this.timeout);
                 p.destroy();
 
             } catch (Exception e) {

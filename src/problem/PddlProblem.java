@@ -147,8 +147,6 @@ public class PddlProblem {
 
         } catch (IOException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RecognitionException ex) {
-            Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -247,10 +245,9 @@ public class PddlProblem {
      *
      * @param file - the pathfile representing the pddl problem
      * @throws IOException
-     * @throws RecognitionException
      * @throws org.antlr.runtime.RecognitionException
      */
-    public void parseProblem(String file) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
+    public void parseProblem(String file) throws IOException, org.antlr.runtime.RecognitionException {
 
         pddlFilRef = file;
         ANTLRInputStream in;
@@ -345,7 +342,7 @@ public class PddlProblem {
         //System.out.println(a);
         for (int i = 1; i < t.getChildCount(); i++) {
 
-            PDDLObject t1 = (PDDLObject) this.getObjectByName(t.getChild(i).getText());
+            PDDLObject t1 = this.getObjectByName(t.getChild(i).getText());
             if (t1 != null) {
                 a.addObject(t1);
             } else {
@@ -572,7 +569,7 @@ public class PddlProblem {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
-            for (ActionSchema act : (Set<ActionSchema>) linkedDomain.getActionsSchema()) {
+            for (ActionSchema act : linkedDomain.getActionsSchema()) {
                 if (!act.getPar().isEmpty()) {
                     getActions().addAll(af.Propositionalize(act, getObjects()));
                 } else {
@@ -887,12 +884,12 @@ public class PddlProblem {
 
     public void transformNumericConditionsInActions() throws Exception {
 
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (GroundAction gr : this.actions) {
             if (gr.getPreconditions() != null) {
-                gr.setPreconditions((ComplexCondition) generate_inequalities(gr.getPreconditions()));
+                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
             }
         }
-        this.goals = (ComplexCondition) generate_inequalities(goals);
+        this.goals = generate_inequalities(goals);
     }
 
     protected ComplexCondition generate_inequalities(Condition con) {
@@ -900,7 +897,7 @@ public class PddlProblem {
     }
 
     public boolean print_actions() {
-        for (GroundAction gr : (Collection<GroundAction>) this.actions) {
+        for (GroundAction gr : this.actions) {
             System.out.println(gr.toFileCompliant());
         }
 
@@ -1029,6 +1026,10 @@ public class PddlProblem {
 
     public void setNumFluentReference(NumFluent nf) {
         this.numFluentReference.put(nf.toString(), nf);
+    }
+
+    public boolean isSafeState(State temp) {
+        return true;
     }
     
 }

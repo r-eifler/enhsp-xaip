@@ -264,7 +264,7 @@ public class ActionSchema extends PDDLGenericAction {
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/
-        localAddList.subtractElements((AndCond) b.getDelList());
+        localAddList.subtractElements(b.getDelList());
 
         /*atoms achieved by b*/
         localAddList.sons.addAll(b.getAddList().sons);
@@ -274,7 +274,7 @@ public class ActionSchema extends PDDLGenericAction {
         if (a.delList != null) {
             localDelList = (AndCond) a.delList.clone();
             /*remove those atoms which will be added by b*/
-            localDelList.subtractNegation((AndCond) b.getAddList());
+            localDelList.subtractNegation(b.getAddList());
         } else {
             localDelList = new AndCond();
         }

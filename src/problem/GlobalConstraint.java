@@ -55,11 +55,11 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         return cloned;
     }
 
-    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) throws Exception {
+    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) {
 
         HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
-        for (NumFluent nf : (Collection<NumFluent>) domain.get_derived_variables()) {
+        for (NumFluent nf : domain.get_derived_variables()) {
             invariantFluents.put(nf.getName(), Boolean.FALSE);
         }
 

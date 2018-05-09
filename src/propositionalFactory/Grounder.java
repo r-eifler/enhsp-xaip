@@ -49,7 +49,7 @@ public class Grounder {
         super();
     }
 
-    public Set Substitutions(ActionSchema a, PDDLObjects po) throws Exception {
+    public Set Substitutions(ActionSchema a, PDDLObjects po) {
         HashSet ret = new HashSet();
         Set combo = new HashSet();
         SchemaParameters param = a.getPar();
@@ -58,7 +58,7 @@ public class Grounder {
 
     }
 
-    public Set Substitutions(ProcessSchema a, PDDLObjects po) throws Exception {
+    public Set Substitutions(ProcessSchema a, PDDLObjects po) {
         HashSet ret = new HashSet();
         Set combo = new HashSet();
         SchemaParameters param = a.getPar();
@@ -67,7 +67,7 @@ public class Grounder {
 
     }
 
-    public Set Substitutions(SchemaGlobalConstraint constr, PDDLObjects po) throws Exception {
+    public Set Substitutions(SchemaGlobalConstraint constr, PDDLObjects po) {
         SchemaParameters param = constr.parameters;
         int n_parametri = constr.parameters.size();
 
@@ -75,12 +75,12 @@ public class Grounder {
 
     }
 
-    public Set Substitutions(SchemaParameters param, PDDLObjects po) throws Exception {
+    public Set Substitutions(SchemaParameters param, PDDLObjects po) {
         return sub(param, param.size(), po);
 
     }
 
-    public static Set substitutions(ArrayList<Variable> input, PDDLObjects po) throws Exception {
+    public static Set substitutions(ArrayList<Variable> input, PDDLObjects po) {
 
         int n_parametri = input.size();
 
@@ -98,7 +98,7 @@ public class Grounder {
             HashMap<Variable, PDDLObject> substitution = new HashMap();
             for (Variable el : input) {
                 substitution.put(el, ele.get(i));
-                PDDLObject t = (PDDLObject) substitution.get(el);
+                PDDLObject t = substitution.get(el);
                 i++;
             }
             ret.add(substitution);

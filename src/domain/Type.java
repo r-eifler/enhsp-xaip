@@ -43,11 +43,7 @@ public class Type extends Object {
     }
 
     public boolean isObject() {
-        if (name.equals("object")) {
-            return true;
-        } else {
-            return false;
-        }
+        return name.equals("object");
     }
 
     public boolean isAncestorOf(Type anc) {
@@ -67,11 +63,7 @@ public class Type extends Object {
     public boolean equals(Object other) {
         if (other instanceof Type) {
             Type a = (Type) other;
-            if (a.getName() == null ? this.getName() == null : a.getName().equalsIgnoreCase(this.getName())) {
-                return true;
-            } else {
-                return false;
-            }
+            return a.getName() == null ? this.getName() == null : a.getName().equalsIgnoreCase(this.getName());
         }
         return false;
     }

@@ -229,10 +229,10 @@ public class PDDLObjectsEquality extends Terminal {
     public boolean isUngroundVersionOf(Condition conditions) {
         if (conditions instanceof PDDLObjectsEquality) {
             PDDLObjectsEquality c = (PDDLObjectsEquality) conditions;
-            Variable v1 = (Variable) this.getLeftV();
-            Variable v2 = (Variable) this.getRightV();
-            PDDLObject obj1 = (PDDLObject) c.getLeft();
-            PDDLObject obj2 = (PDDLObject) c.getRight();
+            Variable v1 = this.getLeftV();
+            Variable v2 = this.getRightV();
+            PDDLObject obj1 = c.getLeft();
+            PDDLObject obj2 = c.getRight();
             //System.out.print("Matching Types between: "+ v.getType() + obj.getType());
             if (!v1.getType().equals(obj1.getType())) {
                 if (!v1.getType().isAncestorOf(obj1.getType())) {
@@ -240,9 +240,7 @@ public class PDDLObjectsEquality extends Terminal {
                 }
             }
             if (!v2.getType().equals(obj2.getType())) {
-                if (!v2.getType().isAncestorOf(obj2.getType())) {
-                    return false;
-                }
+                return v2.getType().isAncestorOf(obj2.getType());
             }
             return true;
         }
@@ -370,9 +368,7 @@ public class PDDLObjectsEquality extends Terminal {
             }
         }
         if (leftV != rightV) { // they should differ from null
-            if (!leftV.equals(rightV)) {
-                return false;
-            }
+            return leftV.equals(rightV);
         }
 
         return true;

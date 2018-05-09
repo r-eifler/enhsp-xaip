@@ -412,14 +412,14 @@ public class FactoryConditions {
                 NumEffect a = new NumEffect(tree.getChild(0).getText());
 //                System.out.println("DEBUG: Working out this effect:"+a);
                 a.setFluentAffected((NumFluent) createExpression(tree.getChild(1), parameters));
-                a.setRight((Expression) createExpression(tree.getChild(2), parameters));
+                a.setRight(createExpression(tree.getChild(2), parameters));
                 return a;
             case PddlParser.FORALL_EFFECT:
                 ForAll forall = this.createForAll(tree, parameters,true);
                 return forall;
             case PddlParser.WHEN_EFFECT:
                 Condition lhs = createCondition(tree.getChild(0), parameters);
-                PostCondition rhs = (PostCondition) this.createPostCondition(parameters, tree.getChild(1));
+                PostCondition rhs = this.createPostCondition(parameters, tree.getChild(1));
                 return new ConditionalEffect(lhs, rhs);
             default:
                 System.out.println("Serious error in parsing:" + tree);

@@ -109,10 +109,7 @@ public class PDDLState extends State  {
         if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
-        if (!Arrays.equals(this.boolFluents, other.boolFluents)) {
-            return false;
-        }
-        return true;
+        return Arrays.equals(this.boolFluents, other.boolFluents);
     }
 
  

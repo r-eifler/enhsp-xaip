@@ -121,7 +121,7 @@ public class NumEffect extends Expression implements PostCondition {
     @Override
     public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumEffect ret = new NumEffect(this.operator);
-        ret.fluentAffected = (NumFluent) this.fluentAffected.ground(substitution, po);
+        ret.fluentAffected = this.fluentAffected.ground(substitution, po);
         ret.right = this.right.ground(substitution, po);
         ret.grounded = true;
         return ret;
@@ -162,9 +162,8 @@ public class NumEffect extends Expression implements PostCondition {
      *
      * @param s
      * @return
-     * @throws CloneNotSupportedException
      */
-    public PDDLState applyAndCreateNew(PDDLState state) throws CloneNotSupportedException {
+    public PDDLState applyAndCreateNew(PDDLState state) {
         Double after = null;
         if (this.operator.equals("increase")) {
             Double current = state.fluentValue(fluentAffected);
@@ -595,7 +594,7 @@ public class NumEffect extends Expression implements PostCondition {
     public ArrayList<Variable> getInvolvedVariables() {
         // It is assumed that this method will be called only when the terms are ungrounded.  
         // Here be dragon.  
-        final ArrayList list = (ArrayList) this.fluentAffected.getTerms();
+        final ArrayList list = this.fluentAffected.getTerms();
         final ArrayList<Variable> result = (ArrayList<Variable>) list;
         return result;
     }

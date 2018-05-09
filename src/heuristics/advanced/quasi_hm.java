@@ -367,7 +367,7 @@ public class quasi_hm extends Heuristic {
     }
 
     protected void simplify_actions(PDDLState init) {
-        for (GroundAction gr : (Collection<GroundAction>) this.A) {
+        for (GroundAction gr : this.A) {
             try {
                 if (gr.getPreconditions() != null) {
                     gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());

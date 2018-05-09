@@ -156,7 +156,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     public enum true_false {
         TRUE, FALSE
-    };
+    }
 
     public Predicate() {
         super();
@@ -341,9 +341,7 @@ public class Predicate extends Terminal implements PostCondition {
         if (i == null) {
             return false;
         }
-        if (i>=1)
-            return true;
-        return false;           
+        return i >= 1;
         //return (i == 1) || (i == 2);
     }
 
@@ -370,10 +368,7 @@ public class Predicate extends Terminal implements PostCondition {
         if (!Objects.equals(this.predicateName, other.predicateName)) {
             return false;
         }
-        if (!Objects.equals(this.terms, other.terms)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.terms, other.terms);
     }
 
 

@@ -78,11 +78,7 @@ public class Variable implements ActionParameter {
         if (o instanceof Variable) {
             Variable o1 = (Variable) o;
             if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
-                if (o1.getType() == this.getType()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return o1.getType() == this.getType();
             } else {
                 return false;
             }

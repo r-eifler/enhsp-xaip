@@ -39,6 +39,6 @@ public interface ActionParameter {
      * replaced with.
      * @return the grounding of this action parameter.
      */
-    public PDDLObject ground(Map<Variable, PDDLObject> substitution);
+    PDDLObject ground(Map<Variable, PDDLObject> substitution);
 
 }

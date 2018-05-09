@@ -138,7 +138,7 @@ public class NumFluentValue extends Terminal {
     @Override
     public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumFluentValue ret = new NumFluentValue(operator);
-        ret.nFluent = (NumFluent) nFluent.ground(substitution, po);
+        ret.nFluent = nFluent.ground(substitution, po);
         ret.grounded = true;
         return ret;
     }
@@ -152,30 +152,18 @@ public class NumFluentValue extends Terminal {
 
     @Override
     public boolean eval(State s) {
-        
-        if (((PDDLState)s).fluentValue(nFluent).equals(nFluentValue.getNumber())) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return ((PDDLState) s).fluentValue(nFluent).equals(nFluentValue.getNumber());
     }
 
     @Override
     public boolean isSatisfied(State s) {
-        if (((PDDLState)s).fluentValue(nFluent).equals(nFluentValue.getNumber())) {
-            return true;
-        } else {
-            return false;
-        }
+        return ((PDDLState) s).fluentValue(nFluent).equals(nFluentValue.getNumber());
     }
 
     @Override
     public boolean can_be_true(RelState s) {
-        if (s.functionSupValue(nFluent).getNumber() >= s.functionInfValue(nFluent).getNumber()) {
-            return true;
-        } else {
-            return false;
-        }
+        return s.functionSupValue(nFluent).getNumber() >= s.functionInfValue(nFluent).getNumber();
     }
 
     @Override
@@ -247,10 +235,7 @@ public class NumFluentValue extends Terminal {
         if (this.nFluent != other.nFluent && (this.nFluent == null || !this.nFluent.equals(other.nFluent))) {
             return false;
         }
-        if (this.nFluentValue != other.nFluentValue && (this.nFluentValue == null || !this.nFluentValue.equals(other.nFluentValue))) {
-            return false;
-        }
-        return true;
+        return this.nFluentValue == other.nFluentValue || (this.nFluentValue != null && this.nFluentValue.equals(other.nFluentValue));
     }
 
     @Override

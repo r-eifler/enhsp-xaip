@@ -136,7 +136,7 @@ public class AdapterViaBlockDeordering extends PlanAdapter {
         }
     }
 
-    private List block_construction(String pfile, String dfile, String planFile, SimplePlan p, int min_size) throws FileNotFoundException, IOException {
+    private List block_construction(String pfile, String dfile, String planFile, SimplePlan p, int min_size) throws IOException {
         List ret = new ArrayList();
         try {
             Runtime runtime = Runtime.getRuntime();

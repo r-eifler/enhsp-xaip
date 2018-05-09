@@ -114,7 +114,7 @@ public class deordering {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException, RecognitionException, antlr.RecognitionException, Exception {
+    public static void main(String[] args) throws Exception {
         // TODO code application logic here
 
         parseInput(args);

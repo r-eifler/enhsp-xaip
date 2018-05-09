@@ -48,7 +48,7 @@ public class ExtendedAddendum {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         ExtendedAddendum ret = new ExtendedAddendum();
         if (!this.linear) {
             ret.bin = (BinaryOp) this.bin.clone();
@@ -103,10 +103,7 @@ public class ExtendedAddendum {
             return true;
         }
 
-        if (!other.f.equals(this.f)) {
-            return false;
-        }
-        return true;
+        return other.f.equals(this.f);
     }
 
     @Override

@@ -37,5 +37,9 @@ public abstract class State {
     @Override
     public abstract State clone();
 
+    public boolean isSafeState() {
+        return true;
+    }
+
     
 }

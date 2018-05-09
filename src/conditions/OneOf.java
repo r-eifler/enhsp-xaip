@@ -187,11 +187,7 @@ public class OneOf extends ComplexCondition {
 
         final OneOf other = (OneOf) obj;
 
-        if (!this.sons.equals(other.sons)) {
-            return false;
-        }
-
-        return true;
+        return this.sons.equals(other.sons);
     }
 
     @Override

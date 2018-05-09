@@ -345,7 +345,7 @@ public class hlm extends h1 {
                 Iterator<Condition> it = previous.iterator();
                 while (it.hasNext()) {
                     boolean found = false;
-                    Condition prev = (Condition) it.next();
+                    Condition prev = it.next();
                     for (Condition c : (Set<Condition>) gr.getPreconditions().sons) {
                         if (this.cond_dist.get(c.getHeuristicId()) != 0f) {
                             if (prev.getHeuristicId() == c.getHeuristicId()) {
@@ -375,11 +375,8 @@ public class hlm extends h1 {
             //experimental
             previous.add(p);//adding itself again (the intersection may have removed this...see above for reasons
             lm.set(p.getHeuristicId(), previous);
-            if (previous_size != previous.size()) {
-                return true;
-            }
+            return previous_size != previous.size();
         }
-        return false;
 
     }
 
@@ -537,7 +534,7 @@ public class hlm extends h1 {
             for (Condition c : all_conditions) {
                 has_state_dependent_achievers.put(c.getHeuristicId(), false);
 //                System.out.println("Condition under analysis" + c);
-                IloLinearNumExpr expr = lp_global.linearNumExpr();;
+                IloLinearNumExpr expr = lp_global.linearNumExpr();
                 Set<GroundAction> set = null;
                 if (c instanceof Predicate) {
                     set = this.invertedAchievers[c.getHeuristicId()];
@@ -559,9 +556,9 @@ public class hlm extends h1 {
                             action = action_to_variable.get(gr.id);
                         } else {
                             if (mip) {
-                                action = (IloNumVar) lp_global.numVar(0.0, Integer.MAX_VALUE, IloNumVarType.Int);
+                                action = lp_global.numVar(0.0, Integer.MAX_VALUE, IloNumVarType.Int);
                             } else {
-                                action = (IloNumVar) lp_global.numVar(0.0, 0.0, IloNumVarType.Float);
+                                action = lp_global.numVar(0.0, 0.0, IloNumVarType.Float);
                             }
                             action_to_variable.set(gr.id, action);
                             objective_function.addTerm(action, action_cost);
