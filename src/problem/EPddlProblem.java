@@ -22,11 +22,10 @@ import conditions.*;
 import domain.*;
 import expressions.*;
 import extraUtils.Pair;
-import propositionalFactory.Grounder;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -911,18 +910,23 @@ public class EPddlProblem extends PddlProblem {
 //        
     }
 
-    public Iterator<Pair<State,GroundAction>> getSuccessors(State s) {
-        return new stateContainer(s, getReachableActions());
+    @Override
+    public Iterator<Pair<State,Object>> getSuccessors(State s) {
+        return new stateContainer(s, (Collection)getReachableActions());
+    }
+
+    public boolean milestoneReached(Float d, Float current_value, State temp) {
+      return d < current_value && this.isSafeState(temp);
     }
 
 
     private class stateContainer implements Iterator{
         final private State source;
-        final private Collection<GroundAction> actionsSet;
-        GroundAction current;
+        final private Collection<Object> actionsSet;
+        Object current;
         State newState;
-        private Iterator<GroundAction> it;
-        public stateContainer(State source, Collection<GroundAction> actionsSet) {
+        private Iterator<Object> it;
+        public stateContainer(State source, Collection<Object> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
             it = actionsSet.iterator();
@@ -930,9 +934,10 @@ public class EPddlProblem extends PddlProblem {
 
         @Override
         public boolean hasNext() {
+            
             while (it.hasNext()){
                 current = it.next();
-                if (current.isApplicable(source)){
+                if (((GroundAction)current).isApplicable(source)){
                     newState = source.clone();
                     return newState.satisfy(globalConstraints);
                 }
@@ -941,11 +946,13 @@ public class EPddlProblem extends PddlProblem {
         }
 
         @Override
-        public Pair<State,GroundAction> next() {
-            newState.apply(current);
+        public Pair<State,Object> next() {
+            newState.apply(((GroundAction)current));
             return new Pair(newState,current);
         }
     }
+    
+   
 
     
 

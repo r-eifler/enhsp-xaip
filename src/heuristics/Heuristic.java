@@ -24,17 +24,15 @@ import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.advanced.h1;
 import heuristics.utils.HeuristicSearchNode;
+import java.util.*;
+import static java.util.Collections.nCopies;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
 import problem.*;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.util.Collections.nCopies;
 
 /**
  *
@@ -231,9 +229,7 @@ public abstract class Heuristic {
 
     }
     
-    public Float gValue(State s, GroundAction gr, State next, Float previousG){
-        return previousG + gr.getActionCost(s);
-    }
+    
 
     /**
      *

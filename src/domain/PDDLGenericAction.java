@@ -21,9 +21,8 @@ package domain;
 import conditions.*;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import problem.EPddlProblem;
-
 import java.util.*;
+import problem.EPddlProblem;
 
 public abstract class PDDLGenericAction  {
 
@@ -36,6 +35,7 @@ public abstract class PDDLGenericAction  {
     protected HashMap<NumFluent, Boolean> numericFluentAffected;
     protected SchemaParameters parameters;
     protected AndCond forall;
+    public Float time = null;
 
     /**
      * @return the addList
@@ -108,10 +108,10 @@ public abstract class PDDLGenericAction  {
         this.preconditions = preconditions;
     }
 
+    @Override
     public String toString() {
-        return "GenericActionType{" + "name=" + name + ", addList=" + addList + ", delList=" + delList + ", numericEffects=" + numericEffects + ", preconditions=" + preconditions + ", cond_effects=" + cond_effects + '}';
+        return "PDDLGenericAction{" + "name=" + name + ", parameters=" + parameters + ", time=" + time + '}';
     }
-
 
    
     /**
@@ -311,4 +311,43 @@ public abstract class PDDLGenericAction  {
         cond_effects = (AndCond) cond_effects.unifyVariablesReferences(p);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.parameters);
+        hash = 97 * hash + Objects.hashCode(this.time);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PDDLGenericAction other = (PDDLGenericAction) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.parameters, other.parameters)) {
+            return false;
+        }
+        if (!Objects.equals(this.time, other.time)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
+
+ 
+
+    
+    
 }

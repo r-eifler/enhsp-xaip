@@ -22,11 +22,10 @@ import conditions.*;
 import domain.*;
 import expressions.*;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import plan.SimplePlan;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import plan.SimplePlan;
 
 public class GroundAction extends PDDLGenericAction {
     
@@ -42,7 +41,6 @@ public class GroundAction extends PDDLGenericAction {
     private Float actionCost;
     
     private HashMap<Predicate, Boolean> achieve;
-    public Float time = null;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
     public boolean dummy_goal;
     
@@ -79,24 +77,9 @@ public class GroundAction extends PDDLGenericAction {
 
     }
 
-    /**
-     *
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj) {
-        GroundAction gr = (GroundAction) obj;
-        return (gr.getName().equalsIgnoreCase(this.getName())) && gr.getParameters().equals(this.getParameters());
-    }
+ 
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 29 * hash + (this.parameters_as_terms != null ? this.parameters_as_terms.hashCode() : 0);
-        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
-        return hash;
-    }
+
 
     public GroundAction() {
         super();
@@ -124,6 +107,8 @@ public class GroundAction extends PDDLGenericAction {
         actionCost = null;
         achieve = new HashMap();
     }
+    
+    
 
 //    @Override
 //    public String toString() {
@@ -2015,7 +2000,7 @@ public class GroundAction extends PDDLGenericAction {
     public float getActionCost(State s) {
         return this.actionCost;
     }
-    
+
     
 
 

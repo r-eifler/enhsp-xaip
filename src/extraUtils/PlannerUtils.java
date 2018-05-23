@@ -5,7 +5,7 @@ import heuristics.Aibr;
 import heuristics.advanced.h1;
 import heuristics.blindHeuristic;
 import problem.EPddlProblem;
-import search.SearchStrategies;
+import search.SearchEngine;
 
 import java.util.LinkedList;
 
@@ -39,7 +39,7 @@ public class PlannerUtils {
         domain.prettyPrint();
         domain.validate(problem);
 
-        final SearchStrategies searchStrategies = new SearchStrategies(); //manager of the search strategies
+        final SearchEngine searchStrategies = new SearchEngine(); //manager of the search strategies
 
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
@@ -81,7 +81,7 @@ public class PlannerUtils {
         domain.prettyPrint();
         domain.validate(problem);
 
-        final SearchStrategies searchStrategies = new SearchStrategies(); //manager of the search strategies
+        final SearchEngine searchStrategies = new SearchEngine(); //manager of the search strategies
 
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {

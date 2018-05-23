@@ -23,8 +23,6 @@ import conditions.ComplexCondition;
 import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
-import expressions.NumFluent;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,71 +67,73 @@ public class GroundProcess extends GroundAction{
 
     }
 
-    public PDDLState apply(PDDLState s_in, int time) {
-
-        PDDLState s = null;
-        s = s_in.clone();
-
-        AndCond del = delList;
-        if (del != null) {
-            del.apply(s);
-        }
-        AndCond add = addList;
-        if (add != null) {
-            add.apply(s);
-        }
-
-        AndCond c = this.getNumericEffects();
-        if (c != null) {
-            ArrayList temporaryMod = new ArrayList();
-            HashMap fun2numb = new HashMap();
-            for (Object o : c.sons) {
-                NumEffect all = (NumEffect) o;
-                NumFluent f = all.getFluentAffected();
-                Double newN = null;
-
-                Double rValue;
-                if (all.getRight().eval(s) == null) {
-                    newN = null;
-                } else {
-                    rValue = all.getRight().eval(s);
-                    if (rValue == null) {
-                        System.out.println("Trying to applying an action with invalid effects!!");
-                        System.out.println(this);
-                        System.exit(-1);
-                    }
-                    if (all.getOperator().equals("increase")) {
-                        if (s.fluentValue(f) == null) {
-                            newN = null;
-                        } else {
-                            newN = s.fluentValue(f) + rValue;
-                        }
-                    } else if (all.getOperator().equals("decrease")) {
-                        //                    System.out.print("Valore di " + f);
-                        //                    System.out.println(" :"+ s.functionValue(f).getNumber());
-                        if (s.fluentValue(f) == null) {
-                            newN = null;
-                        } else {
-                            newN = s.fluentValue(f) - rValue;
-                        }
-                    } else if (all.getOperator().equals("assign")) {
-                        //System.out.println("================ASSIGN===========");
-                        newN = rValue;
-                    }
-                }
-                temporaryMod.add(f);
-                fun2numb.put(f, newN);
-            }
-
-            for (Object o : temporaryMod) {
-                NumFluent f = (NumFluent) o;
-                s.setNumFluent(f,(Double) fun2numb.get(f));
-            }
-
-        }
-        return s;
-
-    }
+//    
+//    
+//    public PDDLState apply(PDDLState s_in, int time) {
+//
+//        PDDLState s = null;
+//        s = s_in.clone();
+//
+//        AndCond del = delList;
+//        if (del != null) {
+//            del.apply(s);
+//        }
+//        AndCond add = addList;
+//        if (add != null) {
+//            add.apply(s);
+//        }
+//
+//        AndCond c = this.getNumericEffects();
+//        if (c != null) {
+//            ArrayList temporaryMod = new ArrayList();
+//            HashMap fun2numb = new HashMap();
+//            for (Object o : c.sons) {
+//                NumEffect all = (NumEffect) o;
+//                NumFluent f = all.getFluentAffected();
+//                Double newN = null;
+//
+//                Double rValue;
+//                if (all.getRight().eval(s) == null) {
+//                    newN = null;
+//                } else {
+//                    rValue = all.getRight().eval(s);
+//                    if (rValue == null) {
+//                        System.out.println("Trying to applying an action with invalid effects!!");
+//                        System.out.println(this);
+//                        System.exit(-1);
+//                    }
+//                    if (all.getOperator().equals("increase")) {
+//                        if (s.fluentValue(f) == null) {
+//                            newN = null;
+//                        } else {
+//                            newN = s.fluentValue(f) + rValue;
+//                        }
+//                    } else if (all.getOperator().equals("decrease")) {
+//                        //                    System.out.print("Valore di " + f);
+//                        //                    System.out.println(" :"+ s.functionValue(f).getNumber());
+//                        if (s.fluentValue(f) == null) {
+//                            newN = null;
+//                        } else {
+//                            newN = s.fluentValue(f) - rValue;
+//                        }
+//                    } else if (all.getOperator().equals("assign")) {
+//                        //System.out.println("================ASSIGN===========");
+//                        newN = rValue;
+//                    }
+//                }
+//                temporaryMod.add(f);
+//                fun2numb.put(f, newN);
+//            }
+//
+//            for (Object o : temporaryMod) {
+//                NumFluent f = (NumFluent) o;
+//                s.setNumFluent(f,(Double) fun2numb.get(f));
+//            }
+//
+//        }
+//        return s;
+//
+//    }
 
     public void add_numeric_effect(NumEffect eff) {
 
@@ -192,14 +192,30 @@ public class GroundProcess extends GroundAction{
     }
 
     public void addDelta(double delta) {
-        this.delta = delta;
+        this.setDelta(delta);
     }
     
-    public PDDLState apply(PDDLState s) {
+    @Override
+    public State apply(State s) {
         s = (PDDLState)super.apply(s);
-        s.time+=delta;
+        ((PDDLState)s).time+=getDelta();
+        //this.time = ((PDDLState)s).time;
 //        System.out.println("DEBUG: Subst within action application:"+subst);
         return s;
+    }
+
+    /**
+     * @return the delta
+     */
+    public double getDelta() {
+        return delta;
+    }
+
+    /**
+     * @param delta the delta to set
+     */
+    public void setDelta(double delta) {
+        this.delta = delta;
     }
 
 }

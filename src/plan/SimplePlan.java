@@ -28,16 +28,15 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 import extraUtils.Converter;
 import extraUtils.Pair;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
 import problem.*;
-
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -1753,10 +1752,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr instanceof GroundProcess) {
 //                System.out.println("Waiting:"+gr.time);
 //                System.out.println("Current Time:"+time);
-                float temp = time;
-                time += gr.time;
+                time += new Float(((GroundProcess)gr).getDelta());
 //                System.out.println("After Waiting:"+time);
-                gr.time = temp;
                 this.add(gr);
             } else if (gr instanceof GroundEvent) {
                 //                System.out.println("Waiting:"+gr.time);
@@ -1768,8 +1765,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 inst_actions.add(gr);
             } else {
 //                System.out.println("time before:"+gr.time);
-                gr.time = time;
-//                System.out.println("time after:"+gr.time);
+//                gr.time = time;
                 this.add(gr);
                 time += epsilon;
                 inst_actions.add(gr);
@@ -1893,7 +1889,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             }
 
-            current = waiting.apply(current);
+            current = (PDDLState) waiting.apply(current);
             this.apply_events(current, reachable_events);
 //            System.out.println(current);    
 //            System.out.println(current);
@@ -1918,9 +1914,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
             GroundAction gr = this.inst_actions.get(i);
             if (start + 0.01 < gr.time) {
                 ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", gr.time) + ")------>waiting\n";
+                start = gr.time;
             }
             ret += gr.toEcoString() + "\n";
-            start = gr.time;
+            
         }
         if (start + 0.01 < this.ending_time) {
             ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", ending_time) + ")------>waiting\n";

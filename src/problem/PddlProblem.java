@@ -23,6 +23,10 @@ import conditions.*;
 import domain.*;
 import expressions.*;
 import extraUtils.Pair;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
@@ -30,11 +34,6 @@ import org.antlr.runtime.tree.Tree;
 import parser.PddlLexer;
 import parser.PddlParser;
 import propositionalFactory.Grounder;
-
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -1001,7 +1000,7 @@ public class PddlProblem {
     }
 
 
-    public Iterator<Pair<State,GroundAction>> getSuccessors(State s) {
+    public Iterator<Pair<State,Object>> getSuccessors(State s) {
         return new stateContainer(s, getReachableActions());
     }
 
@@ -1009,8 +1008,17 @@ public class PddlProblem {
         return reachableActions;
     }
 
-    public void setReachableActions(Collection<GroundAction> reachableActions) {
-        this.reachableActions = reachableActions;
+    public void setReachableActions(Collection<GroundAction> actionsToConsider) {
+       reachableActions = new LinkedHashSet();
+        for (GroundAction gr : actionsToConsider) {
+            Iterator<GroundAction> it = getActions().iterator();
+            while (it.hasNext()) {
+                GroundAction gr2 = it.next();
+                if (gr.equals(gr2)) {
+                    reachableActions.add(gr2);
+                }
+            }
+        }
     }
 
 
@@ -1042,5 +1050,9 @@ public class PddlProblem {
             newState.apply(current);
             return new Pair(newState,current);
         }
+    }
+    public Float gValue(State s, Object transition, State next, Float previousG){
+        GroundAction gr = (GroundAction)transition;
+        return previousG + gr.getActionCost(s);
     }
 }

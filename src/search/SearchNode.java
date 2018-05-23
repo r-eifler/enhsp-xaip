@@ -18,19 +18,18 @@
  */
 package search;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import problem.GroundAction;
-import problem.State;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import problem.GroundAction;
+import problem.State;
 
 /**
  *
@@ -39,7 +38,7 @@ import java.util.logging.Logger;
 public class SearchNode {
 
     public State s;
-    public GroundAction action;
+    public Object transition;
     public float h_n;
     public SearchNode father;
     public float g_n;
@@ -48,15 +47,14 @@ public class SearchNode {
     public float wg;
     public float wh;
     public float f;
-    private boolean breakties_on_g = false; //this goes for larger g
-    private boolean go_for_smaller_g = false; //this goes for smaller g
+
     private boolean bfs = true;
-    public ArrayList<GroundAction> list_of_actions;
+    public ArrayList<Object> list_of_actions;
     public Set<GroundAction> relaxed_plan_from_heuristic;
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
+    public SearchNode(State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
-        this.action = action;
+        this.transition = action;
         this.h_n = goal_distance;
         this.father = father;
         this.g_n = action_cost_to_get_here;
@@ -66,9 +64,9 @@ public class SearchNode {
         wg = 1f;
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode(State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
-        this.action = action;
+        this.transition = action;
         this.h_n = goal_distance;
         this.father = father;
         this.g_n = action_cost_to_get_here;
@@ -112,7 +110,7 @@ public class SearchNode {
 
     public SearchNode(State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
-        this.action = null;
+        this.transition = null;
         this.h_n = goal_distance;
         this.father = null;
         this.g_n = action_cost_to_get_here;
@@ -124,10 +122,10 @@ public class SearchNode {
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
-            if (action == null) {
+            if (transition == null) {
                 json_rep.put("action", "init_state");
             } else {
-                json_rep.put("action", action.toString());
+                json_rep.put("action", transition.toString());
             }
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
@@ -154,9 +152,9 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, ArrayList<GroundAction> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh)  {
+    public SearchNode(State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh)  {
         s = s1;
-        this.action = null;
+        this.transition = null;
         this.h_n = goal_distance;
         this.father = father;
         this.g_n = action_cost_to_get_here;
@@ -169,12 +167,12 @@ public class SearchNode {
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
-            if (action == null && this.list_of_actions == null) {
+            if (transition == null && this.list_of_actions == null) {
                 json_rep.put("action", "init_state");
-            } else if (action == null) {
+            } else if (transition == null) {
                 json_rep.put("list_of_actions", "waiting");
             } else {
-                json_rep.put("action", action.toString());
+                json_rep.put("action", transition.toString());
             }
 
             json_rep.put("distance", goal_distance);
@@ -203,9 +201,9 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, GroundAction action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
+    public SearchNode(State s1, Object action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
         s = s1;
-        this.action = action;
+        this.transition = action;
         this.h_n = goal_distance;
         this.father = father;
         this.g_n = action_cost_to_get_here;
@@ -215,7 +213,7 @@ public class SearchNode {
             if (action == null) {
                 json_rep.put("action", "init_state");
             } else {
-                json_rep.put("action", action.toEcoString());
+                json_rep.put("action", action.toString());
             }
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
@@ -282,7 +280,7 @@ public class SearchNode {
 
     @Override
     public String toString() {
-        return "SearchNode{" + "s=" + s + ", action=" + action + ", h_n=" + h_n + ", g_n=" + g_n + '}';
+        return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h_n + ", g_n=" + g_n + '}';
     }
 
 }

@@ -26,7 +26,6 @@ import conditions.Predicate;
 import expressions.Interval;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,7 +39,7 @@ public class PDDLState extends State  {
 
     public DoubleArrayList numFluents;
     public boolean[] boolFluents;
-    public Double time;
+    public double time;
 
     public PDDLState() {
         super();
@@ -62,12 +61,14 @@ public class PDDLState extends State  {
             }else
                 this.boolFluents[i] = initialPropFluents.get(i);
         }
+        time = -1;
 
     }
     
     public PDDLState(DoubleArrayList numFluents, boolean[] propFluents) {
         this.numFluents = numFluents.clone();
         this.boolFluents = Arrays.copyOf(propFluents, propFluents.length);
+        time = -1;
     }
     
 
