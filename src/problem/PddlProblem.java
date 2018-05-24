@@ -1051,8 +1051,5 @@ public class PddlProblem {
             return new Pair(newState,current);
         }
     }
-    public Float gValue(State s, Object transition, State next, Float previousG){
-        GroundAction gr = (GroundAction)transition;
-        return previousG + gr.getActionCost(s);
-    }
+
 }

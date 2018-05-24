@@ -4,10 +4,10 @@ import domain.PddlDomain;
 import heuristics.Aibr;
 import heuristics.advanced.h1;
 import heuristics.blindHeuristic;
-import problem.EPddlProblem;
-import search.SearchEngine;
-
 import java.util.LinkedList;
+import problem.EPddlProblem;
+import search.PDDLSearchEngine;
+import search.SearchEngine;
 
 /*
  * Copyright (C) 2018 enrico.
@@ -39,7 +39,7 @@ public class PlannerUtils {
         domain.prettyPrint();
         domain.validate(problem);
 
-        final SearchEngine searchStrategies = new SearchEngine(); //manager of the search strategies
+        final PDDLSearchEngine searchStrategies = new PDDLSearchEngine(); //manager of the search strategies
 
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {

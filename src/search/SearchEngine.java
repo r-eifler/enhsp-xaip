@@ -360,7 +360,7 @@ public class SearchEngine {
                     boolean visitedTemp = visited.getOrDefault(temp, false);
                     if (!visitedTemp) {
                         visited.put(temp, true);
-                        Float newG = problem.gValue(node.s, act, temp, node.g_n);
+                        Float newG = heuristic.gValue(node.s, act, temp, node.g_n);
                         if (newG == null) {
                             continue;
                         }
@@ -545,7 +545,7 @@ public class SearchEngine {
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     //skip this if violates global constraints
-                    final Float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.g_n);
+                    final Float successorG = heuristic.gValue(currentNode.s, act, successorState, currentNode.g_n);
                     if (successorG == null) {
                         this.num_dead_end_detected++;
                         continue;
