@@ -758,7 +758,7 @@ public class ExtendedNormExpression extends Expression {
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
                 current += ad.n;
-            } else if (action.getNumericFluentAffected().contains(ad.f)) {
+            } else if (!action.getNumericFluentAffected().contains(ad.f)) {
                 current += ad.n * ad.f.eval(s_0);
             } else if (action.getCoefficientAffected(ad.f) != null) {
                 //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
