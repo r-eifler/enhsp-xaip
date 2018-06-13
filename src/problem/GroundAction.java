@@ -21,6 +21,8 @@ package problem;
 import conditions.*;
 import domain.*;
 import expressions.*;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import java.util.*;
 import java.util.logging.Level;
@@ -64,7 +66,7 @@ public class GroundAction extends PDDLGenericAction {
         }
 
         if (this.numericFluentAffected != null) {
-            ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+            ret.numericFluentAffected = new Object2BooleanOpenHashMap(this.numericFluentAffected);
         }
         if (this.parameters_as_terms != null) {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
@@ -232,12 +234,12 @@ public class GroundAction extends PDDLGenericAction {
         if (this.list_of_numeric_fluents_affected == null) {
             AndCond num = this.getNumericEffects();
             list_of_numeric_fluents_affected = new LinkedHashSet();
-            this.numericFluentAffected = new HashMap();
+            this.numericFluentAffected = new Object2BooleanOpenHashMap();
             if (num != null) {
                 for (Object o : num.sons) {
                     if (o instanceof NumEffect) {
                         NumEffect e = (NumEffect) o;
-                        this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
+                        this.numericFluentAffected.put(e.getFluentAffected(), true);
                         list_of_numeric_fluents_affected.add(e);
                     }
                 }
@@ -275,7 +277,7 @@ public class GroundAction extends PDDLGenericAction {
     /**
      * @param numericFluentAffected the numericFluentAffected to set
      */
-    public void setNumericFluentAffected(HashMap<NumFluent, Boolean> numericFluentAffected) {
+    public void setNumericFluentAffected(Object2BooleanMap numericFluentAffected) {
         this.numericFluentAffected = numericFluentAffected;
     }
 
@@ -515,7 +517,7 @@ public class GroundAction extends PDDLGenericAction {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 //nf.getFluentAffected();
-                if (ab.getNumericFluentAffected().get(nf.getFluentAffected()) == null) {
+                if (ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
                     numEff.sons.add(o);
                     ab.addNumericFluentAffected(nf.getFluentAffected());
                 }
@@ -838,9 +840,9 @@ public class GroundAction extends PDDLGenericAction {
 
         this.generateAffectedNumFluents();
         if (aThis.isNormalized()) {
-            return aThis.getLeft().involve(numericFluentAffected) || aThis.getRight().involve(this.numericFluentAffected);
+            return aThis.getLeft().involve(numericFluentAffected.keySet()) || aThis.getRight().involve((Collection<NumFluent>) this.numericFluentAffected.keySet());
         } else {
-            return aThis.getLeft().involve(this.numericFluentAffected) || aThis.getRight().involve(this.numericFluentAffected);
+            return aThis.getLeft().involve(this.numericFluentAffected.keySet()) || aThis.getRight().involve(this.numericFluentAffected.keySet());
         }
 
     }
@@ -1487,9 +1489,9 @@ public class GroundAction extends PDDLGenericAction {
 
     private void addNumericFluentAffected(NumFluent fluentAffected) {
         if (this.numericFluentAffected == null) {
-            this.numericFluentAffected = new HashMap();
+            this.numericFluentAffected = new Object2BooleanOpenHashMap();
         }
-        this.numericFluentAffected.put(fluentAffected, Boolean.TRUE);
+        this.numericFluentAffected.put(fluentAffected, true);
     }
 
     public Comparison regressComparisonMtimes(Comparison comparison) throws CloneNotSupportedException {
@@ -1518,7 +1520,7 @@ public class GroundAction extends PDDLGenericAction {
 //            }
 
             ele.generateAffectedNumFluents();
-            if (ne.getRight().involve(ele.numericFluentAffected)) {
+            if (ne.getRight().involve(ele.numericFluentAffected.keySet())) {
                 return true;
             }
         }
@@ -1900,7 +1902,7 @@ public class GroundAction extends PDDLGenericAction {
         for (NumEffect e : this.getNumericEffectsAsCollection()) {
             if (e.getOperator().equalsIgnoreCase("increase") || e.getOperator().equalsIgnoreCase("decrease")) {
 
-                if (s.fluentValue(e.getFluentAffected()) == null) {
+                if (s.fluentValue(e.getFluentAffected()) == Double.NaN) {
                     return false;
                 }
             }

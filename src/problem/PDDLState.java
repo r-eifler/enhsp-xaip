@@ -89,9 +89,8 @@ public class PDDLState extends State  {
     @Override
     public int hashCode() {
         int hash = 3;
-        this.numFluents.hashCode();
-        hash = 59 * hash + this.numFluents.hashCode();
-        hash = 59 * hash + Arrays.hashCode(this.boolFluents);
+        hash = 53 * hash + Objects.hashCode(this.numFluents);
+        hash = 53 * hash + Arrays.hashCode(this.boolFluents);
         return hash;
     }
 
@@ -106,27 +105,25 @@ public class PDDLState extends State  {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        
         final PDDLState other = (PDDLState) obj;
         if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
-        return Arrays.equals(this.boolFluents, other.boolFluents);
+        if (!Arrays.equals(this.boolFluents, other.boolFluents)) {
+            return false;
+        }
+        return true;
     }
 
- 
 
 
 
 
 
 
-
-    public Double fluentValue(NumFluent f) {
+    public double fluentValue(NumFluent f) {
         if (f.getId() == null) {
             throw new RuntimeException("Numeric Fluent "+f+" hasn't been assigned with a unique id ");
-//            System.out.println("Numeric Fluent "+f+" hasn't been assigned with a unique id "+ "Current mapping is" + this.idOf);
-//            return null;
         }
         return this.numFluents.get(f.getId());
 

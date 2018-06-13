@@ -25,14 +25,13 @@ import conditions.Predicate;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
+import java.util.*;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
 import problem.GroundAction;
 import problem.PDDLState;
-
-import java.util.*;
 
 /**
  *
@@ -174,7 +173,7 @@ public final class ojalgo_interface extends LpInterface {
                         for (GroundAction gr : pool) {
 //                                                        System.out.println(gr);
 
-                            if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+                                if (gr.getNumericFluentAffected().contains(ad.f)) {
                                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
                                     if (!neff.getFluentAffected().equals(ad.f)) {
                                         continue;

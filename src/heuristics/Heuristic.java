@@ -755,7 +755,7 @@ public abstract class Heuristic {
                             boolean condition_investigated = false;
 
 //                                                        System.out.println(gr);
-                            if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+                            if (gr.getNumericFluentAffected().contains(ad.f)) {
                                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
                                     if (!neff.getFluentAffected().equals(ad.f)) {
                                         continue;
@@ -1041,8 +1041,10 @@ public abstract class Heuristic {
         this.G.normalize();
     }
 
-    public Float gValue(State s, Object transition, State next, Float previousG){
+    public float gValue(State s, Object transition, State next, Float previousG){
         GroundAction gr = (GroundAction)transition;
+        if (gr == null)
+            return previousG;
         return previousG + gr.getActionCost(s);
     }
     

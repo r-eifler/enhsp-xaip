@@ -20,9 +20,8 @@ package expressions;
 
 import conditions.*;
 import domain.Variable;
-import problem.*;
-
 import java.util.*;
+import problem.*;
 
 /**
  *
@@ -253,7 +252,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
+    public boolean involve(Collection<NumFluent> arrayList) {
         return this.getRight().involve(arrayList);
     }
 

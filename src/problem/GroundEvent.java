@@ -22,8 +22,8 @@ import conditions.AndCond;
 import conditions.ComplexCondition;
 import conditions.PDDLObject;
 import domain.ParametersAsTerms;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
-import java.util.HashMap;
 
 /**
  *
@@ -81,7 +81,7 @@ public class GroundEvent extends GroundAction {
         }
 
         if (this.numericFluentAffected != null) {
-            ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+            ret.numericFluentAffected = new Object2BooleanOpenHashMap(this.numericFluentAffected);
         }
         if (this.parameters_as_terms != null) {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();

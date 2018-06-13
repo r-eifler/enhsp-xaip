@@ -21,9 +21,8 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import problem.*;
-
 import java.util.*;
+import problem.*;
 
 /**
  *
@@ -132,7 +131,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
+    public boolean involve(Collection<NumFluent> arrayList) {
         return false;
     }
 

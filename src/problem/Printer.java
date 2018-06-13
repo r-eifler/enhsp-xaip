@@ -42,13 +42,13 @@ public class Printer {
             }
         }
         for (NumFluent nf : p.initNumFluentsValues.keySet()) {
-            if (s.fluentValue(nf)!=null){
+            if (s.fluentValue(nf)!= Double.NaN){
                 ret.append("  ( = (").append(nf.getName());
                 for (Object o1 : nf.getTerms()) {
                     PDDLObject obj = (PDDLObject) o1;
                     ret.append(" ").append(obj.getName());
                 }
-                ret.append(") ").append(s.numFluents.get(nf.id)).append(")\n");
+                ret.append(") ").append(s.numFluents.get(nf.getId())).append(")\n");
             }
         }
 

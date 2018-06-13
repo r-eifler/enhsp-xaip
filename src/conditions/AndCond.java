@@ -23,11 +23,10 @@ import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import problem.*;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
 
 /**
  *
@@ -183,10 +182,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
             } else if (o instanceof Comparison) {
                 Comparison a = (Comparison) o;
                 ret.sons.add(a.clone());
-            } else if (o instanceof NumFluentValue) {
-                NumFluentValue a = (NumFluentValue) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof NumEffect) {
+            }  else if (o instanceof NumEffect) {
                 NumEffect a = (NumEffect) o;
                 ret.sons.add(a.clone());
             } else if (o instanceof ConditionalEffect) {

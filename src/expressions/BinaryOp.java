@@ -21,14 +21,14 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import problem.*;
-
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
 
 /**
  *
@@ -332,7 +332,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
+    public boolean involve(Collection<NumFluent> arrayList) {
         if (this.lhs.involve(arrayList)) {
             return true;
         } else {

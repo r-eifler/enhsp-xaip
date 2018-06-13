@@ -23,9 +23,8 @@ import conditions.Condition;
 import conditions.PDDLObject;
 import domain.ActionParameter;
 import domain.Variable;
-import problem.*;
-
 import java.util.*;
+import problem.*;
 
 /**
  *
@@ -38,17 +37,18 @@ public class NumFluent extends Expression {
     private String beforeReformulation;
     private Boolean has_to_be_tracked;
     private String terms_as_string;
-    Integer hash_code;
-    public int index;
-    public Integer id;
+    Integer cachedHashCode;
+    private int id;
     private Integer actual_hash;
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + Objects.hashCode(this.name);
-        hash = 89 * hash + Objects.hashCode(this.terms);
-        return hash;
+        if (cachedHashCode == null) {
+            cachedHashCode = 3;
+            cachedHashCode = 67 * cachedHashCode + Objects.hashCode(this.name);
+            cachedHashCode = 67 * cachedHashCode + Objects.hashCode(this.terms);
+        }
+        return cachedHashCode;
     }
 
     @Override
@@ -63,27 +63,19 @@ public class NumFluent extends Expression {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        
-        
-        
         final NumFluent other = (NumFluent) obj;
-
-        
+        if (this.id != -1 && other.getId() != -1){
+            return this.id == other.getId();
+        }
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-        return Objects.equals(this.terms, other.terms);
+        if (!Objects.equals(this.terms, other.terms)) {
+            return false;
+        }
+        return true;
     }
 
-    
-
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        //hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
-//        //hash = 53 * hash + (this.terms != null ? this.terms.hashCode() : 0);
-//        return hash;
-//    }
     public NumFluent(String name) {
         super();
         this.name = name;
@@ -91,6 +83,7 @@ public class NumFluent extends Expression {
         terms = new ArrayList<>();
 
         this.beforeReformulation = null;
+        id = -1;
     }
 
     public void addVariable(Variable variable) {
@@ -119,7 +112,6 @@ public class NumFluent extends Expression {
     @Override
     public NumFluent ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumFluent ret = new NumFluent(getName());
-        ret.index = this.index;
         for (final ActionParameter param : terms) {
             ret.addTerms(param.ground(substitution));
         }
@@ -131,7 +123,6 @@ public class NumFluent extends Expression {
     @Override
     public Expression unGround(Map substitution) {
         NumFluent ret = new NumFluent(getName());
-        ret.index = this.index;
         for (Object o : terms) {
             if (o instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o;
@@ -252,8 +243,8 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> map) {
-        return map.get(this) != null;
+    public boolean involve(Collection<NumFluent> map) {
+        return map.contains(this);
     }
 
     @Override
@@ -340,7 +331,6 @@ public class NumFluent extends Expression {
     @Override
     public Expression susbtFluentsWithTheirInvariants(int j) {
         NumFluent ret = new NumFluent(this.name + j);
-        ret.index = this.index;
         ret.setTerms(terms);
         ret.grounded = false;
         return ret;
@@ -351,7 +341,6 @@ public class NumFluent extends Expression {
 
         if (invariantFluent.get(this) != null) {
             NumFluent ret = new NumFluent(this.name + j);
-            ret.index = this.index;
             ret.setTerms(terms);
             ret.grounded = false;
             ret.setBeforeReformulation(this.pddlPrint(true));

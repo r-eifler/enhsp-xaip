@@ -23,6 +23,7 @@ import conditions.ComplexCondition;
 import domain.ParametersAsTerms;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,7 +55,7 @@ public class GroundProcess extends GroundAction{
         }
 
         if (this.numericFluentAffected != null) {
-            ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+            ret.numericFluentAffected = new Object2BooleanOpenHashMap(this.numericFluentAffected);
         }
         if (this.parameters_as_terms != null) {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();

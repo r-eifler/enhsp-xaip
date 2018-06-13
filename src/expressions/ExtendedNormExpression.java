@@ -22,11 +22,10 @@ import conditions.ComplexCondition;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import problem.*;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
 
 /**
  *
@@ -414,7 +413,7 @@ public class ExtendedNormExpression extends Expression {
     @Override
     public Double eval(State s) {
         //PDDLNumber ret = new PDDLNumber(0);
-        Double ret = 0d;
+        double ret = 0d;
         for (final Object o : this.summations) {
             final ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
@@ -422,9 +421,9 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret += a.bin.eval(s);
             } else if (a.f != null) {
-                Double n = ((PDDLState)s).fluentValue(a.f);
+                double n = ((PDDLState)s).fluentValue(a.f);
 
-                if (n == null) {
+                if (n == Double.NaN) {
                     return null;
                 }
                 ret += n * a.n;
@@ -617,7 +616,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> map) {
+    public boolean involve(Collection<NumFluent> map) {
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -627,7 +626,7 @@ public class ExtendedNormExpression extends Expression {
                     return true;
                 }
             } else if (a.f != null) {
-                if (map.get(a.f) != null) {
+                if (map.contains(a.f)) {
                     return true;
                 }
             }
@@ -759,7 +758,7 @@ public class ExtendedNormExpression extends Expression {
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
                 current += ad.n;
-            } else if (action.getNumericFluentAffected().get(ad.f) == null) {
+            } else if (action.getNumericFluentAffected().contains(ad.f)) {
                 current += ad.n * ad.f.eval(s_0);
             } else if (action.getCoefficientAffected(ad.f) != null) {
                 //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
@@ -787,7 +786,7 @@ public class ExtendedNormExpression extends Expression {
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
-                if (aThis.getNumericFluentAffected().get(ad.f) != null) {
+                if (aThis.getNumericFluentAffected().contains(ad.f)) {
                     current += ad.n* aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 }
             }
@@ -800,7 +799,7 @@ public class ExtendedNormExpression extends Expression {
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (a.f != null) {
-                if (s.fluentValue(a.f) == null) {
+                if (s.fluentValue(a.f) == Double.NaN) {
                     System.out.println("Value not found!!! Grave Error");
                     System.exit(-1);
                 }

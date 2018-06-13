@@ -21,11 +21,10 @@ package conditions;
 import domain.Variable;
 import expressions.*;
 import heuristics.utils.AchieverSet;
-import problem.*;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
 
 /**
  *
@@ -391,11 +390,11 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
-        if (this.left.involve(arrayList)) {
+    public boolean involve(Collection<NumFluent> input) {
+        if (this.left.involve(input)) {
             return true;
         } else {
-            return this.right.involve(arrayList);
+            return this.right.involve(input);
         }
     }
 
@@ -619,15 +618,6 @@ public class Comparison extends Terminal {
         return false;
     }
 
-    public ArrayList<NumFluent> susbtFluentsWithTheirInvariants(int j) {
-
-        this.left = this.left.susbtFluentsWithTheirInvariants(j);
-        this.right = this.right.susbtFluentsWithTheirInvariants(++j);
-        ArrayList ret = new ArrayList();
-        ret.addAll(this.left.rhsFluents());
-        ret.addAll(this.right.rhsFluents());
-        return ret;
-    }
 
     public ArrayList<NumFluent> susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
 
@@ -757,7 +747,7 @@ public class Comparison extends Terminal {
     public boolean is_evaluable(PDDLState tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
         for (NumFluent f : set) {
-            if (tempInit.fluentValue(f) == null) {
+            if (tempInit.fluentValue(f) == Double.NaN) {
                 return false;
             }
         }

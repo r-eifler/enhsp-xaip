@@ -30,19 +30,17 @@ import heuristics.utils.LpInterface;
 import heuristics.utils.cplex_interface;
 import heuristics.utils.ojalgo_interface;
 import ilog.concert.IloException;
+import static java.lang.Float.MAX_VALUE;
+import static java.lang.System.out;
+import java.util.*;
+import static java.util.Collections.nCopies;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import problem.GroundAction;
 import problem.PDDLState;
 import problem.State;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.lang.Float.MAX_VALUE;
-import static java.lang.System.out;
-import static java.util.Collections.nCopies;
 
 /**
  *
@@ -286,7 +284,7 @@ public class quasi_hm extends Heuristic {
                     ComplexCondition c = (ComplexCondition)c1;
                     for (Condition c_in : (Collection<Condition>) c.sons) {
                         if (c_in instanceof Comparison) {
-                            for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
+                            for (NumFluent nf : gr.getNumericFluentAffected()) {
                                 if (c_in.getInvolvedFluents().contains(nf)) {
                                     poss_achiever.get(gr.id).add(c);
                                     break;

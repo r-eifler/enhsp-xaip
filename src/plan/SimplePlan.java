@@ -18,6 +18,7 @@
  */
 package plan;
 
+import com.carrotsearch.hppc.DoubleArrayList;
 import conditions.*;
 import domain.ActionSchema;
 import domain.ParametersAsTerms;
@@ -67,7 +68,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public JSONObject numeric_plan_trace;
     public Float ending_time;
     private ArrayList<GroundAction> inst_actions;
-    private HashMap<NumFluent, ArrayList<Float>> nf_trace;
+    private HashMap<NumFluent, DoubleArrayList> nf_trace;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -375,7 +376,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         this.invariantFluents = new HashMap();
         for (Object anAction : this) {
             GroundAction a = (GroundAction) anAction;
-            for (Object o2 : a.getNumericFluentAffected().keySet()) {
+            for (Object o2 : a.getNumericFluentAffected()) {
                 invariantFluents.put(o2, false);
             }
         }
@@ -1597,15 +1598,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
         int i = 0;
         this.cost = 0f;
 
-        HashMap<NumFluent, ArrayList<Float>> nf_trace = new HashMap();
+        HashMap<NumFluent, DoubleArrayList> nf_trace = new HashMap();
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
             Iterator<NumFluent> it = this.pp.getNumFluentsInvolvedInInit().iterator();
             while (it.hasNext()) {
                 NumFluent nf = it.next();
-                ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.fluentValue(nf).floatValue());
+                DoubleArrayList nf_traj = new DoubleArrayList();
+                nf_traj.add(current.fluentValue(nf));
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -1804,8 +1805,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             Iterator it = pp.getNumFluentsInvolvedInInit().iterator();
             while (it.hasNext()) {
                 NumFluent nf = (NumFluent) it.next();
-                ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.fluentValue(nf).floatValue());
+                DoubleArrayList nf_traj = new DoubleArrayList();
+                nf_traj.add(current.fluentValue(nf));
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -1900,9 +1901,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return current;
     }
 
-    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, PDDLState current) {
+    private void add_state_to_json(HashMap<NumFluent, DoubleArrayList> nf_trace, PDDLState current) {
         for (NumFluent nf : nf_trace.keySet()) {
-            nf_trace.get(nf).add(current.fluentValue(nf).floatValue());
+            nf_trace.get(nf).add(current.fluentValue(nf));
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }

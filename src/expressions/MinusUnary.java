@@ -21,11 +21,11 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import problem.*;
-
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import problem.*;
 
 /**
  *
@@ -93,7 +93,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
+    public boolean involve(Collection<NumFluent> arrayList) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

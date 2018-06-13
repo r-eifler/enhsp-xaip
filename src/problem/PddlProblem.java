@@ -507,8 +507,8 @@ public class PddlProblem {
         return null;
     }
 
-    public Float getInitFunctionValue(NumFluent f) {
-        return ((PDDLState)init).fluentValue(f).floatValue();
+    public double getInitFunctionValue(NumFluent f) {
+        return ((PDDLState)init).fluentValue(f);
     }
 
     public NumFluent getNumFluent(String string, ArrayList terms) {
@@ -841,7 +841,7 @@ public class PddlProblem {
                 this.generateActions();
             }
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
-                for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
+                for (NumFluent nf : gr.getNumericFluentAffected()) {
                     staticFluents.put(nf, Boolean.FALSE);
                 }
             }

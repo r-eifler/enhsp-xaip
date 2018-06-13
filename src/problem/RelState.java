@@ -20,13 +20,11 @@ package problem;
 
 import conditions.Comparison;
 import conditions.Condition;
-import conditions.NumFluentValue;
 import conditions.Predicate;
 import expressions.Expression;
 import expressions.Interval;
 import expressions.NumFluent;
 import expressions.PDDLNumber;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -57,7 +55,7 @@ public class RelState extends Object {
 
 
     public PDDLNumber functionInfValue(NumFluent f) {
-        Interval n = this.possNumValues.get(f.id);
+        Interval n = this.possNumValues.get(f.getId());
         if (n != null) {
             return n.getInf();
         }
@@ -66,7 +64,7 @@ public class RelState extends Object {
 
     public Interval functionValues(NumFluent f) {
 
-        Interval a = this.possNumValues.get(f.id);
+        Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             return a;
         } else {
@@ -76,7 +74,7 @@ public class RelState extends Object {
     }
 
     public PDDLNumber functionSupValue(NumFluent f) {
-        Interval a = this.possNumValues.get(f.id);
+        Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             return a.getSup();
         }
@@ -113,7 +111,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
-        Interval a = this.possNumValues.get(f.id);
+        Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             a.setInf(after);
         }
@@ -121,7 +119,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionSupValue(NumFluent f, PDDLNumber after) {
-        Interval a = this.possNumValues.get(f.id);
+        Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             a.setSup(after);
         }
@@ -148,7 +146,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionValues(NumFluent f, Interval after) {
-        this.possNumValues.set(f.id, after);
+        this.possNumValues.set(f.getId(), after);
 
     }
 
@@ -203,7 +201,5 @@ public class RelState extends Object {
         }
     }
 
-    void addNumericFluent(NumFluentValue newA) {
-        this.possNumValues.set(newA.getNFluent().id, new Interval(newA.getValue().getNumber()));
-    }
+
 }
