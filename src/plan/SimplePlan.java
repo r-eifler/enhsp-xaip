@@ -18,13 +18,8 @@
  */
 package plan;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.NotCond;
-import conditions.PDDLObject;
-import conditions.Predicate;
+import com.carrotsearch.hppc.DoubleArrayList;
+import conditions.*;
 import domain.ActionSchema;
 import domain.ParametersAsTerms;
 import domain.PddlDomain;
@@ -34,38 +29,15 @@ import expressions.NumEffect;
 import expressions.NumFluent;
 import extraUtils.Converter;
 import extraUtils.Pair;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.PddlProblem;
-import problem.PDDLState;
-import problem.Printer;
-import problem.State;
+import problem.*;
 
 /**
  *
@@ -96,7 +68,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public JSONObject numeric_plan_trace;
     public Float ending_time;
     private ArrayList<GroundAction> inst_actions;
-    private HashMap<NumFluent, ArrayList<Float>> nf_trace;
+    private HashMap<NumFluent, DoubleArrayList> nf_trace;
 
     public SimplePlan(PddlDomain dom) {
         super();
@@ -404,7 +376,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         this.invariantFluents = new HashMap();
         for (Object anAction : this) {
             GroundAction a = (GroundAction) anAction;
-            for (Object o2 : a.getNumericFluentAffected().keySet()) {
+            for (Object o2 : a.getNumericFluentAffected()) {
                 invariantFluents.put(o2, false);
             }
         }
@@ -1626,15 +1598,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
         int i = 0;
         this.cost = 0f;
 
-        HashMap<NumFluent, ArrayList<Float>> nf_trace = new HashMap();
+        HashMap<NumFluent, DoubleArrayList> nf_trace = new HashMap();
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
             Iterator<NumFluent> it = this.pp.getNumFluentsInvolvedInInit().iterator();
             while (it.hasNext()) {
                 NumFluent nf = it.next();
-                ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.fluentValue(nf).floatValue());
+                DoubleArrayList nf_traj = new DoubleArrayList();
+                nf_traj.add(current.fluentValue(nf));
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -1781,10 +1753,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr instanceof GroundProcess) {
 //                System.out.println("Waiting:"+gr.time);
 //                System.out.println("Current Time:"+time);
-                float temp = time;
-                time += gr.time;
+                time += new Float(((GroundProcess)gr).getDelta());
 //                System.out.println("After Waiting:"+time);
-                gr.time = temp;
                 this.add(gr);
             } else if (gr instanceof GroundEvent) {
                 //                System.out.println("Waiting:"+gr.time);
@@ -1796,8 +1766,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 inst_actions.add(gr);
             } else {
 //                System.out.println("time before:"+gr.time);
-                gr.time = time;
-//                System.out.println("time after:"+gr.time);
+//                gr.time = time;
                 this.add(gr);
                 time += epsilon;
                 inst_actions.add(gr);
@@ -1836,8 +1805,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             Iterator it = pp.getNumFluentsInvolvedInInit().iterator();
             while (it.hasNext()) {
                 NumFluent nf = (NumFluent) it.next();
-                ArrayList<Float> nf_traj = new ArrayList();
-                nf_traj.add(current.fluentValue(nf).floatValue());
+                DoubleArrayList nf_traj = new DoubleArrayList();
+                nf_traj.add(current.fluentValue(nf));
                 nf_trace.put(nf, nf_traj);
             }
         }
@@ -1921,7 +1890,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             }
 
-            current = waiting.apply(current);
+            current = (PDDLState) waiting.apply(current);
             this.apply_events(current, reachable_events);
 //            System.out.println(current);    
 //            System.out.println(current);
@@ -1932,9 +1901,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return current;
     }
 
-    private void add_state_to_json(HashMap<NumFluent, ArrayList<Float>> nf_trace, PDDLState current) {
+    private void add_state_to_json(HashMap<NumFluent, DoubleArrayList> nf_trace, PDDLState current) {
         for (NumFluent nf : nf_trace.keySet()) {
-            nf_trace.get(nf).add(current.fluentValue(nf).floatValue());
+            nf_trace.get(nf).add(current.fluentValue(nf));
             numeric_plan_trace.put(nf.toString(), nf_trace.get(nf));
         }
     }
@@ -1946,9 +1915,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
             GroundAction gr = this.inst_actions.get(i);
             if (start + 0.01 < gr.time) {
                 ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", gr.time) + ")------>waiting\n";
+                start = gr.time;
             }
             ret += gr.toEcoString() + "\n";
-            start = gr.time;
+            
         }
         if (start + 0.01 < this.ending_time) {
             ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", ending_time) + ")------>waiting\n";

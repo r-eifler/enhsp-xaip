@@ -20,37 +20,26 @@ package adaptation;
 
 import antlr.RecognitionException;
 import conditions.ComplexCondition;
-import some_computatitional_tool.DomainEnhancer;
-import some_computatitional_tool.NumericKernel;
-import some_computatitional_tool.NumericPlanningGraph;
-import conditions.Condition;
 import domain.PddlDomain;
 import extraUtils.Utils;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jgrapht.alg.BiconnectivityInspector;
 import org.jgrapht.alg.TransitiveClosure;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.AsUndirectedGraph;
 import plan.SimplePlan;
+import problem.*;
+import some_computatitional_tool.DomainEnhancer;
+import some_computatitional_tool.NumericKernel;
+import some_computatitional_tool.NumericPlanningGraph;
 import wrapped_planners.metricFFWrapper;
 import wrapped_planners.planningTool;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.PddlProblem;
-import problem.RelState;
-import problem.PDDLState;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

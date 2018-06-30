@@ -19,31 +19,12 @@
 package conditions;
 
 import domain.Variable;
-import expressions.ExtendedAddendum;
-import expressions.Expression;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-
-import java.util.Map;
-import problem.PDDLState;
-import expressions.PDDLNumber;
-import expressions.Interval;
+import expressions.*;
 import heuristics.utils.AchieverSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.EPddlProblem;
-import problem.GroundAction;
-import problem.PDDLObjects;
-import problem.PddlProblem;
-import problem.RelState;
-import problem.State;
+import problem.*;
 
 /**
  *
@@ -409,11 +390,11 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
-        if (this.left.involve(arrayList)) {
+    public boolean involve(Collection<NumFluent> input) {
+        if (this.left.involve(input)) {
             return true;
         } else {
-            return this.right.involve(arrayList);
+            return this.right.involve(input);
         }
     }
 
@@ -637,15 +618,6 @@ public class Comparison extends Terminal {
         return false;
     }
 
-    public ArrayList<NumFluent> susbtFluentsWithTheirInvariants(int j) {
-
-        this.left = this.left.susbtFluentsWithTheirInvariants(j);
-        this.right = this.right.susbtFluentsWithTheirInvariants(++j);
-        ArrayList ret = new ArrayList();
-        ret.addAll(this.left.rhsFluents());
-        ret.addAll(this.right.rhsFluents());
-        return ret;
-    }
 
     public ArrayList<NumFluent> susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
 
@@ -775,7 +747,7 @@ public class Comparison extends Terminal {
     public boolean is_evaluable(PDDLState tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
         for (NumFluent f : set) {
-            if (tempInit.fluentValue(f) == null) {
+            if (tempInit.fluentValue(f) == Double.NaN) {
                 return false;
             }
         }

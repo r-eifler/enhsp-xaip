@@ -20,27 +20,18 @@ package heuristics;
 
 import conditions.Comparison;
 import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
 import conditions.Condition;
+import conditions.ConditionalEffect;
 import domain.ParametersAsTerms;
 import expressions.BinaryOp;
 import expressions.NumEffect;
 import expressions.PDDLNumber;
 import extraUtils.Utils;
 import heuristics.advanced.h1;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import problem.*;
+
+import java.util.*;
 import java.util.stream.Collectors;
-import problem.GroundAction;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.RelState;
-import problem.PDDLState;
-import problem.State;
 
 /**
  *

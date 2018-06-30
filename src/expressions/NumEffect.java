@@ -18,25 +18,10 @@
  */
 package expressions;
 
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.PDDLObject;
-import conditions.PostCondition;
-import conditions.Predicate;
+import conditions.*;
 import domain.Variable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.PDDLState;
-import problem.PddlProblem;
-import problem.State;
+import java.util.*;
+import problem.*;
 
 /**
  *
@@ -267,7 +252,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
+    public boolean involve(Collection<NumFluent> arrayList) {
         return this.getRight().involve(arrayList);
     }
 

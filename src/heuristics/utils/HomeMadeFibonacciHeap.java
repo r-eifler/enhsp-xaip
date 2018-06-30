@@ -18,6 +18,10 @@
  */
 package heuristics.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 /**
  * *********************************************************************
  * File: FibonacciHeap.java Author: Keith Schwarz (htiek@cs.stanford.edu)
@@ -70,7 +74,6 @@ package heuristics.utils;
  * implement delete by decreasing a key to -\infty, then calling dequeueMin to
  * extract it.
  */
-import java.util.*; // For ArrayList
 
 /**
  * A class representing a Fibonacci heap.

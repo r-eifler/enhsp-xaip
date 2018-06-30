@@ -19,10 +19,11 @@
 package domain;
 
 import conditions.Condition;
-import java.util.HashMap;
-import java.util.Map;
 import problem.GlobalConstraint;
 import problem.PDDLObjects;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *

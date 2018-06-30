@@ -20,9 +20,10 @@ package heuristics.operator_counting;
 
 import conditions.ComplexCondition;
 import heuristics.Heuristic;
-import java.util.Set;
 import problem.GroundAction;
 import problem.State;
+
+import java.util.Set;
 
 /**
  *

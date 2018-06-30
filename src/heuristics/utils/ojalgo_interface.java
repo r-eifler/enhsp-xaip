@@ -25,12 +25,7 @@ import conditions.Predicate;
 import expressions.ExtendedAddendum;
 import expressions.ExtendedNormExpression;
 import expressions.NumEffect;
-import expressions.PDDLNumber;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.*;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
@@ -178,7 +173,7 @@ public final class ojalgo_interface extends LpInterface {
                         for (GroundAction gr : pool) {
 //                                                        System.out.println(gr);
 
-                            if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+                                if (gr.getNumericFluentAffected().contains(ad.f)) {
                                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
                                     if (!neff.getFluentAffected().equals(ad.f)) {
                                         continue;

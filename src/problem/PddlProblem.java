@@ -19,52 +19,18 @@
 package problem;
 
 import antlr.RecognitionException;
-import conditions.AndCond;
-import conditions.ComplexCondition;
-
-import conditions.Condition;
-import conditions.FactoryConditions;
-import conditions.OneOf;
-import conditions.OrCond;
-import conditions.Predicate;
-import conditions.PDDLObject;
-import domain.ParametersAsTerms;
-import domain.ActionSchema;
-import domain.PDDLGenericAction;
-import domain.PddlDomain;
-import domain.SchemaParameters;
-import domain.Type;
-
-import expressions.BinaryOp;
-import expressions.Expression;
-import expressions.NumFluent;
-import expressions.MinusUnary;
-import expressions.MultiOp;
-import expressions.PDDLNumber;
-
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import conditions.*;
+import domain.*;
+import expressions.*;
+import extraUtils.Pair;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-
 import parser.PddlLexer;
 import parser.PddlParser;
 import propositionalFactory.Grounder;
@@ -106,6 +72,7 @@ public class PddlProblem {
     protected HashMap<String, NumFluent> numFluentReference;
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
+    private Collection<GroundAction> reachableActions;
 
     /**
      * Get the value of groundedActions
@@ -540,8 +507,8 @@ public class PddlProblem {
         return null;
     }
 
-    public Float getInitFunctionValue(NumFluent f) {
-        return ((PDDLState)init).fluentValue(f).floatValue();
+    public double getInitFunctionValue(NumFluent f) {
+        return ((PDDLState)init).fluentValue(f);
     }
 
     public NumFluent getNumFluent(String string, ArrayList terms) {
@@ -874,7 +841,7 @@ public class PddlProblem {
                 this.generateActions();
             }
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
-                for (NumFluent nf : gr.getNumericFluentAffected().keySet()) {
+                for (NumFluent nf : gr.getNumericFluentAffected()) {
                     staticFluents.put(nf, Boolean.FALSE);
                 }
             }
@@ -1031,5 +998,58 @@ public class PddlProblem {
     public boolean isSafeState(State temp) {
         return true;
     }
-    
+
+
+    public Iterator<Pair<State,Object>> getSuccessors(State s) {
+        return new stateContainer(s, getReachableActions());
+    }
+
+    public Collection<GroundAction> getReachableActions() {
+        return reachableActions;
+    }
+
+    public void setReachableActions(Collection<GroundAction> actionsToConsider) {
+       reachableActions = new LinkedHashSet();
+        for (GroundAction gr : actionsToConsider) {
+            Iterator<GroundAction> it = getActions().iterator();
+            while (it.hasNext()) {
+                GroundAction gr2 = it.next();
+                if (gr.equals(gr2)) {
+                    reachableActions.add(gr2);
+                }
+            }
+        }
+    }
+
+
+    private class stateContainer implements Iterator{
+        final private State source;
+        final private Collection<GroundAction> actionsSet;
+        GroundAction current;
+        private Iterator<GroundAction> it;
+        public stateContainer(State source, Collection<GroundAction> actionsSet) {
+            this.source = source;
+            this.actionsSet = actionsSet;
+            it = actionsSet.iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            while (it.hasNext()){
+                current = it.next();
+                if (current.isApplicable(source)){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Pair<State,GroundAction> next() {
+            State newState = source.clone();
+            newState.apply(current);
+            return new Pair(newState,current);
+        }
+    }
+
 }

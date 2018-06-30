@@ -18,24 +18,12 @@
  */
 package some_computatitional_tool;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.Predicate;
-import expressions.NumFluent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import conditions.*;
 import problem.GroundAction;
-import problem.RelState;
 import problem.PDDLState;
+import problem.RelState;
+
+import java.util.*;
 
 /**
  *

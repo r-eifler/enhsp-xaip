@@ -20,7 +20,6 @@ package domain;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import problem.PDDLObjects;
 
 /**
  *

@@ -18,8 +18,9 @@
  */
 package conditions;
 
-import java.util.ArrayList;
 import problem.RelState;
+
+import java.util.ArrayList;
 
 /**
  *

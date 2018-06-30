@@ -23,27 +23,23 @@ package adaptation;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 import adaptation.PlanAdapter;
-import some_computatitional_tool.DomainEnhancer;
 import domain.PddlDomain;
 import extraUtils.Utils;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import plan.SimplePlan;
+import problem.PDDLObjects;
+import problem.PddlProblem;
+import some_computatitional_tool.DomainEnhancer;
+import wrapped_planners.metricFFWrapper;
+import wrapped_planners.planningTool;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import plan.SimplePlan;
-import wrapped_planners.metricFFWrapper;
-import wrapped_planners.planningTool;
-import problem.PDDLObjects;
-import problem.PddlProblem;
 
 /**
  *

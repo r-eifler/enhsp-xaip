@@ -18,33 +18,11 @@
  */
 package domain;
 
-import conditions.ForAll;
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.FactoryConditions;
-import conditions.NotCond;
-import conditions.PDDLObject;
-import conditions.PostCondition;
-import conditions.Predicate;
+import conditions.*;
 import expressions.NumFluent;
 import extraUtils.Utils;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.antlr.runtime.ANTLRInputStream;
@@ -264,6 +242,7 @@ public final class PddlDomain extends Object {
 //        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types,this.constants);
             CommonTree t = (CommonTree) root.getTree();
             int i;
+            fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
             for (i = 0; i < t.getChildCount(); i++) {
                 Tree c = t.getChild(i);
                 int type = c.getType();
@@ -291,15 +270,13 @@ public final class PddlDomain extends Object {
                         addRequirements(c);
                         break;
                     case PddlParser.FUNCTIONS:
-                        addFunctions(c);
-                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
-
+                        this.functions.addAll(fc.addFunctions(c));
                         break;
                     case PddlParser.CONSTANTS:
                         addConstants(c);
                         break;
                     case PddlParser.FREE_FUNCTIONS:
-                        addFree_Functions(c);
+                        this.derived_variables.addAll(fc.addFunctions(c));
                         break;
                     case PddlParser.GLOBAL_CONSTRAINT:
                         fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
@@ -453,27 +430,7 @@ public final class PddlDomain extends Object {
         }
     }
 
-    private void addFunctions(Tree c) {
-        if (c != null) {
-            for (int i = 0; i < c.getChildCount(); i++) {
-
-                //System.out.println(c.getChild(i).getText());
-                NumFluent ret = new NumFluent(c.getChild(i).getText());
-                Tree t = c.getChild(i);
-                for (int j = 0; j < t.getChildCount(); j++) {
-                    Variable v = new Variable(t.getChild(j).getText());
-                    if (t.getChild(j).getChild(0) != null);
-                    //System.out.println(t.getChild(j));
-
-                    //System.out.println(t.getChild(j).getChild(0));
-                    v.setType(new Type(t.getChild(j).getChild(0).getText()));
-
-                    ret.addVariable(v);
-                }
-                this.functions.add(ret);
-            }
-        }
-    }
+    
 
     //
     /**
@@ -646,26 +603,7 @@ public final class PddlDomain extends Object {
         return ret;
     }
 
-    private void addFree_Functions(Tree c) {
-        if (c != null) {
-            for (int i = 0; i < c.getChildCount(); i++) {
-                //System.out.println(c.getChild(i).getText());
-                NumFluent ret = new NumFluent(c.getChild(i).getText());
-                Tree t = c.getChild(i);
-                for (int j = 0; j < t.getChildCount(); j++) {
-                    Variable v = new Variable(t.getChild(j).getText());
-                    if (t.getChild(j).getChild(0) != null);
-                    //System.out.println(t.getChild(j));
-
-                    //System.out.println(t.getChild(j).getChild(0));
-                    v.setType(new Type(t.getChild(j).getChild(0).getText()));
-
-                    ret.addVariable(v);
-                }
-                this.get_derived_variables().add(ret);
-            }
-        }
-    }
+  
 
     /**
      * @return the free_functions

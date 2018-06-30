@@ -22,15 +22,8 @@ import domain.PredicateSet;
 import domain.SchemaParameters;
 import domain.Type;
 import domain.Variable;
-import expressions.BinaryOp;
-import expressions.ComplexFunction;
-import expressions.Expression;
-import expressions.MinusUnary;
-import expressions.MultiOp;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.TrigonometricFunction;
+import expressions.*;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import org.antlr.runtime.tree.Tree;
 import parser.PddlParser;
@@ -40,7 +33,7 @@ import problem.PDDLObjects;
  *
  * @author Enrico Scala
  */
-public class FactoryConditions {
+public class FactoryConditions  {
 
     private final PredicateSet predicates;
     private final LinkedHashSet<Type> types;
@@ -55,6 +48,7 @@ public class FactoryConditions {
         this.predicates = predicates;
         this.types = types;
         this.constants = constants;
+        
     }
 
     private Variable buildVariable(Tree t, SchemaParameters parTable) {
@@ -617,7 +611,28 @@ public class FactoryConditions {
                 return null;
         }
     }
-    
-    
+    public Collection<NumFluent> addFunctions(Tree c) {
+        LinkedHashSet<NumFluent> res = new LinkedHashSet();
+        if (c != null) {
+            for (int i = 0; i < c.getChildCount(); i++) {
+
+                //System.out.println(c.getChild(i).getText());
+                NumFluent ret = new NumFluent(c.getChild(i).getText());
+                Tree t = c.getChild(i);
+                for (int j = 0; j < t.getChildCount(); j++) {
+                    Variable v = new Variable(t.getChild(j).getText());
+                    if (t.getChild(j).getChild(0) != null);
+                    //System.out.println(t.getChild(j));
+
+                    //System.out.println(t.getChild(j).getChild(0));
+                    v.setType(new Type(t.getChild(j).getChild(0).getText()));
+
+                    ret.addVariable(v);
+                }
+                res.add(ret);
+            }
+        }
+        return res;
+    }
 
 }

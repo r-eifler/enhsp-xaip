@@ -18,43 +18,21 @@
  */
 package heuristics;
 
-import heuristics.utils.HeuristicSearchNode;
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.Condition;
-import conditions.Predicate;
-import expressions.ExtendedAddendum;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.Interval;
+import conditions.*;
+import expressions.*;
 import extraUtils.Pair;
 import extraUtils.Utils;
 import heuristics.advanced.h1;
-import java.util.ArrayList;
-import java.util.Collection;
+import heuristics.utils.HeuristicSearchNode;
+import java.util.*;
 import static java.util.Collections.nCopies;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
-import problem.GroundAction;
-import problem.RelState;
-import problem.PDDLState;
 import org.ojalgo.optimisation.Variable;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.State;
+import problem.*;
 
 /**
  *
@@ -251,9 +229,7 @@ public abstract class Heuristic {
 
     }
     
-    public Float gValue(State s, GroundAction gr, State next, Float previousG){
-        return previousG+gr.getActionCost(s);
-    }
+    
 
     /**
      *
@@ -655,7 +631,7 @@ public abstract class Heuristic {
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
-                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect()) || ne.getOperator().equals("assign")) {
+                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect()) ) {
                                     is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
@@ -779,7 +755,7 @@ public abstract class Heuristic {
                             boolean condition_investigated = false;
 
 //                                                        System.out.println(gr);
-                            if (gr.getNumericFluentAffected().get(ad.f) != null && gr.getNumericFluentAffected().get(ad.f).equals(Boolean.TRUE)) {
+                            if (gr.getNumericFluentAffected().contains(ad.f)) {
                                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
                                     if (!neff.getFluentAffected().equals(ad.f)) {
                                         continue;
@@ -1065,4 +1041,11 @@ public abstract class Heuristic {
         this.G.normalize();
     }
 
+    public float gValue(State s, Object transition, State next, Float previousG){
+        GroundAction gr = (GroundAction)transition;
+        if (gr == null)
+            return previousG;
+        return previousG + gr.getActionCost(s);
+    }
+    
 }

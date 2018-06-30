@@ -18,22 +18,12 @@
  */
 package domain;
 
-import conditions.AndCond;
-import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
-import conditions.Condition;
-import conditions.ForAll;
-import conditions.NotCond;
-import conditions.PostCondition;
-import conditions.Predicate;
-
+import conditions.*;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import java.util.*;
 import problem.EPddlProblem;
 
 public abstract class PDDLGenericAction  {
@@ -44,9 +34,10 @@ public abstract class PDDLGenericAction  {
     protected AndCond numericEffects;
     protected ComplexCondition preconditions;
     public AndCond cond_effects;
-    protected HashMap<NumFluent, Boolean> numericFluentAffected;
+    protected Object2BooleanMap numericFluentAffected;
     protected SchemaParameters parameters;
     protected AndCond forall;
+    public Float time = null;
 
     /**
      * @return the addList
@@ -119,10 +110,10 @@ public abstract class PDDLGenericAction  {
         this.preconditions = preconditions;
     }
 
+    @Override
     public String toString() {
-        return "GenericActionType{" + "name=" + name + ", addList=" + addList + ", delList=" + delList + ", numericEffects=" + numericEffects + ", preconditions=" + preconditions + ", cond_effects=" + cond_effects + '}';
+        return "PDDLGenericAction{" + "name=" + name + ", parameters=" + parameters + ", time=" + time + '}';
     }
-
 
    
     /**
@@ -192,7 +183,7 @@ public abstract class PDDLGenericAction  {
     }
 
     public HashMap update_invariant_fluents(HashMap invariantFluents) {
-        for (NumFluent nf : this.getNumericFluentAffected().keySet()) {
+        for (Object nf : this.getNumericFluentAffected()) {
             invariantFluents.put(nf, Boolean.FALSE);
         }
         for (Predicate p : this.getPropositionAffected()) {
@@ -201,14 +192,15 @@ public abstract class PDDLGenericAction  {
         return invariantFluents;
     }
 
-    public HashMap<NumFluent, Boolean> getNumericFluentAffected() {
+    
+    public Collection<NumFluent> getNumericFluentAffected() {
         this.generateAffectedNumFluents();
-        return this.numericFluentAffected;
+        return this.numericFluentAffected.keySet();
     }
 
     public void forcedGenerateAffectedNumFluents() {
 
-        numericFluentAffected = new HashMap();
+        numericFluentAffected = new Object2BooleanOpenHashMap();
         AndCond num = this.getNumericEffects();
         if (num != null) {
             for (Object o : num.sons) {
@@ -231,13 +223,13 @@ public abstract class PDDLGenericAction  {
         if (numericFluentAffected != null) {
             return;
         }
-        numericFluentAffected = new HashMap();
+        numericFluentAffected = new Object2BooleanOpenHashMap();
         AndCond num = this.getNumericEffects();
         if (num != null) {
             for (Object o : num.sons) {
                 if (o instanceof NumEffect) {
                     NumEffect e = (NumEffect) o;
-                    this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
+                    this.numericFluentAffected.put(e.getFluentAffected(), true);
                 }
             }
         }
@@ -245,7 +237,7 @@ public abstract class PDDLGenericAction  {
         if (this.cond_effects != null) {
             for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
                 for (NumFluent nf : c_eff.affectedNumericFluents()) {
-                    this.numericFluentAffected.put(nf, Boolean.TRUE);
+                    this.numericFluentAffected.put(nf, true);
                 }
             }
         }
@@ -322,4 +314,43 @@ public abstract class PDDLGenericAction  {
         cond_effects = (AndCond) cond_effects.unifyVariablesReferences(p);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.parameters);
+        hash = 97 * hash + Objects.hashCode(this.time);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PDDLGenericAction other = (PDDLGenericAction) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.parameters, other.parameters)) {
+            return false;
+        }
+        if (!Objects.equals(this.time, other.time)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
+
+ 
+
+    
+    
 }

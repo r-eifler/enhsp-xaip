@@ -21,17 +21,12 @@ package conditions;
 import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import problem.EPddlProblem;
 import problem.PDDLObjects;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

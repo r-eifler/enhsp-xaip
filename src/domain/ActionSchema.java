@@ -18,24 +18,16 @@
  */
 package domain;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
-import conditions.Condition;
-import conditions.NotCond;
-
-import conditions.PDDLObject;
-import conditions.Predicate;
+import conditions.*;
 import expressions.NumEffect;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import problem.GroundAction;
 import problem.PDDLObjects;
 import problem.PddlProblem;
 import propositionalFactory.Grounder;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *

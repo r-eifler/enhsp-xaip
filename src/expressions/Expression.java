@@ -21,14 +21,11 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.PddlProblem;
-import problem.State;
+import problem.*;
 
 /**
  *
@@ -79,7 +76,7 @@ public abstract class Expression extends Object {
 
     public abstract Interval eval(RelState s);
 
-    public abstract boolean involve(HashMap<NumFluent, Boolean> arrayList);
+    public abstract boolean involve(Collection<NumFluent> input);
 
     public abstract Expression subst(Condition numeric);
 

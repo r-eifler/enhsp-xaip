@@ -18,23 +18,7 @@
  */
 package other_main_files;
 
-import some_computatitional_tool.DomainEnhancer;
 import domain.PddlDomain;
-import extraUtils.Utils;
-import static extraUtils.Utils.searchParameter;
-import static extraUtils.Utils.searchParameterValue;
-import java.awt.geom.Rectangle2D;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import org.antlr.runtime.RecognitionException;
 import org.jgraph.JGraph;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
@@ -43,10 +27,18 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import plan.SimplePlan;
-import wrapped_planners.metricFFWrapper;
 import problem.GroundAction;
 import problem.PDDLState;
 import problem.PddlProblem;
+import some_computatitional_tool.DomainEnhancer;
+import wrapped_planners.metricFFWrapper;
+
+import javax.swing.*;
+import java.awt.geom.Rectangle2D;
+import java.util.*;
+
+import static extraUtils.Utils.searchParameter;
+import static extraUtils.Utils.searchParameterValue;
 
 /**
  * *******************************************************************

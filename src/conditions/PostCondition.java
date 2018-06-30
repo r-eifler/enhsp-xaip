@@ -19,12 +19,13 @@
 package conditions;
 
 import expressions.NumFluent;
+import problem.PDDLState;
+import problem.RelState;
+import problem.State;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.RelState;
-import problem.PDDLState;
-import problem.State;
 
 /**
  *

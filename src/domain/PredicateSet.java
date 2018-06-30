@@ -18,8 +18,8 @@
  */
 package domain;
 
-import conditions.Predicate;
 import conditions.PDDLObject;
+import conditions.Predicate;
 
 import java.util.HashSet;
 

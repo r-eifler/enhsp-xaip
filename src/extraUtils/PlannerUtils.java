@@ -6,7 +6,8 @@ import heuristics.advanced.h1;
 import heuristics.blindHeuristic;
 import java.util.LinkedList;
 import problem.EPddlProblem;
-import search.SearchStrategies;
+import search.PDDLSearchEngine;
+import search.SearchEngine;
 
 /*
  * Copyright (C) 2018 enrico.
@@ -32,13 +33,17 @@ import search.SearchStrategies;
  */
 public class PlannerUtils {
 
+    
     public int getPlanSize(String domainFileName, String problemFileName, String heuristic) throws Exception {
+        return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1);
+    }
+    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
         domain.validate(problem);
 
-        final SearchStrategies searchStrategies = new SearchStrategies(); //manager of the search strategies
+        final PDDLSearchEngine searchStrategies = new PDDLSearchEngine(); //manager of the search strategies
 
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
@@ -63,13 +68,19 @@ public class PlannerUtils {
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
             h.additive_h = true;
+        }if (heuristic.equals("hmax")) {
+            searchStrategies.setup_heuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+            h1 h = (h1) searchStrategies.getHeuristic();
+            h.useRedundantConstraints = false;
+            h.additive_h = false;
         } else {
             searchStrategies.setup_heuristic(new blindHeuristic(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
         }
 
-        searchStrategies.set_w_g(1);
-        searchStrategies.set_w_h(1);
+        searchStrategies.set_w_g(wg);
+        searchStrategies.set_w_h(wh);
         LinkedList raw_plan = searchStrategies.wa_star(problem);
+        System.out.println("Nodes Expanded:"+ SearchEngine.nodesExpanded);
         //System.out.println(raw_plan.size());
         return raw_plan.size();
     }
@@ -80,7 +91,7 @@ public class PlannerUtils {
         domain.prettyPrint();
         domain.validate(problem);
 
-        final SearchStrategies searchStrategies = new SearchStrategies(); //manager of the search strategies
+        final SearchEngine searchStrategies = new SearchEngine(); //manager of the search strategies
 
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {

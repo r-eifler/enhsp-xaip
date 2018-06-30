@@ -21,16 +21,8 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.PddlProblem;
-import problem.State;
+import java.util.*;
+import problem.*;
 
 /**
  *
@@ -173,7 +165,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> arrayList) {
+    public boolean involve(Collection<NumFluent> arrayList) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -21,10 +21,11 @@ package domain;
 import conditions.AndCond;
 import conditions.ComplexCondition;
 import conditions.PDDLObject;
-import java.util.HashMap;
-import java.util.Map;
 import problem.GroundEvent;
 import problem.PDDLObjects;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *

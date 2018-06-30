@@ -7,34 +7,16 @@ package heuristics.advanced;
 
 import conditions.Comparison;
 import conditions.ComplexCondition;
-import expressions.BinaryOp;
-import expressions.Expression;
-import expressions.ExtendedNormExpression;
-import expressions.Interval;
-import expressions.NumEffect;
-import expressions.PDDLNumber;
+import expressions.*;
 import extraUtils.Pair;
 import heuristics.Aibr;
 import heuristics.Heuristic;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import problem.*;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import problem.GroundEvent;
-import problem.GroundProcess;
-import problem.GroundAction;
-
-import problem.RelState;
-import problem.PDDLState;
-import problem.Metric;
-import problem.State;
 
 /**
  *

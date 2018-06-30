@@ -18,36 +18,16 @@
  */
 package problem;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.NotCond;
-import conditions.OrCond;
-import conditions.PDDLObject;
-import conditions.Predicate;
-import domain.ActionSchema;
-import domain.EventSchema;
-import domain.PDDLGenericAction;
-import domain.ProcessSchema;
-import domain.SchemaGlobalConstraint;
-import domain.Type;
-import domain.Variable;
-import expressions.BinaryOp;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import heuristics.Aibr;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import conditions.*;
+import domain.*;
+import expressions.*;
+import extraUtils.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import propositionalFactory.Grounder;
+import search.SearchEngine;
 
 /**
  *
@@ -63,11 +43,12 @@ public class EPddlProblem extends PddlProblem {
 
     private boolean grounding;
     private boolean action_cost_from_metric = true;
-    private boolean risky = true;
+    private boolean risky = false;
     private NumFluent time;
     private boolean processesHaveBeenGrounded;
     private boolean globalConstraintGrounded;
     private HashMap<Object, Integer> idOf;
+    private int constraintsViolations;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -931,6 +912,151 @@ public class EPddlProblem extends PddlProblem {
 //        System.out.println("After Reachability |BoolVar| = "+this.init.boolFluents.size());
 //        
     }
+
+    @Override
+    public ObjectIterator<Pair<State,Object>> getSuccessors(State s) {
+        return new stateContainer(s, (Collection)getReachableActions());
+    }
+
+    public boolean milestoneReached(Float d, Float current_value, State temp) {
+      return d < current_value && this.isSafeState(temp);
+    }
+
+    private List<GroundEvent> getReacheableEvents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private Iterable<GroundAction> getReachableProcesses() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    private class stateContainer implements ObjectIterator<Pair<State,Object>>{
+        final private State source;
+        final private Collection<Object> actionsSet;
+        Object current;
+        State newState;
+        private final Iterator<Object> it;
+        public stateContainer(State source, Collection<Object> actionsSet) {
+            this.source = source;
+            this.actionsSet = actionsSet;
+            it = actionsSet.iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            
+            while (it.hasNext()){
+                current = it.next();
+                if (((GroundAction)current).isApplicable(source)){
+                    newState = source.clone();
+                    return newState.satisfy(globalConstraints);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Pair<State,Object> next() {
+            newState.apply(((GroundAction)current));
+            return new Pair(newState,current);
+        }
+    }
+    
+    private ArrayList<GroundEvent> eventsApplication(State s, float delta1, List<GroundEvent> events) throws CloneNotSupportedException {
+        ArrayList<GroundEvent> ret = new ArrayList<>();
+        while (true) {
+            boolean at_least_one = false;
+            for (GroundEvent ev : events) {
+
+                if (ev.isApplicable(s)) {
+                    at_least_one = true;
+                    s.apply(ev);
+                    GroundEvent ev1 = (GroundEvent) ev.clone();
+                    ev1.time = delta1;
+                    ret.add(ev1);
+
+                }
+            }
+            if (!at_least_one) {
+                return ret;
+            }
+        }
+
+    }
+    
+    private Pair<List<State>,ArrayList<ArrayList<GroundAction>>> advanceTime(float delta, float delta_max, State s) {
+        
+        constraintsViolations = 0;
+        List<State> states = new LinkedList();
+        List<ArrayList<GroundAction>> transitions = new LinkedList();
+        try {
+            float i = 0.00000f;
+            State temp = s.clone();
+            ArrayList<GroundAction> waiting_list = new ArrayList<>();
+            boolean at_least_one = false;
+            while (i < delta_max) {
+                State temp_temp = temp.clone();
+                waiting_list.addAll(eventsApplication(temp_temp, i,this.getReacheableEvents()));
+                i += delta;
+
+                GroundProcess waiting = new GroundProcess("waiting");
+                waiting.setNumericEffects(new AndCond());
+                waiting.setPreconditions(new AndCond());
+                //waiting.add_time_effects(((PDDLState)temp).time, delta);
+                waiting.addDelta(delta);
+                for (GroundAction act : this.getReachableProcesses()) {
+                    if (act instanceof GroundProcess) {
+                        GroundProcess gp = (GroundProcess) act;
+                        if (gp.isActive(temp_temp)) {
+                            //System.out.println(gp.toEcoString());
+                            AndCond precondition = (AndCond) waiting.getPreconditions();
+                            precondition.addConditions(gp.getPreconditions());
+                            gp.getNumericEffectsAsCollection().forEach((eff) -> {
+                                waiting.add_numeric_effect(eff);
+                            });
+                            waiting.setPreconditions(precondition);
+                        }
+                    }
+                }
+                waiting_list.add(waiting);
+
+                temp_temp.apply(waiting);
+                waiting_list.addAll(eventsApplication(temp_temp, i,this.getReacheableEvents()));
+
+                //the next has to be written better!!!! Spend a bit of time on that!
+                boolean valid = temp_temp.satisfy(globalConstraints);//zero crossing?!?!?
+                if (!valid) {
+                    constraintsViolations++;
+                } else {
+                    at_least_one = true;
+                    if (temp_temp.satisfy(getGoals())) {//very very easy zero crossing for opportunities. This should include also action preconditions
+                        states.add(temp_temp);
+                        transitions.add(waiting_list);
+                    }
+                }
+                if (!valid || i >= delta_max) {
+                    if (i >= delta_max && valid) {
+                        temp = temp_temp;
+                    } else {
+//                        System.out.println("smaller jump here?");
+//                        System.out.println("Waiting at this time for:"+i);
+                    }
+                    if (at_least_one) {
+                        states.add(temp);
+                        transitions.add(waiting_list);                    }
+                    break;
+                } else {
+                    temp = temp_temp;
+                }
+            }
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(SearchEngine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new Pair(states,transitions);
+    }
+
+   
 
     
 

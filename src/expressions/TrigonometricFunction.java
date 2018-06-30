@@ -21,14 +21,11 @@ package expressions;
 import conditions.Condition;
 import conditions.PDDLObject;
 import domain.Variable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import problem.EPddlProblem;
-import problem.PDDLObjects;
-import problem.RelState;
-import problem.PddlProblem;
-import problem.State;
+import problem.*;
 
 /**
  *
@@ -137,7 +134,7 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public boolean involve(HashMap<NumFluent, Boolean> input) {
+    public boolean involve(Collection<NumFluent> input) {
         return getArg().involve(input);
     }
 

@@ -20,7 +20,6 @@ package heuristics.utils;
 
 import conditions.Condition;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import problem.GroundAction;
 
 /**
@@ -29,7 +28,7 @@ import problem.GroundAction;
  */
 public class AchieverSet {
 
-    public Float cost;
+    public float cost;
     public HashSet<GroundAction> actions;
     public HashSet<Condition> target_cond;
 

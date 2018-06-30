@@ -18,11 +18,9 @@
  */
 package org.ojalgo.optimisation.external;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import ilog.concert.*;
+import ilog.cplex.IloCplex;
+import ilog.cplex.IloCplex.Status;
 import org.ojalgo.access.IntIndex;
 import org.ojalgo.access.IntRowColumn;
 import org.ojalgo.array.PrimitiveArray;
@@ -33,15 +31,10 @@ import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
 
-import ilog.concert.IloException;
-import ilog.concert.IloLQNumExpr;
-import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumExpr;
-import ilog.concert.IloNumVar;
-import ilog.concert.IloNumVarType;
-import ilog.concert.IloQuadNumExpr;
-import ilog.cplex.IloCplex;
-import ilog.cplex.IloCplex.Status;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class SolverCPLEX implements Optimisation.Solver {
 

@@ -18,36 +18,13 @@
  */
 package problem;
 
-import conditions.AndCond;
-import conditions.Comparison;
-import conditions.ComplexCondition;
-import conditions.ConditionalEffect;
-import conditions.Condition;
-import conditions.NotCond;
-import conditions.OrCond;
-import conditions.PDDLObject;
-import conditions.PostCondition;
-import conditions.Predicate;
-import domain.ParametersAsTerms;
-import domain.ActionSchema;
-import domain.PDDLGenericAction;
-import domain.PddlDomain;
-import domain.Variable;
-import expressions.ExtendedAddendum;
-import expressions.Expression;
-import expressions.ExtendedNormExpression;
-import expressions.NumEffect;
-import expressions.NumFluent;
-import expressions.PDDLNumber;
-import expressions.Interval;
+import conditions.*;
+import domain.*;
+import expressions.*;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plan.SimplePlan;
@@ -66,7 +43,6 @@ public class GroundAction extends PDDLGenericAction {
     private Float actionCost;
     
     private HashMap<Predicate, Boolean> achieve;
-    public Float time = null;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
     public boolean dummy_goal;
     
@@ -90,7 +66,7 @@ public class GroundAction extends PDDLGenericAction {
         }
 
         if (this.numericFluentAffected != null) {
-            ret.numericFluentAffected = (HashMap) this.numericFluentAffected.clone();
+            ret.numericFluentAffected = new Object2BooleanOpenHashMap(this.numericFluentAffected);
         }
         if (this.parameters_as_terms != null) {
             ret.parameters_as_terms = (ParametersAsTerms) this.parameters_as_terms.clone();
@@ -103,24 +79,9 @@ public class GroundAction extends PDDLGenericAction {
 
     }
 
-    /**
-     *
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj) {
-        GroundAction gr = (GroundAction) obj;
-        return (gr.getName().equalsIgnoreCase(this.getName())) && gr.getParameters().equals(this.getParameters());
-    }
+ 
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 29 * hash + (this.parameters_as_terms != null ? this.parameters_as_terms.hashCode() : 0);
-        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
-        return hash;
-    }
+
 
     public GroundAction() {
         super();
@@ -148,6 +109,8 @@ public class GroundAction extends PDDLGenericAction {
         actionCost = null;
         achieve = new HashMap();
     }
+    
+    
 
 //    @Override
 //    public String toString() {
@@ -271,12 +234,12 @@ public class GroundAction extends PDDLGenericAction {
         if (this.list_of_numeric_fluents_affected == null) {
             AndCond num = this.getNumericEffects();
             list_of_numeric_fluents_affected = new LinkedHashSet();
-            this.numericFluentAffected = new HashMap();
+            this.numericFluentAffected = new Object2BooleanOpenHashMap();
             if (num != null) {
                 for (Object o : num.sons) {
                     if (o instanceof NumEffect) {
                         NumEffect e = (NumEffect) o;
-                        this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
+                        this.numericFluentAffected.put(e.getFluentAffected(), true);
                         list_of_numeric_fluents_affected.add(e);
                     }
                 }
@@ -314,7 +277,7 @@ public class GroundAction extends PDDLGenericAction {
     /**
      * @param numericFluentAffected the numericFluentAffected to set
      */
-    public void setNumericFluentAffected(HashMap<NumFluent, Boolean> numericFluentAffected) {
+    public void setNumericFluentAffected(Object2BooleanMap numericFluentAffected) {
         this.numericFluentAffected = numericFluentAffected;
     }
 
@@ -554,7 +517,7 @@ public class GroundAction extends PDDLGenericAction {
             for (Object o : a.getNumericEffects().sons) {
                 NumEffect nf = (NumEffect) o;
                 //nf.getFluentAffected();
-                if (ab.getNumericFluentAffected().get(nf.getFluentAffected()) == null) {
+                if (ab.getNumericFluentAffected().contains(nf.getFluentAffected())) {
                     numEff.sons.add(o);
                     ab.addNumericFluentAffected(nf.getFluentAffected());
                 }
@@ -877,9 +840,9 @@ public class GroundAction extends PDDLGenericAction {
 
         this.generateAffectedNumFluents();
         if (aThis.isNormalized()) {
-            return aThis.getLeft().involve(numericFluentAffected) || aThis.getRight().involve(this.numericFluentAffected);
+            return aThis.getLeft().involve(numericFluentAffected.keySet()) || aThis.getRight().involve((Collection<NumFluent>) this.numericFluentAffected.keySet());
         } else {
-            return aThis.getLeft().involve(this.numericFluentAffected) || aThis.getRight().involve(this.numericFluentAffected);
+            return aThis.getLeft().involve(this.numericFluentAffected.keySet()) || aThis.getRight().involve(this.numericFluentAffected.keySet());
         }
 
     }
@@ -1526,9 +1489,9 @@ public class GroundAction extends PDDLGenericAction {
 
     private void addNumericFluentAffected(NumFluent fluentAffected) {
         if (this.numericFluentAffected == null) {
-            this.numericFluentAffected = new HashMap();
+            this.numericFluentAffected = new Object2BooleanOpenHashMap();
         }
-        this.numericFluentAffected.put(fluentAffected, Boolean.TRUE);
+        this.numericFluentAffected.put(fluentAffected, true);
     }
 
     public Comparison regressComparisonMtimes(Comparison comparison) throws CloneNotSupportedException {
@@ -1557,7 +1520,7 @@ public class GroundAction extends PDDLGenericAction {
 //            }
 
             ele.generateAffectedNumFluents();
-            if (ne.getRight().involve(ele.numericFluentAffected)) {
+            if (ne.getRight().involve(ele.numericFluentAffected.keySet())) {
                 return true;
             }
         }
@@ -1939,7 +1902,7 @@ public class GroundAction extends PDDLGenericAction {
         for (NumEffect e : this.getNumericEffectsAsCollection()) {
             if (e.getOperator().equalsIgnoreCase("increase") || e.getOperator().equalsIgnoreCase("decrease")) {
 
-                if (s.fluentValue(e.getFluentAffected()) == null) {
+                if (s.fluentValue(e.getFluentAffected()) == Double.NaN) {
                     return false;
                 }
             }
@@ -2039,8 +2002,39 @@ public class GroundAction extends PDDLGenericAction {
     public float getActionCost(State s) {
         return this.actionCost;
     }
-    
-    
+
+        @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.parameters_as_terms);
+        hash = 97 * hash + Objects.hashCode(this.time);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final GroundAction other = (GroundAction) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.parameters_as_terms, other.parameters_as_terms)) {
+            return false;
+        }
+        if (!Objects.equals(this.time, other.time)) {
+            return false;
+        }
+        return true;
+    }
 
 
     
