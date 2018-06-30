@@ -43,7 +43,7 @@ public class EPddlProblem extends PddlProblem {
 
     private boolean grounding;
     private boolean action_cost_from_metric = true;
-    private boolean risky = true;
+    private boolean risky = false;
     private NumFluent time;
     private boolean processesHaveBeenGrounded;
     private boolean globalConstraintGrounded;
