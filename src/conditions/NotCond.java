@@ -22,11 +22,10 @@ import conditions.Predicate.true_false;
 import domain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import problem.*;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
 
 /**
  *
@@ -411,7 +410,12 @@ public class NotCond extends Terminal implements PostCondition {
             NotCond nc = (NotCond) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
             return nc.son.push_not_to_terminals();
-        } else {
+        } else if (son instanceof Existential) {
+            Existential nc = (Existential) son;
+//            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
+            
+            return nc.push_not_to_terminals();
+        }else {
             System.out.println("Condition " + son.getClass() + " not supported");
             System.exit(-1);
         }
