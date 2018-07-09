@@ -115,6 +115,7 @@ public class h1 extends Heuristic {
         pseudoGoal.setAction_cost(0);
         pseudoGoal.setPreconditions(G);
         A.add(pseudoGoal);
+        System.out.println("Actions After AIBR-Reachability:"+A.size());
         //System.out.println("Building integer representation");
         boolean reconstruct = false;
         do {
@@ -131,6 +132,7 @@ public class h1 extends Heuristic {
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
         ret = compute_estimate(s);
         Utils.dbg_print(debug - 10, "Reachability Analysis Terminated");
+//        System.out.println("Actions After Reachability:"+this.reachable);
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
@@ -390,6 +392,7 @@ public class h1 extends Heuristic {
         Set<GroundAction> set = conditionToAction[comp.getHeuristicId()];
         //this mapping contains action that need to be triggered becasue of condition comp
         for (final GroundAction gr2 : set) {
+            
             if (closed[gr2.id]) {
                 if (this.additive_h || !this.conservativehmax) {
                     continue;
@@ -443,14 +446,12 @@ public class h1 extends Heuristic {
             if (and.sons == null) {
                 return 0f;
             }
-            float ret = 0f;
+            float ret = Float.MAX_VALUE;
             for (final Condition son : (Collection<Condition>) and.sons) {
                 float estimate = estimateCost(son);
-                if (estimate == Float.MAX_VALUE) {
-                    return Float.MAX_VALUE;
+                if (estimate != Float.MAX_VALUE) {
+                    ret = Math.min(estimate, ret);
                 }
-
-                ret = Math.min(estimate, ret);
 
             }
             return ret;
@@ -812,13 +813,6 @@ public class h1 extends Heuristic {
                 }
 
                 if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
-//                    System.out.println("Gr:"+ gr);
-//                    try {
-//                        System.in.read();
-//                    } catch (IOException ex) {
-//                        Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
-
                     LinkedHashSet<GroundAction> temp = this.precondition_mapping[c.getHeuristicId()];
                     temp.add(gr);
                     this.precondition_mapping[c.getHeuristicId()] =  temp;

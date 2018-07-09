@@ -21,9 +21,8 @@ package conditions;
 import domain.Variable;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import problem.*;
-
 import java.util.*;
+import problem.*;
 
 /**
  *
@@ -31,7 +30,7 @@ import java.util.*;
  */
 public class Predicate extends Terminal implements PostCondition {
 
-    private String predicateName;
+    private String name;
     private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
     public HashSet son;
     public Integer hash_code;
@@ -156,10 +155,10 @@ public class Predicate extends Terminal implements PostCondition {
         //variables = new ArrayList();
         if (input == true_false.TRUE) {
             this.setValid(true);
-            this.predicateName = "TRUE";
+            this.name = "TRUE";
         } else {
             this.setUnsatisfiable(true);
-            this.predicateName = "FALSE";
+            this.name = "FALSE";
         }
         terms = new ArrayList();
 
@@ -168,7 +167,7 @@ public class Predicate extends Terminal implements PostCondition {
     public Predicate(String name) {
         super();
         //variables = new ArrayList();
-        this.predicateName = name;
+        this.name = name;
         terms = new ArrayList();
 
     }
@@ -183,7 +182,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     public String getPredicateName() {
-        return predicateName;
+        return name;
     }
 
 //    //return a grounded copy of the Predicate
@@ -209,7 +208,7 @@ public class Predicate extends Terminal implements PostCondition {
      * @param predicateName the predicateName to set
      */
     public void setPredicateName(String predicateName) {
-        this.predicateName = predicateName;
+        this.name = predicateName;
     }
 
     /**
@@ -235,12 +234,26 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public String toString() {
-        String ret_val = "(" + this.predicateName + " ";
+        String ret = "";
+        ret += "(" + this.name;
+        for (Object o1 : this.getTerms()) {
+            if (o1 == null){
+                throw new RuntimeException("Null object found at the level "
+                        + "of "+this.name);
+            }
+                   
+            if (o1 instanceof PDDLObject) {
+                PDDLObject obj = (PDDLObject) o1;
+                ret = ret.concat(" " + obj.getName());
+            } else {
+                Variable obj = (Variable) o1;
+                ret = ret.concat(" " + obj.getName() + obj.getType());
 
-        ret_val = ret_val.concat(getTerms().toString());
+            }
 
-        ret_val = ret_val.concat(") ");
-        return ret_val;
+        }
+        ret = ret.concat(")");
+        return ret;
     }
 
     /**
@@ -274,7 +287,7 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Predicate ret = new Predicate(true);
-        ret.setPredicateName(predicateName);
+        ret.setPredicateName(name);
         ret.grounded = true;
 
         //System.out.println(this);
@@ -335,7 +348,7 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.predicateName);
+        hash = 29 * hash + Objects.hashCode(this.name);
         hash = 29 * hash + Objects.hashCode(this.terms);
         return hash;
     }
@@ -352,7 +365,7 @@ public class Predicate extends Terminal implements PostCondition {
             return false;
         }
         final Predicate other = (Predicate) obj;
-        if (!Objects.equals(this.predicateName, other.predicateName)) {
+        if (!Objects.equals(this.name, other.name)) {
             return false;
         }
         return Objects.equals(this.terms, other.terms);
@@ -432,7 +445,7 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Condition unGround(Map substitution) {
         Predicate ret = new Predicate(true);
-        ret.setPredicateName(predicateName);
+        ret.setPredicateName(name);
 
         //System.out.println(this);
         for (Object o : this.getTerms()) {

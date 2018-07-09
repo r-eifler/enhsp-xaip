@@ -22,11 +22,10 @@ import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import problem.*;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
 
 /**
  *
@@ -41,7 +40,7 @@ public class OrCond extends ComplexCondition {
 
     @Override
     public String toString() {
-        String ret_val = "Or(";
+        String ret_val = "(OR ";
         for (Object o : sons) {
             ret_val = ret_val.concat(o.toString());
         }

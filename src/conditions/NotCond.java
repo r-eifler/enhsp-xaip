@@ -49,7 +49,7 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public String toString() {
-        String ret_val = "Not(";
+        String ret_val = "(NOT ";
 
         ret_val = ret_val.concat(son.toString());
 

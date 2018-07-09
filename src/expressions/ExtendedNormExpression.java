@@ -109,7 +109,7 @@ public class ExtendedNormExpression extends Expression {
 
     @Override
     public String toString() {
-        String ret = "";
+        String ret = "(+ ";
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -127,14 +127,14 @@ public class ExtendedNormExpression extends Expression {
 //                    ret = ret.concat("+" + a.n);
 //            }
             if (!a.linear) {
-                ret = ret.concat("+" + a.bin.toString());
+                ret = ret.concat(a.bin.toString());
             } else if (a.f != null) {
-                ret = ret.concat("+" + a.n + "x" + a.f);
+                ret = ret.concat("(* " + a.n + " (" + a.f +"))");
             } else {
-                ret = ret.concat("+" + a.n);
+                ret = ret.concat(a.n.toString());
             }
         }
-        ret = ret.concat("");
+        ret = ret.concat(")");
         return ret;
     }
 

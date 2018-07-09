@@ -103,7 +103,7 @@ public class Comparison extends Terminal {
     public String toString() {
 
         if (string_representation == null) {
-            string_representation = "(" + getComparator() + " (" + getLeft() + ") ( " + getRight() + "))";
+            string_representation = "(" + getComparator() + " (" + getLeft() + ") (" + getRight() + "))";
         }
 
         return string_representation;
@@ -775,11 +775,10 @@ public class Comparison extends Terminal {
         AndCond ret = new AndCond();
         Comparison comp = this;
         if (comp.getComparator().equals("=")) {
-            Comparison dual = (Comparison) comp.clone();
-            Comparison dual2 = (Comparison) comp.clone();
-            ExtendedNormExpression right = (ExtendedNormExpression) dual.getRight();
-            ExtendedNormExpression left = (ExtendedNormExpression) dual.getLeft();
-
+            Comparison dual = new Comparison(">=");
+            Comparison dual2 = new Comparison(">=");
+            ExtendedNormExpression right = (ExtendedNormExpression) comp.getRight();
+            ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
             try {
                 dual.setLeft(right.minus(left));
                 dual2.setLeft(right.minus(left));
@@ -991,6 +990,8 @@ public class Comparison extends Terminal {
             c2.setComparator(">");
             a.addConditions(c2);
             a.addConditions(c1);
+            c1.string_representation = null;
+            c2.string_representation = null;
             return a;
         } else {
             Comparison c1 = (Comparison) this.clone();
@@ -1008,6 +1009,7 @@ public class Comparison extends Terminal {
                     c1.setComparator("<=");
                     break;
             }
+            c1.string_representation = null;
             return c1;
         }
     }
