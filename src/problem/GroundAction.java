@@ -112,15 +112,15 @@ public class GroundAction extends PDDLGenericAction {
     
     
 
-//    @Override
-//    public String toString() {
-//        String parametri = "";
-//        for (Object o : getParameters()) {
-//            parametri = parametri.concat(o.toString()).concat(" ");
-//        }
-//        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
-//
-//    }
+    @Override
+    public String toString() {
+        String parametri = "";
+        for (Object o : getParameters()) {
+            parametri = parametri.concat(o.toString()).concat(" ");
+        }
+        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
+
+    }
 //    @Override
 //    public String toString() {
 //        String parametri = "";

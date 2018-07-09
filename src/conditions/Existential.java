@@ -24,12 +24,11 @@ import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import problem.*;
-import propositionalFactory.Grounder;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
+import propositionalFactory.Grounder;
 
 /**
  *
@@ -280,6 +279,18 @@ public class Existential extends ComplexCondition {
     @Override
     public void extendTerms(Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    Condition pushNegationDemorgan() {
+       ForAll res = new ForAll();
+       res.parameters = this.parameters;
+       
+       
+       for (Condition c : (Collection<Condition>) this.sons) {
+           NotCond nc = new NotCond(c);
+           res.sons.add(nc);
+       }
+       return res;
     }
 
 }

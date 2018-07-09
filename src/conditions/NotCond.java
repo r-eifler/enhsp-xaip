@@ -413,8 +413,9 @@ public class NotCond extends Terminal implements PostCondition {
         } else if (son instanceof Existential) {
             Existential nc = (Existential) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
-            
-            return nc.push_not_to_terminals();
+            return nc.pushNegationDemorgan().push_not_to_terminals();
+        } else if (son instanceof ForAll) {
+            throw new RuntimeException("NNF with negated forall not supported yet");
         }else {
             System.out.println("Condition " + son.getClass() + " not supported");
             System.exit(-1);

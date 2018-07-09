@@ -95,6 +95,11 @@ public class NumFluent extends Expression {
         String ret = "";
         ret += "(" + this.name;
         for (Object o1 : this.getTerms()) {
+            if (o1 == null){
+                throw new RuntimeException("Null object found at the level "
+                        + "of "+this.name);
+            }
+                   
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());

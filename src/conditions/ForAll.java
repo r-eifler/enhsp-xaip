@@ -24,12 +24,11 @@ import domain.Variable;
 import expressions.NumEffect;
 import expressions.NumFluent;
 import heuristics.utils.AchieverSet;
-import problem.*;
-import propositionalFactory.Grounder;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import problem.*;
+import propositionalFactory.Grounder;
 
 /**
  *
