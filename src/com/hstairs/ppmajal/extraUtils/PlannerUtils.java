@@ -54,7 +54,7 @@ public class PlannerUtils {
             searchStrategies.delta_max = Float.parseFloat("1");
         } else {//this is when you have processes
         }
-        problem.grounding_action_processes_constraints();
+        problem.groundingActionProcessesConstraints();
         problem.simplifyAndSetupInit();
 
         //set heuristic
@@ -102,7 +102,7 @@ public class PlannerUtils {
             searchStrategies.delta_max = Float.parseFloat("1");
         } else {//this is when you have processes
         }
-        problem.grounding_action_processes_constraints();
+        problem.groundingActionProcessesConstraints();
         problem.simplifyAndSetupInit();
 
         //set heuristic

@@ -18,35 +18,23 @@
  */
 package com.hstairs.ppmajal.heuristics;
 
-import com.hstairs.ppmajal.problem.GroundEvent;
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.GroundProcess;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.expressions.Interval;
-import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.ExtendedAddendum;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
+import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.heuristics.utils.HeuristicSearchNode;
-import java.util.*;
-import static java.util.Collections.nCopies;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.hstairs.ppmajal.problem.*;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.util.Collections.nCopies;
 
 /**
  *

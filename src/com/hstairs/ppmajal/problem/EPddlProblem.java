@@ -66,24 +66,7 @@ public class EPddlProblem extends PddlProblem {
     private HashMap<Object, Integer> idOf;
     private int constraintsViolations;
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
 
-        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
-        cloned.processesSet = new LinkedHashSet();
-        for (GroundAction gr : this.actions) {
-            cloned.actions.add((GroundAction) gr.clone());
-        }
-        for (GroundProcess pr : this.processesSet) {
-            cloned.processesSet.add((GroundProcess) pr.clone());
-        }
-        for (GlobalConstraint constr : this.globalConstraintSet) {
-            cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
-        }
-        //cloned.globalConstraints = (AndCond) this.globalConstraints.clone();
-        return this;
-
-    }
 
     public EPddlProblem() {
 
@@ -107,6 +90,25 @@ public class EPddlProblem extends PddlProblem {
         } catch (Exception ex) {
             Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+
+        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
+        cloned.processesSet = new LinkedHashSet();
+        for (GroundAction gr : this.actions) {
+            cloned.actions.add((GroundAction) gr.clone());
+        }
+        for (GroundProcess pr : this.processesSet) {
+            cloned.processesSet.add((GroundProcess) pr.clone());
+        }
+        for (GlobalConstraint constr : this.globalConstraintSet) {
+            cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
+        }
+        //cloned.globalConstraints = (AndCond) this.globalConstraints.clone();
+        return this;
+
     }
 
     @Override
@@ -135,7 +137,7 @@ public class EPddlProblem extends PddlProblem {
     public void grounding_plus_simplifications() throws Exception {
 
         //simplification decoupled from the grounding
-        this.grounding_action_processes_constraints();
+        this.groundingActionProcessesConstraints();
 
         this.simplifyAndSetupInit();
 
@@ -552,7 +554,7 @@ public class EPddlProblem extends PddlProblem {
         this.globalConstraintGrounded = true;
     }
 
-    public void grounding_action_processes_constraints() throws Exception {
+    public void groundingActionProcessesConstraints() throws Exception {
         long start = System.currentTimeMillis();
 
         this.groundGoals();
