@@ -61,8 +61,8 @@ public class Counters {
         List<String> heuristics = Arrays.asList("hmax");
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics){
-            assertEquals(3, temp.getPlanSize("../benchmarks/pddlplus/seq_num_planning/counters/fn-counters-small_instances/domain.pddl", 
-                    "../benchmarks/pddlplus/seq_num_planning/counters/fn-counters-small_instances/instance_3.pddl", h,0,1));
+            assertEquals(3, temp.getPlanSize("unit_test_instances/fn-counters-small_instances/domain.pddl", 
+                    "unit_test_instances/fn-counters-small_instances/instance_3.pddl", h,0,1));
         }
 
         
