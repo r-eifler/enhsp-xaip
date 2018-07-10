@@ -19,7 +19,7 @@
 package sequential_problems;
 
 
-import extraUtils.PlannerUtils;
+import com.hstairs.ppmajal.extraUtils.PlannerUtils;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
