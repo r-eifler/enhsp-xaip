@@ -293,9 +293,7 @@ public class PddlProblem {
 
             } else {
                 this.getObjects().add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
-//            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
             }
-//            System.out.println("che è di tipo:" + new Type(c.getChild(i).getChild(0).getText()));
         }
     }
 
