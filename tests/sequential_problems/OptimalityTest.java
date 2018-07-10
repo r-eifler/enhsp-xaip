@@ -19,7 +19,7 @@
 package sequential_problems;
 
 
-import com.hstairs.ppmajal.extraUtils.PlannerUtils;
+import extraUtils.PlanGetResult;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
@@ -59,7 +59,7 @@ public class OptimalityTest {
         
         //get pddl description
         List<String> heuristics = Arrays.asList("blind","hrmax");
-        PlannerUtils temp = new PlannerUtils();
+        PlanGetResult temp = new PlanGetResult();
         for (final String h : heuristics){
             assertEquals(3, temp.getPlanSize("unit_test_instances/cost_optimal_planning/domain.pddl", 
                     "unit_test_instances/cost_optimal_planning/sample.pddl", h));
