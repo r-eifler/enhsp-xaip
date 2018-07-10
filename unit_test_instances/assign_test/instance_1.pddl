@@ -3,10 +3,8 @@
     (problem instance1)
     (:domain testing)
     (:init
-    (= (counter) 0)
-    (= (counter2) -1)
+	(= (counter) 0)
     (= (counter1) 0)
-    (= (counter3) 0)
 
     )
     (:goal 
