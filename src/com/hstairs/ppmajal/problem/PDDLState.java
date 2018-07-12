@@ -43,6 +43,15 @@ public class PDDLState extends State {
 
     }
 
+    public PDDLState (DoubleArrayList numFluents, boolean[] propFluents) {
+        this.numFluents = numFluents.clone();
+        for (int i=0; i< propFluents.length;i++){
+            boolFluents.set(i,propFluents[i]);
+        }
+        time = -1;
+    }
+
+
     public PDDLState (ArrayList<PDDLNumber> initialNumFluents, ArrayList<Boolean> initialPropFluents) {
         this.numFluents = new DoubleArrayList(initialNumFluents.size());
         for (int i = 0; i < initialNumFluents.size(); i++) {
@@ -51,7 +60,7 @@ public class PDDLState extends State {
             } else
                 this.numFluents.add(initialNumFluents.get(i).getNumber().doubleValue());
         }
-        this.boolFluents = new BitSet();
+        this.boolFluents = new BitSet(initialPropFluents.size());
         for (int i = 0; i < initialPropFluents.size(); i++) {
             if (initialPropFluents.get(i) == null) {
                 this.boolFluents.set(i,false);
@@ -62,9 +71,9 @@ public class PDDLState extends State {
 
     }
 
-    public PDDLState (DoubleArrayList numFluents, BitSet propFluents) {
+    public PDDLState (DoubleArrayList numFluents, BitSet otherBoolFluents) {
         this.numFluents = numFluents.clone();
-        this.boolFluents = (BitSet) boolFluents.clone();
+        this.boolFluents = (BitSet)otherBoolFluents.clone();
         time = -1;
     }
 
@@ -234,6 +243,5 @@ public class PDDLState extends State {
     void increase_time_by_epsilon ( ) {
         time += 0.1f;
     }
-
 
 }
