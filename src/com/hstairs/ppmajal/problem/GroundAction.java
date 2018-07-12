@@ -1388,11 +1388,11 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public Double getCoefficientAffected (NumFluent f) {
-        this.generateCoefficeintAffected();
+        this.generateCoefficientsAffected();
         return this.coefficientAffected.get(f);
     }
 
-    private void generateCoefficeintAffected ( ) {
+    private void generateCoefficientsAffected ( ) {
 
         if (coefficientAffected != null) {
             return;
@@ -1518,9 +1518,9 @@ public class GroundAction extends PDDLGenericAction {
                         if (!ne.getFluentAffected().equals(ad.f)) {
                             continue;
                         }
-                        if (ne.isPseudo_num_effect()) {
-                            return true;
-                        }
+//                        if (ne.isPseudo_num_effect()) {
+//                            return true;
+//                        }
                         if (ne.rhsFluents().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
 
