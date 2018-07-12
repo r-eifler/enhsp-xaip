@@ -625,7 +625,7 @@ public abstract class Heuristic {
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
-                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect())) {
+                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect())||ne.getOperator().equals("assign")) {
                                     is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);
@@ -1019,7 +1019,7 @@ public abstract class Heuristic {
 //                                        neff.setPseudo_num_effect(true);
 //                                        //                            }
 //                                    }
-//                                }
+////                                }
                             } catch (Exception ex) {
                                 Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
                             }
