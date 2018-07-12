@@ -759,14 +759,15 @@ public class ExtendedNormExpression extends Expression {
                 current += ad.n;
             } else if (!action.getNumericFluentAffected().contains(ad.f)) {
                 current += ad.n * ad.f.eval(s_0);
-            } else if (action.getCoefficientAffected(ad.f) != null) {
-                //float e = aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
-
-                Double num = ad.f.eval(s_0);
-                if (num == null) {
-                    return Float.NaN;
+            } else{
+                Double coefficientAffected = action.getCoefficientAffected(ad.f);
+                if (coefficientAffected != null){
+                    Double num = ad.f.eval(s_0);
+                    if (num == null) {
+                        return Float.NaN;
+                    }
+                    current += ad.n * coefficientAffected * num;
                 }
-                current += ad.n * action.getCoefficientAffected(ad.f) * num;
             }
         }
         return current;
