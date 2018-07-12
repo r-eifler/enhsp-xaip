@@ -1,4 +1,3 @@
-
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -26,27 +25,26 @@ import sequential_problems.PddlPlusTest;
  */
 
 /**
- *
  * @author enrico
  */
 public class Runner {
-   
-  public static void main(String[] args) {
-    Result result = JUnitCore.runClasses(NonLinearPlanSizeTest.class);
-    for (Failure failure : result.getFailures()) {
-      System.out.println(failure.toString());
+
+    public static void main (String[] args) {
+        Result result = JUnitCore.runClasses(NonLinearPlanSizeTest.class);
+        for (Failure failure : result.getFailures()) {
+            System.out.println(failure.toString());
+        }
+        System.out.println(result.wasSuccessful());
+        result = JUnitCore.runClasses(PddlPlusTest.class);
+        for (Failure failure : result.getFailures()) {
+            System.out.println(failure.toString());
+        }
+        System.out.println(result.wasSuccessful());
+        result = JUnitCore.runClasses(OptimalityTest.class);
+        for (Failure failure : result.getFailures()) {
+            System.out.println(failure.toString());
+        }
+        System.out.println(result.wasSuccessful());
     }
-    System.out.println(result.wasSuccessful());
-    result = JUnitCore.runClasses(PddlPlusTest.class);
-    for (Failure failure : result.getFailures()) {
-      System.out.println(failure.toString()); 
-    }
-    System.out.println(result.wasSuccessful());
-    result = JUnitCore.runClasses(OptimalityTest.class);
-    for (Failure failure : result.getFailures()) {
-      System.out.println(failure.toString());
-    }
-    System.out.println(result.wasSuccessful());
-  }
 
 }

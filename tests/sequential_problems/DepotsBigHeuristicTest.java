@@ -20,48 +20,42 @@ package sequential_problems;
 
 
 import com.hstairs.ppmajal.extraUtils.PlannerUtils;
-import java.util.Arrays;
-import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author enrico
  */
 public class DepotsBigHeuristicTest {
 
-    public DepotsBigHeuristicTest() {
+    public DepotsBigHeuristicTest ( ) {
     }
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass ( ) {
     }
 
     @AfterClass
-    public static void tearDownClass() {
+    public static void tearDownClass ( ) {
     }
 
     @Before
-    public void setUp() {
+    public void setUp ( ) {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown ( ) {
     }
 
     @Test
-    public void hello() throws Exception {
-        
+    public void hello ( ) throws Exception {
+
         //get pddl description
         PlannerUtils temp = new PlannerUtils();
-        assertEquals(27, temp.heuristicEstimate("unit_test_instances/depotsbig/domain.pddl", 
-                    "unit_test_instances/depotsbig/sample.pddl", "hadd"));
+        assertEquals(27, temp.heuristicEstimate("unit_test_instances/depotsbig/domain.pddl",
+                "unit_test_instances/depotsbig/sample.pddl", "hadd"));
 
-        
+
     }
 }

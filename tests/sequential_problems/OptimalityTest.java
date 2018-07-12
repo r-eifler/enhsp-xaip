@@ -20,51 +20,48 @@ package sequential_problems;
 
 
 import com.hstairs.ppmajal.extraUtils.PlannerUtils;
+import org.junit.*;
+
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author enrico
  */
 public class OptimalityTest {
 
-    public OptimalityTest() {
+    public OptimalityTest ( ) {
     }
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass ( ) {
     }
 
     @AfterClass
-    public static void tearDownClass() {
+    public static void tearDownClass ( ) {
     }
 
     @Before
-    public void setUp() {
+    public void setUp ( ) {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown ( ) {
     }
 
     @Test
-    public void hello() throws Exception {
-        
+    public void hello ( ) throws Exception {
+
         //get pddl description
-        List<String> heuristics = Arrays.asList("blind","hrmax");
+        List<String> heuristics = Arrays.asList("blind", "hrmax");
         PlannerUtils temp = new PlannerUtils();
-        for (final String h : heuristics){
-            assertEquals(3, temp.getPlanSize("unit_test_instances/cost_optimal_planning/domain.pddl", 
+        for (final String h : heuristics) {
+            assertEquals(3, temp.getPlanSize("unit_test_instances/cost_optimal_planning/domain.pddl",
                     "unit_test_instances/cost_optimal_planning/sample.pddl", h));
         }
 
-        
+
     }
 }
