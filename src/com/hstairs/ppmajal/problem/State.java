@@ -25,6 +25,8 @@ import com.hstairs.ppmajal.conditions.Condition;
  */
 public abstract class State {
 
+    private Iterable<GroundAction> applicableActions;
+
     public State ( ) {
         super();
     }
@@ -40,5 +42,11 @@ public abstract class State {
         return true;
     }
 
+    public Iterable<GroundAction> getApplicableActions ( ) {
+        return applicableActions;
+    }
 
+    public void setApplicableActions (Iterable<GroundAction> applicableActions) {
+        this.applicableActions = applicableActions;
+    }
 }
