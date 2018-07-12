@@ -738,7 +738,6 @@ public class EPddlProblem extends PddlProblem {
         Iterator<NumFluent> it = this.initNumFluentsValues.keySet().iterator();
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
-//            if (!nf2.getName().equals("time_elapsed")) {
             boolean keep_it = false;
             for (NumFluent nf : involved_fluents) {
                 if (nf.getName().equals(nf2.getName())) {
@@ -750,7 +749,6 @@ public class EPddlProblem extends PddlProblem {
                 nf2.setHas_to_be_tracked(false);
                 it.remove();
             }
-//            }
         }
 
     }
@@ -905,6 +903,9 @@ public class EPddlProblem extends PddlProblem {
 
     @Override
     public ObjectIterator<Pair<State, Object>> getSuccessors (State s) {
+//        if (s.getApplicableActions()!=null) {
+//            return new stateContainer(s, (Iterable) s.getApplicableActions());
+//        }
         return new stateContainer(s, (Collection) getReachableActions());
     }
 
@@ -925,14 +926,12 @@ public class EPddlProblem extends PddlProblem {
         while (true) {
             boolean at_least_one = false;
             for (GroundEvent ev : events) {
-
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
                     s.apply(ev);
                     GroundEvent ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
-
                 }
             }
             if (!at_least_one) {
@@ -1016,22 +1015,25 @@ public class EPddlProblem extends PddlProblem {
 
     private class stateContainer implements ObjectIterator<Pair<State, Object>> {
         final private State source;
-        final private Collection<Object> actionsSet;
+        final private Iterable<Object> actionsSet;
         private final Iterator<Object> it;
         Object current;
         State newState;
+//        boolean cached;
 
-        public stateContainer (State source, Collection<Object> actionsSet) {
+        public stateContainer (State source, Iterable<Object> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
+            //cached = source.getApplicableActions()!=null;
             it = actionsSet.iterator();
         }
 
         @Override
         public boolean hasNext ( ) {
+
             while (it.hasNext()) {
                 current = it.next();
-                if (((GroundAction) current).isApplicable(source)) {
+                if ( ((GroundAction) current).isApplicable(source)) {
                     newState = source.clone();
                     return newState.satisfy(globalConstraints);
                 }
