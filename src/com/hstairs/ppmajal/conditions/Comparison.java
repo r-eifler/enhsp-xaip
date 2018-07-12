@@ -771,7 +771,7 @@ public class Comparison extends Terminal {
         Comparison comp = this;
         if (comp.getComparator().equals("=")) {
             Comparison dual = new Comparison(">=");
-            Comparison dual2 = new Comparison(">=");
+            Comparison dual2 = new Comparison("<=");
             ExtendedNormExpression right = (ExtendedNormExpression) comp.getRight();
             ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
             try {
@@ -784,7 +784,7 @@ public class Comparison extends Terminal {
             dual.setComparator(">=");
             dual.normalize();
             dual2.setRight(new PDDLNumber(0));
-            dual2.setComparator(">=");
+            dual2.setComparator("<=");
             dual2.normalize();
 
             ret.addConditions(dual);
