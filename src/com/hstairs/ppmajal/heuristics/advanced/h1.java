@@ -184,6 +184,7 @@ public class h1 extends Heuristic {
         closed = new boolean[total_number_of_actions + 1];
         Arrays.fill(closed, false);
         action_comp_number_execution = new Object2FloatOpenHashMap();
+//        ArrayList<GroundAction> actionApplicableInGs = new ArrayList<>();
         for (GroundAction gr : this.A) {//see which actions are executable at the current state
 //            gr.set_unit_cost(s_0);
             if (gr.isApplicable(s)) {
@@ -194,8 +195,13 @@ public class h1 extends Heuristic {
                 if (this.reacheability_setting) {
                     this.reachable.add(gr);
                 }
+//                else if (!gr.dummy_goal){
+//                    actionApplicableInGs.add(gr);
+//                }
             }
         }
+        //if (!this.reacheability_setting)
+//            s.setApplicableActions(actionApplicableInGs);
 
 //        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
         for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
@@ -243,6 +249,10 @@ public class h1 extends Heuristic {
             if (estimate == Float.MAX_VALUE) {
                 System.out.println("Goal unreachable from init state. Please revise model or instance file");
                 findUnsatReasons(this.pseudoGoal);
+                System.out.println("Actions Applicable till fix point:");
+                for (GroundAction gr: reachableActions){
+                    System.out.println(gr.toEcoString());
+                }
             }
         }
 
