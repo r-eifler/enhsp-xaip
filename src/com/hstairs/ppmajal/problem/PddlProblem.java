@@ -263,7 +263,6 @@ public class PddlProblem {
                     } else {
                         this.goals = (ComplexCondition) con;
                     }
-
                     break;
                 case PddlParser.PROBLEM_METRIC:
                     addMetric(child);
@@ -295,30 +294,6 @@ public class PddlProblem {
         }
     }
 
-    //Aggiungere controllo su dominio...in qualche modo!
-    protected Predicate buildInstPredicate (Tree t, SchemaParameters aug_par_table) {
-
-        //if (t.getType() == PddlParser.PRED_INST) {
-        Predicate a = new Predicate(true);
-        a.setPredicateName(t.getChild(0).getText());
-        a.setGrounded(true);
-        //System.out.println(a);
-        for (int i = 1; i < t.getChildCount(); i++) {
-
-            PDDLObject t1 = this.getObjectByName(t.getChild(i).getText());
-            if (t1 != null) {
-                a.addObject(t1);
-            } else {
-
-                System.out.println("Object " + t.getChild(i).getText() + " does not exist. Issue in building predicate " + a.getPredicateName());
-                System.exit(-1);
-            }
-        }
-        return a;
-        //}
-
-        //return null;
-    }
 
     protected Expression createExpression (Tree t) {
 
@@ -373,7 +348,7 @@ public class PddlProblem {
             Tree c = child.getChild(i);
             switch (c.getType()) {
                 case PddlParser.PRED_INST:
-                    initBoolFluentsValues.put(buildInstPredicate(c, null), true);
+                    initBoolFluentsValues.put(fc.buildPredicate(c, null), true);
                     break;
                 case PddlParser.INIT_EQ:
                     this.initNumFluentsValues.put((NumFluent) createExpression(c.getChild(0)), (PDDLNumber) createExpression(c.getChild(1)));
@@ -872,7 +847,7 @@ public class PddlProblem {
             //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-            return buildInstPredicate(infoAction, null);
+            return fc.buildPredicate(infoAction,null);
         } else if (infoAction.getType() == PddlParser.UNKNOWN) {
 
             return addUnknown(infoAction.getChild(0));

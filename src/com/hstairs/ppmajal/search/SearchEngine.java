@@ -67,7 +67,7 @@ public class SearchEngine {
     private float gw = 1;
     private boolean optimality = true;
     private Collection<GroundProcess> reachableProcesses;
-    private Collection<GroundEvent> reachable_events;
+    private Collection<GroundEvent> reachableEvents;
     private float G_DEFAULT = Float.NaN;
     private boolean incremental;
     private State lastState;
@@ -90,7 +90,7 @@ public class SearchEngine {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private void set_reachable_actions (EPddlProblem problem) {
+    private void setReachableActions (EPddlProblem problem) {
         Set to_consider;
         if (helpful_actions_pruning) {
             System.out.println("Only Helpful Actions");
@@ -102,17 +102,17 @@ public class SearchEngine {
         problem.setReachableActions(to_consider);
     }
 
-    private void set_reachable_processes_events (EPddlProblem problem) {
+    private void setReachableProcessesEvents (EPddlProblem problem) {
         reachableProcesses = new LinkedHashSet<>();
-        reachable_events = new LinkedHashSet<>();
+        reachableEvents = new LinkedHashSet<>();
 
-        Set<GroundAction> to_consider;
+        Set<GroundAction> reachableTransitions;
 //        if (only_relaxed_plan_actions)
 //            to_consider = getHeuristic().relaxed_plan_actions;
 //        else
-        to_consider = getHeuristic().reachable;
+        reachableTransitions = getHeuristic().reachable;
 
-        for (GroundAction gr3 : to_consider) {
+        for (GroundAction gr3 : reachableTransitions) {
             if (!(gr3 instanceof GroundProcess)) {
                 continue;
             }
@@ -125,7 +125,7 @@ public class SearchEngine {
                 }
             }
         }
-        for (GroundAction gr3 : to_consider) {
+        for (GroundAction gr3 : reachableTransitions) {
             if (!(gr3 instanceof GroundEvent)) {
                 continue;
             }
@@ -134,15 +134,15 @@ public class SearchEngine {
             while (it.hasNext()) {
                 GroundEvent gr2 = it.next();
                 if (gr.equals(gr2)) {
-                    reachable_events.add(gr2);
+                    this.reachableEvents.add(gr2);
                 }
             }
         }
     }
 
     private void setupReachableActionsProcesses (EPddlProblem problem) {
-        set_reachable_actions(problem);
-        set_reachable_processes_events(problem);
+        setReachableActions(problem);
+        setReachableProcessesEvents(problem);
         System.out.println("Actions used at init:" + problem.getActions().size());
     }
 
@@ -199,7 +199,7 @@ public class SearchEngine {
         ArrayList<GroundEvent> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
-            for (GroundEvent ev : this.reachable_events) {
+            for (GroundEvent ev : this.reachableEvents) {
 
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
