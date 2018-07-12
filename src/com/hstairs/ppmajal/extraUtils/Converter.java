@@ -28,12 +28,11 @@ import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
 
 /**
- *
  * @author enrico
  */
 public class Converter {
-    
-    static public GroundAction createInitAction(PddlProblem p, PDDLState s) {
+
+    static public GroundAction createInitAction (PddlProblem p, PDDLState s) {
         GroundAction a = new GroundAction("InitAction");
 
         AndCond addList = new AndCond();

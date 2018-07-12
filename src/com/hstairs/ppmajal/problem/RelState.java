@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -25,11 +25,11 @@ import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- *
  * @author enrico
  */
 public class RelState extends Object {
@@ -37,24 +37,23 @@ public class RelState extends Object {
     public ArrayList<Integer> possBollValues;//0 is negative, 1 positive, 2 both
     public ArrayList<Interval> possNumValues;
 
-    public RelState() {
+    public RelState ( ) {
         super();
         possBollValues = new ArrayList();
         possNumValues = new ArrayList();
     }
 
 
-
     @Override
-    public RelState clone() {
+    public RelState clone ( ) {
         RelState ret_val = new RelState();
-        ret_val.possBollValues = (ArrayList)this.possBollValues.clone();
-        ret_val.possNumValues = (ArrayList)this.possNumValues.clone();
+        ret_val.possBollValues = (ArrayList) this.possBollValues.clone();
+        ret_val.possNumValues = (ArrayList) this.possNumValues.clone();
         return ret_val;
     }
 
 
-    public PDDLNumber functionInfValue(NumFluent f) {
+    public PDDLNumber functionInfValue (NumFluent f) {
         Interval n = this.possNumValues.get(f.getId());
         if (n != null) {
             return n.getInf();
@@ -62,7 +61,7 @@ public class RelState extends Object {
         return null;
     }
 
-    public Interval functionValues(NumFluent f) {
+    public Interval functionValues (NumFluent f) {
 
         Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
@@ -73,7 +72,7 @@ public class RelState extends Object {
         }
     }
 
-    public PDDLNumber functionSupValue(NumFluent f) {
+    public PDDLNumber functionSupValue (NumFluent f) {
         Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             return a.getSup();
@@ -81,7 +80,7 @@ public class RelState extends Object {
         return null;
     }
 
-    public void makePositive(Predicate p) {
+    public void makePositive (Predicate p) {
         Integer inter = possBollValues.get(p.id);
         if (inter == null) {//if was negative by default
             possBollValues.set(p.id, 2);
@@ -91,8 +90,7 @@ public class RelState extends Object {
     }
 
 
-
-    public boolean canBeTrue(Predicate aThis) {
+    public boolean canBeTrue (Predicate aThis) {
 
         Integer o = this.possBollValues.get(aThis.id);
         if (o == null) {
@@ -101,7 +99,7 @@ public class RelState extends Object {
         return o >= 1;
     }
 
-    public boolean canBeFalse(Predicate aThis) {
+    public boolean canBeFalse (Predicate aThis) {
 
         Integer o = this.possBollValues.get(aThis.id);
         if (o == null) {
@@ -110,7 +108,7 @@ public class RelState extends Object {
         return o == 0 || o == 2;
     }
 
-    public void setFunctionInfValue(NumFluent f, PDDLNumber after) {
+    public void setFunctionInfValue (NumFluent f, PDDLNumber after) {
         Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             a.setInf(after);
@@ -118,7 +116,7 @@ public class RelState extends Object {
 
     }
 
-    public void setFunctionSupValue(NumFluent f, PDDLNumber after) {
+    public void setFunctionSupValue (NumFluent f, PDDLNumber after) {
         Interval a = this.possNumValues.get(f.getId());
         if (a != null) {
             a.setSup(after);
@@ -126,7 +124,7 @@ public class RelState extends Object {
 
     }
 
-    public void makeNegative(Predicate p) {
+    public void makeNegative (Predicate p) {
         Integer inter = possBollValues.get(p.id);
         if (inter == null) {//if was negative by default
         } else if (inter == 1) {//if was said to be positive it will also be negative
@@ -134,7 +132,7 @@ public class RelState extends Object {
         }//otherwise all good (inter == 2)
     }
 
-    public boolean satisfy(Condition con) {
+    public boolean satisfy (Condition con) {
 
         if (con == null) {
             System.out.println(this);
@@ -145,12 +143,12 @@ public class RelState extends Object {
 
     }
 
-    public void setFunctionValues(NumFluent f, Interval after) {
+    public void setFunctionValues (NumFluent f, Interval after) {
         this.possNumValues.set(f.getId(), after);
 
     }
 
-    public float satisfaction_distance(Comparison comparison) {
+    public float satisfaction_distance (Comparison comparison) {
         if (this.satisfy(comparison)) {
             return 0;
         }
@@ -188,7 +186,7 @@ public class RelState extends Object {
         return Float.MAX_VALUE;
     }
 
-    public void update_values(HashMap subst) {
+    public void update_values (HashMap subst) {
         for (final Object o : subst.keySet()) {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,42 +18,25 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.hstairs.ppmajal.expressions.MinusUnary;
-import com.hstairs.ppmajal.expressions.Expression;
-import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.MultiOp;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.expressions.BinaryOp;
-import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.domain.Type;
-import com.hstairs.ppmajal.domain.ActionSchema;
-import com.hstairs.ppmajal.domain.PDDLGenericAction;
-import com.hstairs.ppmajal.domain.SchemaParameters;
-import com.hstairs.ppmajal.domain.PddlDomain;
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.OneOf;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.OrCond;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.conditions.FactoryConditions;
 import antlr.RecognitionException;
+import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.hstairs.ppmajal.parser.PddlLexer;
+import com.hstairs.ppmajal.parser.PddlParser;
+import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-import com.hstairs.ppmajal.parser.PddlLexer;
-import com.hstairs.ppmajal.parser.PddlParser;
-import com.hstairs.ppmajal.propositionalFactory.Grounder;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public class PddlProblem {
@@ -61,6 +44,13 @@ public class PddlProblem {
     public PDDLObjects objects;
     public State init;
     public ComplexCondition goals;
+    public Set<GroundAction> actions;
+    public int counterNumericFluents = 0;
+    public Condition belief;
+    public Collection<Predicate> unknonw_predicates;
+    public Collection<OneOf> one_of_s;
+    public Collection<OrCond> or_s;
+    public Set<Type> types;
     protected String name;
     protected Integer indexObject;
     protected Integer indexInit;
@@ -68,48 +58,22 @@ public class PddlProblem {
     protected Metric metric;
     protected String pddlFilRef;
     protected String domainName;
-    PddlDomain linkedDomain;
     protected boolean validatedAgainstDomain;
-    public Set<GroundAction> actions;
     protected long propositionalTime;
     protected boolean grounded_representation;
     protected RelState possStates;
-    public int counterNumericFluents = 0;
     protected boolean simplifyActions;
     protected HashMap staticFluents;
-    public Condition belief;
-    public Collection<Predicate> unknonw_predicates;
-    public Collection<OneOf> one_of_s;
-    public Collection<OrCond> or_s;
-    private FactoryConditions fc;
-    public Set<Type> types;
-
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<String, Predicate> predicateReference;
     protected HashMap<String, NumFluent> numFluentReference;
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
+    PddlDomain linkedDomain;
+    private FactoryConditions fc;
     private Collection<GroundAction> reachableActions;
 
-    /**
-     * Get the value of groundedActions
-     *
-     * @return the value of groundedActions
-     */
-    public boolean isGroundedActions() {
-        return grounded_representation;
-    }
-
-    /**
-     * Set the value of groundedActions
-     *
-     * @param groundedActions new value of groundedActions
-     */
-    public void setGroundedRepresentation(boolean groundedActions) {
-        this.grounded_representation = groundedActions;
-    }
-
-    public PddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
+    public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super();
         try {
             indexObject = 0;
@@ -138,81 +102,9 @@ public class PddlProblem {
     }
 
     /**
-     * Get the value of domainName
-     *
-     * @return the value of domainName
-     */
-    public String getDomainName() {
-        return domainName;
-    }
-
-    /**
-     * Set the value of domainName
-     *
-     * @param domainName new value of domainName
-     */
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
-    }
-
-    /**
-     * Get the value of pddlFilRef
-     *
-     * @return the value of pddlFilRef
-     */
-    public String getPddlFileReference() {
-        return pddlFilRef;
-    }
-
-    /**
-     * Set the value of pddlFilRef
-     *
-     * @param pddlFilRef new value of pddlFilRef
-     */
-    public void setPddlFilRef(String pddlFilRef) {
-        this.pddlFilRef = pddlFilRef;
-    }
-
-    public void saveProblem(String pddlNewFile) throws IOException {
-
-        pddlFilRef = pddlNewFile;
-
-        String toWrite = "(define (problem " + this.getName() + ") "
-                + "(:domain " + this.getDomainName() + ") "
-                + this.getObjects().pddlPrint() + "\n"
-                + Printer.pddlPrint(this,(PDDLState)init) + "\n"
-                + "(:goal " + this.getGoals().pddlPrint(false) + ")\n"
-                + this.metric.pddlPrint() + "\n"
-                + ")";
-        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
-        file.write(toWrite);
-        file.close();
-    }
-
-    public void saveProblemWithObjectInterpretation(String pddlNewFile) throws IOException {
-
-        pddlFilRef = pddlNewFile;
-
-//        final StringBuilder toWrite = new StringBuilder().append(this.metric.pddlPrint()).append("\n"
-//                + ")");
-//        
-        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
-        StringBuilder builder = new StringBuilder();
-        builder.append(this.getDomainName()).append(")");
-        file.write("(define (problem temp)");
-        file.write("(:domain ");
-        file.write(builder.toString());
-        file.write(this.getObjects().pddlPrint());
-        file.write(Printer.stringBuilderPddlPrintWithDummyTrue(this,(PDDLState)init).toString());
-        file.write("(:goal (forall (?interpr - interpretation)");
-        file.write(this.getGoals().pddlPrintWithExtraObject() + ")))");
-        file.close();
-    }
-
-    /**
      *
      */
-    public PddlProblem() {
+    public PddlProblem ( ) {
 
         indexObject = 0;
         indexInit = 0;
@@ -226,12 +118,101 @@ public class PddlProblem {
     }
 
     /**
+     * Get the value of groundedActions
      *
+     * @return the value of groundedActions
+     */
+    public boolean isGroundedActions ( ) {
+        return grounded_representation;
+    }
+
+    /**
+     * Set the value of groundedActions
+     *
+     * @param groundedActions new value of groundedActions
+     */
+    public void setGroundedRepresentation (boolean groundedActions) {
+        this.grounded_representation = groundedActions;
+    }
+
+    /**
+     * Get the value of domainName
+     *
+     * @return the value of domainName
+     */
+    public String getDomainName ( ) {
+        return domainName;
+    }
+
+    /**
+     * Set the value of domainName
+     *
+     * @param domainName new value of domainName
+     */
+    public void setDomainName (String domainName) {
+        this.domainName = domainName;
+    }
+
+    /**
+     * Get the value of pddlFilRef
+     *
+     * @return the value of pddlFilRef
+     */
+    public String getPddlFileReference ( ) {
+        return pddlFilRef;
+    }
+
+    /**
+     * Set the value of pddlFilRef
+     *
+     * @param pddlFilRef new value of pddlFilRef
+     */
+    public void setPddlFilRef (String pddlFilRef) {
+        this.pddlFilRef = pddlFilRef;
+    }
+
+    public void saveProblem (String pddlNewFile) throws IOException {
+
+        pddlFilRef = pddlNewFile;
+
+        String toWrite = "(define (problem " + this.getName() + ") "
+                + "(:domain " + this.getDomainName() + ") "
+                + this.getObjects().pddlPrint() + "\n"
+                + Printer.pddlPrint(this, (PDDLState) init) + "\n"
+                + "(:goal " + this.getGoals().pddlPrint(false) + ")\n"
+                + this.metric.pddlPrint() + "\n"
+                + ")";
+        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        file.write(toWrite);
+        file.close();
+    }
+
+    public void saveProblemWithObjectInterpretation (String pddlNewFile) throws IOException {
+
+        pddlFilRef = pddlNewFile;
+
+//        final StringBuilder toWrite = new StringBuilder().append(this.metric.pddlPrint()).append("\n"
+//                + ")");
+//
+        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.getDomainName()).append(")");
+        file.write("(define (problem temp)");
+        file.write("(:domain ");
+        file.write(builder.toString());
+        file.write(this.getObjects().pddlPrint());
+        file.write(Printer.stringBuilderPddlPrintWithDummyTrue(this, (PDDLState) init).toString());
+        file.write("(:goal (forall (?interpr - interpretation)");
+        file.write(this.getGoals().pddlPrintWithExtraObject() + ")))");
+        file.close();
+    }
+
+    /**
      * @param file - the pathfile representing the pddl problem
      * @throws IOException
      * @throws org.antlr.runtime.RecognitionException
      */
-    public void parseProblem(String file) throws IOException, org.antlr.runtime.RecognitionException {
+    public void parseProblem (String file) throws IOException, org.antlr.runtime.RecognitionException {
 
         pddlFilRef = file;
         ANTLRInputStream in;
@@ -276,13 +257,13 @@ public class PddlProblem {
                 case PddlParser.GOAL:
                     this.goals = null;
                     Condition con = fc.createCondition(child.getChild(0), null);
-                    if (!(con instanceof ComplexCondition)){
+                    if (!(con instanceof ComplexCondition)) {
                         this.goals = new AndCond();
                         this.goals.addConditions(con);
-                    }else{
+                    } else {
                         this.goals = (ComplexCondition) con;
                     }
-                    
+
                     break;
                 case PddlParser.PROBLEM_METRIC:
                     addMetric(child);
@@ -291,14 +272,14 @@ public class PddlProblem {
             }
         }
         this.goals = (ComplexCondition) this.goals.push_not_to_terminals();
-        this.goals = (ComplexCondition) this.goals.ground(new HashMap(),this.getObjects());
+        this.goals = (ComplexCondition) this.goals.ground(new HashMap(), this.getObjects());
         this.keepCopyOfVariables(goals);
         this.keepCopyOfVariables(belief);
-        this.keepUniqueVariable((PDDLState)init);
+        this.keepUniqueVariable((PDDLState) init);
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
-    protected void addObjects(Tree c) {
+    protected void addObjects (Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
             if (this.linkedDomain != null) {
                 Type t = linkedDomain.getTypeByName(c.getChild(i).getChild(0).getText());
@@ -315,7 +296,7 @@ public class PddlProblem {
     }
 
     //Aggiungere controllo su dominio...in qualche modo!
-    protected Predicate buildInstPredicate(Tree t, SchemaParameters aug_par_table) {
+    protected Predicate buildInstPredicate (Tree t, SchemaParameters aug_par_table) {
 
         //if (t.getType() == PddlParser.PRED_INST) {
         Predicate a = new Predicate(true);
@@ -339,7 +320,7 @@ public class PddlProblem {
         //return null;
     }
 
-    protected Expression createExpression(Tree t) {
+    protected Expression createExpression (Tree t) {
 
         int test = t.getType();
         switch (t.getType()) {
@@ -385,7 +366,7 @@ public class PddlProblem {
 
     }
 
-    protected void addInitFacts(Tree child) {
+    protected void addInitFacts (Tree child) {
         this.initNumFluentsValues = new HashMap();
         this.initBoolFluentsValues = new HashMap();
         for (int i = 0; i < child.getChildCount(); i++) {
@@ -395,7 +376,7 @@ public class PddlProblem {
                     initBoolFluentsValues.put(buildInstPredicate(c, null), true);
                     break;
                 case PddlParser.INIT_EQ:
-                    this.initNumFluentsValues.put((NumFluent)createExpression(c.getChild(0)),(PDDLNumber) createExpression(c.getChild(1)));
+                    this.initNumFluentsValues.put((NumFluent) createExpression(c.getChild(0)), (PDDLNumber) createExpression(c.getChild(1)));
                     break;
                 case PddlParser.UNKNOWN:
                     this.unknonw_predicates.add((Predicate) addUnknown(c));
@@ -416,7 +397,7 @@ public class PddlProblem {
     /**
      * A pretty representation for the pddl problem
      */
-    public void prettyPrint() {
+    public void prettyPrint ( ) {
 
         System.out.println("\ninit:" + getInit() + "\nObject" + getProblemObjects() + "\nGoals:" + getGoals() + "\n" + this.metric.toString());
 
@@ -428,7 +409,7 @@ public class PddlProblem {
 
     }
 
-    protected void exploreTree(Tree t) {
+    protected void exploreTree (Tree t) {
         if (t == null) {
             return;
         }
@@ -446,32 +427,47 @@ public class PddlProblem {
     /**
      * @return the objects - the objects of the pddl problem
      */
-    public PDDLObjects getProblemObjects() {
+    public PDDLObjects getProblemObjects ( ) {
         return getObjects();
     }
 
     /**
      * @return the init - the initial status of the problem
      */
-    public State getInit() {
+    public State getInit ( ) {
         return init;
+    }
+
+    public void setInit (State init) {
+        this.init = init;
     }
 
     /**
      * @return the goals - the goal set
      */
-    public ComplexCondition getGoals() {
+    public ComplexCondition getGoals ( ) {
         return goals;
+    }
+
+    public void setGoals (ComplexCondition goals) {
+        this.goals = goals;
     }
 
     /**
      * @return the name - the name of the problem
      */
-    public String getName() {
+    public String getName ( ) {
         return name;
     }
 
-    protected void addMetric(Tree t) {
+    /**
+     * @param name the name to set
+     */
+    protected void setName (String name) {
+        this.name = name;
+    }
+
+    protected void addMetric (Tree t) {
 
         //System.out.println(t.toStringTree());
         metric = new Metric(t.getChild(0).getText());
@@ -479,40 +475,22 @@ public class PddlProblem {
 
     }
 
-    public void setMetric(Metric m) {
-        this.metric = m;
-    }
-
-
-    public void setInit(State init) {
-        this.init = init;
-    }
-
-    public void setGoals(ComplexCondition goals) {
-        this.goals = goals;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-
     /**
      * @return the metric
      */
-    public Metric getMetric() {
+    public Metric getMetric ( ) {
         return metric;
     }
 
+    public void setMetric (Metric m) {
+        this.metric = m;
+    }
+
     /**
-     *
      * @param string - the name of the object we want
      * @return the term representing the object
      */
-    public PDDLObject getObjectByName(String string) {
+    public PDDLObject getObjectByName (String string) {
         for (Object o : this.getObjects()) {
             PDDLObject el = (PDDLObject) o;
             if (el.getName().equalsIgnoreCase(string)) {
@@ -522,31 +500,31 @@ public class PddlProblem {
         return null;
     }
 
-    public double getInitFunctionValue(NumFluent f) {
-        return ((PDDLState)init).fluentValue(f);
+    public double getInitFunctionValue (NumFluent f) {
+        return ((PDDLState) init).fluentValue(f);
     }
 
-    public NumFluent getNumFluent(String string, ArrayList terms) {
+    public NumFluent getNumFluent (String string, ArrayList terms) {
         for (NumFluent fAssign : this.initNumFluentsValues.keySet()) {
-                if (fAssign.getName().equals(string)) {
-                    if (fAssign.getTerms().equals(terms)) {
-                        return fAssign;
-                    }
+            if (fAssign.getName().equals(string)) {
+                if (fAssign.getTerms().equals(terms)) {
+                    return fAssign;
                 }
             }
+        }
         return null;
     }
 
-    public ArrayList getNumFluents() {
+    public ArrayList getNumFluents ( ) {
         return new ArrayList(this.initNumFluentsValues.keySet());
     }
 
-    public void setDomain(PddlDomain aThis) {
+    public void setDomain (PddlDomain aThis) {
         linkedDomain = aThis;
 
     }
 
-    public void generateActions() throws Exception {
+    public void generateActions ( ) throws Exception {
 
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
@@ -588,7 +566,7 @@ public class PddlProblem {
 
     }
 
-    public int distance(PDDLState sIn, Condition c) {
+    public int distance (PDDLState sIn, Condition c) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -599,7 +577,7 @@ public class PddlProblem {
             } else {
                 distance++;
                 level = new HashSet();
-                for (Iterator it = getActions().iterator(); it.hasNext();) {
+                for (Iterator it = getActions().iterator(); it.hasNext(); ) {
                     GroundAction gr = (GroundAction) it.next();
                     if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
@@ -617,7 +595,7 @@ public class PddlProblem {
         }
     }
 
-    public Map distance(PDDLState sIn, List c_s) {
+    public Map distance (PDDLState sIn, List c_s) {
 
         Set level;
         RelState s = sIn.relaxState();
@@ -627,7 +605,7 @@ public class PddlProblem {
         toVisit.addAll(c_s);
         int distance = 0;
         while (true) {
-            for (Iterator it = toVisit.iterator(); it.hasNext();) {
+            for (Iterator it = toVisit.iterator(); it.hasNext(); ) {
                 Condition c = (Condition) it.next();
                 if (s.satisfy(c)) {
                     order.put(c, distance);
@@ -640,7 +618,7 @@ public class PddlProblem {
             } else {
                 distance++;
                 level = new HashSet();
-                for (Iterator it = getActions().iterator(); it.hasNext();) {
+                for (Iterator it = getActions().iterator(); it.hasNext(); ) {
                     GroundAction gr = (GroundAction) it.next();
                     if (gr.getPreconditions().can_be_true(s)) {
                         level.add(gr);
@@ -658,18 +636,18 @@ public class PddlProblem {
         }
     }
 
-    protected void pruneActions() {
+    protected void pruneActions ( ) {
         boolean finished = false;
         boolean goalReached = false;
         Set level;
-        RelState s = ((PDDLState)this.init).relaxState();
+        RelState s = ((PDDLState) this.init).relaxState();
         int prec = 0;
         int distance = 0;
         Set totalActions = new HashSet();
         while (!finished && !goalReached) {
             distance++;
             level = new HashSet();
-            for (Iterator it = getActions().iterator(); it.hasNext();) {
+            for (Iterator it = getActions().iterator(); it.hasNext(); ) {
                 GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
                 if (gr.getPreconditions().can_be_true(s)) {
@@ -701,36 +679,36 @@ public class PddlProblem {
     /**
      * @return the propositionalTime
      */
-    public long getPropositionalTime() {
+    public long getPropositionalTime ( ) {
         return propositionalTime;
     }
 
     /**
      * @param propositionalTime the propositionalTime to set
      */
-    public void setPropositionalTime(long propositionalTime) {
+    public void setPropositionalTime (long propositionalTime) {
         this.propositionalTime = propositionalTime;
     }
 
     /**
      * @return the actions
      */
-    public Set getActions() {
+    public Set getActions ( ) {
         return actions;
     }
 
     /**
      * @param actions the actions to set
      */
-    public void setActions(Set actions) {
+    public void setActions (Set actions) {
         this.actions = actions;
     }
 
-    public Map computeKernelDistance(ArrayList k) {
+    public Map computeKernelDistance (ArrayList k) {
         boolean finished = false;
         boolean kernelVisited = false;
         Set level;
-        RelState s = ((PDDLState)this.init).relaxState();
+        RelState s = ((PDDLState) this.init).relaxState();
         int prec = 0;
         ArrayList toVisit = new ArrayList();
         toVisit.addAll(k);
@@ -740,7 +718,7 @@ public class PddlProblem {
         while (!finished && !kernelVisited) {
             distance++;
             level = new HashSet();
-            for (Iterator it = getActions().iterator(); it.hasNext();) {
+            for (Iterator it = getActions().iterator(); it.hasNext(); ) {
                 GroundAction gr = (GroundAction) it.next();
                 //System.out.println(gr.toEcoString());
                 if (gr.getPreconditions().can_be_true(s)) {
@@ -754,7 +732,7 @@ public class PddlProblem {
                 GroundAction gr = (GroundAction) o;
                 gr.apply(s);
             }
-            for (Iterator it = toVisit.iterator(); it.hasNext();) {
+            for (Iterator it = toVisit.iterator(); it.hasNext(); ) {
                 Condition con = (Condition) it.next();
 
                 if (s.satisfy(con)) {
@@ -782,7 +760,7 @@ public class PddlProblem {
         return order;
     }
 
-    public void parseProblem(String string, PDDLObjects constants) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
+    public void parseProblem (String string, PDDLObjects constants) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
         this.getObjects().addAll(constants);
         parseProblem(string);
     }
@@ -790,32 +768,32 @@ public class PddlProblem {
     /**
      * @return the validatedAgainstDomain
      */
-    public boolean isValidatedAgainstDomain() {
+    public boolean isValidatedAgainstDomain ( ) {
         return validatedAgainstDomain;
     }
 
     /**
      * @param validatedAgainstDomain the validatedAgainstDomain to set
      */
-    public void setValidatedAgainstDomain(boolean validatedAgainstDomain) {
+    public void setValidatedAgainstDomain (boolean validatedAgainstDomain) {
         this.validatedAgainstDomain = validatedAgainstDomain;
     }
 
     /**
      * @return the possStates
      */
-    public RelState getPossStates() {
+    public RelState getPossStates ( ) {
         return possStates;
     }
 
     /**
      * @param possStates the possStates to set
      */
-    public void setPossStates(RelState possStates) {
+    public void setPossStates (RelState possStates) {
         this.possStates = possStates;
     }
 
-    public void removeObjects(ParametersAsTerms constantsFound) {
+    public void removeObjects (ParametersAsTerms constantsFound) {
         for (Object c : constantsFound) {
             this.getObjects().remove(c);
         }
@@ -824,32 +802,32 @@ public class PddlProblem {
     /**
      * @return the objects
      */
-    public PDDLObjects getObjects() {
+    public PDDLObjects getObjects ( ) {
         return objects;
     }
 
     /**
      * @param objects the objects to set
      */
-    public void setObjects(PDDLObjects objects) {
+    public void setObjects (PDDLObjects objects) {
         this.objects = objects;
     }
 
     /**
      * @return the simplifyActions
      */
-    public boolean isSimplifyActions() {
+    public boolean isSimplifyActions ( ) {
         return simplifyActions;
     }
 
     /**
      * @param simplifyActions the simplifyActions to set
      */
-    public void setSimplifyActions(boolean simplifyActions) {
+    public void setSimplifyActions (boolean simplifyActions) {
         this.simplifyActions = simplifyActions;
     }
 
-    public HashMap getActualFluents() throws Exception {
+    public HashMap getActualFluents ( ) throws Exception {
         if (staticFluents == null) {
             staticFluents = new HashMap();
             if (this.getActions() == null || this.getActions().isEmpty()) {
@@ -864,7 +842,7 @@ public class PddlProblem {
         return staticFluents;
     }
 
-    public void transformNumericConditionsInActions() throws Exception {
+    public void transformNumericConditionsInActions ( ) throws Exception {
 
         for (GroundAction gr : this.actions) {
             if (gr.getPreconditions() != null) {
@@ -874,11 +852,11 @@ public class PddlProblem {
         this.goals = generate_inequalities(goals);
     }
 
-    protected ComplexCondition generate_inequalities(Condition con) {
-        return (ComplexCondition)con.transform_equality();
+    protected ComplexCondition generate_inequalities (Condition con) {
+        return (ComplexCondition) con.transform_equality();
     }
 
-    public boolean print_actions() {
+    public boolean print_actions ( ) {
         for (GroundAction gr : this.actions) {
             System.out.println(gr.toFileCompliant());
         }
@@ -886,7 +864,7 @@ public class PddlProblem {
         return true;
     }
 
-    private Condition addUnknown(Tree infoAction) {
+    private Condition addUnknown (Tree infoAction) {
         if (infoAction == null) {
             return null;
         }
@@ -906,13 +884,8 @@ public class PddlProblem {
     }
 
 
-
-
-
-    
-    
-    public void keepCopyOfVariables(Condition cond) {
-        if (cond != null && cond.getInvolvedPredicates() != null){
+    public void keepCopyOfVariables (Condition cond) {
+        if (cond != null && cond.getInvolvedPredicates() != null) {
             for (Predicate p : cond.getInvolvedPredicates()) {
                 PddlProblem.this.keepUniqueVariable(p);
             }
@@ -922,11 +895,9 @@ public class PddlProblem {
         }
     }
 
-    public void keepUniqueVariable(PDDLGenericAction act) {
-        
-        
-        
-        
+    public void keepUniqueVariable (PDDLGenericAction act) {
+
+
         for (Predicate p : act.getInvolvedPredicates()) {
             PddlProblem.this.keepUniqueVariable(p);
         }
@@ -935,7 +906,7 @@ public class PddlProblem {
         }
     }
 
-    public void keepUniqueVariable(PDDLState s) {
+    public void keepUniqueVariable (PDDLState s) {
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
             PddlProblem.this.keepUniqueVariable(p);
         }
@@ -944,87 +915,87 @@ public class PddlProblem {
         }
     }
 
-    private void keepUniqueVariable(Predicate p) {
+    private void keepUniqueVariable (Predicate p) {
         Predicate p1 = this.predicateReference.get(p.toString());
         if (p1 == null) {
             this.predicateReference.put(p.toString(), p);
         }
     }
 
-    private void keepUniqueVariable(NumFluent x) {
+    private void keepUniqueVariable (NumFluent x) {
         NumFluent x1 = this.numFluentReference.get(x.toString());
         if (x1 == null) {
             this.numFluentReference.put(x.toString(), x);
         }
     }
-    
-    protected void syncVariables(Metric cond) {
-        if (cond != null && cond.getMetExpr()!= null){
+
+    protected void syncVariables (Metric cond) {
+        if (cond != null && cond.getMetExpr() != null) {
             for (NumFluent x : cond.getMetExpr().rhsFluents()) {
                 PddlProblem.this.keepUniqueVariable(x);
             }
-        }    
+        }
     }
 
-    public Condition getPredicate(Predicate aThis) {
-        for (Predicate p: this.initBoolFluentsValues.keySet()){
-            if (p.equals(aThis)){
+    public Condition getPredicate (Predicate aThis) {
+        for (Predicate p : this.initBoolFluentsValues.keySet()) {
+            if (p.equals(aThis)) {
                 return p;
             }
         }
         return aThis;
     }
 
-    public NumFluent getNumFluent(NumFluent f) {
-        for (NumFluent p: this.initNumFluentsValues.keySet()){
-            if (p.equals(f)){
+    public NumFluent getNumFluent (NumFluent f) {
+        for (NumFluent p : this.initNumFluentsValues.keySet()) {
+            if (p.equals(f)) {
                 return p;
             }
         }
         return f;
     }
 
-    public PDDLNumber getNumFluentInitialValue(NumFluent aThis) {
+    public PDDLNumber getNumFluentInitialValue (NumFluent aThis) {
         PDDLNumber nf = this.initNumFluentsValues.get(aThis);
         if (nf == null)
             return null;
         return this.initNumFluentsValues.get(aThis);
     }
 
-    public Iterable<NumFluent> getNumFluentsInvolvedInInit() {
+    public Iterable<NumFluent> getNumFluentsInvolvedInInit ( ) {
         return this.initNumFluentsValues.keySet();
     }
 
-    public boolean getInitBoolFluentValue(Predicate aThis) {
+    public boolean getInitBoolFluentValue (Predicate aThis) {
         Boolean b = this.initBoolFluentsValues.get(aThis);
-        
-        return b!=null && b;
+
+        return b != null && b;
     }
 
-    public Iterable<Predicate> getPredicatesInvolvedInInit() {
+    public Iterable<Predicate> getPredicatesInvolvedInInit ( ) {
         return this.initBoolFluentsValues.keySet();
-        
+
     }
 
-    public void setNumFluentReference(NumFluent nf) {
+    public void setNumFluentReference (NumFluent nf) {
         this.numFluentReference.put(nf.toString(), nf);
     }
 
-    public boolean isSafeState(State temp) {
+    public boolean isSafeState (State temp) {
         return true;
     }
 
 
-    public Iterator<Pair<State,Object>> getSuccessors(State s) {
+    public Iterator<Pair<State, Object>> getSuccessors (State s) {
         return new stateContainer(s, getReachableActions());
     }
 
-    public Collection<GroundAction> getReachableActions() {
+    public Collection<GroundAction> getReachableActions ( ) {
         return reachableActions;
     }
 
-    public void setReachableActions(Collection<GroundAction> actionsToConsider) {
-       reachableActions = new LinkedHashSet();
+    public void setReachableActions (Collection<GroundAction> actionsToConsider) {
+        reachableActions = new LinkedHashSet();
         for (GroundAction gr : actionsToConsider) {
             Iterator<GroundAction> it = getActions().iterator();
             while (it.hasNext()) {
@@ -1037,22 +1008,23 @@ public class PddlProblem {
     }
 
 
-    private class stateContainer implements Iterator{
+    private class stateContainer implements Iterator {
         final private State source;
         final private Collection<GroundAction> actionsSet;
         GroundAction current;
         private Iterator<GroundAction> it;
-        public stateContainer(State source, Collection<GroundAction> actionsSet) {
+
+        public stateContainer (State source, Collection<GroundAction> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
             it = actionsSet.iterator();
         }
 
         @Override
-        public boolean hasNext() {
-            while (it.hasNext()){
+        public boolean hasNext ( ) {
+            while (it.hasNext()) {
                 current = it.next();
-                if (current.isApplicable(source)){
+                if (current.isApplicable(source)) {
                     return true;
                 }
             }
@@ -1060,10 +1032,10 @@ public class PddlProblem {
         }
 
         @Override
-        public Pair<State,GroundAction> next() {
+        public Pair<State, GroundAction> next ( ) {
             State newState = source.clone();
             newState.apply(current);
-            return new Pair(newState,current);
+            return new Pair(newState, current);
         }
     }
 

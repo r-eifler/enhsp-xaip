@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -25,23 +25,32 @@ import java.io.InputStreamReader;
 public abstract class planningTool {
 
     public StringBuilder outputPlanning;
-    Process process;
     public String storedSolutionPath = "sol.pddl";
+    public String prefixParameters = "";
     protected int plannerTime;
-    long timeout;
     protected boolean failed = false;
-    private boolean timeoutFail = false;
-    private boolean plannerError;
     protected String domain_file_option = " -o ";
     protected String problem_file_option = " -f ";
-    public String prefixParameters = "";
+    protected String option1;
+    protected String option2;
+    protected String planningExec;
+    protected String domainFile;
+    protected String problemFile;
+    Process process;
+    long timeout;
+    private boolean timeoutFail = false;
+    private boolean plannerError;
+
+    public planningTool ( ) {
+        timeout = 1000000;
+    }
 
     /**
      * Get the value of timeoutFail
      *
      * @return the value of timeoutFail
      */
-    public boolean isTimeoutFail() {
+    public boolean isTimeoutFail ( ) {
         return timeoutFail;
     }
 
@@ -50,19 +59,15 @@ public abstract class planningTool {
      *
      * @param timeoutFail new value of timeoutFail
      */
-    public void setTimeoutFail(boolean timeoutFail) {
+    public void setTimeoutFail (boolean timeoutFail) {
         this.timeoutFail = timeoutFail;
     }
 
-    public planningTool() {
-        timeout = 1000000;
-    }
+    abstract public String adapt (String domainFile, String problemFile, String planFile);
 
-    abstract public String adapt(String domainFile, String problemFile, String planFile);
+    abstract public void changePlannersPath ( );
 
-    abstract public void changePlannersPath();
-
-    public void executePlanning() {
+    public void executePlanning ( ) {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = new StringBuilder();
         try {
@@ -72,7 +77,7 @@ public abstract class planningTool {
 
 //            System.out.println("This is what I am running");
 //            System.out.println("Executing: " + prefixParameters +" "+planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
-            process = runtime.exec(prefixParameters +" "+planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
+            process = runtime.exec(prefixParameters + " " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             /* Set up process I/O. */
 
             Worker worker = new Worker(process);
@@ -103,109 +108,104 @@ public abstract class planningTool {
         }
     }
 
-    public void setDomainFile(String domainFile) {
-        this.domainFile = domainFile;
-    }
-
-    public String getOption2() {
+    public String getOption2 ( ) {
         return option2;
     }
 
-    public void setOption1(String option1) {
-        this.option1 = option1;
-    }
-
-    public String getPlanningExec() {
-        return planningExec;
-    }
-
-    public void setOption2(String option2) {
+    public void setOption2 (String option2) {
         this.option2 = option2;
     }
 
-    public String getDomainFile() {
-        return domainFile;
+    public String getPlanningExec ( ) {
+        return planningExec;
     }
 
-    public void setPlanningExec(String lpgPath) {
+    public void setPlanningExec (String lpgPath) {
         this.planningExec = lpgPath;
     }
 
-    public String getOption1() {
+    public String getDomainFile ( ) {
+        return domainFile;
+    }
+
+    public void setDomainFile (String domainFile) {
+        this.domainFile = domainFile;
+    }
+
+    public String getOption1 ( ) {
         return option1;
     }
 
-    public void setProblemFile(String problemFile) {
-        this.problemFile = problemFile;
+    public void setOption1 (String option1) {
+        this.option1 = option1;
     }
 
-    public String getProblemFile() {
+    public String getProblemFile ( ) {
         return problemFile;
     }
 
-    public abstract String plan(String domainFile, String problemFile);
+    public void setProblemFile (String problemFile) {
+        this.problemFile = problemFile;
+    }
 
-    public abstract String plan();
-    protected String option1;
-    protected String option2;
-    protected String planningExec;
-    protected String domainFile;
-    protected String problemFile;
+    public abstract String plan (String domainFile, String problemFile);
+
+    public abstract String plan ( );
 
     /**
      * @return the timePlanner
      */
-    public int getPlannerTime() {
+    public int getPlannerTime ( ) {
         return plannerTime;
     }
 
     /**
      * @param timePlanner the timePlanner to set
      */
-    public void setTimePlanner(int timePlanner) {
+    public void setTimePlanner (int timePlanner) {
         this.plannerTime = timePlanner;
     }
 
     /**
      * @return the timeout
      */
-    public long getTimeout() {
+    public long getTimeout ( ) {
         return timeout;
     }
 
     /**
      * @param timeout the timeout to set
      */
-    public void setTimeout(long timeout) {
+    public void setTimeout (long timeout) {
         this.timeout = timeout;
     }
 
     /**
      * @return the failed
      */
-    public boolean isFailed() {
+    public boolean isFailed ( ) {
         return failed;
     }
 
     /**
      * @return the plannerError
      */
-    public boolean isPlannerError() {
+    public boolean isPlannerError ( ) {
         return plannerError;
     }
 
     /**
      * @param plannerError the plannerError to set
      */
-    public void setPlannerError(boolean plannerError) {
+    public void setPlannerError (boolean plannerError) {
         this.plannerError = plannerError;
     }
 
-    public int computeHeuristic(String confDomainFile, String problemSampleFile) {
+    public int computeHeuristic (String confDomainFile, String problemSampleFile) {
         return 0;
     }
 
-    public int computeHeuristic() {
+    public int computeHeuristic ( ) {
         return computeHeuristic(domainFile, problemFile); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -214,12 +214,12 @@ public abstract class planningTool {
         protected final Process process;
         protected Integer exit;
 
-        protected Worker(Process process) {
+        protected Worker (Process process) {
             this.process = process;
         }
 
         @Override
-        public void run() {
+        public void run ( ) {
             try {
                 exit = process.waitFor();
             } catch (InterruptedException ignore) {

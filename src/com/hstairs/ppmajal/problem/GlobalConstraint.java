@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.HashMap;
 
 /**
- *
  * @author enrico
  */
 public class GlobalConstraint extends SchemaGlobalConstraint {
@@ -41,12 +40,12 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
     private boolean normalized;
     private boolean reachable;
 
-    public GlobalConstraint(String name) {
+    public GlobalConstraint (String name) {
         super(name);
     }
 
     @Override
-    public Object clone() {
+    public Object clone ( ) {
         GlobalConstraint cloned = new GlobalConstraint(this.name);
         cloned.normalized = this.normalized;
         cloned.reachable = this.reachable;
@@ -56,7 +55,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         return cloned;
     }
 
-    boolean simplifyModelWithControllableVariablesSem(PddlDomain domain, EPddlProblem problem) {
+    boolean simplifyModelWithControllableVariablesSem (PddlDomain domain, EPddlProblem problem) {
 
         HashMap invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
@@ -96,7 +95,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         return true;
     }
 
-    private void normalize() {
+    private void normalize ( ) {
         if (normalized) {
             return;
         }
@@ -110,18 +109,18 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
     /**
      * @return the reacheable
      */
-    public boolean isReacheable() {
+    public boolean isReacheable ( ) {
         return reachable;
     }
 
     /**
      * @param reacheable the reacheable to set
      */
-    public void setReacheable(boolean reacheable) {
+    public void setReacheable (boolean reacheable) {
         this.reachable = reacheable;
     }
 
-    public boolean isTautology(PDDLState reacheableState) {
+    public boolean isTautology (PDDLState reacheableState) {
 
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {
@@ -143,7 +142,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         return false;
     }
 
-    public boolean isTautology(RelState reacheableState) {
+    public boolean isTautology (RelState reacheableState) {
 
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public abstract class LpInterface {
@@ -40,28 +39,28 @@ public abstract class LpInterface {
     public ComplexCondition c;
 
     //this is for set of conditions
-    public LpInterface(Set<ComplexCondition> cond, ComplexCondition global_constraint) {
+    public LpInterface (Set<ComplexCondition> cond, ComplexCondition global_constraint) {
         super();
         AndCond c = new AndCond();
         c.sons.addAll(cond);
     }
 
-    public LpInterface(ComplexCondition cond, ComplexCondition global_constraint) {
+    public LpInterface (ComplexCondition cond, ComplexCondition global_constraint) {
         super();
         c = cond;
         gc = global_constraint;
     }
 
-    public abstract void initialize(Collection<GroundAction> actions, PDDLState s_0);
+    public abstract void initialize (Collection<GroundAction> actions, PDDLState s_0);
 
-    public abstract void update_conditions_bound_plus_reset_variables(PDDLState s_0);
+    public abstract void update_conditions_bound_plus_reset_variables (PDDLState s_0);
 
-    protected abstract void update_local_global_conditions(PDDLState s_0);
+    protected abstract void update_local_global_conditions (PDDLState s_0);
 
-    public abstract float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h);
+    public abstract float update_cost (PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h);
 
-    protected abstract void init_condition(Collection<GroundAction> pool, PDDLState s_0);
+    protected abstract void init_condition (Collection<GroundAction> pool, PDDLState s_0);
 
-    protected abstract void update_condition(PDDLState s_0, ComplexCondition temp);
+    protected abstract void update_condition (PDDLState s_0, ComplexCondition temp);
 
 }

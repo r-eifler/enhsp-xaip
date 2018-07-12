@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,32 +18,63 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 
 /**
- *
  * @author enrico
  */
 public class Predicate extends Terminal implements PostCondition {
 
-    private String name;
-    private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
     public HashSet son;
     public Integer hash_code;
     public Integer id;
+    private String name;
+    private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
+
+    public Predicate ( ) {
+        super();
+        //variables = new ArrayList();
+        terms = new ArrayList();
+    }
+
+    public Predicate (trueFalse input) {
+        super();
+        //variables = new ArrayList();
+        if (input == trueFalse.TRUE) {
+            this.setValid(true);
+            this.name = "TRUE";
+        } else {
+            this.setUnsatisfiable(true);
+            this.name = "FALSE";
+        }
+        terms = new ArrayList();
+
+    }
+
+    public Predicate (String name) {
+        super();
+        //variables = new ArrayList();
+        this.name = name;
+        terms = new ArrayList();
+
+    }
+
+    public Predicate (boolean g) {
+
+        super();
+        grounded = g;
+        //variables = new ArrayList();
+        terms = new ArrayList();
+
+    }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         String ret = "";
         ret = ret.concat("  (" + this.getPredicateName());
         for (Object o1 : this.getTerms()) {
@@ -61,7 +92,7 @@ public class Predicate extends Terminal implements PostCondition {
         return ret;
     }
 
-    public String pddlPrintWithTypedExtraObject() {
+    public String pddlPrintWithTypedExtraObject ( ) {
         String ret = "";
         ret = ret.concat("  (" + this.getPredicateName());
         for (Object o1 : this.getTerms()) {
@@ -84,111 +115,77 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean can_be_false(RelState s) {
+    public boolean can_be_false (RelState s) {
         if (this.isValid())
             return false;
         if (this.isUnsatisfiable())
             return true;
-        
+
         Integer i = s.possBollValues.get(this.id);
         return (i == null) || (i == 0) || (i == 2);
     }
 
     @Override
-    public Condition achieve(Predicate p) {
+    public Condition achieve (Predicate p) {
         if (this.equals(p)) {
-            return new Predicate(Predicate.true_false.TRUE);
+            return new Predicate(trueFalse.TRUE);
         }
         return null;
     }
 
     @Override
-    public Condition delete(Predicate p) {
+    public Condition delete (Predicate p) {
         return null;
     }
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         Set ret = new LinkedHashSet();
         ret.add(this);
         return ret;
     }
 
     @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getHeuristicId());
     }
 
     @Override
-    public Set<NumFluent> affectedNumericFluents() {
+    public Set<NumFluent> affectedNumericFluents ( ) {
         return new HashSet();
     }
 
     @Override
-    public void extendTerms(Variable v) {
+    public void extendTerms (Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates() {
+    public Collection<Predicate> getInvolvedPredicates ( ) {
         LinkedHashSet ret = new LinkedHashSet();
         ret.add(this);
         return ret;
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         Predicate p1 = p.getPredicateReference(this.toString());
-        if (p1 == null){
+        if (p1 == null) {
             p.setPredicateReference(this);
             return this;
         }
         return p1;
     }
 
-    public enum true_false {
-        TRUE, FALSE
-    }
-
-    public Predicate() {
-        super();
-        //variables = new ArrayList();
-        terms = new ArrayList();
-    }
-
-    public Predicate(true_false input) {
-        super();
-        //variables = new ArrayList();
-        if (input == true_false.TRUE) {
-            this.setValid(true);
-            this.name = "TRUE";
-        } else {
-            this.setUnsatisfiable(true);
-            this.name = "FALSE";
-        }
-        terms = new ArrayList();
-
-    }
-
-    public Predicate(String name) {
-        super();
-        //variables = new ArrayList();
-        this.name = name;
-        terms = new ArrayList();
-
-    }
-
-    public Predicate(boolean g) {
-
-        super();
-        grounded = g;
-        //variables = new ArrayList();
-        terms = new ArrayList();
-
-    }
-
-    public String getPredicateName() {
+    public String getPredicateName ( ) {
         return name;
+    }
+
+    /**
+     * @param predicateName the predicateName to set
+     */
+    public void setPredicateName (String predicateName) {
+        this.name = predicateName;
     }
 
 //    //return a grounded copy of the Predicate
@@ -210,19 +207,13 @@ public class Predicate extends Terminal implements PostCondition {
 //        ret_val.setTerms(terms_);
 //        return ret_val;
 //    }
-    /**
-     * @param predicateName the predicateName to set
-     */
-    public void setPredicateName(String predicateName) {
-        this.name = predicateName;
-    }
 
     /**
      * Adding a variable term to the predicate
      *
      * @param v the variable to add.
      */
-    public void addVariable(Variable v) {
+    public void addVariable (Variable v) {
 ////        if (isGrounded()) {
 ////            System.out.println("Predicate grounded; no variable is possible");
 //        } else {
@@ -230,7 +221,7 @@ public class Predicate extends Terminal implements PostCondition {
 //        }
     }
 
-    public void addObject(PDDLObject t) {
+    public void addObject (PDDLObject t) {
 //        if (!isGrounded()) {
 //            System.out.println("Predicate not grounded; no term is possible");
 //        } else {
@@ -239,15 +230,15 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret = "";
         ret += "(" + this.name;
         for (Object o1 : this.getTerms()) {
-            if (o1 == null){
+            if (o1 == null) {
                 throw new RuntimeException("Null object found at the level "
-                        + "of "+this.name);
+                        + "of " + this.name);
             }
-                   
+
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
@@ -265,33 +256,33 @@ public class Predicate extends Terminal implements PostCondition {
     /**
      * @return the terms
      */
-    public ArrayList getTerms() {
+    public ArrayList getTerms ( ) {
         return terms;
     }
 
     /**
      * @param terms the terms to set
      */
-    public void setTerms(ArrayList terms) {
+    public void setTerms (ArrayList terms) {
         this.terms = terms;
     }
 
     /**
      * @return the grounded
      */
-    public boolean isGrounded() {
+    public boolean isGrounded ( ) {
         return grounded;
     }
 
     /**
      * @param grounded the grounded to set
      */
-    public void setGrounded(boolean grounded) {
+    public void setGrounded (boolean grounded) {
         this.grounded = grounded;
     }
 
     @Override
-    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(name);
         ret.grounded = true;
@@ -315,30 +306,30 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
     }
 
     @Override
-    public boolean eval(State s) {
-        return ((PDDLState)s).holds(this);
+    public boolean eval (State s) {
+        return ((PDDLState) s).holds(this);
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied (State s) {
         if (isValid()) {
             return true;
         }
         if (isUnsatisfiable()) {
             return false;
         }
-        return ((PDDLState)s).holds(this);
+        return ((PDDLState) s).holds(this);
     }
 
     @Override
-    public boolean can_be_true(RelState s) {
+    public boolean can_be_true (RelState s) {
         if (this.isValid())
             return true;
         if (this.isUnsatisfiable())
@@ -352,7 +343,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 7;
         hash = 29 * hash + Objects.hashCode(this.name);
         hash = 29 * hash + Objects.hashCode(this.terms);
@@ -360,7 +351,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (this == obj) {
             return true;
         }
@@ -377,6 +368,10 @@ public class Predicate extends Terminal implements PostCondition {
         return Objects.equals(this.terms, other.terms);
     }
 
+    public PDDLState remove (PDDLState s) {
+        s.setPropFluent(this, false);
+        return s;
+    }
 
 
 //    /**
@@ -402,15 +397,9 @@ public class Predicate extends Terminal implements PostCondition {
 //        }
 //        return true;
 //    }
-   
-
-    public PDDLState remove(PDDLState s) {
-        s.setPropFluent(this,false);
-        return s;
-    }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
         ArrayList newVar = new ArrayList();
 
         for (Object o : terms) {
@@ -429,27 +418,27 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition clone() {
+    public Condition clone ( ) {
         return this;
     }
 
-    public RelState make_positive(RelState s) {
+    public RelState make_positive (RelState s) {
         s.makePositive(this);
         return s;
     }
 
-    RelState make_negative(RelState s) {
+    RelState make_negative (RelState s) {
         s.makeNegative(this);
         return s;
     }
 
     @Override
-    public void normalize() {
+    public void normalize ( ) {
         return;
     }
 
     @Override
-    public Condition unGround(Map substitution) {
+    public Condition unGround (Map substitution) {
         Predicate ret = new Predicate(true);
         ret.setPredicateName(name);
 
@@ -472,7 +461,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Condition con) {
+    public boolean isUngroundVersionOf (Condition con) {
         if (con instanceof Predicate) {
             Predicate p = (Predicate) con;
             if (this.getPredicateName().equals(p.getPredicateName())) {
@@ -499,7 +488,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
 
         if (this.isValid()) {
             return "true";
@@ -530,12 +519,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         return new HashSet();
     }
 
     @Override
-    public Condition weakEval(PddlProblem problem, HashMap invF) {
+    public Condition weakEval (PddlProblem problem, HashMap invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
@@ -554,22 +543,22 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, GroundAction gr, String var) {
         return " true ";
     }
 
     @Override
-    public Condition transform_equality() {
+    public Condition transform_equality ( ) {
         return this;
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by (GroundAction gr) {
         return gr.achieve(this) || gr.delete(this);
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress (GroundAction gr) {
 
         OrCond achievers = gr.getAdders(this);
         OrCond deleters = gr.getDels(this);
@@ -587,7 +576,7 @@ public class Predicate extends Terminal implements PostCondition {
         return or;
     }
 
-    public Condition regress_old(GroundAction gr) {
+    public Condition regress_old (GroundAction gr) {
         PostCondition achiever = gr.getAdder(this);
         PostCondition destroyer = gr.getDeleter(this);
         if (destroyer != null && destroyer instanceof Predicate) {
@@ -642,26 +631,26 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(PDDLState s) {
+    public HashMap apply (PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
     }
 
     @Override
-    public HashMap<Object, Object> apply(RelState s) {
+    public HashMap<Object, Object> apply (RelState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply (State s, Map modifications) {
         modifications.put(this, Boolean.TRUE);
     }
 
     @Override
-    public void apply(RelState s, Map modifications) {
+    public void apply (RelState s, Map modifications) {
         Integer inter = s.possBollValues.get(this.id);
         if (inter == null || inter == 0) {
             modifications.put(this, 2);
@@ -669,14 +658,14 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append(" (");
         bui.append(getPredicateName());
         for (Object o1 : this.getTerms()) {
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 bui.append(" ");
-                bui.append(obj.getName()); // TODO: Why not obj.pddlPrint(typeInformation,bui) ? 
+                bui.append(obj.getName()); // TODO: Why not obj.pddlPrint(typeInformation,bui) ?
             } else {
                 Variable obj = (Variable) o1;
                 bui.append(" ");
@@ -690,12 +679,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         vars.addAll(this.terms);
     }
 
     @Override
-    public ComplexCondition and(Condition precondition) {
+    public ComplexCondition and (Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -703,7 +692,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.cost = cond_dist.get(this.getHeuristicId());
         s.actions.add(established_achiever.get(this.getHeuristicId()));
@@ -713,8 +702,12 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals() {
+    public Condition push_not_to_terminals ( ) {
         return this;
+    }
+
+    public enum trueFalse {
+        TRUE, FALSE
     }
 
 }

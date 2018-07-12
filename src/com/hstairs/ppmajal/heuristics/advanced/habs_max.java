@@ -5,12 +5,6 @@
  */
 package com.hstairs.ppmajal.heuristics.advanced;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.Metric;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.GroundProcess;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.expressions.Expression;
@@ -19,6 +13,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.Heuristic;
+import com.hstairs.ppmajal.problem.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,53 +21,61 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- *
  * @author dxli
  */
 public class habs_max extends Heuristic {
 
     private static final Integer TYPE_UCSH1 = 1;
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
-    public Metric metric = null;
-  
     private final Set<GroundProcess> processSet;
+    public Metric metric = null;
     private h1 habs;
 
-    public habs_max(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public habs_max (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
 
         this.supporters = new LinkedHashSet<>();
         this.processSet = P;
     }
 
-    public void setMetric(Metric metric) {
+    private static Heuristic habsFactory (Integer heuristicType, ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
+        switch (heuristicType) {
+            case (1): {
+                return new h1(G, A, P);
+            }
+            default:
+                return null;
+        }
+    }
+
+    public void setMetric (Metric metric) {
         this.metric = metric;
     }
-  
+
     @Override
-    public Float setup(State gs) {
-        PDDLState s = (PDDLState)gs;
+    public Float setup (State gs) {
+        PDDLState s = (PDDLState) gs;
         // reachablity analysis by AIBR
         Float ret = aibrReachabilityAnalysis(s);
         if (ret == Float.MAX_VALUE) {
             return ret;
         }
-        
+
         // abstraction step
         generate_subactions(s);
-        
+
         // estimation for initial state
         setup_habs(s);
-        
+
         // admissible setting
         habs.additive_h = false;
-        
+
         ret = habs.compute_estimate(s);
-        
+
         return ret;
     }
 
-    private Float aibrReachabilityAnalysis(PDDLState s) {
+    private Float aibrReachabilityAnalysis (PDDLState s) {
         // reachability analysis on original problem using AIBR.
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
@@ -83,32 +86,31 @@ public class habs_max extends Heuristic {
 
         return ret;
     }
-    
-        
+
     /**
-     * <p> 
-     * 
+     * <p>
+     * <p>
      * <p>
      */
-    private void generate_subactions(PDDLState s_0) {
+    private void generate_subactions (PDDLState s_0) {
         RelState rs = getRelaxedGoal(A, G, processSet, s_0);
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
-        
+
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
         for (GroundAction gr : reachable) {
             allConstantEffects.clear();
-            
+
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     if (effect.getFluentAffected().getName().equals("total-cost")) {
                         effectOnCost = (NumEffect) effect.clone();
                         continue;
                     }
-                    
+
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
                     if (!rhs.rhsFluents().isEmpty() && rhs.linear) {
@@ -118,10 +120,10 @@ public class habs_max extends Heuristic {
                     }
                 }
             }
-            
+
             // aggregate constant numeric effects and propositional effects into one "constant subaction".
-            if (!allConstantEffects.isEmpty() 
-                    || (gr.getAddList() != null && !gr.getAddList().sons.isEmpty()) 
+            if (!allConstantEffects.isEmpty()
+                    || (gr.getAddList() != null && !gr.getAddList().sons.isEmpty())
                     || (gr.getDelList() != null && !gr.getDelList().sons.isEmpty())) {
                 addConstantSubaction(gr.toFileCompliant() + " const", gr, allConstantEffects, effectOnCost, s_0);
             }
@@ -131,7 +133,7 @@ public class habs_max extends Heuristic {
         System.out.println("|Sup + goal|: " + supporters.size());
     }
 
-    private RelState getRelaxedGoal(Set<GroundAction> A, ComplexCondition G, Set<GroundProcess> P, PDDLState s) {
+    private RelState getRelaxedGoal (Set<GroundAction> A, ComplexCondition G, Set<GroundProcess> P, PDDLState s) {
         Aibr aibr_handle = new Aibr(G, A, P);
         //aibr_handle
         aibr_handle.setup(s);
@@ -144,61 +146,51 @@ public class habs_max extends Heuristic {
      *
      * @param s
      */
-    public void setup_habs(PDDLState s) {
+    public void setup_habs (PDDLState s) {
         habs = (h1) habsFactory(TYPE_UCSH1, G, (Set<GroundAction>) this.supporters, processSet);
         habs.light_setup(s);
-    }
-
-    private static Heuristic habsFactory(Integer heuristicType, ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
-        switch (heuristicType) {
-            case (1): {
-                return new h1(G, A, P);
-            }
-            default:
-                return null;
-        }
     }
 
     /**
      * <p>
      */
-    private void addinfiniteSubactions(String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, PDDLState s_0) {
+    private void addinfiniteSubactions (String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, RelState rs, PDDLState s_0) {
         Expression repSample;
         String subactionName;
-        Float domain_inf = - Float.MAX_VALUE;
+        Float domain_inf = -Float.MAX_VALUE;
         Float domain_sup = Float.MAX_VALUE;
-        
+
         // add plus infinity subdomain
         repSample = new ExtendedNormExpression(Float.MAX_VALUE);
         subactionName = name + " (0," + domain_sup.toString() + ") for " + effect.getFluentAffected().toString();
-        GroundAction subaction = generatePiecewiseSubaction(subactionName, 
-                repSample,  
+        GroundAction subaction = generatePiecewiseSubaction(subactionName,
+                repSample,
                 0f,
                 Float.MAX_VALUE,
-                effect, 
-                effectOnCost, 
+                effect,
+                effectOnCost,
                 gr,
                 s_0);
         subaction.infinite_constant_effect = true;
         supporters.add(subaction);
-        
+
         // add minus infinity subdomain
         repSample = new ExtendedNormExpression(-Float.MAX_VALUE);
         subactionName = name + " (" + domain_inf.toString() + ",0) " + " for " + effect.getFluentAffected().toString();
-        subaction = generatePiecewiseSubaction(subactionName, 
-                repSample, 
+        subaction = generatePiecewiseSubaction(subactionName,
+                repSample,
                 -Float.MAX_VALUE,
-                0f, 
+                0f,
                 effect,
-                effectOnCost, 
+                effectOnCost,
                 gr,
                 s_0);
         subaction.infinite_constant_effect = true;
         supporters.add(subaction);
-        
+
     }
-    
-    private GroundAction generatePiecewiseSubaction(String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {    
+
+    private GroundAction generatePiecewiseSubaction (String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {
         GroundAction subaction = new GroundAction(subactionName);
 
         // set up effect
@@ -208,27 +200,27 @@ public class habs_max extends Heuristic {
 
         // set effects for subactions
         subaction.getNumericEffects().sons.add(supEff);
-        
+
         if (cost_sensitive && effectOnCost != null) {
             subaction.getNumericEffects().sons.add(effectOnCost);
             subaction.setAction_cost(s_0, this.metric);
         } else {
-        // if not metric sensitive, set uniform action cost
+            // if not metric sensitive, set uniform action cost
             subaction.setAction_cost(1);
         }
 
         // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
         Comparison indirect_precondition_gt;
         Comparison indirect_precondition_lt;
-        
-        if (inf < 0){
+
+        if (inf < 0) {
             indirect_precondition_gt = new Comparison(">=");
             indirect_precondition_lt = new Comparison("<");
         } else {
             indirect_precondition_gt = new Comparison(">");
             indirect_precondition_lt = new Comparison("<=");
         }
-        
+
         indirect_precondition_gt.setRight(new PDDLNumber(inf));
         indirect_precondition_lt.setRight(new PDDLNumber(sup));
         indirect_precondition_gt.setLeft(effect.getRight());
@@ -241,7 +233,7 @@ public class habs_max extends Heuristic {
         subaction.getPreconditions().sons.add(indirect_precondition_lt);
         subaction.getPreconditions().sons.add(indirect_precondition_gt);
         subaction.setPreconditions(subaction.getPreconditions().and(gr.getPreconditions()));
-        
+
         return subaction;
     }
 
@@ -249,11 +241,11 @@ public class habs_max extends Heuristic {
      * <p>
      *
      * @param effect constant effect to generate supporters for.
-     * @param name a string to distinguish between effects.
-     * @param gr the grounded action.
-     * <p>
+     * @param name   a string to distinguish between effects.
+     * @param gr     the grounded action.
+     *               <p>
      */
-    private void addConstantSubaction(String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
+    private void addConstantSubaction (String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
         GroundAction sup = new GroundAction(name);
 
         // add preconditions
@@ -263,26 +255,26 @@ public class habs_max extends Heuristic {
         for (NumEffect effect : allConstantEffects) {
             sup.getNumericEffects().sons.add(effect);
         }
-        
+
         // add propositional effects
         sup.setAddList(gr.getAddList());
         sup.setDelList(gr.getDelList());
-        
+
         // add effect on metric
         if (cost_sensitive && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
             sup.setAction_cost(s_0, metric);
         } else {
-        // if not metric sensitive, set uniform action cost
+            // if not metric sensitive, set uniform action cost
             sup.setAction_cost(1);
         }
-        
+
         supporters.add(sup);
     }
 
     @Override
-     public Float compute_estimate(State gs) {
-        PDDLState s = (PDDLState)gs;
+    public Float compute_estimate (State gs) {
+        PDDLState s = (PDDLState) gs;
         Float ret = habs.compute_estimate(s);
         return ret;
     }

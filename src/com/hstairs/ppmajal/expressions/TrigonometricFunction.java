@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,38 +18,34 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class TrigonometricFunction extends BinaryOp {
 
     private Expression arg;
 
-    @Override
-    public String toString() {
-        return "("+this.operator+" "+this.arg+")";
-    }
-
-    public TrigonometricFunction() {
+    public TrigonometricFunction ( ) {
         super();
     }
 
     @Override
-    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public String toString ( ) {
+        return "(" + this.operator + " " + this.arg + ")";
+    }
+
+    @Override
+    public Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;
@@ -62,12 +58,12 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Double eval(State s) {
+    public Double eval (State s) {
         double arg_val = getArg().eval(s);
         switch (this.operator) {
             case "sin":
@@ -84,18 +80,18 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         this.setArg(getArg().normalize());
         return new ExtendedNormExpression(this);
     }
 
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression weakEval(PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, HashMap invF) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;
@@ -111,7 +107,7 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         TrigonometricFunction ret = new TrigonometricFunction();
         ret.operator = operator;
         ret.setArg(getArg().clone());
@@ -119,7 +115,7 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         Interval ret = null;
         Interval arg = this.getArg().eval(s);
 
@@ -138,12 +134,12 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public boolean involve(Collection<NumFluent> input) {
+    public boolean involve (Collection<NumFluent> input) {
         return getArg().involve(input);
     }
 
     @Override
-    public Expression subst(Condition numeric) {
+    public Expression subst (Condition numeric) {
         TrigonometricFunction ret = (TrigonometricFunction) this.clone();
         ret.setArg(getArg().subst(numeric));
         return ret;
@@ -151,60 +147,60 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         return this.getArg().rhsFluents();
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean involve(NumFluent a) {
+    public boolean involve (NumFluent a) {
         return getArg().involve(a);
     }
 
     /**
      * @return the arg
      */
-    public Expression getArg() {
+    public Expression getArg ( ) {
         return arg;
     }
 
     /**
      * @param arg the arg to set
      */
-    public void setArg(Expression arg) {
+    public void setArg (Expression arg) {
         this.arg = arg;
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(");
         bui.append(operator);
         bui.append("(");
         bui.append(getArg());
         bui.append("))");
     }
-    
+
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
+    public Expression unifyVariablesReferences (EPddlProblem p) {
         this.arg = this.arg.unifyVariablesReferences(p);
         return this;
     }

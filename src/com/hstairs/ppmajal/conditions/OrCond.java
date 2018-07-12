@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,32 +18,28 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public class OrCond extends ComplexCondition {
 
 
-    public OrCond() {
+    public OrCond ( ) {
         super();
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret_val = "(OR ";
         for (Object o : sons) {
             ret_val = ret_val.concat(o.toString());
@@ -54,7 +50,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public void normalize() {
+    public void normalize ( ) {
         Iterator it = sons.iterator();
         while (it.hasNext()) {
             Object o = it.next();
@@ -84,7 +80,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
@@ -96,14 +92,14 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval (State s) {
 
         for (Object o : sons) {
             Condition c = (Condition) o;
@@ -116,7 +112,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied (State s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
             if (c.isSatisfied(s)) {
@@ -128,7 +124,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean can_be_true(RelState s) {
+    public boolean can_be_true (RelState s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
             if (c.can_be_true(s)) {
@@ -140,7 +136,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
 
         for (Object o : sons) {
             Condition el = (Condition) o;
@@ -149,7 +145,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition clone() {
+    public Condition clone ( ) {
         OrCond ret = new OrCond();
 
 //        ret.sons = new HashSet();
@@ -180,7 +176,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition unGround(Map substitution) {
+    public Condition unGround (Map substitution) {
         OrCond ret = new OrCond();
 
         for (Object o : sons) {
@@ -192,12 +188,12 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Condition conditions) {
+    public boolean isUngroundVersionOf (Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         String ret = "";
 
         //System.out.println(this);
@@ -228,7 +224,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         Set<NumFluent> ret = new HashSet();
 
         //System.out.println("Testing with:"+this.sons);
@@ -253,7 +249,7 @@ public class OrCond extends ComplexCondition {
         return ret;
     }
 
-    public boolean involveReacheablePredicates(RelState possibleState) {
+    public boolean involveReacheablePredicates (RelState possibleState) {
 
         if (this.sons != null) {
             for (Object o : this.sons) {
@@ -279,7 +275,7 @@ public class OrCond extends ComplexCondition {
         return false;
     }
 
-    public boolean involveReacheablePredicates(Collection<Predicate> possibleState) {
+    public boolean involveReacheablePredicates (Collection<Predicate> possibleState) {
 
         if (this.sons != null) {
             for (Object o : this.sons) {
@@ -306,7 +302,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, HashMap invF) {
         LinkedHashSet to_keep = new LinkedHashSet();
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
@@ -315,7 +311,6 @@ public class OrCond extends ComplexCondition {
                 if (o2 instanceof Condition) {
                     Condition c = (Condition) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
-//                    System.out.println(c);
                     c = c.weakEval(s, invF);
                     if (o2 instanceof PDDLObjectsEquality) {
                         if (c.isValid()) {
@@ -328,7 +323,7 @@ public class OrCond extends ComplexCondition {
                         this.setUnsatisfiable(false);
                         return this;
                     } else if (c.isUnsatisfiable()) {
-//                            to_remove.add(c);
+
                     } else {
                         to_keep.add(c);
                     }
@@ -342,7 +337,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, GroundAction gr, String var) {
         String ret = "";
 
         //System.out.println(this);
@@ -373,7 +368,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition transform_equality() {
+    public Condition transform_equality ( ) {
         if (this.sons == null) {
             return this;
         }
@@ -385,7 +380,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by (GroundAction gr) {
         if (this.sons != null && !this.sons.isEmpty()) {
 
             for (Condition c : (Collection<Condition>) this.sons) {
@@ -400,7 +395,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress (GroundAction gr) {
         OrCond con = new OrCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -415,7 +410,7 @@ public class OrCond extends ComplexCondition {
                         }
                     }
                 } else {
-                    return new Predicate(Predicate.true_false.TRUE);
+                    return new Predicate(Predicate.trueFalse.TRUE);
                 }
             } else {
                 System.out.println("AndCond: Condition " + o + " cannot be regressed");
@@ -426,7 +421,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         String ret_val = "(or ";
         for (Object o : sons) {
             if (o instanceof Condition) {
@@ -445,7 +440,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public boolean can_be_false(RelState s) {
+    public boolean can_be_false (RelState s) {
         for (Object o : sons) {
             Condition c = (Condition) o;
             if (!c.can_be_false(s)) {
@@ -457,14 +452,14 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         final int sonHash = sons.hashCode();
         final int result = sonHash + 12;
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (this == obj) {
             return true;
         }
@@ -483,7 +478,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(or ");
         for (Object o : sons) {
             if (o instanceof Condition) {
@@ -498,7 +493,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         if (this.sons != null) {
             for (Object o : this.sons) {
                 if (o instanceof Condition) {
@@ -516,7 +511,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         LinkedHashSet ret = new LinkedHashSet();
         if (this.sons == null) {
             return new LinkedHashSet();
@@ -528,7 +523,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         if (this.sons == null) {
             return 0f;
         }
@@ -542,7 +537,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.cost = Float.MAX_VALUE;
         if (this.sons == null) {
@@ -563,7 +558,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals() {
+    public Condition push_not_to_terminals ( ) {
         if (this.sons == null) {
             return this;
         }
@@ -577,14 +572,14 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public ComplexCondition and(Condition precondition) {
+    public ComplexCondition and (Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
         return and;
     }
 
-    AndCond push_negation_demorgan() {
+    AndCond push_negation_demorgan ( ) {
         AndCond res = new AndCond();
         for (Condition c : (Collection<Condition>) this.sons) {
             NotCond nc = new NotCond(c);
@@ -593,7 +588,7 @@ public class OrCond extends ComplexCondition {
         return res;
     }
 
-    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+    public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
         if (this.sons == null) {
             return true;
         }
@@ -607,7 +602,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition introduce_red_constraints() {
+    public Condition introduce_red_constraints ( ) {
         if (this.sons == null) {
             return this;
         }
@@ -617,12 +612,12 @@ public class OrCond extends ComplexCondition {
         }
         return ret;
     }
-    
-        @Override
-    public void extendTerms(Variable v) {
-        if(this.sons == null)
-            return ;
-        for (Condition c: (Collection<Condition>)sons){
+
+    @Override
+    public void extendTerms (Variable v) {
+        if (this.sons == null)
+            return;
+        for (Condition c : (Collection<Condition>) sons) {
             c.extendTerms(v);
         }
     }

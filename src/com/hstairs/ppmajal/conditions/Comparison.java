@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,38 +18,40 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.expressions.Interval;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.Expression;
-import com.hstairs.ppmajal.expressions.ExtendedAddendum;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public class Comparison extends Terminal {
 
+    public boolean normalized;
+    public Comparison fatherFromRegression = null;
+    public Float maxDist;
     private Integer hash_code;
     private String string_representation;
     private boolean linear;
+    private String comparator;
+    private Expression left;
+    private Expression right;
+    public Comparison (String bin_comp_) {
+        super();
+        comparator = bin_comp_;
+        normalized = false;
+        fatherFromRegression = null;
+        maxDist = null;
+        linear = true;
+    }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (obj == null) {
             return false;
         }
@@ -82,7 +84,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
 //        if (hash_code==null){
         int hash = 7;
         hash = 67 * hash + (this.comparator != null ? this.comparator.hashCode() : 0);
@@ -95,24 +97,8 @@ public class Comparison extends Terminal {
 //        return hash_code;
     }
 
-    private String comparator;
-    private Expression left;
-    private Expression right;
-    public boolean normalized;
-    public Comparison fatherFromRegression = null;
-    public Float maxDist;
-
-    public Comparison(String bin_comp_) {
-        super();
-        comparator = bin_comp_;
-        normalized = false;
-        fatherFromRegression = null;
-        maxDist = null;
-        linear = true;
-    }
-
     @Override
-    public String toString() {
+    public String toString ( ) {
 
         if (string_representation == null) {
             string_representation = "(" + getComparator() + " (" + getLeft() + ") (" + getRight() + "))";
@@ -126,47 +112,47 @@ public class Comparison extends Terminal {
     /**
      * @return the bin_comp
      */
-    public String getComparator() {
+    public String getComparator ( ) {
         return comparator;
     }
 
     /**
      * @param bin_comp the bin_comp to set
      */
-    public void setComparator(String bin_comp) {
+    public void setComparator (String bin_comp) {
         this.comparator = bin_comp;
     }
 
     /**
      * @return the one
      */
-    public Expression getLeft() {
+    public Expression getLeft ( ) {
         return left;
     }
 
     /**
      * @param one the one to set
      */
-    public void setLeft(Expression one) {
+    public void setLeft (Expression one) {
         this.left = one;
     }
 
     /**
      * @return the two
      */
-    public Expression getRight() {
+    public Expression getRight ( ) {
         return right;
     }
 
     /**
      * @param two the two to set
      */
-    public void setRight(Expression two) {
+    public void setRight (Expression two) {
         this.right = two;
     }
 
     @Override
-    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Comparison ret = new Comparison(comparator);
 
         ret.left = left.ground(substitution, po);
@@ -176,20 +162,20 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
     }
 
-    public boolean eval_to_null(PDDLState s) {
+    public boolean eval_to_null (PDDLState s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
         return (first == null) || (second == null);
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval (State s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
         if ((first == null) || (second == null)) {
@@ -213,14 +199,14 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied (State s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
         if ((first == null) || (second == null)) {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first< second;
+            return first < second;
         } else if (this.getComparator().equals("<=")) {
             return first <= second;
         } else if (this.getComparator().equals(">")) {
@@ -237,7 +223,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean can_be_true(RelState s) {
+    public boolean can_be_true (RelState s) {
 
         Interval first = left.eval(s);
         Interval second = right.eval(s);
@@ -271,7 +257,7 @@ public class Comparison extends Terminal {
         return false;
     }
 
-    public Float satisfactionDistance(RelState s) {
+    public Float satisfactionDistance (RelState s) {
         Float ret = new Float(0);
 
         Interval first = left.eval(s);
@@ -307,7 +293,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
 
         this.left.changeVar(substitution);
         this.right.changeVar(substitution);
@@ -315,7 +301,7 @@ public class Comparison extends Terminal {
     }
 
     @Deprecated //actually this function does not copy anything
-    public Comparison normalizeAndCopy() throws Exception {
+    public Comparison normalizeAndCopy ( ) throws Exception {
 
         if (normalized) {
             return this;
@@ -386,7 +372,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition clone() {
+    public Condition clone ( ) {
         Comparison ret = new Comparison(this.comparator);
         ret.grounded = this.grounded;
         ret.left = this.left.clone();
@@ -402,7 +388,7 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    public boolean involve(Collection<NumFluent> input) {
+    public boolean involve (Collection<NumFluent> input) {
         if (this.left.involve(input)) {
             return true;
         } else {
@@ -411,7 +397,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public void normalize() {
+    public void normalize ( ) {
 
         //Comparison ret = new Comparison(this.comparator);
         //System.out.println("Normalizzazione senza copia!!!");
@@ -498,26 +484,23 @@ public class Comparison extends Terminal {
 
     }
 
-    
 
     /**
      * @return the normalized
      */
-    public boolean isNormalized() {
+    public boolean isNormalized ( ) {
         return normalized;
     }
 
     /**
      * @param normalized the normalized to set
      */
-    public void setNormalized(boolean normalized) {
+    public void setNormalized (boolean normalized) {
         this.normalized = normalized;
     }
 
-   
 
- 
-    public void computeMaxDist(RelState numericFleuntsBoundaries) {
+    public void computeMaxDist (RelState numericFleuntsBoundaries) {
 
         if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
             ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
@@ -540,7 +523,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition unGround(Map asbstractionOf) {
+    public Condition unGround (Map asbstractionOf) {
 
         Comparison ret = new Comparison(comparator);
 
@@ -550,7 +533,7 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    public boolean isDirectlyOrIndirectlyAffected(HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) {
+    public boolean isDirectlyOrIndirectlyAffected (HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) {
 
         if (!get.mayInfluence(this)) {
             //System.out.println("Action does not affect");
@@ -562,7 +545,7 @@ public class Comparison extends Terminal {
 
     }
 
-    public boolean couldBePrevented(HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) throws CloneNotSupportedException {
+    public boolean couldBePrevented (HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) throws CloneNotSupportedException {
 
 //        if (!get.mayInfluence(this)) {
 //            //System.out.println("Action does not affect");
@@ -614,12 +597,12 @@ public class Comparison extends Terminal {
 
     }
 
-    public boolean couldBePrevented(HashMap<NumFluent, HashSet<NumFluent>> computeFluentDependencePlanDependant) {
+    public boolean couldBePrevented (HashMap<NumFluent, HashSet<NumFluent>> computeFluentDependencePlanDependant) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Condition c) {
+    public boolean isUngroundVersionOf (Condition c) {
         if (c instanceof Comparison) {
             Comparison comp = (Comparison) c;
             if (comp.getComparator().equals(this.getComparator())) {
@@ -631,7 +614,7 @@ public class Comparison extends Terminal {
     }
 
 
-    public ArrayList<NumFluent> susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public ArrayList<NumFluent> susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
 
         this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
         this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
@@ -642,12 +625,12 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         return "(" + this.comparator + " " + this.getLeft().toSmtVariableString(i) + " " + this.getRight().toSmtVariableString(i) + ")";
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, GroundAction gr, String var) {
         if (!gr.mayInfluence(this)) {
             return " true ";
         }
@@ -704,7 +687,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         Set<NumFluent> ret = new HashSet();
 
         ret.addAll(this.getLeft().rhsFluents());
@@ -714,7 +697,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, HashMap invF) {
         Comparison comp = this;
         Expression lValue = comp.getLeft();
         Expression rValue = comp.getRight();
@@ -738,7 +721,7 @@ public class Comparison extends Terminal {
         return comp;
     }
 
-    public float eval_not_affected(PDDLState s_0, GroundAction aThis) {
+    public float eval_not_affected (PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
             System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
@@ -747,7 +730,7 @@ public class Comparison extends Terminal {
         return exp.eval_not_affected(s_0, aThis);
     }
 
-    public float eval_affected(PDDLState s_0, GroundAction aThis) {
+    public float eval_affected (PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
             System.err.println("At the moment support just for normalized comparisons");
             System.exit(-1);
@@ -756,7 +739,7 @@ public class Comparison extends Terminal {
         return exp.eval_affected(s_0, aThis);
     }
 
-    public boolean is_evaluable(PDDLState tempInit) {
+    public boolean is_evaluable (PDDLState tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
         for (NumFluent f : set) {
             if (tempInit.fluentValue(f) == Double.NaN) {
@@ -766,7 +749,7 @@ public class Comparison extends Terminal {
         return true;
     }
 
-    public String regress_repeatedely(GroundAction action, int number_of_repetition, PDDLState s_0) {
+    public String regress_repeatedely (GroundAction action, int number_of_repetition, PDDLState s_0) {
         float a1;
         float b;
 
@@ -783,7 +766,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition transform_equality() {
+    public Condition transform_equality ( ) {
         AndCond ret = new AndCond();
         Comparison comp = this;
         if (comp.getComparator().equals("=")) {
@@ -813,22 +796,22 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by (GroundAction gr) {
         return this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected());
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress (GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         return "(" + getComparator() + " " + getLeft().pddlPrint(false) + " " + getRight().pddlPrint(false) + ")";
     }
 
     @Override
-    public boolean can_be_false(RelState s) {
+    public boolean can_be_false (RelState s) {
 
         Interval first = left.eval(s);
         Interval second = right.eval(s);
@@ -856,9 +839,9 @@ public class Comparison extends Terminal {
         return false;
     }
 
-//<<<<<<< HEAD
+    //<<<<<<< HEAD
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(").append(getComparator()).append(" ");
         getLeft().pddlPrint(typeInformation, bui);
         bui.append(" ");
@@ -866,10 +849,10 @@ public class Comparison extends Terminal {
         bui.append(")");
     }
 
-//=======
+    //=======
     //This function computes a domination analysis between the source (a) comparison and the objective one (b).
     //If the satisfaction of a implies the satisfaction of b, then b is dominated by a.
-    public boolean dominate(Comparison other) {
+    public boolean dominate (Comparison other) {
         ExtendedNormExpression e1 = (ExtendedNormExpression) this.getLeft();
         ExtendedNormExpression e2 = (ExtendedNormExpression) other.getLeft();
 
@@ -932,23 +915,24 @@ public class Comparison extends Terminal {
     }
 
 //>>>>>>> daan
+
     /**
      * @return the linear
      */
-    public boolean isLinear() {
+    public boolean isLinear ( ) {
         return linear;
     }
 
     /**
      * @param linear the linear to set
      */
-    public void setLinear(boolean linear) {
+    public void setLinear (boolean linear) {
         this.linear = linear;
         return;
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         for (NumFluent nf : this.getInvolvedFluents()) {
             for (final Object o : nf.getTerms()) {
                 final Variable var = (Variable) o;
@@ -959,19 +943,19 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         Set ret = new LinkedHashSet();
         ret.add(this);
         return ret;
     }
 
     @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getHeuristicId());
     }
 
     @Override
-    public ComplexCondition and(Condition precondition) {
+    public ComplexCondition and (Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -979,7 +963,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.cost = cond_dist.get(this.getHeuristicId());
         s.actions.add(established_achiever.get(this.getHeuristicId()));
@@ -989,11 +973,11 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition push_not_to_terminals() {
+    public Condition push_not_to_terminals ( ) {
         return this;
     }
 
-    Condition invertOperator() {
+    Condition invertOperator ( ) {
         if (this.getComparator().equals("=")) {
             OrCond a = new OrCond();
             Comparison c1 = (Comparison) this.clone();
@@ -1027,23 +1011,21 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public void extendTerms(Variable v) {
+    public void extendTerms (Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates() {
+    public Collection<Predicate> getInvolvedPredicates ( ) {
         return new HashSet();
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         this.left = this.getLeft().unifyVariablesReferences(p);
         this.right = this.getRight().unifyVariablesReferences(p);
         return this;
     }
-    
-    
 
 
 }

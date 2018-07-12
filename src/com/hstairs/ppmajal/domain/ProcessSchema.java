@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,13 +18,7 @@
  */
 package com.hstairs.ppmajal.domain;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.conditions.NotCond;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.GroundProcess;
 import com.hstairs.ppmajal.problem.PDDLObjects;
@@ -36,14 +30,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class ProcessSchema extends PDDLGenericAction {
 
     //private SchemaParameters parameters;
     //private HashSet numericFluentAffected;
-    public ProcessSchema() {
+    public ProcessSchema ( ) {
         super();
         parameters = new SchemaParameters();
         this.addList = new AndCond();
@@ -61,27 +54,28 @@ public class ProcessSchema extends PDDLGenericAction {
 //        
 //        
 //    }
+
     /**
      * @return the parameters
      */
-    public SchemaParameters getParameters() {
+    public SchemaParameters getParameters ( ) {
         return parameters;
     }
 
     /**
      * @param parameters the parameters to set
      */
-    public void setParameters(SchemaParameters parameters) {
+    public void setParameters (SchemaParameters parameters) {
         this.parameters = parameters;
     }
 
-    public void addParameter(Variable o) {
+    public void addParameter (Variable o) {
 
         parameters.add(o);
 
     }
 
-    public GroundProcess ground(Map substitution, PDDLObjects po) {
+    public GroundProcess ground (Map substitution, PDDLObjects po) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -100,7 +94,7 @@ public class ProcessSchema extends PDDLGenericAction {
 
     }
 
-    public GroundProcess ground(Map substitution, int c) {
+    public GroundProcess ground (Map substitution, int c) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -117,7 +111,7 @@ public class ProcessSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundProcess ground(ParametersAsTerms par, PDDLObjects po) {
+    public GroundProcess ground (ParametersAsTerms par, PDDLObjects po) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         int i = 0;
@@ -149,7 +143,7 @@ public class ProcessSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundProcess ground() {
+    public GroundProcess ground ( ) {
         GroundProcess ret = new GroundProcess(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 
@@ -163,7 +157,7 @@ public class ProcessSchema extends PDDLGenericAction {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 //        String parametri = "";
 //        for (Object o : parameters) {
 //            parametri = parametri.concat(o.toString()).concat(" ");
@@ -180,7 +174,7 @@ public class ProcessSchema extends PDDLGenericAction {
         return ret + ")";
     }
 
-    private String pddlEffects() {
+    private String pddlEffects ( ) {
         String ret = "(and ";
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
@@ -205,7 +199,7 @@ public class ProcessSchema extends PDDLGenericAction {
         return ret + ")";
     }
 
-    public Set getAbstractNumericFluentAffected() {
+    public Set getAbstractNumericFluentAffected ( ) {
         HashSet anfa = new HashSet();
         for (Object o : this.numericEffects.sons) {
             if (o instanceof AndCond) {
@@ -226,7 +220,7 @@ public class ProcessSchema extends PDDLGenericAction {
     }
 
     @Deprecated
-    public ProcessSchema append(ProcessSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
+    public ProcessSchema append (ProcessSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
 
         if (this.name == null) {
             return (ProcessSchema) as2.clone();
@@ -248,7 +242,7 @@ public class ProcessSchema extends PDDLGenericAction {
         return ab;
     }
 
-    private void progress(ProcessSchema a, ProcessSchema b, ProcessSchema ab) {
+    private void progress (ProcessSchema a, ProcessSchema b, ProcessSchema ab) {
         /*Starting from what action a achieve*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
@@ -303,7 +297,7 @@ public class ProcessSchema extends PDDLGenericAction {
         ab.setNumericEffects(numEff);
     }
 
-    private Condition regress(ProcessSchema b, ProcessSchema a) {
+    private Condition regress (ProcessSchema b, ProcessSchema a) {
         /*Propositional Part first*/
 
         AndCond result = (AndCond) b.getPreconditions().clone();

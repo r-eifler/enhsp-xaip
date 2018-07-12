@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 public class madagascarWrapper extends planningTool {
 
-    public madagascarWrapper() {
+    public madagascarWrapper ( ) {
         super();
         option2 = "";
 
@@ -46,7 +46,7 @@ public class madagascarWrapper extends planningTool {
     }
 
     @Override
-    public String plan() {
+    public String plan ( ) {
         try {
             System.out.println("Planning...");
             long start = System.currentTimeMillis();
@@ -83,7 +83,7 @@ public class madagascarWrapper extends planningTool {
     }
 
     @Override
-    public String plan(String domainFile, String problemFile) {
+    public String plan (String domainFile, String problemFile) {
 
         //System.out.println("planning");
         this.setDomainFile(domainFile);
@@ -93,7 +93,7 @@ public class madagascarWrapper extends planningTool {
 
     }
 
-    private void putSolutionInFile(String s) throws IOException {
+    private void putSolutionInFile (String s) throws IOException {
 
         Scanner sc = new Scanner(s);
         boolean atleastanaction = false;
@@ -114,11 +114,11 @@ public class madagascarWrapper extends planningTool {
     }
 
     @Override
-    public String adapt(String domainFile, String problemFile, String planFile) {
+    public String adapt (String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void findTotalTimeInFile(String s) {
+    public void findTotalTimeInFile (String s) {
         Scanner sc = new Scanner(s);
 
         while (sc.hasNextLine()) {
@@ -134,7 +134,7 @@ public class madagascarWrapper extends planningTool {
     }
 
     @Override
-    public void changePlannersPath() {
+    public void changePlannersPath ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

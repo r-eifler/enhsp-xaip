@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -22,21 +22,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
  * @author enrico
  */
 public class SchemaParameters extends ArrayList {
 
-    
-    public SchemaParameters() {
+
+    public SchemaParameters ( ) {
         super();
     }
-    
-    public SchemaParameters(SchemaParameters po) {
+
+    public SchemaParameters (SchemaParameters po) {
         super(po);
     }
 
-    public Variable containsVariable(Variable o) {
+    public Variable containsVariable (Variable o) {
         Iterator it = this.iterator();
         while (it.hasNext()) {
             Variable v = (Variable) it.next();
@@ -48,7 +47,7 @@ public class SchemaParameters extends ArrayList {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret = "(";
         for (Object o : this) {
             Variable v = (Variable) o;
@@ -60,7 +59,7 @@ public class SchemaParameters extends ArrayList {
 
     }
 
-    void mergeParameters(SchemaParameters a) {
+    void mergeParameters (SchemaParameters a) {
         int counter = 0;
         for (Object o : a) {
             Variable obj = (Variable) o;

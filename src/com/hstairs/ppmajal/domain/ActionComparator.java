@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,19 +19,19 @@
 package com.hstairs.ppmajal.domain;
 
 //import java.util.Comparator;
+
 import java.util.Comparator;
 
 /**
- *
  * @author enrico
  */
 class ActionComparator implements Comparator<PDDLGenericAction> {
 
-    public ActionComparator() {
+    public ActionComparator ( ) {
     }
 
     @Override
-    public int compare(PDDLGenericAction gat1, PDDLGenericAction gat2) {
+    public int compare (PDDLGenericAction gat1, PDDLGenericAction gat2) {
         return gat1.name.compareTo(gat2.name);
     }
 

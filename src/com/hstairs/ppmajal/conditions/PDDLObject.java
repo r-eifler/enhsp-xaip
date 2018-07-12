@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,22 +18,16 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
 
 /**
- *
  * @author enrico
  */
 public class PDDLObject extends Terminal implements ActionParameter {
@@ -41,12 +35,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
     private String name;
     private Type type;
 
-    public PDDLObject(String name) {
+    public PDDLObject (String name) {
         grounded = true;
         this.name = name;
     }
 
-    public PDDLObject(String n, Type atype) {
+    public PDDLObject (String n, Type atype) {
         grounded = true;
 
         name = n;
@@ -54,7 +48,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals (Object o) {
         if (o instanceof PDDLObject) {
             PDDLObject o1 = (PDDLObject) o;
             return (o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()));
@@ -63,7 +57,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 7;
         hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
         //hash = 29 * hash + (this.type != null ? this.type.hashCode() : 0);
@@ -73,19 +67,19 @@ public class PDDLObject extends Terminal implements ActionParameter {
     /**
      * @return the type
      */
-    public Type getType() {
+    public Type getType ( ) {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(Type type) {
+    public void setType (Type type) {
         this.type = type;
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret_val = null;
 
         ret_val = getName() + " " + type;
@@ -96,51 +90,51 @@ public class PDDLObject extends Terminal implements ActionParameter {
     /**
      * @return the name
      */
-    public String getName() {
+    public String getName ( ) {
         return name;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name) {
+    public void setName (String name) {
         this.name = name;
     }
 
     @Override
-    public PDDLObject ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public PDDLObject ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         return new PDDLObject(name, type); // TODO: Why not return this?
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval (State s) {
         return true;
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied (State s) {
         return true;
     }
 
     @Override
-    public boolean can_be_true(RelState s) {
+    public boolean can_be_true (RelState s) {
         return true;
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
         return;
     }
 
     @Override
-    public Condition clone() {
+    public Condition clone ( ) {
 //        PDDLObject ret = new PDDLObject(name,this.getType());
 //        ret.grounded = this.grounded;
 //        return ret;
@@ -148,67 +142,67 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public void normalize() {
+    public void normalize ( ) {
         return;
     }
 
     @Override
-    public Condition unGround(Map asbstractionOf) {
+    public Condition unGround (Map asbstractionOf) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Condition conditions) {
+    public boolean isUngroundVersionOf (Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, HashMap invF) {
         return this;
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, GroundAction gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition transform_equality() {
+    public Condition transform_equality ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by (GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress (GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         return this.getName();
     }
 
     @Override
-    public boolean can_be_false(RelState aThis) {
+    public boolean can_be_false (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append(getName());
         if (typeInformation) {
             bui.append(" ").append(getType());
@@ -216,52 +210,52 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ComplexCondition and(Condition precondition) {
+    public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition push_not_to_terminals() {
+    public Condition push_not_to_terminals ( ) {
         return this;
     }
 
     @Override
-    public PDDLObject ground(Map<Variable, PDDLObject> substitution) {
+    public PDDLObject ground (Map<Variable, PDDLObject> substitution) {
         return new PDDLObject(name, type); // TODO: Why not return this?
     }
 
     @Override
-    public void extendTerms(Variable v) {
+    public void extendTerms (Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates() {
+    public Collection<Predicate> getInvolvedPredicates ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         return this;
     }
 

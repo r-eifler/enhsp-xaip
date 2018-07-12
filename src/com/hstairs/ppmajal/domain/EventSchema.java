@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -28,12 +28,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author enrico
  */
 public class EventSchema extends ActionSchema {
 
-    public GroundEvent fakeGround() {
+    public GroundEvent fakeGround ( ) {
         GroundEvent ret = new GroundEvent(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 
@@ -47,7 +46,7 @@ public class EventSchema extends ActionSchema {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 //        String parametri = "";
 //        for (Object o : parameters) {
 //            parametri = parametri.concat(o.toString()).concat(" ");
@@ -65,7 +64,7 @@ public class EventSchema extends ActionSchema {
         return ret + ")";
     }
 
-    public GroundEvent ground(ParametersAsTerms par, PDDLObjects po) {
+    public GroundEvent ground (ParametersAsTerms par, PDDLObjects po) {
         GroundEvent ret = new GroundEvent(this.name);
         int i = 0;
 
@@ -87,15 +86,15 @@ public class EventSchema extends ActionSchema {
 //        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.numericEffects.sons.addAll(((AndCond)this.numericEffects.ground(substitution, po)).sons);
+            ret.numericEffects.sons.addAll(((AndCond) this.numericEffects.ground(substitution, po)).sons);
 //            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.addList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+            ret.addList.sons.addAll(((AndCond) this.addList.ground(substitution, po)).sons);
 //            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.delList.sons.addAll(((AndCond)this.delList.ground(substitution, po)).sons);
+            ret.delList.sons.addAll(((AndCond) this.delList.ground(substitution, po)).sons);
 
 //            ret.setDelList(this.delList.ground(substitution, po));
         }

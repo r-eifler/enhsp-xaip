@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -32,26 +32,25 @@ import com.hstairs.ppmajal.problem.State;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class blindHeuristic extends Aibr {
 
-    public blindHeuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
+    public blindHeuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
         super(G, A, P);
     }
 
-    public blindHeuristic(ComplexCondition G, Set<GroundAction> A) {
+    public blindHeuristic (ComplexCondition G, Set<GroundAction> A) {
         super(G, A);
     }
 
-    public blindHeuristic(ComplexCondition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
+    public blindHeuristic (ComplexCondition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
         super(goals, actions, processesSet, eventsSet);
 
     }
 
     @Override
-    public Float compute_estimate(State s_0) {
+    public Float compute_estimate (State s_0) {
 //        if (reachability) {
 //
 //            return super.compute_estimate(s_0);

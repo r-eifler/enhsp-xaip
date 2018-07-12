@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -41,22 +41,29 @@ import java.util.Set;
 
 /**
  * *******************************************************************
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
+ * <p>
+ * *******************************************************************
+ * <p>
+ * *******************************************************************
+ * Description: Part of the PPMaJaL library
+ * <p>
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ * <p>
+ * *******************************************************************
  */
 /**
  * *******************************************************************
@@ -66,6 +73,7 @@ import java.util.Set;
  *
  ********************************************************************
  */
+
 /**
  *
  * @author enrico
@@ -84,7 +92,7 @@ public class produceEntaglements {
     private static boolean numericEntanglements;
     private static boolean propEntanglements;
 
-    public static void parseInput(String[] args) {
+    public static void parseInput (String[] args) {
 
         domainFile = Utils.searchParameterValue(args, "-d");
         problemFile = Utils.searchParameterValue(args, "-p");
@@ -120,12 +128,12 @@ public class produceEntaglements {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main (String[] args) throws Exception {
 
         parseInput(args);
 
         PddlDomain dom = new PddlDomain(domainFile);
-        
+
         if (multipleFilesFileName == null) {
 
             learn_entanglements_with_problem_given_in_input(dom);
@@ -137,7 +145,7 @@ public class produceEntaglements {
 
     }
 
-    private static void learn_entanglements_with_problem_given_in_input(PddlDomain dom) throws Exception {
+    private static void learn_entanglements_with_problem_given_in_input (PddlDomain dom) throws Exception {
         PddlProblem prob = new PddlProblem();
         prob.setDomain(dom);
         prob.parseProblem(problemFile);
@@ -153,7 +161,7 @@ public class produceEntaglements {
             AndCond c = (AndCond) as.getPreconditions();
             for (Object o : c.sons) {
                 //System.out.println("Testing: "+o);
-                if (sp.entangledByInit(as.getName(), (PDDLState)prob.getInit(), (Condition) o)) {
+                if (sp.entangledByInit(as.getName(), (PDDLState) prob.getInit(), (Condition) o)) {
                     entanglementsByInit.add((Condition) o);
 
                 }
@@ -187,7 +195,7 @@ public class produceEntaglements {
         dom.saveDomain(enhancedDomainFile);
     }
 
-    private static void learn_entanglements_via_many_problems(PddlDomain dom) throws Exception {
+    private static void learn_entanglements_via_many_problems (PddlDomain dom) throws Exception {
 
         Scanner scanner = new Scanner(new File(multipleFilesFileName));
         scanner.useDelimiter(",");
@@ -221,7 +229,7 @@ public class produceEntaglements {
                 AndCond c = (AndCond) as.getPreconditions();
                 for (Object o : c.sons) {
                     //System.out.println("Testing: "+o);
-                    int holdingCount = sp.entangledByInitCounter(as.getName(), (PDDLState)prob.getInit(), (Condition) o);
+                    int holdingCount = sp.entangledByInitCounter(as.getName(), (PDDLState) prob.getInit(), (Condition) o);
                     incCounter(init_condition_holding_number, o.toString() + as.getName(), holdingCount);
                 }
 
@@ -304,7 +312,7 @@ public class produceEntaglements {
 
     }
 
-    private static void incCounter(HashMap<Object, Integer> counter_of_entanglement_by_init, Object o, int n) {
+    private static void incCounter (HashMap<Object, Integer> counter_of_entanglement_by_init, Object o, int n) {
         if (counter_of_entanglement_by_init.get(o) == null) {
             counter_of_entanglement_by_init.put(o, n);
         } else {
@@ -313,7 +321,7 @@ public class produceEntaglements {
 
     }
 
-    private static void planJustInCase(PddlDomain dom, PddlProblem prob) throws Exception {
+    private static void planJustInCase (PddlDomain dom, PddlProblem prob) throws Exception {
         sp = new SimplePlan(dom, prob, false);
         metricFFWrapper p = new metricFFWrapper();
         p.setTimeout(100000);

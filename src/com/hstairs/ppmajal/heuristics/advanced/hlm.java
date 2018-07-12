@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,18 +18,10 @@
  */
 package com.hstairs.ppmajal.heuristics.advanced;
 
-import com.hstairs.ppmajal.problem.GroundEvent;
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.GroundProcess;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.conditions.NotCond;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.Aibr;
+import com.hstairs.ppmajal.problem.*;
 import ilog.concert.*;
 import ilog.cplex.IloCplex;
 
@@ -41,22 +33,20 @@ import static java.lang.System.out;
 import static java.util.Collections.nCopies;
 
 /**
- *
  * @author enrico
  */
 public class hlm extends h1 {
 
     public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
-
-    private ArrayList<Set<GroundAction>> condition_to_action;
-
-//    public ArrayList<Set<repetition_landmark>> reachable_poss_achievers;
+    //    public ArrayList<Set<repetition_landmark>> reachable_poss_achievers;
     public boolean lp_cost_partinioning;
-    private ArrayList<Float> cond_dist;
     public boolean red_constraints = false;
     public boolean smart_intersection = false;
     public boolean mip;
-//    private IloCplex lp;
+    public boolean debug_landmarks_counting = false;
+    private ArrayList<Set<GroundAction>> condition_to_action;
+    private ArrayList<Float> cond_dist;
+    //    private IloCplex lp;
     private IloCplex lp_global;
     private IloLinearNumExpr objective_function;
     private ArrayList<IloNumVar> action_to_variable;
@@ -64,22 +54,21 @@ public class hlm extends h1 {
     private ArrayList<Set<GroundAction>> reach_achievers;
     private HashMap<Integer, Boolean> has_state_dependent_achievers;
     private boolean needs_checking_state_dependent_constraints;
-    public boolean debug_landmarks_counting = false;
 
-    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
+    public hlm (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         super(goal, A, P);
 
     }
 
-    public hlm(ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public hlm (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
         super(goal, A, P, E);
 
     }
 
     @Override
-    public Float setup(State gs) {
+    public Float setup (State gs) {
 
-        PDDLState s = (PDDLState)gs;
+        PDDLState s = (PDDLState) gs;
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
@@ -136,8 +125,8 @@ public class hlm extends h1 {
     }
 
     @Override
-    public Float compute_estimate(State gs) {
-        PDDLState s = (PDDLState)gs;
+    public Float compute_estimate (State gs) {
+        PDDLState s = (PDDLState) gs;
         if (s.satisfy(G)) {
             return 0f;
         }
@@ -283,7 +272,7 @@ public class hlm extends h1 {
         return Float.MAX_VALUE;
     }
 
-    private boolean update_lm(Condition p, GroundAction gr, ArrayList<Set<Condition>> lm) {
+    private boolean update_lm (Condition p, GroundAction gr, ArrayList<Set<Condition>> lm) {
 
         Set<Condition> previous = lm.get(p.getHeuristicId());
 
@@ -369,7 +358,7 @@ public class hlm extends h1 {
 
     }
 
-    private void update_actions_conditions(PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
+    private void update_actions_conditions (PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
         for (Condition comp : this.achieve[gr.id]) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {//if this isn't in the init state yet
@@ -396,7 +385,7 @@ public class hlm extends h1 {
         }
     }
 
-    private void update_action_condition(GroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
+    private void update_action_condition (GroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
@@ -441,7 +430,7 @@ public class hlm extends h1 {
 
     }
 
-    private boolean check_conditions(GroundAction gr2) {
+    private boolean check_conditions (GroundAction gr2) {
 
         for (Condition c : (Collection<Condition>) gr2.getPreconditions().sons) {
             if (cond_dist.get(c.getHeuristicId()) == Float.MAX_VALUE) {
@@ -451,7 +440,7 @@ public class hlm extends h1 {
         return true;
     }
 
-    private void generate_link_precondition_action() {
+    private void generate_link_precondition_action ( ) {
         condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
         for (Condition c : all_conditions) {
             LinkedHashSet<GroundAction> set = new LinkedHashSet();
@@ -466,7 +455,7 @@ public class hlm extends h1 {
     }
 
     //TO-DO do the sensitive intersection to the metric
-    private Set<Condition> metric_sensitive_intersection(Set<Condition> previous, Set<Condition> temp) {
+    private Set<Condition> metric_sensitive_intersection (Set<Condition> previous, Set<Condition> temp) {
         Set<Condition> newset = new LinkedHashSet();
         if (debug > 0) {
             System.out.println("Previous:" + previous);
@@ -498,7 +487,7 @@ public class hlm extends h1 {
         return newset;
     }
 
-    private String print_ordering(ArrayList<Set<Condition>> lm, Condition c) {
+    private String print_ordering (ArrayList<Set<Condition>> lm, Condition c) {
 
         if (lm.get(c.getHeuristicId()) == null || lm.get(c.getHeuristicId()).isEmpty()) {
             return "(" + c.toString() + "," + c.getHeuristicId() + ")";
@@ -512,7 +501,7 @@ public class hlm extends h1 {
 
     }
 
-    private void init_lp(PDDLState s_0) {
+    private void init_lp (PDDLState s_0) {
         try {
             lp_global = new IloCplex();
             lp_global.setOut(null);
@@ -599,7 +588,7 @@ public class hlm extends h1 {
         }
     }
 
-    private void free_variable_modify_contribution_if_needed(PDDLState s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
+    private void free_variable_modify_contribution_if_needed (PDDLState s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
 
         IloNumVar action_var = this.action_to_variable.get(gr.id);
         action_var.setUB(Float.MAX_VALUE);//add only useful actions
@@ -617,7 +606,7 @@ public class hlm extends h1 {
         }
     }
 
-    private boolean check_if_smark_intersection_needed() {
+    private boolean check_if_smark_intersection_needed ( ) {
         for (int i = 0; i < all_conditions.toArray().length; i++) {
             for (int j = i + 1; j < all_conditions.toArray().length; j++) {
                 Condition c1 = (Condition) all_conditions.toArray()[i];

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,36 +18,41 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 
 /**
- *
  * @author Enrico Scala
  */
 public class NumFluent extends Expression {
 
+    Integer cachedHashCode;
     private String name;
     private ArrayList<ActionParameter> terms;
     private String beforeReformulation;
     private Boolean has_to_be_tracked;
     private String terms_as_string;
-    Integer cachedHashCode;
     private int id;
     private Integer actual_hash;
 
+    public NumFluent (String name) {
+        super();
+        this.name = name;
+        //variables = new ArrayList();
+        terms = new ArrayList<>();
+
+        this.beforeReformulation = null;
+        id = -1;
+    }
+
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         if (cachedHashCode == null) {
             cachedHashCode = 3;
             cachedHashCode = 67 * cachedHashCode + Objects.hashCode(this.name);
@@ -57,8 +62,8 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        
+    public boolean equals (Object obj) {
+
         if (this == obj) {
             return true;
         }
@@ -69,7 +74,7 @@ public class NumFluent extends Expression {
             return false;
         }
         final NumFluent other = (NumFluent) obj;
-        if (this.id != -1 && other.getId() != -1){
+        if (this.id != -1 && other.getId() != -1) {
             return this.id == other.getId();
         }
         if (!Objects.equals(this.name, other.name)) {
@@ -81,30 +86,20 @@ public class NumFluent extends Expression {
         return true;
     }
 
-    public NumFluent(String name) {
-        super();
-        this.name = name;
-        //variables = new ArrayList();
-        terms = new ArrayList<>();
-
-        this.beforeReformulation = null;
-        id = -1;
-    }
-
-    public void addVariable(Variable variable) {
+    public void addVariable (Variable variable) {
         terms.add(variable);
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret = "";
         ret += "(" + this.name;
         for (Object o1 : this.getTerms()) {
-            if (o1 == null){
+            if (o1 == null) {
                 throw new RuntimeException("Null object found at the level "
-                        + "of "+this.name);
+                        + "of " + this.name);
             }
-                   
+
             if (o1 instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o1;
                 ret = ret.concat(" " + obj.getName());
@@ -120,7 +115,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public NumFluent ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public NumFluent ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumFluent ret = new NumFluent(getName());
         for (final ActionParameter param : terms) {
             ret.addTerms(param.ground(substitution));
@@ -131,7 +126,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         NumFluent ret = new NumFluent(getName());
         for (Object o : terms) {
             if (o instanceof PDDLObject) {
@@ -154,41 +149,41 @@ public class NumFluent extends Expression {
     /**
      * @return the terms
      */
-    public ArrayList<ActionParameter> getTerms() {
+    public ArrayList<ActionParameter> getTerms ( ) {
         return terms;
     }
 
     /**
      * @param terms the terms to set
      */
-    public void setTerms(ArrayList terms) {
+    public void setTerms (ArrayList terms) {
         this.terms = terms;
     }
 
-    public void addTerms(PDDLObject el) {
+    public void addTerms (PDDLObject el) {
         terms.add(el);
     }
 
     /**
      * @return the name
      */
-    public String getName() {
+    public String getName ( ) {
         return name;
     }
 
-//    public void setName(String name) {
+    //    public void setName(String name) {
 //        this.name = name;
 //    }
     @Override
-    public Double eval(State s) {
+    public Double eval (State s) {
         if (s == null) {
             System.out.println("stato nullo!!");
         }
-        return ((PDDLState)s).fluentValue(this);
+        return ((PDDLState) s).fluentValue(this);
     }
 
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         Interval ret = new Interval();
         ret.setInf(s.functionInfValue(this));
         ret.setSup(s.functionSupValue(this));
@@ -202,7 +197,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         ExtendedAddendum a = new ExtendedAddendum();
         a.n = 1d;
         a.f = this;
@@ -213,7 +208,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         final ArrayList<ActionParameter> newVar = new ArrayList();
 
         for (final ActionParameter o : terms) {
@@ -225,7 +220,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression weakEval(PddlProblem problem, HashMap invF) {
+    public Expression weakEval (PddlProblem problem, HashMap invF) {
 
         if (this.name.equals("#t")) {
             //return this;
@@ -238,40 +233,40 @@ public class NumFluent extends Expression {
                 return this;
             }
             return problem.getNumFluentInitialValue(this);
-        }else{
+        } else {
             if (!(Boolean) invF.get(this)) {
                 return this;
-            }else{
-                return  problem.getNumFluentInitialValue(this);
+            } else {
+                return problem.getNumFluentInitialValue(this);
             }
         }
     }
 
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         return this;
     }
 
     @Override
-    public boolean involve(Collection<NumFluent> map) {
+    public boolean involve (Collection<NumFluent> map) {
         return map.contains(this);
     }
 
     @Override
-    public boolean involve(NumFluent nf) {
+    public boolean involve (NumFluent nf) {
         return nf.equals(this);
     }
 
     @Override
-    public Expression subst(Condition input) {
+    public Expression subst (Condition input) {
 
         if (input == null) {
             return this;
         }
         if (!(input instanceof ComplexCondition))
             return this;
-        
-        ComplexCondition numeric = (ComplexCondition)input;
+
+        ComplexCondition numeric = (ComplexCondition) input;
 
         for (Object o : numeric.sons) {
             if (o instanceof NumEffect) {
@@ -306,14 +301,14 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         Set ret = new HashSet();
         ret.add(this);
         return ret;
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         if (expr instanceof NumFluent) {
             NumFluent nf = (NumFluent) expr;
             if (this.getName().equals(nf.getName())) {
@@ -339,7 +334,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         NumFluent ret = new NumFluent(this.name + j);
         ret.setTerms(terms);
         ret.grounded = false;
@@ -347,7 +342,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
 
         if (invariantFluent.get(this) != null) {
             NumFluent ret = new NumFluent(this.name + j);
@@ -364,19 +359,19 @@ public class NumFluent extends Expression {
     /**
      * @return the beforeReformulation
      */
-    public String getBeforeReformulation() {
+    public String getBeforeReformulation ( ) {
         return beforeReformulation;
     }
 
     /**
      * @param beforeReformulation the beforeReformulation to set
      */
-    public void setBeforeReformulation(String beforeReformulation) {
+    public void setBeforeReformulation (String beforeReformulation) {
         this.beforeReformulation = beforeReformulation;
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         String ret = "";
         ret = ret.concat(this.getName());
         for (Object o1 : this.getTerms()) {
@@ -395,7 +390,7 @@ public class NumFluent extends Expression {
         return ret.replaceAll("\\s+", "");
     }
 
-    public boolean has_to_be_tracked() {
+    public boolean has_to_be_tracked ( ) {
         if (has_to_be_tracked == null) {
             if (this.getName().equals("total-cost")) {
                 setHas_to_be_tracked(Boolean.FALSE);
@@ -407,7 +402,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("  (");
         bui.append(this.name);
         for (Object o1 : this.getTerms()) {
@@ -427,7 +422,7 @@ public class NumFluent extends Expression {
         bui.append(")");
     }
 
-    private String getTermsAsString() {
+    private String getTermsAsString ( ) {
         if (terms_as_string == null) {
             terms_as_string = this.terms.toString(); //To change body of generated methods, choose Tools | Templates.
         }
@@ -437,28 +432,28 @@ public class NumFluent extends Expression {
     /**
      * @return the id
      */
-    public Integer getId() {
+    public Integer getId ( ) {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId(Integer id) {
+    public void setId (Integer id) {
         this.id = id;
     }
 
     /**
      * @param has_to_be_tracked the has_to_be_tracked to set
      */
-    public void setHas_to_be_tracked(Boolean has_to_be_tracked) {
+    public void setHas_to_be_tracked (Boolean has_to_be_tracked) {
         this.has_to_be_tracked = has_to_be_tracked;
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem problem) {
+    public Expression unifyVariablesReferences (EPddlProblem problem) {
         NumFluent nf = problem.getNumfluentReference(this.toString());
-        if (nf == null){
+        if (nf == null) {
             problem.setNumFluentReference(this);
             return this;
         }

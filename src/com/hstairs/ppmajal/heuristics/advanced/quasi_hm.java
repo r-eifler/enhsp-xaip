@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,11 +18,7 @@
  */
 package com.hstairs.ppmajal.heuristics.advanced;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.BinaryOp;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -33,56 +29,56 @@ import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.heuristics.utils.LpInterface;
 import com.hstairs.ppmajal.heuristics.utils.cplex_interface;
 import com.hstairs.ppmajal.heuristics.utils.ojalgo_interface;
-import ilog.concert.IloException;
-import static java.lang.Float.MAX_VALUE;
-import static java.lang.System.out;
-import java.util.*;
-import static java.util.Collections.nCopies;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jgrapht.util.FibonacciHeap;
-import org.jgrapht.util.FibonacciHeapNode;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
+import ilog.concert.IloException;
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.lang.Float.MAX_VALUE;
+import static java.lang.System.out;
+import static java.util.Collections.nCopies;
 
 /**
- *
  * @author enrico
  */
 public class quasi_hm extends Heuristic {
 
-    protected HashMap<Integer, ArrayList<Condition>> poss_achiever;
-    private boolean reacheability_setting;
-    protected ArrayList<Integer> dist;
-    private boolean cplex = true;
     public HashMap<Integer, LpInterface> lps;
+    protected HashMap<Integer, ArrayList<Condition>> poss_achiever;
+    protected ArrayList<Integer> dist;
+    private boolean reacheability_setting;
+    private boolean cplex = true;
     private HashMap<Integer, Collection<GroundAction>> cond_to_actions;
     private boolean risky = true;
 
-    public quasi_hm(ComplexCondition G, Set<GroundAction> A) {
+    public quasi_hm (ComplexCondition G, Set<GroundAction> A) {
         super(G, A);
     }
 
     /**
-     *
      * @param goals
      * @param actions
      * @param processesSet
      */
-    public quasi_hm(ComplexCondition G, Set A, Set processesSet) {
+    public quasi_hm (ComplexCondition G, Set A, Set processesSet) {
         super(G, A, processesSet);
 
     }
 
-    public quasi_hm(ComplexCondition G, Set<GroundAction> A, Set processesSet, ComplexCondition GC) {
+    public quasi_hm (ComplexCondition G, Set<GroundAction> A, Set processesSet, ComplexCondition GC) {
         super(G, A, processesSet, GC);
     }
 
     @Override
-    public Float setup(State gs) {
+    public Float setup (State gs) {
 
-        PDDLState s = (PDDLState)gs;
+        PDDLState s = (PDDLState) gs;
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
@@ -113,7 +109,7 @@ public class quasi_hm extends Heuristic {
     }
 
     @Override
-    public void build_integer_representation() {
+    public void build_integer_representation ( ) {
         int counter2 = 0;
         all_conditions = new LinkedHashSet();
         int counter_actions = 0;
@@ -141,8 +137,8 @@ public class quasi_hm extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate(State gs) {
-        PDDLState s = (PDDLState)gs;
+    public Float compute_estimate (State gs) {
+        PDDLState s = (PDDLState) gs;
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
         if (s.satisfy(G)) {
             return 0f;
@@ -278,14 +274,14 @@ public class quasi_hm extends Heuristic {
         return Math.max(distance.get(G.getHeuristicId()), 1f);
     }
 
-    private void generate_achievers(PDDLState s_0) {
+    private void generate_achievers (PDDLState s_0) {
         poss_achiever = new HashMap();
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
             poss_achiever.put(gr.id, new ArrayList());
             for (Condition c1 : this.all_conditions) {
                 if (gr.getPreconditions().getHeuristicId() != c1.getHeuristicId()) {
-                    ComplexCondition c = (ComplexCondition)c1;
+                    ComplexCondition c = (ComplexCondition) c1;
                     for (Condition c_in : (Collection<Condition>) c.sons) {
                         if (c_in instanceof Comparison) {
                             for (NumFluent nf : gr.getNumericFluentAffected()) {
@@ -311,7 +307,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void update_cost_if_necessary(ArrayList<Boolean> open_list, ArrayList<Float> dist, Condition p, FibonacciHeap<Condition> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {
+    private void update_cost_if_necessary (ArrayList<Boolean> open_list, ArrayList<Float> dist, Condition p, FibonacciHeap<Condition> q, HashMap<Integer, FibonacciHeapNode> cond_to_entry, Float current_cost) {
         if (current_cost == Float.MAX_VALUE) {
             return;
         }
@@ -330,7 +326,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void generate_linear_programs(Collection<GroundAction> actions, PDDLState s_0) throws IloException {
+    private void generate_linear_programs (Collection<GroundAction> actions, PDDLState s_0) throws IloException {
         lps = new HashMap();
         for (Condition c : all_conditions) {
             LpInterface lp = null;
@@ -348,7 +344,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void update_mapping(Condition preconditions, GroundAction a) {
+    private void update_mapping (Condition preconditions, GroundAction a) {
         if (this.cond_to_actions.get(preconditions.getHeuristicId()) == null) {
             LinkedHashSet actions = new LinkedHashSet();
             actions.add(a);
@@ -361,7 +357,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    protected void simplify_actions(PDDLState init) {
+    protected void simplify_actions (PDDLState init) {
         for (GroundAction gr : this.A) {
             try {
                 if (gr.getPreconditions() != null) {
@@ -369,7 +365,7 @@ public class quasi_hm extends Heuristic {
                 }
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
-                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext(); ) {
                         NumEffect neff = (NumEffect) it.next();
                         if (neff.getOperator().equals("assign")) {
                             ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();

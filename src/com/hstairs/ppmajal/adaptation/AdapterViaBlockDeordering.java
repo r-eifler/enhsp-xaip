@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ package com.hstairs.ppmajal.adaptation;
  * and open the template in the editor.
  */
 
-import com.hstairs.ppmajal.adaptation.PlanAdapter;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.plan.SimplePlan;
@@ -42,16 +41,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author enrico
  */
 public class AdapterViaBlockDeordering extends PlanAdapter {
 
-    public AdapterViaBlockDeordering(planningTool planner) {
+    public AdapterViaBlockDeordering (planningTool planner) {
         super(planner);
     }
 
-    public SimplePlan adaptViaBlockDeordering(String planFile, PddlProblem problem, PddlDomain domain, SimplePlan sp) throws Exception {
+    public SimplePlan adaptViaBlockDeordering (String planFile, PddlProblem problem, PddlDomain domain, SimplePlan sp) throws Exception {
 
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
@@ -107,32 +105,7 @@ public class AdapterViaBlockDeordering extends PlanAdapter {
 
     }
 
-    class StreamGobbler extends Thread {
-
-        InputStream is;
-        String type;
-
-        StreamGobbler(InputStream is, String type) {
-            this.is = is;
-            this.type = type;
-        }
-
-        @Override
-        public void run() {
-            try {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    System.out.println(type + ">" + line);
-                }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-    }
-
-    private List block_construction(String pfile, String dfile, String planFile, SimplePlan p, int min_size) throws IOException {
+    private List block_construction (String pfile, String dfile, String planFile, SimplePlan p, int min_size) throws IOException {
         List ret = new ArrayList();
         try {
             Runtime runtime = Runtime.getRuntime();
@@ -192,6 +165,31 @@ public class AdapterViaBlockDeordering extends PlanAdapter {
         System.out.println("Number of Blocks:" + ret.size());
         return ret;
 
+    }
+
+    class StreamGobbler extends Thread {
+
+        InputStream is;
+        String type;
+
+        StreamGobbler (InputStream is, String type) {
+            this.is = is;
+            this.type = type;
+        }
+
+        @Override
+        public void run ( ) {
+            try {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(type + ">" + line);
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
     }
 
 }

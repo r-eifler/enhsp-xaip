@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 public class ColinClpWrapper extends planningTool {
 
-    public ColinClpWrapper() {
+    public ColinClpWrapper ( ) {
         super();
         option1 = "";       //"-O";
         option2 = "";
@@ -39,7 +39,7 @@ public class ColinClpWrapper extends planningTool {
     }
 
     @Override
-    public String plan() {
+    public String plan ( ) {
         try {
             System.out.println("Planning...");
             this.executePlanning();
@@ -77,7 +77,7 @@ public class ColinClpWrapper extends planningTool {
     }
 
     @Override
-    public String plan(String domainFile, String problemFile) {
+    public String plan (String domainFile, String problemFile) {
 
         //System.out.println("planning");
         this.setDomainFile(domainFile);
@@ -87,7 +87,7 @@ public class ColinClpWrapper extends planningTool {
 
     }
 
-    private void putSolutionInFile(String s) throws IOException {
+    private void putSolutionInFile (String s) throws IOException {
 
         Scanner sc = new Scanner(s);
         Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
@@ -132,11 +132,11 @@ public class ColinClpWrapper extends planningTool {
     }
 
     @Override
-    public String adapt(String domainFile, String problemFile, String planFile) {
+    public String adapt (String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void findTotalTimeInFile(String s) {
+    public void findTotalTimeInFile (String s) {
         Scanner sc = new Scanner(s);
 
         while (sc.hasNextLine()) {
@@ -154,7 +154,7 @@ public class ColinClpWrapper extends planningTool {
     }
 
     @Override
-    public void executePlanning() {
+    public void executePlanning ( ) {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = new StringBuilder();
         try {
@@ -199,7 +199,7 @@ public class ColinClpWrapper extends planningTool {
         }
     }
 
-    public void executePlanning_PROVA() {
+    public void executePlanning_PROVA ( ) {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = new StringBuilder();
         try {
@@ -252,7 +252,7 @@ public class ColinClpWrapper extends planningTool {
     }
 
     @Override
-    public void changePlannersPath() {
+    public void changePlannersPath ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -262,13 +262,13 @@ public class ColinClpWrapper extends planningTool {
         Process p;
         boolean done = false;
 
-        ProcessRunner(String[] args) {
+        ProcessRunner (String[] args) {
             super("ProcessRunner " + args); // got lazy here :D
             b = new ProcessBuilder(args);
         }
 
         @Override
-        public void run() {
+        public void run ( ) {
             try {
                 p = b.start();
 
@@ -283,18 +283,18 @@ public class ColinClpWrapper extends planningTool {
             }
         }
 
-        int exitValue() throws IllegalStateException {
+        int exitValue ( ) throws IllegalStateException {
             if (p != null) {
                 return p.exitValue();
             }
             throw new IllegalStateException("Process not started yet");
         }
 
-        boolean isDone() {
+        boolean isDone ( ) {
             return done;
         }
 
-        void abort() {
+        void abort ( ) {
             if (!isDone()) {
                 // do some cleanup first
                 p.destroy();
@@ -309,14 +309,14 @@ public class ColinClpWrapper extends planningTool {
         boolean done = false;
         long timeout;
 
-        Killer(Process p, long timeout) {
+        Killer (Process p, long timeout) {
             super("killer "); // got lazy here :D
             this.p = p;
             this.timeout = timeout;
         }
 
         @Override
-        public void run() {
+        public void run ( ) {
             try {
                 sleep(this.timeout);
                 p.destroy();

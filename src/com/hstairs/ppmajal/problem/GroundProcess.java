@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -24,24 +24,27 @@ import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GroundProcess extends GroundAction{
+public class GroundProcess extends GroundAction {
 
     private double delta;
 
-    public GroundProcess(String name) {
+    public GroundProcess (String name) {
         super(name);
     }
 
-    public boolean isActive(State s) {
+    public boolean isActive (State s) {
         return this.isApplicable(s);
     }
 
     @Override
-    public Object clone() {
+    public Object clone ( ) {
         GroundProcess ret = new GroundProcess(name);
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();
@@ -136,7 +139,7 @@ public class GroundProcess extends GroundAction{
 //
 //    }
 
-    public void add_numeric_effect(NumEffect eff) {
+    public void add_numeric_effect (NumEffect eff) {
 
         Iterator<NumEffect> it = this.numericEffects.sons.iterator();
         Collection<NumEffect> to_add = new LinkedHashSet();
@@ -192,14 +195,14 @@ public class GroundProcess extends GroundAction{
 
     }
 
-    public void addDelta(double delta) {
+    public void addDelta (double delta) {
         this.setDelta(delta);
     }
-    
+
     @Override
-    public State apply(State s) {
-        s = (PDDLState)super.apply(s);
-        ((PDDLState)s).time+=getDelta();
+    public State apply (State s) {
+        s = (PDDLState) super.apply(s);
+        ((PDDLState) s).time += getDelta();
         //this.time = ((PDDLState)s).time;
 //        System.out.println("DEBUG: Subst within action application:"+subst);
         return s;
@@ -208,14 +211,14 @@ public class GroundProcess extends GroundAction{
     /**
      * @return the delta
      */
-    public double getDelta() {
+    public double getDelta ( ) {
         return delta;
     }
 
     /**
      * @param delta the delta to set
      */
-    public void setDelta(double delta) {
+    public void setDelta (double delta) {
         this.delta = delta;
     }
 

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@ import com.hstairs.ppmajal.problem.RelState;
 import java.util.*;
 
 /**
- *
  * @author Enrico Scala
  */
 public class NumericKernel extends HashMap {
@@ -41,16 +40,15 @@ public class NumericKernel extends HashMap {
     /**
      *
      */
-    public NumericKernel() {
+    public NumericKernel ( ) {
         super();
     }
 
     /**
-     *
      * @param pianoClonato
      * @param g
      */
-    public void construct(SimplePlan sp, Condition g) {
+    public void construct (SimplePlan sp, Condition g) {
 
         SimplePlan pianoClonato = (SimplePlan) sp.clone();
         Condition goal = g.clone();
@@ -70,7 +68,7 @@ public class NumericKernel extends HashMap {
 
     }
 
-    public void constructAndComputeMaxDist(SimplePlan sp, ComplexCondition g, RelState numericFleuntsBoundaries) {
+    public void constructAndComputeMaxDist (SimplePlan sp, ComplexCondition g, RelState numericFleuntsBoundaries) {
 
         SimplePlan pianoClonato = (SimplePlan) sp.clone();
         ComplexCondition goal = (ComplexCondition) g.clone();
@@ -153,12 +151,11 @@ public class NumericKernel extends HashMap {
     }
 
     /**
-     *
      * @param sp Simple Plan
-     * @param g the Goal condition
+     * @param g  the Goal condition
      */
     @Deprecated
-    public void construct_old(SimplePlan sp, Condition g) throws Exception {
+    public void construct_old (SimplePlan sp, Condition g) throws Exception {
 
         Condition goal = g.clone();
         //HashMap kerns = new HashMap();
@@ -173,12 +170,11 @@ public class NumericKernel extends HashMap {
     }
 
     /**
-     *
      * @param a
      * @param con
      * @return
      */
-    public AndCond oplus(GroundAction a, AndCond con) throws Exception {
+    public AndCond oplus (GroundAction a, AndCond con) throws Exception {
 
         //AndCond result = (AndCond)con.clone();
         if (!a.normalized) {
@@ -229,7 +225,7 @@ public class NumericKernel extends HashMap {
         return con;
     }
 
-    protected Float maximizationBound(ExtendedNormExpression lExpr, RelState numericFleuntsBoundaries) {
+    protected Float maximizationBound (ExtendedNormExpression lExpr, RelState numericFleuntsBoundaries) {
 
         Double b = 0d;
         ArrayList<ExtendedAddendum> variables = new ArrayList();
@@ -286,7 +282,7 @@ public class NumericKernel extends HashMap {
 
     }
 
-    public void computeMaxDistViaPlanBounds(SimplePlan sp, Condition g, HashMap higherNFValues, HashMap lowerNFValues) {
+    public void computeMaxDistViaPlanBounds (SimplePlan sp, Condition g, HashMap higherNFValues, HashMap lowerNFValues) {
 
         for (int i = sp.size(); i >= 0; i--) {
             ComplexCondition con = (ComplexCondition) this.get(i);
@@ -350,7 +346,7 @@ public class NumericKernel extends HashMap {
         }
     }
 
-    protected Float maximizationBoundViaPlanBounds(ExtendedNormExpression lExpr, HashMap higherNFValues, HashMap lowerNFValues) {
+    protected Float maximizationBoundViaPlanBounds (ExtendedNormExpression lExpr, HashMap higherNFValues, HashMap lowerNFValues) {
         Double b = 0d;
         ArrayList<ExtendedAddendum> variables = new ArrayList();
         for (Object o : lExpr.summations) {
@@ -408,7 +404,7 @@ public class NumericKernel extends HashMap {
 
     }
 
-    public Set getInvolvedFluents() {
+    public Set getInvolvedFluents ( ) {
 
         if (involvedFluents != null) {
             return involvedFluents;

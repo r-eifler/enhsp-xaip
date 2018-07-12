@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,18 +18,14 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 
 /**
- *
  * @author enrico
  */
 //only for summations
@@ -38,7 +34,7 @@ public class MultiOp extends Expression {
     private String operator;
     private List expr;
 
-    public MultiOp(String operator, List expr) {
+    public MultiOp (String operator, List expr) {
         super();
         this.operator = operator;
         this.expr = expr;
@@ -46,29 +42,29 @@ public class MultiOp extends Expression {
         InitList();
     }
 
-    public MultiOp(String operator) {
+    public MultiOp (String operator) {
         super();
         this.operator = operator;
         InitList();
     }
 
-    public MultiOp() {
+    public MultiOp ( ) {
         super();
         InitList();
     }
 
-    private void InitList() {
+    private void InitList ( ) {
         expr = new ArrayList();
     }
 
-    public void addExpression(Object e) {
+    public void addExpression (Object e) {
 
         expr.add(e);
 
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 
         String ret = this.operator;
 //        for(Object o: expr){
@@ -81,33 +77,33 @@ public class MultiOp extends Expression {
     /**
      * @return the operator
      */
-    public String getOperator() {
+    public String getOperator ( ) {
         return operator;
     }
 
     /**
      * @param operator the operator to set
      */
-    public void setOperator(String operator) {
+    public void setOperator (String operator) {
         this.operator = operator;
     }
 
     /**
      * @return the expr
      */
-    public List getExpr() {
+    public List getExpr ( ) {
         return expr;
     }
 
     /**
      * @param expr the expr to set
      */
-    public void setExpr(List expr) {
+    public void setExpr (List expr) {
         this.expr = expr;
     }
 
     @Override
-    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         MultiOp ret = new MultiOp();
         for (Object o : expr) { // TODO: If all objects are expressions, there should be a cast to Expression
             Expression e = (Expression) o;
@@ -118,7 +114,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         MultiOp ret = new MultiOp();
         for (Object o : expr) {
             Expression e = (Expression) o;
@@ -129,7 +125,7 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Double eval(State s) {
+    public Double eval (State s) {
         Double ret_val = 0d;
 
         for (Object o : this.expr) {
@@ -144,77 +140,77 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression weakEval(PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean involve(Collection<NumFluent> arrayList) {
+    public boolean involve (Collection<NumFluent> arrayList) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression subst(Condition numeric) {
+    public Expression subst (Condition numeric) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean involve(NumFluent a) {
+    public boolean involve (NumFluent a) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
+    public Expression unifyVariablesReferences (EPddlProblem p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

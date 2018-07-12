@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,18 +19,17 @@
 package com.hstairs.ppmajal.heuristics.operator_counting;
 
 /**
- *
  * @author enrico
  */
 public class state_equation_constraints extends op_counting_constraints {
 
     @Override
-    public void initialize_constraints() {
+    public void initialize_constraints ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void update_constraints() {
+    public void update_constraints ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

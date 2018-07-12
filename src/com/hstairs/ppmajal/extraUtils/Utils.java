@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -26,18 +26,17 @@ import java.util.Collection;
 //import static sun.org.mozilla.javascript.Token.name;
 
 /**
- *
  * @author enrico
  */
 public class Utils {
 
-    public static void dbg_print(int debug, String string) {
+    public static void dbg_print (int debug, String string) {
         if (debug > 0) {
             System.out.print(string);
         }
     }
 
-    public static String toPDDLSet(Collection c) {
+    public static String toPDDLSet (Collection c) {
         String ret = "";
         for (Object o : c) {
             ret += " " + o.toString();
@@ -45,7 +44,7 @@ public class Utils {
         return ret;
     }
 
-    public static void remove_file(String name) {
+    public static void remove_file (String name) {
         try {
 
             File file = new File(name);
@@ -58,7 +57,7 @@ public class Utils {
         }
     }
 
-    public static String toPDDLSetWithBreak(Collection c) {
+    public static String toPDDLSetWithBreak (Collection c) {
         String ret = "";
         for (Object o : c) {
             ret += o.toString() + "\n";
@@ -66,7 +65,7 @@ public class Utils {
         return ret;
     }
 
-    public static String toPDDLWithExtraObject(Collection<ActionSchema> c) {
+    public static String toPDDLWithExtraObject (Collection<ActionSchema> c) {
         String ret = "";
         for (ActionSchema o : c) {
             ret += o.pddlPrintWithExtraObject() + "\n";
@@ -74,7 +73,7 @@ public class Utils {
         return ret;
     }
 
-    public static String toPDDLTypesSet(Collection c) {
+    public static String toPDDLTypesSet (Collection c) {
         String ret = "";
         for (Object o : c) {
             Type t = (Type) o;
@@ -83,12 +82,12 @@ public class Utils {
         return ret;
     }
 
-    public static void deleteFile(String fileName) {
+    public static void deleteFile (String fileName) {
 
         new File(fileName).delete();
     }
 
-    public static String searchParameterValue(String[] args, String par) {
+    public static String searchParameterValue (String[] args, String par) {
 
         //System.out.println("Searching option " + par);
         for (int i = 0; i < args.length - 1; i++) {
@@ -107,7 +106,7 @@ public class Utils {
         return null;
     }
 
-    public static boolean searchParameter(String[] args, String par) {
+    public static boolean searchParameter (String[] args, String par) {
 
         //System.out.println("Searching option " + par);
         for (int i = 0; i < args.length; i++) {

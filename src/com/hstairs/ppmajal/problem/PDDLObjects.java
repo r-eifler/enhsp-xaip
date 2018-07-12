@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -24,13 +24,12 @@ import com.hstairs.ppmajal.domain.Type;
 import java.util.LinkedHashSet;
 
 /**
- *
  * @author enrico
  */
 public class PDDLObjects extends LinkedHashSet<PDDLObject> {
 
     // Returns true if they have the same name (or both ``null''), except for the character case
-    private static boolean objectsShareSameName(PDDLObject o1, PDDLObject o2) {
+    private static boolean objectsShareSameName (PDDLObject o1, PDDLObject o2) {
         // TODO: Should we really allow for null names?
 
         if (o1.getName() == null && o2.getName() == null) {
@@ -48,7 +47,7 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
      * @return true if the specified PDDL object appears in this list of PDDL
      * objects.
      */
-    public boolean validate(PDDLObject t) {
+    public boolean validate (PDDLObject t) {
         for (final PDDLObject el : this) {
             if (objectsShareSameName(el, t)) {
                 return true;
@@ -66,7 +65,7 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
      * @return the type of the specified PDDL object if valid, <code>null</code>
      * otherwise.
      */
-    public Type getTermType(PDDLObject t) {
+    public Type getTermType (PDDLObject t) {
         for (final PDDLObject el : this) {
             if (objectsShareSameName(el, t)) {
                 return el.getType();
@@ -85,7 +84,7 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
      * @return the PDDL object equivalent to the specified one that appears in
      * this list of PDDL objects if existing, <code>null</code> otherwise.
      */
-    public PDDLObject containsTerm(PDDLObject t) {
+    public PDDLObject containsTerm (PDDLObject t) {
         for (final PDDLObject el : this) {
             if (objectsShareSameName(el, t)) {
                 return el;
@@ -95,7 +94,7 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         final StringBuffer result = new StringBuffer();
 
         for (final PDDLObject el : this) {
@@ -111,7 +110,7 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
      *
      * @return a PDDL representation of this list of PDDLObject.
      */
-    public String pddlPrint() {
+    public String pddlPrint ( ) {
         final StringBuffer result = new StringBuffer();
 
         result.append("(:objects \n");

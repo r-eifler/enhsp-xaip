@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -38,29 +38,9 @@ import java.util.stream.Collectors;
 
 public final class SolverCPLEX implements Optimisation.Solver {
 
-    static final class Environment {
-
-        private final PrinterBuffer myLog = new CharacterRing().asPrinter();
-
-        Environment() {
-
-            super();
-
-        }
-
-        @Override
-        protected final void finalize() throws Throwable {
-
-            super.finalize();
-        }
-
-    }
-
-    static final Environment ENVIRONMENT = new Environment();
-
     public static final ExpressionsBasedModel.Integration<SolverCPLEX> INTEGRATION = new ExpressionsBasedModel.Integration<SolverCPLEX>() {
 
-        public SolverCPLEX build(final ExpressionsBasedModel model) {
+        public SolverCPLEX build (final ExpressionsBasedModel model) {
 
             final SolverCPLEX retVal = new SolverCPLEX();
             final IloCplex tmpDelegateSolver = retVal.getIloCplex();
@@ -114,13 +94,33 @@ public final class SolverCPLEX implements Optimisation.Solver {
             return retVal;
         }
 
-        public boolean isCapable(final ExpressionsBasedModel model) {
+        public boolean isCapable (final ExpressionsBasedModel model) {
             return true; // CPLEX can handle anything/everything ExpressionsBasedModel can model.
         }
 
     };
+    static final Environment ENVIRONMENT = new Environment();
+    private final IloCplex myIloCplex;
+    private final List<IloNumVar> myVariables;
 
-    static void addLinear(final Expression source, final IloLinearNumExpr destination, final ExpressionsBasedModel model, final List<IloNumVar> variables)
+    SolverCPLEX ( ) {
+
+        super();
+
+        IloCplex tmpDelegate = null;
+
+        try {
+            tmpDelegate = new IloCplex();
+        } catch (final IloException ex) {
+            ex.printStackTrace();
+            tmpDelegate = null;
+        }
+
+        myIloCplex = tmpDelegate;
+        myVariables = new ArrayList<>();
+    }
+
+    static void addLinear (final Expression source, final IloLinearNumExpr destination, final ExpressionsBasedModel model, final List<IloNumVar> variables)
             throws IloException {
 
         for (final IntIndex tmpKey : source.getLinearKeySet()) {
@@ -134,7 +134,7 @@ public final class SolverCPLEX implements Optimisation.Solver {
         }
     }
 
-    static void addQuadratic(final Expression source, final IloQuadNumExpr destination, final ExpressionsBasedModel model, final List<IloNumVar> variables)
+    static void addQuadratic (final Expression source, final IloQuadNumExpr destination, final ExpressionsBasedModel model, final List<IloNumVar> variables)
             throws IloException {
 
         for (final IntRowColumn tmpKey : source.getQuadraticKeySet()) {
@@ -149,7 +149,7 @@ public final class SolverCPLEX implements Optimisation.Solver {
         }
     }
 
-    static IloNumExpr buildExpression(final ExpressionsBasedModel model, final Expression expression, final IloCplex solver, final List<IloNumVar> variables)
+    static IloNumExpr buildExpression (final ExpressionsBasedModel model, final Expression expression, final IloCplex solver, final List<IloNumVar> variables)
             throws IloException {
 
         if (expression.isFunctionCompound()) {
@@ -181,7 +181,7 @@ public final class SolverCPLEX implements Optimisation.Solver {
         return null;
     }
 
-    static void setBounds(final IloNumExpr expression, final Expression model, final IloCplex solver) throws IloException {
+    static void setBounds (final IloNumExpr expression, final Expression model, final IloCplex solver) throws IloException {
 
         if (model.isEqualityConstraint()) {
             solver.addEq(model.getAdjustedLowerLimit(), expression);
@@ -195,27 +195,7 @@ public final class SolverCPLEX implements Optimisation.Solver {
         }
     }
 
-    private final IloCplex myIloCplex;
-    private final List<IloNumVar> myVariables;
-
-    SolverCPLEX() {
-
-        super();
-
-        IloCplex tmpDelegate = null;
-
-        try {
-            tmpDelegate = new IloCplex();
-        } catch (final IloException ex) {
-            ex.printStackTrace();
-            tmpDelegate = null;
-        }
-
-        myIloCplex = tmpDelegate;
-        myVariables = new ArrayList<>();
-    }
-
-    public void dispose() {
+    public void dispose ( ) {
 
         Solver.super.dispose();
 
@@ -224,7 +204,7 @@ public final class SolverCPLEX implements Optimisation.Solver {
         }
     }
 
-    public Result solve(final Result kickStarter) {
+    public Result solve (final Result kickStarter) {
 
         try {
 
@@ -263,22 +243,22 @@ public final class SolverCPLEX implements Optimisation.Solver {
     }
 
     @Override
-    protected void finalize() throws Throwable {
+    protected void finalize ( ) throws Throwable {
 
         this.dispose();
 
         super.finalize();
     }
 
-    IloCplex getIloCplex() {
+    IloCplex getIloCplex ( ) {
         return myIloCplex;
     }
 
-    List<IloNumVar> getVariables() {
+    List<IloNumVar> getVariables ( ) {
         return myVariables;
     }
 
-    State translate(final Status status) {
+    State translate (final Status status) {
         if (status.equals(Status.Bounded)) {
             return State.VALID;
         } else if (status.equals(Status.Error)) {
@@ -298,6 +278,24 @@ public final class SolverCPLEX implements Optimisation.Solver {
         } else {
             return State.FAILED;
         }
+    }
+
+    static final class Environment {
+
+        private final PrinterBuffer myLog = new CharacterRing().asPrinter();
+
+        Environment ( ) {
+
+            super();
+
+        }
+
+        @Override
+        protected final void finalize ( ) throws Throwable {
+
+            super.finalize();
+        }
+
     }
 
 }

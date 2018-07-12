@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.expressions;
 
 /**
- *
  * @author enrico
  */
 public class TotalTime {

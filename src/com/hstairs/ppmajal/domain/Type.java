@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.domain;
 
 /**
- *
  * @author enrico
  */
 public class Type extends Object {
@@ -27,7 +26,7 @@ public class Type extends Object {
     private String name;
     private Type subTypeOf;
 
-    public Type(String text) {
+    public Type (String text) {
         setName(text);
         if (!(text.equals("object"))) {
             subTypeOf = new Type("object");
@@ -37,16 +36,16 @@ public class Type extends Object {
         }
     }
 
-    public Type(String text, Type fatherType) {
+    public Type (String text, Type fatherType) {
         setName(text);
         subTypeOf = fatherType;
     }
 
-    public boolean isObject() {
+    public boolean isObject ( ) {
         return name.equals("object");
     }
 
-    public boolean isAncestorOf(Type anc) {
+    public boolean isAncestorOf (Type anc) {
         if (anc.subTypeOf == null) {
             //System.out.println("NULL");
             return false;
@@ -60,7 +59,7 @@ public class Type extends Object {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals (Object other) {
         if (other instanceof Type) {
             Type a = (Type) other;
             return a.getName() == null ? this.getName() == null : a.getName().equalsIgnoreCase(this.getName());
@@ -69,18 +68,18 @@ public class Type extends Object {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 5;
         hash = 83 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
         return hash;
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         return " - " + getName() + " ";
     }
 
-    public String pddlString() {
+    public String pddlString ( ) {
         if (this.getSubTypeOf() != null) {
             return this.getName() + " - " + this.getSubTypeOf().getName() + " ";
         } else {
@@ -88,25 +87,25 @@ public class Type extends Object {
         }
     }
 
-    public String getName() {
+    public String getName ( ) {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName (String name) {
         this.name = name;
     }
 
     /**
      * @return the subTypeOf
      */
-    public Type getSubTypeOf() {
+    public Type getSubTypeOf ( ) {
         return subTypeOf;
     }
 
     /**
      * @param subTypeOf the subTypeOf to set
      */
-    public void setSubTypeOf(Type subTypeOf) {
+    public void setSubTypeOf (Type subTypeOf) {
         this.subTypeOf = subTypeOf;
     }
 }

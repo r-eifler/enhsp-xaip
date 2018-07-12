@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,21 +18,17 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public abstract class Expression extends Object {
@@ -40,7 +36,7 @@ public abstract class Expression extends Object {
     public boolean grounded;
     protected boolean freeVarSemantic = false;
 
-    public Expression() {
+    public Expression ( ) {
         grounded = false;
     }
 
@@ -51,73 +47,72 @@ public abstract class Expression extends Object {
      * substitution for some variable.
      *
      * @param substitution the map that indicates what object should replace the
-     * specified variable.
+     *                     specified variable.
      * @return a copy of this expression where each variable is replaced to the
      * object according to the specified mapping.
      */
-    public abstract Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po);
+    public abstract Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po);
 
-    public abstract Expression unGround(Map substitution);
+    public abstract Expression unGround (Map substitution);
 
-    public abstract Double eval(State s);
+    public abstract Double eval (State s);
 
     //public abstract PDDLState apply(PDDLState s);
-    public abstract ExtendedNormExpression normalize();
+    public abstract ExtendedNormExpression normalize ( );
 
-    public abstract void changeVar(Map<Variable, PDDLObject> substitution);
+    public abstract void changeVar (Map<Variable, PDDLObject> substitution);
 
     /**
-     *
      * @param p
      * @param s
      * @param invF
      * @return
      */
-    public abstract Expression weakEval(PddlProblem p, HashMap invF);
+    public abstract Expression weakEval (PddlProblem p, HashMap invF);
 
     @Override
-    public abstract Expression clone();
+    public abstract Expression clone ( );
 
-    public abstract Interval eval(RelState s);
+    public abstract Interval eval (RelState s);
 
-    public abstract boolean involve(Collection<NumFluent> input);
+    public abstract boolean involve (Collection<NumFluent> input);
 
-    public abstract Expression subst(Condition numeric);
+    public abstract Expression subst (Condition numeric);
 
-    public abstract Set<NumFluent> rhsFluents();
+    public abstract Set<NumFluent> rhsFluents ( );
 
-    public abstract boolean isUngroundVersionOf(Expression expr);
+    public abstract boolean isUngroundVersionOf (Expression expr);
 
-    public abstract Expression susbtFluentsWithTheirInvariants(int j);
+    public abstract Expression susbtFluentsWithTheirInvariants (int j);
 
-    public abstract Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j);
+    public abstract Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j);
 
-    public abstract String toSmtVariableString(int i);
+    public abstract String toSmtVariableString (int i);
 
     /**
      * @return the freeVarSemantic
      */
-    public boolean isFreeVarSemantic() {
+    public boolean isFreeVarSemantic ( ) {
         return freeVarSemantic;
     }
 
     /**
      * @param freeVarSemantic the freeVarSemantic to set
      */
-    public void setFreeVarSemantic(boolean freeVarSemantic) {
+    public void setFreeVarSemantic (boolean freeVarSemantic) {
         this.freeVarSemantic = freeVarSemantic;
     }
 
-    public abstract boolean involve(NumFluent a);
+    public abstract boolean involve (NumFluent a);
 
     /**
      * Returns a string representation of this expression in PDDL format.
      *
      * @param typeInformation <tt>true</tt>
-     * if the type of the object should be printed as well.
+     *                        if the type of the object should be printed as well.
      * @return a string representation in PDDL format of this condition.
      */
-    public final String pddlPrint(boolean typeInformation) {
+    public final String pddlPrint (boolean typeInformation) {
         final StringBuilder bui = new StringBuilder();
         pddlPrint(typeInformation, bui);
         return bui.toString();
@@ -127,10 +122,10 @@ public abstract class Expression extends Object {
      * Prints this expression in PDDL format in the specified string builder.
      *
      * @param typeInformation <tt>true</tt>
-     * if the type of the object should be printed as well.
-     * @param bui the string builder where this condition is printed.
+     *                        if the type of the object should be printed as well.
+     * @param bui             the string builder where this condition is printed.
      */
-    public abstract void pddlPrint(boolean typeInformation, StringBuilder bui);
+    public abstract void pddlPrint (boolean typeInformation, StringBuilder bui);
 
-    public abstract Expression unifyVariablesReferences(EPddlProblem p);
+    public abstract Expression unifyVariablesReferences (EPddlProblem p);
 }

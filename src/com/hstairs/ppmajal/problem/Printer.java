@@ -23,16 +23,15 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.NumFluent;
 
 /**
- *
  * @author enrico
  */
 public class Printer {
-    
-    static public StringBuilder stringBuilderPddlPrintWithDummyTrue(PddlProblem p, PDDLState s) {
+
+    static public StringBuilder stringBuilderPddlPrintWithDummyTrue (PddlProblem p, PDDLState s) {
         final StringBuilder ret = new StringBuilder("(:init (true)\n");
 
         for (Predicate a : p.initBoolFluentsValues.keySet()) {
-            if (s.holds(a)){
+            if (s.holds(a)) {
                 ret.append("  (").append(a.getPredicateName());
                 for (Object o1 : a.getTerms()) {
                     PDDLObject obj = (PDDLObject) o1;
@@ -42,7 +41,7 @@ public class Printer {
             }
         }
         for (NumFluent nf : p.initNumFluentsValues.keySet()) {
-            if (s.fluentValue(nf)!= Double.NaN){
+            if (s.fluentValue(nf) != Double.NaN) {
                 ret.append("  ( = (").append(nf.getName());
                 for (Object o1 : nf.getTerms()) {
                     PDDLObject obj = (PDDLObject) o1;
@@ -56,12 +55,12 @@ public class Printer {
         return ret;
     }
 
-    static public String pddlPrintWithDummyTrue(PddlProblem p, PDDLState s) {
+    static public String pddlPrintWithDummyTrue (PddlProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
     }
 
-    static public String pddlPrint(PddlProblem p, PDDLState s) {
+    static public String pddlPrint (PddlProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
     }
-    
+
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -26,23 +26,22 @@ import com.hstairs.ppmajal.problem.State;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class operator_counting_heuristic extends Heuristic {
 
     //this is meant to build the very basic data structures
-    public operator_counting_heuristic(ComplexCondition goal, Set<GroundAction> actions) {
+    public operator_counting_heuristic (ComplexCondition goal, Set<GroundAction> actions) {
         super(goal, actions);
     }
 
     @Override
-    public Float setup(State s_0) {
+    public Float setup (State s_0) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Float compute_estimate(State s_0) {
+    public Float compute_estimate (State s_0) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

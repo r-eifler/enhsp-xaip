@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author enrico
  */
 public class SchemaGlobalConstraint {
@@ -35,17 +34,17 @@ public class SchemaGlobalConstraint {
     public Condition condition;
     public String name;
 
-    public SchemaGlobalConstraint(String name) {
+    public SchemaGlobalConstraint (String name) {
         this.name = name;
         parameters = new SchemaParameters();
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         return "SchemaGlobalConstraint{" + "parameters=" + parameters + ", condition=" + condition + ", name=" + name + '}';
     }
 
-    public GlobalConstraint ground(ParametersAsTerms par, PDDLObjects po) {
+    public GlobalConstraint ground (ParametersAsTerms par, PDDLObjects po) {
         GlobalConstraint ret = new GlobalConstraint(this.name);
         int i = 0;
 
@@ -64,7 +63,7 @@ public class SchemaGlobalConstraint {
         return ret;
     }
 
-    public GlobalConstraint ground() {
+    public GlobalConstraint ground ( ) {
         GlobalConstraint ret = new GlobalConstraint(this.name);
 
         ret.grn_parameters = new ParametersAsTerms();

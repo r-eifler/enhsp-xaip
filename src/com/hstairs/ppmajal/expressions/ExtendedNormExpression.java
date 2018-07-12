@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,23 +18,17 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Enrico Scala
  */
 public class ExtendedNormExpression extends Expression {
@@ -42,12 +36,12 @@ public class ExtendedNormExpression extends Expression {
     public ArrayList<ExtendedAddendum> summations;
     public boolean linear;
 
-    public ExtendedNormExpression() {
+    public ExtendedNormExpression ( ) {
         this.summations = new ArrayList();
         linear = true;
     }
 
-    public ExtendedNormExpression(Double ele) {
+    public ExtendedNormExpression (Double ele) {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum();
         a.n = ele;
@@ -55,8 +49,8 @@ public class ExtendedNormExpression extends Expression {
         linear = true;
 
     }
-    
-    public ExtendedNormExpression(Float ele) {
+
+    public ExtendedNormExpression (Float ele) {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum();
         a.n = ele.doubleValue();
@@ -65,17 +59,17 @@ public class ExtendedNormExpression extends Expression {
 
     }
 
-    public ExtendedNormExpression(BinaryOp bin) {
+    public ExtendedNormExpression (BinaryOp bin) {
         this.summations = new ArrayList();
         ExtendedAddendum a = new ExtendedAddendum(bin);
         this.summations.add(a);
 
         linear = true;
     }
-    
+
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         //System.out.println("Testing");
         if (obj == null) {
             return false;
@@ -107,14 +101,14 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 5;
         hash = 67 * hash + (this.summations != null ? this.summations.hashCode() : 0);
         return hash;
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret = "(+ ";
 
         for (Object o : this.summations) {
@@ -135,7 +129,7 @@ public class ExtendedNormExpression extends Expression {
             if (!a.linear) {
                 ret = ret.concat(a.bin.toString());
             } else if (a.f != null) {
-                ret = ret.concat("(* " + a.n + " (" + a.f +"))");
+                ret = ret.concat("(* " + a.n + " (" + a.f + "))");
             } else {
                 ret = ret.concat(a.n.toString());
             }
@@ -145,7 +139,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     //TO BE FIXed!!!!
-    public ExtendedNormExpression sum(ExtendedNormExpression right) throws Exception {
+    public ExtendedNormExpression sum (ExtendedNormExpression right) throws Exception {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
 
@@ -169,7 +163,7 @@ public class ExtendedNormExpression extends Expression {
                             break;
                         } else if (b.f != null && a.f != null) {
                             if (b.f.equals(a.f)) {
-                                ele_to_add.n = a.n+ b.n;
+                                ele_to_add.n = a.n + b.n;
                                 ele_to_add.f = (NumFluent) a.f.clone();
                                 if (ele_to_add.n == 0.0) {
                                     add = false;
@@ -202,7 +196,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     //TO BE FIXed!!!!
-    public ExtendedNormExpression minus(ExtendedNormExpression right) throws CloneNotSupportedException {
+    public ExtendedNormExpression minus (ExtendedNormExpression right) throws CloneNotSupportedException {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
 
@@ -272,7 +266,7 @@ public class ExtendedNormExpression extends Expression {
         return result;
     }
 
-    ExtendedNormExpression mult(ExtendedNormExpression right) {
+    ExtendedNormExpression mult (ExtendedNormExpression right) {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
         for (ExtendedAddendum a : this.summations) {
@@ -295,7 +289,7 @@ public class ExtendedNormExpression extends Expression {
                         adding = false;
                     }
                 } else if (a.linear && a.f == null && b.linear) {
-                    ele_to_add.n = a.n* b.n;
+                    ele_to_add.n = a.n * b.n;
                     ele_to_add.f = (NumFluent) b.f.clone();
 
                     if (ele_to_add.n == 0.0) {
@@ -333,7 +327,7 @@ public class ExtendedNormExpression extends Expression {
         return result;
     }
 
-    ExtendedNormExpression div(ExtendedNormExpression right) {
+    ExtendedNormExpression div (ExtendedNormExpression right) {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
         for (ExtendedAddendum a : this.summations) {
@@ -348,7 +342,7 @@ public class ExtendedNormExpression extends Expression {
                     }
 
                 } else if (a.linear && b.linear && b.f == null) {
-                    ele_to_add.n = a.n/ b.n;
+                    ele_to_add.n = a.n / b.n;
                     ele_to_add.f = (NumFluent) a.f.clone();
                     if (ele_to_add.n == 0.0) {
                         adding = false;
@@ -386,7 +380,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -403,7 +397,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -417,7 +411,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Double eval(State s) {
+    public Double eval (State s) {
         //PDDLNumber ret = new PDDLNumber(0);
         double ret = 0d;
         for (final Object o : this.summations) {
@@ -427,7 +421,7 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret += a.bin.eval(s);
             } else if (a.f != null) {
-                double n = ((PDDLState)s).fluentValue(a.f);
+                double n = ((PDDLState) s).fluentValue(a.f);
 
                 if (n == Double.NaN) {
                     return null;
@@ -441,15 +435,14 @@ public class ExtendedNormExpression extends Expression {
     }
 
     /**
-     *
      * @param problem
      * @param invFluents
      * @return
      */
     @Override
-    public ExtendedNormExpression weakEval(PddlProblem problem, HashMap invFluents) {
+    public ExtendedNormExpression weakEval (PddlProblem problem, HashMap invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
-         Double c = 0d;
+        Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
             if (a.f != null) {
 //                System.out.println(a.f);
@@ -479,13 +472,13 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         //System.out.println("Expression normalized by default");
         return this;
     }
 
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         for (Object o : this.summations) {
 
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -495,11 +488,11 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public ExtendedNormExpression subst(Condition input) {
+    public ExtendedNormExpression subst (Condition input) {
         if (!(input instanceof ComplexCondition))
             return this;
-        
-        ComplexCondition numeric = (ComplexCondition)input;
+
+        ComplexCondition numeric = (ComplexCondition) input;
 
         ExtendedNormExpression result = new ExtendedNormExpression();
         result = (ExtendedNormExpression) this.clone();
@@ -553,7 +546,7 @@ public class ExtendedNormExpression extends Expression {
         return result;
     }
 
-    public void mult(PDDLNumber n) {
+    public void mult (PDDLNumber n) {
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
             if (ad.linear) {
@@ -563,8 +556,8 @@ public class ExtendedNormExpression extends Expression {
             }
         }
     }
-    
-    public void mult(Double n) {
+
+    public void mult (Double n) {
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
             if (ad.linear) {
@@ -574,16 +567,16 @@ public class ExtendedNormExpression extends Expression {
             }
         }
     }
-    
+
 
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
 
         ret.summations = new ArrayList();
 
         for (ExtendedAddendum ad : this.summations) {
-                ret.summations.add((ExtendedAddendum) ad.clone());
+            ret.summations.add((ExtendedAddendum) ad.clone());
         }
 
         ret.grounded = this.grounded;
@@ -592,7 +585,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         Interval ret = new Interval(0f);
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -622,7 +615,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public boolean involve(Collection<NumFluent> map) {
+    public boolean involve (Collection<NumFluent> map) {
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -642,7 +635,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public boolean involve(NumFluent nf) {
+    public boolean involve (NumFluent nf) {
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -661,7 +654,7 @@ public class ExtendedNormExpression extends Expression {
         return false;
     }
 
-    public boolean isNumber() {
+    public boolean isNumber ( ) {
         //System.out.println(this);
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
@@ -675,7 +668,7 @@ public class ExtendedNormExpression extends Expression {
         return true;
     }
 
-    public Double getNumber() throws Exception {
+    public Double getNumber ( ) throws Exception {
         if (this.isNumber()) {
             Double temp = 0d;
             for (Object o : summations) {
@@ -692,7 +685,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         Set ret = new HashSet();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -706,22 +699,22 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int j) {
+    public String toSmtVariableString (int j) {
         String ret_val = "";
 
         {
@@ -759,7 +752,7 @@ public class ExtendedNormExpression extends Expression {
         return ret_val;
     }
 
-    public float eval_not_affected(PDDLState s_0, GroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_not_affected (PDDLState s_0, GroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
@@ -779,7 +772,7 @@ public class ExtendedNormExpression extends Expression {
         return current;
     }
 
-    public Double getCoefficient(NumFluent fluentAffected) {
+    public Double getCoefficient (NumFluent fluentAffected) {
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null && ad.f.equals(fluentAffected)) {
                 return ad.n;
@@ -788,19 +781,19 @@ public class ExtendedNormExpression extends Expression {
         return 0d;
     }
 
-    public float eval_affected(PDDLState s_0, GroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_affected (PDDLState s_0, GroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
                 if (aThis.getNumericFluentAffected().contains(ad.f)) {
-                    current += ad.n* aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
+                    current += ad.n * aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 }
             }
         }
         return current;
     }
 
-    public float eval_apart_from_f(NumFluent f, PDDLState s) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_apart_from_f (NumFluent f, PDDLState s) {//this applies only to linear expression. In the other cases the behavior is undefined
         float ret = 0;
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
@@ -820,7 +813,7 @@ public class ExtendedNormExpression extends Expression {
         return ret;
     }
 
-    ExtendedNormExpression pow(ExtendedNormExpression r) throws Exception {
+    ExtendedNormExpression pow (ExtendedNormExpression r) throws Exception {
         ExtendedNormExpression res = null;
         if (this.isNumber() && r.isNumber()) {
             Double a = this.getNumber();
@@ -834,7 +827,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         // TODO: Implement it more efficiently.  
         // Substrings are added before or after ret_value, so it should be possible 
         // to store two lists of strings and rebuild everything.  
@@ -868,16 +861,16 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
-       
-        for (int i = 0 ; i<this.summations.size() ; i++){
+    public Expression unifyVariablesReferences (EPddlProblem p) {
+
+        for (int i = 0; i < this.summations.size(); i++) {
             ExtendedAddendum a = this.summations.get(i);
-            if (a.f != null){
+            if (a.f != null) {
                 a.f = (NumFluent) a.f.unifyVariablesReferences(p);
             }
             this.summations.set(i, a);
         }
-        return this; 
+        return this;
 
     }
 

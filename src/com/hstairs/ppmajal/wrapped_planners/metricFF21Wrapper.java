@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 public class metricFF21Wrapper extends planningTool {
 
-    public metricFF21Wrapper() {
+    public metricFF21Wrapper ( ) {
         super();
         option1 = "";       //"-O";
         option2 = "";
@@ -42,7 +42,7 @@ public class metricFF21Wrapper extends planningTool {
     }
 
     @Override
-    public String plan() {
+    public String plan ( ) {
         try {
             System.out.println("Planning...");
             if (this.getOption1().equalsIgnoreCase("noOpt")) {
@@ -84,7 +84,7 @@ public class metricFF21Wrapper extends planningTool {
     }
 
     @Override
-    public String plan(String domainFile, String problemFile) {
+    public String plan (String domainFile, String problemFile) {
 
         //System.out.println("planning");
         this.setDomainFile(domainFile);
@@ -94,7 +94,7 @@ public class metricFF21Wrapper extends planningTool {
 
     }
 
-    private void putSolutionInFile(String s) throws IOException {
+    private void putSolutionInFile (String s) throws IOException {
 
         Scanner sc = new Scanner(s);
         boolean atleastanaction = false;
@@ -115,11 +115,11 @@ public class metricFF21Wrapper extends planningTool {
     }
 
     @Override
-    public String adapt(String domainFile, String problemFile, String planFile) {
+    public String adapt (String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void findTotalTimeInFile(String s) {
+    public void findTotalTimeInFile (String s) {
         Scanner sc = new Scanner(s);
 
         while (sc.hasNextLine()) {
@@ -135,7 +135,7 @@ public class metricFF21Wrapper extends planningTool {
     }
 
     @Override
-    public void changePlannersPath() {
+    public void changePlannersPath ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

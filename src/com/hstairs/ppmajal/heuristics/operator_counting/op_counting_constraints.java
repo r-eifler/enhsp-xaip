@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,17 +19,16 @@
 package com.hstairs.ppmajal.heuristics.operator_counting;
 
 /**
- *
  * @author enrico
  */
 public abstract class op_counting_constraints {
 
-    public op_counting_constraints() {
+    public op_counting_constraints ( ) {
 
     }
 
-    abstract public void initialize_constraints();
+    abstract public void initialize_constraints ( );
 
-    abstract public void update_constraints();
+    abstract public void update_constraints ( );
 
 }

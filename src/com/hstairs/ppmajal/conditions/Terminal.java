@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,17 +18,17 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import java.util.ArrayList;
 import com.hstairs.ppmajal.problem.RelState;
 
+import java.util.ArrayList;
+
 /**
- *
  * @author enrico
  */
 public abstract class Terminal extends Condition {
 
     @Override
-    public boolean isSatisfied(RelState rs, ArrayList<Integer> dist, int i) {
+    public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
         int current_dist = dist.get(this.getHeuristicId());
         if (current_dist < i) {
             return true;
@@ -40,7 +40,7 @@ public abstract class Terminal extends Condition {
     }
 
     @Override
-    public Condition introduce_red_constraints() {
+    public Condition introduce_red_constraints ( ) {
         return this;
     }
 

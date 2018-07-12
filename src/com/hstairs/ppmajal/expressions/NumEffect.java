@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,48 +18,37 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.PostCondition;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 
 /**
- *
  * @author Enrico Scala
  */
 public class NumEffect extends Expression implements PostCondition {
 
     public String operator;
+    public boolean additive_relaxation;
     private NumFluent fluentAffected;
     private Expression right;
-    public boolean additive_relaxation;
     private boolean pseudo_num_effect;
 
     /**
-     *
      * @param operator
      */
-    public NumEffect(String operator) {
+    public NumEffect (String operator) {
         super();
         this.operator = operator;
         this.pseudo_num_effect = false;
     }
 
     /**
-     *
      * @return
      */
     @Override
-    public String toString() {
+    public String toString ( ) {
 
         return "(" + getOperator() + " " + getFluentAffected() + " " + getRight() + ")";
     }
@@ -67,53 +56,52 @@ public class NumEffect extends Expression implements PostCondition {
     /**
      * @return the operator
      */
-    public String getOperator() {
+    public String getOperator ( ) {
         return operator;
     }
 
     /**
      * @param operator the operator to set
      */
-    public void setOperator(String operator) {
+    public void setOperator (String operator) {
         this.operator = operator;
     }
 
     /**
      * @return the fluentAffected
      */
-    public NumFluent getFluentAffected() {
+    public NumFluent getFluentAffected ( ) {
         return fluentAffected;
     }
 
     /**
      * @param fluentAffected the fluentAffected to set
      */
-    public void setFluentAffected(NumFluent fluentAffected) {
+    public void setFluentAffected (NumFluent fluentAffected) {
         this.fluentAffected = fluentAffected;
     }
 
     /**
      * @return the right element of the operation
      */
-    public Expression getRight() {
+    public Expression getRight ( ) {
         return right;
     }
 
     /**
      * @param right the right element of the operation to set
      */
-    public void setRight(Expression right) {
+    public void setRight (Expression right) {
         this.right = right;
     }
 
     /**
-     *
      * @param substitution a substitution for variables. It is a mapping of
-     * object to variable
+     *                     object to variable
      * @return a new Grounded NumEffect object
      */
     @Override
-    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         NumEffect ret = new NumEffect(this.operator);
         ret.fluentAffected = this.fluentAffected.ground(substitution, po);
         ret.right = this.right.ground(substitution, po);
@@ -122,7 +110,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         NumEffect ret = new NumEffect(this.operator);
         ret.fluentAffected = (NumFluent) this.fluentAffected.unGround(substitution);
         ret.right = this.right.unGround(substitution);
@@ -131,12 +119,11 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     /**
-     *
      * @param state the state in which the expression is to be evaluated
      * @return a PDDLNumber or Null in case the operation is not supported
      */
     @Override
-    public Double eval(State state) {
+    public Double eval (State state) {
         Double first = this.fluentAffected.eval(state);
         Double second = this.right.eval(state);
         if (this.getOperator().equals("increase")) {
@@ -153,11 +140,10 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     /**
-     *
      * @param s
      * @return
      */
-    public PDDLState applyAndCreateNew(PDDLState state) {
+    public PDDLState applyAndCreateNew (PDDLState state) {
         Double after = null;
         if (this.operator.equals("increase")) {
             Double current = state.fluentValue(fluentAffected);
@@ -182,33 +168,31 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     //@Override
+
     /**
-     *
      * @return
      */
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
-     *
      * @param substitution
      */
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         this.fluentAffected.changeVar(substitution);
         this.right.changeVar(substitution);
     }
 
     /**
-     *
      * @param problem
      * @param invF
      * @return
      */
     @Override
-    public Expression weakEval(PddlProblem problem, HashMap invF) {
+    public Expression weakEval (PddlProblem problem, HashMap invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.right.setFreeVarSemantic(freeVarSemantic);
@@ -233,11 +217,10 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     /**
-     *
      * @return
      */
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         NumEffect ret = new NumEffect(this.operator);
         ret.fluentAffected = (NumFluent) this.fluentAffected.clone();
         ret.right = this.right.clone();
@@ -246,32 +229,29 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     /**
-     *
      * @param s
      * @return
      */
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
-     *
      * @param arrayList
      * @return
      */
     @Override
-    public boolean involve(Collection<NumFluent> arrayList) {
+    public boolean involve (Collection<NumFluent> arrayList) {
         return this.getRight().involve(arrayList);
     }
 
     /**
-     *
      * @param numeric
      * @return
      */
     @Override
-    public Expression subst(Condition input) {
+    public Expression subst (Condition input) {
 
         //NumEffect ret = (NumEffect)this.clone();
         NumEffect ret = (NumEffect) this.clone();
@@ -282,8 +262,8 @@ public class NumEffect extends Expression implements PostCondition {
         }
         if (!(input instanceof ComplexCondition))
             return ret;
-        
-        ComplexCondition numeric = (ComplexCondition)input;
+
+        ComplexCondition numeric = (ComplexCondition) input;
 
         if (ret.getOperator().equals("assign")) {
             return ret;
@@ -307,27 +287,27 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         return this.right.rhsFluents();
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         BinaryOp op = new BinaryOp();
         if (this.operator.equals("increase")) {
             op.setOperator("+");
@@ -348,14 +328,14 @@ public class NumEffect extends Expression implements PostCondition {
         return null;
     }
 
-    public String to_smtlib_with_repetition(int i, String var) {
+    public String to_smtlib_with_repetition (int i, String var) {
 
         //here there is the assumption that increase and decrease are internal cycle free, which makes a lot of sense. Formally
         //rhs(e) \cap lhs(e) = \emptyset
         return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + this.to_smtlib_with_repetition_for_the_right_part(i, var) + ")";
     }
 
-    public String to_smtlib_with_repetition_for_the_right_part(int i, String var) {
+    public String to_smtlib_with_repetition_for_the_right_part (int i, String var) {
 
         //here there is the assumption that increase and decrease are internal cycle free, which makes a lot of sense. Formally
         //rhs(e) \cap lhs(e) = \emptyset
@@ -401,14 +381,14 @@ public class NumEffect extends Expression implements PostCondition {
         return null;
     }
 
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         Set<NumFluent> ret = new LinkedHashSet();
         ret.add(this.getFluentAffected());
         ret.addAll(this.getRight().rhsFluents());
         return ret;
     }
 
-    public NumEffect generate_m_times_extension(NumFluent m) throws CloneNotSupportedException {
+    public NumEffect generate_m_times_extension (NumFluent m) throws CloneNotSupportedException {
         NumEffect ret = new NumEffect(this.operator);
         ret.setFluentAffected(fluentAffected);
         ExtendedNormExpression temp = (ExtendedNormExpression) this.getRight();
@@ -419,11 +399,11 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public boolean involve(NumFluent a) {
+    public boolean involve (NumFluent a) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public boolean internal_cycle() {
+    public boolean internal_cycle ( ) {
 //        boolean ret = false;
 //        switch (this.getOperator()) {
 //            case "increase":
@@ -440,50 +420,50 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
      * @return the pseudo_num_effect
      */
-    public boolean isPseudo_num_effect() {
+    public boolean isPseudo_num_effect ( ) {
         return pseudo_num_effect;
     }
 
     /**
      * @param pseudo_num_effect the pseudo_num_effect to set
      */
-    public void setPseudo_num_effect(boolean pseudo_num_effect) {
+    public void setPseudo_num_effect (boolean pseudo_num_effect) {
         this.pseudo_num_effect = pseudo_num_effect;
     }
 
     @Override
-    public Condition achieve(Predicate p) {
+    public Condition achieve (Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition delete(Predicate p) {
+    public Condition delete (Predicate p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public HashMap apply(PDDLState state) {
+    public HashMap apply (PDDLState state) {
         HashMap ret = new HashMap();
         apply(state, ret);
         return ret;
     }
 
     @Override
-    public HashMap apply(RelState s) {//This follows as for Convex union
+    public HashMap apply (RelState s) {//This follows as for Convex union
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply (State s, Map modifications) {
         if (!fluentAffected.has_to_be_tracked()) {
             return;
         }
@@ -497,7 +477,7 @@ public class NumEffect extends Expression implements PostCondition {
         }
 
         if (this.operator.equals("increase")) {
-            Double current = ((PDDLState)s).fluentValue(fluentAffected);
+            Double current = ((PDDLState) s).fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("PDDLState:"+s);
                 //System.out.println("This effect cannot be applied!:" + this);
@@ -506,7 +486,7 @@ public class NumEffect extends Expression implements PostCondition {
                 after = current + eval;
             }
         } else if (this.operator.equals("decrease")) {
-            Double current = ((PDDLState)s).fluentValue(fluentAffected);
+            Double current = ((PDDLState) s).fluentValue(fluentAffected);
             if (current == null) {
                 //System.out.println("This effect cannot be applied!:" + this);
                 //System.exit(-1);
@@ -521,7 +501,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public void apply(RelState s, Map modifications) {
+    public void apply (RelState s, Map modifications) {
         if (!fluentAffected.has_to_be_tracked()) {
             return;
         }
@@ -575,7 +555,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(");
         bui.append(getOperator());
         bui.append(" ");
@@ -585,7 +565,7 @@ public class NumEffect extends Expression implements PostCondition {
         bui.append(")");
     }
 
-    public ArrayList<Variable> getInvolvedVariables() {
+    public ArrayList<Variable> getInvolvedVariables ( ) {
         // It is assumed that this method will be called only when the terms are ungrounded.  
         // Here be dragon.  
         final ArrayList list = this.fluentAffected.getTerms();
@@ -593,7 +573,7 @@ public class NumEffect extends Expression implements PostCondition {
         return result;
     }
 
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         // It is assumed that this method will be called only when the terms are ungrounded.  
         // Here be dragon.  
         for (final Object o : this.fluentAffected.getTerms()) {
@@ -603,14 +583,14 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Set<NumFluent> affectedNumericFluents() {
+    public Set<NumFluent> affectedNumericFluents ( ) {
         Set<NumFluent> ret = new HashSet();
         ret.add(fluentAffected);
         return ret;
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
+    public Expression unifyVariablesReferences (EPddlProblem p) {
         this.fluentAffected = (NumFluent) this.fluentAffected.unifyVariablesReferences(p);
 //        System.out.println("right:"+right);
         this.right = right.unifyVariablesReferences(p);

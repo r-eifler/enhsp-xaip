@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import com.hstairs.ppmajal.problem.GroundAction;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class HeuristicSearchNode implements Comparable {
@@ -34,7 +33,7 @@ public class HeuristicSearchNode implements Comparable {
     public int action_cost_to_get_here;
     public Set orderings;
 
-    public HeuristicSearchNode(GroundAction action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
+    public HeuristicSearchNode (GroundAction action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
 
         this.action = action;
         this.goal_distance = goal_distance;
@@ -43,7 +42,7 @@ public class HeuristicSearchNode implements Comparable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (obj == null) {
             return false;
         }
@@ -63,7 +62,7 @@ public class HeuristicSearchNode implements Comparable {
 //    }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo (Object o) {
         final HeuristicSearchNode other = (HeuristicSearchNode) o;
         if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here)) {
             return 0;

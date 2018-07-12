@@ -29,40 +29,38 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Enrico Scala
  */
-public abstract class ComplexCondition extends Condition{
+public abstract class ComplexCondition extends Condition {
     public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
 
-    public ComplexCondition() {
+    public ComplexCondition ( ) {
         sons = new LinkedHashSet();
     }
-    
-        
-        
+
+
     @Override
-    public final Collection<Predicate> getInvolvedPredicates() {
+    public final Collection<Predicate> getInvolvedPredicates ( ) {
         Collection<Predicate> ret = new LinkedHashSet();
         //from here it can only be an AndCond or a Or. Other cases are not instance of this
         if (this.sons != null) {
-            for (Object c :  this.sons) {
-                if (c instanceof Condition){
-                    ret.addAll(((Condition)c).getInvolvedPredicates());
+            for (Object c : this.sons) {
+                if (c instanceof Condition) {
+                    ret.addAll(((Condition) c).getInvolvedPredicates());
                 }
             }
         }
         return ret;
     }
 
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         LinkedHashSet ret = new LinkedHashSet();
-        for (Object c :  this.sons) {
-            if (c instanceof NumEffect){
-                NumEffect neff = (NumEffect)c;
+        for (Object c : this.sons) {
+            if (c instanceof NumEffect) {
+                NumEffect neff = (NumEffect) c;
                 ret.add(neff.unifyVariablesReferences(p));
-            }else{
-                Condition cond = (Condition)c;
+            } else {
+                Condition cond = (Condition) c;
                 ret.add(cond.unifyVariablesReferences(p));
             }
         }
@@ -70,21 +68,20 @@ public abstract class ComplexCondition extends Condition{
         return this;
     }
 
-    public final void addConditions(Condition c) {
-        if ((this instanceof AndCond) && (c instanceof AndCond)){
-            sons.addAll(((AndCond)c).sons);
-        }else if ((this instanceof OrCond) && (c instanceof OrCond)){
-            sons.addAll(((OrCond)c).sons);
-        }else
+    public final void addConditions (Condition c) {
+        if ((this instanceof AndCond) && (c instanceof AndCond)) {
+            sons.addAll(((AndCond) c).sons);
+        } else if ((this instanceof OrCond) && (c instanceof OrCond)) {
+            sons.addAll(((OrCond) c).sons);
+        } else
             sons.add(c);
     }
 
     /**
-     *
      * @param substitution
      */
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
         for (Object o : sons) {
             if (o instanceof NumEffect) {
                 NumEffect el = (NumEffect) o;
@@ -97,7 +94,7 @@ public abstract class ComplexCondition extends Condition{
     }
 
     @Override
-    public void extendTerms(Variable v) {
+    public void extendTerms (Variable v) {
         if (this.sons == null) {
             return;
         }
@@ -107,7 +104,7 @@ public abstract class ComplexCondition extends Condition{
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         Set<NumFluent> ret = new HashSet();
         if (this.sons != null) {
             for (Object o : this.sons) {
@@ -133,7 +130,7 @@ public abstract class ComplexCondition extends Condition{
 
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         LinkedHashSet ret = new LinkedHashSet();
         if (this.sons == null) {
             return new LinkedHashSet();
@@ -145,14 +142,14 @@ public abstract class ComplexCondition extends Condition{
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
     }
 
     @Override
-    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         AndCond ret = new AndCond();
         //System.out.println(this.toString());
         for (Object o : sons) {
@@ -175,12 +172,11 @@ public abstract class ComplexCondition extends Condition{
         return ret;
     }
 
-   
 
     /**
      * @return the freeVarSemantic
      */
-    public boolean isFreeVarSemantic() {
+    public boolean isFreeVarSemantic ( ) {
         return freeVarSemantic;
     }
 
@@ -188,7 +184,7 @@ public abstract class ComplexCondition extends Condition{
      *
      */
     @Override
-    public void normalize() {
+    public void normalize ( ) {
         Iterator it = sons.iterator();
         Collection<AndCond> to_add = new LinkedHashSet();
         while (it.hasNext()) {
@@ -224,15 +220,14 @@ public abstract class ComplexCondition extends Condition{
         });
     }
 
-  
 
-    protected void sonHasIncorrectType(Object son) {
+    protected void sonHasIncorrectType (Object son) {
         System.out.println("Effect " + son + " is not valid. Its class is" + son.getClass() + ".  Please revise your action model.");
         System.exit(-1);
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         if (this.sons != null) {
             for (Object o : this.sons) {
                 if (o instanceof Condition) {
@@ -251,7 +246,7 @@ public abstract class ComplexCondition extends Condition{
     }
 
     @Override
-    public Condition unGround(Map substitution) {
+    public Condition unGround (Map substitution) {
         AndCond ret = new AndCond();
         for (Object o : sons) {
             if (o instanceof NumEffect) {
@@ -267,7 +262,5 @@ public abstract class ComplexCondition extends Condition{
         return ret;
     }
 
-    
-    
-    
+
 }

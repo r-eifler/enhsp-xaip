@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,14 +18,7 @@
  */
 package com.hstairs.ppmajal.domain;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.ConditionalEffect;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.conditions.NotCond;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLObjects;
@@ -37,12 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class ActionSchema extends PDDLGenericAction {
 
-    public ActionSchema() {
+    public ActionSchema ( ) {
         super();
         parameters = new SchemaParameters();
 //        numericFluentAffected = new HashSet();
@@ -55,13 +47,13 @@ public class ActionSchema extends PDDLGenericAction {
 
     }
 
-    public void addParameter(Variable o) {
+    public void addParameter (Variable o) {
 
         parameters.add(o);
 
     }
 
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         String ret = "(:action " + this.name + "\n";
 
         ret += ":parameters " + this.parameters + "\n";
@@ -73,7 +65,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ret + ")";
     }
 
-    public GroundAction ground(Map substitution, PDDLObjects po) {
+    public GroundAction ground (Map substitution, PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -98,7 +90,7 @@ public class ActionSchema extends PDDLGenericAction {
 
     }
 
-    public GroundAction ground(Map substitution, int c) {
+    public GroundAction ground (Map substitution, int c) {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
@@ -115,7 +107,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundAction ground(ParametersAsTerms par, PDDLObjects po) {
+    public GroundAction ground (ParametersAsTerms par, PDDLObjects po) {
         GroundAction ret = new GroundAction(this.name);
         int i = 0;
         Grounder g = new Grounder();
@@ -130,15 +122,15 @@ public class ActionSchema extends PDDLGenericAction {
 //        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
-            ret.numericEffects.sons.addAll(((AndCond)this.numericEffects.ground(substitution, po)).sons);
+            ret.numericEffects.sons.addAll(((AndCond) this.numericEffects.ground(substitution, po)).sons);
 //            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
         }
         if (addList != null) {
-            ret.addList.sons.addAll(((AndCond)this.addList.ground(substitution, po)).sons);
+            ret.addList.sons.addAll(((AndCond) this.addList.ground(substitution, po)).sons);
 //            ret.setAddList(this.addList.ground(substitution, po));
         }
         if (delList != null) {
-            ret.delList.sons.addAll(((AndCond)this.delList.ground(substitution, po)).sons);
+            ret.delList.sons.addAll(((AndCond) this.delList.ground(substitution, po)).sons);
 
 //            ret.setDelList(this.delList.ground(substitution, po));
         }
@@ -151,7 +143,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundAction fakeGround() {
+    public GroundAction fakeGround ( ) {
         GroundAction ret = new GroundAction(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 
@@ -165,7 +157,7 @@ public class ActionSchema extends PDDLGenericAction {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 //        String parametri = "";
 //        for (Object o : parameters) {
 //            parametri = parametri.concat(o.toString()).concat(" ");
@@ -183,7 +175,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ret + ")";
     }
 
-    protected String pddlEffects() {
+    protected String pddlEffects ( ) {
         String ret = "(and ";
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
@@ -215,7 +207,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ret + ")";
     }
 
-    public Set getAbstractNumericFluentAffected() {
+    public Set getAbstractNumericFluentAffected ( ) {
         HashSet anfa = new HashSet();
         for (Object o : this.numericEffects.sons) {
             if (o instanceof AndCond) {
@@ -236,7 +228,7 @@ public class ActionSchema extends PDDLGenericAction {
     }
 
     @Deprecated
-    public ActionSchema append(ActionSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
+    public ActionSchema append (ActionSchema as2, PddlDomain domain, PddlProblem problem) throws CloneNotSupportedException {
 
         if (this.name == null) {
             return (ActionSchema) as2.clone();
@@ -258,7 +250,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ab;
     }
 
-    private void progress(ActionSchema a, ActionSchema b, ActionSchema ab) {
+    private void progress (ActionSchema a, ActionSchema b, ActionSchema ab) {
         /*Starting from what action a achieve*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
@@ -316,7 +308,7 @@ public class ActionSchema extends PDDLGenericAction {
     /**
      * @return the numericFluentAffected
      */
-    private Condition regress(ActionSchema b, ActionSchema a) {
+    private Condition regress (ActionSchema b, ActionSchema a) {
         /*Propositional Part first*/
 
         AndCond result = (AndCond) b.getPreconditions().clone();
@@ -350,7 +342,7 @@ public class ActionSchema extends PDDLGenericAction {
 
     }
 
-    private String pddlEffectsWithExtraObject() {
+    private String pddlEffectsWithExtraObject ( ) {
         String ret = "(and ";
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {

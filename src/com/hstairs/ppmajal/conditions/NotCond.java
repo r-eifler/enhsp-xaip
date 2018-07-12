@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,23 +18,17 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.conditions.Predicate.true_false;
+import com.hstairs.ppmajal.conditions.Predicate.trueFalse;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public class NotCond extends Terminal implements PostCondition {
@@ -44,17 +38,17 @@ public class NotCond extends Terminal implements PostCondition {
      */
     private Condition son;
 
-    public NotCond(Condition son) {
+    public NotCond (Condition son) {
         super();
         this.son = son;
     }
 
-    public Condition getSon() {
+    public Condition getSon ( ) {
         return son;
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         String ret_val = "(NOT ";
 
         ret_val = ret_val.concat(son.toString());
@@ -65,7 +59,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         final Condition groundedSon = son.ground(substitution, po);
         NotCond ret = new NotCond(groundedSon);
         ret.grounded = true;
@@ -73,7 +67,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
@@ -82,28 +76,28 @@ public class NotCond extends Terminal implements PostCondition {
     //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
     //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
     @Override
-    public boolean eval(State s) {
+    public boolean eval (State s) {
 
         return !son.eval(s);
 
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied (State s) {
 
         return !son.isSatisfied(s);
 
     }
 
     @Override
-    public boolean can_be_true(RelState s) {
+    public boolean can_be_true (RelState s) {
 
         return son.can_be_false(s);
 
     }
 
     @Override
-    public void normalize() {
+    public void normalize ( ) {
         if (son instanceof Comparison) {
             Comparison comp = (Comparison) son;
             try {
@@ -119,12 +113,12 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
         son.changeVar(substitution);
     }
 
     @Override
-    public Condition clone() {
+    public Condition clone ( ) {
         final Condition clonedSon = this.son.clone();
         NotCond ret = new NotCond(clonedSon);
         ret.grounded = this.grounded;
@@ -132,7 +126,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Condition con) {
+    public boolean isUngroundVersionOf (Condition con) {
         if (con instanceof NotCond) {
             NotCond nc = (NotCond) con;
             Condition c1 = this.son;
@@ -144,7 +138,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition unGround(Map substitution) {
+    public Condition unGround (Map substitution) {
         final Condition ungroundSon = son.unGround(substitution);
         NotCond ret = new NotCond(ungroundSon);
         ret.grounded = false;
@@ -152,12 +146,12 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         return "(not " + son.toSmtVariableString(i) + ")";
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         Set<NumFluent> ret = new HashSet();
 
         if (son instanceof Condition) {
@@ -173,7 +167,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, HashMap invF) {
 
         Condition el = son;
         el.setFreeVarSemantic(freeVarSemantic);
@@ -193,12 +187,12 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString(int i, GroundAction gr, String var) {
+    public String toSmtVariableString (int i, GroundAction gr, String var) {
         return "(not " + son.toSmtVariableString(i, gr, var) + ")";
     }
 
     @Override
-    public Condition transform_equality() {
+    public Condition transform_equality ( ) {
         if (this.son == null) {
             return this;
         }
@@ -209,23 +203,23 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by (GroundAction gr) {
 
         return son.is_affected_by(gr);
 
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress (GroundAction gr) {
 
         Condition temp = son.regress(gr);
         if (temp.isValid()) {
 //            NotCond ret = new NotCond();
 //            ret.setUnsatisfiable(true);
-            return new Predicate(true_false.FALSE);
+            return new Predicate(trueFalse.FALSE);
         }
         if (temp.isUnsatisfiable()) {
-            return new Predicate(true_false.TRUE);
+            return new Predicate(trueFalse.TRUE);
         }
         NotCond not = new NotCond(temp);
 
@@ -233,7 +227,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         String ret_val = "(not ";
         if (son instanceof Condition) {
             Condition c = son;
@@ -247,25 +241,25 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean can_be_false(RelState s) {
+    public boolean can_be_false (RelState s) {
         return son.can_be_true(s);
     }
 
     @Override
-    public Condition achieve(Predicate p) {
+    public Condition achieve (Predicate p) {
         return null;
     }
 
     @Override
-    public Condition delete(Predicate p) {
+    public Condition delete (Predicate p) {
         if (son.equals(p)) {
-            return new Predicate(Predicate.true_false.TRUE);
+            return new Predicate(trueFalse.TRUE);
         }
         return null;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         if (son == null) { // sometimes happen when the negation is trivially unsatisfiable
             return 1;
         }
@@ -276,7 +270,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (this == obj) {
             return true;
         }
@@ -295,14 +289,14 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public HashMap apply(PDDLState s) {
+    public HashMap apply (PDDLState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
     }
 
     @Override
-    public HashMap apply(RelState s) {
+    public HashMap apply (RelState s) {
         HashMap ret = new HashMap();
         apply(s, ret);
         return ret;
@@ -310,7 +304,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(State s, Map modifications) {
+    public void apply (State s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
             modifications.put(p, Boolean.FALSE);
@@ -320,7 +314,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void apply(RelState s, Map modifications) {
+    public void apply (RelState s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
             if (s.possBollValues.get(p.id) == 1) {
@@ -331,20 +325,20 @@ public class NotCond extends Terminal implements PostCondition {
         }
     }
 
-    private void sonHasIncorrectType() {
+    private void sonHasIncorrectType ( ) {
         System.out.println("Not " + son + " is not valid. Please revise your action model");
         System.exit(-1);
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(not ");
         son.pddlPrint(typeInformation, bui);
         bui.append(")");
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         for (NumFluent nf : this.getInvolvedFluents()) {
             for (final Object o : nf.getTerms()) {
                 final Variable var = (Variable) o;
@@ -360,7 +354,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         if (!this.isTerminal()) {
             System.out.println("This should be a terminal!" + this);
             System.exit(-1);
@@ -371,12 +365,12 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getHeuristicId());
     }
 
     @Override
-    public ComplexCondition and(Condition precondition) {
+    public ComplexCondition and (Condition precondition) {
         AndCond and = new AndCond();
         and.addConditions(precondition);
         and.addConditions(this);
@@ -384,7 +378,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.cost = cond_dist.get(this.getHeuristicId());
         s.actions.add(established_achiever.get(this.getHeuristicId()));
@@ -393,7 +387,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals() {
+    public Condition push_not_to_terminals ( ) {
         if (son instanceof Predicate) {
             return this;
         } else if (son instanceof Comparison) {
@@ -422,29 +416,29 @@ public class NotCond extends Terminal implements PostCondition {
             return nc.pushNegationDemorgan().push_not_to_terminals();
         } else if (son instanceof ForAll) {
             throw new RuntimeException("NNF with negated forall not supported yet");
-        }else {
+        } else {
             System.out.println("Condition " + son.getClass() + " not supported");
             System.exit(-1);
         }
         return null;
     }
 
-    public boolean isTerminal() {
+    public boolean isTerminal ( ) {
         return this.son instanceof Predicate;
     }
 
     @Override
-    public Set<NumFluent> affectedNumericFluents() {
+    public Set<NumFluent> affectedNumericFluents ( ) {
         return new HashSet();
     }
 
     @Override
-    public void extendTerms(Variable v) {
+    public void extendTerms (Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates() {
+    public Collection<Predicate> getInvolvedPredicates ( ) {
         Set ret = new LinkedHashSet();
         ret.addAll(this.son.getInvolvedPredicates());
         return ret;
@@ -452,7 +446,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         this.son = this.son.unifyVariablesReferences(p);
         return this;
     }

@@ -4,10 +4,11 @@ import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.heuristics.blindHeuristic;
-import java.util.LinkedList;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.search.PDDLSearchEngine;
 import com.hstairs.ppmajal.search.SearchEngine;
+
+import java.util.LinkedList;
 
 /*
  * Copyright (C) 2018 enrico.
@@ -27,17 +28,18 @@ import com.hstairs.ppmajal.search.SearchEngine;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+
 /**
- *
  * @author enrico
  */
 public class PlannerUtils {
 
-    
-    public int getPlanSize(String domainFileName, String problemFileName, String heuristic) throws Exception {
+
+    public int getPlanSize (String domainFileName, String problemFileName, String heuristic) throws Exception {
         return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1);
     }
-    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh) throws Exception {
+
+    public int getPlanSize (String domainFileName, String problemFileName, String heuristic, int wg, int wh) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
@@ -68,7 +70,8 @@ public class PlannerUtils {
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
             h.additive_h = true;
-        }if (heuristic.equals("hmax")) {
+        }
+        if (heuristic.equals("hmax")) {
             searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
@@ -80,12 +83,12 @@ public class PlannerUtils {
         searchStrategies.setWG(wg);
         searchStrategies.setWH(wh);
         LinkedList raw_plan = searchStrategies.WAStar(problem);
-        System.out.println("Nodes Expanded:"+ SearchEngine.nodesExpanded);
+        System.out.println("Nodes Expanded:" + SearchEngine.nodesExpanded);
         //System.out.println(raw_plan.size());
         return raw_plan.size();
     }
 
-    public int heuristicEstimate(String domainFileName, String problemFileName, String heuristic) throws Exception {
+    public int heuristicEstimate (String domainFileName, String problemFileName, String heuristic) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
@@ -114,9 +117,9 @@ public class PlannerUtils {
         searchStrategies.getHeuristic().setup(problem.init);
         long start = System.nanoTime();
         Float hs0 = searchStrategies.getHeuristic().compute_estimate(problem.init);
-        long totaltime = System.nanoTime()-start;
-        System.out.println("hs0:" + hs0 +  " in " + (float)totaltime/1000000000.0 +"s" );
-        
+        long totaltime = System.nanoTime() - start;
+        System.out.println("hs0:" + hs0 + " in " + (float) totaltime / 1000000000.0 + "s");
+
         //System.out.println(raw_plan.size());
         return hs0.intValue();
     }

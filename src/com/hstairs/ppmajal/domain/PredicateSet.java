@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -24,12 +24,11 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import java.util.HashSet;
 
 /**
- *
  * @author enrico
  */
 public class PredicateSet extends HashSet<Predicate> {
 
-    public boolean validate(Predicate p) {
+    public boolean validate (Predicate p) {
 
         for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
@@ -41,7 +40,7 @@ public class PredicateSet extends HashSet<Predicate> {
         return false;
     }
 
-    public Predicate findAssociated(Predicate p) {
+    public Predicate findAssociated (Predicate p) {
 
         for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
@@ -63,7 +62,7 @@ public class PredicateSet extends HashSet<Predicate> {
         return null;
     }
 
-    public boolean validateInst(Predicate p) {
+    public boolean validateInst (Predicate p) {
 
         for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
@@ -94,7 +93,7 @@ public class PredicateSet extends HashSet<Predicate> {
         return false;
     }
 
-    public String pddlPrint(boolean typeInformation) {
+    public String pddlPrint (boolean typeInformation) {
         String ret = "";
         for (final Predicate elP : this) {
             ret += elP.pddlPrint(typeInformation);
@@ -102,7 +101,7 @@ public class PredicateSet extends HashSet<Predicate> {
         return ret + ")";
     }
 
-    public String pddlPrintWithExtraObject(boolean typeInformation) {
+    public String pddlPrintWithExtraObject (boolean typeInformation) {
         String ret = "";
         for (final Predicate elP : this) {
             if (typeInformation) {
@@ -114,7 +113,7 @@ public class PredicateSet extends HashSet<Predicate> {
         return ret + ")";
     }
 
-    public void addIfNecessary(Predicate p) {
+    public void addIfNecessary (Predicate p) {
         boolean found = false;
         for (final Predicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {

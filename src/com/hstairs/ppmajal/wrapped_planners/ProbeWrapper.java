@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ public class ProbeWrapper extends planningTool {
 
     private String solutionFile;
 
-    public ProbeWrapper() {
+    public ProbeWrapper ( ) {
         super();
         option1 = "";       //"-O";
         option2 = "";
@@ -39,7 +39,7 @@ public class ProbeWrapper extends planningTool {
     }
 
     @Override
-    public String plan() {
+    public String plan ( ) {
 
         System.out.println("Planning...");
         this.executePlanning();
@@ -65,7 +65,7 @@ public class ProbeWrapper extends planningTool {
     }
 
     @Override
-    public void executePlanning() {
+    public void executePlanning ( ) {
         Runtime rt = Runtime.getRuntime();
         outputPlanning = new StringBuilder();
         try {
@@ -102,7 +102,7 @@ public class ProbeWrapper extends planningTool {
     }
 
     @Override
-    public String plan(String domainFile, String problemFile) {
+    public String plan (String domainFile, String problemFile) {
 
         //System.out.println("planning");
         this.setDomainFile(domainFile);
@@ -112,30 +112,30 @@ public class ProbeWrapper extends planningTool {
 
     }
 
-    private void putSolutionInFile(String s) {
+    private void putSolutionInFile (String s) {
 
     }
 
     @Override
-    public String adapt(String domainFile, String problemFile, String planFile) {
+    public String adapt (String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
      * @return the solutionFile
      */
-    public String getSolutionFile() {
+    public String getSolutionFile ( ) {
         return solutionFile;
     }
 
     /**
      * @param solutionFile the solutionFile to set
      */
-    public void setSolutionFile(String solutionFile) {
+    public void setSolutionFile (String solutionFile) {
         this.solutionFile = solutionFile;
     }
 
-    private void setTime(String outputPlanning) {
+    private void setTime (String outputPlanning) {
         Scanner sc;
         sc = new Scanner(outputPlanning);
 
@@ -153,7 +153,7 @@ public class ProbeWrapper extends planningTool {
     }
 
     @Override
-    public void changePlannersPath() {
+    public void changePlannersPath ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

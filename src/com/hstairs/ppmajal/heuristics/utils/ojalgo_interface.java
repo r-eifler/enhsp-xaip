@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -25,16 +25,16 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import java.util.*;
+import com.hstairs.ppmajal.problem.GroundAction;
+import com.hstairs.ppmajal.problem.PDDLState;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
 import org.ojalgo.optimisation.Variable;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.problem.PDDLState;
+
+import java.util.*;
 
 /**
- *
  * @author enrico
  */
 public final class ojalgo_interface extends LpInterface {
@@ -50,7 +50,7 @@ public final class ojalgo_interface extends LpInterface {
 
     public ExpressionsBasedModel lp;
 
-    public ojalgo_interface(ComplexCondition cond, ComplexCondition global_constraint) {
+    public ojalgo_interface (ComplexCondition cond, ComplexCondition global_constraint) {
         super(cond, global_constraint);
         n_invocations = 0;
         integer_variables = false;
@@ -61,7 +61,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    public void initialize(Collection<GroundAction> actions, PDDLState s_0) {
+    public void initialize (Collection<GroundAction> actions, PDDLState s_0) {
         this.cond_lp_formulation = new HashMap();
         this.var_to_expr = new HashMap();
         this.affectors_of = new HashMap();
@@ -73,7 +73,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    public void update_conditions_bound_plus_reset_variables(PDDLState s_0) {
+    public void update_conditions_bound_plus_reset_variables (PDDLState s_0) {
         this.update_local_global_conditions(s_0);
         for (Variable v : lp.getVariables()) {
             v.upper(0);
@@ -87,7 +87,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    protected void update_local_global_conditions(PDDLState s_0) {
+    protected void update_local_global_conditions (PDDLState s_0) {
 
         update_condition(s_0, c);
         if (this.gc != null) {
@@ -97,7 +97,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    public float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h) {
+    public float update_cost (PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h) {
 
         Collection<GroundAction> affectors = this.affectors_of_temp.get(c.getHeuristicId());
         Iterator<GroundAction> it = affectors.iterator();
@@ -150,7 +150,7 @@ public final class ojalgo_interface extends LpInterface {
         return Float.MAX_VALUE;
     }
 
-    protected void init_condition(Collection<GroundAction> pool, PDDLState s_0) {
+    protected void init_condition (Collection<GroundAction> pool, PDDLState s_0) {
 
         action_to_variable = new HashMap();
         Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
@@ -173,7 +173,7 @@ public final class ojalgo_interface extends LpInterface {
                         for (GroundAction gr : pool) {
 //                                                        System.out.println(gr);
 
-                                if (gr.getNumericFluentAffected().contains(ad.f)) {
+                            if (gr.getNumericFluentAffected().contains(ad.f)) {
                                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
                                     if (!neff.getFluentAffected().equals(ad.f)) {
                                         continue;
@@ -272,7 +272,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    protected void update_condition(PDDLState s_0, ComplexCondition temp) {
+    protected void update_condition (PDDLState s_0, ComplexCondition temp) {
         for (Condition c_0 : (Collection<Condition>) temp.sons) {
             Expression lp_cond = lp.getExpression(c_0.toString());
             if (c_0 instanceof Comparison) {
@@ -309,7 +309,7 @@ public final class ojalgo_interface extends LpInterface {
         public Expression expr;
         public Float contr;
 
-        public Constraint(Expression e, Float n) {
+        public Constraint (Expression e, Float n) {
             super();
             expr = e;
             contr = n;

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,60 +18,19 @@
  */
 package com.hstairs.ppmajal.propositionalFactory;
 
-import com.hstairs.ppmajal.problem.GroundEvent;
-import com.hstairs.ppmajal.problem.GlobalConstraint;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.GroundProcess;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.domain.EventSchema;
-import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.domain.ActionSchema;
-import com.hstairs.ppmajal.domain.ProcessSchema;
-import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
-import com.hstairs.ppmajal.domain.SchemaParameters;
-import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.conditions.PDDLObject;
+import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
 
 public class Grounder {
 
-    public Grounder() {
+    public Grounder ( ) {
         super();
     }
 
-    public Set Substitutions(ActionSchema a, PDDLObjects po) {
-        HashSet ret = new HashSet();
-        Set combo = new HashSet();
-        SchemaParameters param = a.getPar();
-        int n_parametri = a.getPar().size();
-        return sub(param, n_parametri, po);
-
-    }
-
-    public Set Substitutions(ProcessSchema a, PDDLObjects po) {
-        HashSet ret = new HashSet();
-        Set combo = new HashSet();
-        SchemaParameters param = a.getPar();
-        int n_parametri = a.getPar().size();
-        return sub(param, n_parametri, po);
-
-    }
-
-    public Set Substitutions(SchemaGlobalConstraint constr, PDDLObjects po) {
-        SchemaParameters param = constr.parameters;
-        int n_parametri = constr.parameters.size();
-
-        return sub(param, n_parametri, po);
-
-    }
-
-    public Set Substitutions(SchemaParameters param, PDDLObjects po) {
-        return sub(param, param.size(), po);
-
-    }
-
-    public static Set substitutions(ArrayList<Variable> input, PDDLObjects po) {
+    public static Set substitutions (ArrayList<Variable> input, PDDLObjects po) {
 
         int n_parametri = input.size();
 
@@ -99,7 +58,7 @@ public class Grounder {
 
     }
 
-    private static boolean incVettore(Integer[] v, int n, Integer[] max) {
+    private static boolean incVettore (Integer[] v, int n, Integer[] max) {
 
         if (n < 0) {
             return false;
@@ -117,31 +76,9 @@ public class Grounder {
         }
     }
 
-    private List creaCombinazione(PDDLObjects O, SchemaParameters aP, int index) {
-        List ret = new ArrayList();
-        if (index == aP.size() - 1) {
-            for (Object el : O) {
-                PDDLObject t = (PDDLObject) el;
-                Variable v = (Variable) aP.get(index);
-                if (t.getType().equals(v.getType())) {
-                    ret.add(t);
-                }
-            }
-        } else {
-            List ret2 = creaCombinazione(O, aP, index + 1);
-            for (Object el : O) {
-                PDDLObject t = (PDDLObject) el;
-                Variable v = (Variable) aP.get(index);
-                if (t.getType().equals(v.getType())) {
-                }
-            }
-        }
-        return ret;
-    }
+    public static Set<HashMap<Variable, PDDLObject>> create_combos_ext (Set<Variable> variables, Set<PDDLObject> objects) {
 
-    public static Set<HashMap<Variable, PDDLObject>> create_combos_ext(Set<Variable> variables, Set<PDDLObject> objects) {
-
-        //assign integer 
+        //assign integer
         HashMap<Integer, Variable> int_to_var = new HashMap();
         Integer var_counter = 0;
         for (Variable v : variables) {
@@ -158,7 +95,7 @@ public class Grounder {
         return null;
     }
 
-    public static Set<PDDLObject[]> create_combos(PDDLObject[][] poss, int i) {
+    public static Set<PDDLObject[]> create_combos (PDDLObject[][] poss, int i) {
         if (i >= poss.length) {
             return new LinkedHashSet();
         }
@@ -194,67 +131,7 @@ public class Grounder {
 
     }
 
-    public Set Propositionalize(ActionSchema a, PDDLObjects po) throws Exception {
-        Set ret = new LinkedHashSet();
-
-        Set combo = Substitutions(a, po);
-        if (a.getPar().isEmpty()) {
-            combo.add(new ParametersAsTerms());
-        }
-        for (Object o : combo) {
-
-            if (o instanceof ParametersAsTerms) {
-                if (a instanceof EventSchema) {
-                    EventSchema b = (EventSchema) a;
-                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po);
-                    toAdd.generateAffectedNumFluents();
-                    ret.add(toAdd);
-                } else {
-                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po);
-                    toAdd.generateAffectedNumFluents();
-                    ret.add(toAdd);
-                }
-            }
-        }
-
-        return ret;
-
-    }
-
-    public Set Propositionalize(ProcessSchema a, PDDLObjects po) throws Exception {
-        Set ret = new LinkedHashSet();
-
-        Set combo = Substitutions(a, po);
-        for (Object o : combo) {
-            if (o instanceof ParametersAsTerms) {
-                GroundProcess toAdd = a.ground((ParametersAsTerms) o, po);
-                toAdd.generateAffectedNumFluents();
-                ret.add(toAdd);
-            }
-        }
-
-        return ret;
-
-    }
-
-    public Set Propositionalize(SchemaGlobalConstraint constr, PDDLObjects po) throws Exception {
-        Set ret = new LinkedHashSet();
-
-        Set combo = Substitutions(constr, po);
-        for (Object o : combo) {
-            if (o instanceof ParametersAsTerms) {
-                GlobalConstraint toAdd = constr.ground((ParametersAsTerms) o, po);
-                ret.add(toAdd);
-            }
-        }
-
-        return ret;
-
-    }
-    
-    
-
-    public static Set sub(ArrayList param, int n_parametri, PDDLObjects po) {
+    public static Set sub (ArrayList param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
         ArrayList<PDDLObject>[] sub = new ArrayList[n_parametri];
 
@@ -326,7 +203,118 @@ public class Grounder {
         return combo;
     }
 
-    private Set sub(SchemaParameters param, int n_parametri, PDDLObjects po) {
+    public Set Substitutions (ActionSchema a, PDDLObjects po) {
+        HashSet ret = new HashSet();
+        Set combo = new HashSet();
+        SchemaParameters param = a.getPar();
+        int n_parametri = a.getPar().size();
+        return sub(param, n_parametri, po);
+
+    }
+
+    public Set Substitutions (ProcessSchema a, PDDLObjects po) {
+        HashSet ret = new HashSet();
+        Set combo = new HashSet();
+        SchemaParameters param = a.getPar();
+        int n_parametri = a.getPar().size();
+        return sub(param, n_parametri, po);
+
+    }
+
+    public Set Substitutions (SchemaGlobalConstraint constr, PDDLObjects po) {
+        SchemaParameters param = constr.parameters;
+        int n_parametri = constr.parameters.size();
+
+        return sub(param, n_parametri, po);
+
+    }
+
+    public Set Substitutions (SchemaParameters param, PDDLObjects po) {
+        return sub(param, param.size(), po);
+
+    }
+
+    private List creaCombinazione (PDDLObjects O, SchemaParameters aP, int index) {
+        List ret = new ArrayList();
+        if (index == aP.size() - 1) {
+            for (Object el : O) {
+                PDDLObject t = (PDDLObject) el;
+                Variable v = (Variable) aP.get(index);
+                if (t.getType().equals(v.getType())) {
+                    ret.add(t);
+                }
+            }
+        } else {
+            List ret2 = creaCombinazione(O, aP, index + 1);
+            for (Object el : O) {
+                PDDLObject t = (PDDLObject) el;
+                Variable v = (Variable) aP.get(index);
+                if (t.getType().equals(v.getType())) {
+                }
+            }
+        }
+        return ret;
+    }
+
+    public Set Propositionalize (ActionSchema a, PDDLObjects po) throws Exception {
+        Set ret = new LinkedHashSet();
+
+        Set combo = Substitutions(a, po);
+        if (a.getPar().isEmpty()) {
+            combo.add(new ParametersAsTerms());
+        }
+        for (Object o : combo) {
+
+            if (o instanceof ParametersAsTerms) {
+                if (a instanceof EventSchema) {
+                    EventSchema b = (EventSchema) a;
+                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po);
+                    toAdd.generateAffectedNumFluents();
+                    ret.add(toAdd);
+                } else {
+                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po);
+                    toAdd.generateAffectedNumFluents();
+                    ret.add(toAdd);
+                }
+            }
+        }
+
+        return ret;
+
+    }
+
+    public Set Propositionalize (ProcessSchema a, PDDLObjects po) throws Exception {
+        Set ret = new LinkedHashSet();
+
+        Set combo = Substitutions(a, po);
+        for (Object o : combo) {
+            if (o instanceof ParametersAsTerms) {
+                GroundProcess toAdd = a.ground((ParametersAsTerms) o, po);
+                toAdd.generateAffectedNumFluents();
+                ret.add(toAdd);
+            }
+        }
+
+        return ret;
+
+    }
+
+    public Set Propositionalize (SchemaGlobalConstraint constr, PDDLObjects po) throws Exception {
+        Set ret = new LinkedHashSet();
+
+        Set combo = Substitutions(constr, po);
+        for (Object o : combo) {
+            if (o instanceof ParametersAsTerms) {
+                GlobalConstraint toAdd = constr.ground((ParametersAsTerms) o, po);
+                ret.add(toAdd);
+            }
+        }
+
+        return ret;
+
+    }
+
+    private Set sub (SchemaParameters param, int n_parametri, PDDLObjects po) {
         HashSet combo = new HashSet();
         ArrayList<PDDLObject>[] sub = new ArrayList[n_parametri];
 
@@ -398,7 +386,7 @@ public class Grounder {
         return combo;
     }
 
-    public Map obtain_sub_from_instance(SchemaParameters parameters, ParametersAsTerms par) {
+    public Map obtain_sub_from_instance (SchemaParameters parameters, ParametersAsTerms par) {
 
         int i = 0;
         Map substitution = new HashMap();

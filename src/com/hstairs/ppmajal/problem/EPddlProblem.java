@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public class EPddlProblem extends PddlProblem {
@@ -52,12 +51,11 @@ public class EPddlProblem extends PddlProblem {
     private int constraintsViolations;
 
 
-
-    public EPddlProblem() {
+    public EPddlProblem ( ) {
 
     }
 
-    public EPddlProblem(String problemFile, PDDLObjects po, Set<Type> types) {
+    public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super(problemFile, po, types);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
@@ -65,20 +63,9 @@ public class EPddlProblem extends PddlProblem {
         grounding = false;
     }
 
-    public void grounding() {
-        try {
-            if (grounding) {
-                return;
-            }
-            this.grounding_plus_simplifications();
-            grounding = true;
-        } catch (Exception ex) {
-            Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public Object clone ( ) throws CloneNotSupportedException {
 
         EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
         cloned.processesSet = new LinkedHashSet();
@@ -97,7 +84,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void generateActions() throws Exception {
+    public void generateActions ( ) throws Exception {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
@@ -119,7 +106,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void grounding_plus_simplifications() throws Exception {
+    public void grounding_plus_simplifications ( ) throws Exception {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
@@ -131,7 +118,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public HashMap getActualFluents() {
+    public HashMap getActualFluents ( ) {
         if (staticFluents == null) {
             staticFluents = new HashMap();
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
@@ -154,7 +141,7 @@ public class EPddlProblem extends PddlProblem {
         return staticFluents;
     }
 
-    public void generateProcesses() throws Exception {
+    public void generateProcesses ( ) throws Exception {
         long start = System.currentTimeMillis();
         processesSet = new LinkedHashSet();
         if (this.isValidatedAgainstDomain()) {
@@ -180,7 +167,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void transformNumericConditionsInActions() {
+    public void transformNumericConditionsInActions ( ) {
 
         for (GroundAction gr : this.actions) {
             if (gr.getPreconditions() != null) {
@@ -206,7 +193,7 @@ public class EPddlProblem extends PddlProblem {
         this.goals = generate_inequalities(goals);
     }
 
-    public void normalize_conditions() {
+    public void normalize_conditions ( ) {
 
         for (GroundAction gr : this.actions) {
             if (gr.getPreconditions() != null) {
@@ -225,9 +212,9 @@ public class EPddlProblem extends PddlProblem {
         goals.normalize();
     }
 
-    public void grounding_reachability() throws Exception {
+    public void grounding_reachability ( ) throws Exception {
         HashSet<GroundAction> reachable = new LinkedHashSet();
-        RelState s = ((PDDLState)this.init).relaxState();
+        RelState s = ((PDDLState) this.init).relaxState();
         System.out.println("Intelligent Grounding");
         while (true) {
             HashSet<GroundAction> A_primo = new LinkedHashSet();
@@ -255,7 +242,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public Set<GroundAction> ground(ActionSchema a, RelState s) throws Exception {
+    public Set<GroundAction> ground (ActionSchema a, RelState s) throws Exception {
 
         Set<HashMap<Variable, PDDLObject>> subst = new LinkedHashSet();
 
@@ -267,7 +254,7 @@ public class EPddlProblem extends PddlProblem {
         return ret;
     }
 
-    private Set<HashMap<Variable, PDDLObject>> find_substs(Object a, RelState s) throws Exception {
+    private Set<HashMap<Variable, PDDLObject>> find_substs (Object a, RelState s) throws Exception {
         Set<HashMap<Variable, PDDLObject>> subst = new HashSet();
         if (a == null) {
             return null;
@@ -371,7 +358,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     //to chech thoroghously!!
-    public Set<HashMap<Variable, PDDLObject>> intersect(Set<HashMap<Variable, PDDLObject>> a, Set<HashMap<Variable, PDDLObject>> b) {
+    public Set<HashMap<Variable, PDDLObject>> intersect (Set<HashMap<Variable, PDDLObject>> a, Set<HashMap<Variable, PDDLObject>> b) {
         Set<HashMap<Variable, PDDLObject>> ret = new LinkedHashSet();
         if (a == null) {
             return b;
@@ -407,7 +394,7 @@ public class EPddlProblem extends PddlProblem {
         return ret;
     }
 
-    private Set<HashMap<Variable, PDDLObject>> find_substs_effects(ActionSchema gr, RelState s, Set<HashMap<Variable, PDDLObject>> subst) throws Exception {
+    private Set<HashMap<Variable, PDDLObject>> find_substs_effects (ActionSchema gr, RelState s, Set<HashMap<Variable, PDDLObject>> subst) throws Exception {
 
         /*In this setting here, you have to generate a number of substitutions. Each one of them is a possible grounding of the
         action according to its effect. This has to be intersected with what we have discovered so far, but still it has to be done*/
@@ -442,7 +429,7 @@ public class EPddlProblem extends PddlProblem {
         return subst;
     }
 
-    private boolean conflicting(PDDLObject get, PDDLObject get0) {
+    private boolean conflicting (PDDLObject get, PDDLObject get0) {
         if (get0.getName().equals("#Universe#")) {
             return false;
         }
@@ -450,19 +437,19 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void transform_constant_effect() throws Exception {
+    public void transform_constant_effect ( ) throws Exception {
 
 //        HashSet to_readd = new HashSet();
         for (GroundAction gr : this.actions) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-                int number_numericEffects = gr.getNumericEffects().sons.size();
-                for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                int numberNumericEffects = gr.getNumericEffects().sons.size();
+                for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext(); ) {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (numberNumericEffects == 1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
-//                            if (number_numericEffects == 1) {
+//                            if (numberNumericEffects == 1) {
                             neff.setOperator("increase");
                             neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
                             neff.setPseudo_num_effect(true);
@@ -480,15 +467,15 @@ public class EPddlProblem extends PddlProblem {
 
         for (GroundEvent gr : this.eventsSet) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-                int number_numericEffects = gr.getNumericEffects().sons.size();
-                for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
+                int numberNumericEffects = gr.getNumericEffects().sons.size();
+                for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext(); ) {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
 
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (numberNumericEffects == 1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
-//                            if (number_numericEffects == 1) {
+//                            if (numberNumericEffects == 1) {
                             neff.setOperator("increase");
                             neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
                             neff.setPseudo_num_effect(true);
@@ -518,7 +505,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void generateConstraints() throws Exception {
+    public void generateConstraints ( ) throws Exception {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (SchemaGlobalConstraint constr : linkedDomain.getSchemaGlobalConstraints()) {
@@ -539,7 +526,7 @@ public class EPddlProblem extends PddlProblem {
         this.globalConstraintGrounded = true;
     }
 
-    public void groundingActionProcessesConstraints() throws Exception {
+    public void groundingActionProcessesConstraints ( ) throws Exception {
         long start = System.currentTimeMillis();
 
         this.groundGoals();
@@ -562,7 +549,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void set_cost_from_metric() {
+    public void set_cost_from_metric ( ) {
         Iterator it = getActions().iterator();
 
         //System.out.println("prova");
@@ -570,15 +557,15 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost((PDDLState)init, this.getMetric());
+                act.setAction_cost((PDDLState) init, this.getMetric());
             } else {
-                act.set_unit_cost((PDDLState)init);
+                act.set_unit_cost((PDDLState) init);
             }
         }
 
     }
 
-    public void simplifyAndSetupInit() throws Exception {
+    public void simplifyAndSetupInit ( ) throws Exception {
         Iterator it = getActions().iterator();
 //        System.out.println(this.getActualFluents());
         //System.out.println("prova");
@@ -675,11 +662,11 @@ public class EPddlProblem extends PddlProblem {
         addTimeFluentToInit();
     }
 
-    public void setDeltaTimeVariable(String delta_t) {
+    public void setDeltaTimeVariable (String delta_t) {
         this.initNumFluentsValues.put(new NumFluent("#t"), new PDDLNumber(Double.parseDouble(delta_t)));
     }
 
-    private void generateEvents() {
+    private void generateEvents ( ) {
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
@@ -705,7 +692,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void removeStaticPart() {
+    private void removeStaticPart ( ) {
         //invariant fluents
         LinkedHashSet<Predicate> predicateToRemove = new LinkedHashSet();
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
@@ -725,7 +712,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void removeUnnecessaryFluents() {
+    private void removeUnnecessaryFluents ( ) {
 
         Set<NumFluent> involved_fluents = new LinkedHashSet();
 
@@ -768,7 +755,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void makeInit() {
+    private void makeInit ( ) {
         ArrayList<PDDLNumber> numFluents = new ArrayList();
         for (NumFluent nf : this.numFluentReference.values()) {
             if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
@@ -791,29 +778,29 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
         }
-        this.init = new PDDLState(numFluents,boolFluents);
+        this.init = new PDDLState(numFluents, boolFluents);
     }
 
 
-    private void add_possible_numeric_fluents_from_assignments() {
+    private void add_possible_numeric_fluents_from_assignments ( ) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
      * @return the action_cost_from_metric
      */
-    public boolean isAction_cost_from_metric() {
+    public boolean isAction_cost_from_metric ( ) {
         return action_cost_from_metric;
     }
 
     /**
      * @param action_cost_from_metric the action_cost_from_metric to set
      */
-    public void setAction_cost_from_metric(boolean action_cost_from_metric) {
+    public void setAction_cost_from_metric (boolean action_cost_from_metric) {
         this.action_cost_from_metric = action_cost_from_metric;
     }
 
-    private void setActionCosts() {
+    private void setActionCosts ( ) {
         Iterator it = getActions().iterator();
 
         //System.out.println("prova");
@@ -821,24 +808,24 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost((PDDLState)init, this.getMetric());
+                act.setAction_cost((PDDLState) init, this.getMetric());
             } else {
-                act.set_unit_cost((PDDLState)init);
+                act.set_unit_cost((PDDLState) init);
             }
         }
     }
 
-    public Boolean goalSatisfied(State s) {
+    public Boolean goalSatisfied (State s) {
         return s.satisfy(this.getGoals());
     }
 
-    private void groundGoals() {
+    private void groundGoals ( ) {
 
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(), objects);
 
     }
 
-    public void syncAllVariables() {
+    public void syncAllVariables ( ) {
 
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
             this.predicateReference.put(p.toString(), p);
@@ -859,9 +846,9 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         goals = (ComplexCondition) goals.unifyVariablesReferences(this);
-        
+
         Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             GlobalConstraint gc = it.next();
             gc.condition = gc.condition.unifyVariablesReferences(this);
         }
@@ -875,23 +862,23 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    public void addTimeFluentToInit() {
-        ((PDDLState)this.init).time = 0d;
+    public void addTimeFluentToInit ( ) {
+        ((PDDLState) this.init).time = 0d;
     }
 
-    public NumFluent getNumfluentReference(String stringRepresentation) {
+    public NumFluent getNumfluentReference (String stringRepresentation) {
         return this.numFluentReference.get(stringRepresentation);
     }
 
-    public Predicate getPredicateReference(String stringRepresentation) {
+    public Predicate getPredicateReference (String stringRepresentation) {
         return this.predicateReference.get(stringRepresentation);
     }
 
-    public void setPredicateReference(Predicate predicate) {
+    public void setPredicateReference (Predicate predicate) {
         this.predicateReference.put(predicate.toString(), predicate);
     }
 
-    private void reduceInit() {
+    private void reduceInit ( ) {
 //        System.out.println("|BoolVar| = "+this.init.boolFluents.size());
 //        Aibr serviceHeuristic = new Aibr(this.goals, this.actions,this.processesSet,this.eventsSet);
 //        serviceHeuristic.setup(this.init);
@@ -917,55 +904,23 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public ObjectIterator<Pair<State,Object>> getSuccessors(State s) {
-        return new stateContainer(s, (Collection)getReachableActions());
+    public ObjectIterator<Pair<State, Object>> getSuccessors (State s) {
+        return new stateContainer(s, (Collection) getReachableActions());
     }
 
-    public boolean milestoneReached(Float d, Float current_value, State temp) {
-      return d < current_value && this.isSafeState(temp);
+    public boolean milestoneReached (Float d, Float current_value, State temp) {
+        return d < current_value && this.isSafeState(temp);
     }
 
-    private List<GroundEvent> getReacheableEvents() {
+    private List<GroundEvent> getReacheableEvents ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private Iterable<GroundAction> getReachableProcesses() {
+    private Iterable<GroundAction> getReachableProcesses ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-    private class stateContainer implements ObjectIterator<Pair<State,Object>>{
-        final private State source;
-        final private Collection<Object> actionsSet;
-        Object current;
-        State newState;
-        private final Iterator<Object> it;
-        public stateContainer(State source, Collection<Object> actionsSet) {
-            this.source = source;
-            this.actionsSet = actionsSet;
-            it = actionsSet.iterator();
-        }
-
-        @Override
-        public boolean hasNext() {
-            while (it.hasNext()){
-                current = it.next();
-                if (((GroundAction)current).isApplicable(source)){
-                    newState = source.clone();
-                    return newState.satisfy(globalConstraints);
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public Pair<State,Object> next() {
-            newState.apply(((GroundAction)current));
-            return new Pair(newState,current);
-        }
-    }
-    
-    private ArrayList<GroundEvent> eventsApplication(State s, float delta1, List<GroundEvent> events) throws CloneNotSupportedException {
+    private ArrayList<GroundEvent> eventsApplication (State s, float delta1, List<GroundEvent> events) throws CloneNotSupportedException {
         ArrayList<GroundEvent> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
@@ -986,9 +941,9 @@ public class EPddlProblem extends PddlProblem {
         }
 
     }
-    
-    private Pair<List<State>,ArrayList<ArrayList<GroundAction>>> advanceTime(float delta, float delta_max, State s) {
-        
+
+    private Pair<List<State>, ArrayList<ArrayList<GroundAction>>> advanceTime (float delta, float delta_max, State s) {
+
         constraintsViolations = 0;
         List<State> states = new LinkedList();
         List<ArrayList<GroundAction>> transitions = new LinkedList();
@@ -999,7 +954,7 @@ public class EPddlProblem extends PddlProblem {
             boolean at_least_one = false;
             while (i < delta_max) {
                 State temp_temp = temp.clone();
-                waiting_list.addAll(eventsApplication(temp_temp, i,this.getReacheableEvents()));
+                waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
                 i += delta;
 
                 GroundProcess waiting = new GroundProcess("waiting");
@@ -1024,7 +979,7 @@ public class EPddlProblem extends PddlProblem {
                 waiting_list.add(waiting);
 
                 temp_temp.apply(waiting);
-                waiting_list.addAll(eventsApplication(temp_temp, i,this.getReacheableEvents()));
+                waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
 
                 //the next has to be written better!!!! Spend a bit of time on that!
                 boolean valid = temp_temp.satisfy(globalConstraints);//zero crossing?!?!?
@@ -1046,7 +1001,8 @@ public class EPddlProblem extends PddlProblem {
                     }
                     if (at_least_one) {
                         states.add(temp);
-                        transitions.add(waiting_list);                    }
+                        transitions.add(waiting_list);
+                    }
                     break;
                 } else {
                     temp = temp_temp;
@@ -1055,11 +1011,40 @@ public class EPddlProblem extends PddlProblem {
         } catch (CloneNotSupportedException ex) {
             Logger.getLogger(SearchEngine.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return new Pair(states,transitions);
+        return new Pair(states, transitions);
     }
 
-   
+    private class stateContainer implements ObjectIterator<Pair<State, Object>> {
+        final private State source;
+        final private Collection<Object> actionsSet;
+        private final Iterator<Object> it;
+        Object current;
+        State newState;
 
-    
+        public stateContainer (State source, Collection<Object> actionsSet) {
+            this.source = source;
+            this.actionsSet = actionsSet;
+            it = actionsSet.iterator();
+        }
+
+        @Override
+        public boolean hasNext ( ) {
+            while (it.hasNext()) {
+                current = it.next();
+                if (((GroundAction) current).isApplicable(source)) {
+                    newState = source.clone();
+                    return newState.satisfy(globalConstraints);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Pair<State, Object> next ( ) {
+            newState.apply(((GroundAction) current));
+            return new Pair(newState, current);
+        }
+    }
+
 
 }

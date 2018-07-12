@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.expressions.Expression;
 
 /**
- *
  * @author enrico
  */
 public class Metric {
@@ -29,50 +28,50 @@ public class Metric {
     private Expression metExpr;
     private String optimization;
 
-    public Metric() {
+    public Metric ( ) {
         super();
     }
 
-    public Metric(String optimization) {
+    public Metric (String optimization) {
         this.optimization = optimization;
     }
 
     /**
      * @return the metExpr
      */
-    public Expression getMetExpr() {
+    public Expression getMetExpr ( ) {
         return metExpr;
     }
 
     /**
      * @param metExpr the metExpr to set
      */
-    public void setMetExpr(Expression metExpr) {
+    public void setMetExpr (Expression metExpr) {
         this.metExpr = metExpr;
     }
 
     /**
      * @return the optimization
      */
-    public String getOptimization() {
+    public String getOptimization ( ) {
         return optimization;
     }
 
     /**
      * @param optimization the optimization to set
      */
-    public void setOptimization(String optimization) {
+    public void setOptimization (String optimization) {
         this.optimization = optimization;
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 
         return "Metric: " + this.optimization + " " + this.metExpr + " ";
 
     }
 
-    String pddlPrint() {
+    String pddlPrint ( ) {
         if (!this.optimization.equals("NO")) {
             return "(:metric " + this.optimization + " " + this.metExpr.pddlPrint(false) + ")";
         } else {
@@ -80,7 +79,7 @@ public class Metric {
         }
     }
 
-    Metric unifyVariablesReferences(EPddlProblem aThis) {
+    Metric unifyVariablesReferences (EPddlProblem aThis) {
         if (this.metExpr != null)
             this.metExpr = this.metExpr.unifyVariablesReferences(aThis);
         return this;

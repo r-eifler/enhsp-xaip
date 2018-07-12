@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,20 +18,14 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
 
 /**
- *
  * @author enrico
  */
 public class PDDLObjectsEquality extends Terminal {
@@ -41,18 +35,18 @@ public class PDDLObjectsEquality extends Terminal {
     private Variable leftV;
     private Variable rightV;
 
-    public PDDLObjectsEquality() {
+    public PDDLObjectsEquality ( ) {
 
         grounded = false;
     }
 
-    public PDDLObjectsEquality(Variable leftV, Variable rightV) {
+    public PDDLObjectsEquality (Variable leftV, Variable rightV) {
         this.leftV = leftV;
         this.rightV = rightV;
         grounded = false;
     }
 
-    private PDDLObjectsEquality(PDDLObject t1, PDDLObject t2) {
+    private PDDLObjectsEquality (PDDLObject t1, PDDLObject t2) {
         left = t1;
         right = t2;
         grounded = true;
@@ -62,7 +56,7 @@ public class PDDLObjectsEquality extends Terminal {
      * @return a grounded copy of the condition
      */
     @Override
-    public Condition ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         // TODO: Couldn't one of the objects be already grounded?
 
         PDDLObjectsEquality ret = null;
@@ -81,14 +75,14 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Condition ground(Map substitution, int c) {
+    public Condition ground (Map substitution, int c) {
         Condition ret = this.ground(substitution, null);
         ret.setHeuristicId(c);
         return ret;
     }
 
     @Override
-    public boolean eval(State s) {
+    public boolean eval (State s) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         if (!grounded) {
             System.out.println(this + "  condition should be grounded..exit!");
@@ -99,7 +93,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean isSatisfied(State s) {
+    public boolean isSatisfied (State s) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         if (!grounded) {
             System.out.println(this + "  condition should be grounded..exit!");
@@ -110,13 +104,13 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public void changeVar(Map substitution) {
+    public void changeVar (Map substitution) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 
     }
 
     @Override
-    public Condition clone() {
+    public Condition clone ( ) {
         PDDLObjectsEquality ret = new PDDLObjectsEquality();
         ret.grounded = this.grounded;
         if (grounded) {
@@ -130,7 +124,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean can_be_true(RelState aThis) {
+    public boolean can_be_true (RelState aThis) {
         //it is actually independent from the state s. A state does not change the objects at hand.
         //actions are not allowed to change objects..
         if (!grounded) {
@@ -143,68 +137,68 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public void normalize() {
+    public void normalize ( ) {
         return;
     }
 
     /**
      * @return the left
      */
-    public PDDLObject getLeft() {
+    public PDDLObject getLeft ( ) {
         return left;
     }
 
     /**
      * @param left the left to set
      */
-    public void setLeft(PDDLObject left) {
+    public void setLeft (PDDLObject left) {
         this.left = left;
     }
 
     /**
      * @return the right
      */
-    public PDDLObject getRight() {
+    public PDDLObject getRight ( ) {
         return right;
     }
 
     /**
      * @param right the right to set
      */
-    public void setRight(PDDLObject right) {
+    public void setRight (PDDLObject right) {
         this.right = right;
     }
 
     /**
      * @return the leftV
      */
-    public Variable getLeftV() {
+    public Variable getLeftV ( ) {
         return leftV;
     }
 
     /**
      * @param leftV the leftV to set
      */
-    public void setLeftV(Variable leftV) {
+    public void setLeftV (Variable leftV) {
         this.leftV = leftV;
     }
 
     /**
      * @return the rightV
      */
-    public Variable getRightV() {
+    public Variable getRightV ( ) {
         return rightV;
     }
 
     /**
      * @param rightV the rightV to set
      */
-    public void setRightV(Variable rightV) {
+    public void setRightV (Variable rightV) {
         this.rightV = rightV;
     }
 
     @Override
-    public Condition unGround(Map asbstractionOf) {
+    public Condition unGround (Map asbstractionOf) {
         PDDLObjectsEquality ret = null;
 
         Variable t1 = (Variable) asbstractionOf.get(getLeft().getName());
@@ -222,7 +216,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean isUngroundVersionOf(Condition conditions) {
+    public boolean isUngroundVersionOf (Condition conditions) {
         if (conditions instanceof PDDLObjectsEquality) {
             PDDLObjectsEquality c = (PDDLObjectsEquality) conditions;
             Variable v1 = this.getLeftV();
@@ -244,7 +238,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         if (this.left.equals(right)) {
             return "true";
         } else {
@@ -253,12 +247,12 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Set<NumFluent> getInvolvedFluents() {
+    public Set<NumFluent> getInvolvedFluents ( ) {
         return new HashSet();
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, HashMap invF) {
         if (this.left.equals(this.right)) {
             this.setValid(true);
             this.setUnsatisfiable(false);
@@ -270,27 +264,27 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public String toSmtVariableString(int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, GroundAction gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition transform_equality() {
+    public Condition transform_equality ( ) {
         return this;
     }
 
     @Override
-    public boolean is_affected_by(GroundAction gr) {
+    public boolean is_affected_by (GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition regress(GroundAction gr) {
+    public Condition regress (GroundAction gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String pddlPrintWithExtraObject() {
+    public String pddlPrintWithExtraObject ( ) {
         String ret = "";
 //        if (grounded) {
 //            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRight().pddlPrintWithExtraObject() + ")";
@@ -302,12 +296,12 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean can_be_false(RelState aThis) {
+    public boolean can_be_false (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         final int pddlObjectsHash, variablesHash;
         {
             final int h1, h2;
@@ -343,7 +337,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (this == obj) {
             return true;
         }
@@ -371,7 +365,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         if (grounded) {
             bui.append("( = ");
             getLeft().pddlPrint(typeInformation, bui);
@@ -388,48 +382,48 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public void storeInvolvedVariables(Collection<Variable> vars) {
+    public void storeInvolvedVariables (Collection<Variable> vars) {
         vars.add(this.leftV);
         vars.add(this.rightV);
     }
 
     @Override
-    public Set<Condition> getTerminalConditions() {
+    public Set<Condition> getTerminalConditions ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ComplexCondition and(Condition precondition) {
+    public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition push_not_to_terminals() {
+    public Condition push_not_to_terminals ( ) {
         return this;
     }
 
     @Override
-    public void extendTerms(Variable v) {
+    public void extendTerms (Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates() {
+    public Collection<Predicate> getInvolvedPredicates ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         return this;
 
     }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,38 +18,34 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author enrico
  */
 public class MinusUnary extends Expression {
 
     Expression element;
 
-    public MinusUnary() {
+    public MinusUnary ( ) {
         super();
     }
 
-    public MinusUnary(Expression expr) {
+    public MinusUnary (Expression expr) {
         super();
         element = expr;
     }
 
     @Override
-    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         MinusUnary ret = new MinusUnary();
 
         ret.element = element.ground(substitution, po);
@@ -58,7 +54,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         MinusUnary ret = new MinusUnary();
 
         ret.element = element.unGround(substitution);
@@ -67,82 +63,82 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Double eval(State s) {
+    public Double eval (State s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression weakEval(PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, HashMap invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean involve(Collection<NumFluent> arrayList) {
+    public boolean involve (Collection<NumFluent> arrayList) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression subst(Condition numeric) {
+    public Expression subst (Condition numeric) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean involve(NumFluent a) {
+    public boolean involve (NumFluent a) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
+    public Expression unifyVariablesReferences (EPddlProblem p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

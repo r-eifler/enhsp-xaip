@@ -18,56 +18,56 @@
  */
 package com.hstairs.ppmajal.search;
 
-import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.GroundProcess;
 import com.hstairs.ppmajal.problem.PDDLState;
 
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author enrico
  */
 public class PDDLSearchEngine extends SearchEngine {
-    
+
     @Override
-    public LinkedList<GroundAction> extractPlan(SearchNode c) {
+    public LinkedList<GroundAction> extractPlan (SearchNode c) {
         LinkedList<GroundAction> plan = new LinkedList<>();
         while (c.transition != null || c.list_of_actions != null) {
-                Double time = null;
-                if (c.father.s instanceof PDDLState) {
-                    time = ((PDDLState) c.father.s).time;
-                }
-                if (c.transition != null) {//this is an action
-                    GroundAction gr=null;
-                    try {
-                        gr = (GroundAction) ((GroundAction) c.transition).clone();
-                        if (time != null) {
-                            gr.time = time.floatValue();
-                        } else {
-                            gr.time = 0f;
-                        }
-
-                    } catch (CloneNotSupportedException ex) {
-                        Logger.getLogger(PDDLSearchEngine.class.getName()).log(Level.SEVERE, null, ex);
+            Double time = null;
+            if (c.father.s instanceof PDDLState) {
+                time = ((PDDLState) c.father.s).time;
+            }
+            if (c.transition != null) {//this is an action
+                GroundAction gr = null;
+                try {
+                    gr = (GroundAction) ((GroundAction) c.transition).clone();
+                    if (time != null) {
+                        gr.time = time.floatValue();
+                    } else {
+                        gr.time = 0f;
                     }
 
-                    plan.addFirst(gr);
-                } else {//this is a process or an event
-                    for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
-                        GroundAction w = (GroundAction) c.list_of_actions.get(k);
-                        if (w instanceof GroundProcess) {
-                            w.setName("--------->waiting");
-                            plan.addFirst(w);
-                        } else {
-                            //w.setName("--------->waiting");
+                } catch (CloneNotSupportedException ex) {
+                    Logger.getLogger(PDDLSearchEngine.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                plan.addFirst(gr);
+            } else {//this is a process or an event
+                for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
+                    GroundAction w = (GroundAction) c.list_of_actions.get(k);
+                    if (w instanceof GroundProcess) {
+                        w.setName("--------->waiting");
+                        plan.addFirst(w);
+                    } else {
+                        //w.setName("--------->waiting");
 //                            ((GroundEvent) w).time = new Float(time);
-                            plan.addFirst(w);
-                        }
+                        plan.addFirst(w);
                     }
                 }
-                c = c.father;
+            }
+            c = c.father;
 
         }
 

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -26,17 +26,16 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 
 /**
- *
  * @author enrico
  */
 public class GroundEvent extends GroundAction {
 
-    public GroundEvent(String name) {
+    public GroundEvent (String name) {
         super(name);
     }
 
     @Override
-    public String toPDDL() {
+    public String toPDDL ( ) {
 
         String ret = "(:event " + this.name + "\n";
 
@@ -48,7 +47,7 @@ public class GroundEvent extends GroundAction {
 
     }
 
-    public String toFileCompliant() {
+    public String toFileCompliant ( ) {
 
         String parametri = "";
         for (Object o : getParameters()) {
@@ -64,7 +63,7 @@ public class GroundEvent extends GroundAction {
     }
 
     @Override
-    public Object clone() {
+    public Object clone ( ) {
         GroundEvent ret = new GroundEvent(name);
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();

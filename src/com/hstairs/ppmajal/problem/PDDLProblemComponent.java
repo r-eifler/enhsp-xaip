@@ -21,11 +21,10 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.conditions.Condition;
 
 /**
- *
  * @author Enrico Scala
  */
 public abstract class PDDLProblemComponent {
-    
-    public abstract Condition unifyVariablesReferences(EPddlProblem p);
-    
+
+    public abstract Condition unifyVariablesReferences (EPddlProblem p);
+
 }

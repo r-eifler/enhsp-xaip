@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ public class metricFFWrapper extends planningTool {
 
     private String memoryLimit;
 
-    public metricFFWrapper() {
+    public metricFFWrapper ( ) {
         super();
         option1 = "";       //"-O";
         option2 = "";
@@ -41,19 +41,19 @@ public class metricFFWrapper extends planningTool {
 //        ArrayList solution;
     }
 
-    
+
     @Override
-    public int computeHeuristic(){
+    public int computeHeuristic ( ) {
         int output = computeHeuristic(domainFile, problemFile);
-        if (output == 0){
-            throw new RuntimeException("something went wrong"+this.outputPlanning);
+        if (output == 0) {
+            throw new RuntimeException("something went wrong" + this.outputPlanning);
         }
         return output;
     }
-    
+
     @Override
-    public int computeHeuristic(String domainFile, String problemFile){
-                //System.out.println("planning");
+    public int computeHeuristic (String domainFile, String problemFile) {
+        //System.out.println("planning");
         Runtime rt = Runtime.getRuntime();
         outputPlanning = new StringBuilder();
         int heuristic = 0;
@@ -61,8 +61,8 @@ public class metricFFWrapper extends planningTool {
 
 //            Utility.deleteFile("temp.SOL");
             Runtime runtime = Runtime.getRuntime();
-            
-           
+
+
 //            System.out.println("This is what I am running");
 //            System.out.println("Executing: " + planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
             process = runtime.exec(planningExec + domain_file_option + domainFile + problem_file_option + problemFile + " " + option1 + " " + option2);
@@ -79,14 +79,14 @@ public class metricFFWrapper extends planningTool {
                 String line = null;
                 while ((line = input.readLine()) != null) {
 //                    System.out.println(line);
-                    if (line.contains("Heuristic")){
+                    if (line.contains("Heuristic")) {
                         String[] res = line.split(":");
                         heuristic = Integer.parseInt(res[1].trim());
 //                        System.out.println("There you go:"+heuristic);
                     }
                     this.outputPlanning.append(line);
                 }
-                
+
             } else {
                 process.destroy();
                 failed = false;
@@ -99,14 +99,14 @@ public class metricFFWrapper extends planningTool {
             System.out.println("Planner eccezione" + e.toString());
         } catch (InterruptedException e) {
             System.out.println("Planner eccezione" + e.toString());
-        } 
+        }
 
         return heuristic;
     }
-    
-    
+
+
     @Override
-    public String plan() {
+    public String plan ( ) {
         try {
 //            System.out.println("Planning...");
             this.executePlanning();
@@ -126,7 +126,7 @@ public class metricFFWrapper extends planningTool {
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR!!");
                 this.findTotalTimeInFile(outputPlanning.toString());
-                throw new RuntimeException("Planning with FF failed. Output is:"+outputPlanning);
+                throw new RuntimeException("Planning with FF failed. Output is:" + outputPlanning);
             }
 
 //            System.out.println("....SUCCESS");
@@ -141,7 +141,7 @@ public class metricFFWrapper extends planningTool {
     }
 
     @Override
-    public String plan(String domainFile, String problemFile) {
+    public String plan (String domainFile, String problemFile) {
 
         //System.out.println("planning");
         this.setDomainFile(domainFile);
@@ -151,7 +151,7 @@ public class metricFFWrapper extends planningTool {
 
     }
 
-    private void putSolutionInFile(String s) throws IOException {
+    private void putSolutionInFile (String s) throws IOException {
 
         Scanner sc = new Scanner(s);
         boolean atleastanaction = false;
@@ -172,11 +172,11 @@ public class metricFFWrapper extends planningTool {
     }
 
     @Override
-    public String adapt(String domainFile, String problemFile, String planFile) {
+    public String adapt (String domainFile, String problemFile, String planFile) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void findTotalTimeInFile(String s) {
+    public void findTotalTimeInFile (String s) {
         Scanner sc = new Scanner(s);
 
         while (sc.hasNextLine()) {
@@ -192,7 +192,7 @@ public class metricFFWrapper extends planningTool {
     }
 
     @Override
-    public void changePlannersPath() {
+    public void changePlannersPath ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

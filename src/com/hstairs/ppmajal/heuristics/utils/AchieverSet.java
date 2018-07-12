@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,11 +19,11 @@
 package com.hstairs.ppmajal.heuristics.utils;
 
 import com.hstairs.ppmajal.conditions.Condition;
-import java.util.HashSet;
 import com.hstairs.ppmajal.problem.GroundAction;
 
+import java.util.HashSet;
+
 /**
- *
  * @author enrico
  */
 public class AchieverSet {
@@ -32,7 +32,7 @@ public class AchieverSet {
     public HashSet<GroundAction> actions;
     public HashSet<Condition> target_cond;
 
-    public AchieverSet() {
+    public AchieverSet ( ) {
         actions = new HashSet();
         target_cond = new HashSet();
     }

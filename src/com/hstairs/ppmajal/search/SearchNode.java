@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,21 +18,21 @@
  */
 package com.hstairs.ppmajal.search;
 
+import com.hstairs.ppmajal.problem.GroundAction;
+import com.hstairs.ppmajal.problem.State;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.problem.State;
 
 /**
- *
  * @author enrico
  */
 public class SearchNode {
@@ -47,12 +47,11 @@ public class SearchNode {
     public float wg;
     public float wh;
     public float f;
-
-    private boolean bfs = true;
     public ArrayList<Object> list_of_actions;
     public Set<GroundAction> relaxed_plan_from_heuristic;
+    private boolean bfs = true;
 
-    public SearchNode(State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
+    public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
         s = s1;
         this.transition = action;
         this.h_n = goal_distance;
@@ -64,7 +63,7 @@ public class SearchNode {
         wg = 1f;
     }
 
-    public SearchNode(State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.transition = action;
         this.h_n = goal_distance;
@@ -108,7 +107,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
+    public SearchNode (State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.transition = null;
         this.h_n = goal_distance;
@@ -152,7 +151,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh)  {
+    public SearchNode (State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         s = s1;
         this.transition = null;
         this.h_n = goal_distance;
@@ -193,7 +192,7 @@ public class SearchNode {
             } catch (ParseException ex) {
                 json_rep.put("state", s1.toString());
             }
-            
+
 
         } else {
             json_rep = null;
@@ -201,7 +200,7 @@ public class SearchNode {
 
     }
 
-    public SearchNode(State s1, Object action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
+    public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
         s = s1;
         this.transition = action;
         this.h_n = goal_distance;
@@ -231,17 +230,17 @@ public class SearchNode {
 
     }
 
-    public void add_descendant(SearchNode desc) {
+    public void add_descendant (SearchNode desc) {
         JSONArray descendants = (JSONArray) json_rep.get("descendants");
         descendants.add(desc.json_rep);
     }
 
-    public void set_visited(int visit_step) {
+    public void set_visited (int visit_step) {
         json_rep.put("visited", true);
         json_rep.put("visit_step", visit_step);
     }
 
-    public void print_json(String file_name) {
+    public void print_json (String file_name) {
         FileWriter file = null;
         try {
             file = new FileWriter(file_name);
@@ -255,7 +254,7 @@ public class SearchNode {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (obj == null) {
             return false;
         }
@@ -268,7 +267,7 @@ public class SearchNode {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 5;
         hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
 //        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
@@ -279,7 +278,7 @@ public class SearchNode {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h_n + ", g_n=" + g_n + '}';
     }
 

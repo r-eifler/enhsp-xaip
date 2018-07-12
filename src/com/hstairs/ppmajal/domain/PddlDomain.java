@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,54 +18,45 @@
  */
 package com.hstairs.ppmajal.domain;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.ForAll;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.PostCondition;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.conditions.FactoryConditions;
-import com.hstairs.ppmajal.conditions.NotCond;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Utils;
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.hstairs.ppmajal.parser.PddlLexer;
+import com.hstairs.ppmajal.parser.PddlParser;
+import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.problem.PddlProblem;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-import com.hstairs.ppmajal.parser.PddlLexer;
-import com.hstairs.ppmajal.parser.PddlParser;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.PddlProblem;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public final class PddlDomain extends Object {
 
-    private String name;
-    protected final Set<ActionSchema> ActionsSchema;
-    private final Set<ProcessSchema> ProcessesSchema;
     public final Collection<EventSchema> eventsSchema;
-    private PredicateSet predicates;
     public final Set<Type> types;
     public final PDDLObjects constants;
     public final Collection functions;
-    private final Collection<NumFluent> derived_variables;
     public final Collection<String> requirements;
+    protected final Set<ActionSchema> ActionsSchema;
+    private final Set<ProcessSchema> ProcessesSchema;
+    private final Collection<NumFluent> derived_variables;
+    private String name;
+    private PredicateSet predicates;
     private String pddlReferenceFile;
     private HashMap abstractInvariantFluents;
     private LinkedHashSet<SchemaGlobalConstraint> SchemaGlobalConstraints;
     private FactoryConditions fc;
 
-    public PddlDomain(String domainFile) {
+    public PddlDomain (String domainFile) {
         super();
         SchemaGlobalConstraints = new LinkedHashSet();
 
@@ -81,12 +72,11 @@ public final class PddlDomain extends Object {
     }
 
     /**
-     *
      * @param p - The PddlProblem to validate the consistency for. BETA
      * @return true whether the problem is consistent wrt to the domain.
      * Otherwise false
      */
-    public boolean validate(PddlProblem p) {
+    public boolean validate (PddlProblem p) {
 
         for (Object o : p.getProblemObjects()) {
             PDDLObject t = (PDDLObject) o;
@@ -107,45 +97,45 @@ public final class PddlDomain extends Object {
         }
 
         for (NumFluent nf : p.getNumFluentsInvolvedInInit()) {
- 
-                for (Object o1 : nf.getTerms()) {
-                    PDDLObject t = (PDDLObject) o1;
-                    Iterator<Type> it = types.iterator();
-                    boolean founded = false;
-                    while (it.hasNext()) {
-                        Type ele = it.next();
-                        if (ele.equals(t.getType())) {
-                            t.setType(ele);
-                            founded = true;
-                            break;
-                        }
-                    }
-                    if (!founded) {
-                        System.out.println("The following object is not valid:" + t);
-                        System.exit(-1);
+
+            for (Object o1 : nf.getTerms()) {
+                PDDLObject t = (PDDLObject) o1;
+                Iterator<Type> it = types.iterator();
+                boolean founded = false;
+                while (it.hasNext()) {
+                    Type ele = it.next();
+                    if (ele.equals(t.getType())) {
+                        t.setType(ele);
+                        founded = true;
+                        break;
                     }
                 }
-        }
-        for (Predicate t1 : p.getPredicatesInvolvedInInit()) {
-                for (Object o1 : t1.getTerms()) {
-                    PDDLObject t = (PDDLObject) o1;
-                    Iterator<Type> it = types.iterator();
-                    boolean found = false;
-                    while (it.hasNext()) {
-                        Type ele = it.next();
-                        if (ele.equals(t.getType())) {
-                            t.setType(ele);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("The following object is not valid:" + t);
-                        System.exit(-1);
-                    }
+                if (!founded) {
+                    System.out.println("The following object is not valid:" + t);
+                    System.exit(-1);
                 }
             }
-        
+        }
+        for (Predicate t1 : p.getPredicatesInvolvedInInit()) {
+            for (Object o1 : t1.getTerms()) {
+                PDDLObject t = (PDDLObject) o1;
+                Iterator<Type> it = types.iterator();
+                boolean found = false;
+                while (it.hasNext()) {
+                    Type ele = it.next();
+                    if (ele.equals(t.getType())) {
+                        t.setType(ele);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    System.out.println("The following object is not valid:" + t);
+                    System.exit(-1);
+                }
+            }
+        }
+
 
         for (Object o : p.getNumFluentsInvolvedInInit()) {
 
@@ -225,14 +215,13 @@ public final class PddlDomain extends Object {
     }
 
     /**
-     *
      * @param file - the path of the pddl file representing the domain. As
-     * return the object will be fullfilled with the information in the pddl
-     * domain file
+     *             return the object will be fullfilled with the information in the pddl
+     *             domain file
      * @throws IOException
      * @throws RecognitionException
      */
-    public void parseDomain(String file) {
+    public void parseDomain (String file) {
         try {
             this.setPddlFilRef(file);
             ANTLRInputStream in;
@@ -313,7 +302,7 @@ public final class PddlDomain extends Object {
     /**
      * A pretty representation of the domain
      */
-    public void prettyPrint() {
+    public void prettyPrint ( ) {
         System.out.println("Requirements: " + this.requirements);
         System.out.println("Actions Domain: " + this.ActionsSchema);
         if (this.ProcessesSchema != null) {
@@ -331,26 +320,26 @@ public final class PddlDomain extends Object {
      * @return the ActionsSchema- a Set which contains all the action schema of
      * the domain
      */
-    public Set<ActionSchema> getActionsSchema() {
+    public Set<ActionSchema> getActionsSchema ( ) {
         return ActionsSchema;
     }
 
     /**
      * @return the types declared in the domain
      */
-    public Set<Type> getTypes() {
+    public Set<Type> getTypes ( ) {
         return types;
     }
 
     /**
      * @return the predicates definitions
      */
-    public PredicateSet getPredicates() {
+    public PredicateSet getPredicates ( ) {
         return predicates;
     }
 
     //da migliorare perchè dovrebbe rappresentare una potenziale gerarchica di oggetti!!!
-    private void addTypes(Tree c) {
+    private void addTypes (Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
             Type tip = new Type(c.getChild(i).getText());
 
@@ -390,11 +379,11 @@ public final class PddlDomain extends Object {
         }
     }
 
-    private void addActions(Tree c) {
+    private void addActions (Tree c) {
         this.addGenericActionSchemas(c, new ActionSchema());
     }
 
-    private Object addPredicates(Tree t) {
+    private Object addPredicates (Tree t) {
         PredicateSet col = new PredicateSet();
         if (t == null) {
             return null;
@@ -429,7 +418,7 @@ public final class PddlDomain extends Object {
         }
     }
 
-    private void addRequirements(Tree c) {
+    private void addRequirements (Tree c) {
         if (c != null) {
             //System.out.println(c.getText());
             for (int i = 0; i < c.getChildCount(); i++) {
@@ -439,9 +428,9 @@ public final class PddlDomain extends Object {
         }
     }
 
-    
 
     //
+
     /**
      * Returns the action with specified name. Notice that this method is rather
      * inefficient if there are many actions, and that a table that maps names
@@ -452,7 +441,7 @@ public final class PddlDomain extends Object {
      * assumes that there is a 1:1 relation between action and name, i.e. we
      * cannot have different actions with the same name
      */
-    public ActionSchema getActionByName(String name) {
+    public ActionSchema getActionByName (String name) {
         for (final ActionSchema el : ActionsSchema) {
             final String elname = el.getName();
             if (elname.equalsIgnoreCase(name)) {
@@ -466,18 +455,18 @@ public final class PddlDomain extends Object {
     /**
      * @return the pddlFilRef
      */
-    public String getPddlFilRef() {
+    public String getPddlFilRef ( ) {
         return pddlReferenceFile;
     }
 
     /**
      * @param pddlFilRef the pddlFilRef to set
      */
-    public void setPddlFilRef(String pddlFilRef) {
+    public void setPddlFilRef (String pddlFilRef) {
         this.pddlReferenceFile = pddlFilRef;
     }
 
-    private void addConstants(Tree c) {
+    private void addConstants (Tree c) {
 
         for (int i = 0; i < c.getChildCount(); i++) {
             this.getConstants().add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
@@ -490,11 +479,11 @@ public final class PddlDomain extends Object {
     /**
      * @return the constants
      */
-    public PDDLObjects getConstants() {
+    public PDDLObjects getConstants ( ) {
         return constants;
     }
 
-    public void saveDomain(String file) throws IOException {
+    public void saveDomain (String file) throws IOException {
         PddlDomain domain = this;
         Writer f;
 
@@ -530,18 +519,18 @@ public final class PddlDomain extends Object {
     /**
      * @return the name
      */
-    public String getName() {
+    public String getName ( ) {
         return name;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name) {
+    public void setName (String name) {
         this.name = name;
     }
 
-    public HashMap generateAbstractInvariantFluents() {
+    public HashMap generateAbstractInvariantFluents ( ) {
         if (getAbstractInvariantFluents() != null) {
             return getAbstractInvariantFluents();
         }
@@ -559,7 +548,7 @@ public final class PddlDomain extends Object {
         return abstractInvariantFluents;
     }
 
-    public Type getTypeByName(String text) {
+    public Type getTypeByName (String text) {
         for (Type t : this.getTypes()) {
             if (t.getName().equals(text)) {
                 return t;
@@ -568,7 +557,7 @@ public final class PddlDomain extends Object {
         return null;
     }
 
-    public HashMap<Object, Boolean> generateInvariant() {
+    public HashMap<Object, Boolean> generateInvariant ( ) {
         HashMap<Object, Boolean> ret = new HashMap();
         for (ActionSchema as : this.getActionsSchema()) {
             Condition prop_effects = as.getAddList();
@@ -612,36 +601,34 @@ public final class PddlDomain extends Object {
         return ret;
     }
 
-  
 
     /**
      * @return the free_functions
      */
-    public Collection<NumFluent> get_derived_variables() {
+    public Collection<NumFluent> get_derived_variables ( ) {
         return derived_variables;
     }
 
- 
 
-    private void addGlobalConstraints(Tree c) {
+    private void addGlobalConstraints (Tree c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
      * @return the abstractInvariantFluents
      */
-    public HashMap getAbstractInvariantFluents() {
+    public HashMap getAbstractInvariantFluents ( ) {
         return abstractInvariantFluents;
     }
 
     /**
      * @param abstractInvariantFluents the abstractInvariantFluents to set
      */
-    public void setAbstractInvariantFluents(HashMap abstractInvariantFluents) {
+    public void setAbstractInvariantFluents (HashMap abstractInvariantFluents) {
         this.abstractInvariantFluents = abstractInvariantFluents;
     }
 
-    private void addGlobal_constraint(Tree c) {
+    private void addGlobal_constraint (Tree c) {
         SchemaGlobalConstraint con = new SchemaGlobalConstraint(c.getChild(0).getText());
         //System.out.println("Adding:"+a.getName());
         this.getSchemaGlobalConstraints().add(con);
@@ -691,18 +678,18 @@ public final class PddlDomain extends Object {
     /**
      * @return the SchemaGlobalConstraints
      */
-    public LinkedHashSet<SchemaGlobalConstraint> getSchemaGlobalConstraints() {
+    public LinkedHashSet<SchemaGlobalConstraint> getSchemaGlobalConstraints ( ) {
         return SchemaGlobalConstraints;
     }
 
     /**
      * @param SchemaGlobalConstraints the SchemaGlobalConstraints to set
      */
-    public void setSchemaGlobalConstraints(LinkedHashSet SchemaGlobalConstraints) {
+    public void setSchemaGlobalConstraints (LinkedHashSet SchemaGlobalConstraints) {
         this.SchemaGlobalConstraints = SchemaGlobalConstraints;
     }
 
-    private void addProcess(Tree c) {
+    private void addProcess (Tree c) {
         ProcessSchema a = new ProcessSchema();
         Tree process = c.getChild(0);
         a.setName(process.getText());
@@ -756,13 +743,12 @@ public final class PddlDomain extends Object {
     /**
      * @return the ProcessesSchema
      */
-    public Set<ProcessSchema> getProcessesSchema() {
+    public Set<ProcessSchema> getProcessesSchema ( ) {
         return ProcessesSchema;
     }
 
 
-
-//    private Object createConditionalEffect(SchemaParameters parameters, Tree t) {
+    //    private Object createConditionalEffect(SchemaParameters parameters, Tree t) {
 //        
 //        if (t.getType() == PddlParser.AND_EFFECT){
 //            for (int j = 0; j < t.getChildCount(); j++) {
@@ -774,13 +760,13 @@ public final class PddlDomain extends Object {
 //        }
 //        return null;
 //    }
-    private void addEffects(PDDLGenericAction a, Tree infoAction) {
+    private void addEffects (PDDLGenericAction a, Tree infoAction) {
         //PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
         PostCondition res = fc.createPostCondition(a.parameters, infoAction.getChild(0));
         a.create_effects_by_cases(res);
     }
 
-    public void saveDomainWithInterpretationObjects(String file) throws IOException {
+    public void saveDomainWithInterpretationObjects (String file) throws IOException {
         PddlDomain domain = this;
         Writer f;
 
@@ -808,7 +794,7 @@ public final class PddlDomain extends Object {
         f.close();
     }
 
-    private void push_not_at_the_terminals() {
+    private void push_not_at_the_terminals ( ) {
         for (ActionSchema a : this.ActionsSchema) {
             a.push_not_to_terminals();
         }
@@ -822,11 +808,11 @@ public final class PddlDomain extends Object {
 
     }
 
-    private void addEvent(Tree c) {
+    private void addEvent (Tree c) {
         this.addGenericActionSchemas(c, new EventSchema());
     }
 
-    private void addGenericActionSchemas(Tree c, ActionSchema a) {
+    private void addGenericActionSchemas (Tree c, ActionSchema a) {
 
         Tree action = c.getChild(0);
         a.setName(action.getText());
@@ -843,13 +829,13 @@ public final class PddlDomain extends Object {
 
             switch (type) {
                 case (PddlParser.PRECONDITION):
-                    
+
                     Condition con = null;
                     if (a.parameters == null)
                         con = fc.createCondition(infoAction.getChild(0), null);
                     else
                         con = fc.createCondition(infoAction.getChild(0), a.parameters);
-                        //con = fc.createCondition(infoAction.getChild(0), a.parameters);
+                    //con = fc.createCondition(infoAction.getChild(0), a.parameters);
 
                     if ((con instanceof NotCond) || (con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
                         AndCond and = new AndCond();
@@ -888,7 +874,7 @@ public final class PddlDomain extends Object {
         }
     }
 
-    public boolean can_be_abstract_dominant_constraints() {
+    public boolean can_be_abstract_dominant_constraints ( ) {
         Set<Condition> set = new HashSet();
         for (ActionSchema as : this.ActionsSchema) {
             set.addAll(as.getPreconditions().getTerminalConditions());

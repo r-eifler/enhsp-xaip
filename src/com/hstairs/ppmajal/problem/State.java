@@ -21,25 +21,24 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.conditions.Condition;
 
 /**
- *
  * @author enrico
  */
 public abstract class State {
-    
-    public State() {
+
+    public State ( ) {
         super();
     }
 
-    public abstract void apply(GroundAction gr);
+    public abstract void apply (GroundAction gr);
 
-    public abstract boolean satisfy(Condition input);
-    
+    public abstract boolean satisfy (Condition input);
+
     @Override
-    public abstract State clone();
+    public abstract State clone ( );
 
-    public boolean isSafeState() {
+    public boolean isSafeState ( ) {
         return true;
     }
 
-    
+
 }

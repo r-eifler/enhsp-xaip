@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -37,7 +37,6 @@ import java.io.Writer;
 import java.util.*;
 
 /**
- *
  * @author Enrico Scala
  */
 public class DomainEnhancer {
@@ -48,7 +47,7 @@ public class DomainEnhancer {
     private HashSet<String> goalCondition_Reformulation;
     private int j;
 
-    public void addMacroOperator(String domainFile, GroundAction gr) throws CloneNotSupportedException, IOException {
+    public void addMacroOperator (String domainFile, GroundAction gr) throws CloneNotSupportedException, IOException {
 
         String constants = "(costants: " + gr.getParameters().pddlPrint() + ")";
         GroundAction temp = (GroundAction) gr.clone();
@@ -62,7 +61,7 @@ public class DomainEnhancer {
 
     }
 
-    public void addMacroOperator(PddlDomain domain, GroundAction gr) throws IOException {
+    public void addMacroOperator (PddlDomain domain, GroundAction gr) throws IOException {
 
         String constants = "(:constants " + gr.getParameters().pddlPrint() + ")\n";
         //GroundAction temp = (GroundAction)gr.clone();
@@ -97,7 +96,7 @@ public class DomainEnhancer {
         f.close();
     }
 
-    public Map addMacroActions(PddlDomain domain, List macroOps) throws IOException {
+    public Map addMacroActions (PddlDomain domain, List macroOps) throws IOException {
 
         Writer f;
         Map ret = new HashMap();
@@ -143,7 +142,7 @@ public class DomainEnhancer {
         return ret;
     }
 
-    public Map addMacroActions(PddlDomain domain, List macroOps, SimplePlan sp) throws IOException {
+    public Map addMacroActions (PddlDomain domain, List macroOps, SimplePlan sp) throws IOException {
 
         Writer f;
         Map ret = new HashMap();
@@ -198,7 +197,7 @@ public class DomainEnhancer {
         return ret;
     }
 
-    public Map addMacroActionsNoContiguous(PddlDomain domain, List macroOps, SimplePlan sp) throws IOException {
+    public Map addMacroActionsNoContiguous (PddlDomain domain, List macroOps, SimplePlan sp) throws IOException {
 
         Writer f;
         Map ret = new HashMap();
@@ -255,14 +254,13 @@ public class DomainEnhancer {
     }
 
     /**
-     *
      * @param domain
      * @param macroOps
      * @param sp
      * @return
      * @throws IOException
      */
-    public Map addMacroOperators2(PddlDomain domain, List<ActionSchema> macroOps, SimplePlan sp) throws IOException {
+    public Map addMacroOperators2 (PddlDomain domain, List<ActionSchema> macroOps, SimplePlan sp) throws IOException {
 
         Writer f;
         Map ret = new HashMap();
@@ -306,7 +304,7 @@ public class DomainEnhancer {
         return ret;
     }
 
-    public void addEntanglementsByInit(PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init) {
+    public void addEntanglementsByInit (PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_init) {
 
         HashMap<Object, Boolean> invariantFluent = domain.generateInvariant();
         setCondition_to_reformulation(new HashSet());
@@ -356,7 +354,7 @@ public class DomainEnhancer {
         }
     }
 
-    public Map addMacroOperators(PddlDomain domain, List<GroundAction> macroOps, SimplePlan sp) throws IOException {
+    public Map addMacroOperators (PddlDomain domain, List<GroundAction> macroOps, SimplePlan sp) throws IOException {
 
         Writer f;
         Map ret = new HashMap();
@@ -403,46 +401,46 @@ public class DomainEnhancer {
     /**
      * @return the domainEnhancedFileName
      */
-    public String getDomainEnhancedFileName() {
+    public String getDomainEnhancedFileName ( ) {
         return domainEnhancedFileName;
     }
 
     /**
      * @param domainEnhancedFileName the domainEnhancedFileName to set
      */
-    public void setEnhancedDomainFileName(String domainEnhancedFileName) {
+    public void setEnhancedDomainFileName (String domainEnhancedFileName) {
         this.domainEnhancedFileName = domainEnhancedFileName;
     }
 
     /**
      * @return the constantsFound
      */
-    public ParametersAsTerms getConstantsFound() {
+    public ParametersAsTerms getConstantsFound ( ) {
         return constantsFound;
     }
 
     /**
      * @param constantsFound the constantsFound to set
      */
-    public void setConstantsFound(ParametersAsTerms constantsFound) {
+    public void setConstantsFound (ParametersAsTerms constantsFound) {
         this.constantsFound = constantsFound;
     }
 
     /**
      * @return the condition_to_reformulation
      */
-    public HashSet<String> getCondition_to_reformulation() {
+    public HashSet<String> getCondition_to_reformulation ( ) {
         return condition_to_reformulation;
     }
 
     /**
      * @param condition_to_reformulation the condition_to_reformulation to set
      */
-    public void setCondition_to_reformulation(HashSet<String> condition_to_reformulation) {
+    public void setCondition_to_reformulation (HashSet<String> condition_to_reformulation) {
         this.condition_to_reformulation = condition_to_reformulation;
     }
 
-    public void addEntanglementsByGoal(PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal) {
+    public void addEntanglementsByGoal (PddlDomain domain, HashMap<ActionSchema, Set<Condition>> action_to_entaglement_by_goal) {
         goalCondition_Reformulation = new HashSet();
         for (ActionSchema s : domain.getActionsSchema()) {
             Set<Condition> entanglementsByGoal = action_to_entaglement_by_goal.get(s);
@@ -466,14 +464,14 @@ public class DomainEnhancer {
     /**
      * @return the goalCondition_Reformulation
      */
-    public HashSet<String> getGoalCondition_Reformulation() {
+    public HashSet<String> getGoalCondition_Reformulation ( ) {
         return goalCondition_Reformulation;
     }
 
     /**
      * @param goalCondition_Reformulation the goalCondition_Reformulation to set
      */
-    public void setGoalCondition_Reformulation(HashSet<String> goalCondition_Reformulation) {
+    public void setGoalCondition_Reformulation (HashSet<String> goalCondition_Reformulation) {
         this.goalCondition_Reformulation = goalCondition_Reformulation;
     }
 

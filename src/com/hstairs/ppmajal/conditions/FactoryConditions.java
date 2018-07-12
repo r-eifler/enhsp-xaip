@@ -18,48 +18,40 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.expressions.MinusUnary;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.Expression;
-import com.hstairs.ppmajal.expressions.ComplexFunction;
-import com.hstairs.ppmajal.expressions.MultiOp;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.expressions.TrigonometricFunction;
-import com.hstairs.ppmajal.expressions.BinaryOp;
 import com.hstairs.ppmajal.domain.PredicateSet;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import org.antlr.runtime.tree.Tree;
+import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import org.antlr.runtime.tree.Tree;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
- *
  * @author Enrico Scala
  */
-public class FactoryConditions  {
+public class FactoryConditions {
 
     private final PredicateSet predicates;
     private final LinkedHashSet<Type> types;
     private final PDDLObjects constants;
 
-    @Override
-    public String toString() {
-        return "FactoryConditions{" + "predicates=" + predicates + ", types=" + types + ", constants=" + constants + '}';
-    }
-
-    public FactoryConditions(PredicateSet predicates, LinkedHashSet<Type> types, PDDLObjects constants) {
+    public FactoryConditions (PredicateSet predicates, LinkedHashSet<Type> types, PDDLObjects constants) {
         this.predicates = predicates;
         this.types = types;
         this.constants = constants;
-        
+
     }
 
-    private Variable buildVariable(Tree t, SchemaParameters parTable) {
+    @Override
+    public String toString ( ) {
+        return "FactoryConditions{" + "predicates=" + predicates + ", types=" + types + ", constants=" + constants + '}';
+    }
+
+    private Variable buildVariable (Tree t, SchemaParameters parTable) {
         Variable a = null;
         //a.setName(t.getChild(0).getText());
         //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
@@ -81,7 +73,7 @@ public class FactoryConditions  {
         return a;
     }
 
-    public Condition createCondition(Tree tree, SchemaParameters parTable) {
+    public Condition createCondition (Tree tree, SchemaParameters parTable) {
         Condition ret = null;
         if (tree == null) {
             return null;
@@ -111,11 +103,11 @@ public class FactoryConditions  {
                     }
                 }
                 return or;
-                
+
             case PddlParser.ONEOF:
                 OneOf one_of = new OneOf();
                 for (int i = 0; i < tree.getChildCount(); i++) {
-                    Condition ret_val = createCondition(tree.getChild(i),parTable);
+                    Condition ret_val = createCondition(tree.getChild(i), parTable);
                     if (ret_val != null) {
                         one_of.sons.add(ret_val);
                     }
@@ -157,7 +149,7 @@ public class FactoryConditions  {
                 }
                 return equality;
             case PddlParser.FORALL_GD:
-                ForAll forall = createForAll(tree, parTable,false);
+                ForAll forall = createForAll(tree, parTable, false);
                 return forall;
             case PddlParser.EXISTS_GD:
                 Existential exist = new Existential();
@@ -210,7 +202,7 @@ public class FactoryConditions  {
         return null;
     }
 
-    public Predicate buildPredicate(Tree t, SchemaParameters parTable) {
+    public Predicate buildPredicate (Tree t, SchemaParameters parTable) {
         Predicate a = new Predicate();
         a.setPredicateName(t.getChild(0).getText());
         //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
@@ -246,7 +238,7 @@ public class FactoryConditions  {
         return a;
     }
 
-    private Expression createExpression(Tree t, SchemaParameters parTable) {
+    private Expression createExpression (Tree t, SchemaParameters parTable) {
 
         switch (t.getType()) {
             case PddlParser.BINARY_OP: {
@@ -332,7 +324,7 @@ public class FactoryConditions  {
 
     }
 
-    public ForAll createForAll(Tree infoAction, SchemaParameters parTable, boolean effect) {
+    public ForAll createForAll (Tree infoAction, SchemaParameters parTable, boolean effect) {
         ForAll forall = new ForAll();
         for (int i = 0; i < infoAction.getChildCount(); i++) {
             Tree child = infoAction.getChild(i);
@@ -388,7 +380,7 @@ public class FactoryConditions  {
 
     }
 
-    public PostCondition createPostCondition(SchemaParameters parameters, Tree tree) {
+    public PostCondition createPostCondition (SchemaParameters parameters, Tree tree) {
         if (tree == null) {
             return new AndCond();
         }
@@ -417,7 +409,7 @@ public class FactoryConditions  {
                 a.setRight(createExpression(tree.getChild(2), parameters));
                 return a;
             case PddlParser.FORALL_EFFECT:
-                ForAll forall = this.createForAll(tree, parameters,true);
+                ForAll forall = this.createForAll(tree, parameters, true);
                 return forall;
             case PddlParser.WHEN_EFFECT:
                 Condition lhs = createCondition(tree.getChild(0), parameters);
@@ -432,8 +424,8 @@ public class FactoryConditions  {
         return null;
 
     }
-    
-     public Condition createGoals(Tree infoAction) {
+
+    public Condition createGoals (Tree infoAction) {
         if (infoAction == null) {
             return null;
         }
@@ -441,7 +433,7 @@ public class FactoryConditions  {
             //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-            return buildPredicate(infoAction,null);
+            return buildPredicate(infoAction, null);
         } else if (infoAction.getType() == PddlParser.AND_GD) {
             AndCond and = new AndCond();
             for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -500,7 +492,7 @@ public class FactoryConditions  {
         return null;
     }
 
-    protected Expression createExpression(Tree t) {
+    protected Expression createExpression (Tree t) {
 
         int test = t.getType();
         switch (t.getType()) {
@@ -534,7 +526,7 @@ public class FactoryConditions  {
                             System.exit(-1);
                         }
                     } else {
-                        
+
                     }
                 }
                 return ret;
@@ -557,8 +549,8 @@ public class FactoryConditions  {
         return null;
 
     }
-    
-    private Condition addOneOf(Tree infoAction) {
+
+    private Condition addOneOf (Tree infoAction) {
         if (infoAction == null) {
             return null;
         }
@@ -567,7 +559,7 @@ public class FactoryConditions  {
                 //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-                return buildPredicate(infoAction,null);
+                return buildPredicate(infoAction, null);
             case PddlParser.AND_GD:
                 AndCond and = new AndCond();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -604,7 +596,7 @@ public class FactoryConditions  {
                 //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-                return this.buildPredicate(infoAction,null);
+                return this.buildPredicate(infoAction, null);
             case PddlParser.ONEOF:
                 OneOf one_of = new OneOf();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
@@ -619,7 +611,8 @@ public class FactoryConditions  {
                 return null;
         }
     }
-    public Collection<NumFluent> addFunctions(Tree c) {
+
+    public Collection<NumFluent> addFunctions (Tree c) {
         LinkedHashSet<NumFluent> res = new LinkedHashSet();
         if (c != null) {
             for (int i = 0; i < c.getChildCount(); i++) {
@@ -629,7 +622,7 @@ public class FactoryConditions  {
                 Tree t = c.getChild(i);
                 for (int j = 0; j < t.getChildCount(); j++) {
                     Variable v = new Variable(t.getChild(j).getText());
-                    if (t.getChild(j).getChild(0) != null);
+                    if (t.getChild(j).getChild(0) != null) ;
                     //System.out.println(t.getChild(j));
 
                     //System.out.println(t.getChild(j).getChild(0));

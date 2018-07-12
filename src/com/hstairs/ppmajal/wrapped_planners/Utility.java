@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -21,12 +21,11 @@ package com.hstairs.ppmajal.wrapped_planners;
 import java.io.File;
 
 /**
- *
  * @author enrico
  */
 public class Utility {
 
-    public static void deleteFile(String fileName) {
+    public static void deleteFile (String fileName) {
         // A File object to represent the filename
         File f = new File(fileName);
 

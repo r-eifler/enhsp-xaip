@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,25 +18,21 @@
  */
 package com.hstairs.ppmajal.adaptation;
 
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import antlr.RecognitionException;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.extraUtils.Utils;
-import org.jgrapht.alg.BiconnectivityInspector;
-import org.jgrapht.alg.TransitiveClosure;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.graph.AsUndirectedGraph;
 import com.hstairs.ppmajal.plan.SimplePlan;
+import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.some_computatitional_tool.DomainEnhancer;
 import com.hstairs.ppmajal.some_computatitional_tool.NumericKernel;
 import com.hstairs.ppmajal.some_computatitional_tool.NumericPlanningGraph;
 import com.hstairs.ppmajal.wrapped_planners.metricFFWrapper;
 import com.hstairs.ppmajal.wrapped_planners.planningTool;
+import org.jgrapht.alg.BiconnectivityInspector;
+import org.jgrapht.alg.TransitiveClosure;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.graph.AsUndirectedGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,28 +42,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author enrico
  */
 public class PlanAdapter {
 
     //wrapper for external planning tool
     protected planningTool planner;
-
-    //statistics informations
-    private long kernelConstructionTime;
     protected int plannerTime;
-    private long adaptationTime;
-    private long heuristicComputationTime;
     protected long macroActionsConstructionTime;
-
-    //if true, use kernel heuristic repair instead of greedy repair. See AIXIA 2013, Enrico Scala article
-    private boolean kernelHeuristicRepair;
-
     //The solution container
     protected SimplePlan solution;
+    //statistics informations
+    private long kernelConstructionTime;
+    private long adaptationTime;
+    private long heuristicComputationTime;
+    //if true, use kernel heuristic repair instead of greedy repair. See AIXIA 2013, Enrico Scala article
+    private boolean kernelHeuristicRepair;
     //public boolean debuggingMacrioActionConstructionBench;
-
     //number of macro actions exploited for performing the repair
     private int employedMacros;
 
@@ -80,11 +71,24 @@ public class PlanAdapter {
     private int uselessActionPruning;
 
     /**
+     * Constructor for the plan adapter.
+     *
+     * @param planner: the planner used as black box for performing specific
+     *                 local repair tasks
+     */
+    public PlanAdapter (planningTool planner) {
+        this.planner = planner;
+        solution = null;
+        planner.setTimeout(100000);
+        uselessActionPruning = 0;
+    }
+
+    /**
      * Get the value of employedMacros
      *
      * @return the value of employedMacros
      */
-    public int getEmployedMacros() {
+    public int getEmployedMacros ( ) {
         return employedMacros;
     }
 
@@ -93,7 +97,7 @@ public class PlanAdapter {
      *
      * @param employedMacros new value of employedMacros
      */
-    public void setEmployedMacros(int employedMacros) {
+    public void setEmployedMacros (int employedMacros) {
         this.employedMacros = employedMacros;
     }
 
@@ -102,7 +106,7 @@ public class PlanAdapter {
      *
      * @return the value of solution
      */
-    public SimplePlan getSolution() {
+    public SimplePlan getSolution ( ) {
         return solution;
     }
 
@@ -111,7 +115,7 @@ public class PlanAdapter {
      *
      * @param solution new value of solution
      */
-    public void setSolution(SimplePlan solution) {
+    public void setSolution (SimplePlan solution) {
         this.solution = solution;
     }
 
@@ -120,7 +124,7 @@ public class PlanAdapter {
      *
      * @return the value of macroActionsConstructionTime
      */
-    public long getMacroActionsConstructionTime() {
+    public long getMacroActionsConstructionTime ( ) {
         return macroActionsConstructionTime;
     }
 
@@ -128,49 +132,38 @@ public class PlanAdapter {
      * Set the value of macroActionsConstructionTime
      *
      * @param macroActionsConstructionTime new value of
-     * macroActionsConstructionTime
+     *                                     macroActionsConstructionTime
      */
-    public void setMacroActionsConstructionTime(long macroActionsConstructionTime) {
+    public void setMacroActionsConstructionTime (long macroActionsConstructionTime) {
         this.macroActionsConstructionTime = macroActionsConstructionTime;
-    }
-
-    /**
-     * Constructor for the plan adapter.
-     *
-     * @param planner: the planner used as black box for performing specific
-     * local repair tasks
-     */
-    public PlanAdapter(planningTool planner) {
-        this.planner = planner;
-        solution = null;
-        planner.setTimeout(100000);
-        uselessActionPruning = 0;
     }
 
     /**
      * Adapt the plan by using the Greedy Repair Strategy
      *
-     * @param domain The PDDL domain of reference
-     * @param problem The problem the plan bust be adapted to
+     * @param domain     The PDDL domain of reference
+     * @param problem    The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
      * @return the plan repaired or null in case of no solution (for any
      * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
-    public SimplePlan adaptViaFirstKernel_GreedyRepair(PddlDomain domain, PddlProblem problem, SimplePlan input_plan) throws FileNotFoundException, Exception {
+    public SimplePlan adaptViaFirstKernel_GreedyRepair (PddlDomain domain, PddlProblem problem, SimplePlan input_plan) throws FileNotFoundException, Exception {
         this.kernelHeuristicRepair = false;
         return this.adaptKernelBasedMethod(domain, problem, input_plan);
     }
 
-    private SimplePlan adaptKernelBasedMethod(PddlDomain dom, PddlProblem prob, SimplePlan sp) throws Exception {
+    private SimplePlan adaptKernelBasedMethod (PddlDomain dom, PddlProblem prob, SimplePlan sp) throws Exception {
 
         try {
             //Kernel Construction; mandatory for both strategies
             NumericKernel nk = new NumericKernel();
-            /**/ long start = System.currentTimeMillis();
+            /**/
+            long start = System.currentTimeMillis();
             nk.construct(sp, prob.getGoals());
-            /**/ setKernelConstructionTime(System.currentTimeMillis() - start);
+            /**/
+            setKernelConstructionTime(System.currentTimeMillis() - start);
 
             //Selecting the best kernel!
             int i = 0;
@@ -228,7 +221,7 @@ public class PlanAdapter {
     }
 
     //function to evaluate which is the best kernel. This function exploits a variant of numeric kernel heuristic to support multiple conditions
-    private int findBestKernel(PddlProblem problem, NumericKernel kerns, int i) throws CloneNotSupportedException {
+    private int findBestKernel (PddlProblem problem, NumericKernel kerns, int i) throws CloneNotSupportedException {
 
         NumericPlanningGraph gr;
         int closer = i;
@@ -237,7 +230,7 @@ public class PlanAdapter {
         gr = new NumericPlanningGraph();
         //compute a relaxed plan for each kernel starting from the init. Then the function gets a map (order2) 
         //between kernel and the distance given by the size of such plans.
-        Map order2 = gr.computeRelaxedPlans((PDDLState)problem.getInit(), kerns, problem.getActions(), i);
+        Map order2 = gr.computeRelaxedPlans((PDDLState) problem.getInit(), kerns, problem.getActions(), i);
         //System.out.println(order2);
         for (Object o : order2.keySet()) {
             int candidate = (Integer) o;
@@ -257,27 +250,27 @@ public class PlanAdapter {
     /**
      * Adapt the plan by using the Heuristic Kernel Repair Strategy
      *
-     * @param domain The PDDL domain of reference
-     * @param problem The problem the plan bust be adapted to
+     * @param domain     The PDDL domain of reference
+     * @param problem    The problem the plan bust be adapted to
      * @param input_plan The plan from which the repair process is started
      * @return the plan repaired or null in case of no solution (for any
      * reasons...the motivation is due to the planning tool)
      * @throws FileNotFoundException
      * @throws Exception
      */
-    public SimplePlan adaptViaBestKernel_HeuristicKernelRepair(PddlDomain domain, PddlProblem problem, SimplePlan input_plan) throws FileNotFoundException, Exception {
+    public SimplePlan adaptViaBestKernel_HeuristicKernelRepair (PddlDomain domain, PddlProblem problem, SimplePlan input_plan) throws FileNotFoundException, Exception {
 
         this.kernelHeuristicRepair = true;
         return this.adaptKernelBasedMethod(domain, problem, input_plan);
     }
 
-   
+
     /**
      * Get the value of planner
      *
      * @return the value of planner
      */
-    public planningTool getPlanner() {
+    public planningTool getPlanner ( ) {
         return planner;
     }
 
@@ -286,63 +279,63 @@ public class PlanAdapter {
      *
      * @param planner new value of planner
      */
-    public void setPlanner(planningTool planner) {
+    public void setPlanner (planningTool planner) {
         this.planner = planner;
     }
 
     /**
      * @return the kernelConstructionTime
      */
-    public long getKernelConstructionTime() {
+    public long getKernelConstructionTime ( ) {
         return kernelConstructionTime;
     }
 
     /**
      * @param kernelConstructionTime the kernelConstructionTime to set
      */
-    public void setKernelConstructionTime(long kernelConstructionTime) {
+    public void setKernelConstructionTime (long kernelConstructionTime) {
         this.kernelConstructionTime = kernelConstructionTime;
     }
 
     /**
      * @return the plannerTime
      */
-    public int getPlannerTime() {
+    public int getPlannerTime ( ) {
         return plannerTime;
     }
 
     /**
      * @param plannerTime the plannerTime to set
      */
-    public void setPlannerTime(int plannerTime) {
+    public void setPlannerTime (int plannerTime) {
         this.plannerTime = plannerTime;
     }
 
     /**
      * @return the adaptationTime
      */
-    public long getAdaptationTime() {
+    public long getAdaptationTime ( ) {
         return adaptationTime;
     }
 
     /**
      * @param adaptationTime the adaptationTime to set
      */
-    public void setAdaptationTime(long adaptationTime) {
+    public void setAdaptationTime (long adaptationTime) {
         this.adaptationTime = adaptationTime;
     }
 
     /**
      * @return the heuristicComputationTime
      */
-    public long getHeuristicComputationTime() {
+    public long getHeuristicComputationTime ( ) {
         return heuristicComputationTime;
     }
 
     /**
      * @param heuristicComputationTime the heuristicComputationTime to set
      */
-    public void setHeuristicComputationTime(long heuristicComputationTime) {
+    public void setHeuristicComputationTime (long heuristicComputationTime) {
         this.heuristicComputationTime = heuristicComputationTime;
     }
 
@@ -352,7 +345,7 @@ public class PlanAdapter {
      * @return the outcome of the plan-adaptation process; one of "success",
      * "failure" and "timeout"
      */
-    public String getOutcome() {
+    public String getOutcome ( ) {
         if (!this.getPlanner().isFailed() && !this.getPlanner().isTimeoutFail()) {
             return "success";
         } else if (this.getPlanner().isTimeoutFail()) {
@@ -371,7 +364,7 @@ public class PlanAdapter {
      * @return the repaired input_plan or null in case of failure (or timeout)
      * @throws Exception
      */
-    public SimplePlan adaptViaLPG(PddlDomain domain, PddlProblem problem, SimplePlan input_plan) throws Exception {
+    public SimplePlan adaptViaLPG (PddlDomain domain, PddlProblem problem, SimplePlan input_plan) throws Exception {
 
         try {
 
@@ -402,7 +395,7 @@ public class PlanAdapter {
      * @return a new plan in case of success
      * @throws Exception
      */
-    public SimplePlan replan(PddlDomain domain, PddlProblem problem) throws Exception {
+    public SimplePlan replan (PddlDomain domain, PddlProblem problem) throws Exception {
         try {
             SimplePlan new_plan = new SimplePlan(domain, problem);
             planningTool replanner = this.planner;
@@ -424,14 +417,12 @@ public class PlanAdapter {
     }
 
 
-
-
     /**
      * Get the maximum number of actions a macro action consists of
      *
      * @return the max_primitives
      */
-    public int getMax_primitives() {
+    public int getMax_primitives ( ) {
         return max_primitives;
     }
 
@@ -440,31 +431,31 @@ public class PlanAdapter {
      *
      * @param max_primitives the max_primitives to set
      */
-    public void setMax_primitives(int max_primitives) {
+    public void setMax_primitives (int max_primitives) {
         this.max_primitives = max_primitives;
     }
 
     /**
      * @return the poss_state
      */
-    public RelState getPoss_state() {
+    public RelState getPoss_state ( ) {
         return poss_state;
     }
 
     /**
      * @param poss_state the poss_state to set
      */
-    public void setPoss_state(RelState poss_state) {
+    public void setPoss_state (RelState poss_state) {
         this.poss_state = poss_state;
     }
 
-    public SimplePlan adaptViaPop(SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean endlessActionPruning,
-            boolean biconnectivity, boolean missingServicesCut, boolean goalachievingCut, boolean goalthreatCut) throws Exception {
+    public SimplePlan adaptViaPop (SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean endlessActionPruning,
+                                   boolean biconnectivity, boolean missingServicesCut, boolean goalachievingCut, boolean goalthreatCut) throws Exception {
 
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
         long beforeMacrogeneration = System.currentTimeMillis();
-        DirectedAcyclicGraph po = plan.deorder((PDDLState)prob.getInit(), prob.getGoals(), goalachievingCut);
+        DirectedAcyclicGraph po = plan.deorder((PDDLState) prob.getInit(), prob.getGoals(), goalachievingCut);
         //System.out.println(po);
         if (endlessActionPruning) {
             removeUselessActions(po, plan.size() - 1);
@@ -519,13 +510,13 @@ public class PlanAdapter {
         return new_plan;
     }
 
-    public int adaptViaPopDEBUG(SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean goalPruning, boolean biconnectivity) throws Exception {
+    public int adaptViaPopDEBUG (SimplePlan plan, PddlProblem prob, PddlDomain domain, boolean goalPruning, boolean biconnectivity) throws Exception {
 
         long beforeMacrogeneration = System.currentTimeMillis();
 
         System.out.println("Deordering..");
         //HashMap achieveGoal = new HashMap();
-        DirectedAcyclicGraph po = plan.deorder((PDDLState)prob.getInit(), prob.getGoals(), false);
+        DirectedAcyclicGraph po = plan.deorder((PDDLState) prob.getInit(), prob.getGoals(), false);
 
         if (goalPruning) {
             this.removeUselessActions(po, plan.size() - 1);
@@ -552,18 +543,18 @@ public class PlanAdapter {
     /**
      * @return the connectedComponentsNumber
      */
-    public int getConnectedComponentsNumber() {
+    public int getConnectedComponentsNumber ( ) {
         return connectedComponentsNumber;
     }
 
     /**
      * @param connectedComponentsNumber the connectedComponentsNumber to set
      */
-    public void setConnectedComponentsNumber(int connectedComponentsNumber) {
+    public void setConnectedComponentsNumber (int connectedComponentsNumber) {
         this.connectedComponentsNumber = connectedComponentsNumber;
     }
 
-    public DirectedAcyclicGraph removeUselessActions(DirectedAcyclicGraph po, int goalIndex) {
+    public DirectedAcyclicGraph removeUselessActions (DirectedAcyclicGraph po, int goalIndex) {
         int counter = 0;
         DirectedAcyclicGraph po1 = (DirectedAcyclicGraph) po.clone();
         TransitiveClosure.INSTANCE.closeSimpleDirectedGraph(po1);
@@ -592,18 +583,18 @@ public class PlanAdapter {
     /**
      * @return the uselessActionPruning
      */
-    public int getUselessActionPruning() {
+    public int getUselessActionPruning ( ) {
         return uselessActionPruning;
     }
 
     /**
      * @param uselessActionPruning the uselessActionPruning to set
      */
-    public void setUselessActionPruning(int uselessActionPruning) {
+    public void setUselessActionPruning (int uselessActionPruning) {
         this.uselessActionPruning = uselessActionPruning;
     }
 
-    protected TreeSet pruneSmallMacros(List c, int i) {
+    protected TreeSet pruneSmallMacros (List c, int i) {
 
         TreeSet<GroundAction> ret = new TreeSet(new GroundActionComparator());
         ret.addAll(c);
@@ -615,7 +606,7 @@ public class PlanAdapter {
 
     }
 
-    public void adaptViaBlockDeordering(SimplePlan sp, PddlProblem problem, PddlDomain domain, String planFile) {
+    public void adaptViaBlockDeordering (SimplePlan sp, PddlProblem problem, PddlDomain domain, String planFile) {
 
         //Block deordering invocation
         //Build Macro Action
@@ -626,7 +617,7 @@ public class PlanAdapter {
     public class GroundActionComparator implements Comparator<GroundAction> {
 
         @Override
-        public int compare(GroundAction x, GroundAction y) {
+        public int compare (GroundAction x, GroundAction y) {
             if (x.getPrimitives().size() <= y.getPrimitives().size()) {
                 return -1;
             }

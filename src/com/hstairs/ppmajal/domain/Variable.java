@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import java.util.Map;
 
 /**
- *
  * @author enrico
  */
 public class Variable implements ActionParameter {
@@ -31,24 +30,24 @@ public class Variable implements ActionParameter {
     private String Name;
     private Type type;
 
-    public Variable(String Name, Type type) {
+    public Variable (String Name, Type type) {
         super();
         this.Name = Name;
         this.type = type;
     }
 
-    public Variable(String text) {
+    public Variable (String text) {
         super();
         Name = text;
 
     }
 
-    public Variable() {
+    public Variable ( ) {
         super();
     }
 
     @Override
-    public PDDLObject ground(Map<Variable, PDDLObject> substitution) {
+    public PDDLObject ground (Map<Variable, PDDLObject> substitution) {
         final PDDLObject o = substitution.get(this);
 
         if (o == null) {
@@ -60,14 +59,14 @@ public class Variable implements ActionParameter {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 
         return this.getName() + " " + this.getType();
 
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 7;
         hash = 97 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
         hash = 97 * hash + (this.getType() != null ? this.getType().hashCode() : 0);
@@ -75,7 +74,7 @@ public class Variable implements ActionParameter {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals (Object o) {
         if (o instanceof Variable) {
             Variable o1 = (Variable) o;
             if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
@@ -91,37 +90,37 @@ public class Variable implements ActionParameter {
     /**
      * @return the Name
      */
-    public String getName() {
+    public String getName ( ) {
         return Name;
     }
 
     /**
      * @param Name the Name to set
      */
-    public void setName(String Name) {
+    public void setName (String Name) {
         this.Name = Name;
     }
 
     /**
      * @return the type
      */
-    public Type getType() {
+    public Type getType ( ) {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(Type type) {
+    public void setType (Type type) {
         this.type = type;
     }
 
-    public String pddlPrint() {
+    public String pddlPrint ( ) {
 
         return this.getName() + " " + this.getType();
     }
 
-    public String pddlPrint(boolean typeInformation) {
+    public String pddlPrint (boolean typeInformation) {
         if (typeInformation) {
             return this.getName() + " " + this.getType();
         } else {
@@ -129,7 +128,7 @@ public class Variable implements ActionParameter {
         }
     }
 
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append(this.getName());
         if (typeInformation) {
             bui.append(" ").append(this.getType());

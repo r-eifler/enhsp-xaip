@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ public class lpgWrapper extends planningTool {
 
     protected long totalReplanningtime;
 
-    public lpgWrapper() {
+    public lpgWrapper ( ) {
         super();
         option1 = "-quality -timesteps";
         option2 = "-out temp";
@@ -37,7 +37,7 @@ public class lpgWrapper extends planningTool {
     }
 
     @Override
-    public String adapt(String domainFile, String problemFile, String planFile) {
+    public String adapt (String domainFile, String problemFile, String planFile) {
         try {
             this.planningExec = "lpg-adapt";
             this.option2 = this.option2 + " -input_plan " + planFile;
@@ -69,7 +69,7 @@ public class lpgWrapper extends planningTool {
     }
 
     @Override
-    public String plan() {
+    public String plan ( ) {
         try {
             this.executePlanning();
             if (this.isFailed()) {
@@ -90,7 +90,7 @@ public class lpgWrapper extends planningTool {
     }
 
     @Override
-    public String plan(String domainFile, String problemFile) {
+    public String plan (String domainFile, String problemFile) {
         try {
             //System.out.println("planning");
             this.setDomainFile(domainFile);
@@ -112,7 +112,7 @@ public class lpgWrapper extends planningTool {
         }
     }
 
-    private void putSolutionInFile(String s) throws IOException {
+    private void putSolutionInFile (String s) throws IOException {
 
         Scanner sc = new Scanner(s);
         Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
@@ -145,7 +145,7 @@ public class lpgWrapper extends planningTool {
         //System.exit(-1);
     }
 
-    private void putSolutionInFile2(String s) throws IOException {
+    private void putSolutionInFile2 (String s) throws IOException {
 
         Scanner sc = new Scanner(new FileReader(s));
         Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
@@ -183,18 +183,18 @@ public class lpgWrapper extends planningTool {
     /**
      * @return the totalReplanningtime
      */
-    public long getTotalReplanningTimeAllowedContinualPlanningsetting() {
+    public long getTotalReplanningTimeAllowedContinualPlanningsetting ( ) {
         return totalReplanningtime;
     }
 
     /**
      * @param totalReplanningtime the totalReplanningtime to set
      */
-    public void setTotalReplanningTimeContinualPlanningSetting(long totalReplanningtime) {
+    public void setTotalReplanningTimeContinualPlanningSetting (long totalReplanningtime) {
         this.totalReplanningtime = totalReplanningtime;
     }
 
-    private void moveFiles(String problemFile) {
+    private void moveFiles (String problemFile) {
 
         try {
             File afile = new File(problemFile);
@@ -211,7 +211,7 @@ public class lpgWrapper extends planningTool {
     }
 
     @Override
-    public void changePlannersPath() {
+    public void changePlannersPath ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

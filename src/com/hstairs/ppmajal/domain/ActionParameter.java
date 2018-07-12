@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -37,9 +37,9 @@ public interface ActionParameter {
      * unchanged.
      *
      * @param substitution the map that indicates what the variables should be
-     * replaced with.
+     *                     replaced with.
      * @return the grounding of this action parameter.
      */
-    PDDLObject ground(Map<Variable, PDDLObject> substitution);
+    PDDLObject ground (Map<Variable, PDDLObject> substitution);
 
 }

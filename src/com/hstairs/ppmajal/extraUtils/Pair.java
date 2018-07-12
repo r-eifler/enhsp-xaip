@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.extraUtils;
 
 /**
- *
  * @author enrico
  */
 public class Pair<A, B> {
@@ -27,18 +26,18 @@ public class Pair<A, B> {
     private A first;
     private B second;
 
-    public Pair() {
+    public Pair ( ) {
         super();
     }
 
-    public Pair(A first, B second) {
+    public Pair (A first, B second) {
         super();
         this.first = first;
         this.second = second;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hashFirst = first != null ? first.hashCode() : 0;
         int hashSecond = second != null ? second.hashCode() : 0;
 
@@ -46,7 +45,7 @@ public class Pair<A, B> {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals (Object other) {
         if (other instanceof Pair) {
             Pair otherPair = (Pair) other;
             return ((this.first == otherPair.first
@@ -61,23 +60,23 @@ public class Pair<A, B> {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         return "(" + first + ", " + second + ")";
     }
 
-    public A getFirst() {
+    public A getFirst ( ) {
         return first;
     }
 
-    public void setFirst(A first) {
+    public void setFirst (A first) {
         this.first = first;
     }
 
-    public B getSecond() {
+    public B getSecond ( ) {
         return second;
     }
 
-    public void setSecond(B second) {
+    public void setSecond (B second) {
         this.second = second;
     }
 }

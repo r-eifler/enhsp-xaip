@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.expressions;
 
 /**
- *
  * @author enrico
  */
 public class ExtendedAddendum {
@@ -29,12 +28,12 @@ public class ExtendedAddendum {
     public BinaryOp bin;
     public boolean linear;
 
-    public ExtendedAddendum() {
+    public ExtendedAddendum ( ) {
         linear = true;
 
     }
 
-    public ExtendedAddendum(NumFluent f, Double n) {
+    public ExtendedAddendum (NumFluent f, Double n) {
 
         this.f = f;
         this.n = n;
@@ -42,13 +41,13 @@ public class ExtendedAddendum {
 
     }
 
-    public ExtendedAddendum(BinaryOp bin) {
+    public ExtendedAddendum (BinaryOp bin) {
         this.bin = bin;
         linear = false;
     }
 
     @Override
-    protected Object clone() {
+    protected Object clone ( ) {
         ExtendedAddendum ret = new ExtendedAddendum();
         if (!this.linear) {
             ret.bin = (BinaryOp) this.bin.clone();
@@ -70,13 +69,13 @@ public class ExtendedAddendum {
             if (this.n == null) {
                 System.out.println("Error:" + this);
             }
-            ret.n =  this.n;
+            ret.n = this.n;
         }
         return ret;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (obj == null) {
             return false;
         }
@@ -107,14 +106,14 @@ public class ExtendedAddendum {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 3;
         hash = 37 * hash + (this.n != null ? this.n.hashCode() : 0);
         hash = 37 * hash + (this.f != null ? this.f.hashCode() : 0);
         return hash;
     }
 
-    public Double scale(ExtendedAddendum obj) {
+    public Double scale (ExtendedAddendum obj) {
         if (this.f != obj.f) {
             return null;
         }
@@ -124,7 +123,7 @@ public class ExtendedAddendum {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
         System.out.println("Linear:" + this.linear);
         return "Addendum{" + "n=" + n + ", f=" + f + "bin = " + bin + '}';
     }

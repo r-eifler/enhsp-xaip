@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -18,49 +18,45 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.RelState;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.problem.*;
+
 import java.util.*;
 
 /**
- *
  * @author enrico
  */
 public class PDDLNumber extends Expression {
 
     private double number;
 
-    public PDDLNumber() {
+    public PDDLNumber ( ) {
         super();
         grounded = true;
     }
 
-    public PDDLNumber(Float n) {
+    public PDDLNumber (Float n) {
         grounded = true;
         number = n.doubleValue();
 
     }
-    
-    public PDDLNumber(Double n) {
+
+    public PDDLNumber (Double n) {
         grounded = true;
         number = n;
 
     }
 
-    public PDDLNumber(float number) {
+    public PDDLNumber (float number) {
 
         grounded = true;
         this.number = new Double(number);
 
     }
 
-    public PDDLNumber(int number) {
+    public PDDLNumber (int number) {
 
         grounded = true;
         this.number = new Double(number);
@@ -68,42 +64,42 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public String toString() {
+    public String toString ( ) {
 
         return " " + String.format("%.6f", this.getNumber()) + " ";
     }
 
     @Override
-    public Expression ground(Map<Variable, PDDLObject> substitution, PDDLObjects po) {
+    public Expression ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         return new PDDLNumber(getNumber());
     }
 
     @Override
-    public Expression unGround(Map substitution) {
+    public Expression unGround (Map substitution) {
         return new PDDLNumber(getNumber());
     }
 
     /**
      * @return the number
      */
-    public Float getNumber() {
+    public Float getNumber ( ) {
         return new Float(number);
     }
 
     /**
      * @param number the number to set
      */
-    public void setNumber(Float number) {
+    public void setNumber (Float number) {
         this.number = number.doubleValue();
     }
 
     @Override
-    public Double eval(State s) {
+    public Double eval (State s) {
         return this.number;
     }
 
     @Override
-    public ExtendedNormExpression normalize() {
+    public ExtendedNormExpression normalize ( ) {
         ExtendedAddendum a = new ExtendedAddendum();
         a.n = this.number;
         a.f = null;
@@ -114,43 +110,43 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public void changeVar(Map<Variable, PDDLObject> substitution) {
+    public void changeVar (Map<Variable, PDDLObject> substitution) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Expression weakEval(PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, HashMap invF) {
         return this;
     }
 
     @Override
-    public Expression clone() {
+    public Expression clone ( ) {
         //return new PDDLNumber(this.getNumber());
         return this;
     }
 
     @Override
-    public Interval eval(RelState s) {
+    public Interval eval (RelState s) {
         return new Interval(this.getNumber());
     }
 
     @Override
-    public boolean involve(Collection<NumFluent> arrayList) {
+    public boolean involve (Collection<NumFluent> arrayList) {
         return false;
     }
 
     @Override
-    public Expression subst(Condition numeric) {
+    public Expression subst (Condition numeric) {
         return this;
     }
 
     @Override
-    public Set rhsFluents() {
+    public Set rhsFluents ( ) {
         return new HashSet(); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean isUngroundVersionOf(Expression expr) {
+    public boolean isUngroundVersionOf (Expression expr) {
         if (expr instanceof PDDLNumber) {
             PDDLNumber num = (PDDLNumber) expr;
             return this.getNumber().equals(num.getNumber());
@@ -159,24 +155,24 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(int j) {
+    public Expression susbtFluentsWithTheirInvariants (int j) {
         return this;
     }
 
     @Override
-    public Expression susbtFluentsWithTheirInvariants(HashMap<Object, Boolean> invariantFluent, int j) {
+    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
         return this;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(this.number);
         return hash;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (this == obj) {
             return true;
         }
@@ -192,7 +188,7 @@ public class PDDLNumber extends Expression {
 
 
     @Override
-    public String toSmtVariableString(int i) {
+    public String toSmtVariableString (int i) {
 //        System.out.println("Variable sign:");
         if (this.getNumber() < 0f) {
 //            System.out.println("negative");
@@ -204,25 +200,25 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public boolean involve(NumFluent a) {
+    public boolean involve (NumFluent a) {
         return false;
     }
 
-    public boolean less(int i) {
+    public boolean less (int i) {
         return this.number < i;
     }
 
-    public boolean greater(int i) {
+    public boolean greater (int i) {
         return this.number > i;
     }
 
     @Override
-    public void pddlPrint(boolean typeInformation, StringBuilder bui) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append(this.toString());
     }
 
     @Override
-    public Expression unifyVariablesReferences(EPddlProblem p) {
+    public Expression unifyVariablesReferences (EPddlProblem p) {
         return this;
     }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -24,14 +24,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
  * @author enrico
  */
-public class ParametersAsTerms extends ArrayList {
+public class ParametersAsTerms<T> extends ArrayList {
 
     private Integer cached_hash;
 
-    public PDDLObject containsTerm(PDDLObject o) {
+    public PDDLObject containsTerm (PDDLObject o) {
         Integer ret_val = -1;
         Iterator it = this.iterator();
         while (it.hasNext()) {
@@ -44,7 +43,6 @@ public class ParametersAsTerms extends ArrayList {
     }
 
     /**
-     *
      * @param o
      * @return
      */
@@ -59,10 +57,7 @@ public class ParametersAsTerms extends ArrayList {
 //        }
 //        return true;
 //    }
-
-    
-    
-    public void addALLNewObjects(ParametersAsTerms a) {
+    public void addALLNewObjects (ParametersAsTerms a) {
         for (Object o : a) {
             PDDLObject obj = (PDDLObject) o;
             if (this.containsTerm(obj) == null) {
@@ -72,7 +67,7 @@ public class ParametersAsTerms extends ArrayList {
 
     }
 
-    public String pddlPrint() {
+    public String pddlPrint ( ) {
         String ret = "";
 
         for (Object o : this) {
@@ -93,7 +88,6 @@ public class ParametersAsTerms extends ArrayList {
 //        }
 //        return cached_hash;
 //    }
-
 
 
 }

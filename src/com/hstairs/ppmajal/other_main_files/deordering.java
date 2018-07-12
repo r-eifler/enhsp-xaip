@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -19,6 +19,12 @@
 package com.hstairs.ppmajal.other_main_files;
 
 import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.plan.SimplePlan;
+import com.hstairs.ppmajal.problem.GroundAction;
+import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.problem.PddlProblem;
+import com.hstairs.ppmajal.some_computatitional_tool.DomainEnhancer;
+import com.hstairs.ppmajal.wrapped_planners.metricFFWrapper;
 import org.jgraph.JGraph;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
@@ -26,12 +32,6 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
-import com.hstairs.ppmajal.plan.SimplePlan;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.some_computatitional_tool.DomainEnhancer;
-import com.hstairs.ppmajal.wrapped_planners.metricFFWrapper;
 
 import javax.swing.*;
 import java.awt.geom.Rectangle2D;
@@ -42,22 +42,29 @@ import static com.hstairs.ppmajal.extraUtils.Utils.searchParameterValue;
 
 /**
  * *******************************************************************
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- ********************************************************************
+ * <p>
+ * *******************************************************************
+ * <p>
+ * *******************************************************************
+ * Description: Part of the PPMaJaL library
+ * <p>
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ * <p>
+ * *******************************************************************
  */
 /**
  * *******************************************************************
@@ -67,6 +74,7 @@ import static com.hstairs.ppmajal.extraUtils.Utils.searchParameterValue;
  *
  ********************************************************************
  */
+
 /**
  *
  * @author enrico
@@ -79,7 +87,7 @@ public class deordering {
     private static Boolean graphic = false;
     private static Boolean get_macro_and_save = false;
 
-    public static void parseInput(String[] args) {
+    public static void parseInput (String[] args) {
         //Eseguibile -o domain -f problem -s solution -r tipo-repair 
         String usage = "usage:\n executable-name(java -jar...) "
                 + "\n-o domain -f problem "
@@ -106,7 +114,7 @@ public class deordering {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main (String[] args) throws Exception {
         // TODO code application logic here
 
         parseInput(args);
@@ -135,7 +143,7 @@ public class deordering {
 //            System.out.println("Piano non valido!!");
 //            System.exit(-1);
 //        }
-        DirectedAcyclicGraph po = plan.deorder((PDDLState)prob.getInit(), prob.getGoals(), false);
+        DirectedAcyclicGraph po = plan.deorder((PDDLState) prob.getInit(), prob.getGoals(), false);
         JGraphModelAdapter m_jgAdapter = new JGraphModelAdapter(po);
 
         //po = this.removeUselessActions(po,plan.size()-1);
@@ -200,7 +208,7 @@ public class deordering {
 
     }
 
-    private static void positionVertexAt(JGraphModelAdapter m_jgAdapter, Object vertex, int x, int y, SimplePlan p) {
+    private static void positionVertexAt (JGraphModelAdapter m_jgAdapter, Object vertex, int x, int y, SimplePlan p) {
         DefaultGraphCell cell = m_jgAdapter.getVertexCell(vertex);
         GroundAction gr = p.get((Integer) vertex);
         cell.setUserObject(gr.getName());
@@ -216,7 +224,7 @@ public class deordering {
         //m_jgAdapter.edit( cellAttr, null, null, null, null );
     }
 
-    private static ArrayList decompose(DirectedAcyclicGraph po, int planSize) {
+    private static ArrayList decompose (DirectedAcyclicGraph po, int planSize) {
 
         ArrayList component = new ArrayList();
         HashMap<Object, Boolean> visited = new HashMap();
@@ -262,7 +270,7 @@ public class deordering {
         return component;
     }
 
-    private static HashSet findConnectedComponent(DirectedAcyclicGraph po, HashSet currentPo, Object o, int k, HashMap<Object, Boolean> visited) {
+    private static HashSet findConnectedComponent (DirectedAcyclicGraph po, HashSet currentPo, Object o, int k, HashMap<Object, Boolean> visited) {
 
         if (currentPo == null) {
             currentPo = new HashSet();
@@ -295,7 +303,7 @@ public class deordering {
         return currentPo;
     }
 
-    private static Collection collectSuccessors(DirectedAcyclicGraph po, Object o, HashMap<Object, Boolean> visited) {
+    private static Collection collectSuccessors (DirectedAcyclicGraph po, Object o, HashMap<Object, Boolean> visited) {
         HashSet ret = new HashSet();
         if (o == null) {
             return ret;
@@ -312,7 +320,7 @@ public class deordering {
         return ret;
     }
 
-    private static Object findVertexWithMinimumOutGoingArcsFromEdge(DirectedAcyclicGraph po, Set incomingEdgesOf, HashMap<Object, Boolean> visited) {
+    private static Object findVertexWithMinimumOutGoingArcsFromEdge (DirectedAcyclicGraph po, Set incomingEdgesOf, HashMap<Object, Boolean> visited) {
         Object best = null;
         int minimum = Integer.MAX_VALUE;
         for (Object edge : incomingEdgesOf) {
@@ -325,7 +333,7 @@ public class deordering {
         return best;
     }
 
-    private static Object findVertexWithMinimumOutGoingArcsFromNotVisitedVertex(DirectedAcyclicGraph po, HashMap<Object, Boolean> visited) {
+    private static Object findVertexWithMinimumOutGoingArcsFromNotVisitedVertex (DirectedAcyclicGraph po, HashMap<Object, Boolean> visited) {
         Object best = null;
         int minimum = Integer.MAX_VALUE;
         for (Object v1 : po.vertexSet()) {
@@ -338,7 +346,7 @@ public class deordering {
         return best;
     }
 
-    private static void removeInitGoal(DirectedAcyclicGraph po) {
+    private static void removeInitGoal (DirectedAcyclicGraph po) {
 
         po.removeEdge(po.edgesOf(0));
         po.removeEdge(po.edgesOf(po.vertexSet().size() - 1));
@@ -346,7 +354,7 @@ public class deordering {
         po.removeVertex(0);
     }
 
-    private static void decompose2(DirectedAcyclicGraph po, int planSize) {
+    private static void decompose2 (DirectedAcyclicGraph po, int planSize) {
 
         removeInitGoal(po);
 
@@ -363,7 +371,7 @@ public class deordering {
         } while (components < planSize);
     }
 
-    private static void removeLargerAbsorberLargerProducer(DirectedAcyclicGraph po) {
+    private static void removeLargerAbsorberLargerProducer (DirectedAcyclicGraph po) {
         Object absorber = null;
         Object producer = null;
         int maxAbsorber = 0;
@@ -397,7 +405,7 @@ public class deordering {
 
     }
 
-    private static void printOrdering(DirectedAcyclicGraph po) {
+    private static void printOrdering (DirectedAcyclicGraph po) {
         for (Object v : po.vertexSet()) {
             Integer action = (Integer) v;
             System.out.print(action + " ->");

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010-2017 Enrico Scala. Contact: enricos83@gmail.com.
  *
  * This library is free software; you can redistribute it and/or
@@ -21,7 +21,6 @@ package com.hstairs.ppmajal.heuristics.utils;
 import com.hstairs.ppmajal.problem.GroundAction;
 
 /**
- *
  * @author enrico
  */
 public class RegressedSearchNode implements Comparable {
@@ -31,14 +30,14 @@ public class RegressedSearchNode implements Comparable {
     public RegressedSearchNode father;
     public int action_cost_to_get_here;
 
-    public RegressedSearchNode(GroundAction action, int action_cost_to_get_here) {
+    public RegressedSearchNode (GroundAction action, int action_cost_to_get_here) {
         this.action = action;
         this.father = father;
         this.action_cost_to_get_here = action_cost_to_get_here;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (obj == null) {
             return false;
         }
@@ -51,7 +50,7 @@ public class RegressedSearchNode implements Comparable {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ( ) {
         int hash = 5;
         hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
         hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
@@ -59,7 +58,7 @@ public class RegressedSearchNode implements Comparable {
         return hash;
     }
 
-//    @Override
+    //    @Override
 //    public int hashCode() {
 //        int hash = 5;
 //        hash = 43 * hash + (this.s != null ? this.s.hashCode() : 0);
@@ -70,7 +69,7 @@ public class RegressedSearchNode implements Comparable {
 //        return hash;
 //    }
     @Override
-    public int compareTo(Object o) {
+    public int compareTo (Object o) {
         final RegressedSearchNode other = (RegressedSearchNode) o;
         if ((this.action_cost_to_get_here) == (other.action_cost_to_get_here)) {
             return 0;
