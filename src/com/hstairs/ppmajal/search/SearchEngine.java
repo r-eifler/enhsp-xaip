@@ -70,7 +70,7 @@ public class SearchEngine {
     private Collection<GroundEvent> reachableEvents;
     private float G_DEFAULT = Float.NaN;
     private boolean incremental;
-    private State lastState;
+    protected State lastState;
 
     public SearchEngine ( ) {
 

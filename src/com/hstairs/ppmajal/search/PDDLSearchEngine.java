@@ -34,6 +34,7 @@ public class PDDLSearchEngine extends SearchEngine {
     @Override
     public LinkedList<GroundAction> extractPlan (SearchNode c) {
         LinkedList<GroundAction> plan = new LinkedList<>();
+        lastState = c.s;
         while (c.transition != null || c.list_of_actions != null) {
             Double time = null;
             if (c.father.s instanceof PDDLState) {
