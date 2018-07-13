@@ -185,21 +185,6 @@ public class h1 extends Heuristic {
         Arrays.fill(closed, false);
         action_comp_number_execution = new Object2FloatOpenHashMap();
 //        ArrayList<GroundAction> actionApplicableInGs = new ArrayList<>();
-        for (GroundAction gr : this.A) {//see which actions are executable at the current state
-//            gr.set_unit_cost(s_0);
-            if (gr.isApplicable(s)) {
-                FibonacciHeapNode node = new FibonacciHeapNode(gr);
-                action_to_fib_node.set(gr.id, node);
-                a_plus.insert(node, 0f);//add such an action
-                actionHCost[gr.id] = 0f;
-                if (this.reacheability_setting) {
-                    this.reachable.add(gr);
-                }
-//                else if (!gr.dummy_goal){
-//                    actionApplicableInGs.add(gr);
-//                }
-            }
-        }
         //if (!this.reacheability_setting)
 //            s.setApplicableActions(actionApplicableInGs);
 
@@ -214,6 +199,22 @@ public class h1 extends Heuristic {
 //                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
             }
 
+        }
+        for (GroundAction gr : this.A) {//see which actions are executable at the current state
+//            gr.set_unit_cost(s_0);
+            if (this.estimateCost(gr.getPreconditions())!=Float.MAX_VALUE){
+//            if (gr.isApplicable(s)) {
+                FibonacciHeapNode node = new FibonacciHeapNode(gr);
+                action_to_fib_node.set(gr.id, node);
+                a_plus.insert(node, 0f);//add such an action
+                actionHCost[gr.id] = 0f;
+                if (this.reacheability_setting) {
+                    this.reachable.add(gr);
+                }
+//                else if (!gr.dummy_goal){
+//                    actionApplicableInGs.add(gr);
+//                }
+            }
         }
         reachableActions = new LinkedHashSet();
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
@@ -357,8 +358,16 @@ public class h1 extends Heuristic {
                 } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
 
+
+                    LinkedHashSet<GroundAction> invertedPossibleAchiever = this.invertedPossibleAchievers[comp.getHeuristicId()];
+                    if (invertedPossibleAchiever.size() == 1){
+                        //Extend here a reasoning for the case where you only have one achiever and this achiever is a constant assignment. Formalize it also would be nice
+                    }
+
+
                     AndCond temp = new AndCond();
                     temp.addConditions(comp);
+
 
                     Aibr aibr_handle = new Aibr(temp, reachableActions);
                     //aibr_handle
@@ -771,6 +780,7 @@ public class h1 extends Heuristic {
                         if (this.is_complex.get(comp.getHeuristicId())) {
                             at_least_one_service = true;
                             reacheable_comparisons.add(comp);
+                            action_list.add(gr);
                         } else if (gr.is_possible_achiever_of(comp)) {
                             at_least_one_service = true;
                             reacheable_comparisons.add(comp);

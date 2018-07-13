@@ -284,8 +284,8 @@ public class SearchEngine {
 
             if (succ == null) {
                 System.out.println("No plan exists with EHC");
-                System.out.println("Prefix Explored: " + plan);
-                System.out.println("Dead End State: " + current);
+//                System.out.println("Prefix Explored: " + plan);
+//                System.out.println("Dead End State: " + current);
                 return null;
             }
 
