@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
@@ -63,13 +64,17 @@ public class RelState extends Object {
 
     public Interval functionValues (NumFluent f) {
 
-        Interval a = this.possNumValues.get(f.getId());
-        if (a != null) {
-            return a;
-        } else {
-            Interval ret_val = new Interval(Float.NaN);
-            return ret_val;
+        if (!this.possNumValues.isEmpty()){
+            Interval a = this.possNumValues.get(f.getId());
+            if (a != null) {
+                return a;
+            } else {
+                Interval ret_val = new Interval(Float.NaN);
+                return ret_val;
+            }
         }
+        return new Interval(Float.NaN);
+
     }
 
     public PDDLNumber functionSupValue (NumFluent f) {
@@ -199,5 +204,67 @@ public class RelState extends Object {
         }
     }
 
+    public RelState apply_with_generalized_interval_based_relaxation(GroundAction gr){
+        HashMap subst = new HashMap();
+        AndCond del = gr.getDelList();
+        if (del != null) {
+            subst.putAll(del.apply(this));
+        }
+        AndCond add = gr.getAddList();
+        if (add != null) {
+            subst.putAll(add.apply(this));
+        }
+
+        AndCond c = gr.getNumericEffects();
+//        System.out.println("GroundAction:"+this);
+        subst.putAll(c.apply(this));
+
+        if (gr.cond_effects != null) {
+            AndCond c_eff = gr.cond_effects;
+            subst.putAll(c_eff.apply(this));
+        }
+
+        for (final Object o : subst.keySet()) {
+            if (o instanceof NumFluent) {
+                NumFluent nf = (NumFluent) o;
+                if (nf.has_to_be_tracked()) {
+
+                    this.setFunctionValues(nf, (Interval) subst.get(o));
+
+                }
+            } else {
+                this.possBollValues.set(((Predicate) o).id, (Integer) subst.get(o));
+            }
+        }
+        return this;
+    }
+
+
+    public RelState apply(GroundAction gr) {
+
+
+        HashMap subst = new HashMap();
+        AndCond del = gr.getDelList();
+        if (del != null) {
+            del.apply(this, subst);
+        }
+        AndCond add = gr.getAddList();
+        if (add != null) {
+            add.apply(this, subst);
+        }
+
+        AndCond c = gr.getNumericEffects();
+        c.apply(this, subst);
+
+        if (gr.cond_effects != null) {
+            AndCond c_eff = gr.cond_effects;
+            c_eff.apply(this, subst);
+        }
+
+        this.update_values(subst);
+
+        return this;
+
+    }
 
 }

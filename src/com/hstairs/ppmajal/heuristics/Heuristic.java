@@ -230,7 +230,7 @@ public abstract class Heuristic {
      * @param s_0
      * @return
      */
-    abstract public Float compute_estimate (State s_0);
+    abstract public Float computeEstimate (State s_0);
 
     protected Float compute_precondition_cost (PDDLState s_0, ArrayList<Float> h, GroundAction gr, ArrayList<Boolean> closed) {
         return this.compute_cost(s_0, h, gr.getPreconditions(), closed);
@@ -990,7 +990,7 @@ public abstract class Heuristic {
 //        System.out.println("Set after:"+set.size());
     }
 
-    protected void simplify_actions (PDDLState init) {
+    protected void simplify_actions (State init) {
         for (GroundAction gr : this.A) {
             try {
                 if (gr.getPreconditions() != null) {

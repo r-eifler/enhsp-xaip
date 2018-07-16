@@ -116,7 +116,7 @@ public class PlannerUtils {
 
         searchStrategies.getHeuristic().setup(problem.init);
         long start = System.nanoTime();
-        Float hs0 = searchStrategies.getHeuristic().compute_estimate(problem.init);
+        Float hs0 = searchStrategies.getHeuristic().computeEstimate(problem.init);
         long totaltime = System.nanoTime() - start;
         System.out.println("hs0:" + hs0 + " in " + (float) totaltime / 1000000000.0 + "s");
 

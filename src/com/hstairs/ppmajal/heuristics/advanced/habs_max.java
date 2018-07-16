@@ -70,7 +70,7 @@ public class habs_max extends Heuristic {
         // admissible setting
         habs.additive_h = false;
 
-        ret = habs.compute_estimate(s);
+        ret = habs.computeEstimate(s);
 
         return ret;
     }
@@ -80,7 +80,7 @@ public class habs_max extends Heuristic {
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
-        Float ret = first_reachH.compute_estimate(s);
+        Float ret = first_reachH.computeEstimate(s);
         A = first_reachH.reachable;
         reachable = first_reachH.reachable;
 
@@ -273,9 +273,9 @@ public class habs_max extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate (State gs) {
+    public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
-        Float ret = habs.compute_estimate(s);
+        Float ret = habs.computeEstimate(s);
         return ret;
     }
 }

@@ -155,7 +155,7 @@ public class SearchEngine {
         if (Objects.equals(prev_cost, this.G_DEFAULT) || succ_g < prev_cost) {
             setEvaluatedStates(getEvaluatedStates() + 1);
             long start = System.currentTimeMillis();
-            Float d = getHeuristic().compute_estimate(successorState);
+            Float d = getHeuristic().computeEstimate(successorState);
             heuristicCpuTime += System.currentTimeMillis() - start;
             if (d != Float.MAX_VALUE && (d + succ_g) < this.depth_limit) {
                 SearchNode node = null;
@@ -311,7 +311,7 @@ public class SearchEngine {
         //System.out.println("Visited size:"+visited.size());
 
         Queue<SearchNode> frontier = new LinkedList<>();
-        Float current_value = heuristic.compute_estimate(current);
+        Float current_value = heuristic.computeEstimate(current);
 
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
         frontier.add(init);
@@ -352,7 +352,7 @@ public class SearchEngine {
                         continue;
                     }
                     long start = System.currentTimeMillis();
-                    Float d = heuristic.compute_estimate(temp);
+                    Float d = heuristic.computeEstimate(temp);
                     heuristicCpuTime += System.currentTimeMillis() - start;
                     //System.out.println("try");
                     setEvaluatedStates(getEvaluatedStates() + 1);
@@ -415,7 +415,7 @@ public class SearchEngine {
             System.out.println("Initial State is not valid");
             return null;
         }
-//        Float hAtInit = getHeuristic().compute_estimate(initState);
+//        Float hAtInit = getHeuristic().computeEstimate(initState);
         long start_global = System.currentTimeMillis();
         if (!incremental) {
             deadEndsDetected = 0;
@@ -432,7 +432,7 @@ public class SearchEngine {
             current_g = 0f;
         }
 
-        Float hAtInit = getHeuristic().compute_estimate(initState);
+        Float hAtInit = getHeuristic().computeEstimate(initState);
 
         getHeuristic().why_not_active = true;
 
@@ -837,7 +837,7 @@ public class SearchEngine {
         nodesExpanded = 0;
         this.setEvaluatedStates(0);
 
-        Float hAtInit = getHeuristic().compute_estimate(initState);
+        Float hAtInit = getHeuristic().computeEstimate(initState);
         System.out.println("h(n = s_0)=" + hAtInit);//debugging information
 
         if (hAtInit == Float.MAX_VALUE) {//this shouldn't happen here.
@@ -897,7 +897,7 @@ public class SearchEngine {
             }
 //            System.out.println("------------");
             long start = System.currentTimeMillis();
-            final Float h = heuristic.compute_estimate(node.s);
+            final Float h = heuristic.computeEstimate(node.s);
             heuristicCpuTime += (System.currentTimeMillis() - start);
             nodesExpanded++;
             if (Objects.equals(g, this.G_DEFAULT) || h == null) {

@@ -41,7 +41,7 @@ public class operator_counting_heuristic extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate (State s_0) {
+    public Float computeEstimate (State s_0) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

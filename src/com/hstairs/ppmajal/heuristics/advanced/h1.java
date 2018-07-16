@@ -76,11 +76,15 @@ public class h1 extends Heuristic {
     private Object2FloatMap action_comp_number_execution;
 
     public h1 (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
-        super(goal, A, P);
+        this(goal, A, P, new LinkedHashSet());
     }
 
     public h1 (ComplexCondition G, Set A, Set processesSet, Set events) {
         super(G, A, processesSet, events);
+    }
+
+    public h1 (ComplexCondition goals, Set actions) {
+        this(goals,actions, new LinkedHashSet(),new LinkedHashSet());
     }
 
     @Override
@@ -89,7 +93,7 @@ public class h1 extends Heuristic {
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
-        float ret = first_reachH.compute_estimate(s);
+        float ret = first_reachH.computeEstimate(s);
         if (ret == Float.MAX_VALUE) {
             System.out.println("Goal Unreachable: This is the fix point in relaxation: " + first_reachH.reacheable_state);
             return ret;
@@ -129,7 +133,7 @@ public class h1 extends Heuristic {
         } while (reconstruct);
         reacheability_setting = true;
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
-        ret = compute_estimate(s);
+        ret = computeEstimate(s);
         Utils.dbg_print(debug - 10, "Reachability Analysis Terminated");
 //        System.out.println("Actions After Reachability:"+this.reachable);
         reacheability_setting = false;
@@ -160,7 +164,7 @@ public class h1 extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate (State gs) {
+    public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
 
         if (s.satisfy(G)) {
@@ -190,7 +194,7 @@ public class h1 extends Heuristic {
 
 //        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
         for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
-            if (c.isSatisfied(s)) {
+            if (s.satisfy(c)) {
                 cost[c.getHeuristicId()] = 0f;
 //                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
 //                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
@@ -380,7 +384,7 @@ public class h1 extends Heuristic {
                         System.out.println("Identifier:" + comp.getHeuristicId());
                         System.exit(-1);
                     }
-                    new_distance = aibr_handle.compute_estimate(s_0);
+                    new_distance = aibr_handle.computeEstimate(s_0);
                 }
                 if (new_distance != Float.MAX_VALUE) {
                     //new_distance += this.action_dist.get(gr.counter);

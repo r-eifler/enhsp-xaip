@@ -85,7 +85,7 @@ public class habs_add extends Heuristic {
 //            
 //            Aibr aibr_handle_2 = new Aibr(this.G, (Set<PDDLGroundAction>) this.supporters);
 //            aibr_handle_2.set(true, true);
-//            System.out.println(aibr_handle_2.compute_estimate(s));
+//            System.out.println(aibr_handle_2.computeEstimate(s));
 //            System.exit(0);
 //            
             System.out.println("|Subactions| = " + this.supporters.size());
@@ -105,13 +105,13 @@ public class habs_add extends Heuristic {
         habs.extractRelaxedPlan = this.planExtraction;
         habs.helpful_actions_computation = this.helpful_actions_computation;
 
-        ret = habs.compute_estimate(s);
+        ret = habs.computeEstimate(s);
         return ret;
     }
 
     private Float aibrReachabilityAnalysis (PDDLState s) {
         // reachability analysis on original problem using AIBR.
-        Float ret = this.aibr_handle.compute_estimate(s);
+        Float ret = this.aibr_handle.computeEstimate(s);
         A = this.aibr_handle.reachable;
         reachable = this.aibr_handle.reachable;
 
@@ -579,9 +579,9 @@ public class habs_add extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate (State gs) {
+    public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
-//        System.out.println("start compute_estimate()...");
+//        System.out.println("start computeEstimate()...");
 
         if (debug > 10) {
             System.out.println("State: " + s);
@@ -601,10 +601,10 @@ public class habs_add extends Heuristic {
             for (GroundAction gr : this.supporters) {
                 System.out.println(gr.toPDDL() + "\n");
             }
-            System.out.println("finish compute_estimate()!\n===================\n\n\n\n");
+            System.out.println("finish computeEstimate()!\n===================\n\n\n\n");
         }
 
-        Float ret = habs.compute_estimate(s);
+        Float ret = habs.computeEstimate(s);
         if (this.helpful_actions_computation) {
             this.helpful_actions = new HashSet();
             for (GroundAction gr : habs.helpful_actions) {

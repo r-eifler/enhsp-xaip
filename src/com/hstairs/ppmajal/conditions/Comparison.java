@@ -225,6 +225,10 @@ public class Comparison extends Terminal {
     @Override
     public boolean can_be_true (RelState s) {
 
+        if (s.possNumValues.isEmpty()){
+            return false;
+        }
+
         Interval first = left.eval(s);
         Interval second = right.eval(s);
 
@@ -812,6 +816,10 @@ public class Comparison extends Terminal {
 
     @Override
     public boolean can_be_false (RelState s) {
+
+        if (s.possNumValues.isEmpty()){
+            return true;
+        }
 
         Interval first = left.eval(s);
         Interval second = right.eval(s);

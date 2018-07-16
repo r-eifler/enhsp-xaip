@@ -82,7 +82,7 @@ public class quasi_hm extends Heuristic {
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
-        Float ret = first_reachH.compute_estimate(s);
+        Float ret = first_reachH.computeEstimate(s);
         if (ret == Float.MAX_VALUE) {
             return ret;
         }
@@ -99,7 +99,7 @@ public class quasi_hm extends Heuristic {
         }
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");
-        Float ret2 = compute_estimate(s);
+        Float ret2 = computeEstimate(s);
         Utils.dbg_print(debug, "Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
@@ -137,7 +137,7 @@ public class quasi_hm extends Heuristic {
     }
 
     @Override
-    public Float compute_estimate (State gs) {
+    public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
         //PriorityQueue<ConditionsNode> q = new PriorityQueue();
         if (s.satisfy(G)) {

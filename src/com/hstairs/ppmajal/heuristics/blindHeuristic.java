@@ -50,10 +50,10 @@ public class blindHeuristic extends Aibr {
     }
 
     @Override
-    public Float compute_estimate (State s_0) {
+    public Float computeEstimate (State s_0) {
 //        if (reachability) {
 //
-//            return super.compute_estimate(s_0);
+//            return super.computeEstimate(s_0);
 //
 //        }
         this.reachable = A;

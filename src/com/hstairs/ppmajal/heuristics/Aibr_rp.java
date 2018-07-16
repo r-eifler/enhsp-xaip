@@ -78,13 +78,13 @@ public class Aibr_rp extends Heuristic {
         Utils.dbg_print(debug, "Computing Internal Data Structure\n");
         this.build_integer_representation();
         Utils.dbg_print(debug, "Computing Reachable Actions\n");
-        Float ret = compute_estimate(s_0);
+        Float ret = computeEstimate(s_0);
         reachability = false;
         return ret;
     }
 
     @Override
-    public Float compute_estimate (State gs) {
+    public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
         RelState rs = s.relaxState();
         Collection<GroundAction> temp_supporters = new LinkedHashSet(supporters);//making a copy of the supporters so as not to delete the source

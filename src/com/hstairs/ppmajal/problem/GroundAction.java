@@ -261,30 +261,8 @@ public class GroundAction extends PDDLGenericAction {
         this.numericFluentAffected = numericFluentAffected;
     }
 
-    public RelState apply (RelState s) {
-
-        HashMap subst = new HashMap();
-        AndCond del = delList;
-        if (del != null) {
-            del.apply(s, subst);
-        }
-        AndCond add = addList;
-        if (add != null) {
-            add.apply(s, subst);
-        }
-
-        AndCond c = this.getNumericEffects();
-        c.apply(s, subst);
-
-        if (this.cond_effects != null) {
-            AndCond c_eff = this.cond_effects;
-            c_eff.apply(s, subst);
-        }
-
-        s.update_values(subst);
-
-        return s;
-
+    public RelState apply(RelState s) {
+        return s.apply(this);
     }
 
     public boolean isApplicable (RelState current) {
@@ -297,7 +275,7 @@ public class GroundAction extends PDDLGenericAction {
             return true;
         }
 
-        return this.getPreconditions().can_be_true(current);
+        return this.getPreconditions().isSatisfied(current);
     }
 
     public boolean isApplicable (State s) {
@@ -1575,38 +1553,7 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public RelState apply_with_generalized_interval_based_relaxation (RelState s) {
-        HashMap subst = new HashMap();
-        AndCond del = delList;
-        if (del != null) {
-            subst.putAll(del.apply(s));
-        }
-        AndCond add = addList;
-        if (add != null) {
-            subst.putAll(add.apply(s));
-        }
-
-        AndCond c = this.getNumericEffects();
-//        System.out.println("GroundAction:"+this);
-        subst.putAll(c.apply(s));
-
-        if (this.cond_effects != null) {
-            AndCond c_eff = this.cond_effects;
-            subst.putAll(c_eff.apply(s));
-        }
-
-        for (final Object o : subst.keySet()) {
-            if (o instanceof NumFluent) {
-                NumFluent nf = (NumFluent) o;
-                if (nf.has_to_be_tracked()) {
-
-                    s.setFunctionValues(nf, (Interval) subst.get(o));
-
-                }
-            } else {
-                s.possBollValues.set(((Predicate) o).id, (Integer) subst.get(o));
-            }
-        }
-        return s;
+        return s.apply_with_generalized_interval_based_relaxation(this);
     }
 
     public boolean has_complex_preconditions ( ) {

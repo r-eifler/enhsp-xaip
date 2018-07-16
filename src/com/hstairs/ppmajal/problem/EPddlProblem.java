@@ -881,7 +881,7 @@ public class EPddlProblem extends PddlProblem {
 //        Aibr serviceHeuristic = new Aibr(this.goals, this.actions,this.processesSet,this.eventsSet);
 //        serviceHeuristic.setup(this.init);
 //        serviceHeuristic.set(true, true);
-//        serviceHeuristic.compute_estimate(this.init);
+//        serviceHeuristic.computeEstimate(this.init);
 //        Collection<Predicate> predicateToConsider = new HashSet();
 //        for (Predicate p : this.predicateReference.values()){
 //            if (p.id != null){

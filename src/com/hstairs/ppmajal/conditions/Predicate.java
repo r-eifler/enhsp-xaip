@@ -116,6 +116,8 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean can_be_false (RelState s) {
+        if (s.possNumValues.isEmpty())
+            return true;
         if (this.isValid())
             return false;
         if (this.isUnsatisfiable())
@@ -334,11 +336,15 @@ public class Predicate extends Terminal implements PostCondition {
             return true;
         if (this.isUnsatisfiable())
             return false;
-        Integer i = s.possBollValues.get(this.id);
-        if (i == null) {
+        if (!s.possBollValues.isEmpty()) {
+            Integer i = s.possBollValues.get(this.id);
+            if (i == null) {
+                return false;
+            }
+            return i >= 1;
+        }else{
             return false;
         }
-        return i >= 1;
         //return (i == 1) || (i == 2);
     }
 

@@ -72,7 +72,7 @@ public class hlm extends h1 {
         Aibr first_reachH = new Aibr(this.G, this.A);
         first_reachH.setup(s);
         first_reachH.set(true, true);
-        Float ret2 = first_reachH.compute_estimate(s);
+        Float ret2 = first_reachH.computeEstimate(s);
         if (ret2 == Float.MAX_VALUE) {
             return ret2;
         }
@@ -105,7 +105,7 @@ public class hlm extends h1 {
         init_lp(s);
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");
-        Float ret = compute_estimate(s);
+        Float ret = computeEstimate(s);
         Utils.dbg_print(debug, "Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
@@ -125,7 +125,7 @@ public class hlm extends h1 {
     }
 
     @Override
-    public Float compute_estimate (State gs) {
+    public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
         if (s.satisfy(G)) {
             return 0f;
