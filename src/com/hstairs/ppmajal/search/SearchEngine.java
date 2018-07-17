@@ -117,7 +117,7 @@ public class SearchEngine {
                 continue;
             }
             GroundProcess gr = (GroundProcess) gr3;
-            Iterator<GroundProcess> it = problem.processesSet.iterator();
+            Iterator<GroundProcess> it = problem.getProcessesSet().iterator();
             while (it.hasNext()) {
                 GroundProcess gr2 = it.next();
                 if (gr.equals(gr2)) {
@@ -130,7 +130,7 @@ public class SearchEngine {
                 continue;
             }
             GroundEvent gr = (GroundEvent) gr3;
-            Iterator<GroundEvent> it = problem.eventsSet.iterator();
+            Iterator<GroundEvent> it = problem.getEventsSet().iterator();
             while (it.hasNext()) {
                 GroundEvent gr2 = it.next();
                 if (gr.equals(gr2)) {

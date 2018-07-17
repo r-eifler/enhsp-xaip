@@ -59,6 +59,13 @@ public class GroundAction extends PDDLGenericAction {
         achieve = new HashMap();
     }
 
+    public void setId (int id) {
+        this.id = id;
+    }
+
+    public int getId ( ) {
+        return id;
+    }
 
     public GroundAction (String name) {
         super();
@@ -388,7 +395,7 @@ public class GroundAction extends PDDLGenericAction {
 
             } else if (this.getDelList() != null) {
                 if (this.getDelList().sons.contains(o1)) {
-                    System.out.println("Error, " + this.name + " cannot achieve " + cond.toString());
+                    System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
                     return null;
                 }
             }
@@ -430,7 +437,7 @@ public class GroundAction extends PDDLGenericAction {
 
     private void progress (GroundAction a, GroundAction b, GroundAction ab) {
 
-        /*Starting from what action a achieve*/
+        /*Starting from what action a weakAchiever*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/
@@ -666,7 +673,7 @@ public class GroundAction extends PDDLGenericAction {
         }
         for (Object o : threatenedAtoms) {
             if (!end.holds((Predicate) o)) {
-                System.out.println("=================Found a goal threat=============");
+                System.out.println("=================Found a goal weakThreat=============");
                 return true;
             }
 
@@ -705,7 +712,7 @@ public class GroundAction extends PDDLGenericAction {
                 result.sons.add(c);
             } else if (this.getDelList() != null) {
                 if (this.getDelList().sons.contains(o1)) {
-                    System.out.println("Error, " + this.name + " cannot achieve " + cond.toString());
+                    System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
                     return null;
                 }
             }
@@ -750,7 +757,7 @@ public class GroundAction extends PDDLGenericAction {
         return result;
     }
 
-    public boolean achieve (Predicate p) {
+    public boolean weakAchiever (Predicate p) {
 
         if (this.achieve.get(p) == null) {
             if (this.getAddList() != null) {
@@ -857,7 +864,7 @@ public class GroundAction extends PDDLGenericAction {
 //        }
 //        return ("ACTION" + this.name + "" + parametri).replaceAll("\\s+", "");
 //    }
-    public boolean threat (AndCond andCond) {
+    public boolean weakThreat (AndCond andCond) {
         if (this.delList == null) {
             return false;
         }
@@ -964,7 +971,7 @@ public class GroundAction extends PDDLGenericAction {
 
             } else if (this.getDelList() != null) {
                 if (this.getDelList().sons.contains(o1)) {
-                    System.out.println("Error, " + this.name + " cannot achieve " + cond.toString());
+                    System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
                     return null;
                 }
             }
@@ -1745,7 +1752,7 @@ public class GroundAction extends PDDLGenericAction {
     public Double getStaticContribution (PDDLState s_0, Condition c) {
 
         if (c instanceof Predicate) {
-            if (this.achieve((Predicate) c)) {
+            if (this.weakAchiever((Predicate) c)) {
                 return 1d;
             } else {
                 return 0d;
@@ -1960,4 +1967,50 @@ public class GroundAction extends PDDLGenericAction {
     }
 
 
+    public Boolean weakAchiever (Terminal t) {
+        if (t.isValid())
+            return true;
+        if (t.isUnsatisfiable())
+            return false;
+        if (t instanceof Comparison){
+            Set<NumFluent> involvedFluents = t.getInvolvedFluents();
+            for (NumFluent nf: this.getNumericFluentAffected()){
+                if (involvedFluents.contains(nf))
+                    return null;
+            }
+            return false;
+        }
+        if (t instanceof Predicate){
+            return this.addList.getTerminalConditions().contains(t);
+        }
+        if (t instanceof NotCond){
+            return weakAchiever((Terminal)((NotCond) t).getSon());
+        }
+        throw new RuntimeException("Unsupported instance of terminal: "+t.getClass());
+    }
+
+
+    //Here Assumption on calling this method only over Terminal conditions
+    public boolean weakThreat (Condition c) {
+        if (!(c instanceof Terminal)){
+            throw new RuntimeException("Only terminals supported for threat detection");
+        }
+        if (c instanceof Predicate){
+            if (this.delete((Predicate) c))
+                return true;
+        }else if (c instanceof NotCond){
+            Predicate son = (Predicate)((NotCond) c).getSon();
+            if (this.weakAchiever(son)){
+                return true;
+            }
+        }else if (c instanceof Comparison){
+            Set<NumFluent> involvedFluents = c.getInvolvedFluents();
+            for (NumFluent nf: this.getNumericFluentAffected()){
+                if (involvedFluents.contains(nf))
+                    return true;
+            }
+
+        }
+        return false;
+    }
 }

@@ -194,7 +194,7 @@ public abstract class Heuristic {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
-            a.id = total_number_of_actions++;
+            a.setId(total_number_of_actions++);
             if (a.getPreconditions() != null) {
                 for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
@@ -762,15 +762,15 @@ public abstract class Heuristic {
                                     }
 
                                     final Variable action;
-                                    if (action_to_variable.get(gr.id) != null) {
-                                        action = action_to_variable.get(gr.id);
+                                    if (action_to_variable.get(gr.getId()) != null) {
+                                        action = action_to_variable.get(gr.getId());
                                         if (integer_variables) {
                                             action.integer(true);
                                         }
                                     } else {
                                         action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
                                         tmpModel.addVariable(action);
-                                        action_to_variable.put(gr.id, action);
+                                        action_to_variable.put(gr.getId(), action);
                                     }
 
 //                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
@@ -832,7 +832,7 @@ public abstract class Heuristic {
                     Expression condition = tmpModel.addExpression(cond.toString()).lower(1);
 
                     for (GroundAction gr : pool) {
-                        if (gr.achieve(p)) {
+                        if (gr.weakAchiever(p)) {
 //                            gr.set_unit_cost(s_0);
                             Float cost_action = gr.getActionCost();
                             if (cost_action.isNaN()) {
@@ -840,12 +840,12 @@ public abstract class Heuristic {
                             }
                             at_least_one = true;
                             final Variable action;
-                            if (action_to_variable.get(gr.id) != null) {
-                                action = action_to_variable.get(gr.id);
+                            if (action_to_variable.get(gr.getId()) != null) {
+                                action = action_to_variable.get(gr.getId());
                             } else {
                                 action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
                                 tmpModel.addVariable(action);
-                                action_to_variable.put(gr.id, action);
+                                action_to_variable.put(gr.getId(), action);
                                 if (integer_variables) {
                                     action.integer(true);
                                 }

@@ -36,8 +36,8 @@ import java.util.logging.Logger;
 public class EPddlProblem extends PddlProblem {
 
     public HashSet<GlobalConstraint> globalConstraintSet;
-    public HashSet<GroundProcess> processesSet;
-    public HashSet<GroundEvent> eventsSet;
+    private HashSet<GroundProcess> processesSet;
+    private HashSet<GroundEvent> eventsSet;
 
     public AndCond globalConstraints;
 
@@ -49,18 +49,19 @@ public class EPddlProblem extends PddlProblem {
     private boolean globalConstraintGrounded;
     private HashMap<Object, Integer> idOf;
     private int constraintsViolations;
+    private int totActionsEventsProcesses;
+    private int totEvents;
 
-
-    public EPddlProblem ( ) {
-
-    }
 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
+
         super(problemFile, po, types);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond();
         grounding = false;
+        totActionsEventsProcesses = 0;
+        totEvents = 0;
     }
 
 
@@ -72,8 +73,8 @@ public class EPddlProblem extends PddlProblem {
         for (GroundAction gr : this.actions) {
             cloned.actions.add((GroundAction) gr.clone());
         }
-        for (GroundProcess pr : this.processesSet) {
-            cloned.processesSet.add((GroundProcess) pr.clone());
+        for (GroundProcess pr : this.getProcessesSet()) {
+            cloned.getProcessesSet().add((GroundProcess) pr.clone());
         }
         for (GlobalConstraint constr : this.globalConstraintSet) {
             cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
@@ -125,14 +126,14 @@ public class EPddlProblem extends PddlProblem {
                 staticFluents = gr.update_invariant_fluents(staticFluents);
 
             }
-            if (this.processesSet != null) {
-                for (GroundProcess pr : this.processesSet) {
+            if (this.getProcessesSet() != null) {
+                for (GroundProcess pr : this.getProcessesSet()) {
                     staticFluents = pr.update_invariant_fluents(staticFluents);
 
                 }
             }
-            if (this.eventsSet != null) {
-                for (GroundEvent ev : this.eventsSet) {
+            if (this.getEventsSet() != null) {
+                for (GroundEvent ev : this.getEventsSet()) {
                     staticFluents = ev.update_invariant_fluents(staticFluents);
 
                 }
@@ -149,10 +150,10 @@ public class EPddlProblem extends PddlProblem {
             for (ProcessSchema process : linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
                 if (process.getParameters().size() != 0) {
-                    processesSet.addAll(af.Propositionalize(process, getObjects()));
+                    getProcessesSet().addAll(af.Propositionalize(process, getObjects()));
                 } else {
                     GroundProcess gr = process.ground();
-                    processesSet.add(gr);
+                    getProcessesSet().add(gr);
                 }
             }
             //pruneActions();
@@ -175,13 +176,13 @@ public class EPddlProblem extends PddlProblem {
             }
         }
 
-        for (GroundProcess pr : this.processesSet) {
+        for (GroundProcess pr : this.getProcessesSet()) {
             if (pr.getPreconditions() != null) {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
         }
 
-        for (GroundEvent pr : this.eventsSet) {
+        for (GroundEvent pr : this.getEventsSet()) {
             if (pr.getPreconditions() != null) {
                 pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
             }
@@ -201,7 +202,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
 
-        for (GroundProcess pr : this.processesSet) {
+        for (GroundProcess pr : this.getProcessesSet()) {
             if (pr.getPreconditions() != null) {
                 pr.getPreconditions().normalize();
             }
@@ -248,8 +249,11 @@ public class EPddlProblem extends PddlProblem {
 
         subst = find_substs(a, s);
         Set<GroundAction> ret = new LinkedHashSet();
+
         for (HashMap<Variable, PDDLObject> ele : subst) {
-            ret.add(a.ground(ele, this.getObjects()));
+            GroundAction ground = a.ground(ele, this.getObjects());
+            ground.id = totActionsEventsProcesses++;
+            ret.add(ground);
         }
         return ret;
     }
@@ -465,7 +469,7 @@ public class EPddlProblem extends PddlProblem {
 //        this.actions.addAll(to_readd);
 //        to_readd = new HashSet();
 
-        for (GroundEvent gr : this.eventsSet) {
+        for (GroundEvent gr : this.getEventsSet()) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 int numberNumericEffects = gr.getNumericEffects().sons.size();
                 for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext(); ) {
@@ -546,7 +550,20 @@ public class EPddlProblem extends PddlProblem {
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         syncAllVariables();
+        makeTransitionsIds();
 
+    }
+
+    private void makeTransitionsIds ( ) {
+        for (GroundAction gr: actions){
+            gr.id = totActionsEventsProcesses++;
+        }
+        for (GroundEvent gr: getEventsSet()){
+            gr.id = totActionsEventsProcesses++;
+        }
+        for (GroundProcess gr: getProcessesSet()){
+            gr.id = totActionsEventsProcesses++;
+        }
     }
 
     public void set_cost_from_metric ( ) {
@@ -586,7 +603,7 @@ public class EPddlProblem extends PddlProblem {
 //        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
 
 //        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
-        it = this.processesSet.iterator();
+        it = this.getProcessesSet().iterator();
         while (it.hasNext()) {
             GroundProcess process = (GroundProcess) it.next();
             boolean keep = true;
@@ -601,7 +618,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         //Event
-        it = this.eventsSet.iterator();
+        it = this.getEventsSet().iterator();
         while (it.hasNext()) {
             GroundEvent event = (GroundEvent) it.next();
             boolean keep = true;
@@ -674,13 +691,13 @@ public class EPddlProblem extends PddlProblem {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
                     try {
-                        this.eventsSet.addAll(af.Propositionalize(event_schema, getObjects()));
+                        this.getEventsSet().addAll(af.Propositionalize(event_schema, getObjects()));
                     } catch (Exception ex) {
                         Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     GroundEvent event = event_schema.fakeGround();
-                    this.eventsSet.add(event);
+                    this.getEventsSet().add(event);
 
                 }
             }
@@ -835,11 +852,11 @@ public class EPddlProblem extends PddlProblem {
         for (PDDLGenericAction act : this.actions) {
             act.unifyVariablesReferences(this);
         }
-        for (PDDLGenericAction act : this.eventsSet) {
+        for (PDDLGenericAction act : this.getEventsSet()) {
             act.unifyVariablesReferences(this);
         }
-        if (this.processesSet != null) {
-            for (PDDLGenericAction act : this.processesSet) {
+        if (this.getProcessesSet() != null) {
+            for (PDDLGenericAction act : this.getProcessesSet()) {
                 act.unifyVariablesReferences(this);
             }
         }
@@ -1011,6 +1028,14 @@ public class EPddlProblem extends PddlProblem {
             Logger.getLogger(SearchEngine.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new Pair(states, transitions);
+    }
+
+    public HashSet<GroundEvent> getEventsSet ( ) {
+        return eventsSet;
+    }
+
+    public HashSet<GroundProcess> getProcessesSet ( ) {
+        return processesSet;
     }
 
     private class stateContainer implements ObjectIterator<Pair<State, Object>> {

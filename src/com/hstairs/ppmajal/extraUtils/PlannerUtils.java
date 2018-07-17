@@ -61,23 +61,23 @@ public class PlannerUtils {
 
         //set heuristic
         if (heuristic.equals("aibr")) {
-            searchStrategies.setupHeuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+            searchStrategies.setupHeuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
             Aibr h = (Aibr) searchStrategies.getHeuristic();
             h.set(false, true);
         }
         if (heuristic.equals("hadd")) {
-            searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+            searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
             h.additive_h = true;
         }
         if (heuristic.equals("hmax")) {
-            searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+            searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
             h.additive_h = false;
         } else {
-            searchStrategies.setupHeuristic(new blindHeuristic(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+            searchStrategies.setupHeuristic(new blindHeuristic(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
         }
 
         searchStrategies.setWG(wg);
@@ -109,7 +109,7 @@ public class PlannerUtils {
         problem.simplifyAndSetupInit();
 
         //set heuristic
-        searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.processesSet, problem.eventsSet));
+        searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
         h1 h = (h1) searchStrategies.getHeuristic();
         h.useRedundantConstraints = false;
         h.additive_h = true;

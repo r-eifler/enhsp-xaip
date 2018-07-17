@@ -108,9 +108,9 @@ public final class cplex_interface extends LpInterface {
         Iterator<GroundAction> it = affectors.iterator();
         while (it.hasNext()) {
             GroundAction gr = it.next();
-            if (active_actions.get(gr.id)) {
+            if (active_actions.get(gr.getId())) {
                 try {
-                    IloNumVar v = this.action_to_variable.get(gr.id);
+                    IloNumVar v = this.action_to_variable.get(gr.getId());
                     v.setUB(Float.MAX_VALUE);//activate action in the LP model
                     it.remove();
                 } catch (IloException ex) {
@@ -220,11 +220,11 @@ public final class cplex_interface extends LpInterface {
                                         affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 
                                         IloNumVar action;
-                                        if (action_to_variable.get(gr.id) != null) {
-                                            action = action_to_variable.get(gr.id);
+                                        if (action_to_variable.get(gr.getId()) != null) {
+                                            action = action_to_variable.get(gr.getId());
                                         } else {
                                             action = lp.numVar(0.0, 0.0, IloNumVarType.Float);
-                                            action_to_variable.put(gr.id, action);
+                                            action_to_variable.put(gr.getId(), action);
                                             objective.addTerm(action, action_cost);
                                         }
 
@@ -266,7 +266,7 @@ public final class cplex_interface extends LpInterface {
                     IloLinearNumExpr e = lp.linearNumExpr();
                     Predicate p = (Predicate) cond;
                     for (GroundAction gr : pool) {
-                        if (gr.achieve(p)) {
+                        if (gr.weakAchiever(p)) {
                             pos_affectors_of.get(cond).add(gr);
                             affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 //                            gr.set_unit_cost(s_0);
@@ -275,11 +275,11 @@ public final class cplex_interface extends LpInterface {
                                 continue;
                             }
                             IloNumVar action;
-                            if (action_to_variable.get(gr.id) != null) {
-                                action = action_to_variable.get(gr.id);
+                            if (action_to_variable.get(gr.getId()) != null) {
+                                action = action_to_variable.get(gr.getId());
                             } else {
                                 action = lp.numVar(0.0, 0.0, IloNumVarType.Float);
-                                action_to_variable.put(gr.id, action);
+                                action_to_variable.put(gr.getId(), action);
 
                                 objective.addTerm(action, action_cost);
                             }

@@ -902,7 +902,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                             for (Integer z = 0; z < i; z++) {
                                 //for (Integer z = i-1; z >=0 ; z--) {
 
-                                if (this.get(z).achieve(p)) {
+                                if (this.get(z).weakAchiever(p)) {
                                     //System.out.println("Candidate:" + z);
                                     boolean threat = false;
                                     for (int k = z + 1; k < i; k++) {
@@ -1064,7 +1064,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                             if (this.get(i).delete(p)) {
                                                 preserveOrderConstraint = true;
                                                 orderingByThreatPropositionForward++;
-                                                Motivation += o.toString() + " (forward prop threat)";
+                                                Motivation += o.toString() + " (forward prop weakThreat)";
                                             }
                                             break;
                                         }
@@ -1081,7 +1081,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                             if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
                                                 preserveOrderConstraint = true;
                                                 orderingByThreatNumericForward++;
-                                                Motivation += o.toString() + " (forward numeric threat)";
+                                                Motivation += o.toString() + " (forward numeric weakThreat)";
                                             }
                                             break;
                                         }

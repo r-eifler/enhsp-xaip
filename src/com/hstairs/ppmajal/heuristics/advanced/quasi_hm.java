@@ -62,8 +62,6 @@ public class quasi_hm extends Heuristic {
     }
 
     /**
-     * @param goals
-     * @param actions
      * @param processesSet
      */
     public quasi_hm (ComplexCondition G, Set A, Set processesSet) {
@@ -118,7 +116,6 @@ public class quasi_hm extends Heuristic {
         this.integer_ref = new HashMap();
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         for (GroundAction a : actions_to_consider) {
-            a.id = counter_actions++;
 //            if (a.getPreconditions() != null) {
             if (a.getPreconditions() != null && a.getPreconditions().sons != null && !a.getPreconditions().sons.isEmpty()) {
                 counter2 = this.update_index_conditions(a.getPreconditions(), counter2);
@@ -229,11 +226,11 @@ public class quasi_hm extends Heuristic {
                     for (GroundAction gr : actions) {
                         if (gr != null) {
                             //System.out.println("Action identified as reachable:"+gr);
-                            active_actions.set(gr.id, Boolean.TRUE);
+                            active_actions.set(gr.getId(), Boolean.TRUE);
                             if (this.reacheability_setting) {
                                 this.reachable.add(gr);
                             }
-                            temp_conditions.addAll(poss_achiever.get(gr.id));
+                            temp_conditions.addAll(poss_achiever.get(gr.getId()));
 
                         }
                     }
@@ -278,7 +275,7 @@ public class quasi_hm extends Heuristic {
         poss_achiever = new HashMap();
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
-            poss_achiever.put(gr.id, new ArrayList());
+            poss_achiever.put(gr.getId(), new ArrayList());
             for (Condition c1 : this.all_conditions) {
                 if (gr.getPreconditions().getHeuristicId() != c1.getHeuristicId()) {
                     ComplexCondition c = (ComplexCondition) c1;
@@ -286,7 +283,7 @@ public class quasi_hm extends Heuristic {
                         if (c_in instanceof Comparison) {
                             for (NumFluent nf : gr.getNumericFluentAffected()) {
                                 if (c_in.getInvolvedFluents().contains(nf)) {
-                                    poss_achiever.get(gr.id).add(c);
+                                    poss_achiever.get(gr.getId()).add(c);
                                     break;
                                 }
                             }
@@ -295,8 +292,8 @@ public class quasi_hm extends Heuristic {
 //                                break;
 //                            }
                         } else if (c_in instanceof Predicate) {
-                            if (gr.achieve((Predicate) c_in)) {
-                                poss_achiever.get(gr.id).add(c);
+                            if (gr.weakAchiever((Predicate) c_in)) {
+                                poss_achiever.get(gr.getId()).add(c);
                                 break;
                             }
                         }

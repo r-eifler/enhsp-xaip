@@ -561,7 +561,7 @@ public class Comparison extends Terminal {
             return true;
         }
         //todo add the == case
-        //if the action does not threaten the dependant fluents, then let see if it is a proper threat for c.
+        //if the action does not threaten the dependant fluents, then let see if it is a proper weakThreat for c.
         Comparison c = (Comparison) get.regress(this.clone());
 
         if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {

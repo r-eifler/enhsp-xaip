@@ -251,7 +251,7 @@ public class ActionSchema extends PDDLGenericAction {
     }
 
     private void progress (ActionSchema a, ActionSchema b, ActionSchema ab) {
-        /*Starting from what action a achieve*/
+        /*Starting from what action a weakAchiever*/
         AndCond localAddList = (AndCond) a.addList.clone();
 
         /*remove those atoms which will be deleted afterwards*/

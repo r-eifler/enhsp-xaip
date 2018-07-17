@@ -103,8 +103,8 @@ public final class ojalgo_interface extends LpInterface {
         Iterator<GroundAction> it = affectors.iterator();
         while (it.hasNext()) {
             GroundAction gr = it.next();
-            if (active_actions.get(gr.id)) {
-                Variable v = this.action_to_variable.get(gr.id);
+            if (active_actions.get(gr.getId())) {
+                Variable v = this.action_to_variable.get(gr.getId());
                 v.upper(Integer.MAX_VALUE);
                 it.remove();
 
@@ -188,8 +188,8 @@ public final class ojalgo_interface extends LpInterface {
                                     affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 
                                     Variable action;
-                                    if (action_to_variable.get(gr.id) != null) {
-                                        action = action_to_variable.get(gr.id);
+                                    if (action_to_variable.get(gr.getId()) != null) {
+                                        action = action_to_variable.get(gr.getId());
                                         if (integer_variables) {
                                             action.integer(true);
                                         }
@@ -198,7 +198,7 @@ public final class ojalgo_interface extends LpInterface {
                                         this.var_to_expr.put(action, new LinkedHashSet());
                                         //action.lower(0);
                                         lp.addVariable(action);
-                                        action_to_variable.put(gr.id, action);
+                                        action_to_variable.put(gr.getId(), action);
                                     }
 
 //                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
@@ -239,7 +239,7 @@ public final class ojalgo_interface extends LpInterface {
                 condition.lower(1);
                 Predicate p = (Predicate) cond;
                 for (GroundAction gr : pool) {
-                    if (gr.achieve(p)) {
+                    if (gr.weakAchiever(p)) {
                         pos_affectors_of.get(cond).add(gr);
                         affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 //                        gr.set_unit_cost(s_0);
@@ -248,12 +248,12 @@ public final class ojalgo_interface extends LpInterface {
                             continue;
                         }
                         Variable action;
-                        if (action_to_variable.get(gr.id) != null) {
-                            action = action_to_variable.get(gr.id);
+                        if (action_to_variable.get(gr.getId()) != null) {
+                            action = action_to_variable.get(gr.getId());
                         } else {
                             action = Variable.make(gr.toEcoString()).lower(0).weight(action_cost);
                             lp.addVariable(action);
-                            action_to_variable.put(gr.id, action);
+                            action_to_variable.put(gr.getId(), action);
                             if (integer_variables) {
                                 action.integer(true);
                             }

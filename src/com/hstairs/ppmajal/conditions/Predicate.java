@@ -560,7 +560,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean is_affected_by (GroundAction gr) {
-        return gr.achieve(this) || gr.delete(this);
+        return gr.weakAchiever(this) || gr.delete(this);
     }
 
     @Override

@@ -209,9 +209,9 @@ public class h1 extends Heuristic {
             if (this.estimateCost(gr.getPreconditions())!=Float.MAX_VALUE){
 //            if (gr.isApplicable(s)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(gr);
-                action_to_fib_node.set(gr.id, node);
+                action_to_fib_node.set(gr.getId(), node);
                 a_plus.insert(node, 0f);//add such an action
-                actionHCost[gr.id] = 0f;
+                actionHCost[gr.getId()] = 0f;
                 if (this.reacheability_setting) {
                     this.reachable.add(gr);
                 }
@@ -225,12 +225,12 @@ public class h1 extends Heuristic {
 
             final GroundAction gr = a_plus.removeMin().getData();
             //if (!conservativehmax || this.additive_h)
-            closed[gr.id] = true;
+            closed[gr.getId()] = true;
             reachableActions.add(gr);
 //            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
 //            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
             if (gr.dummy_goal) {
-                estimate = actionHCost[gr.id];
+                estimate = actionHCost[gr.getId()];
                 if (!this.reacheability_setting && (this.additive_h || !conservativehmax)) {
 //                    System.out.println(this.additive_h);
 //                    System.out.println(this.conservativehmax);
@@ -245,7 +245,7 @@ public class h1 extends Heuristic {
                 }
             }
             update_reachable_conditions_actions(s, gr, a_plus, action_to_fib_node);//this procedure updates
-            //all the conditions that can be reached by using action gr. 
+            //all the conditions that can be reached by using action gr.
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
         }
 
@@ -280,11 +280,11 @@ public class h1 extends Heuristic {
 
     private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> never_active) {
         float c_a = Math.max(gr.getActionCost(), minimumActionCost);
-        for (final Condition comp : this.achieve[gr.id]) {//This is the set of all predicates reachable because of gr
+        for (final Condition comp : this.achieve[gr.getId()]) {//This is the set of all predicates reachable because of gr
             float current_distance = cost[comp.getHeuristicId()];
             if (current_distance != 0f) {
 
-                float cond_dist_comp = c_a + this.actionHCost[gr.id];
+                float cond_dist_comp = c_a + this.actionHCost[gr.getId()];
                 if (cond_dist_comp != Float.MAX_VALUE) {
                     if (this.extractRelaxedPlan || this.helpful_actions_computation) {
                         update_achiever(comp, gr);
@@ -301,12 +301,12 @@ public class h1 extends Heuristic {
                 }
             }
         }
-        for (final Condition comp : this.possibleAchievers[gr.id]) {
+        for (final Condition comp : this.possibleAchievers[gr.getId()]) {
 //            Utils.dbg_print(debug - 10, "Condition under analysis:" + comp + "\n");
             if (!this.is_complex.get(comp.getHeuristicId())) {
                 float current_distance = cost[comp.getHeuristicId()];
                 if (current_distance != 0f) {
-                    float rep_needed = this.action_comp_number_execution.getOrDefault(new Pair(gr.id, comp.getHeuristicId()), -1f);
+                    float rep_needed = this.action_comp_number_execution.getOrDefault(new Pair(gr.getId(), comp.getHeuristicId()), -1f);
                     if (rep_needed == -1) {
                         if (gr.infinite_constant_effect) {
                             rep_needed = 1f * c_a;
@@ -317,7 +317,7 @@ public class h1 extends Heuristic {
                         } else {
                             rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
                         }
-                        this.action_comp_number_execution.put(new Pair(gr.id, comp.getHeuristicId()), rep_needed);
+                        this.action_comp_number_execution.put(new Pair(gr.getId(), comp.getHeuristicId()), rep_needed);
                     } else {
 //                        System.out.println("Cache funziona");
                     }
@@ -328,13 +328,13 @@ public class h1 extends Heuristic {
                         }
                         float new_distance = rep_needed;
                         if (this.additive_h) {
-                            new_distance += this.actionHCost[gr.id];
+                            new_distance += this.actionHCost[gr.getId()];
                         } else {
 
                             //rep_needed += this.action_dist.get(gr.counter);
                             new_distance += min_over_possible_achievers(comp);
                             /*
-                            This preserves admissibility.  
+                            This preserves admissibility.
                              */
                         }
 
@@ -358,7 +358,7 @@ public class h1 extends Heuristic {
                 }
                 float new_distance = Float.MAX_VALUE;
                 if (!this.additive_h || ibrDisabled) {
-                    new_distance = actionHCost[gr.id] + c_a;//this is a very conservative measure.
+                    new_distance = actionHCost[gr.getId()] + c_a;//this is a very conservative measure.
                 } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
 
@@ -415,24 +415,24 @@ public class h1 extends Heuristic {
         //this mapping contains action that need to be triggered becasue of condition comp
         for (final GroundAction gr2 : set) {
 
-            if (closed[gr2.id]) {
+            if (closed[gr2.getId()]) {
                 if (this.additive_h || !this.conservativehmax) {
                     continue;
                 }
             }
             float c = checkConditions(gr2);
 
-            if (c < actionHCost[gr2.id]) {//are conditions all reached, and is this a better path?
-                actionHCost[gr2.id] = c;
-                if (action_to_fib_node.get(gr2.id) == null) {
+            if (c < actionHCost[gr2.getId()]) {//are conditions all reached, and is this a better path?
+                actionHCost[gr2.getId()] = c;
+                if (action_to_fib_node.get(gr2.getId()) == null) {
                     FibonacciHeapNode n = new FibonacciHeapNode(gr2);
-                    a_plus.insert(n, c);//push in the set of actions to consider. 
-                    action_to_fib_node.set(gr2.id, n);
-                } else if (closed[gr2.id]) {
-                    a_plus.insert(action_to_fib_node.get(gr2.id), c);
-                    closed[gr2.id] = false;
+                    a_plus.insert(n, c);//push in the set of actions to consider.
+                    action_to_fib_node.set(gr2.getId(), n);
+                } else if (closed[gr2.getId()]) {
+                    a_plus.insert(action_to_fib_node.get(gr2.getId()), c);
+                    closed[gr2.getId()] = false;
                 } else {
-                    a_plus.decreaseKey(action_to_fib_node.get(gr2.id), c);//push in the set of actions to consider. 
+                    a_plus.decreaseKey(action_to_fib_node.get(gr2.getId()), c);//push in the set of actions to consider.
                 }
                 //Need to understand whether is worth to do check on the list to see if action already is there.
                 if (this.reacheability_setting) {
@@ -540,7 +540,7 @@ public class h1 extends Heuristic {
     private float checkConditions (GroundAction gr2) {
         if (extractRelaxedPlan || this.helpful_actions_computation) {
             AchieverSet s = estimateAchievers(gr2.getPreconditions());
-            achieversSet[gr2.id] = s;
+            achieversSet[gr2.getId()] = s;
             return s.cost;
         } else {
             return estimateCost(gr2.getPreconditions());
@@ -564,12 +564,12 @@ public class h1 extends Heuristic {
     private void compute_helpful_actions ( ) {
         LinkedList<GroundAction> list = new LinkedList();
         helpful_actions = new LinkedHashSet();
-        AchieverSet s = this.achieversSet[pseudoGoal.id];
+        AchieverSet s = this.achieversSet[pseudoGoal.getId()];
         getHelpfulActions(list, s);
         while (!list.isEmpty()) {
             GroundAction gr2 = list.pollLast();
 //            System.out.println(gr);
-            s = this.achieversSet[gr2.id];
+            s = this.achieversSet[gr2.getId()];
             getHelpfulActions(list, s);
         }
 //        Utils.dbg_print(debug, "HelpfulActions: " + helpful_actions.toString() + "\n");
@@ -581,7 +581,7 @@ public class h1 extends Heuristic {
         relaxedPlan = new LinkedList();
 
         helpful_actions = new LinkedHashSet();
-        AchieverSet s = this.achieversSet[pseudoGoal.id];
+        AchieverSet s = this.achieversSet[pseudoGoal.getId()];
         HashSet<Integer> visited = new HashSet();
         for (Condition c : s.target_cond) {
             list.add(c);
@@ -597,16 +597,16 @@ public class h1 extends Heuristic {
                     if (this.allAchievers[c.getHeuristicId()] != null) {
                         //System.out.println("Getting all the achievers as helpful actions..");
                         for (GroundAction gr2 : this.allAchievers[c.getHeuristicId()]) {
-                            if (this.actionHCost[gr2.id] == 0) {
+                            if (this.actionHCost[gr2.getId()] == 0) {
                                 this.helpful_actions.add(gr2);
                             }
                         }
                     }
                 }
-                if (this.actionHCost[gr.id] == 0) {
+                if (this.actionHCost[gr.getId()] == 0) {
                     this.helpful_actions.add(gr);
                 } else {
-                    AchieverSet ach_set = this.achieversSet[gr.id];
+                    AchieverSet ach_set = this.achieversSet[gr.getId()];
                     if (ach_set != null) {
                         for (Condition c1 : ach_set.target_cond) {
                             if (!visited.contains(c1.getHeuristicId())) {
@@ -620,7 +620,7 @@ public class h1 extends Heuristic {
 //            System.out.println("List:"+list);
         }
 
-//      
+//
     }
 
     private void update_achiever (Condition comp, GroundAction gr) {
@@ -656,7 +656,7 @@ public class h1 extends Heuristic {
                     if (this.allAchievers[o.getHeuristicId()] != null) {
                         //System.out.println("Getting all the achievers as helpful actions..");
                         for (GroundAction gr : this.allAchievers[o.getHeuristicId()]) {
-                            if (this.actionHCost[gr.id] == 0) {
+                            if (this.actionHCost[gr.getId()] == 0) {
                                 this.helpful_actions.add(gr);
                             }
                         }
@@ -674,7 +674,7 @@ public class h1 extends Heuristic {
 //                            System.out.println("Counter"+gr.counter);
 //                            System.out.println("Max number of actions"+this.total_number_of_actions);
 //                        }
-                    if (this.actionHCost[gr.id] == 0) {
+                    if (this.actionHCost[gr.getId()] == 0) {
                         this.helpful_actions.add(gr);
                     }
 
@@ -704,7 +704,7 @@ public class h1 extends Heuristic {
         Set<GroundAction> set = this.allAchievers[comp.getHeuristicId()];
         float min = Float.MAX_VALUE;
         for (GroundAction gr : set) {
-            min = Math.min(actionHCost[gr.id], min);
+            min = Math.min(actionHCost[gr.getId()], min);
             if (min == 0) {
                 return 0f;
             }
@@ -800,7 +800,7 @@ public class h1 extends Heuristic {
                     }
                 } else if (c instanceof Predicate) {
                     Predicate p = (Predicate) c;
-                    if (gr.achieve(p)) {
+                    if (gr.weakAchiever(p)) {
                         at_least_one_service = true;
                         literals.add(p);
                         action_list.add(gr);
@@ -844,8 +844,8 @@ public class h1 extends Heuristic {
 
             }
 //            if (at_least_one_service){
-            achieve[gr.id] = literals;
-            possibleAchievers[gr.id] = reacheable_comparisons;
+            achieve[gr.getId()] = literals;
+            possibleAchievers[gr.getId()] = reacheable_comparisons;
 //            }else{
 //                useless_actions.add(gr);
 //            }
@@ -877,7 +877,7 @@ public class h1 extends Heuristic {
                 for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
 
                     if (sorted_nodes.contains(neff)) {
-                        possibleAchievers[gr.id].add(comp);
+                        possibleAchievers[gr.getId()].add(comp);
                         action_list.add(gr);
                     }
 

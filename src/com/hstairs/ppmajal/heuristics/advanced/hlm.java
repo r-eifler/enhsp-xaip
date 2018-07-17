@@ -37,7 +37,7 @@ import static java.util.Collections.nCopies;
  */
 public class hlm extends h1 {
 
-    public ArrayList<Integer> dplus;//this is the minimum number of actions needed to achieve a given condition
+    public ArrayList<Integer> dplus;//this is the minimum number of actions needed to weakAchiever a given condition
     //    public ArrayList<Set<repetition_landmark>> reachable_poss_achievers;
     public boolean lp_cost_partinioning;
     public boolean red_constraints = false;
@@ -167,16 +167,16 @@ public class hlm extends h1 {
             }
             //Iterator it = this.A.iterator();
             for (GroundAction gr : this.A) {//see which actions are executable in the current state
-                IloNumVar var = this.action_to_variable.get(gr.id);
+                IloNumVar var = this.action_to_variable.get(gr.getId());
                 if (var == null) {
-                    never_active.set(gr.id, null);
+                    never_active.set(gr.getId(), null);
                     //System.out.println("Useless Action detected");
                     continue;
                 }
                 var.setUB(0f); //Initially no action is useful;
                 if (this.check_conditions(gr)) {
                     a_plus.add(gr);//add such an action
-                    never_active.set(gr.id, false);
+                    never_active.set(gr.getId(), false);
                     if (this.reacheability_setting) {
                         this.reachable.add(gr);
                     }
@@ -184,7 +184,7 @@ public class hlm extends h1 {
             }
             while (!a_plus.isEmpty()) {//keep going till no action is in the list. Look that here actions can be re-added
                 GroundAction gr = a_plus.pop();
-                if (never_active.get(gr.id) == null) {
+                if (never_active.get(gr.getId()) == null) {
                     continue;
                 }
                 update_actions_conditions(s, gr, a_plus, never_active, lm);//this procedure updates
@@ -359,7 +359,7 @@ public class hlm extends h1 {
     }
 
     private void update_actions_conditions (PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
-        for (Condition comp : this.achieve[gr.id]) {//This is the set of all predicates reachable because of gr
+        for (Condition comp : this.achieve[gr.getId()]) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {//if this isn't in the init state yet
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
@@ -371,7 +371,7 @@ public class hlm extends h1 {
                 //for this specific condition check implications of having it reached.
             }
         }
-        for (Condition comp : this.possibleAchievers[gr.id]) {
+        for (Condition comp : this.possibleAchievers[gr.getId()]) {
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
 //                    continue;
@@ -392,10 +392,10 @@ public class hlm extends h1 {
         Set<GroundAction> set = condition_to_action.get(comp.getHeuristicId());
         //this mapping contains action that need to be triggered becasue of condition comp
         for (GroundAction gr2 : set) {
-            if (gr2.id == gr.id) {//avoids self-loop. Thanks god I have integer mapping here.
+            if (gr2.getId() == gr.getId()) {//avoids self-loop. Thanks god I have integer mapping here.
                 continue;
             }
-            if (never_active.get(gr2.id) == null)//this is for useless actions
+            if (never_active.get(gr2.getId()) == null)//this is for useless actions
             {
                 continue;
             }
@@ -403,12 +403,12 @@ public class hlm extends h1 {
 //            System.out.println(never_active);
 //            if (!A.contains(gr2))
 //                continue;
-            if (never_active.get(gr2.id)) {//if this action has never been used before..
+            if (never_active.get(gr2.getId())) {//if this action has never been used before..
                 if (check_conditions(gr2)) {//are conditions all reached?
 //                    if (!a_plus.contains(gr2))
                     a_plus.push(gr2);//push in the set of actions to consider. 
                     //Need to understand whether is worth to do check on the list to see if action already is there.
-                    never_active.set(gr2.id, false);//now is not never active anymore (just pushed in the a_plus)_
+                    never_active.set(gr2.getId(), false);//now is not never active anymore (just pushed in the a_plus)_
                     if (this.reacheability_setting) {
                         this.reachable.add(gr2);
                     }
@@ -530,15 +530,15 @@ public class hlm extends h1 {
 //                            System.out.println("Action: " + gr);
                             continue;
                         }
-                        if (action_to_variable.get(gr.id) != null) {
-                            action = action_to_variable.get(gr.id);
+                        if (action_to_variable.get(gr.getId()) != null) {
+                            action = action_to_variable.get(gr.getId());
                         } else {
                             if (mip) {
                                 action = lp_global.numVar(0.0, Integer.MAX_VALUE, IloNumVarType.Int);
                             } else {
                                 action = lp_global.numVar(0.0, 0.0, IloNumVarType.Float);
                             }
-                            action_to_variable.set(gr.id, action);
+                            action_to_variable.set(gr.getId(), action);
                             objective_function.addTerm(action, action_cost);
                         }
 //                        System.out.println("Condition under evaluation:" + c);
@@ -590,7 +590,7 @@ public class hlm extends h1 {
 
     private void free_variable_modify_contribution_if_needed (PDDLState s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
 
-        IloNumVar action_var = this.action_to_variable.get(gr.id);
+        IloNumVar action_var = this.action_to_variable.get(gr.getId());
         action_var.setUB(Float.MAX_VALUE);//add only useful actions
         if (revise_terms) {
             IloRange ilo2 = condition_to_cplex_constraint.get(c.getHeuristicId());
