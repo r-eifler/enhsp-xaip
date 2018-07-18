@@ -859,12 +859,45 @@ public class SearchEngine {
         long startSearch = System.currentTimeMillis();
         Pair<SearchNode, Float> res = null;
         for (; ; ) {
-            res = boundedDepthSearch(problem, initState, bound);
+            res = boundedDepthFirstSearch(problem, bound);
             if (res == null || res.getFirst() != null) {
                 break;
             }
             bound = res.getSecond();
         }
+        setOverallSearchTime((System.currentTimeMillis() - startSearch));
+        if (res != null) {
+            return this.extractPlan(res.getFirst());
+        }
+        return null;
+
+    }
+
+
+    public LinkedList dfsbnb (EPddlProblem problem) throws Exception {
+        State initState = problem.getInit();
+        beginningTime = System.currentTimeMillis();
+        previousTime = beginningTime;
+        if (!initState.satisfy(problem.globalConstraints)) {
+            System.out.println("Initial State is not valid");
+            return null;
+        }
+        deadEndsDetected = 0;
+        constraintsViolations = 0;
+        if (getHeuristic().setup(initState) == Float.MAX_VALUE) {
+            System.out.println("h(n = s_0)=inf");
+            return null;
+        }
+        System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().reachable.size());
+        setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
+        setHeuristicCpuTime(0);
+        setNodesReopened(0);
+        setNodesExpanded(0);
+        this.setEvaluatedStates(0);
+
+        long startSearch = System.currentTimeMillis();
+
+        final Pair<SearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
             return this.extractPlan(res.getFirst());
@@ -883,14 +916,19 @@ public class SearchEngine {
         return false;
     }
 
-    private Pair<SearchNode, Float> boundedDepthSearch (EPddlProblem problem, State initState, float bound) {
+    private Pair<SearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound) {
+        return this.boundedDepthFirstSearch(problem,bound,false);
+    }
+
+    private Pair<SearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime) {
         final Stack<SearchNode> frontier = new ObjectArrayList<>();
 
-        SearchNode init = new SearchNode(initState.clone(), 0, bound, this.saveSearchTreeAsJson, this.gw, this.hw);
+        SearchNode init = new SearchNode(problem.getInit().clone(), 0, bound, this.saveSearchTreeAsJson, this.gw, this.hw);
         frontier.push(init);
         float newBound = Float.POSITIVE_INFINITY;
         System.out.println("f(n): " + bound + "(Expanded Nodes: " + getNodesExpanded() + ")");
 
+        SearchNode bestSol = null;
         while (!frontier.isEmpty()) {
             final SearchNode node = frontier.pop();
             long now = System.currentTimeMillis();
@@ -913,8 +951,8 @@ public class SearchEngine {
                 this.deadEndsDetected++;
             } else {
                 float f = g + h * this.hw;
-                if (f > bound) {
-                    if (f < newBound) {
+                if ((f > bound && !anytime ) || (f >= bound && anytime)) {
+                    if (f < newBound && !anytime) {
                         if (problem.goalSatisfied(node.s) != null) {
                             newBound = f;
                         }
@@ -923,29 +961,36 @@ public class SearchEngine {
                     final Boolean goalSatisfied = problem.goalSatisfied(node.s);
                     if (goalSatisfied != null) {
                         if (goalSatisfied) {
-                            return new Pair(node, newBound);
-                        }
-                        if (this.helpfulActionsPruning) {
-                            problem.setReachableActions(heuristic.helpful_actions);
-                        }
-                        for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext(); ) {
-                            final Pair<State, Object> next = it.next();
-                            final State successorState = next.getFirst();
-                            final Object act = next.getSecond();
+                            if (anytime) {
+                                bound = f;
+                                System.out.println("Found solution of cost:"+ bound);
+                                bestSol = node;
+                            }else{
+                                return new Pair(node,newBound);
+                            }
+                        }else {
+                            if (this.helpfulActionsPruning) {
+                                problem.setReachableActions(heuristic.helpful_actions);
+                            }
+                            for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext(); ) {
+                                final Pair<State, Object> next = it.next();
+                                final State successorState = next.getFirst();
+                                final Object act = next.getSecond();
 //                            System.out.println(act);
-                            //skip this if violates global constraints
-                            final SearchNode father = node.father;
-                            if (!onThePath(successorState, father)) {
-                                frontier.push(new SearchNode(successorState, act, node, g, h));
+                                //skip this if violates global constraints
+                                final SearchNode father = node.father;
+                                if (!onThePath(successorState, father)) {
+                                    frontier.push(new SearchNode(successorState, act, node, g, h));
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        if (newBound == Float.POSITIVE_INFINITY)
+        if ((newBound == Float.POSITIVE_INFINITY && !anytime ) || (bestSol == null && anytime ))
             return null;
-        return new Pair(null, newBound);
+        return new Pair(bestSol, newBound);
 
     }
 
