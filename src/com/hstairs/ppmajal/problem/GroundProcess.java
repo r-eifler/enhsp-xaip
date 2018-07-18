@@ -209,14 +209,14 @@ public class GroundProcess extends GroundAction {
     }
 
     /**
-     * @return the delta
+     * @return the executionDelta
      */
     public double getDelta ( ) {
         return delta;
     }
 
     /**
-     * @param delta the delta to set
+     * @param delta the executionDelta to set
      */
     public void setDelta (double delta) {
         this.delta = delta;

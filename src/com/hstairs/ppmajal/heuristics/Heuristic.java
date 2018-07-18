@@ -199,7 +199,7 @@ public abstract class Heuristic {
                 for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                     Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
-                    //Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
+                    //Utils.dbg_print(debugLevel, "Identifier:" + c_1.getCounter() + "\n");
                 }
             }
         }
@@ -213,9 +213,9 @@ public abstract class Heuristic {
 
 //        LinkedHashSet temp = new LinkedHashSet();
         for (Condition c_1 : G.getTerminalConditions()) {
-            //Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
+            //Utils.dbg_print(debugLevel, "Condition added to the set:" + c_1 + "\n");
             counter_conditions = update_index_conditions(c_1, counter_conditions);
-            //Utils.dbg_print(debug, "Identifier:" + c_1.getCounter() + "\n");
+            //Utils.dbg_print(debugLevel, "Identifier:" + c_1.getCounter() + "\n");
 
 //            temp.add(c_1);
         }
@@ -700,11 +700,11 @@ public abstract class Heuristic {
         }
         Float minimum_precondition_cost;
 
-//         BasicLogger.debug();
-//        BasicLogger.debug("Test for "+c.pddlPrint(false));
-//        BasicLogger.debug(OjAlgoUtils.getTitle());
-//        BasicLogger.debug(OjAlgoUtils.getDate());
-//        BasicLogger.debug();
+//         BasicLogger.debugLevel();
+//        BasicLogger.debugLevel("Test for "+c.pddlPrint(false));
+//        BasicLogger.debugLevel(OjAlgoUtils.getTitle());
+//        BasicLogger.debugLevel(OjAlgoUtils.getDate());
+//        BasicLogger.debugLevel();
         final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
 
         Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
@@ -892,11 +892,11 @@ public abstract class Heuristic {
 //            System.out.println("Condition under evaluation:"+c);
 //            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
 //            //if (c.getCounter() == G.getCounter()){
-//                BasicLogger.debug();
-//               BasicLogger.debug(tmpResult);
-//                           BasicLogger.debug(tmpModel);
+//                BasicLogger.debugLevel();
+//               BasicLogger.debugLevel(tmpResult);
+//                           BasicLogger.debugLevel(tmpModel);
 //
-//               BasicLogger.debug();
+//               BasicLogger.debugLevel();
 //               System.out.println("Minimum Precondition Costs:"+minimum_precondition_cost);
 //            //}
 //

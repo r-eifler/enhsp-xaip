@@ -359,7 +359,7 @@ public class Aibr_rp extends Heuristic {
                         if (gr.getPreconditions() != null) {
                             for (Condition c : gr.getPreconditions().getTerminalConditions()) {
                                 //System.out.println("Precondition level:"+dist.get(c));
-//                                Utils.dbg_print(debug,"instances of"+c.getClass());
+//                                Utils.dbg_print(debugLevel,"instances of"+c.getClass());
                                 Utils.dbg_print(debug, "Candidate implications:[" + this.dist.get(c.getHeuristicId()) + "]" + c);
                                 this.conditions_sat_at_time_index.get(this.dist.get(c.getHeuristicId())).add(c);
                             }

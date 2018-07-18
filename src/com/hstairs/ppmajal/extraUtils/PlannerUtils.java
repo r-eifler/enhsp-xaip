@@ -51,9 +51,9 @@ public class PlannerUtils {
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
             //this is when you have processes
             problem.setDeltaTimeVariable("1");
-            searchStrategies.delta = Float.parseFloat("1");
+            searchStrategies.executionDelta = Float.parseFloat("1");
             searchStrategies.processes = true;
-            searchStrategies.delta_max = Float.parseFloat("1");
+            searchStrategies.planningDelta = Float.parseFloat("1");
         } else {//this is when you have processes
         }
         problem.groundingActionProcessesConstraints();
@@ -83,7 +83,7 @@ public class PlannerUtils {
         searchStrategies.setWG(wg);
         searchStrategies.setWH(wh);
         LinkedList raw_plan = searchStrategies.WAStar(problem);
-        System.out.println("Nodes Expanded:" + SearchEngine.nodesExpanded);
+        System.out.println("Nodes Expanded:" + searchStrategies.getNodesExpanded());
         //System.out.println(raw_plan.size());
         return raw_plan.size();
     }
@@ -100,9 +100,9 @@ public class PlannerUtils {
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
             //this is when you have processes
             problem.setDeltaTimeVariable("1");
-            searchStrategies.delta = Float.parseFloat("1");
+            searchStrategies.executionDelta = Float.parseFloat("1");
             searchStrategies.processes = true;
-            searchStrategies.delta_max = Float.parseFloat("1");
+            searchStrategies.planningDelta = Float.parseFloat("1");
         } else {//this is when you have processes
         }
         problem.groundingActionProcessesConstraints();

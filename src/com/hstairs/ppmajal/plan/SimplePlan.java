@@ -1887,7 +1887,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //            System.out.println(current);
 //            System.out.println("StartTime:"+start_time);
         }
-//        System.out.println((start_time+delta));
+//        System.out.println((start_time+executionDelta));
 //        System.out.println((time));
         return current;
     }

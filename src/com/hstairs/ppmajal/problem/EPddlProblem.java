@@ -976,7 +976,7 @@ public class EPddlProblem extends PddlProblem {
                 GroundProcess waiting = new GroundProcess("waiting");
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
-                //waiting.add_time_effects(((PDDLState)temp).time, delta);
+                //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);
                 waiting.addDelta(delta);
                 for (GroundAction act : this.getReachableProcesses()) {
                     if (act instanceof GroundProcess) {

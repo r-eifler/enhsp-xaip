@@ -192,15 +192,15 @@ public class h1 extends Heuristic {
         //if (!this.reacheability_setting)
 //            s.setApplicableActions(actionApplicableInGs);
 
-//        Utils.dbg_print(debug - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
+//        Utils.dbg_print(debugLevel - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
         for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
             if (s.satisfy(c)) {
                 cost[c.getHeuristicId()] = 0f;
-//                Utils.dbg_print(debug - 10, "Condition that is already satisfied:" + c + "\n");
-//                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
+//                Utils.dbg_print(debugLevel - 10, "Condition that is already satisfied:" + c + "\n");
+//                Utils.dbg_print(debugLevel - 10, "Counter is:" + c.getCounter() + "\n");
             } else {
-//                Utils.dbg_print(debug - 10, "Condition that is NOT already satisfied:" + c + "\n");
-//                Utils.dbg_print(debug - 10, "Counter is:" + c.getCounter() + "\n");
+//                Utils.dbg_print(debugLevel - 10, "Condition that is NOT already satisfied:" + c + "\n");
+//                Utils.dbg_print(debugLevel - 10, "Counter is:" + c.getCounter() + "\n");
             }
 
         }
@@ -227,8 +227,8 @@ public class h1 extends Heuristic {
             //if (!conservativehmax || this.additive_h)
             closed[gr.getId()] = true;
             reachableActions.add(gr);
-//            Utils.dbg_print(debug - 10, "Action Evaluated:" + gr + "\n");
-//            Utils.dbg_print(debug - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
+//            Utils.dbg_print(debugLevel - 10, "Action Evaluated:" + gr + "\n");
+//            Utils.dbg_print(debugLevel - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
             if (gr.dummy_goal) {
                 estimate = actionHCost[gr.getId()];
                 if (!this.reacheability_setting && (this.additive_h || !conservativehmax)) {
@@ -302,7 +302,7 @@ public class h1 extends Heuristic {
             }
         }
         for (final Condition comp : this.possibleAchievers[gr.getId()]) {
-//            Utils.dbg_print(debug - 10, "Condition under analysis:" + comp + "\n");
+//            Utils.dbg_print(debugLevel - 10, "Condition under analysis:" + comp + "\n");
             if (!this.is_complex.get(comp.getHeuristicId())) {
                 float current_distance = cost[comp.getHeuristicId()];
                 if (current_distance != 0f) {
@@ -401,7 +401,7 @@ public class h1 extends Heuristic {
                     }
 
                 }
-//                Utils.dbg_print(debug - 10, "(Complex) Action under consideration and number of needed execution:" + gr + " " + current_distance + "\n");
+//                Utils.dbg_print(debugLevel - 10, "(Complex) Action under consideration and number of needed execution:" + gr + " " + current_distance + "\n");
 
             }
         }
@@ -572,7 +572,7 @@ public class h1 extends Heuristic {
             s = this.achieversSet[gr2.getId()];
             getHelpfulActions(list, s);
         }
-//        Utils.dbg_print(debug, "HelpfulActions: " + helpful_actions.toString() + "\n");
+//        Utils.dbg_print(debugLevel, "HelpfulActions: " + helpful_actions.toString() + "\n");
     }
 
     private void compute_relaxed_plan ( ) {//this should be updated!

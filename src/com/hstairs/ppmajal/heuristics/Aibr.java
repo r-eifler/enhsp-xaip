@@ -62,9 +62,9 @@ public class Aibr extends Heuristic {
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
-//        Utils.dbg_print(debug, "Generate Supporters\n");
+//        Utils.dbg_print(debugLevel, "Generate Supporters\n");
         generate_supporters(A);
-//        Utils.dbg_print(debug, "Supporters Generated\n");
+//        Utils.dbg_print(debugLevel, "Supporters Generated\n");
 
         //this.build_integer_representation();
     }
@@ -74,10 +74,10 @@ public class Aibr extends Heuristic {
         this.supp_to_action = new HashMap();
 
         supporters = new LinkedHashSet();
-//        Utils.dbg_print(debug, "Generate Supporters\n");
+//        Utils.dbg_print(debugLevel, "Generate Supporters\n");
         generate_supporters(A);
 
-//        Utils.dbg_print(debug, "Supporters Generated\n");
+//        Utils.dbg_print(debugLevel, "Supporters Generated\n");
 
         //this.build_integer_representation();
     }
@@ -91,9 +91,9 @@ public class Aibr extends Heuristic {
     public Float setup (State s_0) {
         reachability = true;
 
-//        Utils.dbg_print(debug, "Computing Internal Data Structure\n");
+//        Utils.dbg_print(debugLevel, "Computing Internal Data Structure\n");
         this.build_integer_representation();
-//        Utils.dbg_print(debug, "Computing Reachable Actions\n");
+//        Utils.dbg_print(debugLevel, "Computing Reachable Actions\n");
 
         Float ret = computeEstimate(s_0);
         reachability = false;
@@ -162,7 +162,7 @@ public class Aibr extends Heuristic {
 
             i++;
         }
-//        Utils.dbg_print(debug, "Rechability finished");
+//        Utils.dbg_print(debugLevel, "Rechability finished");
 
 //        System.out.println("Number of Transitions: "+A.size());
 //        System.out.println("Number of Supporters: "+supporters.size());

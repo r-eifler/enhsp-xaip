@@ -2722,7 +2722,7 @@ public class ModifiedPddlParser extends Parser {
                                 adaptor.addChild(root_0, root_1);
                             }
 
-                            adaptor.addChild(root_0, new String("debug"));
+                            adaptor.addChild(root_0, new String("debugLevel"));
                         }
 
                         retval.tree = root_0;

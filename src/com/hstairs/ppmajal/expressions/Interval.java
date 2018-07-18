@@ -182,7 +182,7 @@ public class Interval {
             if (this.inf.getNumber() > 0 || (second.inf.getNumber() % 2 != 0)) {
 //            if (this.inf.getNumber() >= 0 ) {
 
-//                System.out.println("debug");
+//                System.out.println("debugLevel");
                 ret.inf.setNumber((float) Math.pow(this.inf.getNumber(), second.inf.getNumber()));
                 ret.sup.setNumber((float) Math.pow(this.sup.getNumber(), second.inf.getNumber()));
             } else if (this.sup.getNumber() < 0) {
