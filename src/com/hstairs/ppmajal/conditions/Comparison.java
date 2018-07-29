@@ -106,7 +106,7 @@ public class Comparison extends Terminal {
 
         return string_representation;
 
-        //return "(" + getLeft() + " " + getComparator() + " " + getRight() + ")";
+        //return "(" + getLeft() + " " + getComparator() + " " + getRhs() + ")";
     }
 
     /**
@@ -569,7 +569,7 @@ public class Comparison extends Terminal {
             ExtendedNormExpression lExprNew = (ExtendedNormExpression) c.getLeft();
 //            System.out.println(lExpr);
 //            System.out.println(lExprNew);
-//            System.out.println(this.getRight());
+//            System.out.println(this.getRhs());
 
             ExtendedNormExpression toTest = lExprNew.minus((ExtendedNormExpression) lExpr.clone());
             Double total = 0d;

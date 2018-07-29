@@ -1079,7 +1079,7 @@ public class GroundAction extends PDDLGenericAction {
         if (eff instanceof AndCond) {
             for (Object o2 : eff.sons) {
                 NumEffect nEff = (NumEffect) o2;
-                //System.out.println(nEff.getRight().getClass());
+                //System.out.println(nEff.getRhs().getClass());
                 Expression rValue = nEff.getRight();
                 //System.out.println("before" + rValue);
                 rValue = rValue.weakEval(problem, abstractInvariantFluents);
@@ -1118,7 +1118,7 @@ public class GroundAction extends PDDLGenericAction {
         boolean ret = true;
         for (Object o : this.getNumericEffects().sons) {
             NumEffect nf = (NumEffect) o;
-            //System.out.println("nf:"+nf.getRight().getClass());
+            //System.out.println("nf:"+nf.getRhs().getClass());
             if (nf.getRight() instanceof ExtendedNormExpression) {
                 ExtendedNormExpression ne = (ExtendedNormExpression) nf.getRight();
                 //System.out.println(ne);
@@ -1126,7 +1126,7 @@ public class GroundAction extends PDDLGenericAction {
                     return true;
                 }
             } else if (!(nf.getRight() instanceof PDDLNumber)) {
-                //System.out.println(nf.getRight());
+                //System.out.println(nf.getRhs());
                 return true;
             }
         }

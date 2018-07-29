@@ -238,15 +238,16 @@ public class FactoryConditions {
         return a;
     }
 
-    private Expression createExpression (Tree t, SchemaParameters parTable) {
+    public Expression createExpression (Tree t, SchemaParameters parTable) {
+
+
 
         switch (t.getType()) {
             case PddlParser.BINARY_OP: {
                 BinaryOp ret = new BinaryOp();
                 ret.setOperator(t.getChild(0).getText());
-                ret.setOne(createExpression(t.getChild(1), parTable));
-                ret.setRight(createExpression(t.getChild(2), parTable));
-
+                ret.setLhs(createExpression(t.getChild(1), parTable));
+                ret.setRhs(createExpression(t.getChild(2), parTable));
                 return ret;
             }
             case PddlParser.SIN: {
@@ -499,8 +500,8 @@ public class FactoryConditions {
             case PddlParser.BINARY_OP: {
                 BinaryOp ret = new BinaryOp();
                 ret.setOperator(t.getChild(0).getText());
-                ret.setOne(createExpression(t.getChild(1)));
-                ret.setRight(createExpression(t.getChild(2)));
+                ret.setLhs(createExpression(t.getChild(1)));
+                ret.setRhs(createExpression(t.getChild(2)));
                 ret.grounded = true;
                 return ret;
             }

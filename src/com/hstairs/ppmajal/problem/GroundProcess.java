@@ -97,10 +97,10 @@ public class GroundProcess extends GroundAction {
 //                Double newN = null;
 //
 //                Double rValue;
-//                if (all.getRight().eval(s) == null) {
+//                if (all.getRhs().eval(s) == null) {
 //                    newN = null;
 //                } else {
-//                    rValue = all.getRight().eval(s);
+//                    rValue = all.getRhs().eval(s);
 //                    if (rValue == null) {
 //                        System.out.println("Trying to applying an action with invalid effects!!");
 //                        System.out.println(this);
@@ -149,7 +149,7 @@ public class GroundProcess extends GroundAction {
                 if (eff.getOperator().equals(int_eff.getOperator())) {
                     try {
 //                        System.out.println("DEBUG:"+int_eff);
-//                        System.out.println("DEBUG:"+int_eff.getRight());
+//                        System.out.println("DEBUG:"+int_eff.getRhs());
                         ExtendedNormExpression expr = (ExtendedNormExpression) int_eff.getRight();
                         ExtendedNormExpression res = expr.sum((ExtendedNormExpression) eff.getRight());
                         NumEffect n_effect = new NumEffect(eff.getOperator());

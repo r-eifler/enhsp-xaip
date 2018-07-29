@@ -287,7 +287,7 @@ public class PDDLObjectsEquality extends Terminal {
     public String pddlPrintWithExtraObject ( ) {
         String ret = "";
 //        if (grounded) {
-//            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRight().pddlPrintWithExtraObject() + ")";
+//            ret += "( = " + this.getLeft().pddlPrintWithExtraObject() + " " + this.getRhs().pddlPrintWithExtraObject() + ")";
 //        } else {
         ret += "( = " + this.getLeftV().pddlPrint(false) + " " + this.getRightV().pddlPrint(false) + ")";
 

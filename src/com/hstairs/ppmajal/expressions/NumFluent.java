@@ -177,9 +177,13 @@ public class NumFluent extends Expression {
     @Override
     public Double eval (State s) {
         if (s == null) {
-            System.out.println("stato nullo!!");
+            throw new RuntimeException("State "+s+" is null at this stage. Bug");
         }
-        return ((PDDLState) s).fluentValue(this);
+        final double d = ((PDDLState) s).fluentValue(this);
+        if (d == Double.NaN){
+            return null;
+        }
+        return d;
     }
 
     @Override
@@ -277,14 +281,14 @@ public class NumFluent extends Expression {
                     if (as.getOperator().equals("increase")) {
                         BinaryOp bin = new BinaryOp();
                         bin.setOperator("+");
-                        bin.setOne(this);
-                        bin.setRight(as.getRight());
+                        bin.setLhs(this);
+                        bin.setRhs(as.getRight());
                         return bin;
                     } else if (as.getOperator().equals("decrease")) {
                         BinaryOp bin = new BinaryOp();
                         bin.setOperator("-");
-                        bin.setOne(this);
-                        bin.setRight(as.getRight());
+                        bin.setLhs(this);
+                        bin.setRhs(as.getRight());
                         return bin;
                     } else if (as.getOperator().equals("assign")) {
                         return as.getRight();
@@ -432,14 +436,14 @@ public class NumFluent extends Expression {
     /**
      * @return the id
      */
-    public Integer getId ( ) {
+    public int getId ( ) {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId (Integer id) {
+    public void setId (int id) {
         this.id = id;
     }
 

@@ -311,14 +311,14 @@ public class NumEffect extends Expression implements PostCondition {
         BinaryOp op = new BinaryOp();
         if (this.operator.equals("increase")) {
             op.setOperator("+");
-            op.setRight(this.getRight());
-            op.setOne(this.getFluentAffected());
+            op.setRhs(this.getRight());
+            op.setLhs(this.getFluentAffected());
             return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + op.toSmtVariableString(i) + ")";
 
         } else if (this.operator.equals("decrease")) {
             op.setOperator("-");
-            op.setRight(this.getRight());
-            op.setOne(this.getFluentAffected());
+            op.setRhs(this.getRight());
+            op.setLhs(this.getFluentAffected());
             return "(= " + this.getFluentAffected().toSmtVariableString(i + 1) + " " + op.toSmtVariableString(i) + ")";
 
         } else if (this.operator.equals("assign")) {
@@ -407,13 +407,13 @@ public class NumEffect extends Expression implements PostCondition {
 //        boolean ret = false;
 //        switch (this.getOperator()) {
 //            case "increase":
-//                ret = this.getRight().involve(this.fluentAffected);
+//                ret = this.getRhs().involve(this.fluentAffected);
 //                break;
 //            case "decrease":
-//                ret = this.getRight().involve(this.fluentAffected);
+//                ret = this.getRhs().involve(this.fluentAffected);
 //                break;
 //            case "assign":
-//                ret = this.getRight().involve(this.fluentAffected);
+//                ret = this.getRhs().involve(this.fluentAffected);
 //                break;
 //        }
         return this.getRight().involve(this.fluentAffected);

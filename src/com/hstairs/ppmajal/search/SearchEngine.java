@@ -162,7 +162,7 @@ public class SearchEngine {
     private void setupReachableActionsProcesses (EPddlProblem problem) {
         setReachableActions(problem);
         setReachableProcessesEvents(problem);
-        System.out.println("Actions used at init:" + problem.getActions().size());
+        System.out.println("Actions used at init:" + problem.getReachableActions().size());
     }
 
     /*
@@ -976,7 +976,6 @@ public class SearchEngine {
                                 final Pair<State, Object> next = it.next();
                                 final State successorState = next.getFirst();
                                 final Object act = next.getSecond();
-//                            System.out.println(act);
                                 //skip this if violates global constraints
                                 final SearchNode father = node.father;
                                 if (!onThePath(successorState, father)) {

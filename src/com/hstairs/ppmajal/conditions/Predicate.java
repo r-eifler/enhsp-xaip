@@ -32,7 +32,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     public HashSet son;
     public Integer hash_code;
-    public Integer id;
+    public int id;
     private String name;
     private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
 

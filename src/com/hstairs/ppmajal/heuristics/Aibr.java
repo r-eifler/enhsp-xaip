@@ -90,11 +90,6 @@ public class Aibr extends Heuristic {
     @Override
     public Float setup (State s_0) {
         reachability = true;
-
-//        Utils.dbg_print(debugLevel, "Computing Internal Data Structure\n");
-        this.build_integer_representation();
-//        Utils.dbg_print(debugLevel, "Computing Reachable Actions\n");
-
         Float ret = computeEstimate(s_0);
         reachability = false;
         return ret;

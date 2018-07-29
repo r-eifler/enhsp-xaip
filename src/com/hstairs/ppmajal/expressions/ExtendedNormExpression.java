@@ -250,9 +250,9 @@ public class ExtendedNormExpression extends Expression {
                 result.summations.add(ele);
             } else {
                 BinaryOp bin = new BinaryOp();
-                bin.setRight(new PDDLNumber(-1));
+                bin.setRhs(new PDDLNumber(-1));
                 bin.setOperator("*");
-                bin.setOne(b.bin.clone());
+                bin.setLhs(b.bin.clone());
                 ExtendedAddendum ele = new ExtendedAddendum();
                 ele.linear = false;
                 ele.bin = bin;
@@ -506,8 +506,8 @@ public class ExtendedNormExpression extends Expression {
                     for (Object o1 : numeric.sons) {
                         NumEffect ef = (NumEffect) o1;
                         NumEffect eff = (NumEffect) ef.clone();
-                        //eff.setRight(eff.getRight().normalize());
-//                    System.out.println(" "+eff.getOne().getName()+ " "+ ad.f.getName() + ": " + eff.getOne().equals(ad.f));
+                        //eff.setRhs(eff.getRhs().normalize());
+//                    System.out.println(" "+eff.getLhs().getName()+ " "+ ad.f.getName() + ": " + eff.getLhs().equals(ad.f));
                         if (eff.getFluentAffected().equals(ad.f)) {
                             if ((eff.getOperator().equals("increase"))) {
                                 ExtendedNormExpression res = new ExtendedNormExpression();

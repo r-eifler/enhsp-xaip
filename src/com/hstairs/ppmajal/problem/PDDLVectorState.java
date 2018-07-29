@@ -116,7 +116,7 @@ public class PDDLVectorState extends State {
 
 
     public double fluentValue (NumFluent f) {
-        if (f.getId() == null) {
+        if (f.getId() == -1 ) {
             throw new RuntimeException("Numeric Fluent " + f + " hasn't been assigned with a unique id ");
         }
         return this.numFluents.get(f.getId());
@@ -125,11 +125,11 @@ public class PDDLVectorState extends State {
 
 
     public boolean holds (Predicate p) {
-        return (p.id != null && (this.boolFluents[p.id]));
+        return (p.id != -1 && (this.boolFluents[p.id]));
     }
 
     public void setNumFluent (NumFluent f, Double after) {
-        if (f.getId() == null) {
+        if (f.getId() == -1 ) {
             throw new RuntimeException("This shouldn't happen and is a bug. Numeric fluent wasn't on the table");
 //            f.id = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
@@ -139,7 +139,7 @@ public class PDDLVectorState extends State {
     }
 
     public void setPropFluent (Predicate f, Boolean after) {
-        if (f.id == null) {
+        if (f.id == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Predicate fluent wasn't on the table");
 //            f.id = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
 //            this.boolFluents.add(after);

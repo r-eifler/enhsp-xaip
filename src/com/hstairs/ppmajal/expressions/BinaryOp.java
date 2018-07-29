@@ -51,10 +51,10 @@ public class BinaryOp extends Expression {
 
     @Override
     public String toString ( ) {
-        if (getRight() != null) {
-            return "(" + getOperator() + " (" + getOne() + " " + getRight() + "))";
+        if (getRhs() != null) {
+            return "(" + getOperator() + " (" + getLhs() + " " + getRhs() + "))";
         }
-        return "(" + getOperator() + " (" + getOne() + "))";
+        return "(" + getOperator() + " (" + getLhs() + "))";
     }
 
     /**
@@ -74,28 +74,28 @@ public class BinaryOp extends Expression {
     /**
      * @return the one
      */
-    public Expression getOne ( ) {
+    public Expression getLhs ( ) {
         return lhs;
     }
 
     /**
      * @param one the one to set
      */
-    public void setOne (Expression one) {
+    public void setLhs (Expression one) {
         this.lhs = one;
     }
 
     /**
      * @return the right element of the binary operation
      */
-    public Expression getRight ( ) {
+    public Expression getRhs ( ) {
         return rhs;
     }
 
     /**
      * @param right the two to set
      */
-    public void setRight (Expression right) {
+    public void setRhs (Expression right) {
         this.rhs = right;
     }
 
@@ -117,7 +117,7 @@ public class BinaryOp extends Expression {
         Double ret_val = null;
         Double first = this.lhs.eval(s);
         Double second = this.rhs.eval(s);
-        if ((first == null) || (second == null)) {
+        if ((first == null) || (second == null) || (first.isNaN()) || (second.isNaN())) {
             return null;//negation by failure.
         }
         switch (this.getOperator()) {
@@ -152,18 +152,18 @@ public class BinaryOp extends Expression {
     @Override
     public ExtendedNormExpression normalize ( ) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
-        this.setOne(this.getOne().normalize());
-        this.setRight(this.getRight().normalize());
+        this.setLhs(this.getLhs().normalize());
+        this.setRhs(this.getRhs().normalize());
 
-        ExtendedNormExpression l = (ExtendedNormExpression) this.getOne();
-        ExtendedNormExpression r = (ExtendedNormExpression) this.getRight();
+        ExtendedNormExpression l = (ExtendedNormExpression) this.getLhs();
+        ExtendedNormExpression r = (ExtendedNormExpression) this.getRhs();
 
         try {
             if ((!r.isNumber() && this.getOperator().equals("/")) || ((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && ((this.getOperator().equals("*") || this.getOperator().equals("/")))))) {
                 BinaryOp bin = new BinaryOp();
                 bin.setOperator(this.getOperator());
-                bin.setOne(l);
-                bin.setRight(r);
+                bin.setLhs(l);
+                bin.setRhs(r);
 
                 ret = new ExtendedNormExpression(bin);
                 ret.linear = false;
@@ -369,7 +369,7 @@ public class BinaryOp extends Expression {
         if (expr instanceof BinaryOp) {
             BinaryOp bin = (BinaryOp) expr;
             if (bin.getOperator().equals(this.getOperator())) {
-                return this.getOne().isUngroundVersionOf(bin.getOne()) && this.getRight().isUngroundVersionOf(bin.getRight());
+                return this.getLhs().isUngroundVersionOf(bin.getLhs()) && this.getRhs().isUngroundVersionOf(bin.getRhs());
             }
         }
         return false;
@@ -392,7 +392,7 @@ public class BinaryOp extends Expression {
 
     @Override
     public String toSmtVariableString (int i) {
-        return "(" + this.operator + " " + this.getOne().toSmtVariableString(i) + " " + this.getRight().toSmtVariableString(i) + ")";
+        return "(" + this.operator + " " + this.getLhs().toSmtVariableString(i) + " " + this.getRhs().toSmtVariableString(i) + ")";
     }
 
     @Override
@@ -409,9 +409,9 @@ public class BinaryOp extends Expression {
         bui.append("(");
         bui.append(getOperator());
         bui.append(" ");
-        getOne().pddlPrint(typeInformation, bui);
+        getLhs().pddlPrint(typeInformation, bui);
         bui.append(" ");
-        getRight().pddlPrint(typeInformation, bui);
+        getRhs().pddlPrint(typeInformation, bui);
         bui.append(")");
     }
 

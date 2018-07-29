@@ -52,7 +52,7 @@ public abstract class Heuristic {
     public LinkedHashSet<GroundAction> A;
     public ComplexCondition G;
     public boolean why_not_active = false;
-    public Set<GroundAction> helpful_actions;
+    public Collection<GroundAction> helpful_actions;
     public HashMap<Integer, GroundAction> final_achiever;
     public boolean preferred_operators;
     public int reacheable_conditions;
@@ -427,7 +427,7 @@ public abstract class Heuristic {
         //Reacheability step following closure of numeric relations
         RelState temp = rel_state.clone();
         for (NumEffect nf : sorted_nodes) {
-            //System.out.println(nf.getRight());
+            //System.out.println(nf.getRhs());
             Interval res = nf.getRight().eval(temp);
             switch (nf.getOperator()) {
                 case "increase":
@@ -790,7 +790,7 @@ public abstract class Heuristic {
                                             break;
                                         case "assign":
                                             //this is an assign
-//                                            right = neff.getRight().eval(s_0).getNumber() * ad.n.getNumber();
+//                                            right = neff.getRhs().eval(s_0).getNumber() * ad.n.getNumber();
 //                                            right = condition.get(action).floatValue() - right;
 //                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
 //                                            action.upper(1);
@@ -889,23 +889,7 @@ public abstract class Heuristic {
                     minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
                 }
             }
-//            System.out.println("Condition under evaluation:"+c);
-//            System.out.println("Action owning it:"+this.cond_action.get(c.getCounter()));
-//            //if (c.getCounter() == G.getCounter()){
-//                BasicLogger.debugLevel();
-//               BasicLogger.debugLevel(tmpResult);
-//                           BasicLogger.debugLevel(tmpModel);
-//
-//               BasicLogger.debugLevel();
-//               System.out.println("Minimum Precondition Costs:"+minimum_precondition_cost);
-//            //}
-//
-////            if (minimum_precondition_cost == Float.MAX_VALUE){
-////                System.out.println("Error in using some of the action..");
-////            }
-//               System.out.println("Result returned:"+(float) (tmpResult.getValue() + minimum_precondition_cost));
             return (float) (tmpResult.getValue() + minimum_precondition_cost);
-//            return (float) (tmpResult.getValue() + minimum_precondition_cost);
 
         } else {
             //            System.out.println(opt.toString());
@@ -1015,7 +999,7 @@ public abstract class Heuristic {
 //                                        //                            if (number_numericEffects == 1) {
 //                                        System.out.println(neff);
 //                                        neff.setOperator("increase");
-//                                        neff.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+//                                        neff.setRhs(new BinaryOp(neff.getRhs(), "-", neff.getFluentAffected(), true).normalize());
 //                                        neff.setPseudo_num_effect(true);
 //                                        //                            }
 //                                    }

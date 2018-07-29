@@ -423,7 +423,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 if (eff instanceof AndCond) {
                     for (Object o2 : eff.sons) {
                         NumEffect nEff = (NumEffect) o2;
-                        //System.out.println(nEff.getRight().getClass());
+                        //System.out.println(nEff.getRhs().getClass());
                         Expression rValue = nEff.getRight();
                         //System.out.println("before" + rValue);
                         rValue = rValue.weakEval(pp, invariantFluents);

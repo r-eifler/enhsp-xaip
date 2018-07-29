@@ -28,7 +28,7 @@ import org.json.simple.parser.ParseException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +48,7 @@ public class SearchNode {
     public float wh;
     public float f;
     public ArrayList<Object> list_of_actions;
-    public Set<GroundAction> relaxed_plan_from_heuristic;
+    public Collection<GroundAction> relaxed_plan_from_heuristic;
     private boolean bfs = true;
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {

@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
+import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.search.SearchEngine;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -51,7 +52,11 @@ public class EPddlProblem extends PddlProblem {
     private int constraintsViolations;
     private int totActionsEventsProcesses;
     private int totEvents;
+    private PDDLState pureInit;
 
+
+    public EPddlProblem ( ) {
+    }
 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
 
@@ -489,7 +494,7 @@ public class EPddlProblem extends PddlProblem {
 //                                gr2.setName("pseudo_increase"+gr.getName());
 //
 //                                NumEffect newEffect = new NumEffect("increase");
-//                                newEffect.setRight(new BinaryOp(neff.getRight(), "-", neff.getFluentAffected(), true).normalize());
+//                                newEffect.setRhs(new BinaryOp(neff.getRhs(), "-", neff.getFluentAffected(), true).normalize());
 //                                newEffect.setPseudo_num_effect(true);
 //                                gr2.getNumericEffects().sons.add(newEffect);
 //                                gr2.normalize();
@@ -667,6 +672,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
 //        System.out.println(this.getActualFluents());
+        this.saveInitInit();
         removeStaticPart();
         removeUnnecessaryFluents();
 
@@ -675,8 +681,15 @@ public class EPddlProblem extends PddlProblem {
         makeInit();
         //if (!this.processesSet.isEmpty() || !this.eventsSet.isEmpty())
         reduceInit();
-
         addTimeFluentToInit();
+
+        Aibr aibr = new Aibr(this.goals,actions,processesSet,eventsSet);
+        Float setup = aibr.setup(this.getInit());
+        this.reachableActions = new LinkedHashSet<>();
+        for (GroundAction gr : aibr.reachable){
+            this.reachableActions.add(gr);
+        }
+
     }
 
     public void setDeltaTimeVariable (String delta_t) {
@@ -1036,6 +1049,20 @@ public class EPddlProblem extends PddlProblem {
 
     public HashSet<GroundProcess> getProcessesSet ( ) {
         return processesSet;
+    }
+
+    public State getInitInit ( ) {
+        if (this.pureInit == null) {
+            this.pureInit = new MAPPDDLState(this.initNumFluentsValues,initBoolFluentsValues);
+        }
+        return pureInit;
+    }
+
+    public State saveInitInit ( ) {
+        if (this.pureInit == null) {
+            this.pureInit = new MAPPDDLState(this.initNumFluentsValues,initBoolFluentsValues);
+        }
+        return pureInit;
     }
 
     private class stateContainer implements ObjectIterator<Pair<State, Object>> {

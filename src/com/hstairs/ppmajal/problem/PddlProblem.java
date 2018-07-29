@@ -71,7 +71,7 @@ public class PddlProblem {
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
     PddlDomain linkedDomain;
     private FactoryConditions fc;
-    private Collection<GroundAction> reachableActions;
+    protected Collection<GroundAction> reachableActions;
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super();
@@ -302,8 +302,8 @@ public class PddlProblem {
             case PddlParser.BINARY_OP: {
                 BinaryOp ret = new BinaryOp();
                 ret.setOperator(t.getChild(0).getText());
-                ret.setOne(createExpression(t.getChild(1)));
-                ret.setRight(createExpression(t.getChild(2)));
+                ret.setLhs(createExpression(t.getChild(1)));
+                ret.setRhs(createExpression(t.getChild(2)));
                 ret.grounded = true;
                 return ret;
             }
