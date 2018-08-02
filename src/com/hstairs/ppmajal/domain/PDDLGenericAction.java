@@ -248,7 +248,7 @@ public abstract class PDDLGenericAction {
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution ( ) {
         Set<NumFluent> ret = new HashSet();
         for (NumEffect neff : (Collection<NumEffect>) this.getNumericEffects().sons) {
-            ret.addAll(neff.getRight().rhsFluents());
+            ret.addAll(neff.getRight().getInvolvedNumericFluents());
         }
         return ret;
     }

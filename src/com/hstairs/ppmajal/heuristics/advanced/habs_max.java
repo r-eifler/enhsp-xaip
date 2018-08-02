@@ -113,7 +113,7 @@ public class habs_max extends Heuristic {
 
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
-                    if (!rhs.rhsFluents().isEmpty() && rhs.linear) {
+                    if (!rhs.getInvolvedNumericFluents().isEmpty() && rhs.linear) {
                         addinfiniteSubactions(gr.toFileCompliant() + effect.getFluentAffected(), gr, effect, effectOnCost, rs, s_0);
                     } else { // constant numeric effects
                         allConstantEffects.add(effect);

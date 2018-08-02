@@ -685,12 +685,12 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Set rhsFluents ( ) {
+    public Set getInvolvedNumericFluents ( ) {
         Set ret = new HashSet();
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
-                ret.addAll(a.bin.rhsFluents());
+                ret.addAll(a.bin.getInvolvedNumericFluents());
             } else if (a.f != null) {
                 ret.add(a.f);
             }

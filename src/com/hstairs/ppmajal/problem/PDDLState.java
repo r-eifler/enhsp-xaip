@@ -71,18 +71,29 @@ public class PDDLState extends State {
 
     }
 
+    public PDDLState (ArrayList numFluents, BitSet otherBoolFluents) {
+        this.numFluents = new DoubleArrayList(numFluents.size());
+        for (int i=0; i< numFluents.size(); i++){
+            numFluents.set(i,numFluents.get(i));
+        }
+        this.boolFluents = (BitSet)otherBoolFluents.clone();
+        time = -1;
+    }
+
     public PDDLState (DoubleArrayList numFluents, BitSet otherBoolFluents) {
         this.numFluents = numFluents.clone();
         this.boolFluents = (BitSet)otherBoolFluents.clone();
         time = -1;
     }
 
-
     @Override
     public String toString ( ) {
-        return "State{" + "currNumFluentsValues=" + numFluents + ", currPredValues=" + boolFluents + ", time=" + time + '}';
+        return "PDDLState{" +
+                "numFluents=" + numFluents +
+                ", boolFluents=" + boolFluents +
+                ", time=" + time +
+                '}';
     }
-
 
     @Override
     public PDDLState clone ( ) {
@@ -131,13 +142,13 @@ public class PDDLState extends State {
 
 
     public boolean holds (Predicate p) {
-        return (p.id != -1 && (this.boolFluents.get(p.id)));
+        return (p.getId() != -1 && (this.boolFluents.get(p.getId())));
     }
 
     public void setNumFluent (NumFluent f, Double after) {
         if (f.getId() == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Numeric fluent wasn't on the table");
-//            f.id = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
+//            f.getId() = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
         } else {
             this.numFluents.set(f.getId(), after);
@@ -145,12 +156,12 @@ public class PDDLState extends State {
     }
 
     public void setPropFluent (Predicate f, Boolean after) {
-        if (f.id == -1) {
+        if (f.getId() == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Predicate fluent wasn't on the table");
-//            f.id = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
+//            f.getId() = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
 //            this.boolFluents.add(after);
         } else {
-            this.boolFluents.set(f.id,after);
+            this.boolFluents.set(f.getId(),after);
         }
     }
 
@@ -218,16 +229,17 @@ public class PDDLState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             Double n = this.numFluents.get(i);
             if (n == null) {
-                ret_val.possNumValues.add(new Interval(Float.NaN));
+                ret_val.possNumValues.put(i,new Interval(Float.NaN));
             } else
-                ret_val.possNumValues.add(new Interval(new Float(this.numFluents.get(i))));
+                ret_val.possNumValues.put(i,new Interval(new Float(this.numFluents.get(i))));
 
         }
-        for (int i = 0; i < this.boolFluents.size(); i++) {
+
+        for (int i = 0; i < this.boolFluents.length(); i++) {
             if (this.boolFluents.get(i))
-                ret_val.possBollValues.add(1);
+                ret_val.possBollValues.put(i,1);
             else
-                ret_val.possBollValues.add(0);
+                ret_val.possBollValues.put(i,0);
         }
 
         return ret_val;

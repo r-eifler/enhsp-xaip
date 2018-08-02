@@ -65,8 +65,6 @@ public class PddlProblem {
     protected boolean simplifyActions;
     protected HashMap staticFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
-    protected HashMap<String, Predicate> predicateReference;
-    protected HashMap<String, NumFluent> numFluentReference;
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
     PddlDomain linkedDomain;
@@ -89,8 +87,6 @@ public class PddlProblem {
             possStates = null;
             simplifyActions = true;
             this.types = types;
-            predicateReference = new HashMap();
-            numFluentReference = new HashMap();
             this.parseProblem(problemFile);
 
         } catch (IOException ex) {
@@ -170,6 +166,9 @@ public class PddlProblem {
     public void setPddlFilRef (String pddlFilRef) {
         this.pddlFilRef = pddlFilRef;
     }
+
+
+
 
     public void saveProblem (String pddlNewFile) throws IOException {
 
@@ -272,9 +271,7 @@ public class PddlProblem {
         }
         this.goals = (ComplexCondition) this.goals.push_not_to_terminals();
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(), this.getObjects());
-        this.keepCopyOfVariables(goals);
-        this.keepCopyOfVariables(belief);
-        this.keepUniqueVariable((PDDLState) init);
+
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 
@@ -859,58 +856,8 @@ public class PddlProblem {
     }
 
 
-    public void keepCopyOfVariables (Condition cond) {
-        if (cond != null && cond.getInvolvedPredicates() != null) {
-            for (Predicate p : cond.getInvolvedPredicates()) {
-                PddlProblem.this.keepUniqueVariable(p);
-            }
-            for (NumFluent x : cond.getInvolvedFluents()) {
-                PddlProblem.this.keepUniqueVariable(x);
-            }
-        }
-    }
-
-    public void keepUniqueVariable (PDDLGenericAction act) {
 
 
-        for (Predicate p : act.getInvolvedPredicates()) {
-            PddlProblem.this.keepUniqueVariable(p);
-        }
-        for (NumFluent x : act.getInvolvedNumFluents()) {
-            PddlProblem.this.keepUniqueVariable(x);
-        }
-    }
-
-    public void keepUniqueVariable (PDDLState s) {
-        for (Predicate p : this.initBoolFluentsValues.keySet()) {
-            PddlProblem.this.keepUniqueVariable(p);
-        }
-        for (NumFluent x : this.initNumFluentsValues.keySet()) {
-            PddlProblem.this.keepUniqueVariable(x);
-        }
-    }
-
-    private void keepUniqueVariable (Predicate p) {
-        Predicate p1 = this.predicateReference.get(p.toString());
-        if (p1 == null) {
-            this.predicateReference.put(p.toString(), p);
-        }
-    }
-
-    private void keepUniqueVariable (NumFluent x) {
-        NumFluent x1 = this.numFluentReference.get(x.toString());
-        if (x1 == null) {
-            this.numFluentReference.put(x.toString(), x);
-        }
-    }
-
-    protected void syncVariables (Metric cond) {
-        if (cond != null && cond.getMetExpr() != null) {
-            for (NumFluent x : cond.getMetExpr().rhsFluents()) {
-                PddlProblem.this.keepUniqueVariable(x);
-            }
-        }
-    }
 
     public Condition getPredicate (Predicate aThis) {
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
@@ -952,9 +899,7 @@ public class PddlProblem {
 
     }
 
-    public void setNumFluentReference (NumFluent nf) {
-        this.numFluentReference.put(nf.toString(), nf);
-    }
+
 
     public boolean isSafeState (State temp) {
         return true;

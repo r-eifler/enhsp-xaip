@@ -260,6 +260,8 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public int hashCode ( ) {
+        if (isUnique)
+            return super.hashCode();
         if (son == null) { // sometimes happen when the negation is trivially unsatisfiable
             return 1;
         }
@@ -271,6 +273,8 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public boolean equals (Object obj) {
+        if (isUnique)
+            return super.equals(obj);
         if (this == obj) {
             return true;
         }
@@ -317,7 +321,7 @@ public class NotCond extends Terminal implements PostCondition {
     public void apply (RelState s, Map modifications) {
         if (son instanceof Predicate) {
             Predicate p = (Predicate) son;
-            if (s.possBollValues.get(p.id) == 1) {
+            if (s.possBollValues.get(p.getId()) == 1) {
                 modifications.put(p, 2);
             }
         } else {
@@ -447,8 +451,9 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        this.son = this.son.unifyVariablesReferences(p);
-        return this;
+        NotCond nc = (NotCond) super.unifyVariablesReferences(p);
+        nc.son = nc.son.unifyVariablesReferences(p);
+        return nc;
     }
 
 }

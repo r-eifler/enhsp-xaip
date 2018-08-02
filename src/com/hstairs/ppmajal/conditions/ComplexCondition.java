@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
@@ -131,12 +132,13 @@ public abstract class ComplexCondition extends Condition {
 
     @Override
     public Set<Condition> getTerminalConditions ( ) {
-        LinkedHashSet ret = new LinkedHashSet();
+        Set ret;
         if (this.sons == null) {
             return new LinkedHashSet();
         }
+        ret = Sets.newLinkedHashSetWithExpectedSize(this.sons.size());
         for (Condition c : (Collection<Condition>) this.sons) {
-            ret.addAll(c.getTerminalConditions());
+            ret = Sets.union(ret, c.getTerminalConditions());
         }
         return ret;
     }

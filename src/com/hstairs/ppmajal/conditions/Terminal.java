@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.RelState;
 
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
  * @author enrico
  */
 public abstract class Terminal extends Condition {
+
+    protected boolean isUnique;
+    private int id;
 
     @Override
     public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
@@ -42,6 +46,35 @@ public abstract class Terminal extends Condition {
     @Override
     public Condition introduce_red_constraints ( ) {
         return this;
+    }
+
+
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        Terminal t = p.getTerminalReference(this.toString());
+        if (t == null) {
+            id = p.getNextTerminalReferenceId();
+            this.isUnique = true;
+            p.putTerminalReference(this);
+            return this;
+        }
+        return t;
+    }
+
+    @Override
+    public boolean equals (Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Terminal)) return false;
+        Terminal terminal = (Terminal) o;
+        return getId() == terminal.getId();
+    }
+
+    @Override
+    public int hashCode ( ) {
+        return getId();
+    }
+
+    public int getId ( ) {
+        return id;
     }
 
 }

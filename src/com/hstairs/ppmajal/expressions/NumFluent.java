@@ -40,6 +40,7 @@ public class NumFluent extends Expression {
     private String terms_as_string;
     private int id;
     private Integer actual_hash;
+    private boolean isUnique;
 
     public NumFluent (String name) {
         super();
@@ -305,7 +306,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Set rhsFluents ( ) {
+    public Set getInvolvedNumericFluents ( ) {
         Set ret = new HashSet();
         ret.add(this);
         return ret;
@@ -440,12 +441,7 @@ public class NumFluent extends Expression {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
-    public void setId (int id) {
-        this.id = id;
-    }
+
 
     /**
      * @param has_to_be_tracked the has_to_be_tracked to set
@@ -455,13 +451,15 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem problem) {
-        NumFluent nf = problem.getNumfluentReference(this.toString());
-        if (nf == null) {
-            problem.setNumFluentReference(this);
+    public Expression unifyVariablesReferences (EPddlProblem p) {
+        NumFluent t = p.getNumfluentReference(this.toString());
+        if (t == null) {
+            id = p.getNextNumFluentReference();
+            this.isUnique = true;
+            p.putNumFluentReference(this);
             return this;
         }
-        return nf;
+        return t;
 
     }
 }

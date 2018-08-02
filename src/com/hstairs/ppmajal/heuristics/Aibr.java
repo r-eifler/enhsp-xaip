@@ -157,21 +157,8 @@ public class Aibr extends Heuristic {
 
             i++;
         }
-//        Utils.dbg_print(debugLevel, "Rechability finished");
 
-//        System.out.println("Number of Transitions: "+A.size());
-//        System.out.println("Number of Supporters: "+supporters.size());
         if (reachability) {
-
-//            int counter_predicates = 0;
-//            for (Predicate p : rs.poss_interpretation.keySet()){
-//                if (rs.poss_interpretation.get(p) >0)
-//                    counter_predicates++;
-//            }
-//            s.consolidate_propositions(rs);
-//            System.out.println("Total Number of Predicates which makes sense"+counter_predicates);
-
-            //reacheable_state = rs.clone();
             this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             this.supporters = new LinkedHashSet(supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
             return (float) i;
@@ -207,7 +194,7 @@ public class Aibr extends Heuristic {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     effect.additive_relaxation = true;
-                    if (effect.getOperator().equals("assign") && effect.getRight().rhsFluents().isEmpty()) {
+                    if (effect.getOperator().equals("assign") && effect.getRight().getInvolvedNumericFluents().isEmpty()) {
                         supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr));
                     } else {
                         supporters.add(generate_plus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), gr.getPreconditions(), gr));

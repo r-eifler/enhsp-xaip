@@ -5,9 +5,11 @@ import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.heuristics.blindHeuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.search.PDDLSearchEngine;
 import com.hstairs.ppmajal.search.SearchEngine;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 /*
@@ -85,6 +87,8 @@ public class PlannerUtils {
         LinkedList raw_plan = searchStrategies.WAStar(problem);
         System.out.println("Nodes Expanded:" + searchStrategies.getNodesExpanded());
         //System.out.println(raw_plan.size());
+        if (raw_plan == null)
+            return -1;
         return raw_plan.size();
     }
 
@@ -122,5 +126,17 @@ public class PlannerUtils {
 
         //System.out.println(raw_plan.size());
         return hs0.intValue();
+    }
+
+    public int computeNumberOfRelevantActions(String domainFileName, String problemFileName) throws Exception {
+        final PddlDomain domain = new PddlDomain(domainFileName);
+        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
+        domain.prettyPrint();
+        domain.validate(problem);
+        problem.groundingActionProcessesConstraints();
+        problem.simplifyAndSetupInit();
+        Collection<GroundAction> reachableActions = problem.getReachableActions();
+        return reachableActions.size();
+
     }
 }

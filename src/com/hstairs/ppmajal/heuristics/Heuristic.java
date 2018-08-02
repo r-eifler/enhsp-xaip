@@ -194,10 +194,12 @@ public abstract class Heuristic {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
-            a.setId(total_number_of_actions++);
+            //a.setId(total_number_of_actions++);
+            total_number_of_actions++;
+
             if (a.getPreconditions() != null) {
                 for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
-                    Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
+                    //Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
                     //Utils.dbg_print(debugLevel, "Identifier:" + c_1.getCounter() + "\n");
                 }
@@ -625,7 +627,7 @@ public abstract class Heuristic {
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
-                                if ((!ne.rhsFluents().isEmpty() && !ne.isPseudo_num_effect())||ne.getOperator().equals("assign")) {
+                                if ((!ne.getInvolvedNumericFluents().isEmpty() && !ne.isPseudo_num_effect())||ne.getOperator().equals("assign")) {
                                     is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);

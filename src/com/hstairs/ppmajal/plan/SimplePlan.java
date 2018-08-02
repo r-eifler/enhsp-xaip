@@ -1036,8 +1036,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
                             } else if (o instanceof Comparison) {
                                 Comparison c = (Comparison) o;
-                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().rhsFluents());
-                                toTest.addAll(c.getRight().rhsFluents());
+                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().getInvolvedNumericFluents());
+                                toTest.addAll(c.getRight().getInvolvedNumericFluents());
                                 if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
                                     preserveOrderConstraint = true;
                                     orderingByNumericThreatBack++;
@@ -1076,8 +1076,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                     TreeSet<Integer> chain = (TreeSet) validationStructure.get(c);
                                     if (chain != null) {
                                         if (chain.contains(j)) {
-                                            HashSet<NumFluent> toTest = new HashSet(c.getLeft().rhsFluents());
-                                            toTest.addAll(c.getRight().rhsFluents());
+                                            HashSet<NumFluent> toTest = new HashSet(c.getLeft().getInvolvedNumericFluents());
+                                            toTest.addAll(c.getRight().getInvolvedNumericFluents());
                                             if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
                                                 preserveOrderConstraint = true;
                                                 orderingByThreatNumericForward++;
@@ -1770,7 +1770,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public PDDLState execute (PDDLState init, Condition GC, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
+    public PDDLState execute (PDDLState init, Condition GC, Set<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
@@ -1855,7 +1855,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private PDDLState advance_time (PDDLState current, HashSet<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
+    private PDDLState advance_time (PDDLState current, Set<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");

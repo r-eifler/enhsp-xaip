@@ -18,6 +18,8 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.carrotsearch.hppc.DoubleArrayList;
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.*;
@@ -25,7 +27,7 @@ import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.search.SearchEngine;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.*;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -37,8 +39,8 @@ import java.util.logging.Logger;
 public class EPddlProblem extends PddlProblem {
 
     public HashSet<GlobalConstraint> globalConstraintSet;
-    private HashSet<GroundProcess> processesSet;
-    private HashSet<GroundEvent> eventsSet;
+    private Set<GroundProcess> processesSet;
+    private Set<GroundEvent> eventsSet;
 
     public AndCond globalConstraints;
 
@@ -53,6 +55,9 @@ public class EPddlProblem extends PddlProblem {
     private int totActionsEventsProcesses;
     private int totEvents;
     private PDDLState pureInit;
+    private HashMap<String, Terminal> terminalReference;
+    private HashMap<String, NumFluent> numFluentReference;
+    protected int nActions;
 
 
     public EPddlProblem ( ) {
@@ -84,9 +89,15 @@ public class EPddlProblem extends PddlProblem {
         for (GlobalConstraint constr : this.globalConstraintSet) {
             cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
         }
-        //cloned.globalConstraints = (AndCond) this.globalConstraints.clone();
         return this;
 
+    }
+
+    public HashMap<String,NumFluent> getNumericFluentReference(){
+        if (this.numFluentReference == null){
+            numFluentReference = new HashMap<>();
+        }
+        return this.numFluentReference;
     }
 
     @Override
@@ -95,16 +106,8 @@ public class EPddlProblem extends PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
-//                af.Propositionalize(act, objects);
-                //if (act.getPar().size() != 0) {
                 getActions().addAll(af.Propositionalize(act, getObjects()));
-                //} else {
-                //    GroundAction gr = act.ground();
-                //    getActions().add(gr);
-
-                //
             }
-            //pruneActions();
         } else {
             System.err.println("Please connect the domain of the problem via validation");
             System.exit(-1);
@@ -257,7 +260,6 @@ public class EPddlProblem extends PddlProblem {
 
         for (HashMap<Variable, PDDLObject> ele : subst) {
             GroundAction ground = a.ground(ele, this.getObjects());
-            ground.id = totActionsEventsProcesses++;
             ret.add(ground);
         }
         return ret;
@@ -311,10 +313,10 @@ public class EPddlProblem extends PddlProblem {
         } else if (a instanceof NumEffect) {
             NumEffect n_eff = (NumEffect) a;
             //ArrayList<Variable> list_of_vars = comp.getVariablesInvolved();
-            if (n_eff.getRight().rhsFluents().isEmpty()) {
+            if (n_eff.getRight().getInvolvedNumericFluents().isEmpty()) {
                 subst.add(new HashMap());
             } else {
-                for (NumFluent nf : n_eff.getRight().rhsFluents()) {
+                for (NumFluent nf : n_eff.getRight().getInvolvedNumericFluents()) {
                     if (subst.isEmpty()) {
                         subst = this.find_substs(nf, s);
                     } else {
@@ -555,21 +557,9 @@ public class EPddlProblem extends PddlProblem {
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         syncAllVariables();
-        makeTransitionsIds();
 
     }
 
-    private void makeTransitionsIds ( ) {
-        for (GroundAction gr: actions){
-            gr.id = totActionsEventsProcesses++;
-        }
-        for (GroundEvent gr: getEventsSet()){
-            gr.id = totActionsEventsProcesses++;
-        }
-        for (GroundProcess gr: getProcessesSet()){
-            gr.id = totActionsEventsProcesses++;
-        }
-    }
 
     public void set_cost_from_metric ( ) {
         Iterator it = getActions().iterator();
@@ -587,80 +577,43 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void simplifyAndSetupInit ( ) throws Exception {
-        Iterator it = getActions().iterator();
-//        System.out.println(this.getActualFluents());
-        //System.out.println("prova");
-//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
+    public void cleanEasyUnreachableTransitions (Iterable toWorkOut){
+        Iterator it = toWorkOut.iterator();
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             boolean keep = true;
             if (isSimplifyActions()) {
-                //System.out.println("Simplifying action");
-                //keep = act.simplifyModel(linkedDomain, this);
-                keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+                try {
+                    keep = act.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             if (!keep) {
-//                System.out.println("Pruning action:"+act.getName());
                 it.remove();
             }
         }
-//        System.out.println("DEBUG: After simplifications, |A|:"+getActions().size());
+    }
 
-//        System.out.println("DEBUG: Before simplifications, |P|:"+processesSet.size());
-        it = this.getProcessesSet().iterator();
-        while (it.hasNext()) {
-            GroundProcess process = (GroundProcess) it.next();
-            boolean keep = true;
-
-            keep = process.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-
-            if (!keep) {
-//                System.out.println("Pruning process:"+process.toEcoString());
-                it.remove();
-            }
-            process.setAction_cost(1);
-        }
-
-        //Event
-        it = this.getEventsSet().iterator();
-        while (it.hasNext()) {
-            GroundEvent event = (GroundEvent) it.next();
-            boolean keep = true;
-
-            keep = event.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-
-            if (!keep) {
-//                System.out.println("Pruning process:"+process.toEcoString());
-                it.remove();
-            }
-            event.setAction_cost(1);
-        }
-
-//        unify_objects_names(this.getInit(),this.actions,this.processesSet);
+    public void simplifyAndSetupInit() throws Exception {
+//        System.out.println(this.getActualFluents());
+        //System.out.println("prova");
+        long start = System.currentTimeMillis();
+        System.out.println("(Pre Simplification) - |A|+|P|+|E|: "+(getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
+        this.staticFluents = null;
+        //the following just remove actions/processes/events over false and static predicates
+        cleanEasyUnreachableTransitions(actions);
+        this.staticFluents = null;
+        cleanEasyUnreachableTransitions(processesSet);
+        this.staticFluents = null;
+        cleanEasyUnreachableTransitions(eventsSet);
+        this.staticFluents = null;
+        cleanIrrelevantConstraints(globalConstraintSet);
         this.processesHaveBeenGrounded = true;
         this.setGroundedRepresentation(true);
-
-        it = this.globalConstraintSet.iterator();
-        globalConstraints = new AndCond();
-
-        while (it.hasNext()) {
-            GlobalConstraint constr = (GlobalConstraint) it.next();
-            boolean keep = true;
-
-            keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
-
-            if (!keep) {
-                //System.out.println("Pruning action:"+act.getName());
-                it.remove();
-            } else {
-                globalConstraints.addConditions(constr.condition);
-                globalConstraints.normalize();
-            }
-
-        }
-
         this.globalConstraintGrounded = true;
+
         goals = (ComplexCondition) goals.weakEval(this, this.getActualFluents());
         goals.normalize();
 
@@ -671,25 +624,210 @@ public class EPddlProblem extends PddlProblem {
             this.metric = null;
         }
 
-//        System.out.println(this.getActualFluents());
         this.saveInitInit();
+
+        //this is a relevance analysis to understand which action/processes or event can actually be part of some solution
+
+        this.staticFluents = null;//reset this
         removeStaticPart();
         removeUnnecessaryFluents();
-
         setActionCosts();
-
+        setProcessEventsCost();
         makeInit();
-        //if (!this.processesSet.isEmpty() || !this.eventsSet.isEmpty())
-        reduceInit();
         addTimeFluentToInit();
 
-        Aibr aibr = new Aibr(this.goals,actions,processesSet,eventsSet);
+        Aibr aibr = new Aibr(this.goals, actions, processesSet, eventsSet);
         Float setup = aibr.setup(this.getInit());
         this.reachableActions = new LinkedHashSet<>();
-        for (GroundAction gr : aibr.reachable){
-            this.reachableActions.add(gr);
+        this.reachableActions = aibr.reachable;
+
+        System.out.println("(After AIBR):"+this.reachableActions.size());
+
+
+
+            nActions = 0;
+            for (GroundAction gr : reachableActions) {
+                gr.setId(nActions);
+                nActions++;
+            }
+
+
+            keepOnlyRelTransitions(this.reachableActions);
+            splitActionsEventsProcesses(this.reachableActions);
+
+            this.staticFluents = null;
+            //the following just remove actions/processes/events over false and static predicates
+            cleanEasyUnreachableTransitions(actions);
+            this.staticFluents = null;
+            cleanEasyUnreachableTransitions(processesSet);
+            this.staticFluents = null;
+            cleanEasyUnreachableTransitions(eventsSet);
+            this.staticFluents = null;
+            cleanIrrelevantConstraints(globalConstraintSet);
+            nActions = 0;
+            Sets.SetView<GroundAction> union = Sets.union(Sets.union(actions, processesSet), eventsSet);
+            this.reachableActions = union;
+            for (GroundAction gr : union) {
+                gr.setId(nActions);
+                nActions++;
+            }
+            System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+            System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
+            long end = System.currentTimeMillis();
+
+            System.out.println("Simplification Time: " + (end - start));
+
+            //This aligns the reachable actions with the whole set of transitions considered in this problem
+
+
+    }
+
+    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition goals, AndCond globalConstraints) {
+        HashMap<Integer, GroundAction> actionIds = new HashMap<>();
+        HashMap<Integer, Condition> conditionsIds = new HashMap<>();
+        int actionID = 0;
+        int conditionID = 0;
+        for (GroundAction gr: reachableActions){
+            if (!actionIds.values().contains(gr)){
+                actionIds.put(actionID,gr);
+                Set<Condition> terminalConditions = gr.getPreconditions().getTerminalConditions();
+                Set<Condition> addListTerminalConditions = gr.getAddList().getTerminalConditions();
+                Set<Condition> delListTerminalConditions = gr.getDelList().getTerminalConditions();
+            }
+            //preconditions
+        }
+    }
+
+    private void cleanIrrelevantConstraints (HashSet<GlobalConstraint> globalConstraintSet) {
+        Iterator<GlobalConstraint> it = globalConstraintSet.iterator();
+        globalConstraints = new AndCond();
+
+        while (it.hasNext()) {
+            GlobalConstraint constr = (GlobalConstraint) it.next();
+            boolean keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
+
+            if (!keep) {
+                it.remove();
+            } else {
+                globalConstraints.addConditions(constr.condition);
+                globalConstraints.normalize();
+            }
+
+        }
+    }
+
+    private void setProcessEventsCost ( ) {
+        for (GroundProcess gp : processesSet){
+            gp.setAction_cost(1);
+        }
+        for (GroundEvent gp : eventsSet){
+            gp.setAction_cost(1);
+        }
+    }
+
+    private void keepOnlyRelTransitions (Collection<GroundAction> transitions) {
+        LinkedList<Object> goal = new LinkedList<>(this.goals.getTerminalConditions());
+        ReferenceOpenHashSet<Object> seen = new ReferenceOpenHashSet<>();
+        ReferenceSet<GroundAction> transitionsToKeep = new ReferenceLinkedOpenHashSet<>();
+        Reference2ObjectArrayMap<GroundAction, ArrayList<Condition>> literalsMap = new Reference2ObjectArrayMap();
+        Reference2ObjectArrayMap<GroundAction, Set<Condition>> terminalPreconditionMap = new Reference2ObjectArrayMap();
+        while (!goal.isEmpty()){
+            Object pop = goal.pop();
+            if (seen.add(pop)){
+                for (GroundAction gr : transitions) {
+                        boolean keep = false;
+                    if (!transitionsToKeep.contains(gr)) {
+                        if (pop instanceof Comparison) {//this needs optimisation
+                            Comparison comp = (Comparison)pop;
+                            Set<NumFluent> numericFluentAffected = Sets.newHashSet(gr.getNumericFluentAffected());
+                            Set<NumFluent> involvedFluents = Sets.newHashSet(comp.getInvolvedFluents());
+                            Sets.SetView<NumFluent> intersection = Sets.intersection(numericFluentAffected, involvedFluents);
+                            if (!intersection.isEmpty()) {
+                                keep = true;
+                            }
+                        } else if (pop instanceof NotCond || pop instanceof Predicate) {
+
+                            ArrayList<Condition> literalsTerminals = literalsMap.get(gr);
+                            if (literalsTerminals == null) {
+                                literalsTerminals = new ArrayList();
+                                if (gr.getAddList() != null && gr.getAddList().sons != null){
+                                    for (Terminal predicate: (Collection<Predicate>)gr.getAddList().sons){
+                                        if (pop == predicate){
+                                            keep = true;
+                                            break;
+                                        }else{
+                                            literalsTerminals.add(predicate);
+                                        }
+                                    }
+                                }
+                                if (gr.getDelList() != null && gr.getDelList().sons != null && !keep){
+                                    for (Terminal predicate: (Collection<Predicate>)gr.getDelList().sons){
+                                        if (pop == predicate){
+                                            keep = true;
+                                            break;
+                                        }else{
+                                            literalsTerminals.add(predicate);
+                                        }
+                                    }
+                                }
+                            }else{
+                                if (literalsTerminals.contains(pop)) {
+                                    keep = true;
+                                }
+                            }
+
+                        }else if (pop instanceof Expression){
+                            Expression expr = (Expression)pop;
+                            Set<NumFluent> numericFluentAffected = Sets.newHashSet(gr.getNumericFluentAffected());
+                            Set<NumFluent> involvedFluents = Sets.newHashSet(expr.getInvolvedNumericFluents());
+                            Sets.SetView<NumFluent> intersection = Sets.intersection(numericFluentAffected, involvedFluents);
+                            if (!intersection.isEmpty()) {
+                                keep = true;
+                            }
+                        }
+                        if (keep) {
+                            transitionsToKeep.add(gr);
+                            Set<Condition> terminalConditions = terminalPreconditionMap.get(gr);
+                            if (terminalConditions == null) {
+                                terminalConditions = gr.getPreconditions().getTerminalConditions();
+                            }
+                            for (Condition t: terminalConditions){
+                                if (!seen.contains(t)){
+                                    goal.add(t);
+                                }
+                            }
+                            for (NumEffect neff : gr.getNumericEffectsAsCollection()){
+                                if (!(neff.getRight() instanceof PDDLNumber)){
+                                    goal.add(neff.getRight());
+                                }
+                            }
+                        }else{
+//                            System.out.println("Not putting");
+                        }
+                    }
+                }
+            }else{
+//                System.out.println("Already seen this");
+            }
         }
 
+        this.reachableActions = transitionsToKeep;
+
+    }
+
+    private void splitActionsEventsProcesses (Iterable<GroundAction> transitionsToKeep) {
+        processesSet = new LinkedHashSet<>();
+        eventsSet = new LinkedHashSet<>();
+        actions = new LinkedHashSet<>();
+        for (GroundAction gr: transitionsToKeep){
+            if (gr instanceof GroundProcess){
+                processesSet.add((GroundProcess) gr);
+            }else if (gr instanceof GroundEvent){
+                eventsSet.add((GroundEvent) gr);
+            }else {
+                actions.add(gr);
+            }
+        }
     }
 
     public void setDeltaTimeVariable (String delta_t) {
@@ -784,25 +922,31 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private void makeInit ( ) {
-        ArrayList<PDDLNumber> numFluents = new ArrayList();
-        for (NumFluent nf : this.numFluentReference.values()) {
+
+        DoubleArrayList numFluents = new DoubleArrayList();
+        numFluents.resize(getNumericFluentReference().size());
+        for (NumFluent nf : getNumericFluentReference().values()) {
             if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
                 PDDLNumber number = this.initNumFluentsValues.get(nf);
-                nf.setId(numFluents.size());
-                numFluents.add(number);
+                if (number == null){
+                    numFluents.set(nf.getId(),Double.NaN);
+                }else {
+                    numFluents.set(nf.getId(),number.getNumber());
+                }
             }
         }
 
-        ArrayList<Boolean> boolFluents = new ArrayList();
-        for (Predicate p : this.predicateReference.values()) {
-            if (this.getActualFluents().get(p) != null) {
-                p.id = boolFluents.size();
-                Boolean r = this.initBoolFluentsValues.get(p);
-//                init.idOf.put(p, p.id);
-                if (r == null || !r) {
-                    boolFluents.add(false);
-                } else {
-                    boolFluents.add(true);
+        BitSet boolFluents = new BitSet();
+        for (Terminal t : getTerminalReference().values()) {
+            if (t instanceof Predicate) {
+                Predicate p = (Predicate)t;
+                if (this.getActualFluents().get(p) != null) {
+                    Boolean r = this.initBoolFluentsValues.get(p);
+                    if (r == null || !r) {
+                        boolFluents.set(p.getId(),false);
+                    } else {
+                        boolFluents.set(p.getId(),true);
+                    }
                 }
             }
         }
@@ -853,14 +997,47 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
+    public int getNextTerminalReferenceId ( ) {
+        return getTerminalReference().size();
+    }
+
+
+    public Terminal getTerminalReference (String s) {
+        if (this.terminalReference == null){
+            return null;
+        }
+        return this.terminalReference.get(s);
+    }
+
+    public void putTerminalReference (Terminal t) {
+        getTerminalReference().put(t.toString(),t);
+    }
+
+    protected HashMap<String,Terminal> getTerminalReference() {
+        if (terminalReference == null) {
+            terminalReference = new HashMap<>();
+        }
+        return terminalReference;
+    }
+
     public void syncAllVariables ( ) {
 
+        HashMap<Predicate,Boolean> tempInitBool = new HashMap();
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
-            this.predicateReference.put(p.toString(), p);
+            Boolean value = this.initBoolFluentsValues.get(p);
+            Predicate newP = (Predicate) p.unifyVariablesReferences(this);
+            tempInitBool.put(newP,value);
+
         }
+        initBoolFluentsValues = tempInitBool;
+        HashMap<NumFluent,PDDLNumber> tempInitFluent = new HashMap();
         for (NumFluent nf : this.initNumFluentsValues.keySet()) {
+            PDDLNumber pddlNumber = initNumFluentsValues.get(nf);
+            NumFluent numFluent = (NumFluent)nf.unifyVariablesReferences(this);
+            tempInitFluent.put(numFluent, pddlNumber);
             this.numFluentReference.put(nf.toString(), nf);
         }
+        this.initNumFluentsValues = tempInitFluent;
 
         for (PDDLGenericAction act : this.actions) {
             act.unifyVariablesReferences(this);
@@ -895,16 +1072,9 @@ public class EPddlProblem extends PddlProblem {
     }
 
     public NumFluent getNumfluentReference (String stringRepresentation) {
-        return this.numFluentReference.get(stringRepresentation);
+        return getNumericFluentReference().get(stringRepresentation);
     }
 
-    public Predicate getPredicateReference (String stringRepresentation) {
-        return this.predicateReference.get(stringRepresentation);
-    }
-
-    public void setPredicateReference (Predicate predicate) {
-        this.predicateReference.put(predicate.toString(), predicate);
-    }
 
     private void reduceInit ( ) {
 //        System.out.println("|BoolVar| = "+this.init.boolFluents.size());
@@ -1043,11 +1213,11 @@ public class EPddlProblem extends PddlProblem {
         return new Pair(states, transitions);
     }
 
-    public HashSet<GroundEvent> getEventsSet ( ) {
+    public Set<GroundEvent> getEventsSet ( ) {
         return eventsSet;
     }
 
-    public HashSet<GroundProcess> getProcessesSet ( ) {
+    public Set<GroundProcess> getProcessesSet ( ) {
         return processesSet;
     }
 
@@ -1064,6 +1234,15 @@ public class EPddlProblem extends PddlProblem {
         }
         return pureInit;
     }
+
+    public int getNextNumFluentReference ( ) {
+        return getNumericFluentReference().size();
+    }
+
+    public void putNumFluentReference (NumFluent t) {
+        getNumericFluentReference().put(t.toString(),t);
+    }
+
 
     private class stateContainer implements ObjectIterator<Pair<State, Object>> {
         final private State source;

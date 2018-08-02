@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
@@ -32,7 +33,6 @@ public class Predicate extends Terminal implements PostCondition {
 
     public HashSet son;
     public Integer hash_code;
-    public int id;
     private String name;
     private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
 
@@ -56,12 +56,17 @@ public class Predicate extends Terminal implements PostCondition {
 
     }
 
-    public Predicate (String name) {
+    public Predicate (String name, boolean grounded) {
         super();
         //variables = new ArrayList();
         this.name = name;
         terms = new ArrayList();
+        this.grounded = grounded;
 
+    }
+
+    public Predicate (String name) {
+        this(name,false);
     }
 
     public Predicate (boolean g) {
@@ -123,7 +128,7 @@ public class Predicate extends Terminal implements PostCondition {
         if (this.isUnsatisfiable())
             return true;
 
-        Integer i = s.possBollValues.get(this.id);
+        Integer i = s.possBollValues.get(this.getId());
         return (i == null) || (i == 0) || (i == 2);
     }
 
@@ -142,9 +147,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Set<Condition> getTerminalConditions ( ) {
-        Set ret = new LinkedHashSet();
-        ret.add(this);
-        return ret;
+        return Sets.newHashSet(this);
     }
 
     @Override
@@ -169,15 +172,6 @@ public class Predicate extends Terminal implements PostCondition {
         return ret;
     }
 
-    @Override
-    public Condition unifyVariablesReferences (EPddlProblem p) {
-        Predicate p1 = p.getPredicateReference(this.toString());
-        if (p1 == null) {
-            p.setPredicateReference(this);
-            return this;
-        }
-        return p1;
-    }
 
     public String getPredicateName ( ) {
         return name;
@@ -337,8 +331,8 @@ public class Predicate extends Terminal implements PostCondition {
         if (this.isUnsatisfiable())
             return false;
         if (!s.possBollValues.isEmpty()) {
-            Integer i = s.possBollValues.get(this.id);
-            if (i == null) {
+            int i = s.possBollValues.getOrDefault(this.getId(),-1);
+            if (i == -1) {
                 return false;
             }
             return i >= 1;
@@ -350,6 +344,8 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public int hashCode ( ) {
+        if (this.isUnique)
+            return super.hashCode();
         int hash = 7;
         hash = 29 * hash + Objects.hashCode(this.name);
         hash = 29 * hash + Objects.hashCode(this.terms);
@@ -358,6 +354,8 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean equals (Object obj) {
+        if (this.isUnique)
+            return super.equals(obj);
         if (this == obj) {
             return true;
         }
@@ -657,7 +655,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public void apply (RelState s, Map modifications) {
-        Integer inter = s.possBollValues.get(this.id);
+        Integer inter = s.possBollValues.get(this.getId());
         if (inter == null || inter == 0) {
             modifications.put(this, 2);
         }

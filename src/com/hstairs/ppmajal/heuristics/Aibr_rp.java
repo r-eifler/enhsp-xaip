@@ -185,7 +185,7 @@ public class Aibr_rp extends Heuristic {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     effect.additive_relaxation = true;
-                    if (effect.getOperator().equals("assign") && effect.getRight().rhsFluents().isEmpty()) {
+                    if (effect.getOperator().equals("assign") && effect.getRight().getInvolvedNumericFluents().isEmpty()) {
                         supporters.add(generate_constant_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions(), gr));
                     } else {
                         supporters.add(generate_plus_inf_supporter(effect, gr.toFileCompliant() + effect.getFluentAffected(), (AndCond) gr.getPreconditions(), gr));

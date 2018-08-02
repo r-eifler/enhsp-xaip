@@ -26,8 +26,9 @@ import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -35,21 +36,21 @@ import java.util.HashMap;
  */
 public class RelState extends Object {
 
-    public ArrayList<Integer> possBollValues;//0 is negative, 1 positive, 2 both
-    public ArrayList<Interval> possNumValues;
+    public Int2IntArrayMap possBollValues;//0 is negative, 1 positive, 2 both
+    public Int2ObjectArrayMap<Interval> possNumValues;
 
     public RelState ( ) {
         super();
-        possBollValues = new ArrayList();
-        possNumValues = new ArrayList();
+        possBollValues = new Int2IntArrayMap();
+        possNumValues = new Int2ObjectArrayMap();
     }
 
 
     @Override
     public RelState clone ( ) {
         RelState ret_val = new RelState();
-        ret_val.possBollValues = (ArrayList) this.possBollValues.clone();
-        ret_val.possNumValues = (ArrayList) this.possNumValues.clone();
+        ret_val.possBollValues = this.possBollValues.clone();
+        ret_val.possNumValues = this.possNumValues.clone();
         return ret_val;
     }
 
@@ -86,28 +87,28 @@ public class RelState extends Object {
     }
 
     public void makePositive (Predicate p) {
-        Integer inter = possBollValues.get(p.id);
+        Integer inter = possBollValues.get(p.getId());
         if (inter == null) {//if was negative by default
-            possBollValues.set(p.id, 2);
+            possBollValues.put(p.getId(),2);
         } else if (inter == 0) {//if was said to be negative
-            possBollValues.set(p.id, 2);
+            possBollValues.put(p.getId(),2);
         }//otherwise it was already fine
     }
 
 
-    public boolean canBeTrue (Predicate aThis) {
+    public boolean canBeTrue (Predicate p) {
 
-        Integer o = this.possBollValues.get(aThis.id);
-        if (o == null) {
+        int o = this.possBollValues.getOrDefault(p.getId(),-1);
+        if (o == -1) {
             return false;
         }
         return o >= 1;
     }
 
-    public boolean canBeFalse (Predicate aThis) {
+    public boolean canBeFalse (Predicate p) {
 
-        Integer o = this.possBollValues.get(aThis.id);
-        if (o == null) {
+        int o = this.possBollValues.getOrDefault(p.getId(),-1);
+        if (o == -1) {
             return true;
         }
         return o == 0 || o == 2;
@@ -130,10 +131,10 @@ public class RelState extends Object {
     }
 
     public void makeNegative (Predicate p) {
-        Integer inter = possBollValues.get(p.id);
-        if (inter == null) {//if was negative by default
+        int inter = possBollValues.getOrDefault(p.getId(),-1);
+        if (inter == -1) {//if was negative by default
         } else if (inter == 1) {//if was said to be positive it will also be negative
-            possBollValues.set(p.id, 2);
+            possBollValues.put(p.getId(),2);
         }//otherwise all good (inter == 2)
     }
 
@@ -149,7 +150,7 @@ public class RelState extends Object {
     }
 
     public void setFunctionValues (NumFluent f, Interval after) {
-        this.possNumValues.set(f.getId(), after);
+        this.possNumValues.put(f.getId(), after);
 
     }
 
@@ -199,7 +200,7 @@ public class RelState extends Object {
                     this.setFunctionValues(nf, (Interval) subst.get(o));
                 }
             } else {
-                this.possBollValues.set(((Predicate) o).id, (Integer) subst.get(o));
+                this.possBollValues.put(((Predicate)o).getId(),(int)subst.get(o));
             }
         }
     }
@@ -233,7 +234,7 @@ public class RelState extends Object {
 
                 }
             } else {
-                this.possBollValues.set(((Predicate) o).id, (Integer) subst.get(o));
+                this.possBollValues.put(((Predicate)o).getId(),(int)subst.get(o));
             }
         }
         return this;

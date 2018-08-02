@@ -153,7 +153,7 @@ public class habs_add extends Heuristic {
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
                     // ENRICO : DOUBLE CHECK
-                    if (((!rhs.rhsFluents().isEmpty() || effect.getOperator().equalsIgnoreCase("assign")) && rhs.linear)) {
+                    if (((!rhs.getInvolvedNumericFluents().isEmpty() || effect.getOperator().equalsIgnoreCase("assign")) && rhs.linear)) {
                         NumEffect temp;
                         if (effect.getOperator().equalsIgnoreCase("assign")) {//This is additive transformation\
                             temp = new NumEffect("increase");

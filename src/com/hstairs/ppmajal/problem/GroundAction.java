@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 public class GroundAction extends PDDLGenericAction {
 
-    public int id;
+    private int id;
     public boolean numeric_effect_undefined;
     public boolean normalized;
     public int hiddenParametersNumber;
@@ -47,17 +47,6 @@ public class GroundAction extends PDDLGenericAction {
     private HashMap<Predicate, Boolean> achieve;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
 
-    public GroundAction ( ) {
-        super();
-        numericFluentAffected = null;
-        this.parameters_as_terms = new ParametersAsTerms();
-        this.preconditions = new AndCond();
-        this.numericEffects = new AndCond();
-        this.cond_effects = new AndCond();
-        //numericFluentAffected = new HashMap();
-        actionCost = null;
-        achieve = new HashMap();
-    }
 
     public void setId (int id) {
         this.id = id;
@@ -80,11 +69,13 @@ public class GroundAction extends PDDLGenericAction {
         //numericFluentAffected = new HashMap();
         actionCost = null;
         achieve = new HashMap();
+        id = -1;
     }
 
     @Override
     public Object clone ( ) throws CloneNotSupportedException {
         GroundAction ret = new GroundAction(name);
+        ret.id = this.id;
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();
         }
@@ -846,7 +837,7 @@ public class GroundAction extends PDDLGenericAction {
                 for (Object o : c.sons) {
                     NumEffect eff = (NumEffect) o;
                     if (eff.getFluentAffected().equals(nf)) {
-                        return eff.getRight().rhsFluents();
+                        return eff.getRight().getInvolvedNumericFluents();
                     }
 
                 }
@@ -1465,7 +1456,7 @@ public class GroundAction extends PDDLGenericAction {
                 temp.sons.add(ne.generate_m_times_extension(m));//assuming that m is an integer
             }
         }
-        GroundAction grTemp = new GroundAction();
+        GroundAction grTemp = new GroundAction("temp");
         grTemp.setNumericEffects(temp);
         return grTemp.regressComparison(comparison);
 
@@ -1476,10 +1467,6 @@ public class GroundAction extends PDDLGenericAction {
             return false;
         }
         for (NumEffect ne : (Collection<NumEffect>) this.getNumericEffects().sons) {
-//            if (ne.getOperator().equals("increase") || (ne.getOperator().equals("decrease"))){
-//                if (ne.getFluentAffected().involve(ele.numericFluentAffected))
-//                    return true;
-//            }
 
             ele.generateAffectedNumFluents();
             if (ne.getRight().involve(ele.numericFluentAffected.keySet())) {
@@ -1506,7 +1493,7 @@ public class GroundAction extends PDDLGenericAction {
 //                        if (ne.isPseudo_num_effect()) {
 //                            return true;
 //                        }
-                        if (ne.rhsFluents().isEmpty()) {
+                        if (ne.getInvolvedNumericFluents().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
 
                             if (!rhs.linear) {
@@ -1784,7 +1771,7 @@ public class GroundAction extends PDDLGenericAction {
                             continue;
                         }
 
-                        if (ne.rhsFluents().isEmpty()) {
+                        if (ne.getInvolvedNumericFluents().isEmpty()) {
                             ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
 
                             if (!rhs.linear) {
@@ -1935,6 +1922,8 @@ public class GroundAction extends PDDLGenericAction {
 
     @Override
     public int hashCode ( ) {
+        if (id != -1)
+            return id;
         int hash = 3;
         hash = 97 * hash + Objects.hashCode(this.name);
         hash = 97 * hash + Objects.hashCode(this.parameters_as_terms);
@@ -1947,13 +1936,20 @@ public class GroundAction extends PDDLGenericAction {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         final GroundAction other = (GroundAction) obj;
+
+        if (id !=-1 && other.getId() != -1){
+            return id == other.getId();
+        }
+
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }

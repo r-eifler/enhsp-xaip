@@ -52,6 +52,8 @@ public class Comparison extends Terminal {
 
     @Override
     public boolean equals (Object obj) {
+        if (isUnique)
+            return super.equals(obj);
         if (obj == null) {
             return false;
         }
@@ -85,7 +87,8 @@ public class Comparison extends Terminal {
 
     @Override
     public int hashCode ( ) {
-//        if (hash_code==null){
+        if (isUnique)
+            return super.hashCode();
         int hash = 7;
         hash = 67 * hash + (this.comparator != null ? this.comparator.hashCode() : 0);
         hash = 67 * hash + (this.left != null ? this.left.hashCode() : 0);
@@ -623,8 +626,8 @@ public class Comparison extends Terminal {
         this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
         this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
         ArrayList ret = new ArrayList();
-        ret.addAll(this.left.rhsFluents());
-        ret.addAll(this.right.rhsFluents());
+        ret.addAll(this.left.getInvolvedNumericFluents());
+        ret.addAll(this.right.getInvolvedNumericFluents());
         return ret;
     }
 
@@ -694,8 +697,8 @@ public class Comparison extends Terminal {
     public Set<NumFluent> getInvolvedFluents ( ) {
         Set<NumFluent> ret = new HashSet();
 
-        ret.addAll(this.getLeft().rhsFluents());
-        ret.addAll(this.getRight().rhsFluents());
+        ret.addAll(this.getLeft().getInvolvedNumericFluents());
+        ret.addAll(this.getRight().getInvolvedNumericFluents());
         //System.out.println("Here we are:"+this);
         return ret;
     }
@@ -1030,9 +1033,10 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        this.left = this.getLeft().unifyVariablesReferences(p);
-        this.right = this.getRight().unifyVariablesReferences(p);
-        return this;
+        Comparison comp = (Comparison)super.unifyVariablesReferences(p);
+        comp.left = comp.getLeft().unifyVariablesReferences(p);
+        comp.right = comp.getRight().unifyVariablesReferences(p);
+        return comp;
     }
 
 
