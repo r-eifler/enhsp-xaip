@@ -444,26 +444,31 @@ public class ExtendedNormExpression extends Expression {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
-            if (a.f != null) {
+            if (a.bin != null && a.linear == false){
+                a.bin = (BinaryOp)a.bin.weakEval(problem,invFluents);
+                ret.summations.add(a);
+            }else {
+                if (a.f != null) {
 //                System.out.println(a.f);
 //                //System.out.println(invFluents);
 //                if (invFluents.get(a.f)==null){
 //                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
 //                }
 
-                if (invFluents.get(a.f) == null || (Boolean) invFluents.get(a.f)) {
-                    if (problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
-                        return null;
-                    }
-                    c += problem.getNumFluentInitialValue(a.f).getNumber() * a.n;
-                } else {
+                    if (invFluents.get(a.f) == null || (Boolean) invFluents.get(a.f)) {
+                        if (problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
+                            return null;
+                        }
+                        c += problem.getNumFluentInitialValue(a.f).getNumber() * a.n;
+                    } else {
 //                    
-                    a.f = problem.getNumFluent(a.f);
-                    ret.summations.add(a);
-                }
-            } else {
+                        a.f = problem.getNumFluent(a.f);
+                        ret.summations.add(a);
+                    }
+                } else {
 //                System.out.println("BAaaaaa... c:"+c+"a:"+a);
-                c = c + a.n;
+                    c = c + a.n;
+                }
             }
         }
         ret.summations.add(new ExtendedAddendum(null, c));
