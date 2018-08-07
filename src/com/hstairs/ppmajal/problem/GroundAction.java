@@ -25,6 +25,7 @@ import com.hstairs.ppmajal.plan.SimplePlan;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -46,6 +47,10 @@ public class GroundAction extends PDDLGenericAction {
     private Float actionCost;
     private HashMap<Predicate, Boolean> achieve;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
+
+    protected GroundAction ( ) {
+
+    }
 
 
     public void setId (int id) {
@@ -640,7 +645,7 @@ public class GroundAction extends PDDLGenericAction {
         Set threatenedAtoms = new HashSet();
 
         if (delList instanceof AndCond) {
-            for (NotCond o : (HashSet<NotCond>) delList.sons) {
+            for (NotCond o : (Collection<NotCond>) delList.sons) {
                 //System.out.println(o);
                 for (Object o1 : goal.sons) {
                     //System.out.println(o1);
@@ -1095,12 +1100,12 @@ public class GroundAction extends PDDLGenericAction {
             if (this.getPreconditions().sons != null) {
                 this.getPreconditions().sons.add(c);
             } else {
-                this.preconditions.sons = new LinkedHashSet();
+                this.preconditions.sons = new ReferenceLinkedOpenHashSet();
                 this.getPreconditions().sons.add(c);
             }
         } else {
             this.preconditions = new AndCond();
-            this.preconditions.sons = new LinkedHashSet();
+            this.preconditions.sons = new ReferenceLinkedOpenHashSet();
             this.getPreconditions().sons.add(c);
         }
     }

@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -33,10 +34,10 @@ import java.util.logging.Logger;
  * @author Enrico Scala
  */
 public abstract class ComplexCondition extends Condition {
-    public LinkedHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
+    public ReferenceLinkedOpenHashSet sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
 
     public ComplexCondition ( ) {
-        sons = new LinkedHashSet();
+        sons = new ReferenceLinkedOpenHashSet();
     }
 
 
@@ -55,7 +56,7 @@ public abstract class ComplexCondition extends Condition {
     }
 
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        LinkedHashSet ret = new LinkedHashSet();
+        ReferenceLinkedOpenHashSet ret = new ReferenceLinkedOpenHashSet();
         for (Object c : this.sons) {
             if (c instanceof NumEffect) {
                 NumEffect neff = (NumEffect) c;

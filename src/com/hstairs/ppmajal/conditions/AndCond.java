@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -158,7 +159,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         AndCond ret = new AndCond();
         ret.grounded = this.grounded;
         //ret.sons = (HashSet)this.sons.clone();
-        ret.sons = new LinkedHashSet();
+        ret.sons = new ReferenceLinkedOpenHashSet();
 
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
@@ -329,7 +330,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition weakEval (PddlProblem s, HashMap invF) {
-        LinkedHashSet to_keep = new LinkedHashSet();
+        ReferenceLinkedOpenHashSet to_keep = new ReferenceLinkedOpenHashSet();
 
         if (this.sons != null) {
             Iterator it = this.sons.iterator();

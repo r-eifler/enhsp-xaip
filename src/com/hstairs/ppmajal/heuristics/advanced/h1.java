@@ -36,6 +36,7 @@ import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 
@@ -67,7 +68,7 @@ public class h1 extends Heuristic {
     private GroundAction[] establishedAchiever;
     private AchieverSet[] achieversSet;
     protected GroundAction pseudoGoal;
-    private LinkedHashSet<GroundAction>[] allAchievers;
+    private Set<GroundAction>[] allAchievers;
     private Set<GroundAction> reachableActions;
     private boolean[] closed;
     private float minimumActionCost;
@@ -176,7 +177,7 @@ public class h1 extends Heuristic {
             establishedLocalCost = new float[all_conditions.size() + 1];
             Arrays.fill(establishedLocalCost, Float.MAX_VALUE);
         }
-        allAchievers = new LinkedHashSet[all_conditions.size() + 1];
+        allAchievers = new ReferenceLinkedOpenHashSet[all_conditions.size() + 1];
         float estimate = Float.MAX_VALUE;
         FibonacciHeap<GroundAction> a_plus = new FibonacciHeap();//actions executable. Progressively updated
         ArrayList<FibonacciHeapNode> action_to_fib_node = new ArrayList<>(nCopies(total_number_of_actions + 1, null));//mapping between action and boolean. True if action has not been activated yet
@@ -409,15 +410,15 @@ public class h1 extends Heuristic {
     private void updateReachableActions (GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Set<GroundAction> set = null;
+        Collection<GroundAction> set = null;
         if (comp.getHeuristicId() < conditionToAction.length) {
             set = conditionToAction[comp.getHeuristicId()];
         }
-        if (set == null){
-            set = new LinkedHashSet<>();
-        }
         if (this.extraTrigger != null){
             GroundAction groundAction = this.extraTrigger.get(comp.getHeuristicId());
+            if (set == null) {
+                set = new ArrayList<>();
+            }
             if (groundAction != null){
                 set.add(groundAction);
             }
@@ -571,9 +572,9 @@ public class h1 extends Heuristic {
     }
 
     private void generateConditionToActionMap ( ) {
-        conditionToAction = new LinkedHashSet[all_conditions.size() + 1];
+        conditionToAction = new ReferenceLinkedOpenHashSet[all_conditions.size() + 1];
         for (Condition c : all_conditions) {
-            LinkedHashSet<GroundAction> set = new LinkedHashSet();
+            ReferenceLinkedOpenHashSet<GroundAction> set = new ReferenceLinkedOpenHashSet();
             for (GroundAction gr : A) {
                 if (gr.getPreconditions().getTerminalConditions().contains(c)) {
                     set.add(gr);
@@ -619,7 +620,7 @@ public class h1 extends Heuristic {
                 GroundAction gr = this.establishedAchiever[c.getHeuristicId()];
                 this.update_relaxed_plan((ArrayList)relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()]);
                 if (this.is_complex.get(c.getHeuristicId()) || weak_helpful_actions_pruning) {
-                    LinkedHashSet<GroundAction> allAchiever = this.allAchievers[c.getHeuristicId()];
+                    Set<GroundAction> allAchiever = this.allAchievers[c.getHeuristicId()];
                     if (allAchiever != null) {
                         for (GroundAction gr2 : allAchiever) {
                             if (this.actionHCost[gr2.getId()] == 0) {
@@ -647,9 +648,9 @@ public class h1 extends Heuristic {
 
     private void update_achiever (Condition comp, GroundAction gr) {
 
-        LinkedHashSet s = allAchievers[comp.getHeuristicId()];
+        Set s = allAchievers[comp.getHeuristicId()];
         if (s == null) {
-            s = new LinkedHashSet();
+            s = new ReferenceLinkedOpenHashSet();
         }
         s.add(gr);
         allAchievers[comp.getHeuristicId()] = s;

@@ -671,6 +671,10 @@ public class EPddlProblem extends PddlProblem {
                 gr.setId(nActions);
                 nActions++;
             }
+            //At this point there should be even less relevant facts that needs to be stored
+            makeInit();
+            addTimeFluentToInit();
+
             System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
             System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
             long end = System.currentTimeMillis();

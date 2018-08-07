@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -149,7 +150,7 @@ public class OrCond extends ComplexCondition {
         OrCond ret = new OrCond();
 
 //        ret.sons = new HashSet();
-        ret.sons = (LinkedHashSet) this.sons.clone();
+        ret.sons = (ReferenceLinkedOpenHashSet) this.sons.clone();
 //        for(Object o: this.sons){
 //            if (o instanceof AndCond){
 //                AndCond a = (AndCond)o;
@@ -303,7 +304,7 @@ public class OrCond extends ComplexCondition {
 
     @Override
     public Condition weakEval (PddlProblem s, HashMap invF) {
-        LinkedHashSet to_keep = new LinkedHashSet();
+        ReferenceLinkedOpenHashSet to_keep = new ReferenceLinkedOpenHashSet();
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
             while (it.hasNext()) {

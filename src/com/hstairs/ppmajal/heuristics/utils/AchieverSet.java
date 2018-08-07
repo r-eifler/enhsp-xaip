@@ -20,8 +20,7 @@ package com.hstairs.ppmajal.heuristics.utils;
 
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.problem.GroundAction;
-
-import java.util.HashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 /**
  * @author enrico
@@ -29,11 +28,11 @@ import java.util.HashSet;
 public class AchieverSet {
 
     public float cost;
-    public HashSet<GroundAction> actions;
-    public HashSet<Condition> target_cond;
+    public ReferenceOpenHashSet<GroundAction> actions;
+    public ReferenceOpenHashSet<Condition> target_cond;
 
     public AchieverSet ( ) {
-        actions = new HashSet();
-        target_cond = new HashSet();
+        actions = new ReferenceOpenHashSet();
+        target_cond = new ReferenceOpenHashSet();
     }
 }

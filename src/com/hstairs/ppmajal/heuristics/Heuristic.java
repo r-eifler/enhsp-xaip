@@ -243,7 +243,7 @@ public abstract class Heuristic {
 
         ComplexCondition con = (ComplexCondition) input_cond;
 
-        for (Condition t : (LinkedHashSet<Condition>) con.sons) {
+        for (Condition t : (Collection<Condition>) con.sons) {
             if (closed != null && !closed.get(t.getHeuristicId()) && !greedy) {
                 return Float.MAX_VALUE;
             }
@@ -272,7 +272,7 @@ public abstract class Heuristic {
         if (node.action.getAddList() == null) {
             return new_condition;
         }
-        for (Condition eff : (LinkedHashSet<Condition>) node.action.getAddList().sons) {
+        for (Condition eff : (Collection<Condition>) node.action.getAddList().sons) {
             if (h.get(eff) == null || h.get(eff) > (node.action_cost_to_get_here)) {
                 h.put(eff, node.action_cost_to_get_here);
                 this.achievers.put(eff, node.action);
@@ -286,7 +286,7 @@ public abstract class Heuristic {
 
         int cost = 0;
         if (gr.getPreconditions() != null) {
-            for (Condition t : (LinkedHashSet<Condition>) gr.getPreconditions().sons) {
+            for (Condition t : (Collection<Condition>) gr.getPreconditions().sons) {
                 Integer temp = h.get(t);
                 if (temp != null && temp != Float.MAX_VALUE) {
                     if (additive_h) {
@@ -322,7 +322,7 @@ public abstract class Heuristic {
             return 0;
         }
 
-        for (Condition t : (LinkedHashSet<Condition>) con.sons) {
+        for (Condition t : (Collection<Condition>) con.sons) {
             int temp = h.get(t.getHeuristicId());
             if (temp != Float.MAX_VALUE) {
                 if (additive_h) {
