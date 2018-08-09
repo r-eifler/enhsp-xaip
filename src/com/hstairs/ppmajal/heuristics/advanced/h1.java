@@ -115,13 +115,13 @@ public class h1 extends Heuristic {
         System.out.println("Actions After AIBR-Reachability:" + A.size());
         //System.out.println("Building integer representation");
         boolean reconstruct = false;
-        do {
-            build_integer_representation();
-            pseudoGoal.setId(total_number_of_actions);
-            identify_complex_conditions(A);
-            this.generateConditionToActionMap();
-            instantiateAchieversDataStructures();
-        } while (reconstruct);
+
+        build_integer_representation();
+        pseudoGoal.setId(total_number_of_actions);
+        identify_complex_conditions(A);
+        this.generateConditionToActionMap();
+        instantiateAchieversDataStructures();
+
         reacheability_setting = true;
         extraActionPrecondition = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
