@@ -513,7 +513,7 @@ public class hlm extends h1 {
                 has_state_dependent_achievers.put(c.getHeuristicId(), false);
 //                System.out.println("Condition under analysis" + c);
                 IloLinearNumExpr expr = lp_global.linearNumExpr();
-                Set<GroundAction> set = null;
+                Collection<GroundAction> set = null;
                 if (c instanceof Predicate) {
                     set = this.invertedAchievers[c.getHeuristicId()];
                 } else if (c instanceof Comparison) {

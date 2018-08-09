@@ -58,10 +58,10 @@ public class h1 extends Heuristic {
     public boolean ibrDisabled = false;
     protected boolean reacheability_setting;
     protected Collection<Terminal>[] achieve;
-    protected LinkedHashSet<GroundAction>[] invertedAchievers;
+    protected Collection<GroundAction>[] invertedAchievers;
     protected Collection<Comparison>[] possibleAchievers;
-    protected LinkedHashSet<GroundAction>[] invertedPossibleAchievers;
-    protected LinkedHashSet<GroundAction>[] precondition_mapping;
+    protected Collection<GroundAction>[] invertedPossibleAchievers;
+    protected Collection<GroundAction>[] precondition_mapping;
     private Collection<GroundAction>[] conditionToAction;
     private float[] cost;
     private float[] actionHCost;
@@ -437,7 +437,7 @@ public class h1 extends Heuristic {
                 if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
                     this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
                 } else {
-                    LinkedHashSet<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+                    Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
                     temp.addAll(action_list);
                     this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
                 }
@@ -450,7 +450,7 @@ public class h1 extends Heuristic {
                 if (this.invertedAchievers[p.getHeuristicId()] == null) {
                     this.invertedAchievers[p.getHeuristicId()] = action_list;
                 } else {
-                    LinkedHashSet<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
+                    Collection<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
                     temp.addAll(action_list);
                     this.invertedAchievers[p.getHeuristicId()] = temp;
                 }
@@ -469,7 +469,7 @@ public class h1 extends Heuristic {
                 if (this.invertedAchievers[c1.getHeuristicId()] == null) {
                     this.invertedAchievers[c1.getHeuristicId()] = action_list;
                 } else {
-                    LinkedHashSet<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
+                    Collection<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
                     temp.addAll(action_list);
                     this.invertedAchievers[c1.getHeuristicId()] = temp;
                 }
@@ -880,25 +880,25 @@ public class h1 extends Heuristic {
     }
 
     protected boolean generate_achievers ( ) {
-        achieve = new LinkedHashSet[this.total_number_of_actions + 1];
-        possibleAchievers = new LinkedHashSet[this.total_number_of_actions + 1];
-        this.invertedPossibleAchievers = new LinkedHashSet[this.all_conditions.size() + 1];
-        invertedAchievers = new LinkedHashSet[this.all_conditions.size() + 1];
-        precondition_mapping = new LinkedHashSet[this.all_conditions.size() + 1];
+        achieve = new Collection[this.total_number_of_actions + 1];
+        possibleAchievers = new Collection[this.total_number_of_actions + 1];
+        this.invertedPossibleAchievers = new Collection[this.all_conditions.size() + 1];
+        invertedAchievers = new Collection[this.all_conditions.size() + 1];
+        precondition_mapping = new Collection[this.all_conditions.size() + 1];
 
         //this should also include the indirect dependencies, otherwise does not work!!
         Set<GroundAction> useless_actions = new HashSet();
         for (GroundAction gr : this.A) {
-            LinkedHashSet<Comparison> comparisons = new LinkedHashSet();
-            LinkedHashSet<Comparison> reacheable_comparisons = new LinkedHashSet();
-            LinkedHashSet<Terminal> literals = new LinkedHashSet();
+            ReferenceLinkedOpenHashSet<Comparison> comparisons = new ReferenceLinkedOpenHashSet<>();
+            ReferenceLinkedOpenHashSet<Comparison> reacheable_comparisons = new ReferenceLinkedOpenHashSet();
+            ReferenceLinkedOpenHashSet<Terminal> literals = new ReferenceLinkedOpenHashSet();
             boolean at_least_one_service = false;
             for (Condition c : this.all_conditions) {
 
                 if (precondition_mapping[c.getHeuristicId()] == null) {
-                    precondition_mapping[c.getHeuristicId()] = new LinkedHashSet();
+                    precondition_mapping[c.getHeuristicId()] = new ReferenceLinkedOpenHashSet();
                 }
-                LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+                ReferenceLinkedOpenHashSet<GroundAction> action_list = new ReferenceLinkedOpenHashSet();
                 if (c instanceof Comparison) {
 //                    System.out.println("Condition under analysis:"+c);
 //                    System.out.println("Counter is:"+c.getCounter());
@@ -919,7 +919,7 @@ public class h1 extends Heuristic {
                     if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
                         this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
                     } else {
-                        LinkedHashSet<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+                        Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
                         temp.addAll(action_list);
                         this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
                     }
@@ -933,7 +933,7 @@ public class h1 extends Heuristic {
                     if (this.invertedAchievers[p.getHeuristicId()] == null) {
                         this.invertedAchievers[p.getHeuristicId()] = action_list;
                     } else {
-                        LinkedHashSet<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
+                        Collection<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
                         temp.addAll(action_list);
                         this.invertedAchievers[p.getHeuristicId()] = temp;
                     }
@@ -953,7 +953,7 @@ public class h1 extends Heuristic {
                     if (this.invertedAchievers[c1.getHeuristicId()] == null) {
                         this.invertedAchievers[c1.getHeuristicId()] = action_list;
                     } else {
-                        LinkedHashSet<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
+                        Collection<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
                         temp.addAll(action_list);
                         this.invertedAchievers[c1.getHeuristicId()] = temp;
                     }
@@ -961,7 +961,7 @@ public class h1 extends Heuristic {
                 }
 
                 if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
-                    LinkedHashSet<GroundAction> temp = this.precondition_mapping[c.getHeuristicId()];
+                    Collection<GroundAction> temp = this.precondition_mapping[c.getHeuristicId()];
                     temp.add(gr);
                     this.precondition_mapping[c.getHeuristicId()] = temp;
 
@@ -1002,7 +1002,7 @@ public class h1 extends Heuristic {
                 visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
             }
         }
-        LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+        ReferenceLinkedOpenHashSet<GroundAction> action_list = new ReferenceLinkedOpenHashSet();
         for (GroundAction gr : A) {
             for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
 
@@ -1016,7 +1016,7 @@ public class h1 extends Heuristic {
         if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
             this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
         } else {
-            LinkedHashSet<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+            Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
             temp.addAll(action_list);
             this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
         }
