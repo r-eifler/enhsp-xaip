@@ -78,13 +78,14 @@ public class h1 extends Heuristic {
     protected ArrayList<AndCond> extraActionPrecondition;
     private HashMap<Integer,GroundAction> extraTrigger;
 
+    public h1 (ComplexCondition G, Set A, Set processesSet, Set events) {
+        super(G, A, processesSet, events);
+    }
+
     public h1 (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
         this(goal, A, P, new LinkedHashSet());
     }
 
-    public h1 (ComplexCondition G, Set A, Set processesSet, Set events) {
-        super(G, A, processesSet, events);
-    }
 
     public h1 (ComplexCondition goals, Set actions) {
         this(goals,actions, new LinkedHashSet(),new LinkedHashSet());
@@ -120,8 +121,8 @@ public class h1 extends Heuristic {
         pseudoGoal.setId(total_number_of_actions);
         identify_complex_conditions(A);
         this.generateConditionToActionMap();
-        instantiateAchieversDataStructures();
-
+//        instantiateAchieversDataStructures();
+        generate_achievers();
         reacheability_setting = true;
         extraActionPrecondition = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
@@ -142,14 +143,18 @@ public class h1 extends Heuristic {
         pseudoGoal.setAction_cost(0);
         pseudoGoal.setPreconditions(G);
         A.add(pseudoGoal);
+        pseudoGoal.setId(A.size());
         simplify_actions(s);
         build_integer_representation();
         identify_complex_conditions(A);
+        this.generateConditionToActionMap();
+        generate_achievers();
 
         Utils.dbg_print(debug - 10, "Complex Condition set:" + this.complex_condition_set + "\n");
-        this.generateConditionToActionMap();
+        extraActionPrecondition = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
+
         try {
-            generate_achievers();
+            instantiateAchieversDataStructures();
         } catch (Exception ex) {
             Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -368,7 +373,8 @@ public class h1 extends Heuristic {
                     AndCond temp = new AndCond();
                     temp.addConditions(comp);
 
-
+//                    System.out.println("let's see how it goes for"+ temp);
+//                    System.out.println("With: "+ reachableActions);
                     Aibr aibr_handle = new Aibr(temp, reachableActions);
                     //aibr_handle
                     aibr_handle.set(false, true);
@@ -974,49 +980,57 @@ public class h1 extends Heuristic {
 //        A.removeAll(useless_actions);
         Utils.dbg_print(debug, "Identify complex predicatesProduction");
 
+
+        this.computeComplexAchievers();
+        return false;//to fix at some point
+    }
+
+    private void computeComplexAchievers(Comparison comp){
+        HashSet<NumEffect> num_effects = new LinkedHashSet();
+        HashMap<NumEffect, Boolean> temp_mark = new HashMap();
+        HashMap<NumEffect, Boolean> per_mark = new HashMap();
+        sorted_nodes = new LinkedList();
+        for (GroundAction gr : A) {
+            for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
+                temp_mark.put(nf, false);
+                per_mark.put(nf, false);
+                num_effects.add(nf);
+            }
+        }
+        for (NumEffect a : num_effects) {
+            if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected()))) {
+                visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
+            }
+        }
+        LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+        for (GroundAction gr : A) {
+            for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
+
+                if (sorted_nodes.contains(neff)) {
+                    possibleAchievers[gr.getId()].add(comp);
+                    action_list.add(gr);
+                }
+
+            }
+        }
+        if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
+            this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
+        } else {
+            LinkedHashSet<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+            temp.addAll(action_list);
+            this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
+        }
+        if (debug == 1) {
+            System.out.println("Comparison:" + comp);
+            System.out.println("Achievers Set" + this.invertedPossibleAchievers[comp.getHeuristicId()]);
+        }
+    }
+
+    private void computeComplexAchievers(){
         for (Comparison comp : this.complex_condition_set) {
-            HashSet<NumEffect> num_effects = new LinkedHashSet();
-            HashMap<NumEffect, Boolean> temp_mark = new HashMap();
-            HashMap<NumEffect, Boolean> per_mark = new HashMap();
-            sorted_nodes = new LinkedList();
-            for (GroundAction gr : A) {
-                for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
-                    temp_mark.put(nf, false);
-                    per_mark.put(nf, false);
-                    num_effects.add(nf);
-                }
-            }
-            for (NumEffect a : num_effects) {
-                if ((!per_mark.get(a)) && (comp.getLeft().involve(a.getFluentAffected()))) {
-                    visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
-                }
-            }
-            LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
-            for (GroundAction gr : A) {
-                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
-
-                    if (sorted_nodes.contains(neff)) {
-                        possibleAchievers[gr.getId()].add(comp);
-                        action_list.add(gr);
-                    }
-
-                }
-            }
-            if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
-                this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
-            } else {
-                LinkedHashSet<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
-                temp.addAll(action_list);
-                this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
-            }
-            if (debug == 1) {
-                System.out.println("Comparison:" + comp);
-                System.out.println("Achievers Set" + this.invertedPossibleAchievers[comp.getHeuristicId()]);
-            }
-
+            this.computeComplexAchievers(comp);
         }
         Utils.dbg_print(debug, "Complex predicatesProduction identified");
-        return false;//to fix at some point
     }
 
 

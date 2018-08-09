@@ -203,7 +203,11 @@ public class habs_add extends Heuristic {
     public void setup_habs (PDDLState s) {
 
         System.out.println("setting up...");
-
+        int totActions = 0;
+        for (GroundAction gr: this.supporters){
+            gr.setId(totActions);
+            totActions++;
+        }
         habs = new h1(G, (Set<GroundAction>) this.supporters, new LinkedHashSet<>());
         habs.light_setup(s);
         System.out.println("setup completed!");
