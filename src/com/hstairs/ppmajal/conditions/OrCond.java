@@ -150,7 +150,8 @@ public class OrCond extends ComplexCondition {
         OrCond ret = new OrCond();
 
 //        ret.sons = new HashSet();
-        ret.sons = (ReferenceLinkedOpenHashSet) this.sons.clone();
+        ret.sons = new ReferenceLinkedOpenHashSet();
+        ret.sons.addAll(this.sons);
 //        for(Object o: this.sons){
 //            if (o instanceof AndCond){
 //                AndCond a = (AndCond)o;

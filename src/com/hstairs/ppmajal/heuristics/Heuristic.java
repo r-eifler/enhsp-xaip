@@ -104,7 +104,7 @@ public abstract class Heuristic {
 
     }
 
-    public Heuristic (ComplexCondition G, Set<GroundAction> A) {
+    public Heuristic (ComplexCondition G, Collection<GroundAction> A) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();

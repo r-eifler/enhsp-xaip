@@ -62,14 +62,14 @@ public class h1 extends Heuristic {
     protected LinkedHashSet<Comparison>[] possibleAchievers;
     protected LinkedHashSet<GroundAction>[] invertedPossibleAchievers;
     protected LinkedHashSet<GroundAction>[] precondition_mapping;
-    private Set<GroundAction>[] conditionToAction;
+    private Collection<GroundAction>[] conditionToAction;
     private float[] cost;
     private float[] actionHCost;
     private GroundAction[] establishedAchiever;
     private AchieverSet[] achieversSet;
     protected GroundAction pseudoGoal;
     private Set<GroundAction>[] allAchievers;
-    private Set<GroundAction> reachableActions;
+    private Collection<GroundAction> reachableActions;
     private boolean[] closed;
     private float minimumActionCost;
     private List<Pair<GroundAction, Float>> relaxedPlan;
@@ -218,12 +218,13 @@ public class h1 extends Heuristic {
                 }
             }
         }
-        reachableActions = new LinkedHashSet();
+        reachableActions = new ArrayList();
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
 
             final GroundAction gr = a_plus.removeMin().getData();
             //if (!conservativehmax || this.additive_h)
             closed[gr.getId()] = true;
+
             reachableActions.add(gr);
 //            Utils.dbg_print(debugLevel - 10, "Action Evaluated:" + gr + "\n");
 //            Utils.dbg_print(debugLevel - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
@@ -416,15 +417,15 @@ public class h1 extends Heuristic {
         }
         if (this.extraTrigger != null){
             GroundAction groundAction = this.extraTrigger.get(comp.getHeuristicId());
-            if (set == null) {
-                set = new ArrayList<>();
-            }
-            if (groundAction != null){
+            if (set == null && groundAction != null) {
+                set = Collections.singleton(groundAction);
+            }else if (groundAction != null){
                 set.add(groundAction);
             }
+
         }
         if (set == null){
-            throw new RuntimeException("Condition seems to be useless");
+            return;
         }
         //this mapping contains action that need to be triggered becasue of condition comp
         for (final GroundAction gr2 : set) {
@@ -434,7 +435,7 @@ public class h1 extends Heuristic {
                     continue;
                 }
             }
-            float c = checkConditions(gr2);
+            final float c = checkConditions(gr2);
 
             if (c < actionHCost[gr2.getId()]) {//are conditions all reached, and is this a better path?
                 actionHCost[gr2.getId()] = c;
@@ -457,38 +458,37 @@ public class h1 extends Heuristic {
         }
     }
 
-    float estimateCost (Condition c) {
+    float estimateCost (final Condition c) {
         if (c instanceof AndCond) {
-            AndCond and = (AndCond) c;
+            final AndCond and = (AndCond) c;
             if (and.sons == null) {
                 return 0f;
             }
             float ret = 0f;
             for (final Condition son : (Collection<Condition>) and.sons) {
-                float estimate = estimateCost(son);
+                final float estimate = estimateCost(son);
                 if (estimate == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 }
                 if (additive_h) {
                     ret += estimate;
                 } else {
-                    ret = Math.max(estimate, ret);
+                    ret = (estimate > ret) ? estimate : ret;
                 }
             }
             return ret;
 
         } else if (c instanceof OrCond) {
-            OrCond and = (OrCond) c;
+            final OrCond and = (OrCond) c;
             if (and.sons == null) {
                 return 0f;
             }
             float ret = Float.MAX_VALUE;
             for (final Condition son : (Collection<Condition>) and.sons) {
-                float estimate = estimateCost(son);
+                final float estimate = estimateCost(son);
                 if (estimate != Float.MAX_VALUE) {
-                    ret = Math.min(estimate, ret);
+                    ret = (estimate < ret) ? estimate : ret;
                 }
-
             }
             return ret;
         } else if (c instanceof Predicate) {
@@ -572,9 +572,10 @@ public class h1 extends Heuristic {
     }
 
     private void generateConditionToActionMap ( ) {
-        conditionToAction = new ReferenceLinkedOpenHashSet[all_conditions.size() + 1];
+//        conditionToAction = new ReferenceLinkedOpenHashSet[all_conditions.size() + 1];
+        conditionToAction = new ArrayList[all_conditions.size() + 1];
         for (Condition c : all_conditions) {
-            ReferenceLinkedOpenHashSet<GroundAction> set = new ReferenceLinkedOpenHashSet();
+            ArrayList<GroundAction> set = new ArrayList();
             for (GroundAction gr : A) {
                 if (gr.getPreconditions().getTerminalConditions().contains(c)) {
                     set.add(gr);

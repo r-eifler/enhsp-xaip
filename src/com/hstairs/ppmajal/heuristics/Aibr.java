@@ -48,7 +48,7 @@ public class Aibr extends Heuristic {
     private HashMap<GroundAction, GroundAction> supp_to_action;
     private boolean cost_oriented = true;
 
-    public Aibr (ComplexCondition G, Set<GroundAction> actions) {
+    public Aibr (ComplexCondition G, Collection<GroundAction> actions) {
         super(G, actions);
         this.supp_to_action = new HashMap();
 

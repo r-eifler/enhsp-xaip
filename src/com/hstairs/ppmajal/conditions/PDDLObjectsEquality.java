@@ -247,6 +247,16 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
+    public String toString ( ) {
+        return "PDDLObjectsEquality{" +
+                "left=" + left +
+                ", right=" + right +
+                ", leftV=" + leftV +
+                ", rightV=" + rightV +
+                '}';
+    }
+
+    @Override
     public Set<NumFluent> getInvolvedFluents ( ) {
         return new HashSet();
     }
