@@ -603,6 +603,10 @@ public class EPddlProblem extends PddlProblem {
 
     protected void pruningViaReachability (){
         //System.out.println("prova");
+
+        // normalize global constraints, once and forall
+        globalConstraints.normalize();
+
         sweepStructuresForUnreachableStatements();
         this.saveInitInit();
         removeStaticParts();
@@ -715,7 +719,6 @@ public class EPddlProblem extends PddlProblem {
                 it.remove();
             } else {
                 globalConstraints.addConditions(constr.condition);
-                globalConstraints.normalize();
             }
 
         }
@@ -731,90 +734,63 @@ public class EPddlProblem extends PddlProblem {
     }
 
     protected Set<GroundAction> keepOnlyRelTransitions (Set<GroundAction> transitions, Condition necessaryGoals) {
-        if (transitions.isEmpty())
+        if (transitions.isEmpty()) {
             return new HashSet();
+        }
         LinkedList<Object> goal = new LinkedList<>(necessaryGoals.getTerminalConditions());
-        ReferenceOpenHashSet<Object> seen = new ReferenceOpenHashSet<>();
+        HashSet<Object> seen = new HashSet<>();
         ReferenceSet<GroundAction> transitionsToKeep = new ReferenceLinkedOpenHashSet<>();
-        Reference2ObjectArrayMap<GroundAction, ArrayList<Condition>> literalsMap = new Reference2ObjectArrayMap();
-        Reference2ObjectArrayMap<GroundAction, Set<Condition>> terminalPreconditionMap = new Reference2ObjectArrayMap();
-        while (!goal.isEmpty()){
+        LinkedList<GroundAction> missing = new LinkedList<>(transitions);
+
+        while (!goal.isEmpty()) {
             Object pop = goal.pop();
-            if (seen.add(pop)){
-                for (GroundAction gr : transitions) {
+            if (seen.add(pop)) {
+                final ListIterator<GroundAction> it = missing.listIterator();
+                while (it.hasNext()) {
+                    final GroundAction gr = it.next();
                     boolean keep = false;
-                    if (!transitionsToKeep.contains(gr)) {
-                        if (pop instanceof Comparison) {//this needs optimisation
-                            Comparison comp = (Comparison)pop;
-                            Set<NumFluent> numericFluentAffected = Sets.newHashSet(gr.getNumericFluentAffected());
-                            Set<NumFluent> involvedFluents = Sets.newHashSet(comp.getInvolvedFluents());
-                            Sets.SetView<NumFluent> intersection = Sets.intersection(numericFluentAffected, involvedFluents);
-                            if (!intersection.isEmpty()) {
-                                keep = true;
-                            }
-                        } else if (pop instanceof NotCond || pop instanceof Predicate) {
+                    if (pop instanceof NotCond || pop instanceof Predicate) {
+                        if (gr.getAddList() != null && gr.getAddList().sons != null) {
+                            keep = gr.getAddList().sons.contains(pop);
+                        }
+                        if (!keep && gr.getDelList() != null && gr.getDelList().sons != null) {
+                            keep = gr.getDelList().sons.contains(pop);
+                        }
+                    }
+                    else if (pop instanceof Comparison) {//this needs optimisation
+                        Comparison comp = (Comparison)pop;
+                        Set<NumFluent> numericFluentAffected = Sets.newHashSet(gr.getNumericFluentAffected());
+                        Set<NumFluent> involvedFluents = Sets.newHashSet(comp.getInvolvedFluents());
+                        Sets.SetView<NumFluent> intersection = Sets.intersection(numericFluentAffected, involvedFluents);
+                        if (!intersection.isEmpty()) {
+                            keep = true;
+                        }
+                    }
+                    else if (pop instanceof Expression){
+                        Expression expr = (Expression)pop;
+                        Set<NumFluent> numericFluentAffected = Sets.newHashSet(gr.getNumericFluentAffected());
+                        Set<NumFluent> involvedFluents = Sets.newHashSet(expr.getInvolvedNumericFluents());
+                        Sets.SetView<NumFluent> intersection = Sets.intersection(numericFluentAffected, involvedFluents);
+                        if (!intersection.isEmpty()) {
+                            keep = true;
+                        }
+                    }
 
-                            ArrayList<Condition> literalsTerminals = literalsMap.get(gr);
-                            if (literalsTerminals == null) {
-                                literalsTerminals = new ArrayList();
-                                if (gr.getAddList() != null && gr.getAddList().sons != null){
-                                    for (Terminal predicate: (Collection<Predicate>)gr.getAddList().sons){
-                                        if (pop == predicate){
-                                            keep = true;
-                                            break;
-                                        }else{
-                                            literalsTerminals.add(predicate);
-                                        }
-                                    }
-                                }
-                                if (gr.getDelList() != null && gr.getDelList().sons != null && !keep){
-                                    for (Terminal predicate: (Collection<Predicate>)gr.getDelList().sons){
-                                        if (pop == predicate){
-                                            keep = true;
-                                            break;
-                                        }else{
-                                            literalsTerminals.add(predicate);
-                                        }
-                                    }
-                                }
-                            }else{
-                                if (literalsTerminals.contains(pop)) {
-                                    keep = true;
-                                }
-                            }
-
-                        }else if (pop instanceof Expression){
-                            Expression expr = (Expression)pop;
-                            Set<NumFluent> numericFluentAffected = Sets.newHashSet(gr.getNumericFluentAffected());
-                            Set<NumFluent> involvedFluents = Sets.newHashSet(expr.getInvolvedNumericFluents());
-                            Sets.SetView<NumFluent> intersection = Sets.intersection(numericFluentAffected, involvedFluents);
-                            if (!intersection.isEmpty()) {
-                                keep = true;
+                    if (keep) {
+                        transitionsToKeep.add(gr);
+                        it.remove();
+                        for (Condition t: gr.getPreconditions().getTerminalConditions()){
+                            if (!seen.contains(t)){
+                                goal.add(t);
                             }
                         }
-                        if (keep) {
-                            transitionsToKeep.add(gr);
-                            Set<Condition> terminalConditions = terminalPreconditionMap.get(gr);
-                            if (terminalConditions == null) {
-                                terminalConditions = gr.getPreconditions().getTerminalConditions();
+                        for (NumEffect neff : gr.getNumericEffectsAsCollection()){
+                            if (!(neff.getRight() instanceof PDDLNumber) && !seen.contains(neff.getRight())){
+                                goal.add(neff.getRight());
                             }
-                            for (Condition t: terminalConditions){
-                                if (!seen.contains(t)){
-                                    goal.add(t);
-                                }
-                            }
-                            for (NumEffect neff : gr.getNumericEffectsAsCollection()){
-                                if (!(neff.getRight() instanceof PDDLNumber)){
-                                    goal.add(neff.getRight());
-                                }
-                            }
-                        }else{
-//                            System.out.println("Not putting");
                         }
                     }
                 }
-            }else{
-//                System.out.println("Already seen this");
             }
         }
 

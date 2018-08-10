@@ -103,6 +103,16 @@ public class Aibr extends Heuristic {
 
     }
 
+    private LinkedHashSet<GroundAction> filterApplicable(Collection<GroundAction> actions, RelState rs) {
+        LinkedHashSet<GroundAction> res = new LinkedHashSet<>();
+        for (GroundAction ga : actions) {
+            if (ga.isApplicable(rs)) {
+                res.add(ga);
+            }
+        }
+        return res;
+    }
+
     @Override
     public Float computeEstimate (State gs) {
         PDDLState s = (PDDLState) gs;
@@ -125,7 +135,7 @@ public class Aibr extends Heuristic {
                 if (!rs.satisfy(G)) {
                     if (reachability) {
                         reacheable_state = rs.clone();
-                        this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+                        this.reachable = filterApplicable(A, rs);
                     }
 //                    get_applicable_supporters(temp_supporters, rs, i);
                     return Float.MAX_VALUE;
@@ -159,8 +169,8 @@ public class Aibr extends Heuristic {
         }
 
         if (reachability) {
-            this.reachable = new LinkedHashSet(A.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
-            this.supporters = new LinkedHashSet(supporters.stream().filter(p -> p.isApplicable(rs)).collect(Collectors.toList()));
+            this.reachable = filterApplicable(A, rs);
+            this.supporters = filterApplicable(supporters, rs);
             return (float) i;
         }
         if (layers_counter) {
