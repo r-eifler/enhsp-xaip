@@ -732,7 +732,7 @@ public class EPddlProblem extends PddlProblem {
 
     protected Set<GroundAction> keepOnlyRelTransitions (Set<GroundAction> transitions, Condition necessaryGoals) {
         if (transitions.isEmpty())
-            return transitions;
+            return new HashSet();
         LinkedList<Object> goal = new LinkedList<>(necessaryGoals.getTerminalConditions());
         ReferenceOpenHashSet<Object> seen = new ReferenceOpenHashSet<>();
         ReferenceSet<GroundAction> transitionsToKeep = new ReferenceLinkedOpenHashSet<>();
