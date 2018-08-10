@@ -730,7 +730,9 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    protected Set<GroundAction> keepOnlyRelTransitions (Collection<GroundAction> transitions, Condition necessaryGoals) {
+    protected Set<GroundAction> keepOnlyRelTransitions (Set<GroundAction> transitions, Condition necessaryGoals) {
+        if (transitions.isEmpty())
+            return transitions;
         LinkedList<Object> goal = new LinkedList<>(necessaryGoals.getTerminalConditions());
         ReferenceOpenHashSet<Object> seen = new ReferenceOpenHashSet<>();
         ReferenceSet<GroundAction> transitionsToKeep = new ReferenceLinkedOpenHashSet<>();
@@ -740,7 +742,7 @@ public class EPddlProblem extends PddlProblem {
             Object pop = goal.pop();
             if (seen.add(pop)){
                 for (GroundAction gr : transitions) {
-                        boolean keep = false;
+                    boolean keep = false;
                     if (!transitionsToKeep.contains(gr)) {
                         if (pop instanceof Comparison) {//this needs optimisation
                             Comparison comp = (Comparison)pop;
