@@ -384,9 +384,9 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
-        s.cost = cond_dist.get(this.getHeuristicId());
-        s.actions.add(established_achiever.get(this.getHeuristicId()));
-        s.target_cond.add(this);
+        s.setCost(cond_dist.get(this.getHeuristicId()));
+        s.getActions().add(established_achiever.get(this.getHeuristicId()));
+        s.getTargetCond().add(this);
         return s;
     }
 

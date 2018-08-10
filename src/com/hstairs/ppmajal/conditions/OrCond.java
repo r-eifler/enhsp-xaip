@@ -541,17 +541,17 @@ public class OrCond extends ComplexCondition {
     @Override
     public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
-        s.cost = Float.MAX_VALUE;
+        s.setCost(Float.MAX_VALUE);
         if (this.sons == null) {
-            s.cost = 0f;
+            s.setCost(0f);
         } else {
             for (Condition c : (Collection<Condition>) this.sons) {
                 AchieverSet s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
-                if (s1.cost != Float.MAX_VALUE) {
-                    if (s.cost > s1.cost) {
-                        s.actions = s1.actions;
-                        s.cost = s1.cost;
-                        s.target_cond.addAll(s1.target_cond);
+                if (s1.getCost() != Float.MAX_VALUE) {
+                    if (s.getCost() > s1.getCost()) {
+                        s.setActions(s1.getActions());
+                        s.setCost(s1.getCost());
+                        s.getTargetCond().addAll(s1.getTargetCond());
                     }
                 }
             }

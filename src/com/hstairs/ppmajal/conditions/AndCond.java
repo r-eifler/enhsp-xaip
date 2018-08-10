@@ -640,22 +640,22 @@ public class AndCond extends ComplexCondition implements PostCondition {
     public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
         AchieverSet s = new AchieverSet();
         if (this.sons == null) {
-            s.cost = 0f;
+            s.setCost(0f);
         } else {
-            s.cost = 0f;
+            s.setCost(0f);
             for (Condition c : (Collection<Condition>) this.sons) {
                 AchieverSet s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
-                if (s1.cost == Float.MAX_VALUE) {
-                    s.cost = Float.MAX_VALUE;
+                if (s1.getCost() == Float.MAX_VALUE) {
+                    s.setCost(Float.MAX_VALUE);
                     return s;
                 }
                 if (additive_h) {
-                    s.cost += s1.cost;
+                    s.setCost(s.getCost() + s1.getCost());
 
-                    s.actions.addAll(s1.actions);
-                    s.target_cond.addAll(s1.target_cond);
+                    s.getActions().addAll(s1.getActions());
+                    s.getTargetCond().addAll(s1.getTargetCond());
                 } else {
-                    s.cost = Math.max(s1.cost, s.cost);
+                    s.setCost(Math.max(s1.getCost(), s.getCost()));
                 }
             }
         }

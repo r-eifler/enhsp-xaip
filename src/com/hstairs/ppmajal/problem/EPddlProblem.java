@@ -595,49 +595,23 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    public void simplifyAndSetupInit() throws Exception {
-//        System.out.println(this.getActualFluents());
-        //System.out.println("prova");
-        long start = System.currentTimeMillis();
-        System.out.println("(Pre Simplification) - |A|+|P|+|E|: "+(getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-        System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
-        this.staticFluents = null;
-        //the following just remove actions/processes/events over false and static predicates
-        cleanEasyUnreachableTransitions(actions);
-        this.staticFluents = null;
-        cleanEasyUnreachableTransitions(processesSet);
-        this.staticFluents = null;
-        cleanEasyUnreachableTransitions(eventsSet);
-        this.staticFluents = null;
-        cleanIrrelevantConstraints(globalConstraintSet);
-        this.processesHaveBeenGrounded = true;
-        this.setGroundedRepresentation(true);
-        this.globalConstraintGrounded = true;
-
-        goals = (ComplexCondition) goals.weakEval(this, this.getActualFluents());
-        goals.normalize();
-
-        if (this.metric != null && this.metric.getMetExpr() != null) {
-            this.metric.setMetExpr(this.metric.getMetExpr().weakEval(this, this.getActualFluents()));
-            this.metric.setMetExpr(this.metric.getMetExpr().normalize());
-        } else {
-            this.metric = null;
-        }
-
-        this.saveInitInit();
-
-        //this is a relevance analysis to understand which action/processes or event can actually be part of some solution
-
+    protected void removeStaticParts(){
         this.staticFluents = null;//reset this
         removeStaticPart();
         removeUnnecessaryFluents();
+    }
+
+    protected void removeUnreachableStatements(){
+        System.out.println(this.getActualFluents());
+        //System.out.println("prova");
+        sweepStructuresForUnreachableStatements();
+        this.saveInitInit();
+        removeStaticParts();
         setActionCosts();
         setProcessEventsCost();
-        makeInit();
-        addTimeFluentToInit();
 
         Aibr aibr = new Aibr(this.goals, actions, processesSet, eventsSet);
-        Float setup = aibr.setup(this.getInit());
+        Float setup = aibr.setup(this.makePddlState());
         this.reachableActions = new LinkedHashSet<>();
         this.reachableActions = aibr.reachable;
 
@@ -645,16 +619,9 @@ public class EPddlProblem extends PddlProblem {
 
 
 
-            nActions = 0;
-            for (GroundAction gr : reachableActions) {
-                gr.setId(nActions);
-                nActions++;
-            }
+    }
 
-
-            keepOnlyRelTransitions(this.reachableActions);
-            splitActionsEventsProcesses(this.reachableActions);
-
+    protected void sweepStructuresForUnreachableStatements(){
             this.staticFluents = null;
             //the following just remove actions/processes/events over false and static predicates
             cleanEasyUnreachableTransitions(actions);
@@ -664,43 +631,80 @@ public class EPddlProblem extends PddlProblem {
             cleanEasyUnreachableTransitions(eventsSet);
             this.staticFluents = null;
             cleanIrrelevantConstraints(globalConstraintSet);
-            nActions = 0;
-            Sets.SetView<GroundAction> union = Sets.union(Sets.union(actions, processesSet), eventsSet);
-            this.reachableActions = union;
-            for (GroundAction gr : union) {
+            this.processesHaveBeenGrounded = true;
+            this.setGroundedRepresentation(true);
+            this.globalConstraintGrounded = true;
+
+            goals = (ComplexCondition) goals.weakEval(this, this.getActualFluents());
+            goals.normalize();
+
+            if (this.metric != null && this.metric.getMetExpr() != null) {
+                this.metric.setMetExpr(this.metric.getMetExpr().weakEval(this, this.getActualFluents()));
+                this.metric.setMetExpr(this.metric.getMetExpr().normalize());
+            } else {
+                this.metric = null;
+            }
+
+    }
+
+    protected void removeIrrelevantStatements(){
+
+            keepOnlyRelTransitions(this.reachableActions,this.goals);
+            splitActionsEventsProcesses(this.reachableActions);
+            sweepStructuresForUnreachableStatements();
+
+            //At this point there should be even less relevant facts that needs to be stored
+    }
+
+    private void idifyTransitions(){
+            int nActions = 0;
+            for (GroundAction gr : Sets.union(eventsSet,Sets.union(actions,processesSet))) {
                 gr.setId(nActions);
                 nActions++;
             }
-            //At this point there should be even less relevant facts that needs to be stored
+
+    }
+
+    public void simplifyAndSetupInit() throws Exception {
+
+        long start = System.currentTimeMillis();
+            System.out.println("(Pre Simplification) - |A|+|P|+|E|: "+(getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
+//
+            removeUnreachableStatements();
+            idifyTransitions();
+
+            removeIrrelevantStatements();
+            idifyTransitions();
+
+            this.removeStaticParts();
             makeInit();
             addTimeFluentToInit();
 
             System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+
             System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
-            long end = System.currentTimeMillis();
+        long end = System.currentTimeMillis();
 
-            System.out.println("Simplification Time: " + (end - start));
-
-            //This aligns the reachable actions with the whole set of transitions considered in this problem
-
+        System.out.println("Simplification Time: " + (end - start));
 
     }
 
-    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition goals, AndCond globalConstraints) {
-        HashMap<Integer, GroundAction> actionIds = new HashMap<>();
-        HashMap<Integer, Condition> conditionsIds = new HashMap<>();
-        int actionID = 0;
-        int conditionID = 0;
-        for (GroundAction gr: reachableActions){
-            if (!actionIds.values().contains(gr)){
-                actionIds.put(actionID,gr);
-                Set<Condition> terminalConditions = gr.getPreconditions().getTerminalConditions();
-                Set<Condition> addListTerminalConditions = gr.getAddList().getTerminalConditions();
-                Set<Condition> delListTerminalConditions = gr.getDelList().getTerminalConditions();
-            }
-            //preconditions
-        }
-    }
+//    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition goals, AndCond globalConstraints) {
+//        HashMap<Integer, GroundAction> actionIds = new HashMap<>();
+//        HashMap<Integer, Condition> conditionsIds = new HashMap<>();
+//        int actionID = 0;
+//        int conditionID = 0;
+//        for (GroundAction gr: reachableActions){
+//            if (!actionIds.values().contains(gr)){
+//                actionIds.put(actionID,gr);
+//                Set<Condition> terminalConditions = gr.getPreconditions().getTerminalConditions();
+//                Set<Condition> addListTerminalConditions = gr.getAddList().getTerminalConditions();
+//                Set<Condition> delListTerminalConditions = gr.getDelList().getTerminalConditions();
+//            }
+//            //preconditions
+//        }
+//    }
 
     private void cleanIrrelevantConstraints (HashSet<GlobalConstraint> globalConstraintSet) {
         Iterator<GlobalConstraint> it = globalConstraintSet.iterator();
@@ -729,8 +733,8 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    private void keepOnlyRelTransitions (Collection<GroundAction> transitions) {
-        LinkedList<Object> goal = new LinkedList<>(this.goals.getTerminalConditions());
+    protected void keepOnlyRelTransitions (Collection<GroundAction> transitions, Condition necessaryGoals) {
+        LinkedList<Object> goal = new LinkedList<>(necessaryGoals.getTerminalConditions());
         ReferenceOpenHashSet<Object> seen = new ReferenceOpenHashSet<>();
         ReferenceSet<GroundAction> transitionsToKeep = new ReferenceLinkedOpenHashSet<>();
         Reference2ObjectArrayMap<GroundAction, ArrayList<Condition>> literalsMap = new Reference2ObjectArrayMap();
@@ -925,8 +929,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    private void makeInit ( ) {
-
+    private PDDLState makePddlState(){
         DoubleArrayList numFluents = new DoubleArrayList();
         numFluents.resize(getNumericFluentReference().size());
         for (NumFluent nf : getNumericFluentReference().values()) {
@@ -954,7 +957,11 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
         }
-        this.init = new PDDLState(numFluents, boolFluents);
+        return new PDDLState(numFluents,boolFluents);
+    }
+
+    private void makeInit ( ) {
+        this.init = makePddlState();
     }
 
 

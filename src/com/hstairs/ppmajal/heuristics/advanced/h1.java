@@ -77,6 +77,7 @@ public class h1 extends Heuristic {
     private Object2FloatMap action_comp_number_execution;
     protected ArrayList<AndCond> extraActionPrecondition;
     private HashMap<Integer,GroundAction> extraTrigger;
+    private boolean relevanceAnalysis;
 
     public h1 (ComplexCondition G, Set A, Set processesSet, Set events) {
         super(G, A, processesSet, events);
@@ -287,7 +288,7 @@ public class h1 extends Heuristic {
 
                 float cond_dist_comp = c_a + this.actionHCost[gr.getId()];
                 if (cond_dist_comp != Float.MAX_VALUE) {
-                    if (this.extractRelaxedPlan || this.helpful_actions_computation) {
+                    if (this.extractRelaxedPlan || this.helpful_actions_computation || this.relevanceAnalysis) {
                         update_achiever(comp, gr);
                     }
                     if (cond_dist_comp < cost[comp.getHeuristicId()]) {//if this isn't in the init state yet
@@ -597,45 +598,45 @@ public class h1 extends Heuristic {
             AndCond and = (AndCond) c;
 
             if (and.sons == null) {
-                s.cost = 0f;
+                s.setCost(0f);
             } else {
-                s.cost = 0f;
+                s.setCost(0f);
                 for (Condition son : (Collection<Condition>) and.sons) {
                     AchieverSet s1 = estimateAchievers(son);
-                    if (s1.cost == Float.MAX_VALUE) {
-                        s.cost = Float.MAX_VALUE;
+                    if (s1.getCost() == Float.MAX_VALUE) {
+                        s.setCost(Float.MAX_VALUE);
                         return s;
                     }
                     if (additive_h) {
-                        s.cost += s1.cost;
-                        s.actions.addAll(s1.actions);
-                        s.target_cond.addAll(s1.target_cond);
+                        s.setCost(s.getCost() + s1.getCost());
+                        s.getActions().addAll(s1.getActions());
+                        s.getTargetCond().addAll(s1.getTargetCond());
                     } else {
-                        s.cost = Math.max(s1.cost, s.cost);
+                        s.setCost(Math.max(s1.getCost(), s.getCost()));
                     }
                 }
             }
         } else if (c instanceof OrCond) {
             OrCond and = (OrCond) c;
-            s.cost = Float.MAX_VALUE;
+            s.setCost(Float.MAX_VALUE);
             if (and.sons == null) {
-                s.cost = 0f;
+                s.setCost(0f);
             } else {
                 for (Condition c1 : (Collection<Condition>) and.sons) {
                     AchieverSet s1 = estimateAchievers(c1);
-                    if (s1.cost != Float.MAX_VALUE) {
-                        if (s.cost > s1.cost) {
-                            s.actions = s1.actions;
-                            s.cost = s1.cost;
-                            s.target_cond.addAll(s1.target_cond);
+                    if (s1.getCost() != Float.MAX_VALUE) {
+                        if (s.getCost() > s1.getCost()) {
+                            s.setActions(s1.getActions());
+                            s.setCost(s1.getCost());
+                            s.getTargetCond().addAll(s1.getTargetCond());
                         }
                     }
                 }
             }
         } else {
-            s.cost = cost[c.getHeuristicId()];
-            s.actions.add(establishedAchiever[c.getHeuristicId()]);
-            s.target_cond.add(c);
+            s.setCost(cost[c.getHeuristicId()]);
+            s.getActions().add(establishedAchiever[c.getHeuristicId()]);
+            s.getTargetCond().add(c);
         }
         return s;
     }
@@ -653,7 +654,7 @@ public class h1 extends Heuristic {
         if (extractRelaxedPlan || this.helpful_actions_computation) {
             AchieverSet s = estimateAchievers(input);
             achieversSet[gr2.getId()] = s;
-            return s.cost;
+            return s.getCost();
         } else {
             return estimateCost(input);
         }
@@ -705,7 +706,7 @@ public class h1 extends Heuristic {
         helpful_actions = new ArrayList();
         AchieverSet s = this.achieversSet[pseudoGoal.getId()];
         ArrayList<Boolean> visited = new ArrayList(nCopies(this.all_conditions.size()+1,false));
-        for (Condition c : s.target_cond) {
+        for (Condition c : s.getTargetCond()) {
             list.add(c);
             visited.set(c.getHeuristicId(),true);
         }
@@ -729,7 +730,7 @@ public class h1 extends Heuristic {
                 } else {
                     AchieverSet ach_set = this.achieversSet[gr.getId()];
                     if (ach_set != null) {
-                        for (Condition c1 : ach_set.target_cond) {
+                        for (Condition c1 : ach_set.getTargetCond()) {
                             if (!visited.get(c1.getHeuristicId())) {
                                 list.add(c1);
                                 visited.set(c1.getHeuristicId(),true);
@@ -740,6 +741,8 @@ public class h1 extends Heuristic {
             }
         }
     }
+
+
 
     private void update_achiever (Condition comp, GroundAction gr) {
 
@@ -764,7 +767,7 @@ public class h1 extends Heuristic {
 
     private void getHelpfulActions (LinkedList<GroundAction> list, AchieverSet s) {
         if (s != null) {
-            for (Condition o : s.target_cond) {
+            for (Condition o : s.getTargetCond()) {
                 if (cost[o.getHeuristicId()] == 0) {
                     continue;
                 }
@@ -799,7 +802,7 @@ public class h1 extends Heuristic {
                 }
 //                }
             }
-            for (GroundAction gr : s.actions) {
+            for (GroundAction gr : s.getActions()) {
                 if (gr != null) {
                     list.addFirst(gr);
                 }

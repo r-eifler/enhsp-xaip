@@ -27,12 +27,36 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
  */
 public class AchieverSet {
 
-    public float cost;
-    public ReferenceOpenHashSet<GroundAction> actions;
-    public ReferenceOpenHashSet<Condition> target_cond;
+    private float cost;
+    private ReferenceOpenHashSet<GroundAction> actions;
+    private ReferenceOpenHashSet<Condition> targetCond;
 
     public AchieverSet ( ) {
-        actions = new ReferenceOpenHashSet();
-        target_cond = new ReferenceOpenHashSet();
+        setActions(new ReferenceOpenHashSet<>());
+        setTargetCond(new ReferenceOpenHashSet<>());
+    }
+
+    public float getCost ( ) {
+        return cost;
+    }
+
+    public void setCost (float cost) {
+        this.cost = cost;
+    }
+
+    public ReferenceOpenHashSet<GroundAction> getActions ( ) {
+        return actions;
+    }
+
+    public void setActions (ReferenceOpenHashSet<GroundAction> actions) {
+        this.actions = actions;
+    }
+
+    public ReferenceOpenHashSet<Condition> getTargetCond ( ) {
+        return targetCond;
+    }
+
+    public void setTargetCond (ReferenceOpenHashSet<Condition> targetCond) {
+        this.targetCond = targetCond;
     }
 }
