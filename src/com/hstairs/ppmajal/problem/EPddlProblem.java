@@ -613,8 +613,10 @@ public class EPddlProblem extends PddlProblem {
         Float setup = aibr.setup(this.makePddlState());
         this.reachableActions = new LinkedHashSet<>();
         this.reachableActions = aibr.reachable;
-
         System.out.println("(After AIBR):"+this.reachableActions.size());
+
+        splitActionsEventsProcesses(this.reachableActions);
+        sweepStructuresForUnreachableStatements();
 
 
 
