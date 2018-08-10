@@ -69,7 +69,7 @@ public class PddlProblem {
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
     PddlDomain linkedDomain;
     private FactoryConditions fc;
-    protected Collection<GroundAction> reachableActions;
+    protected Set<GroundAction> reachableActions;
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super();

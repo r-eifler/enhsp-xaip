@@ -602,7 +602,6 @@ public class EPddlProblem extends PddlProblem {
     }
 
     protected void removeUnreachableStatements(){
-        System.out.println(this.getActualFluents());
         //System.out.println("prova");
         sweepStructuresForUnreachableStatements();
         this.saveInitInit();
@@ -649,14 +648,14 @@ public class EPddlProblem extends PddlProblem {
 
     protected void removeIrrelevantStatements(){
 
-            keepOnlyRelTransitions(this.reachableActions,this.goals);
+            this.reachableActions = keepOnlyRelTransitions(this.reachableActions,this.goals);
             splitActionsEventsProcesses(this.reachableActions);
             sweepStructuresForUnreachableStatements();
 
             //At this point there should be even less relevant facts that needs to be stored
     }
 
-    private void idifyTransitions(){
+    protected void idifyTransitions(){
             int nActions = 0;
             for (GroundAction gr : Sets.union(eventsSet,Sets.union(actions,processesSet))) {
                 gr.setId(nActions);
@@ -733,7 +732,7 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    protected void keepOnlyRelTransitions (Collection<GroundAction> transitions, Condition necessaryGoals) {
+    protected Set<GroundAction> keepOnlyRelTransitions (Collection<GroundAction> transitions, Condition necessaryGoals) {
         LinkedList<Object> goal = new LinkedList<>(necessaryGoals.getTerminalConditions());
         ReferenceOpenHashSet<Object> seen = new ReferenceOpenHashSet<>();
         ReferenceSet<GroundAction> transitionsToKeep = new ReferenceLinkedOpenHashSet<>();
@@ -819,11 +818,11 @@ public class EPddlProblem extends PddlProblem {
             }
         }
 
-        this.reachableActions = transitionsToKeep;
+        return transitionsToKeep;
 
     }
 
-    private void splitActionsEventsProcesses (Iterable<GroundAction> transitionsToKeep) {
+    protected void splitActionsEventsProcesses (Iterable<GroundAction> transitionsToKeep) {
         processesSet = new LinkedHashSet<>();
         eventsSet = new LinkedHashSet<>();
         actions = new LinkedHashSet<>();
@@ -960,7 +959,7 @@ public class EPddlProblem extends PddlProblem {
         return new PDDLState(numFluents,boolFluents);
     }
 
-    private void makeInit ( ) {
+    protected void makeInit ( ) {
         this.init = makePddlState();
     }
 
