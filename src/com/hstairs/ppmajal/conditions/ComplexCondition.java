@@ -139,7 +139,7 @@ public abstract class ComplexCondition extends Condition {
         }
         ret = Sets.newLinkedHashSetWithExpectedSize(this.sons.size());
         for (Condition c : (Collection<Condition>) this.sons) {
-            ret = Sets.union(ret, c.getTerminalConditions());
+            ret.addAll(c.getTerminalConditions());
         }
         return ret;
     }
