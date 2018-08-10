@@ -601,7 +601,7 @@ public class EPddlProblem extends PddlProblem {
         removeUnnecessaryFluents();
     }
 
-    protected void removeUnreachableStatements(){
+    protected void pruningViaReachability (){
         //System.out.println("prova");
         sweepStructuresForUnreachableStatements();
         this.saveInitInit();
@@ -617,9 +617,7 @@ public class EPddlProblem extends PddlProblem {
 
         splitActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
-
-
-
+        idifyTransitions();
     }
 
     protected void sweepStructuresForUnreachableStatements(){
@@ -648,7 +646,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    protected void removeIrrelevantStatements(){
+    protected void pruningViaRelevance (){
 
             this.reachableActions = keepOnlyRelTransitions(this.reachableActions,this.goals);
             splitActionsEventsProcesses(this.reachableActions);
@@ -658,33 +656,31 @@ public class EPddlProblem extends PddlProblem {
     }
 
     protected void idifyTransitions(){
-            int nActions = 0;
-            for (GroundAction gr : Sets.union(eventsSet,Sets.union(actions,processesSet))) {
-                gr.setId(nActions);
-                nActions++;
-            }
-
+        int nActions = 0;
+        for (GroundAction gr : Sets.union(eventsSet,Sets.union(actions,processesSet))) {
+            gr.setId(nActions);
+            nActions++;
+        }
+        reachableActions = new LinkedHashSet<>(reachableActions);
+        eventsSet = new LinkedHashSet<>(eventsSet);
+        actions = new LinkedHashSet<>(actions);
+        processesSet = new LinkedHashSet<>(processesSet);
     }
 
     public void simplifyAndSetupInit() throws Exception {
 
         long start = System.currentTimeMillis();
-            System.out.println("(Pre Simplification) - |A|+|P|+|E|: "+(getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
-//
-            removeUnreachableStatements();
-            idifyTransitions();
+        System.out.println("(Pre Simplification) - |A|+|P|+|E|: "+(getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
 
-            removeIrrelevantStatements();
-            idifyTransitions();
+        pruningViaReachability();
 
-            this.removeStaticParts();
-            makeInit();
-            addTimeFluentToInit();
+        pruningViaRelevance();
 
-            System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        makeInit();
 
-            System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
+        System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
         long end = System.currentTimeMillis();
 
         System.out.println("Simplification Time: " + (end - start));
@@ -963,6 +959,7 @@ public class EPddlProblem extends PddlProblem {
 
     protected void makeInit ( ) {
         this.init = makePddlState();
+        addTimeFluentToInit();
     }
 
 
