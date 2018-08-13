@@ -604,9 +604,6 @@ public class EPddlProblem extends PddlProblem {
     protected void pruningViaReachability (){
         //System.out.println("prova");
 
-        // normalize global constraints, once and forall
-        globalConstraints.normalize();
-
         sweepStructuresForUnreachableStatements();
         this.saveInitInit();
         removeStaticParts();
@@ -680,6 +677,9 @@ public class EPddlProblem extends PddlProblem {
         pruningViaReachability();
 
         pruningViaRelevance();
+
+        // normalize global constraints, once and forall
+        globalConstraints.normalize();
 
         makeInit();
 
