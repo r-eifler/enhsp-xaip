@@ -653,6 +653,12 @@ public class EPddlProblem extends PddlProblem {
             //At this point there should be even less relevant facts that needs to be stored
     }
 
+    /**
+     * This method changes the id of each of the GroundAction involved in the problem. In doing so, the
+     * method rebuilds the set eventsSet, actions, processesSet and reachableActions. These sets depend on the
+     * way the equality method of the GroundAction is constructed. As this changes because of the change of the id, so
+     * these sets need to be re-initialised.
+     */
     protected void idifyTransitions(){
         int nActions = 0;
         reachableActions = new LinkedHashSet<>();
