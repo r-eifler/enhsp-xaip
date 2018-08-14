@@ -615,13 +615,10 @@ public class EPddlProblem extends PddlProblem {
 
         Aibr aibr = new Aibr(this.goals, actions, processesSet, eventsSet);
         Float setup = aibr.setup(this.makePddlState());
-        this.reachableActions = new LinkedHashSet<>();
+        System.out.println("(After AIBR):"+aibr.reachable.size());
         this.reachableActions = aibr.reachable;
-        System.out.println("(After AIBR):"+this.reachableActions.size());
-
-        splitActionsEventsProcesses(this.reachableActions);
+        splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
-        idifyTransitions();
     }
 
     protected void sweepStructuresForUnreachableStatements(){
@@ -653,22 +650,22 @@ public class EPddlProblem extends PddlProblem {
     protected void pruningViaRelevance (){
 
             this.reachableActions = keepOnlyRelTransitions(this.reachableActions,this.goals);
-            splitActionsEventsProcesses(this.reachableActions);
+            splitOverActionsEventsProcesses(this.reachableActions);
             sweepStructuresForUnreachableStatements();
-
+            removeStaticParts();
             //At this point there should be even less relevant facts that needs to be stored
     }
 
     protected void idifyTransitions(){
         int nActions = 0;
-        for (GroundAction gr : Sets.union(eventsSet,Sets.union(actions,processesSet))) {
+        reachableActions = new LinkedHashSet<>();
+        ArrayList<GroundAction> union = new ArrayList(Sets.union(eventsSet, Sets.union(actions, processesSet)));
+        for (GroundAction gr : union) {
             gr.setId(nActions);
             nActions++;
+            reachableActions.add(gr);
         }
-        reachableActions = new LinkedHashSet<>(reachableActions);
-        eventsSet = new LinkedHashSet<>(eventsSet);
-        actions = new LinkedHashSet<>(actions);
-        processesSet = new LinkedHashSet<>(processesSet);
+        splitOverActionsEventsProcesses(reachableActions);
     }
 
     public void simplifyAndSetupInit() throws Exception {
@@ -680,6 +677,8 @@ public class EPddlProblem extends PddlProblem {
         pruningViaReachability();
 
         pruningViaRelevance();
+
+        idifyTransitions();
 
         makeInit();
 
@@ -798,7 +797,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    protected void splitActionsEventsProcesses (Iterable<GroundAction> transitionsToKeep) {
+    protected void splitOverActionsEventsProcesses (Iterable<GroundAction> transitionsToKeep) {
         processesSet = new LinkedHashSet<>();
         eventsSet = new LinkedHashSet<>();
         actions = new LinkedHashSet<>();
