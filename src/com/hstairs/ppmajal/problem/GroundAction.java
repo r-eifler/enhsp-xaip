@@ -1985,7 +1985,7 @@ public class GroundAction extends PDDLGenericAction {
             return this.addList.getTerminalConditions().contains(t);
         }
         if (t instanceof NotCond){
-            return weakAchiever((Terminal)((NotCond) t).getSon());
+            return this.delete((Predicate) ((NotCond) t).getSon());
         }
         throw new RuntimeException("Unsupported instance of terminal: "+t.getClass());
     }
