@@ -885,6 +885,8 @@ public class PddlProblem {
     }
 
     public Iterable<NumFluent> getNumFluentsInvolvedInInit ( ) {
+        if (this.initNumFluentsValues == null)
+            return Collections.emptyList();
         return this.initNumFluentsValues.keySet();
     }
 
@@ -895,6 +897,8 @@ public class PddlProblem {
     }
 
     public Iterable<Predicate> getPredicatesInvolvedInInit ( ) {
+        if (this.initBoolFluentsValues == null)
+            return Collections.emptyList();
         return this.initBoolFluentsValues.keySet();
 
     }

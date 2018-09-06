@@ -775,7 +775,7 @@ public final class PddlDomain extends Object {
 
         f.write("(define (domain " + domain.getName() + ")\n");
         if (requirements != null && !requirements.isEmpty()) {
-            f.write("(:requirements " + Utils.toPDDLSet(requirements) + ")\n");
+            f.write(";(:requirements " + Utils.toPDDLSet(requirements) + ")\n");
         }
         if (domain.getTypes() != null && !domain.getTypes().isEmpty()) {
             f.write("(:types interpretation " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
