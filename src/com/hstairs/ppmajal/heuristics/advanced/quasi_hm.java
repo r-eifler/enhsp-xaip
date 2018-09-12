@@ -357,9 +357,6 @@ public class quasi_hm extends Heuristic {
     protected void simplify_actions (PDDLState init) {
         for (GroundAction gr : this.A) {
             try {
-                if (gr.getPreconditions() != null) {
-                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
-                }
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
                     for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext(); ) {
@@ -388,8 +385,6 @@ public class quasi_hm extends Heuristic {
             }
         }
         this.G.normalize();
-        this.G = (ComplexCondition) this.G.transform_equality();
         this.gC.normalize();
-        this.gC = (ComplexCondition) this.gC.transform_equality();
     }
 }

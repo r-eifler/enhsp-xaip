@@ -227,7 +227,6 @@ public class h1 extends Heuristic {
             //if (!conservativehmax || this.additive_h)
             closed[gr.getId()] = true;
 
-            reachableActions.add(gr);
 //            Utils.dbg_print(debugLevel - 10, "Action Evaluated:" + gr + "\n");
 //            Utils.dbg_print(debugLevel - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
             if (gr.dummy_goal) {
@@ -245,6 +244,7 @@ public class h1 extends Heuristic {
                     return estimate;
                 }
             }
+            reachableActions.add(gr);
             update_reachable_conditions_actions(s, gr, a_plus, action_to_fib_node);//this procedure updates
             //all the conditions that can be reached by using action gr.
             //This also changes the set a_plus whenever some new action becomes active becasue of gr

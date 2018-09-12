@@ -139,7 +139,7 @@ public class SearchEngine {
             Iterator<GroundProcess> it = problem.getProcessesSet().iterator();
             while (it.hasNext()) {
                 GroundProcess gr2 = it.next();
-                if (gr.equals(gr2)) {
+                if (gr.equalsNoId(gr2)) {
                     reachableProcesses.add(gr2);
                 }
             }
@@ -152,7 +152,7 @@ public class SearchEngine {
             Iterator<GroundEvent> it = problem.getEventsSet().iterator();
             while (it.hasNext()) {
                 GroundEvent gr2 = it.next();
-                if (gr.equals(gr2)) {
+                if (gr.equalsNoId(gr2)) {
                     this.reachableEvents.add(gr2);
                 }
             }

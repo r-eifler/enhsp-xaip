@@ -122,7 +122,7 @@ public class EPddlProblem extends PddlProblem {
 
         this.simplifyAndSetupInit();
 
-        this.transformNumericConditionsInActions();
+        this.transformGoal();
 
     }
 
@@ -175,32 +175,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    @Override
-    public void transformNumericConditionsInActions ( ) {
 
-        for (GroundAction gr : this.actions) {
-            if (gr.getPreconditions() != null) {
-                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
-            }
-        }
-
-        for (GroundProcess pr : this.getProcessesSet()) {
-            if (pr.getPreconditions() != null) {
-                pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
-            }
-        }
-
-        for (GroundEvent pr : this.getEventsSet()) {
-            if (pr.getPreconditions() != null) {
-                pr.setPreconditions(generate_inequalities(pr.getPreconditions()));
-            }
-        }
-        //globalConstraints.normalize();
-        //globalConstraints = (AndCond)globalConstraints.transform_equality();
-
-        goals.normalize();
-        this.goals = generate_inequalities(goals);
-    }
 
     public void normalize_conditions ( ) {
 
@@ -1235,12 +1210,12 @@ public class EPddlProblem extends PddlProblem {
     }
 
 
-    private class stateContainer implements ObjectIterator<Pair<State, Object>> {
-        final private State source;
+    protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
+        protected final State source;
         final private Iterable<Object> actionsSet;
-        private final Iterator<Object> it;
-        Object current;
-        State newState;
+        protected final Iterator<Object> it;
+        protected Object current;
+        protected State newState;
 //        boolean cached;
 
         public stateContainer (State source, Iterable<Object> actionsSet) {

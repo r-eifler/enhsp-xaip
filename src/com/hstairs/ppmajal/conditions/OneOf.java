@@ -141,7 +141,7 @@ public class OneOf extends ComplexCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public ComplexCondition transform_equality ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

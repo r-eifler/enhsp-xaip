@@ -779,21 +779,10 @@ public class Comparison extends Terminal {
         if (comp.getComparator().equals("=")) {
             Comparison dual = new Comparison(">=");
             Comparison dual2 = new Comparison("<=");
-            ExtendedNormExpression right = (ExtendedNormExpression) comp.getRight();
-            ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
-            try {
-                dual.setLeft(right.minus(left));
-                dual2.setLeft(right.minus(left));
-            } catch (CloneNotSupportedException ex) {
-                Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            dual.setRight(new PDDLNumber(0));
-            dual.setComparator(">=");
-            dual.normalize();
-            dual2.setRight(new PDDLNumber(0));
-            dual2.setComparator("<=");
-            dual2.normalize();
-
+            dual.setLeft(left);
+            dual.setRight(right);
+            dual2.setLeft(left);
+            dual2.setRight(right);
             ret.addConditions(dual);
             ret.addConditions(dual2);
         } else {

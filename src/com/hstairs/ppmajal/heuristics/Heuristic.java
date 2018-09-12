@@ -84,7 +84,7 @@ public abstract class Heuristic {
     protected int hard_conditions;
     protected Collection<Comparison> complex_condition_set;
     protected boolean check_mutex = false;
-    protected HashMap<Condition, Integer> integer_ref;
+    protected HashMap<String, Integer> integer_ref;
     protected int total_number_of_actions;
     HashMap<GroundAction, HashSet<Condition>> influenced_by;
     HashMap<GroundAction, GroundAction> depends_on;
@@ -902,22 +902,13 @@ public abstract class Heuristic {
 
     protected int update_index_conditions (Condition c_1, int counter) {
 
-        if (integer_ref.get(c_1) == null) {
-//            System.out.println("This happens then");
-
-            integer_ref.put(c_1, counter);
-            c_1.setHeuristicId(counter);
-            all_conditions.add(c_1);
-            counter++;
-        } else if (integer_ref.get(c_1) == null) {
-//            System.out.println("bug in java");
-
-            integer_ref.put(c_1, counter);
+        if (integer_ref.get(c_1.toString()) == null) {
+            integer_ref.put(c_1.toString(), counter);
             c_1.setHeuristicId(counter);
             all_conditions.add(c_1);
             counter++;
         } else {
-            c_1.setHeuristicId(integer_ref.get(c_1));
+            c_1.setHeuristicId(integer_ref.get(c_1.toString()));
         }
         return counter;
 
@@ -979,9 +970,6 @@ public abstract class Heuristic {
     protected void simplify_actions (State init) {
         for (GroundAction gr : this.A) {
             try {
-                if (gr.getPreconditions() != null) {
-                    gr.setPreconditions((ComplexCondition) gr.getPreconditions().transform_equality());
-                }
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
                     for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext(); ) {
@@ -1017,7 +1005,6 @@ public abstract class Heuristic {
                 Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        this.G = (ComplexCondition) this.G.transform_equality();
         this.G.normalize();
     }
 

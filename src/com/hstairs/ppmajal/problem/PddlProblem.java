@@ -70,6 +70,7 @@ public class PddlProblem {
     PddlDomain linkedDomain;
     private FactoryConditions fc;
     protected Set<GroundAction> reachableActions;
+    private HashMap<GroundAction,GroundAction> heuristicActionToProblemAction;
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super();
@@ -814,13 +815,7 @@ public class PddlProblem {
         return staticFluents;
     }
 
-    public void transformNumericConditionsInActions ( ) throws Exception {
-
-        for (GroundAction gr : this.actions) {
-            if (gr.getPreconditions() != null) {
-                gr.setPreconditions(generate_inequalities(gr.getPreconditions()));
-            }
-        }
+    public void transformGoal ( ) throws Exception {
         this.goals = generate_inequalities(goals);
     }
 
@@ -921,14 +916,29 @@ public class PddlProblem {
     public void setReachableActions (Collection<GroundAction> actionsToConsider) {
         reachableActions = new LinkedHashSet();
         for (GroundAction gr : actionsToConsider) {
-            Iterator<GroundAction> it = getActions().iterator();
+            GroundAction actionFromProblemModel = getActionFromProblemModel(gr);
+            if (actionFromProblemModel != null)
+                reachableActions.add(actionFromProblemModel);
+        }
+    }
+
+    private GroundAction getActionFromProblemModel (GroundAction gr) {
+
+        if (heuristicActionToProblemAction == null){
+            heuristicActionToProblemAction = new HashMap<>();
+        }
+        GroundAction res = heuristicActionToProblemAction.get(gr);
+        if (res == null) {
+            Iterator<GroundAction> it = this.actions.iterator();
             while (it.hasNext()) {
                 GroundAction gr2 = it.next();
-                if (gr.equals(gr2)) {
-                    reachableActions.add(gr2);
+                if (gr.equalsNoId(gr2)) {
+                    heuristicActionToProblemAction.put(gr,gr2);
+                    return gr2;
                 }
             }
         }
+        return res;
     }
 
 

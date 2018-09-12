@@ -1967,6 +1967,32 @@ public class GroundAction extends PDDLGenericAction {
         return true;
     }
 
+    public boolean equalsNoId (Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final GroundAction other = (GroundAction) obj;
+
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.parameters_as_terms, other.parameters_as_terms)) {
+            return false;
+        }
+        if (!Objects.equals(this.time, other.time)) {
+            return false;
+        }
+        return true;
+    }
+
 
     public Boolean weakAchiever (Terminal t) {
         if (t.isValid())
