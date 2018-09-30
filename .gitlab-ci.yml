@@ -1,0 +1,5 @@
+image: frekele/ant
+
+test:
+  script:
+  - ./run.sh
