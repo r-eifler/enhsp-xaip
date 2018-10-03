@@ -531,7 +531,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        syncAllVariables();
+        syncAllVariables(this);
 
     }
 
@@ -646,29 +646,38 @@ public class EPddlProblem extends PddlProblem {
         splitOverActionsEventsProcesses(reachableActions);
     }
 
-    public void simplifyAndSetupInit() throws Exception {
+    public void simplifyAndSetupInit(boolean simplify) throws Exception {
 
         long start = System.currentTimeMillis();
-        System.out.println("(Pre Simplification) - |A|+|P|+|E|: "+(getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-        System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
+        if (simplify) {
+            System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
 
-        pruningViaReachability();
+            pruningViaReachability();
 
-        pruningViaRelevance();
-
+            pruningViaRelevance();
+        }
         idifyTransitions();
         // normalize global constraints, once and forall
         globalConstraints.normalize();
 
         makeInit();
 
-        System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-        System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
-        long end = System.currentTimeMillis();
+        if (simplify) {
+            System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+            System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
+            long end = System.currentTimeMillis();
 
-        System.out.println("Simplification Time: " + (end - start));
-
+            System.out.println("Simplification Time: " + (end - start));
+        }
     }
+
+    public void simplifyAndSetupInit() throws Exception {
+
+        this.simplifyAndSetupInit(true);
+    }
+
+
 
 //    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition goals, AndCond globalConstraints) {
 //        HashMap<Integer, GroundAction> actionIds = new HashMap<>();
@@ -986,12 +995,16 @@ public class EPddlProblem extends PddlProblem {
         return terminalReference;
     }
 
-    public void syncAllVariables ( ) {
 
+    public void syncAllVariables ( EPddlProblem inputProblem) {
+
+        if (inputProblem == null){
+            inputProblem = this;
+        }
         HashMap<Predicate,Boolean> tempInitBool = new HashMap();
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
             Boolean value = this.initBoolFluentsValues.get(p);
-            Predicate newP = (Predicate) p.unifyVariablesReferences(this);
+            Predicate newP = (Predicate) p.unifyVariablesReferences(inputProblem);
             tempInitBool.put(newP,value);
 
         }
@@ -999,39 +1012,41 @@ public class EPddlProblem extends PddlProblem {
         HashMap<NumFluent,PDDLNumber> tempInitFluent = new HashMap();
         for (NumFluent nf : this.initNumFluentsValues.keySet()) {
             PDDLNumber pddlNumber = initNumFluentsValues.get(nf);
-            NumFluent numFluent = (NumFluent)nf.unifyVariablesReferences(this);
+            NumFluent numFluent = (NumFluent)nf.unifyVariablesReferences(inputProblem);
             tempInitFluent.put(numFluent, pddlNumber);
             this.numFluentReference.put(nf.toString(), nf);
         }
         this.initNumFluentsValues = tempInitFluent;
 
         for (PDDLGenericAction act : this.actions) {
-            act.unifyVariablesReferences(this);
+            act.unifyVariablesReferences(inputProblem);
         }
         for (PDDLGenericAction act : this.getEventsSet()) {
-            act.unifyVariablesReferences(this);
+            act.unifyVariablesReferences(inputProblem);
         }
         if (this.getProcessesSet() != null) {
             for (PDDLGenericAction act : this.getProcessesSet()) {
-                act.unifyVariablesReferences(this);
+                act.unifyVariablesReferences(inputProblem);
             }
         }
-        goals = (ComplexCondition) goals.unifyVariablesReferences(this);
+        goals = (ComplexCondition) goals.unifyVariablesReferences(inputProblem);
 
         Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
         while (it.hasNext()) {
             GlobalConstraint gc = it.next();
-            gc.condition = gc.condition.unifyVariablesReferences(this);
+            gc.condition = gc.condition.unifyVariablesReferences(inputProblem);
         }
 
-        globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(this);
+        globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(inputProblem);
         if (metric != null) {
-            metric = metric.unifyVariablesReferences(this);
+            metric = metric.unifyVariablesReferences(inputProblem);
         }
         if (belief != null) {
-            belief = belief.unifyVariablesReferences(this);
+            belief = belief.unifyVariablesReferences(inputProblem);
         }
     }
+
+
 
     public void addTimeFluentToInit ( ) {
         ((PDDLState) this.init).time = 0d;

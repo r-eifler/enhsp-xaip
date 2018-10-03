@@ -32,7 +32,8 @@ import java.util.logging.Logger;
 public class PDDLSearchEngine extends SearchEngine {
 
     @Override
-    public LinkedList<GroundAction> extractPlan (SearchNode c) {
+    public LinkedList<GroundAction> extractPlan (SimpleSearchNode input) {
+        SearchNode c = (SearchNode)input;
         LinkedList<GroundAction> plan = new LinkedList<>();
         lastState = c.s;
         while (c.transition != null || c.list_of_actions != null) {

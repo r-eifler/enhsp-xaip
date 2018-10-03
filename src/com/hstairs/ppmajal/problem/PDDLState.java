@@ -71,10 +71,10 @@ public class PDDLState extends State {
 
     }
 
-    public PDDLState (ArrayList numFluents, BitSet otherBoolFluents) {
+    public PDDLState (ArrayList<Double> numFluents, BitSet otherBoolFluents) {
         this.numFluents = new DoubleArrayList(numFluents.size());
         for (int i=0; i< numFluents.size(); i++){
-            numFluents.set(i,numFluents.get(i));
+            this.numFluents.add((Double) numFluents.get(i));
         }
         this.boolFluents = (BitSet)otherBoolFluents.clone();
         time = -1;

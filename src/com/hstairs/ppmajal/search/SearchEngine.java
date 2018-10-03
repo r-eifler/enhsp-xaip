@@ -23,7 +23,6 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.*;
-import it.unimi.dsi.fastutil.Stack;
 import it.unimi.dsi.fastutil.objects.*;
 
 import java.util.*;
@@ -78,6 +77,7 @@ public class SearchEngine {
     //definition
     final private float G_DEFAULT = Float.NaN;
     private long previousTime;
+    private int causalDeadEnds;
 
 
     public SearchEngine ( ) {
@@ -168,7 +168,7 @@ public class SearchEngine {
     /*
     Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
      */
-    private SearchNode queueSuccessor (Object frontier, State successorState, SearchNode current_node, Object action_s, float prev_cost, float succ_g, Object2FloatMap<State> g) {
+    private SearchNode queueSuccessor (Object frontier, State successorState, SearchNode current_node, Object action_s, float prev_cost, float succ_g, Object2FloatMap<State> g, boolean treeSearch) {
 
 
         if (Objects.equals(prev_cost, this.G_DEFAULT) || succ_g < prev_cost) {
@@ -190,7 +190,7 @@ public class SearchEngine {
                     current_node.add_descendant(node);
                 }
                 add_frontier(frontier, node);
-                g.put(successorState, succ_g);
+                setGValue(successorState,g,succ_g,treeSearch);
                 return node;
             } else {
                 deadEndsDetected++;
@@ -202,16 +202,26 @@ public class SearchEngine {
         }
     }
 
+    private void setGValue (State successorState, Object2FloatMap<State> g, float succ_g, boolean treeSearch) {
+        if (!treeSearch){
+            g.put(successorState,succ_g);
+        }
+    }
+
     private SearchNode queue_successor (Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g) {
-        float succ_g = current_node.g_n + 1;
-        float prev_cost = g.getOrDefault(successor_state, this.G_DEFAULT);
+        return queue_successor(frontier, successor_state, current_node, action_s, g, false);
+    }
+
+    private SearchNode queue_successor (Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g, boolean treeSearch) {
+        float succ_g = current_node.gValue + 1;
+        float prev_cost = getPreviousCost(g,successor_state,treeSearch);
 //        System.out.println("G:"+g.keySet());
 //        System.out.println("Current State:"+successor_state);
 //        System.out.println("Cost: "+prev_cost);
         //The node is put in the priority queue whenever one of the following holds
         //if prev_cost == null, then I have never seen this state before
         // if the new cost is better (which can happen in case of inconsistent heuristics or new state evaluation from some other paths
-        return this.queueSuccessor(frontier, successor_state, current_node, action_s, prev_cost, succ_g, g);
+        return this.queueSuccessor(frontier, successor_state, current_node, action_s, prev_cost, succ_g, g, treeSearch);
     }
 
     private ArrayList<GroundEvent> apply_events (State s, float delta1) throws CloneNotSupportedException {
@@ -297,7 +307,7 @@ public class SearchEngine {
                 succ = breadth_first_search(current, problem, (Object2BooleanMap<State>) visited);
             } else {
 
-                succ = WAStar(problem, current, true, (Object2FloatMap<State>) visited);
+                succ = WAStar(problem, current, true, (Object2FloatMap<State>) visited, false);
             }
 
             if (succ == null) {
@@ -308,7 +318,7 @@ public class SearchEngine {
             }
 
             current = succ.s;
-            currentG = succ.g_n;
+            currentG = succ.gValue;
 //            System.out.println(current);
 
             if (this.helpfulActionsPruning) {
@@ -342,9 +352,9 @@ public class SearchEngine {
         while (!frontier.isEmpty()) {
             SearchNode node = frontier.poll();
             setNodesExpanded(getNodesExpanded() + 1);
-            if (node.g_n > current_gn) {
-                System.out.println(" " + node.g_n);
-                current_gn = node.g_n;
+            if (node.gValue > current_gn) {
+                System.out.println(" " + node.gValue);
+                current_gn = node.gValue;
 
             }
             if (this.helpfulActionsPruning) {
@@ -357,7 +367,7 @@ public class SearchEngine {
                 final Pair<State, Object> next = it.next();
                 final Object act = next.getSecond();
                 State temp = next.getFirst();
-//                    System.out.println("Depth:"+node.g_n);
+//                    System.out.println("Depth:"+node.gValue);
                 //act.normalize();
                 if (!temp.satisfy(problem.globalConstraints)) {
                     continue;
@@ -365,7 +375,7 @@ public class SearchEngine {
                 boolean visitedTemp = visited.getOrDefault(temp, false);
                 if (!visitedTemp) {
                     visited.put(temp, true);
-                    Float newG = heuristic.gValue(node.s, act, temp, node.g_n);
+                    Float newG = heuristic.gValue(node.s, act, temp, node.gValue);
                     if (newG == null) {
                         continue;
                     }
@@ -412,11 +422,12 @@ public class SearchEngine {
      * @param problem     the problem to be solved.
      * @param extCurrent  start from this current state if given as input
      * @param exitOnBestH exit on best h value found (in expansion)
+     * @param treeSearch
      * @return null if the problem is unsolvable, a linked list of the plan
      * otherwise.
      * @throws Exception
      */
-    public SearchNode WAStar (EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap) throws Exception {
+    public SearchNode WAStar (EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch) throws Exception {
 
         State initState = null;
         if (extCurrent == null) {
@@ -482,7 +493,7 @@ public class SearchEngine {
         while (!frontier.isEmpty()) {
             final SearchNode currentNode = frontier.dequeue();
 
-            if (currentNode.g_n >= depthLimit) {
+            if (currentNode.gValue >= depthLimit) {
                 setOverallSearchTime(System.currentTimeMillis() - start_global);
                 continue;
             }
@@ -490,25 +501,25 @@ public class SearchEngine {
                 currentNode.set_visited(getNodesExpanded());
             }
 
-            final float previous_g = gMap.getOrDefault(currentNode.s, this.G_DEFAULT);
-            final float g_node = currentNode.g_n;
+            final float previousG = getPreviousCost(gMap,currentNode.s,treeSearch);
+            final float g_node = currentNode.gValue;
 
-            if (g_node == previous_g) {
+            if (g_node == previousG || treeSearch) {
                 long fromTheBeginning = (System.currentTimeMillis() - start_global);
                 if (fromTheBeginning >= previous + 10000) {
                     System.out.println("-------------Time: " + fromTheBeginning / 1000 + "s ; Expanded Nodes: " + getNodesExpanded() + "; Evaluated States: " + getNumberOfEvaluatedStates());
                     previous = fromTheBeginning;
                 }
-                if (optimality && (bestf < currentNode.g_n + currentNode.h_n)) {//this is the debugLevel for when the planner is run in optimality modality
-                    bestf = currentNode.g_n + currentNode.h_n;
+                if (optimality && (bestf < currentNode.gValue + currentNode.h_n)) {//this is the debugLevel for when the planner is run in optimality modality
+                    bestf = currentNode.gValue + currentNode.h_n;
                     System.out.println("f(n) = " + bestf + " (Expanded Nodes: " + getNodesExpanded()
                             + ", Evaluated States: " + getNumberOfEvaluatedStates() + ", Time: " + (float) ((System.currentTimeMillis() - start_global)) / 1000.0 + ")");
 
                 }
                 if (!optimality && hAtInit > currentNode.h_n) {
-                    System.out.println(" g(n)= " + currentNode.g_n + " h(n)=" + currentNode.h_n);
+                    System.out.println(" g(n)= " + currentNode.gValue + " h(n)=" + currentNode.h_n);
                     hAtInit = currentNode.h_n;
-                    currentG = currentNode.g_n;
+                    currentG = currentNode.gValue;
                 }
 
                 if (debugLevel == 20 && getNodesExpanded() % 5000 == 0) {
@@ -528,7 +539,7 @@ public class SearchEngine {
                 setNodesExpanded(getNodesExpanded() + 1);
                 if (res) {
                     setOverallSearchTime(System.currentTimeMillis() - start_global);
-                    currentG = currentNode.g_n;
+                    currentG = currentNode.gValue;
                     return currentNode;
                 }
 
@@ -547,13 +558,13 @@ public class SearchEngine {
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     //skip this if violates global constraints
-                    final float successorG = heuristic.gValue(currentNode.s, act, successorState, currentNode.g_n);
+                    final float successorG = heuristic.gValue(currentNode.s, act, successorState, currentNode.gValue);
                     if (Objects.equals(successorG, this.G_DEFAULT)) {
                         this.deadEndsDetected++;
                         continue;
                     }
-                    final float previousCost = gMap.getOrDefault(successorState, G_DEFAULT);
-                    this.queueSuccessor(frontier, successorState, currentNode, act, previousCost, successorG, gMap);
+                    final float previousCost = getPreviousCost(gMap,successorState, treeSearch);
+                    this.queueSuccessor(frontier, successorState, currentNode, act, previousCost, successorG, gMap, treeSearch);
 
                 }
             }
@@ -562,12 +573,23 @@ public class SearchEngine {
         return null;
     }
 
+    private float getPreviousCost (Object2FloatMap<State> gMap, State successorState, boolean treeSearch) {
+        if (treeSearch){
+            return G_DEFAULT;
+        }
+        return gMap.getOrDefault(successorState, G_DEFAULT);
+    }
+
     public State getLastState ( ) {
         return this.lastState;
     }
 
     public LinkedList<GroundAction> WAStar (EPddlProblem problem) throws Exception {
-        SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>());
+        return WAStar(problem, false);
+    }
+
+    public LinkedList<GroundAction> WAStar (EPddlProblem problem, boolean treeSearch) throws Exception {
+        SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch);
         if (end != null) {
             return this.extractPlan(end);
         } else {
@@ -616,8 +638,8 @@ public class SearchEngine {
 
             setNodesExpanded(getNodesExpanded() + 1);
             setPriorityQueueSize(frontier.size());
-            //System.out.println("Current Distance:"+current_node.g_n);
-            //System.out.println("Current Cost:"+current_node.g_n);
+            //System.out.println("Current Distance:"+current_node.gValue);
+            //System.out.println("Current Cost:"+current_node.gValue);
             if (current_value > current_node.h_n) {
                 System.out.println("Current Distance:" + current_node.h_n);
 
@@ -630,7 +652,7 @@ public class SearchEngine {
                 return extractPlan(current_node);
             }
 
-            if (current_node.g_n >= depthLimit) {
+            if (current_node.gValue >= depthLimit) {
                 setOverallSearchTime(System.currentTimeMillis() - start_global);
                 continue;
             }
@@ -651,18 +673,18 @@ public class SearchEngine {
 
                     if (closed.get(temp) != null) {
                         if (cost.get(temp) != null) {
-                            if (!(cost.get(temp) >= current_node.g_n + act.getActionCost(current_node.s))) {
+                            if (!(cost.get(temp) >= current_node.gValue + act.getActionCost(current_node.s))) {
                                 continue;
                             }
                         }
                     }
 
                     closed.put(current_node.s, Boolean.TRUE);
-                    cost.put(temp, current_node.g_n + act.getActionCost(current_node.s));
+                    cost.put(temp, current_node.gValue + act.getActionCost(current_node.s));
                     setEvaluatedStates(getEvaluatedStates() + 1);
 
 //                    act.set_unit_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.g_n + act.getActionCost(current_node.s), 0, this.saveSearchTreeAsJson, this.gw, 0);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.gValue + act.getActionCost(current_node.s), 0, this.saveSearchTreeAsJson, this.gw, 0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (saveSearchTreeAsJson) {
                         current_node.add_descendant(new_node);
@@ -684,7 +706,7 @@ public class SearchEngine {
         return this.WAStar(problem);
     }
 
-    public LinkedList extractPlan (SearchNode c) {
+    public LinkedList extractPlan (SimpleSearchNode c) {
         LinkedList plan = new LinkedList<>();
         lastState = c.s;
         while (c.transition != null) {
@@ -723,7 +745,6 @@ public class SearchEngine {
     public void setWH (float hw) {
         this.hw = hw;
     }
-
 
 
     /**
@@ -822,9 +843,12 @@ public class SearchEngine {
         }
     }
 
-    public LinkedList idastar (EPddlProblem problem) throws Exception {
-        State initState = problem.getInit();
+    public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
+        return idastar(problem, checkAlongPrefix, false);
+    }
 
+    public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion) throws Exception {
+        State initState = problem.getInit();
 
 
         beginningTime = System.currentTimeMillis();
@@ -857,9 +881,9 @@ public class SearchEngine {
 
         float bound = hAtInit * this.hw;
         long startSearch = System.currentTimeMillis();
-        Pair<SearchNode, Float> res = null;
+        Pair<SimpleSearchNode, Float> res = null;
         for (; ; ) {
-            res = boundedDepthFirstSearch(problem, bound);
+            res = boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix, showExpansion);
             if (res == null || res.getFirst() != null) {
                 break;
             }
@@ -897,7 +921,7 @@ public class SearchEngine {
 
         long startSearch = System.currentTimeMillis();
 
-        final Pair<SearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true);
+        final Pair<SimpleSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
             return this.extractPlan(res.getFirst());
@@ -906,7 +930,7 @@ public class SearchEngine {
 
     }
 
-    private boolean onThePath (State successorState, SearchNode father) {
+    private boolean onThePath (State successorState, SimpleSearchNode father) {
         while (father != null) {
             if (father.s.equals(successorState)) {
                 return true;
@@ -916,21 +940,26 @@ public class SearchEngine {
         return false;
     }
 
-    private Pair<SearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound) {
-        return this.boundedDepthFirstSearch(problem,bound,false);
+    private Pair<SimpleSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean checkAlongPrefix) {
+        return this.boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix);
     }
 
-    private Pair<SearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime) {
-        final Stack<SearchNode> frontier = new ObjectArrayList<>();
+    private Pair<SimpleSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) {
+        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false);
+    }
 
-        SearchNode init = new SearchNode(problem.getInit().clone(), 0, bound, this.saveSearchTreeAsJson, this.gw, this.hw);
+    private Pair<SimpleSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion) {
+        final Stack<SimpleSearchNode> frontier = new Stack();
+
+        SimpleSearchNode init = new SimpleSearchNode(problem.getInit().clone(), null, null, 0);
+        causalDeadEnds = 0;
         frontier.push(init);
         float newBound = Float.POSITIVE_INFINITY;
         System.out.println("f(n): " + bound + "(Expanded Nodes: " + getNodesExpanded() + ")");
-
-        SearchNode bestSol = null;
+        System.out.println("-------------------(Dead-Ends: " + deadEndsDetected + ")");
+        SimpleSearchNode bestSol = null;
         while (!frontier.isEmpty()) {
-            final SearchNode node = frontier.pop();
+            final SimpleSearchNode node = frontier.pop();
             long now = System.currentTimeMillis();
             if ((now - previousTime) > 10000) {
                 System.out.println("-------------Time: " + (now - this.beginningTime) / 1000 + "s ; Expanded Nodes: " + getNodesExpanded());
@@ -938,9 +967,12 @@ public class SearchEngine {
             }
             final float g;
             if (node.transition != null) {
-                g = heuristic.gValue(node.father.s, node.transition, node.s, node.g_n);
+                g = heuristic.gValue(node.father.s, node.transition, node.s, node.gValue);
             } else {
                 g = 0;
+            }
+            if (showExpansion) {
+                System.out.println("Expansion:" + node.transition);
             }
 //            System.out.println("------------");
             long start = System.currentTimeMillis();
@@ -951,7 +983,7 @@ public class SearchEngine {
                 this.deadEndsDetected++;
             } else {
                 float f = g + h * this.hw;
-                if ((f > bound && !anytime ) || (f >= bound && anytime)) {
+                if ((f > bound && !anytime) || (f >= bound && anytime)) {
                     if (f < newBound && !anytime) {
                         if (problem.goalSatisfied(node.s) != null) {
                             newBound = f;
@@ -963,32 +995,44 @@ public class SearchEngine {
                         if (goalSatisfied) {
                             if (anytime) {
                                 bound = f;
-                                System.out.println("Found solution of cost:"+ bound);
+                                System.out.println("Found solution of cost:" + bound);
                                 bestSol = node;
-                            }else{
-                                return new Pair(node,newBound);
+                            } else {
+                                return new Pair(node, newBound);
                             }
-                        }else {
+                        } else {
                             if (this.helpfulActionsPruning) {
                                 problem.setReachableActions(heuristic.helpful_actions);
                             }
+                            boolean atLeastOne = false;
+
                             for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext(); ) {
                                 final Pair<State, Object> next = it.next();
-                                final State successorState = next.getFirst();
-                                final Object act = next.getSecond();
-                                //skip this if violates global constraints
-                                final SearchNode father = node.father;
-                                if (!onThePath(successorState, father)) {
-                                    frontier.push(new SearchNode(successorState, act, node, g, h));
+                                boolean push = true;
+                                if (checkAlongPrefix) {
+                                    push = !onThePath(next.getFirst(), node.father);
+                                }
+                                if (push) {
+                                    atLeastOne = true;
+
+                                    frontier.push(new SimpleSearchNode(next.getFirst(), next.getSecond(), node, g));
                                 }
                             }
+                            if (!atLeastOne) {
+                                System.out.println(node.s);
+                                causalDeadEnds++;
+                            }
                         }
+                    } else {
+
+                        this.deadEndsDetected++;
                     }
                 }
             }
         }
-        if ((newBound == Float.POSITIVE_INFINITY && !anytime ) || (bestSol == null && anytime ))
+        if ((newBound == Float.POSITIVE_INFINITY && !anytime) || (bestSol == null && anytime)) {
             return null;
+        }
         return new Pair(bestSol, newBound);
 
     }
@@ -1052,6 +1096,7 @@ public class SearchEngine {
         WASTAR, BRFS
     }
 
+
     public class TieBreaker implements Comparator<SearchNode> {
 
         final SearchEngine.TieBreaking tb;
@@ -1075,21 +1120,21 @@ public class SearchEngine {
             if (a.f == other.f) {
                 switch (tb) {
                     case HIGHERG:
-                        //                System.out.println(this.g_n);
-                        if (a.g_n < other.g_n)//goal is farer
+                        //                System.out.println(this.gValue);
+                        if (a.gValue < other.gValue)//goal is farer
                         {
                             return +1;
-                        } else if (a.g_n > other.g_n) //goal is closer
+                        } else if (a.gValue > other.gValue) //goal is closer
                         {
                             return -1;
                         } else {
                             return 0;
                         }
                     case LOWERG:
-                        if (a.g_n < other.g_n)//goal is farer
+                        if (a.gValue < other.gValue)//goal is farer
                         {
                             return -1;
-                        } else if (a.g_n > other.g_n) //goal is closer
+                        } else if (a.gValue > other.gValue) //goal is closer
                         {
                             return +1;
                         } else {
@@ -1119,5 +1164,7 @@ public class SearchEngine {
 
     }
 
-
+    public int getCausalDeadEnds ( ) {
+        return causalDeadEnds;
+    }
 }

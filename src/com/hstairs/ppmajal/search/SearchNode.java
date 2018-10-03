@@ -35,13 +35,10 @@ import java.util.logging.Logger;
 /**
  * @author enrico
  */
-public class SearchNode {
+public class SearchNode extends SimpleSearchNode {
 
-    public State s;
-    public Object transition;
     public float h_n;
     public SearchNode father;
-    public float g_n;
     public JSONObject json_rep;
     public int reacheable_condition;
     public float wg;
@@ -52,11 +49,8 @@ public class SearchNode {
     private boolean bfs = true;
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
-        s = s1;
-        this.transition = action;
+        super(s1,action,father, action_cost_to_get_here );
         this.h_n = goal_distance;
-        this.father = father;
-        this.g_n = action_cost_to_get_here;
         json_rep = null;
         reacheable_condition = 0;
         wh = 1f;
@@ -64,16 +58,13 @@ public class SearchNode {
     }
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        s = s1;
-        this.transition = action;
+        super(s1,action,father, action_cost_to_get_here);
         this.h_n = goal_distance;
-        this.father = father;
-        this.g_n = action_cost_to_get_here;
         reacheable_condition = 0;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n * this.wh + this.g_n * this.wg;
+        f = this.h_n * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -108,16 +99,13 @@ public class SearchNode {
     }
 
     public SearchNode (State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        s = s1;
-        this.transition = null;
+        super(s1,null,null, action_cost_to_get_here );
         this.h_n = goal_distance;
-        this.father = null;
-        this.g_n = action_cost_to_get_here;
         reacheable_condition = 0;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n * this.wh + this.g_n * this.wg;
+        f = this.h_n * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -152,17 +140,14 @@ public class SearchNode {
     }
 
     public SearchNode (State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        s = s1;
-        this.transition = null;
+        super(s1,null,father, action_cost_to_get_here );
         this.h_n = goal_distance;
-        this.father = father;
-        this.g_n = action_cost_to_get_here;
         this.list_of_actions = list;
         reacheable_condition = 0;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n * this.wh + this.g_n * this.wg;
+        f = this.h_n * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -201,11 +186,8 @@ public class SearchNode {
     }
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
-        s = s1;
-        this.transition = action;
+        super(s1,action,father, action_cost_to_get_here );
         this.h_n = goal_distance;
-        this.father = father;
-        this.g_n = action_cost_to_get_here;
 
         if (saving_json) {
             json_rep = new JSONObject();
@@ -273,13 +255,13 @@ public class SearchNode {
 //        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
 //        hash = 29 * hash + (int) this.h_n;
 //        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-//        hash = 29 * hash + (int) this.g_n;
+//        hash = 29 * hash + (int) this.gValue;
         return hash;
     }
 
     @Override
     public String toString ( ) {
-        return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h_n + ", g_n=" + g_n + '}';
+        return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h_n + ", gValue=" + gValue + '}';
     }
 
 }
