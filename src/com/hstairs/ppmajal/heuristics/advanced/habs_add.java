@@ -54,7 +54,18 @@ public class habs_add extends Heuristic {
     public void setMetric (Metric metric) {
         this.metric = metric;
     }
-
+    
+    /* Setup step for habs_add heuristic. Returns the heuristic for the initial
+    state (if goal is reachable); otherwise, returns infinity.
+    
+    We do the following in the setup:
+    (1). Run AIBR reachability analysis step. Returns inf if not reachable.
+    (2). Generate subactions by running AIBR operator counting procedure.
+         The subactions are addded to this.supporters.
+    (3). Instatiate a h1 heuristic using original goal set G and subaction set
+         this.supporters.
+    (4). Return initial heuristic estimate by calling the above h1 instance.
+    */
     @Override
     public Float setup (State gs) {
         PDDLState s = (PDDLState) gs;
@@ -62,7 +73,7 @@ public class habs_add extends Heuristic {
         this.aibr_handle = new Aibr(this.G, this.A);
         this.aibr_handle.setup(s);
         this.aibr_handle.set(true, true);
-        // reachablity analysis by AIBR
+        // (1). Run AIBR reachability analysis step. Returns inf if not reachable.
         Float ret = aibrReachabilityAnalysis(s);
         if (ret == Float.MAX_VALUE) {
             // not reachable!
@@ -80,14 +91,9 @@ public class habs_add extends Heuristic {
             this.helpful_actions = new HashSet();
         }
         try {
-            // abstraction step
+            // (2). Generate subactions by running AIBR operator counting procedure.
+            //      The subactions are addded to this.supporters.
             generate_subactions(s);
-//            
-//            Aibr aibr_handle_2 = new Aibr(this.G, (Set<PDDLGroundAction>) this.supporters);
-//            aibr_handle_2.set(true, true);
-//            System.out.println(aibr_handle_2.computeEstimate(s));
-//            System.exit(0);
-//            
             System.out.println("|Subactions| = " + this.supporters.size());
             if (debug > 100) {
                 for (GroundAction gr : this.supporters) {
@@ -100,11 +106,13 @@ public class habs_add extends Heuristic {
             Logger.getLogger(habs_add.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        // estimation for initial state
+        // (3). Instatiate a h1 heuristic using original goal set G and subaction set
+        //      this.supporters.
         setup_habs(s);
         habs.extractRelaxedPlan = this.planExtraction;
         habs.helpful_actions_computation = this.helpful_actions_computation;
 
+        // (4). Return initial heuristic estimate by calling the above h1 instance.
         ret = habs.computeEstimate(s);
         return ret;
     }
@@ -133,6 +141,9 @@ public class habs_add extends Heuristic {
 
         ArrayList<RelState> relaxedStates = getRelaxedGoal(s_0);
         RelState rsReachability = getReachabilityRelaxedState(s_0);
+        // add AIBR reachability analysis relaxed states into the list
+        relaxedStates.add(rsReachability);
+        
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -152,7 +163,6 @@ public class habs_add extends Heuristic {
 
                     ExtendedNormExpression rhs = (ExtendedNormExpression) effect.getRight();
                     // this is assuming no non-linear effects at the moment.
-                    // ENRICO : DOUBLE CHECK
                     if (((!rhs.getInvolvedNumericFluents().isEmpty() || effect.getOperator().equalsIgnoreCase("assign")) && rhs.linear)) {
                         NumEffect temp;
                         if (effect.getOperator().equalsIgnoreCase("assign")) {//This is additive transformation\
@@ -162,14 +172,12 @@ public class habs_add extends Heuristic {
                         } else {
                             temp = effect;
                         }
-                        addPiecewiseSubactions(gr.toFileCompliant() + " " + temp.getFluentAffected(), gr, temp, effectOnCost, relaxedStates, rsReachability, s_0);
+                        addPiecewiseSubactions(gr.toFileCompliant() + " " + temp.getFluentAffected(), gr, temp, effectOnCost, relaxedStates, s_0);
 
 
                     } else if (!rhs.linear) {
                         throw new Exception("Non-linear effects not supported!");
                     } else { // constant numeric effects
-//                        System.out.println("Constant case");
-//                        System.out.println(effect);
                         allConstantEffects.add(effect);
                     }
                 }
@@ -218,7 +226,7 @@ public class habs_add extends Heuristic {
      * Generates piecewise subactions for NON-CONSTANT LINEAR effects, and adds
      * subactions to this.supporters.
      *
-     * @param name         a sting used for naming the subaction, is the concatenation
+     * @param name         a srting used for naming the subaction, is the concatenation
      *                     of action name and effect lhs name.
      * @param gr           the action
      * @param effect       the effect to be decomposed
@@ -229,9 +237,9 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      *                   <p>
      */
-    private void addPiecewiseSubactions (String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, RelState rsReachability, PDDLState s_0) {
+    private void addPiecewiseSubactions (String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, PDDLState s_0) {
         // decomposition
-        ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates, rsReachability);
+        ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates);
 
         if (debug > 101) {
             System.out.println(iis);
@@ -321,12 +329,13 @@ public class habs_add extends Heuristic {
 //    
 //    
 
-    private ArrayList<Interval> decomposeRhs (NumEffect effect, ArrayList<RelState> relaxedStates, RelState rsReach) {
+    private ArrayList<Interval> decomposeRhs (NumEffect effect, ArrayList<RelState> relaxedStates) {
         // ====== now generating increment interval sequence (IIS) ======
         ArrayList<Interval> iis = getIis(effect, relaxedStates);
 
-        // ====== now add infinite intervals to IIS to ensure safness ======
-        addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size() - 1));
+        // Reachability information from AIBR analysis has been added to relaxedStates already,
+        // therefore we don't need to add infinite intervals anymore.
+//        addInfiniteIntervals(iis, effect, rsReach, relaxedStates.get(relaxedStates.size() - 1));
 
         Collections.sort(iis, new SortByInf());
 
@@ -399,9 +408,9 @@ public class habs_add extends Heuristic {
         }
     }
 
-    private ArrayList<Interval> getIis (NumEffect effect, ArrayList<RelState> relaxedStates) {
+    private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates) {
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
-
+        
         Interval prevRhsInterval = null;
         for (RelState rs : relaxedStates) {
             Interval currentRhsInterval = effect.getRight().eval(rs);
@@ -440,53 +449,7 @@ public class habs_add extends Heuristic {
             iis.add(incrementInterval.clone());
         }
     }
-
-    private void addInfiniteIntervals (ArrayList<Interval> iis, NumEffect effect, RelState rsReach, RelState rsCounting) {
-
-        Interval temp = new Interval();
-
-        // rhs(e).eval().getInf() = -infty
-        if (effect.getRight().eval(rsReach).getInf().getNumber().compareTo(Float.NEGATIVE_INFINITY)
-                * effect.getRight().eval(rsReach).getInf().getNumber().compareTo(-Float.MAX_VALUE) == 0) {
-            temp.setInf(new PDDLNumber(-Float.MAX_VALUE));
-
-            PDDLNumber supToSet = effect.getRight().eval(rsCounting).getInf();
-
-            if (supToSet.getNumber() <= 0) {
-                temp.setSup(supToSet);
-                iis.add(temp.clone());
-            } else {
-                // now (-infty, inf) crosses 0, again!
-                // add (-infty, 0) and (0, n), instead.
-                temp.setSup(new PDDLNumber(0));
-                iis.add(temp.clone());
-                temp.setInf(new PDDLNumber(0));
-                temp.setSup(supToSet);
-                iis.add(temp.clone());
-            }
-        }
-//        
-        // rhs(e).eval().getSup() = +infty
-        if (effect.getRight().eval(rsReach).getSup().getNumber().compareTo(Float.POSITIVE_INFINITY)
-                * effect.getRight().eval(rsReach).getSup().getNumber().compareTo(Float.MAX_VALUE) == 0) {
-            temp.setSup(new PDDLNumber(Float.MAX_VALUE));
-
-            PDDLNumber infToSet = effect.getRight().eval(rsCounting).getSup();
-            if (infToSet.getNumber() >= 0) {
-                temp.setInf(infToSet);
-                iis.add(temp.clone());
-            } else {
-                temp.setInf(new PDDLNumber(0));
-                iis.add(temp.clone());
-                temp.setSup(new PDDLNumber(0));
-                temp.setInf(infToSet);
-                iis.add(temp.clone());
-            }
-        }
-//           System.out.println(iis);
-//           System.exit(0);
-    }
-
+    
     private GroundAction generatePiecewiseSubaction (String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {
         GroundAction subaction = new GroundAction(subactionName);
 
@@ -629,10 +592,6 @@ public class habs_add extends Heuristic {
             Double rhsEval = original.getRight().eval(s);
 
 //            throw new UnsupportedOperationException("This needs to be implemented");
-            // I think from here you can start the reasoning by cases and update the sampled numeffect
-            // I started doing something but I failed as I am not sure how to interpret the representation of the constraint
-            // In particular it is not clear to me when the strict >0 comes to play. It is in fact
-            // necessary that such a thing is done to enforce intervals containing zero (e.g., (0,something]).
             PDDLNumber lb = new PDDLNumber(this.comparisonBound.get(e.getKey().getFirst()));
             if (lb.getNumber() == 0f) {
                 lb.setNumber(epsilon.floatValue());
@@ -673,7 +632,12 @@ public class habs_add extends Heuristic {
         }
     }
 
-
+    /*
+        A comparator for intervals.
+    
+        Interval a < b if inf(a) < inf(b).
+        Interval a > b if inf(a) > inf(b).
+    */
     private static class SortByInf implements Comparator {
 
         public int compare (Object o1, Object o2) {
