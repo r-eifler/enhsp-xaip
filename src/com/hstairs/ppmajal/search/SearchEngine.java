@@ -78,6 +78,7 @@ public class SearchEngine {
     final private float G_DEFAULT = Float.NaN;
     private long previousTime;
     private int causalDeadEnds;
+    private Object2FloatMap<State> idaStar;
 
 
     public SearchEngine ( ) {
@@ -844,10 +845,10 @@ public class SearchEngine {
     }
 
     public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
-        return idastar(problem, checkAlongPrefix, false);
+        return idastar(problem, checkAlongPrefix, false, false);
     }
 
-    public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion) throws Exception {
+    public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         State initState = problem.getInit();
 
 
@@ -878,12 +879,15 @@ public class SearchEngine {
             return null;
         }
 
+        if (idaStarWithMemory){
+            idaStar = new Object2FloatOpenHashMap<>();
+        }
 
         float bound = hAtInit * this.hw;
         long startSearch = System.currentTimeMillis();
-        Pair<SimpleSearchNode, Float> res = null;
+        Pair<IdaStarSearchNode, Float> res = null;
         for (; ; ) {
-            res = boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix, showExpansion);
+            res = boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix, showExpansion, idaStarWithMemory);
             if (res == null || res.getFirst() != null) {
                 break;
             }
@@ -921,7 +925,7 @@ public class SearchEngine {
 
         long startSearch = System.currentTimeMillis();
 
-        final Pair<SimpleSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true);
+        final Pair<IdaStarSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
             return this.extractPlan(res.getFirst());
@@ -940,26 +944,23 @@ public class SearchEngine {
         return false;
     }
 
-    private Pair<SimpleSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean checkAlongPrefix) {
-        return this.boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix);
+
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) {
+        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, false);
     }
 
-    private Pair<SimpleSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) {
-        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false);
-    }
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory) {
+        final Stack<IdaStarSearchNode> frontier = new Stack();
 
-    private Pair<SimpleSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion) {
-        final Stack<SimpleSearchNode> frontier = new Stack();
-
-        SimpleSearchNode init = new SimpleSearchNode(problem.getInit().clone(), null, null, 0);
+        IdaStarSearchNode init = new IdaStarSearchNode(problem.getInit().clone(), null, null, 0);
         causalDeadEnds = 0;
         frontier.push(init);
         float newBound = Float.POSITIVE_INFINITY;
         System.out.println("f(n): " + bound + "(Expanded Nodes: " + getNodesExpanded() + ")");
         System.out.println("-------------------(Dead-Ends: " + deadEndsDetected + ")");
-        SimpleSearchNode bestSol = null;
+        IdaStarSearchNode bestSol = null;
         while (!frontier.isEmpty()) {
-            final SimpleSearchNode node = frontier.pop();
+            final IdaStarSearchNode node = frontier.pop();
             long now = System.currentTimeMillis();
             if ((now - previousTime) > 10000) {
                 System.out.println("-------------Time: " + (now - this.beginningTime) / 1000 + "s ; Expanded Nodes: " + getNodesExpanded());
@@ -971,19 +972,33 @@ public class SearchEngine {
             } else {
                 g = 0;
             }
+            node.gValue = g;
             if (showExpansion) {
                 System.out.println("Expansion:" + node.transition);
             }
 //            System.out.println("------------");
             long start = System.currentTimeMillis();
-            final Float h = heuristic.computeEstimate(node.s);
+            Float h = null;
+            if (idastarWithMemory) {
+                h = idaStar.get(node.s);
+            }
+            if (h == null) {
+                h = heuristic.computeEstimate(node.s);
+            }
+
             setHeuristicCpuTime(getHeuristicCpuTime() + (System.currentTimeMillis() - start));
             setNodesExpanded(getNodesExpanded() + 1);
-            if (Objects.equals(g, this.G_DEFAULT) || h == null) {
+            if (Objects.equals(g, this.G_DEFAULT) || h == null || h == Float.MAX_VALUE || h == this.G_DEFAULT) {
                 this.deadEndsDetected++;
+                if (idastarWithMemory){
+                    updateTable((IdaStarSearchNode) node,h);
+                }
             } else {
                 float f = g + h * this.hw;
                 if ((f > bound && !anytime) || (f >= bound && anytime)) {
+                    if (!anytime && idastarWithMemory) {
+                        updateTable((IdaStarSearchNode) node, h);
+                    }
                     if (f < newBound && !anytime) {
                         if (problem.goalSatisfied(node.s) != null) {
                             newBound = f;
@@ -1013,18 +1028,22 @@ public class SearchEngine {
                                     push = !onThePath(next.getFirst(), node.father);
                                 }
                                 if (push) {
+                                    node.numberOfSons++;
                                     atLeastOne = true;
-
-                                    frontier.push(new SimpleSearchNode(next.getFirst(), next.getSecond(), node, g));
+                                    frontier.push(new IdaStarSearchNode(next.getFirst(), next.getSecond(), node, g));
                                 }
                             }
                             if (!atLeastOne) {
-                                System.out.println(node.s);
+                                if (idastarWithMemory) {
+                                    updateTable((IdaStarSearchNode) node, h);
+                                }
                                 causalDeadEnds++;
                             }
                         }
                     } else {
-
+                        if (idastarWithMemory){
+                            updateTable((IdaStarSearchNode) node, null);
+                        }
                         this.deadEndsDetected++;
                     }
                 }
@@ -1035,6 +1054,38 @@ public class SearchEngine {
         }
         return new Pair(bestSol, newBound);
 
+    }
+
+    private void updateTable (IdaStarSearchNode s, Float h) {
+        IdaStarSearchNode temp = s;
+        Float bound = null;
+        while (temp.father != null){
+            if (bound == null) {
+                if (h == null || temp.gValue == this.G_DEFAULT || h == this.G_DEFAULT || h == Float.MAX_VALUE) {
+                    bound = Float.MAX_VALUE;
+                }else{
+                    bound = h;
+                }
+            }
+
+            IdaStarSearchNode father = (IdaStarSearchNode) temp.father;
+            if (bound != Float.MAX_VALUE){
+                bound += temp.gValue - father.gValue;
+            }
+            father.numberOfSons =  father.numberOfSons -1;
+            float previousBound = father.minSoFar;
+            if (bound >= previousBound){
+                bound = previousBound; //keep the minimum
+            }else {
+                father.minSoFar = bound;
+            }
+            if (father.numberOfSons == 0) {
+                idaStar.put(father.s.getRepresentative(), bound);
+                temp = (IdaStarSearchNode) father;
+            } else {
+                break;
+            }
+        }
     }
 
     public int getNodesReopened ( ) {

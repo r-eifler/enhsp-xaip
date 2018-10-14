@@ -587,7 +587,7 @@ public class EPddlProblem extends PddlProblem {
 
         Aibr aibr = new Aibr(this.goals, actions, processesSet, eventsSet);
         Float setup = aibr.setup(this.makePddlState());
-        System.out.println("(After AIBR):"+aibr.reachable.size());
+//        System.out.println("(After AIBR):"+aibr.reachable.size());
         this.reachableActions = aibr.reachable;
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
@@ -650,8 +650,8 @@ public class EPddlProblem extends PddlProblem {
 
         long start = System.currentTimeMillis();
         if (simplify) {
-            System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
+//            System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+//            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
 
             pruningViaReachability();
 
@@ -664,11 +664,11 @@ public class EPddlProblem extends PddlProblem {
         makeInit();
 
         if (simplify) {
-            System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-            System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
+//            System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+//            System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
             long end = System.currentTimeMillis();
 
-            System.out.println("Simplification Time: " + (end - start));
+//            System.out.println("Simplification Time: " + (end - start));
         }
     }
 

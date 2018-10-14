@@ -49,4 +49,8 @@ public abstract class State {
     public void setApplicableActions (Iterable<GroundAction> applicableActions) {
         this.applicableActions = applicableActions;
     }
+
+    public State getRepresentative ( ) {
+        return this;
+    }
 }

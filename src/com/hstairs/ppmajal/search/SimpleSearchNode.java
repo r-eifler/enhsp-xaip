@@ -6,7 +6,7 @@ public class SimpleSearchNode {
     final public State s;
     final public Object transition;
     final public SimpleSearchNode father;
-    final public float gValue;
+    public float gValue;
 
 
     public SimpleSearchNode (State s, Object transition, SimpleSearchNode father, float g) {

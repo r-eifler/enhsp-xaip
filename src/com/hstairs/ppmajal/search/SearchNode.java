@@ -38,7 +38,6 @@ import java.util.logging.Logger;
 public class SearchNode extends SimpleSearchNode {
 
     public float h_n;
-    public SearchNode father;
     public JSONObject json_rep;
     public int reacheable_condition;
     public float wg;
@@ -119,7 +118,7 @@ public class SearchNode extends SimpleSearchNode {
             if (father == null) {
                 json_rep.put("ancestor", "init_state");
             } else {
-                json_rep.put("ancestor", father.json_rep.get("visited_step"));
+                json_rep.put("ancestor", ((SearchNode)father).json_rep.get("visited_step"));
             }
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);

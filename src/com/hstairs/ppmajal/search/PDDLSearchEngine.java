@@ -33,12 +33,35 @@ public class PDDLSearchEngine extends SearchEngine {
 
     @Override
     public LinkedList<GroundAction> extractPlan (SimpleSearchNode input) {
-        SearchNode c = (SearchNode)input;
+
         LinkedList<GroundAction> plan = new LinkedList<>();
-        lastState = c.s;
-        while (c.transition != null || c.list_of_actions != null) {
+        lastState = input.s;
+        if (!(input instanceof SearchNode)){
+            SimpleSearchNode temp = input;
+            while (temp.transition != null){
+                Double time = null;
+                GroundAction gr = null;
+                try {
+                    gr = (GroundAction) ((GroundAction) temp.transition).clone();
+                    if (time != null) {
+                        gr.time = time.floatValue();
+                    } else {
+                        gr.time = 0f;
+                    }
+
+                } catch (CloneNotSupportedException ex) {
+                    Logger.getLogger(PDDLSearchEngine.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                plan.addFirst(gr);
+                temp = temp.father;
+            }
+            return plan;
+        }
+
+        SearchNode c = (SearchNode)input;
+        while (( c.transition != null || c.list_of_actions != null)) {
             Double time = null;
-            if (c.father.s instanceof PDDLState) {
+            if (c.father != null && c.father.s instanceof PDDLState) {
                 time = ((PDDLState) c.father.s).time;
             }
             if (c.transition != null) {//this is an action
@@ -69,7 +92,7 @@ public class PDDLSearchEngine extends SearchEngine {
                     }
                 }
             }
-            c = c.father;
+            c = (SearchNode) c.father;
 
         }
 
