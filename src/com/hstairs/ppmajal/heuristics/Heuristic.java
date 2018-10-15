@@ -95,47 +95,31 @@ public abstract class Heuristic {
     private HashMap redundant_constraints;
     private boolean risky = false;
 
-    public Heuristic ( ) {
-
-    }
-
     public Heuristic (Set<GroundAction> A) {
-        this.A = (LinkedHashSet<GroundAction>) A;
-
+        this(null,A,Collections.emptySet(),Collections.emptySet(),null);
     }
 
     public Heuristic (ComplexCondition G, Collection<GroundAction> A) {
-        super();
-        achievers = new HashMap();
-        add_achievers = new HashMap();
-        this.G = G;
-        this.A = new LinkedHashSet();
-        this.A.addAll(A);
-        reacheable_predicates = new LinkedHashSet();
-        reachable = new LinkedHashSet();
-        max_depth = 10;
-        all_conditions = new ArrayList();
-        def_num_fluents = new LinkedHashSet();
-        //build_integer_representation(A,G);
+        this(G,new LinkedHashSet(A),Collections.emptySet(),Collections.emptySet(),null);
+    }
+
+
+    public Heuristic (ComplexCondition G, Set<GroundAction> A) {
+        this(G, A,Collections.emptySet(),Collections.emptySet(),null);
     }
 
     public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
-        super();
-        achievers = new HashMap();
-        add_achievers = new HashMap();
-        this.G = G;
-        this.A = new LinkedHashSet();
-        this.A.addAll(A);
-        this.A.addAll(P);
-        reacheable_predicates = new LinkedHashSet();
-        reachable = new LinkedHashSet();
-        max_depth = 10;
-        all_conditions = new ArrayList();
-        def_num_fluents = new LinkedHashSet();
-        //build_integer_representation(A,G);
+        this(G,A,P,Collections.emptySet(),null);
     }
 
     public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+        this(G,A,P,E,null);
+    }
+
+    public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, ComplexCondition GC) {
+        this(G,A,P,Collections.emptySet(),GC);
+    }
+    public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, ComplexCondition GC) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -144,22 +128,7 @@ public abstract class Heuristic {
         this.A.addAll(A);
         this.A.addAll(P);
         this.A.addAll(E);
-        reacheable_predicates = new LinkedHashSet();
-        reachable = new LinkedHashSet();
-        max_depth = 10;
-        all_conditions = new ArrayList();
-        def_num_fluents = new LinkedHashSet();
-        //build_integer_representation(A,G);
-    }
 
-    public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundAction> P, ComplexCondition GC) {
-        super();
-        achievers = new HashMap();
-        add_achievers = new HashMap();
-        this.G = G;
-        this.A = new LinkedHashSet();
-        this.A.addAll(A);
-        this.A.addAll(P);
         reacheable_predicates = new LinkedHashSet();
         reachable = new LinkedHashSet();
         max_depth = 10;
@@ -172,19 +141,8 @@ public abstract class Heuristic {
     //this initializer is mandatory for being executed before each invocation of the heuristic
     public abstract Float setup (State s_0);
 
-    //        this.build_integer_representation();//for each proposition and comparison there is a unique integer representation
-//        influenced_by = computeInflueced_by();
-//        influence_graph = create_influence_graph();
-//        try {
-//            this.compute_relevant_actions(s_0);
-//        } catch (Exception ex) {
-//            Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        A = this.reachable;
-//        return 0f;
-//        //this.build_integer_representation();//this could reduce the number of predicate/comparison but it has been considered useless overhead
     public void build_integer_representation ( ) {
-        all_conditions = new LinkedHashSet();
+        all_conditions = new ArrayList<>();
         int counter_conditions = 0;
 
         integer_ref = new HashMap();
@@ -221,8 +179,6 @@ public abstract class Heuristic {
 
 //            temp.add(c_1);
         }
-//        System.out.println("Conditions found:"+all_conditions.size());
-//        System.out.println("Last condition counter:"+counter_conditions);
         index_of_last_static_atom = counter_conditions;//index of the last atom
 
     }

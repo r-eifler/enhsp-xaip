@@ -31,7 +31,6 @@ import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author enrico

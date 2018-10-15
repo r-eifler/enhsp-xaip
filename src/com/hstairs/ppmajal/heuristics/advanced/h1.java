@@ -115,21 +115,18 @@ public class h1 extends Heuristic {
         pseudoGoal.setPreconditions(G);
         A.add(pseudoGoal);
         System.out.println("Actions After AIBR-Reachability:" + A.size());
-        //System.out.println("Building integer representation");
         boolean reconstruct = false;
 
         build_integer_representation();
         pseudoGoal.setId(total_number_of_actions);
         identify_complex_conditions(A);
         this.generateConditionToActionMap();
-//        instantiateAchieversDataStructures();
         generate_achievers();
         reacheability_setting = true;
         extraActionPrecondition = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
         Utils.dbg_print(debug - 10, "Reachability Analysis Started");
         float ret = computeEstimate(s);
         Utils.dbg_print(debug - 10, "Reachability Analysis Terminated");
-//        System.out.println("Actions After Reachability:"+this.reachable);
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
         out.println("Hard Conditions: " + this.complex_conditions);
@@ -195,7 +192,9 @@ public class h1 extends Heuristic {
 //            s.setApplicableActions(actionApplicableInGs);
 
 //        Utils.dbg_print(debugLevel - 10, "Total Number of conditions:" + all_conditions.size() + "\n");
-        for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+        for (int i= 0; i< all_conditions.size(); i++){
+//        for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+            final Condition c = (Condition) ((ArrayList)all_conditions).get(i);
             if (s.satisfy(c)) {
                 cost[c.getHeuristicId()] = 0f;
 //                Utils.dbg_print(debugLevel - 10, "Condition that is already satisfied:" + c + "\n");
@@ -883,100 +882,104 @@ public class h1 extends Heuristic {
     }
 
     protected boolean generate_achievers ( ) {
+        System.out.println("Allocating memory for internal structure..");
         achieve = new Collection[this.total_number_of_actions + 1];
         possibleAchievers = new Collection[this.total_number_of_actions + 1];
         this.invertedPossibleAchievers = new Collection[this.all_conditions.size() + 1];
         invertedAchievers = new Collection[this.all_conditions.size() + 1];
         precondition_mapping = new Collection[this.all_conditions.size() + 1];
-
+        System.out.println("...done");
         //this should also include the indirect dependencies, otherwise does not work!!
         Set<GroundAction> useless_actions = new HashSet();
-        for (GroundAction gr : this.A) {
-            ReferenceLinkedOpenHashSet<Comparison> comparisons = new ReferenceLinkedOpenHashSet<>();
-            ReferenceLinkedOpenHashSet<Comparison> reacheable_comparisons = new ReferenceLinkedOpenHashSet();
-            ReferenceLinkedOpenHashSet<Terminal> literals = new ReferenceLinkedOpenHashSet();
-            boolean at_least_one_service = false;
-            for (Condition c : this.all_conditions) {
+        if (false) {
 
-                if (precondition_mapping[c.getHeuristicId()] == null) {
-                    precondition_mapping[c.getHeuristicId()] = new ReferenceLinkedOpenHashSet();
-                }
-                ReferenceLinkedOpenHashSet<GroundAction> action_list = new ReferenceLinkedOpenHashSet();
-                if (c instanceof Comparison) {
+            for (GroundAction gr : this.A) {
+                ReferenceLinkedOpenHashSet<Comparison> comparisons = new ReferenceLinkedOpenHashSet<>();
+                ReferenceLinkedOpenHashSet<Comparison> reacheable_comparisons = new ReferenceLinkedOpenHashSet();
+                ReferenceLinkedOpenHashSet<Terminal> literals = new ReferenceLinkedOpenHashSet();
+                boolean at_least_one_service = false;
+                for (Condition c : this.all_conditions) {
+
+                    if (precondition_mapping[c.getHeuristicId()] == null) {
+                        precondition_mapping[c.getHeuristicId()] = new ReferenceLinkedOpenHashSet();
+                    }
+                    ReferenceLinkedOpenHashSet<GroundAction> action_list = new ReferenceLinkedOpenHashSet();
+                    if (c instanceof Comparison) {
 //                    System.out.println("Condition under analysis:"+c);
 //                    System.out.println("Counter is:"+c.getCounter());
-                    Comparison comp = (Comparison) c;
-                    if (comp.involve(gr.getNumericFluentAffected())) {
-                        comparisons.add(comp);
+                        Comparison comp = (Comparison) c;
+                        if (comp.involve(gr.getNumericFluentAffected())) {
+                            comparisons.add(comp);
 
-                        if (this.is_complex.get(comp.getHeuristicId())) {
+                            if (this.is_complex.get(comp.getHeuristicId())) {
+                                at_least_one_service = true;
+                                reacheable_comparisons.add(comp);
+                                action_list.add(gr);
+                            } else if (gr.is_possible_achiever_of(comp)) {
+                                at_least_one_service = true;
+                                reacheable_comparisons.add(comp);
+                                action_list.add(gr);
+                            }
+                        }
+                        if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
+                            this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
+                        } else {
+                            Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+                            temp.addAll(action_list);
+                            this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
+                        }
+                    } else if (c instanceof Predicate) {
+                        Predicate p = (Predicate) c;
+                        if (gr.weakAchiever(p)) {
                             at_least_one_service = true;
-                            reacheable_comparisons.add(comp);
-                            action_list.add(gr);
-                        } else if (gr.is_possible_achiever_of(comp)) {
-                            at_least_one_service = true;
-                            reacheable_comparisons.add(comp);
+                            literals.add(p);
                             action_list.add(gr);
                         }
-                    }
-                    if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
-                        this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
-                    } else {
-                        Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
-                        temp.addAll(action_list);
-                        this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
-                    }
-                } else if (c instanceof Predicate) {
-                    Predicate p = (Predicate) c;
-                    if (gr.weakAchiever(p)) {
-                        at_least_one_service = true;
-                        literals.add(p);
-                        action_list.add(gr);
-                    }
-                    if (this.invertedAchievers[p.getHeuristicId()] == null) {
-                        this.invertedAchievers[p.getHeuristicId()] = action_list;
-                    } else {
-                        Collection<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
-                        temp.addAll(action_list);
-                        this.invertedAchievers[p.getHeuristicId()] = temp;
+                        if (this.invertedAchievers[p.getHeuristicId()] == null) {
+                            this.invertedAchievers[p.getHeuristicId()] = action_list;
+                        } else {
+                            Collection<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
+                            temp.addAll(action_list);
+                            this.invertedAchievers[p.getHeuristicId()] = temp;
+                        }
+
+                    } else if (c instanceof NotCond) {
+                        NotCond c1 = (NotCond) c;
+                        if (!c1.isTerminal()) {
+                            System.out.println("Not formula has to be used as a terminal, and it is not:" + c1);
+                            System.exit(-1);
+                        }
+                        Predicate p = (Predicate) c1.getSon();
+                        if (gr.delete(p)) {
+                            at_least_one_service = true;
+                            literals.add(c1);
+                            action_list.add(gr);
+                        }
+                        if (this.invertedAchievers[c1.getHeuristicId()] == null) {
+                            this.invertedAchievers[c1.getHeuristicId()] = action_list;
+                        } else {
+                            Collection<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
+                            temp.addAll(action_list);
+                            this.invertedAchievers[c1.getHeuristicId()] = temp;
+                        }
+
                     }
 
-                } else if (c instanceof NotCond) {
-                    NotCond c1 = (NotCond) c;
-                    if (!c1.isTerminal()) {
-                        System.out.println("Not formula has to be used as a terminal, and it is not:" + c1);
-                        System.exit(-1);
-                    }
-                    Predicate p = (Predicate) c1.getSon();
-                    if (gr.delete(p)) {
-                        at_least_one_service = true;
-                        literals.add(c1);
-                        action_list.add(gr);
-                    }
-                    if (this.invertedAchievers[c1.getHeuristicId()] == null) {
-                        this.invertedAchievers[c1.getHeuristicId()] = action_list;
-                    } else {
-                        Collection<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
-                        temp.addAll(action_list);
-                        this.invertedAchievers[c1.getHeuristicId()] = temp;
+                    if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
+                        Collection<GroundAction> temp = this.precondition_mapping[c.getHeuristicId()];
+                        temp.add(gr);
+                        this.precondition_mapping[c.getHeuristicId()] = temp;
+
                     }
 
                 }
-
-                if (gr.preconditioned_on(c)) {//build mapping from atoms to actions
-                    Collection<GroundAction> temp = this.precondition_mapping[c.getHeuristicId()];
-                    temp.add(gr);
-                    this.precondition_mapping[c.getHeuristicId()] = temp;
-
-                }
-
-            }
 //            if (at_least_one_service){
-            achieve[gr.getId()] = literals;
-            possibleAchievers[gr.getId()] = reacheable_comparisons;
+                achieve[gr.getId()] = literals;
+                possibleAchievers[gr.getId()] = reacheable_comparisons;
 //            }else{
 //                useless_actions.add(gr);
 //            }
+            }
         }
 //        boolean ret = !useless_actions.isEmpty();
 
@@ -984,7 +987,11 @@ public class h1 extends Heuristic {
         Utils.dbg_print(debug, "Identify complex predicatesProduction");
 
 
-        this.computeComplexAchievers();
+        System.out.println("Computing Complex Achievers");
+        if (!this.ibrDisabled) {
+            this.computeComplexAchievers();
+        }
+        System.out.println("Complex Achievers computerd");
         return false;//to fix at some point
     }
 
@@ -1010,6 +1017,9 @@ public class h1 extends Heuristic {
             for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
 
                 if (sorted_nodes.contains(neff)) {
+                    if (possibleAchievers[gr.getId()]== null){
+                        possibleAchievers[gr.getId()] = new LinkedHashSet<>();
+                    }
                     possibleAchievers[gr.getId()].add(comp);
                     action_list.add(gr);
                 }

@@ -650,12 +650,12 @@ public class EPddlProblem extends PddlProblem {
 
         long start = System.currentTimeMillis();
         if (simplify) {
-//            System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+            System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
 //            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
 
             pruningViaReachability();
 
-            pruningViaRelevance();
+//            pruningViaRelevance();
         }
         idifyTransitions();
         // normalize global constraints, once and forall

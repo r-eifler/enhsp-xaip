@@ -171,7 +171,16 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public ComplexCondition transform_equality ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        ForAll res = new ForAll();
+        res.parameters = parameters;
+        HashSet<Condition> temp = new HashSet<>();
+        for (Condition cond : (Collection<Condition>)sons){
+            temp.add(cond.transform_equality());
+        }
+        sons.addAll(temp);
+        res.sons = sons;
+        return res;
     }
 
     @Override
