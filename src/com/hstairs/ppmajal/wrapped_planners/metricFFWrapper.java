@@ -78,7 +78,6 @@ public class metricFFWrapper extends planningTool {
 
                 String line = null;
                 while ((line = input.readLine()) != null) {
-//                    System.out.println(line);
                     if (line.contains("Heuristic")) {
                         String[] res = line.split(":");
                         heuristic = Integer.parseInt(res[1].trim());

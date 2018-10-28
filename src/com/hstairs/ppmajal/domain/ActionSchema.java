@@ -116,7 +116,12 @@ public class ActionSchema extends PDDLGenericAction {
 
         if (this.forall != null) {//Kind of special case for now
             AndCond temp = (AndCond) this.forall.ground(substitution, po);
-            ret.create_effects_by_cases(temp);
+            if (po != null){
+                ret.create_effects_by_cases(temp);
+            }else{
+                ret.forall = temp;
+            }
+
         }
 
 //        System.out.println(this);
@@ -165,46 +170,62 @@ public class ActionSchema extends PDDLGenericAction {
 //        return "\n\nAction Name:" + this.name + " Parameters: " + parametri + "\nPre: " + this.preconditions + "\nEffetti positivi: " + this.getAddList() + "\nEffetti negativi: " + this.getDelList() + "\nNumeric Effects:  " + this.getNumericEffects();
 //    }
 
-        String ret = "(:action " + this.name + "\n";
+        StringBuilder ret = new StringBuilder("(:action " + this.name + "\n");
 
-        ret += ":parameters " + this.parameters + "\n";
-        ret += ":precondition " + this.getPreconditions().pddlPrint(false) + "\n";
+        ret.append(":parameters " + this.parameters + "\n");
+        ret.append(":precondition ");
+        this.getPreconditions().pddlPrint(false,ret);
+        ret.append("\n");
         //ret += ":effect " + this.pddlEffectsWithExtraObject();
-        ret += ":effect " + this.pddlEffects() + "\n";
-
-        return ret + ")";
+        ret.append(":effect ");
+        this.pddlEffects(ret);
+        ret.append("\n)");
+        return ret.toString();
     }
 
-    protected String pddlEffects ( ) {
-        String ret = "(and ";
+
+    protected void pddlEffects ( StringBuilder input) {
+        input.append("(and ");
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
-                ret += p.pddlPrint(false);
+                p.pddlPrint(false,input);
             }
         }
         if (this.getDelList() != null) {
             for (Object o : this.getDelList().sons) {
                 NotCond p = (NotCond) o;
-                ret += p.pddlPrint(false);
+                p.pddlPrint(false, input);
             }
         }
         if (this.getNumericEffects() != null) {
             for (Object o : this.getNumericEffects().sons) {
                 NumEffect nE = (NumEffect) o;
-                ret += nE.pddlPrint(false);
+                nE.pddlPrint(false, input);
 
             }
         }
         if (this.cond_effects != null) {
             for (Object o : this.cond_effects.sons) {
                 ConditionalEffect nE = (ConditionalEffect) o;
-                ret += nE.pddlPrint(false);
+                nE.pddlPrint(false,input);
 
             }
         }
 
-        return ret + ")";
+        if (this.forall != null){
+            for (Object o : this.forall.sons) {
+                ForAll nE = (ForAll) o;
+                nE.pddlPrint(false,input);
+            }
+        }
+        input.append(")");
+    }
+
+    protected String pddlEffects ( ) {
+        StringBuilder input = new StringBuilder();
+        this.pddlEffects(input);
+        return input.toString();
     }
 
     public Set getAbstractNumericFluentAffected ( ) {
@@ -248,6 +269,20 @@ public class ActionSchema extends PDDLGenericAction {
         //ab.simplifyModel(pd, pp);
         //ab.computeDistance(pd,pp,consideringNumericInformationInDistance);
         return ab;
+    }
+
+    public ActionSchema clone(){
+        ActionSchema res = new ActionSchema();
+        res.parameters = this.parameters;
+        res.preconditions = (ComplexCondition) this.preconditions.clone();
+        res.addList = (AndCond) this.addList.clone();
+        res.delList = (AndCond) this.delList.clone();
+        res.cond_effects = (AndCond) this.cond_effects.clone();
+        res.forall = (AndCond) this.forall.clone();
+        res.numericEffects = (AndCond) this.numericEffects.clone();
+        res.name = this.name;
+        return res;
+
     }
 
     private void progress (ActionSchema a, ActionSchema b, ActionSchema ab) {

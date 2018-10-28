@@ -84,4 +84,5 @@ public interface PostCondition {
 
     Set<NumFluent> affectedNumericFluents ( );
 
+
 }

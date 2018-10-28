@@ -140,7 +140,6 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     /**
-     * @param s
      * @return
      */
     public PDDLState applyAndCreateNew (PDDLState state) {

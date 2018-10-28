@@ -131,6 +131,9 @@ public abstract class ComplexCondition extends Condition {
     }
 
 
+
+
+
     @Override
     public Set<Condition> getTerminalConditions ( ) {
         Set ret;
@@ -140,6 +143,19 @@ public abstract class ComplexCondition extends Condition {
         ret = Sets.newLinkedHashSetWithExpectedSize(this.sons.size());
         for (Condition c : (Collection<Condition>) this.sons) {
             ret.addAll(c.getTerminalConditions());
+        }
+        return ret;
+    }
+
+
+    @Override
+    public List<Condition> getTerminalConditionsInArray ( ) {
+        ArrayList ret = new ArrayList();
+        if (this.sons == null) {
+            return Collections.emptyList();
+        }
+        for (Condition c : (Collection<Condition>) this.sons) {
+            ret.addAll(c.getTerminalConditionsInArray());
         }
         return ret;
     }
@@ -263,6 +279,16 @@ public abstract class ComplexCondition extends Condition {
         }
         ret.grounded = false;
         return ret;
+    }
+
+    @Override
+    public boolean involve (Condition c) {
+        for (Condition c1 : (Collection<Condition>) this.sons) {
+            if (c1.involve(c)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

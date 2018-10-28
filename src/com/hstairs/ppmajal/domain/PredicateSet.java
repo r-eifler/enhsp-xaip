@@ -28,6 +28,15 @@ import java.util.HashSet;
  */
 public class PredicateSet extends HashSet<Predicate> {
 
+    public PredicateSet(){
+        super();
+    }
+
+    public PredicateSet (PredicateSet predicates) {
+        super();
+        this.addAll(predicates);
+    }
+
     public boolean validate (Predicate p) {
 
         for (final Predicate elP : this) {
@@ -94,11 +103,13 @@ public class PredicateSet extends HashSet<Predicate> {
     }
 
     public String pddlPrint (boolean typeInformation) {
-        String ret = "";
+        StringBuilder ret = new StringBuilder("");
         for (final Predicate elP : this) {
-            ret += elP.pddlPrint(typeInformation);
+            elP.pddlPrint(typeInformation,ret);
+//            ret += elP.pddlPrint(typeInformation);
         }
-        return ret + ")";
+        ret.append(")");
+        return ret.toString();
     }
 
     public String pddlPrintWithExtraObject (boolean typeInformation) {

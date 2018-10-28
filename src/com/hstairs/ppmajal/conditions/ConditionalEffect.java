@@ -56,8 +56,10 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     public String toString ( ) {
-        if (this.activation_condition != null)
+        if (this.activation_condition != null) {
+//            System.out.println("DEBUG:"+this);
             return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
+        }
         return null;
     }
 
@@ -308,6 +310,11 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
+    public List<Condition> getTerminalConditionsInArray ( ) {
+        return this.activation_condition.getTerminalConditionsInArray();
+    }
+
+    @Override
     public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -351,6 +358,11 @@ public class ConditionalEffect extends Condition implements PostCondition {
     @Override
     public void extendTerms (Variable v) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean involve (Condition c) {
+        return this.activation_condition.involve(c);
     }
 
     @Override

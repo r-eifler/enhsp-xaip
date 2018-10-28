@@ -21,12 +21,20 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Type;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 
 /**
  * @author enrico
  */
 public class PDDLObjects extends LinkedHashSet<PDDLObject> {
+
+    public PDDLObjects ( ) {
+    }
+
+    public PDDLObjects (Collection<? extends PDDLObject> c) {
+        super(c);
+    }
 
     // Returns true if they have the same name (or both ``null''), except for the character case
     private static boolean objectsShareSameName (PDDLObject o1, PDDLObject o2) {
@@ -111,9 +119,13 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
      * @return a PDDL representation of this list of PDDLObject.
      */
     public String pddlPrint ( ) {
+        return pddlPrint("objects");
+    }
+
+    public String pddlPrint (String head ) {
         final StringBuffer result = new StringBuffer();
 
-        result.append("(:objects \n");
+        result.append("(:"+head+ " \n");
         for (final PDDLObject o : this) {
             result.append("   ").append(o.pddlPrint(true)).append("\n");
         }

@@ -110,7 +110,10 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition clone ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ForAll res = new ForAll();
+        res.parameters = this.parameters;
+        res.sons = this.sons.clone();
+        return res;
     }
 
     @Override
@@ -195,7 +198,26 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public void pddlPrint (boolean typeInformation, StringBuilder bui) {
-        System.out.println("(forall " + this.parameters.toString() + " " + this.sons.toString());
+        bui.append("(forall ");
+
+        this.parameters.pddlPrint(true,bui);
+        if (sons.size() > 1)
+            bui.append("(and ");
+        for (Object o : sons) {
+            if (o instanceof Condition) {
+                Condition c = (Condition) o;
+                c.pddlPrint(typeInformation, bui);
+//            } else if (o instanceof Comparison) { // ??? a Comparison is already a Conditions
+//                Comparison comp = (Comparison) o;
+//                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
+            } else {
+                System.out.println("Error in pddlPrint: " + this);
+                System.exit(-1);
+            }
+        }
+        if (sons.size() > 1)
+            bui.append(")");
+        bui.append(")");
     }
 
     @Override
@@ -266,6 +288,18 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
+
+
+        if (objects == null){//this is the case where I don't want to ground really
+            ForAll res = new ForAll();
+            res.parameters = this.parameters;
+            for (Condition c : (Collection<Condition>) this.sons) {
+                res.addConditions(c.ground(substitution, objects));
+            }
+            return res;
+        }
+
+
         try {
             Grounder g = new Grounder();
             Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);

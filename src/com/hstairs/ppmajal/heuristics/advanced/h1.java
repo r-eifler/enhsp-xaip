@@ -463,7 +463,7 @@ public class h1 extends Heuristic {
                 }
                 Predicate p = (Predicate) c1.getSon();
                 if (gr.delete(p)) {
-                    predicatesAchieved.add(p);
+                    predicatesAchieved.add(c1);
                     action_list.add(gr);
                 }
                 if (this.invertedAchievers[c1.getHeuristicId()] == null) {
@@ -500,24 +500,24 @@ public class h1 extends Heuristic {
     private void updateReachableActions (GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, ArrayList<FibonacciHeapNode> action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Collection<GroundAction> set = null;
+        Collection<GroundAction> triggeredActions = null;
         if (comp.getHeuristicId() < conditionToAction.length) {
-            set = conditionToAction[comp.getHeuristicId()];
+            triggeredActions = conditionToAction[comp.getHeuristicId()];
         }
         if (this.extraTrigger != null){
             GroundAction groundAction = this.extraTrigger.get(comp.getHeuristicId());
-            if (set == null && groundAction != null) {
-                set = Collections.singleton(groundAction);
+            if (triggeredActions == null && groundAction != null) {
+                triggeredActions = Collections.singleton(groundAction);
             }else if (groundAction != null){
-                set.add(groundAction);
+                triggeredActions.add(groundAction);
             }
 
         }
-        if (set == null){
+        if (triggeredActions == null){
             return;
         }
         //this mapping contains action that need to be triggered becasue of condition comp
-        for (final GroundAction gr2 : set) {
+        for (final GroundAction gr2 : triggeredActions) {
 
             if (closed[gr2.getId()]) {
                 if (this.additive_h || !this.conservativehmax) {
@@ -663,8 +663,9 @@ public class h1 extends Heuristic {
     private void generateConditionToActionMap ( ) {
 //        conditionToAction = new ReferenceLinkedOpenHashSet[all_conditions.size() + 1];
         conditionToAction = new ArrayList[all_conditions.size() + 1];
+
         for (GroundAction gr : A) {
-            Set<Condition> terminalConditions = gr.getPreconditions().getTerminalConditions();
+            Collection<Condition> terminalConditions = gr.getPreconditions().getTerminalConditionsInArray();
             for (Condition c : terminalConditions) {
                 Collection<GroundAction> groundActions = conditionToAction[c.getHeuristicId()];
                 if (groundActions == null) {
@@ -882,13 +883,11 @@ public class h1 extends Heuristic {
     }
 
     protected boolean generate_achievers ( ) {
-        System.out.println("Allocating memory for internal structure..");
         achieve = new Collection[this.total_number_of_actions + 1];
         possibleAchievers = new Collection[this.total_number_of_actions + 1];
         this.invertedPossibleAchievers = new Collection[this.all_conditions.size() + 1];
         invertedAchievers = new Collection[this.all_conditions.size() + 1];
         precondition_mapping = new Collection[this.all_conditions.size() + 1];
-        System.out.println("...done");
         //this should also include the indirect dependencies, otherwise does not work!!
         Set<GroundAction> useless_actions = new HashSet();
         if (false) {
@@ -987,11 +986,9 @@ public class h1 extends Heuristic {
         Utils.dbg_print(debug, "Identify complex predicatesProduction");
 
 
-        System.out.println("Computing Complex Achievers");
         if (!this.ibrDisabled) {
             this.computeComplexAchievers();
         }
-        System.out.println("Complex Achievers computerd");
         return false;//to fix at some point
     }
 

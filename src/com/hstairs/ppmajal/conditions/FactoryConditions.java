@@ -37,7 +37,7 @@ public class FactoryConditions {
 
     private final PredicateSet predicates;
     private final LinkedHashSet<Type> types;
-    private final PDDLObjects constants;
+    public PDDLObjects constants;
 
     public FactoryConditions (PredicateSet predicates, LinkedHashSet<Type> types, PDDLObjects constants) {
         this.predicates = predicates;
@@ -65,8 +65,8 @@ public class FactoryConditions {
             a = new Variable(t.getText());
             Variable v1 = parTable.containsVariable(a);
             if (v1 == null) {
-                System.out.println("BuildPredicate: Variable " + a + " not involved in the action model");
-                System.exit(-1);
+                throw new RuntimeException("BuildPredicate: Variable " + a + " not involved in the action model");
+//                System.exit(-1);
             }
             a = v1;
         }
@@ -170,8 +170,8 @@ public class FactoryConditions {
                                 }
                             }
                             if (!found) {
-                                System.out.println("Type: " + t + " is not specified. Please Fix the Model");
-                                System.exit(-1);
+                                throw new RuntimeException("Type: " + t + " is not specified. Please Fix the Model");
+
                             } else {
                                 exist.addParameter(new Variable(child.getText(), t));
                             }
@@ -211,11 +211,10 @@ public class FactoryConditions {
                 PDDLObject o = new PDDLObject(t.getChild(i).getText());
                 PDDLObject o1 = this.constants.containsTerm(o);
                 if (o1 != null) {
-                    //a.setGrounded(true);
                     a.addObject(o1);
                 } else {
-                    System.out.println("Variable " + o + " is not a constant object");
-                    System.exit(-1);
+                    System.out.println("Constants/Objects in this problem:"+this.constants);
+                    throw new RuntimeException("Variable " + o + " is not a constant object");
                 }
             } else {
                 Variable v = new Variable(t.getChild(i).getText());
@@ -224,8 +223,8 @@ public class FactoryConditions {
                 if (v1 != null) {
                     a.addVariable(v1);
                 } else {
-                    System.out.println("BuildPredicate: Variable " + v + " not in the action model");
-                    System.exit(-1);
+                    throw new RuntimeException("BuildPredicate: Variable " + v + " not found in " + parTable);
+//                    System.exit(-1);
                 }
             }
         }
@@ -345,8 +344,8 @@ public class FactoryConditions {
                         }
                     }
                     if (!found) {
-                        System.out.println("Type: " + t + " is not specified. Please Fix the Model");
-                        System.exit(-1);
+                        throw new RuntimeException("Type: " + t + " is not specified. Please Fix the Model");
+
                     } else {
                         forall.addParameter(new Variable(child.getText(), t));
                     }
@@ -607,10 +606,22 @@ public class FactoryConditions {
                     }
                 }
                 return one_of;
+            case PddlParser.NOT_GD:
+                NotCond nc = null;
+                for (int i = 0; i < infoAction.getChildCount(); i++) {
+                    Condition ret_val = addOneOf(infoAction.getChild(i));
+                    if (ret_val != null) {
+                        nc = new NotCond(ret_val);
+                        return nc;
+                    }
+                }
+//                break;
+//                return one_of;
             default:
-                System.out.println("Oneof Parsing: Some serious error:" + infoAction);
-                return null;
+                throw  new RuntimeException("Oneof Parsing: Some serious error:" + infoAction);
+//                return null;
         }
+//        return null;
     }
 
     public Collection<NumFluent> addFunctions (Tree c) {

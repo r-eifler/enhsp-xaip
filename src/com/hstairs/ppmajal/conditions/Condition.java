@@ -51,7 +51,6 @@ public abstract class Condition extends PDDLProblemComponent {
 
     /**
      * @param p
-     * @param s
      * @param invF
      * @return
      */
@@ -229,6 +228,8 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Set<Condition> getTerminalConditions ( );
 
+    public abstract List<Condition> getTerminalConditionsInArray ( );
+
     public abstract Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h);
 
     public abstract ComplexCondition and (Condition precondition);
@@ -276,5 +277,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract void extendTerms (Variable v);
 
+
+    public abstract boolean involve (Condition c);
 
 }

@@ -151,7 +151,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         //System.out.println(par);
 
-        GroundAction grAction = action.ground(par, pp.getProblemObjects());
+        GroundAction grAction = action.ground(par, null);
         grAction.generateAffectedNumFluents();
 //        if (pp instanceof EPddlProblem) 
 //            grAction.unifyVariablesReferences((EPddlProblem) pp);
@@ -1917,4 +1917,14 @@ public class SimplePlan extends ArrayList<GroundAction> {
         return ret;
     }
 
+    public void parseSolutionFromOtherPlan (SimplePlan newPlan) {
+
+        if (this.size() > 0){
+            throw new RuntimeException("The plan needs to be empty at this stage");
+        }
+        for (GroundAction gr : newPlan){
+            this.putAction(gr.getName(),gr.getParameters());
+        }
+
+    }
 }

@@ -399,7 +399,7 @@ public class PddlLexer extends Lexer {
             // /home/enrico/Scrivania/HEPlanner/grammar/Pddl.g:13:7: ( ':domain' )
             // /home/enrico/Scrivania/HEPlanner/grammar/Pddl.g:13:9: ':domain'
             {
-            match(":domain"); 
+            match(":domain");
 
 
 
@@ -1060,7 +1060,7 @@ public class PddlLexer extends Lexer {
             // /home/enrico/Scrivania/HEPlanner/grammar/Pddl.g:42:7: ( 'domain' )
             // /home/enrico/Scrivania/HEPlanner/grammar/Pddl.g:42:9: 'domain'
             {
-            match("domain"); 
+            match("domain");
 
 
 

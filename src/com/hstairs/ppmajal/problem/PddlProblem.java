@@ -232,11 +232,12 @@ public class PddlProblem {
         this.one_of_s = new LinkedHashSet();
         this.unknonw_predicates = new LinkedHashSet();
         this.or_s = new LinkedHashSet();
+//        System.out.println(this.objects);
         fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.objects);
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
             //System.out.println(child.getChild(0).getText());
-
+//            System.out.println(fc.constants);
             switch (child.getType()) {
                 case PddlParser.PROBLEM_DOMAIN:
                     this.setDomainName(child.getChild(0).getText());
@@ -278,7 +279,7 @@ public class PddlProblem {
 
     protected void addObjects (Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            if (this.linkedDomain != null) {
+            if (this.linkedDomain != null && false) {
                 Type t = linkedDomain.getTypeByName(c.getChild(i).getChild(0).getText());
                 if (t == null) {
                     System.out.println(c.getChild(i).getChild(0).getText() + " not found");
@@ -287,7 +288,10 @@ public class PddlProblem {
                 this.getObjects().add(new PDDLObject(c.getChild(i).getText(), t));
 
             } else {
-                this.getObjects().add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
+                Type type = new Type("object");
+                if (c.getChild(i).getChildCount() > 0)
+                    type = new Type(c.getChild(i).getChild(0).getText());
+                this.getObjects().add(new PDDLObject(c.getChild(i).getText(), type));
             }
         }
     }

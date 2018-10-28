@@ -22,6 +22,8 @@ import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.RelState;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author enrico
@@ -77,4 +79,14 @@ public abstract class Terminal extends Condition {
         return id;
     }
 
+    @Override
+    public boolean involve (Condition c) {
+        return this.equals(c);
+    }
+
+
+    @Override
+    public List<Condition> getTerminalConditionsInArray ( ) {
+        return Collections.singletonList(this);
+    }
 }

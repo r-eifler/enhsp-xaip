@@ -58,8 +58,19 @@ public class Utils {
     }
 
     public static String toPDDLSetWithBreak (Collection c) {
-        String ret = "";
+//        String ret = "";
+        StringBuilder strBuilder = new StringBuilder("");
+
         for (Object o : c) {
+            strBuilder.append(o.toString());
+            strBuilder.append("\n");
+        }
+        return strBuilder.toString();
+    }
+
+    public static String toPDDLActionSetWithBreak (Collection<ActionSchema> c) {
+        String ret = "";
+        for (ActionSchema o : c) {
             ret += o.toString() + "\n";
         }
         return ret;

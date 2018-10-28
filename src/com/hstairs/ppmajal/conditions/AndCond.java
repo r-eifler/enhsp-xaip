@@ -183,6 +183,9 @@ public class AndCond extends ComplexCondition implements PostCondition {
             } else if (o instanceof ConditionalEffect) {
                 ConditionalEffect a = (ConditionalEffect) o;
                 ret.sons.add(a.clone());
+            }else if (o instanceof ForAll) {
+                ForAll a = (ForAll) o;
+                ret.sons.add(a.clone());
             }
         }
 
@@ -487,7 +490,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition achieve (Predicate p) {
-        for (Condition p1 : (Collection<Condition>) this.sons) {
+        for (Object p1 : this.sons) {
             if (p1 instanceof Predicate) {
                 if (p1.equals(p)) {
                     return new Predicate(Predicate.trueFalse.TRUE);
@@ -500,7 +503,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition delete (Predicate p) {
-        for (Condition p1 : (Collection<Condition>) this.sons) {
+        for (Object p1 : this.sons) {
             if (p1 instanceof NotCond) {
                 NotCond nc = (NotCond) p1;
                 Predicate p2 = (Predicate) nc.getSon();
@@ -750,6 +753,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
         }
         return ret;
     }
+
+
 
     @Override
     public Set<NumFluent> affectedNumericFluents ( ) {

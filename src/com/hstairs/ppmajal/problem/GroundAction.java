@@ -227,6 +227,18 @@ public class GroundAction extends PDDLGenericAction {
                     }
                 }
             }
+            if (this.cond_effects != null){
+                for (ConditionalEffect ceff : (Collection<ConditionalEffect>)this.cond_effects.sons){
+                    AndCond effect = (AndCond) ceff.effect;
+                    for (Object o : effect.sons) {
+                        if (o instanceof NumEffect) {
+                            NumEffect e = (NumEffect) o;
+                            this.numericFluentAffected.put(e.getFluentAffected(), true);
+                            list_of_numeric_fluents_affected.add(e);
+                        }
+                    }
+                }
+            }
         }
         return list_of_numeric_fluents_affected;
     }
@@ -762,6 +774,14 @@ public class GroundAction extends PDDLGenericAction {
                     return true;
                 }
             }
+            if (this.cond_effects != null){
+                for (ConditionalEffect ceff : (Collection<ConditionalEffect>)this.cond_effects.sons){
+                    if (ceff.effect.achieve(p)!= null){
+                        this.achieve.put(p, true);
+                        return true;
+                    }
+                }
+            }
             this.achieve.put(p, false);
             return false;
         }
@@ -773,18 +793,19 @@ public class GroundAction extends PDDLGenericAction {
         AndCond add = this.getDelList();
         //System.out.println(this.toPDDL());
         //System.out.println(this.getDelList());
-        if (add == null) {
-            return false;
+        if (add != null && add.sons != null) {
+            for (Object o : this.getDelList().sons) {
+                NotCond nc = (NotCond) o;
+                if (nc.getSon().equals(p)) {
+                    return true;
+                }
+            }
         }
-        if (add.sons == null) {
-            return false;
-        }
-        for (Object o : this.getDelList().sons) {
-            NotCond nc = (NotCond) o;
-            //System.out.println(nc);
-
-            if (nc.getSon().equals(p)) {
-                return true;
+        if (this.cond_effects != null){
+            for (ConditionalEffect ceff : (Collection<ConditionalEffect>)this.cond_effects.sons){
+                if (ceff.effect.delete(p)!= null){
+                    return true;
+                }
             }
         }
         return false;

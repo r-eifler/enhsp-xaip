@@ -115,7 +115,7 @@ public class Predicate extends Terminal implements PostCondition {
             }
 
         }
-        ret = ret.concat(" ?x)");
+        ret = ret.concat(" ?x - interpretation)");
         return ret;
     }
 
@@ -289,8 +289,9 @@ public class Predicate extends Terminal implements PostCondition {
                 final Variable v = (Variable) o;
                 PDDLObject t = substitution.get(v);
                 if (t == null) {
-                    System.out.println("Error in substitution  for " + o);
-                    System.exit(-1);
+                    ret.terms.add(v);
+//                    System.out.println("Error in substitution  for " + o);
+//                    System.exit(-1);
                 } else {
                     ret.terms.add(t);
                 }

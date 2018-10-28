@@ -38,7 +38,7 @@ public abstract class PDDLGenericAction {
     protected ComplexCondition preconditions;
     protected Object2BooleanMap numericFluentAffected;
     protected SchemaParameters parameters;
-    protected AndCond forall;
+    public AndCond forall;
 
     /**
      * @return the addList
