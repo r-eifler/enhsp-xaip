@@ -980,7 +980,7 @@ public class SearchEngine {
             long start = System.currentTimeMillis();
             Float h = null;
             if (idastarWithMemory) {
-                h = idaStar.get(node.s);
+                h = idaStar.get(node.s.getRepresentative());
             }
             if (h == null) {
                 h = heuristic.computeEstimate(node.s);
