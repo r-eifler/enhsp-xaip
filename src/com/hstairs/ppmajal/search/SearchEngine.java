@@ -925,6 +925,7 @@ public class SearchEngine {
 
         long startSearch = System.currentTimeMillis();
 
+
         final Pair<IdaStarSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
@@ -964,6 +965,7 @@ public class SearchEngine {
             long now = System.currentTimeMillis();
             if ((now - previousTime) > 10000) {
                 System.out.println("-------------Time: " + (now - this.beginningTime) / 1000 + "s ; Expanded Nodes: " + getNodesExpanded());
+                System.out.println("-------------------(Dead-Ends: " + deadEndsDetected + ")");
                 this.previousTime = now;
             }
             final float g;
@@ -1009,7 +1011,7 @@ public class SearchEngine {
                     if (goalSatisfied != null) {
                         if (goalSatisfied) {
                             if (anytime) {
-                                bound = f;
+                                bound = g;
                                 System.out.println("Found solution of cost:" + bound);
                                 bestSol = node;
                             } else {
