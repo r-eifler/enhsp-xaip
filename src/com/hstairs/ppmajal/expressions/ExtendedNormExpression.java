@@ -456,7 +456,8 @@ public class ExtendedNormExpression extends Expression {
 //                }
 
                     if (invFluents.get(a.f) == null || (Boolean) invFluents.get(a.f)) {
-                        if (problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
+                        PDDLNumber fluent = problem.getNumFluentInitialValue(a.f);
+                        if (fluent == null || problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
                             return null;
                         }
                         c += problem.getNumFluentInitialValue(a.f).getNumber() * a.n;

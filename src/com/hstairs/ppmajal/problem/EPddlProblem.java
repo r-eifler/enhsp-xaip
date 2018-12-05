@@ -612,7 +612,11 @@ public class EPddlProblem extends PddlProblem {
 
             if (this.metric != null && this.metric.getMetExpr() != null) {
                 this.metric.setMetExpr(this.metric.getMetExpr().weakEval(this, this.getActualFluents()));
-                this.metric.setMetExpr(this.metric.getMetExpr().normalize());
+                if (this.metric.getMetExpr()== null){
+                    this.metric =null;
+                }else {
+                    this.metric.setMetExpr(this.metric.getMetExpr().normalize());
+                }
             } else {
                 this.metric = null;
             }

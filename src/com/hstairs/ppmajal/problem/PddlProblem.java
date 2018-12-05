@@ -880,7 +880,7 @@ public class PddlProblem {
         PDDLNumber nf = this.initNumFluentsValues.get(aThis);
         if (nf == null)
             return null;
-        return this.initNumFluentsValues.get(aThis);
+        return nf;
     }
 
     public Iterable<NumFluent> getNumFluentsInvolvedInInit ( ) {
