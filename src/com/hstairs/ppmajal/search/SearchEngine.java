@@ -205,7 +205,7 @@ public class SearchEngine {
 
     private void setGValue (State successorState, Object2FloatMap<State> g, float succ_g, boolean treeSearch) {
         if (!treeSearch){
-            g.put(successorState,succ_g);
+            g.put(successorState.getRepresentative(),succ_g);
         }
     }
 
@@ -578,7 +578,7 @@ public class SearchEngine {
         if (treeSearch){
             return G_DEFAULT;
         }
-        return gMap.getOrDefault(successorState, G_DEFAULT);
+        return gMap.getOrDefault(successorState.getRepresentative(), G_DEFAULT);
     }
 
     public State getLastState ( ) {
