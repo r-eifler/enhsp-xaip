@@ -51,7 +51,7 @@ public abstract class Terminal extends Condition {
     }
 
 
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences (EPddlProblem p) {
         Terminal t = p.getTerminalReference(this.toString());
         if (t == null) {
             id = p.getNextTerminalReferenceId();

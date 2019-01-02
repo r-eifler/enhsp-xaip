@@ -95,34 +95,35 @@ public abstract class Heuristic {
     private HashMap redundant_constraints;
     private boolean risky = false;
 
-    public Heuristic(){
+    public Heuristic ( ) {
 
     }
 
     public Heuristic (Set<GroundAction> A) {
-        this(null,A,Collections.emptySet(),Collections.emptySet(),null);
+        this(null, A, Collections.emptySet(), Collections.emptySet(), null);
     }
 
     public Heuristic (ComplexCondition G, Collection<GroundAction> A) {
-        this(G,new LinkedHashSet(A),Collections.emptySet(),Collections.emptySet(),null);
+        this(G, new LinkedHashSet(A), Collections.emptySet(), Collections.emptySet(), null);
     }
 
 
     public Heuristic (ComplexCondition G, Set<GroundAction> A) {
-        this(G, A,Collections.emptySet(),Collections.emptySet(),null);
+        this(G, A, Collections.emptySet(), Collections.emptySet(), null);
     }
 
     public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
-        this(G,A,P,Collections.emptySet(),null);
+        this(G, A, P, Collections.emptySet(), null);
     }
 
     public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
-        this(G,A,P,E,null);
+        this(G, A, P, E, null);
     }
 
     public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, ComplexCondition GC) {
-        this(G,A,P,Collections.emptySet(),GC);
+        this(G, A, P, Collections.emptySet(), GC);
     }
+
     public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, ComplexCondition GC) {
         super();
         achievers = new HashMap();
@@ -587,7 +588,7 @@ public abstract class Heuristic {
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
 
-                                if ((!ne.getInvolvedNumericFluents().isEmpty() && !ne.isPseudo_num_effect())||ne.getOperator().equals("assign")) {
+                                if ((!ne.getInvolvedNumericFluents().isEmpty() && !ne.isPseudo_num_effect()) || ne.getOperator().equals("assign")) {
                                     is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
                                     //System.out.println("Complex condition:"+comp);

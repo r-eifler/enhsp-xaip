@@ -818,7 +818,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         validationStructures = new IdentityHashMap();
 
         //Create a pseudo action for the goal, having null effects but precondition equal to the goal conditions
-        GroundAction goal = new GroundAction("goal");
+        GroundAction goal = new GroundAction("goal", -1);
         goal.setPreconditions(g);
         goal.normalize();
         this.add(goal);
@@ -1919,11 +1919,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public void parseSolutionFromOtherPlan (SimplePlan newPlan) {
 
-        if (this.size() > 0){
+        if (this.size() > 0) {
             throw new RuntimeException("The plan needs to be empty at this stage");
         }
-        for (GroundAction gr : newPlan){
-            this.putAction(gr.getName(),gr.getParameters());
+        for (GroundAction gr : newPlan) {
+            this.putAction(gr.getName(), gr.getParameters());
         }
 
     }

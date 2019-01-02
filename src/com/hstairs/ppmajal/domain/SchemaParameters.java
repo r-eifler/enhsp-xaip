@@ -60,12 +60,12 @@ public class SchemaParameters extends ArrayList {
     }
 
 
-    public void pddlPrint (boolean typeInformation,StringBuilder bui ) {
+    public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(");
         for (Object o : this) {
             Variable v = (Variable) o;
             //System.out.println(v.getName());
-            v.pddlPrint(typeInformation,bui);
+            v.pddlPrint(typeInformation, bui);
 
         }
         bui.append(")");

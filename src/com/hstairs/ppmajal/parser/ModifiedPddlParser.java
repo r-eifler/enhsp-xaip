@@ -1293,10 +1293,12 @@ public class ModifiedPddlParser extends Parser {
     protected DFA23 dfa23 = new DFA23(this);
     protected DFA70 dfa70 = new DFA70(this);
     private boolean wasError = false;
+
     // delegators
     public ModifiedPddlParser (TokenStream input) {
         this(input, new RecognizerSharedState());
     }
+
     public ModifiedPddlParser (TokenStream input, RecognizerSharedState state) {
         super(input, state);
     }

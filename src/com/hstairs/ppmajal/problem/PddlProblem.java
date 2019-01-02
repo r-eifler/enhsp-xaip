@@ -20,7 +20,10 @@ package com.hstairs.ppmajal.problem;
 
 import antlr.RecognitionException;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.domain.ActionSchema;
+import com.hstairs.ppmajal.domain.ParametersAsTerms;
+import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.parser.PddlLexer;
@@ -67,10 +70,11 @@ public class PddlProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
+    protected Set<GroundAction> reachableActions;
     PddlDomain linkedDomain;
     private FactoryConditions fc;
-    protected Set<GroundAction> reachableActions;
-    private HashMap<GroundAction,GroundAction> heuristicActionToProblemAction;
+    private HashMap<GroundAction, GroundAction> heuristicActionToProblemAction;
+    private int totActions;
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super();
@@ -89,6 +93,7 @@ public class PddlProblem {
             simplifyActions = true;
             this.types = types;
             this.parseProblem(problemFile);
+            totActions = 0;
 
         } catch (IOException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
@@ -167,8 +172,6 @@ public class PddlProblem {
     public void setPddlFilRef (String pddlFilRef) {
         this.pddlFilRef = pddlFilRef;
     }
-
-
 
 
     public void saveProblem (String pddlNewFile) throws IOException {
@@ -843,7 +846,7 @@ public class PddlProblem {
             //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-            return fc.buildPredicate(infoAction,null);
+            return fc.buildPredicate(infoAction, null);
         } else if (infoAction.getType() == PddlParser.UNKNOWN) {
 
             return addUnknown(infoAction.getChild(0));
@@ -853,9 +856,6 @@ public class PddlProblem {
             return null;
         }
     }
-
-
-
 
 
     public Condition getPredicate (Predicate aThis) {
@@ -903,7 +903,6 @@ public class PddlProblem {
     }
 
 
-
     public boolean isSafeState (State temp) {
         return true;
     }
@@ -928,7 +927,7 @@ public class PddlProblem {
 
     private GroundAction getActionFromProblemModel (GroundAction gr) {
 
-        if (heuristicActionToProblemAction == null){
+        if (heuristicActionToProblemAction == null) {
             heuristicActionToProblemAction = new HashMap<>();
         }
         GroundAction res = heuristicActionToProblemAction.get(gr);
@@ -937,12 +936,18 @@ public class PddlProblem {
             while (it.hasNext()) {
                 GroundAction gr2 = it.next();
                 if (gr.equalsNoId(gr2)) {
-                    heuristicActionToProblemAction.put(gr,gr2);
+                    heuristicActionToProblemAction.put(gr, gr2);
                     return gr2;
                 }
             }
         }
         return res;
+    }
+
+    public int getFreshActionId ( ) {
+        int current = totActions;
+        totActions++;
+        return(current);
     }
 
 

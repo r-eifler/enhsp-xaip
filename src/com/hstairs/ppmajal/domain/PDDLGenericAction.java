@@ -31,6 +31,7 @@ public abstract class PDDLGenericAction {
 
     public AndCond cond_effects;
     public Float time = null;
+    public AndCond forall;
     protected String name;
     protected AndCond addList;
     protected AndCond delList;
@@ -38,7 +39,6 @@ public abstract class PDDLGenericAction {
     protected ComplexCondition preconditions;
     protected Object2BooleanMap numericFluentAffected;
     protected SchemaParameters parameters;
-    public AndCond forall;
 
     /**
      * @return the addList

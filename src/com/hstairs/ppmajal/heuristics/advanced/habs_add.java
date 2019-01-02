@@ -54,7 +54,7 @@ public class habs_add extends Heuristic {
     public void setMetric (Metric metric) {
         this.metric = metric;
     }
-    
+
     /* Setup step for habs_add heuristic. Returns the heuristic for the initial
     state (if goal is reachable); otherwise, returns infinity.
     
@@ -143,7 +143,7 @@ public class habs_add extends Heuristic {
         RelState rsReachability = getReachabilityRelaxedState(s_0);
         // add AIBR reachability analysis relaxed states into the list
         relaxedStates.add(rsReachability);
-        
+
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -212,7 +212,7 @@ public class habs_add extends Heuristic {
 
         System.out.println("setting up...");
         int totActions = 0;
-        for (GroundAction gr: this.supporters){
+        for (GroundAction gr : this.supporters) {
             gr.setId(totActions);
             totActions++;
         }
@@ -408,9 +408,9 @@ public class habs_add extends Heuristic {
         }
     }
 
-    private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates) {
+    private ArrayList<Interval> getIis (NumEffect effect, ArrayList<RelState> relaxedStates) {
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
-        
+
         Interval prevRhsInterval = null;
         for (RelState rs : relaxedStates) {
             Interval currentRhsInterval = effect.getRight().eval(rs);
@@ -449,7 +449,7 @@ public class habs_add extends Heuristic {
             iis.add(incrementInterval.clone());
         }
     }
-    
+
     private GroundAction generatePiecewiseSubaction (String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {
         GroundAction subaction = new GroundAction(subactionName);
 

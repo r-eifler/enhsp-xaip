@@ -102,7 +102,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private LinkedHashSet<GroundAction> filterApplicable(Collection<GroundAction> actions, RelState rs) {
+    private LinkedHashSet<GroundAction> filterApplicable (Collection<GroundAction> actions, RelState rs) {
         LinkedHashSet<GroundAction> res = new LinkedHashSet<>();
         for (GroundAction ga : actions) {
             if (ga.isApplicable(rs)) {

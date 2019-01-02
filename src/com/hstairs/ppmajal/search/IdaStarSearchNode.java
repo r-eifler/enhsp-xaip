@@ -8,7 +8,7 @@ public class IdaStarSearchNode extends SimpleSearchNode {
     public float minSoFar;
 
     public IdaStarSearchNode (State s, Object transition, IdaStarSearchNode father, float g) {
-        super(s,transition,father,g);
+        super(s, transition, father, g);
         numberOfSons = 0;
         minSoFar = Float.MAX_VALUE;
 

@@ -34,6 +34,27 @@ import java.util.logging.Logger;
  */
 public class SearchEngine {
 
+    //definition
+    final private float G_DEFAULT = Float.NaN;
+    public int deadEndsDetected;
+    public int duplicatesNumber;
+    //debug
+    public boolean saveSearchTreeAsJson;
+    public SearchNode searchSpaceHandle;
+    public int debugLevel;
+    //configuration
+    public long depthLimit;
+    public boolean bfsTieBreaking;
+    public boolean helpfulActionsPruning;
+    public boolean forgettingEhc;
+    public TieBreaking tbRule;
+    //externalise internal state of things
+    public float currentG;
+    public boolean processes = false;
+    public float executionDelta;
+    public float planningDelta;
+    public int constraintsViolations;
+    protected State lastState;
     //stats
     private int nodesReopened;
     private int nodesExpanded;
@@ -41,41 +62,15 @@ public class SearchEngine {
     private long overallSearchTime;
     private int priorityQueueSize;
     private int numberOfEvaluatedStates;
-    public int deadEndsDetected;
-    public int duplicatesNumber;
-
-    //debug
-    public boolean saveSearchTreeAsJson;
-    public SearchNode searchSpaceHandle;
-    public int debugLevel;
-
-    //configuration
-    public long depthLimit;
-    public boolean bfsTieBreaking;
-    public boolean helpfulActionsPruning;
-    public boolean forgettingEhc;
-    public TieBreaking tbRule;
     private float hw;
     private Heuristic heuristic;
     private float gw;
     private boolean optimality;
-
-    //externalise internal state of things
-    public float currentG;
-    protected State lastState;
     private long beginningTime;
-
     //dealing with continuous processes
     private Collection<GroundProcess> reachableProcesses;
     private Collection<GroundEvent> reachableEvents;
     private boolean incremental;
-    public boolean processes = false;
-    public float executionDelta;
-    public float planningDelta;
-    public int constraintsViolations;
-
-    //definition
-    final private float G_DEFAULT = Float.NaN;
     private long previousTime;
     private int causalDeadEnds;
     private Object2FloatMap<State> idaStar;
@@ -191,7 +186,7 @@ public class SearchEngine {
                     current_node.add_descendant(node);
                 }
                 add_frontier(frontier, node);
-                setGValue(successorState,g,succ_g,treeSearch);
+                setGValue(successorState, g, succ_g, treeSearch);
                 return node;
             } else {
                 deadEndsDetected++;
@@ -204,8 +199,8 @@ public class SearchEngine {
     }
 
     private void setGValue (State successorState, Object2FloatMap<State> g, float succ_g, boolean treeSearch) {
-        if (!treeSearch){
-            g.put(successorState.getRepresentative(),succ_g);
+        if (!treeSearch) {
+            g.put(successorState.getRepresentative(), succ_g);
         }
     }
 
@@ -215,7 +210,7 @@ public class SearchEngine {
 
     private SearchNode queue_successor (Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g, boolean treeSearch) {
         float succ_g = current_node.gValue + 1;
-        float prev_cost = getPreviousCost(g,successor_state,treeSearch);
+        float prev_cost = getPreviousCost(g, successor_state, treeSearch);
 //        System.out.println("G:"+g.keySet());
 //        System.out.println("Current State:"+successor_state);
 //        System.out.println("Cost: "+prev_cost);
@@ -502,7 +497,7 @@ public class SearchEngine {
                 currentNode.set_visited(getNodesExpanded());
             }
 
-            final float previousG = getPreviousCost(gMap,currentNode.s,treeSearch);
+            final float previousG = getPreviousCost(gMap, currentNode.s, treeSearch);
             final float g_node = currentNode.gValue;
 
             if (g_node == previousG || treeSearch) {
@@ -564,7 +559,7 @@ public class SearchEngine {
                         this.deadEndsDetected++;
                         continue;
                     }
-                    final float previousCost = getPreviousCost(gMap,successorState, treeSearch);
+                    final float previousCost = getPreviousCost(gMap, successorState, treeSearch);
                     this.queueSuccessor(frontier, successorState, currentNode, act, previousCost, successorG, gMap, treeSearch);
 
                 }
@@ -575,7 +570,7 @@ public class SearchEngine {
     }
 
     private float getPreviousCost (Object2FloatMap<State> gMap, State successorState, boolean treeSearch) {
-        if (treeSearch){
+        if (treeSearch) {
             return G_DEFAULT;
         }
         return gMap.getOrDefault(successorState.getRepresentative(), G_DEFAULT);
@@ -879,7 +874,7 @@ public class SearchEngine {
             return null;
         }
 
-        if (idaStarWithMemory){
+        if (idaStarWithMemory) {
             idaStar = new Object2FloatOpenHashMap<>();
         }
 
@@ -992,8 +987,8 @@ public class SearchEngine {
             setNodesExpanded(getNodesExpanded() + 1);
             if (Objects.equals(g, this.G_DEFAULT) || h == null || h == Float.MAX_VALUE || h == this.G_DEFAULT) {
                 this.deadEndsDetected++;
-                if (idastarWithMemory){
-                    updateTable((IdaStarSearchNode) node,h);
+                if (idastarWithMemory) {
+                    updateTable((IdaStarSearchNode) node, h);
                 }
             } else {
                 float f = g + h * this.hw;
@@ -1043,7 +1038,7 @@ public class SearchEngine {
                             }
                         }
                     } else {
-                        if (idastarWithMemory){
+                        if (idastarWithMemory) {
                             updateTable((IdaStarSearchNode) node, null);
                         }
                         this.deadEndsDetected++;
@@ -1061,24 +1056,24 @@ public class SearchEngine {
     private void updateTable (IdaStarSearchNode s, Float h) {
         IdaStarSearchNode temp = s;
         Float bound = null;
-        while (temp.father != null){
+        while (temp.father != null) {
             if (bound == null) {
                 if (h == null || temp.gValue == this.G_DEFAULT || h == this.G_DEFAULT || h == Float.MAX_VALUE) {
                     bound = Float.MAX_VALUE;
-                }else{
+                } else {
                     bound = h;
                 }
             }
 
             IdaStarSearchNode father = (IdaStarSearchNode) temp.father;
-            if (bound != Float.MAX_VALUE){
+            if (bound != Float.MAX_VALUE) {
                 bound += temp.gValue - father.gValue;
             }
-            father.numberOfSons =  father.numberOfSons -1;
+            father.numberOfSons = father.numberOfSons - 1;
             float previousBound = father.minSoFar;
-            if (bound >= previousBound){
+            if (bound >= previousBound) {
                 bound = previousBound; //keep the minimum
-            }else {
+            } else {
                 father.minSoFar = bound;
             }
             if (father.numberOfSons == 0) {
@@ -1138,6 +1133,9 @@ public class SearchEngine {
         this.priorityQueueSize = priorityQueueSize;
     }
 
+    public int getCausalDeadEnds ( ) {
+        return causalDeadEnds;
+    }
 
     public enum TieBreaking {
         LOWERG,
@@ -1145,10 +1143,10 @@ public class SearchEngine {
         ARBITRARY
     }
 
+
     public enum Explorator {
         WASTAR, BRFS
     }
-
 
     public class TieBreaker implements Comparator<SearchNode> {
 
@@ -1215,9 +1213,5 @@ public class SearchEngine {
             }
         }
 
-    }
-
-    public int getCausalDeadEnds ( ) {
-        return causalDeadEnds;
     }
 }

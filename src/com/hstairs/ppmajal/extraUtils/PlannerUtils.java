@@ -128,7 +128,7 @@ public class PlannerUtils {
         return hs0.intValue();
     }
 
-    public int computeNumberOfRelevantActions(String domainFileName, String problemFileName) throws Exception {
+    public int computeNumberOfRelevantActions (String domainFileName, String problemFileName) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
