@@ -26,7 +26,6 @@ import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.expressions.BinaryOp;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.problem.*;
 
@@ -47,39 +46,18 @@ public class Aibr extends Heuristic {
     private HashMap<GroundAction, GroundAction> supp_to_action;
     private boolean cost_oriented = true;
 
-    public Aibr (ComplexCondition G, Collection<GroundAction> actions) {
-        super(G, actions);
-        this.supp_to_action = new HashMap();
+    private EPddlProblem problem;
+    private EPddlProblem subProblem;
+    private Collection<GroundAction> supporters;
 
-        supporters = new LinkedHashSet();
-        Utils.dbg_print(debug, "Generate Supporters\n");
+    public Aibr (EPddlProblem problem) {
+        super(problem.getGoals(), (Set<GroundAction>) problem.actions,problem.getProcessesSet(),problem.getEventsSet());
+        this.supp_to_action = new HashMap();
+        subProblem = new EPddlProblem();
+        supporters = subProblem.actions;
         generate_supporters(A);
     }
 
-    public Aibr (ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes) {
-        super(G, actions, processes);
-        this.supp_to_action = new HashMap();
-
-        supporters = new LinkedHashSet();
-//        Utils.dbg_print(debugLevel, "Generate Supporters\n");
-        generate_supporters(A);
-//        Utils.dbg_print(debugLevel, "Supporters Generated\n");
-
-        //this.build_integer_representation();
-    }
-
-    public Aibr (ComplexCondition G, Set<GroundAction> actions, Set<GroundProcess> processes, Set<GroundEvent> events) {
-        super(G, actions, processes, events);
-        this.supp_to_action = new HashMap();
-
-        supporters = new LinkedHashSet();
-//        Utils.dbg_print(debugLevel, "Generate Supporters\n");
-        generate_supporters(A);
-
-//        Utils.dbg_print(debugLevel, "Supporters Generated\n");
-
-        //this.build_integer_representation();
-    }
 
     public void set (boolean counting_layers_active, boolean greedy_relaxed_plan_active) {
         this.counting_layers = counting_layers_active;
@@ -221,7 +199,7 @@ public class Aibr extends Heuristic {
     }
 
     private GroundAction generate_constant_supporter (NumEffect effect, String name, Condition precondition, GroundAction gr) {
-        GroundAction ret = new GroundAction(name + "constantassign");
+        GroundAction ret = new GroundAction(name + "constantassign",subProblem.getFreshActionId());
         NumEffect assign = new NumEffect("assign");
         assign.setFluentAffected(effect.getFluentAffected());
         assign.setRight(effect.getRight());
@@ -249,7 +227,7 @@ public class Aibr extends Heuristic {
     }
 
     private GroundAction generate_supporter (NumEffect effect, String inequality, Float asymptote, String name, Condition precondition, GroundAction gr) {
-        GroundAction ret = new GroundAction(name);
+        GroundAction ret = new GroundAction(name,subProblem.getFreshActionId());
         Comparison indirect_precondition = new Comparison(inequality);
         if (effect.getOperator().equals("assign")) {
             indirect_precondition.setLeft(new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true));
@@ -286,7 +264,7 @@ public class Aibr extends Heuristic {
     }
 
     private GroundAction generate_propositional_action (String name, ComplexCondition cond, GroundAction gr) {
-        GroundAction ret = new GroundAction(name);
+        GroundAction ret = new GroundAction(name,subProblem.getFreshActionId());
         ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
         ret.setDelList(gr.getDelList());
@@ -379,7 +357,7 @@ public class Aibr extends Heuristic {
         for (Object o : cond_effects.sons) {
             if (o instanceof ConditionalEffect) {
                 ConditionalEffect cond = (ConditionalEffect) o;
-                GroundAction a = new GroundAction(name + counter);
+                GroundAction a = new GroundAction(name + counter,subProblem.getFreshActionId());
                 a.setParameters(p);
                 a.setPreconditions(a.getPreconditions().and(cond.activation_condition));
                 a.create_effects_by_cases(cond.effect);

@@ -29,6 +29,7 @@ import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.heuristics.utils.LpInterface;
 import com.hstairs.ppmajal.heuristics.utils.cplex_interface;
 import com.hstairs.ppmajal.heuristics.utils.ojalgo_interface;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
@@ -57,27 +58,19 @@ public class quasi_hm extends Heuristic {
     private HashMap<Integer, Collection<GroundAction>> cond_to_actions;
     private boolean risky = true;
 
-    public quasi_hm (ComplexCondition G, Set<GroundAction> A) {
-        super(G, A);
-    }
+    private EPddlProblem problem;
 
-    /**
-     * @param processesSet
-     */
-    public quasi_hm (ComplexCondition G, Set A, Set processesSet) {
-        super(G, A, processesSet);
 
-    }
-
-    public quasi_hm (ComplexCondition G, Set<GroundAction> A, Set processesSet, ComplexCondition GC) {
-        super(G, A, processesSet, GC);
+    public quasi_hm (EPddlProblem problem) {
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.globalConstraints);
+        this.problem = problem;
     }
 
     @Override
     public Float setup (State gs) {
 
         PDDLState s = (PDDLState) gs;
-        Aibr first_reachH = new Aibr(this.G, this.A);
+        Aibr first_reachH = new Aibr(problem);
         first_reachH.setup(s);
         first_reachH.set(true, true);
         Float ret = first_reachH.computeEstimate(s);

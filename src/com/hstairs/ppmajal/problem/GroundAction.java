@@ -33,11 +33,10 @@ import java.util.logging.Logger;
 
 public class GroundAction extends PDDLGenericAction {
 
-    final private int id;
+    final protected int id;
     public boolean numeric_effect_undefined;
     public boolean normalized;
     public int hiddenParametersNumber;
-    public boolean dummy_goal;
     public boolean infinite_constant_effect = false;
     protected ParametersAsTerms parameters_as_terms;
     private ArrayList primitives;
@@ -1418,7 +1417,7 @@ public class GroundAction extends PDDLGenericAction {
     /**
      * @param action_cost the action_cost to set
      */
-    public void setAction_cost (float action_cost) {
+    public void setActionCost (float action_cost) {
         this.actionCost = action_cost;
     }
 
@@ -1798,7 +1797,7 @@ public class GroundAction extends PDDLGenericAction {
         return true;
     }
 
-    public void setAction_cost (PDDLState init, Metric metric) {
+    public void setActionCost (PDDLState init, Metric metric) {
 
         if (metric != null && metric.getMetExpr() != null) {
             NumEffect neff = new NumEffect("increase");

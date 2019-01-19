@@ -59,12 +59,7 @@ public class EPddlProblem extends PddlProblem {
     private HashMap<String, Terminal> terminalReference;
     private HashMap<String, NumFluent> numFluentReference;
 
-
-    public EPddlProblem ( ) {
-    }
-
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
-
         super(problemFile, po, types);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
@@ -72,6 +67,15 @@ public class EPddlProblem extends PddlProblem {
         grounding = false;
         totActionsEventsProcesses = 0;
         totEvents = 0;
+    }
+
+    public EPddlProblem ( ) {
+        super();
+    }
+
+    public EPddlProblem (ComplexCondition goal, Collection<GroundAction> reachableActions) {
+        this.goals = goal;
+        actions = reachableActions;
     }
 
 
@@ -106,7 +110,7 @@ public class EPddlProblem extends PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
-                getActions().addAll(af.Propositionalize(act, getObjects()));
+                getActions().addAll(af.Propositionalize(act, getObjects(),this));
             }
         } else {
             System.err.println("Please connect the domain of the problem via validation");
@@ -158,9 +162,9 @@ public class EPddlProblem extends PddlProblem {
             for (ProcessSchema process : linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
                 if (process.getParameters().size() != 0) {
-                    getProcessesSet().addAll(af.Propositionalize(process, getObjects()));
+                    getProcessesSet().addAll(af.Propositionalize(process, getObjects(),this));
                 } else {
-                    GroundProcess gr = process.ground();
+                    GroundProcess gr = process.ground(this);
                     getProcessesSet().add(gr);
                 }
             }
@@ -543,7 +547,7 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost((PDDLState) init, this.getMetric());
+                act.setActionCost((PDDLState) init, this.getMetric());
             } else {
                 act.set_unit_cost((PDDLState) init);
             }
@@ -584,7 +588,7 @@ public class EPddlProblem extends PddlProblem {
         setActionCosts();
         setProcessEventsCost();
 
-        Aibr aibr = new Aibr(this.goals, actions, processesSet, eventsSet);
+        Aibr aibr = new Aibr(this);
         Float setup = aibr.setup(this.makePddlState());
 //        System.out.println("(After AIBR):"+aibr.reachable.size());
         this.reachableActions = aibr.reachable;
@@ -698,10 +702,10 @@ public class EPddlProblem extends PddlProblem {
 
     private void setProcessEventsCost ( ) {
         for (GroundProcess gp : processesSet) {
-            gp.setAction_cost(1);
+            gp.setActionCost(1);
         }
         for (GroundEvent gp : eventsSet) {
-            gp.setAction_cost(1);
+            gp.setActionCost(1);
         }
     }
 
@@ -795,12 +799,12 @@ public class EPddlProblem extends PddlProblem {
 //                af.Propositionalize(act, objects);
                 if (!event_schema.getPar().isEmpty()) {
                     try {
-                        this.getEventsSet().addAll(af.Propositionalize(event_schema, getObjects()));
+                        this.getEventsSet().addAll(af.Propositionalize(event_schema, getObjects(),this));
                     } catch (Exception ex) {
                         Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    GroundEvent event = event_schema.fakeGround();
+                    GroundEvent event = event_schema.fakeGround(this);
                     this.getEventsSet().add(event);
 
                 }
@@ -937,7 +941,7 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             GroundAction act = (GroundAction) it.next();
             if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setAction_cost((PDDLState) init, this.getMetric());
+                act.setActionCost((PDDLState) init, this.getMetric());
             } else {
                 act.set_unit_cost((PDDLState) init);
             }
@@ -1118,7 +1122,7 @@ public class EPddlProblem extends PddlProblem {
                 waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
                 i += delta;
 
-                GroundProcess waiting = new GroundProcess("waiting");
+                GroundProcess waiting = new GroundProcess("waiting",-1);
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
                 //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);

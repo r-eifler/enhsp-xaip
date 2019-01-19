@@ -19,16 +19,14 @@
 package com.hstairs.ppmajal.heuristics;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.expressions.*;
+import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
+import com.hstairs.ppmajal.expressions.Interval;
+import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.extraUtils.Pair;
-import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.heuristics.utils.HeuristicSearchNode;
 import com.hstairs.ppmajal.problem.*;
-import org.ojalgo.optimisation.Expression;
-import org.ojalgo.optimisation.ExpressionsBasedModel;
-import org.ojalgo.optimisation.Optimisation;
-import org.ojalgo.optimisation.Variable;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -41,7 +39,6 @@ import static java.util.Collections.nCopies;
  */
 public abstract class Heuristic {
 
-    static public LinkedHashSet usefulActions = new LinkedHashSet();
     public LinkedHashSet<GroundAction> reachable;
     public boolean additive_h = true;
     public int max_depth;
@@ -57,7 +54,7 @@ public abstract class Heuristic {
     public boolean preferred_operators;
     public int reacheable_conditions;
     public int horizon = Integer.MAX_VALUE;
-    public Collection<GroundAction> supporters;
+    private Collection<GroundAction> supporters;
     public RelState reacheable_state;
     public int n_lp_invocations;
     public boolean integer_variables;
@@ -69,11 +66,8 @@ public abstract class Heuristic {
     public boolean only_mutual_exclusion_processes = false;
     protected LinkedList<NumEffect> sorted_nodes;
     protected HashMap<GroundAction, HashSet<GroundAction>> influence_graph;
-    protected boolean internal_update;
     protected Collection<Condition> all_conditions;
     protected int index_of_last_static_atom;
-    protected LinkedHashSet orderings;
-    protected boolean cyclic_task;
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Condition, Boolean> new_condition;
     protected int complex_conditions;
@@ -85,19 +79,11 @@ public abstract class Heuristic {
     protected Collection<Comparison> complex_condition_set;
     protected boolean check_mutex = false;
     protected HashMap<String, Integer> integer_ref;
-    protected int total_number_of_actions;
-    HashMap<GroundAction, HashSet<Condition>> influenced_by;
-    HashMap<GroundAction, GroundAction> depends_on;
     HashMap<NumEffect, GroundAction> num_eff_action;
-    private Set<NumFluent> def_num_fluents;
-    private boolean no_plan_extraction = true;
     private boolean cost_oriented_ibr = false;
     private HashMap redundant_constraints;
     private boolean risky = false;
 
-    public Heuristic ( ) {
-
-    }
 
     public Heuristic (Set<GroundAction> A) {
         this(null, A, Collections.emptySet(), Collections.emptySet(), null);
@@ -116,15 +102,15 @@ public abstract class Heuristic {
         this(G, A, P, Collections.emptySet(), null);
     }
 
-    public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
+    public Heuristic (ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, Collection<GroundEvent> E) {
         this(G, A, P, E, null);
     }
 
-    public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, ComplexCondition GC) {
+    public Heuristic (ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, ComplexCondition GC) {
         this(G, A, P, Collections.emptySet(), GC);
     }
 
-    public Heuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, ComplexCondition GC) {
+    public Heuristic (ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, Collection<GroundEvent> E, ComplexCondition GC) {
         super();
         achievers = new HashMap();
         add_achievers = new HashMap();
@@ -138,7 +124,6 @@ public abstract class Heuristic {
         reachable = new LinkedHashSet();
         max_depth = 10;
         all_conditions = new ArrayList();
-        def_num_fluents = new LinkedHashSet();
         //build_integer_representation(A,G);
         this.gC = GC;
     }
@@ -151,20 +136,15 @@ public abstract class Heuristic {
         int counter_conditions = 0;
 
         integer_ref = new HashMap();
-        total_number_of_actions = 0;
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         if (this.supporters != null) {
             actions_to_consider.addAll(this.supporters);
         }
         for (GroundAction a : actions_to_consider) {
-            //a.setId(total_number_of_actions++);
-            total_number_of_actions++;
 
             if (a.getPreconditions() != null) {
                 for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
-                    //Utils.dbg_print(debug, "Condition added to the set:" + c_1 + "\n");
                     counter_conditions = update_index_conditions(c_1, counter_conditions);
-                    //Utils.dbg_print(debugLevel, "Identifier:" + c_1.getCounter() + "\n");
                 }
             }
         }
@@ -176,16 +156,10 @@ public abstract class Heuristic {
             }
         }
 
-//        LinkedHashSet temp = new LinkedHashSet();
         for (Condition c_1 : G.getTerminalConditions()) {
-            //Utils.dbg_print(debugLevel, "Condition added to the set:" + c_1 + "\n");
             counter_conditions = update_index_conditions(c_1, counter_conditions);
-            //Utils.dbg_print(debugLevel, "Identifier:" + c_1.getCounter() + "\n");
-
-//            temp.add(c_1);
         }
         index_of_last_static_atom = counter_conditions;//index of the last atom
-
     }
 
 
@@ -243,90 +217,7 @@ public abstract class Heuristic {
         return new_condition;
     }
 
-    protected int compute_precondition_cost (PDDLState s_0, Map<Condition, Integer> h, GroundAction gr) {
 
-        int cost = 0;
-        if (gr.getPreconditions() != null) {
-            for (Condition t : (Collection<Condition>) gr.getPreconditions().sons) {
-                Integer temp = h.get(t);
-                if (temp != null && temp != Float.MAX_VALUE) {
-                    if (additive_h) {
-                        cost += temp;
-                    } else {
-                        cost = Math.max(cost, temp);
-                    }
-                } else if (s_0.satisfy(t)) {
-                    h.put(t, 0);
-                    if (additive_h) {
-                        cost += 0;
-                    } else {
-                        cost = Math.max(cost, 0);
-                    }
-
-                } else {
-                    return Integer.MAX_VALUE;
-                }
-
-            }
-        }
-        return cost;
-    }
-
-    protected int compute_precondition_cost (PDDLState s_0, ArrayList<Integer> h, GroundAction gr) {
-        return this.compute_cost(s_0, h, gr.getPreconditions());
-    }
-
-    protected int compute_cost (PDDLState s_0, ArrayList<Integer> h, ComplexCondition con) {
-        int cost = 0;
-
-        if (con == null) {
-            return 0;
-        }
-
-        for (Condition t : (Collection<Condition>) con.sons) {
-            int temp = h.get(t.getHeuristicId());
-            if (temp != Float.MAX_VALUE) {
-                if (additive_h) {
-                    cost += temp;
-                } else {
-                    cost = Math.max(cost, temp);
-                }
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-        return cost;
-    }
-
-    //    protected float interval_based_relaxation_actions(PDDLState s_0, Conditions c, Collection<GroundAction> pool,HashMap<GroundAction,Float> action_to_cost) {
-//        RelState rel_state = s_0.relaxState();
-//        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
-//        float cost = 0;
-//        float current_distance = rel_state.satisfaction_distance((Comparison) c);
-//        //this terminates correctly whenever the numeric dependency graph is acyclic
-//        LinkedList<GroundAction> q = new LinkedList();
-//        while (true) {
-//            boolean stop = true;
-//            q = order_according_to_dependencies(pool, c);
-//            while (!q.isEmpty()) {
-//                GroundAction gr = q.pollFirst();
-//                rel_state = gr.apply(rel_state);
-//                float new_dist = rel_state.satisfaction_distance((Comparison) c);
-//                //cost += gr.action_cost_to_get_here + 1;
-//                if (current_distance >= new_dist) {
-//                    cost += action_to_cost.get(gr) + 1;
-//                    current_distance = new_dist;
-//                    stop = false;
-//                }
-//                if (rel_state.satisfy((Comparison) c)) {
-//                    return cost;
-//                }
-//            }
-//            if (stop) {
-//                return Float.POSITIVE_INFINITY;
-//            }
-//        }
-//    }
     public boolean visit (NumEffect nf, Collection<NumEffect> col, HashMap<NumEffect, Boolean> temp_mark, HashMap<NumEffect, Boolean> per_mark, LinkedList<NumEffect> list) {
 
         if (temp_mark.get(nf)) {
@@ -433,137 +324,6 @@ public abstract class Heuristic {
 
     }
 
-    protected Float interval_based_relaxation_actions_with_cost (PDDLState s_0, Condition c, Collection<GroundAction> pool, HashMap<GroundAction, Float> action_to_cost) {
-        RelState rel_state = s_0.relaxState();
-//        System.out.println(rel_state);
-        //LinkedList ordered_actions = sort_actions_pool_according_to_cost(pool);
-        float cost = 0f;
-//        float current_distance = rel_state.satisfaction_distance((Comparison) c);
-        //this terminates correctly whenever the numeric dependency graph is acyclic. If it is cyclic it terminates with null
-        Boolean proven_reachable = null;
-        proven_reachable = compute_enclosure(pool, rel_state.clone(), (Comparison) c);
-
-        if (proven_reachable != null && proven_reachable == false) {
-            return Float.MAX_VALUE;
-        }
-
-        HashMap<NumEffect, Boolean> visited = new HashMap();
-        int iteration = 0;
-        if (proven_reachable == null) {
-            proven_reachable = false;
-        }
-        Utils.dbg_print(debug, "Starting the reacheability analysis. Is it Reachable? :" + proven_reachable);
-        //the bound here is only to capture really unlikely instances. Should be domain independent though
-        while (iteration < 100 || proven_reachable) {
-            LinkedList<NumEffect> q = new LinkedList(this.sorted_nodes);
-//            if (q.isEmpty())
-//                break;
-            while (!q.isEmpty()) {
-                NumEffect a = q.pollFirst();
-                rel_state.update_values(a.apply(rel_state));
-                if (visited.get(a) == null) {
-                    cost += action_to_cost.get(this.num_eff_action.get(a));//precondition
-                }
-                if (this.cost_oriented_ibr) {
-                    cost += this.num_eff_action.get(a).getActionCost();//cost of the action
-                } else {
-                    cost++;//this is the unit cost case
-                }
-                visited.put(a, true);
-                if (c.can_be_true(rel_state)) {
-                    return cost;
-                }
-            }
-            iteration++;
-        }
-        return cost;
-    }
-
-    //
-//        LinkedList initial = order_according_to_dependencies_actions(pool, c, action_to_cost);
-//        Collection<NumFluent> interesting_fluents = c.getInvolvedFluents();
-//        HashMap<Integer, Boolean> visited = new HashMap();
-//        for (int i=0;i<initial.size();i++){
-//            visited.put(i,false);
-//        }
-//        int iteration=0;
-//        temp_preferred_operators_ibr = new LinkedHashSet();
-//        while (true) {
-//            boolean stop = true;
-//            LinkedList q = new LinkedList(initial);
-//            int i=0;
-//            RelState rel_state_before = null;
-//            try {
-//                rel_state_before = rel_state.clone();
-//            } catch (CloneNotSupportedException ex) {
-//                Logger.getLogger(Heuristics.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//            while (!q.isEmpty()) {        
-//                
-//                GroundAction gr = (GroundAction) q.pollFirst();
-//                
-//                
-//                rel_state = gr.apply(rel_state);
-//                int n = gr.internal_dependencies_length();
-//                
-//                for (int k=0;k<n;k++){
-//                    //System.out.println(gr.getName()+ " has internal dependency, where max lenght is:"+n);
-//                    cost++;
-//                    rel_state = gr.apply(rel_state);
-//                    
-//                }
-//                if (visited.get(i) == false) {
-//                    cost++;
-//                    if (action_to_cost.get(gr) != null){
-//                        cost += action_to_cost.get(gr);
-//                    }
-//                    temp_preferred_operators_ibr.add(gr);
-//                }
-//                //cost++;
-//                if (any_change(rel_state_before,rel_state,interesting_fluents)) {
-//                    stop = false;
-//                }
-//                visited.put(i, true);
-//
-//                if (rel_state.satisfy((Comparison) c)) {
-//                    return cost;
-//                }
-//                
-//                if (iteration>100000 && reacheable==null){
-//                    //System.out.println("Cut-off");
-//                    return cost;
-//                }
-//            }
-//            iteration++;
-//            if (stop) {
-//                return Float.MAX_VALUE;
-//            }
-//        }
-    protected void init_pool (Collection pool, Collection<GroundAction> A1, PDDLState s_0, ArrayList<Float> h) {
-
-        Iterator it = A1.iterator();
-        while (it.hasNext()) {
-            GroundAction gr = (GroundAction) it.next();
-            if (this.compute_precondition_cost(s_0, h, gr, null) != Float.MAX_VALUE) {
-//                gr.set_unit_cost(s_0);
-                pool.add(new HeuristicSearchNode(gr, null, 0, 0));
-                it.remove();
-                this.reachable.add(gr);
-            }
-        }
-    }
-
-    protected void update_pool (Collection<GroundAction> pool, Collection<GroundAction> A1, PDDLState s_0, ArrayList<Float> h) {
-        //update action precondition
-
-        for (GroundAction gr : A1) {
-            if (gr.getPreconditions() == null || gr.getPreconditions().sons.isEmpty() || h.get(gr.getPreconditions().getHeuristicId()) != Float.MAX_VALUE) {
-                pool.add(gr);
-                this.reachable.add(gr);
-                //it.remove();
-            }
-        }
-    }
 
     protected void identify_complex_conditions (Collection<GroundAction> A) {
         //For each condition, identify whether there is at least an action whose effects are not simple. This condition
@@ -604,262 +364,6 @@ public abstract class Heuristic {
         }
     }
 
-    protected void generate_self_precondition_delete_sets ( ) {
-        precondition_deleted = new HashMap();
-        for (GroundAction gr : this.A) {
-            HashSet precondition = new HashSet();
-            if (gr.getPreconditions() == null || gr.getPreconditions().sons == null) {
-                continue;
-            }
-            for (Condition c : (Collection<Condition>) gr.getPreconditions().sons) {
-                if (c instanceof Predicate) {
-                    if (gr.delete((Predicate) c)) {
-                        precondition.add(c);
-                        break;
-                    }
-                }
-            }
-            precondition_deleted.put(gr, precondition);
-        }
-    }
-
-    protected Float compute_additional_cost (Float number_of_repetition, GroundAction gr, ArrayList<Float> h) {
-        Float additional_cost = 0f;
-        if (this.rep_costs.get(gr) != null && number_of_repetition > 1) {
-            LinkedHashSet<Pair<Pair<Comparison, Comparison>, Integer>> ret = this.rep_costs.get(gr);
-            for (Pair<Pair<Comparison, Comparison>, Integer> p : ret) {
-                Float rpc = h.get(p.getFirst().getFirst().getHeuristicId());
-                //System.out.println("Counter here:"+p.getFirst().getCounter());
-                if (number_of_repetition > p.getSecond()) {
-                    if (rpc == Float.MAX_VALUE) {
-                        return Float.MAX_VALUE;
-                    } else {
-                        additional_cost += (number_of_repetition - p.getSecond() - 1) * (rpc);
-                        //additional_cost = Math.max((number_of_repetition - p.getSecond() - 1) * (rpc),additional_cost);
-                    }
-                }
-            }
-        }
-        if (number_of_repetition > 1) {
-            //add precondition cost violation
-            for (Predicate p_del : precondition_deleted.get(gr)) {
-                if (h.get(p_del.getHeuristicId()) == Float.MAX_VALUE) {
-                    return Float.MAX_VALUE;
-                }
-                additional_cost += h.get(p_del.getHeuristicId()) * (number_of_repetition - 1);
-
-                //additional_cost = Math.max(h.get(p_del.getCounter()) * (number_of_repetition - 1),additional_cost);
-            }
-        }
-        return additional_cost;
-    }
-
-    protected float compute_current_cost_via_lp (Collection<GroundAction> pool, PDDLState s_0, ComplexCondition c, ArrayList<Float> h) {
-
-        n_lp_invocations = n_lp_invocations + 1;
-//        System.out.println(invocation);
-        if (c == null || c.sons == null || c.sons.isEmpty()) {
-            return 0.0F;
-        }
-        Float minimum_precondition_cost;
-
-//         BasicLogger.debugLevel();
-//        BasicLogger.debugLevel("Test for "+c.pddlPrint(false));
-//        BasicLogger.debugLevel(OjAlgoUtils.getTitle());
-//        BasicLogger.debugLevel(OjAlgoUtils.getDate());
-//        BasicLogger.debugLevel();
-        final ExpressionsBasedModel tmpModel = new ExpressionsBasedModel();
-
-        Collection<Predicate> pred_to_satisfy = new LinkedHashSet();
-        Collection<Float> minimi = new LinkedHashSet();
-        HashMap<Integer, Variable> action_to_variable = new HashMap();
-
-        Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
-        conditions_to_evaluate.addAll(c.sons);
-        if (gC != null) {
-//            System.out.println("considering Global Constraints:"+gC.sons);
-            conditions_to_evaluate.addAll(gC.sons);
-        }
-        for (Condition cond : conditions_to_evaluate) {
-            Float local_minimum = Float.MAX_VALUE;
-
-            if (cond instanceof Comparison) {
-                Comparison comp = (Comparison) cond;
-                ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
-                boolean at_least_one = false;
-                Double num = comp.getLeft().eval(s_0);
-                Expression condition = null;
-                switch (comp.getComparator()) {
-                    case ">":
-                        condition = tmpModel.addExpression(cond.toString()).upper(num);
-                        break;
-                    case ">=":
-                        condition = tmpModel.addExpression(cond.toString()).upper(num);
-                        break;
-                    case "<":
-                        condition = tmpModel.addExpression(cond.toString()).lower(num);
-                        break;
-                    case "<=":
-                        condition = tmpModel.addExpression(cond.toString()).lower(num);
-                        break;
-                    case "=":
-                        condition = tmpModel.addExpression(cond.toString()).upper(num).lower(num);
-                        break;
-                }
-                for (ExtendedAddendum ad : left.summations) {
-                    if (ad.f != null) {
-                        for (GroundAction gr : pool) {
-                            boolean condition_investigated = false;
-
-//                                                        System.out.println(gr);
-                            if (gr.getNumericFluentAffected().contains(ad.f)) {
-                                for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
-                                    if (!neff.getFluentAffected().equals(ad.f)) {
-                                        continue;
-                                    }
-                                    //                                    System.out.println(neff);
-//                                    gr.set_unit_cost(s_0);
-                                    Float cost_action = gr.getActionCost();
-                                    if (cost_action.isNaN()) {
-                                        continue;
-                                    }
-
-                                    final Variable action;
-                                    if (action_to_variable.get(gr.getId()) != null) {
-                                        action = action_to_variable.get(gr.getId());
-                                        if (integer_variables) {
-                                            action.integer(true);
-                                        }
-                                    } else {
-                                        action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
-                                        tmpModel.addVariable(action);
-                                        action_to_variable.put(gr.getId(), action);
-                                    }
-
-//                                    Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
-                                    //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
-                                    //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
-                                    Double right = null;
-                                    switch (neff.getOperator()) {
-                                        case "increase":
-                                            right = neff.getRight().eval(s_0) * ad.n;
-                                            right = condition.get(action).floatValue() - right;
-                                            condition = condition.set(action, right);
-                                            break;
-                                        case "decrease":
-                                            right = neff.getRight().eval(s_0) * ad.n;
-                                            right = condition.get(action).floatValue() + right;
-                                            condition = condition.set(action, right);
-                                            break;
-                                        case "assign":
-                                            //this is an assign
-//                                            right = neff.getRhs().eval(s_0).getNumber() * ad.n.getNumber();
-//                                            right = condition.get(action).floatValue() - right;
-//                                            condition = condition.set(action, right - ad.f.eval(s_0).getNumber());
-//                                            action.upper(1);
-                                            System.out.println("Assign not supported");
-                                            break;
-                                    }
-
-//                                    local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getCounter()));
-//                                    System.out.println("Action"+gr+" Cost:"+h.get(gr.getPreconditions().getCounter()));
-//                                    System.out.println("Condition " +c);
-                                    if ((comp.getComparator().contains(">") && right < 0)
-                                            || (comp.getComparator().contains("<") && right > 0)) {
-                                        at_least_one = true;
-                                        local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getHeuristicId()));
-                                        //this is the only action that can be used. 
-                                    }
-//                                    if (local_minimum == Float.MAX_VALUE){
-//                                        System.out.println("Problem with:"+gr);
-//                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (!at_least_one && !cond.isSatisfied(s_0)) {
-                    return Float.MAX_VALUE;
-                }
-//                if (!cond.isSatisfied(s_0)) {
-//                    minimi.add(local_minimum); 
-//                }
-                minimi.add(local_minimum);
-
-//                System.out.println(condition);
-            } else if (cond instanceof Predicate) {
-                pred_to_satisfy.add((Predicate) cond);
-                if (!cond.isSatisfied(s_0)) {
-                    boolean at_least_one = false;
-                    Predicate p = (Predicate) cond;
-                    Expression condition = tmpModel.addExpression(cond.toString()).lower(1);
-
-                    for (GroundAction gr : pool) {
-                        if (gr.weakAchiever(p)) {
-//                            gr.set_unit_cost(s_0);
-                            Float cost_action = gr.getActionCost();
-                            if (cost_action.isNaN()) {
-                                continue;
-                            }
-                            at_least_one = true;
-                            final Variable action;
-                            if (action_to_variable.get(gr.getId()) != null) {
-                                action = action_to_variable.get(gr.getId());
-                            } else {
-                                action = Variable.make(gr.toEcoString()).lower(0).weight(cost_action);
-                                tmpModel.addVariable(action);
-                                action_to_variable.put(gr.getId(), action);
-                                if (integer_variables) {
-                                    action.integer(true);
-                                }
-                            }
-
-                            //ArithExpr prec_cost = ctx.mkRealConst(gr.toString() + "pre_cost");
-                            //action_used.add(prec_cost);
-//                        Float cost_of_prec = h.get(gr.getPreconditions().getCounter()) * 10.0F;
-                            local_minimum = Math.min(local_minimum, h.get(gr.getPreconditions().getHeuristicId()));
-                            //opt.Add(ctx.mkImplies(ctx.mkGt(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(cost_of_prec.intValue(), 10))));
-                            //opt.Add(ctx.mkImplies(ctx.mkEq(var, ctx.mkInt(0)), ctx.mkEq(prec_cost, ctx.mkReal(0))));
-                            condition = condition.set(action, 1);
-                            if (local_minimum == Float.MAX_VALUE) {//should not be true: debugging
-                                System.out.println("Problem with:" + gr);
-                            }
-                        }
-                    }
-                    if (!at_least_one) {
-                        return Float.MAX_VALUE;
-                    }
-                    minimi.add(local_minimum);
-                }
-
-            } else {
-
-            }
-
-        }
-
-        Optimisation.Result tmpResult = tmpModel.minimise();
-
-        if (tmpResult.getState().isFeasible()) {
-            minimum_precondition_cost = 0f;
-
-            if (this.additive_h) {
-                for (Float local_min : minimi) {
-                    minimum_precondition_cost += local_min;
-                }
-            } else {
-                for (Float local_min : minimi) {
-                    minimum_precondition_cost = Math.min(local_min, minimum_precondition_cost);
-                }
-            }
-            return (float) (tmpResult.getValue() + minimum_precondition_cost);
-
-        } else {
-            //            System.out.println(opt.toString());
-            return Float.MAX_VALUE;
-        }
-        //        System.out.println(opt.Check());
-    }
 
     protected int update_index_conditions (Condition c_1, int counter) {
 

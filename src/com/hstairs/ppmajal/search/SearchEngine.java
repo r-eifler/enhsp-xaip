@@ -782,7 +782,7 @@ public class SearchEngine {
                 waiting_list.addAll(apply_events(temp_temp, i));
                 i += executionDelta;
 
-                GroundProcess waiting = new GroundProcess("waiting");
+                GroundProcess waiting = new GroundProcess("waiting", -1);
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
                 //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);

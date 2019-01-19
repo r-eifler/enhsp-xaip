@@ -55,21 +55,17 @@ public class hlm extends h1 {
     private HashMap<Integer, Boolean> has_state_dependent_achievers;
     private boolean needs_checking_state_dependent_constraints;
 
-    public hlm (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
-        super(goal, A, P);
+    public hlm (EPddlProblem problem) {
+        super(problem);
 
     }
 
-    public hlm (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
-        super(goal, A, P, E);
-
-    }
 
     @Override
     public Float setup (State gs) {
 
         PDDLState s = (PDDLState) gs;
-        Aibr first_reachH = new Aibr(this.G, this.A);
+        Aibr first_reachH = new Aibr(problem);
         first_reachH.setup(s);
         first_reachH.set(true, true);
         Float ret2 = first_reachH.computeEstimate(s);
@@ -92,7 +88,7 @@ public class hlm extends h1 {
             identify_complex_conditions(A);
             this.generate_link_precondition_action();
             try {
-                reconstruct = generate_achievers();
+                reconstruct = generateAchievers();
             } catch (Exception ex) {
                 System.out.println("Put something here");
             }
@@ -117,7 +113,7 @@ public class hlm extends h1 {
 //        identify_complex_conditions( A);
 //        this.generate_link_precondition_action();
 //        try {
-//            generate_achievers();
+//            generateAchievers();
 //        } catch (Exception ex) {
 //            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
 //        }
@@ -132,7 +128,7 @@ public class hlm extends h1 {
         }
         Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
         ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
-        ArrayList<Boolean> never_active = new ArrayList<>(nCopies(total_number_of_actions + 1, true));//mapping between action and boolean. True if action has not been activated yet
+        ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
         // HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
         reach_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
 
@@ -359,7 +355,7 @@ public class hlm extends h1 {
     }
 
     private void update_actions_conditions (PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
-        for (Condition comp : this.achieve[gr.getId()]) {//This is the set of all predicates reachable because of gr
+        for (Condition comp : this.achieve.get(gr.getId())) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {//if this isn't in the init state yet
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
@@ -371,7 +367,7 @@ public class hlm extends h1 {
                 //for this specific condition check implications of having it reached.
             }
         }
-        for (Condition comp : this.possibleAchievers[gr.getId()]) {
+        for (Condition comp : this.possibleAchievers.get(gr.getId())) {
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {
 //                if (lm.get(comp.getCounter())!= null && lm.get(comp.getCounter()).isEmpty()){
 //                    continue;
@@ -506,7 +502,7 @@ public class hlm extends h1 {
             lp_global = new IloCplex();
             lp_global.setOut(null);
             objective_function = lp_global.linearNumExpr();
-            action_to_variable = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
+            action_to_variable = new ArrayList<>(nCopies(A.size() + 1, null));
             condition_to_cplex_constraint = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
             has_state_dependent_achievers = new HashMap();
             for (Condition c : all_conditions) {

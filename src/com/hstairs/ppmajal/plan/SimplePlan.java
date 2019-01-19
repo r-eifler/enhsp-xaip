@@ -151,7 +151,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         //System.out.println(par);
 
-        GroundAction grAction = action.ground(par, null);
+        GroundAction grAction = action.ground(par, null, pp);
         grAction.generateAffectedNumFluents();
 //        if (pp instanceof EPddlProblem) 
 //            grAction.unifyVariablesReferences((EPddlProblem) pp);
@@ -1603,7 +1603,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : this) {
-            gr.setAction_cost(current, this.pp.getMetric());
+            gr.setActionCost(current, this.pp.getMetric());
 
             this.cost += gr.getActionCost();
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
@@ -1866,7 +1866,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
             this.apply_events(current, reachable_events);
 //            System.out.println("StartTime:"+start_time);
-            GroundProcess waiting = new GroundProcess("waiting");
+            GroundProcess waiting = new GroundProcess("waiting",-1);
             waiting.setNumericEffects(new AndCond());
             waiting.addDelta(delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());

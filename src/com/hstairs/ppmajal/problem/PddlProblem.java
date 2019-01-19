@@ -47,7 +47,7 @@ public class PddlProblem {
     public PDDLObjects objects;
     public State init;
     public ComplexCondition goals;
-    public Set<GroundAction> actions;
+    public Collection<GroundAction> actions;
     public int counterNumericFluents = 0;
     public Condition belief;
     public Collection<Predicate> unknonw_predicates;
@@ -77,46 +77,33 @@ public class PddlProblem {
     private int totActions;
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
-        super();
+        this();
         try {
-            indexObject = 0;
-            indexInit = 0;
-            indexGoals = 0;
-            objects = new PDDLObjects();
             objects.addAll(po);
-            metric = new Metric("NO");
-            linkedDomain = null;
-            actions = new LinkedHashSet();
-            grounded_representation = false;
-            validatedAgainstDomain = false;
-            possStates = null;
-            simplifyActions = true;
             this.types = types;
             this.parseProblem(problemFile);
-            totActions = 0;
-
         } catch (IOException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
-
     /**
      *
      */
     public PddlProblem ( ) {
-
         indexObject = 0;
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
         metric = new Metric("NO");
         linkedDomain = null;
-        actions = new HashSet();
+        actions = new LinkedHashSet();
         grounded_representation = false;
-
+        totActions = 0;
+        simplifyActions = true;
+        validatedAgainstDomain = false;
+        possStates = null;
     }
 
     /**
@@ -511,9 +498,9 @@ public class PddlProblem {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
                 if (!act.getPar().isEmpty()) {
-                    getActions().addAll(af.Propositionalize(act, getObjects()));
+                    getActions().addAll(af.Propositionalize(act, getObjects(),this));
                 } else {
-                    GroundAction gr = act.fakeGround();
+                    GroundAction gr = act.fakeGround(this);
                     getActions().add(gr);
                 }
             }
@@ -673,7 +660,7 @@ public class PddlProblem {
     /**
      * @return the actions
      */
-    public Set getActions ( ) {
+    public Collection getActions ( ) {
         return actions;
     }
 
