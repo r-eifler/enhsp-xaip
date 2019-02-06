@@ -1157,5 +1157,10 @@ public class h1 extends Heuristic {
         }
     
     }
+     
+    @Override
+     public Collection<GroundAction> getHelpfulActions(){
+         return this.helpful_actions;
+     }
 
 }
