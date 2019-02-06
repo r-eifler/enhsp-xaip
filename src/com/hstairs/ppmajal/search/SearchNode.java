@@ -70,7 +70,11 @@ public class SearchNode extends SimpleSearchNode {
             if (action == null) {
                 json_rep.put("action", "init_state");
             } else {
-                json_rep.put("action", action.toString());
+                if (action instanceof GroundAction){
+                    json_rep.put("action", ((GroundAction) action).toPDDL());
+                }else{
+                    json_rep.put("action", "<waiting>");
+                }
             }
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);

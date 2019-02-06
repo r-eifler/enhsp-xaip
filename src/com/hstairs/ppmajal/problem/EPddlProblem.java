@@ -591,7 +591,7 @@ public class EPddlProblem extends PddlProblem {
         Aibr aibr = new Aibr(this);
         Float setup = aibr.setup(this.makePddlState());
 //        System.out.println("(After AIBR):"+aibr.reachable.size());
-        this.reachableActions = aibr.reachable;
+        this.reachableActions = aibr.getReachableTransitions();
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
     }
@@ -709,7 +709,7 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    protected Set<GroundAction> keepOnlyRelTransitions (Set<GroundAction> transitions, Condition necessaryGoals) {
+    protected Collection<GroundAction> keepOnlyRelTransitions (Collection<GroundAction> transitions, Condition necessaryGoals) {
         if (transitions.isEmpty()) {
             return new HashSet();
         }

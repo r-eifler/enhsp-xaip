@@ -67,7 +67,7 @@ public class SearchEngine {
     private float gw;
     private boolean optimality;
     private long beginningTime;
-    //dealing with continuous processes
+    //dealing with continuous change
     private Collection<GroundProcess> reachableProcesses;
     private Collection<GroundEvent> reachableEvents;
     private boolean incremental;
@@ -101,18 +101,15 @@ public class SearchEngine {
         return visited;
     }
 
-    private void printExpandedNodesInfo ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     private void setReachableActions (EPddlProblem problem) {
-        Set to_consider;
+        Collection<GroundAction> to_consider;
         if (helpfulActionsPruning) {
             System.out.println("Only Helpful Actions");
-            to_consider = new HashSet<>(getHeuristic().helpful_actions);
+            to_consider = new HashSet<>(getHeuristic().getHelpfulActions());
         } else {
             System.out.println("Take all reachable actions");
-            to_consider = getHeuristic().reachable;
+            to_consider = getHeuristic().getReachableTransitions();
         }
         problem.setReachableActions(to_consider);
     }
@@ -121,11 +118,11 @@ public class SearchEngine {
         reachableProcesses = new LinkedHashSet<>();
         reachableEvents = new LinkedHashSet<>();
 
-        Set<GroundAction> reachableTransitions;
+        Collection<GroundAction> reachableTransitions;
 //        if (only_relaxed_plan_actions)
 //            to_consider = getHeuristic().relaxed_plan_actions;
 //        else
-        reachableTransitions = getHeuristic().reachable;
+        reachableTransitions = getHeuristic().getReachableTransitions();
 
         for (GroundAction gr3 : reachableTransitions) {
             if (!(gr3 instanceof GroundProcess)) {
@@ -159,6 +156,7 @@ public class SearchEngine {
         setReachableActions(problem);
         setReachableProcessesEvents(problem);
         System.out.println("Actions used at init:" + problem.getReachableActions().size());
+        System.out.println("Processes used at init:"+ reachableProcesses.size());
     }
 
     /*
@@ -172,7 +170,7 @@ public class SearchEngine {
             long start = System.currentTimeMillis();
             Float d = getHeuristic().computeEstimate(successorState);
             setHeuristicCpuTime(getHeuristicCpuTime() + System.currentTimeMillis() - start);
-            if (d != Float.MAX_VALUE && (d + succ_g) < this.depthLimit) {
+            if (d != Float.MAX_VALUE){// && (d + succ_g) < this.depthLimit) {
                 SearchNode node = null;
                 if (action_s instanceof ArrayList) {
                     node = new SearchNode(successorState, (ArrayList) action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
@@ -180,7 +178,7 @@ public class SearchEngine {
                     node = new SearchNode(successorState, action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
                 }
                 if (this.helpfulActionsPruning) {
-                    node.relaxed_plan_from_heuristic = getHeuristic().helpful_actions;
+                    node.relaxed_plan_from_heuristic = getHeuristic().getHelpfulActions();
                 }
                 if (saveSearchTreeAsJson) {
                     current_node.add_descendant(node);
@@ -340,7 +338,7 @@ public class SearchEngine {
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
         frontier.add(init);
         if (this.helpfulActionsPruning) {
-            init.relaxed_plan_from_heuristic = getHeuristic().helpful_actions;
+            init.relaxed_plan_from_heuristic = getHeuristic().getHelpfulActions();
         }
 //        System.out.println(init.relaxed_plan_from_heuristic);
         System.out.println("h(n):" + current_value + " ");
@@ -385,7 +383,7 @@ public class SearchEngine {
                         SearchNode new_node = new SearchNode(temp, act, node, newG, 0);
                         frontier.add(new_node);
                         if (this.helpfulActionsPruning) {
-                            new_node.relaxed_plan_from_heuristic = heuristic.helpful_actions;
+                            new_node.relaxed_plan_from_heuristic = heuristic.getHelpfulActions();
                         }
                         if (problem.milestoneReached(d, current_value, temp)) {
 //                            if (d < current_value && problem.isSafeState(temp)) {
@@ -449,7 +447,7 @@ public class SearchEngine {
                 System.out.println("h(n = s_0)=inf");
                 return null;
             }
-            System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().reachable.size());
+            System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getReachableTransitions().size());
             setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
             setHeuristicCpuTime(0);
             duplicatesNumber = 0;
@@ -468,7 +466,7 @@ public class SearchEngine {
         SearchNode init = new SearchNode(initState.clone(), 0, hAtInit, this.saveSearchTreeAsJson, this.gw, this.hw);
         if (this.helpfulActionsPruning) {
             System.out.println("Selection actions from the helpful actions list");
-            init.relaxed_plan_from_heuristic = getHeuristic().helpful_actions;
+            init.relaxed_plan_from_heuristic = getHeuristic().getHelpfulActions();
         }
 
         if (saveSearchTreeAsJson) {
@@ -615,7 +613,7 @@ public class SearchEngine {
         //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
 
         getHeuristic().setup(current);
-        System.out.println("After Reacheability Actions:" + getHeuristic().reachable.size());
+        System.out.println("After Reacheability Actions:" + getHeuristic().getReachableTransitions().size());
         Float current_value = 0f;
         SearchNode init = new SearchNode(problem.getInit().clone(), 0, current_value, this.saveSearchTreeAsJson, this.gw, this.hw);
         if (saveSearchTreeAsJson) {
@@ -657,7 +655,7 @@ public class SearchEngine {
                 advance_time(frontier, current_node, problem, null);
             }
 
-            for (GroundAction act : getHeuristic().reachable) {
+            for (GroundAction act : getHeuristic().getReachableTransitions()) {
                 if (act instanceof GroundProcess) {
                 } else if (act.isApplicable(current_node.s)) {
                     State temp = current_node.s.clone();
@@ -787,10 +785,12 @@ public class SearchEngine {
                 waiting.setPreconditions(new AndCond());
                 //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);
                 waiting.addDelta(executionDelta);
+                boolean atLeastOne = false;
                 for (GroundAction act : this.reachableProcesses) {
                     if (act instanceof GroundProcess) {
                         GroundProcess gp = (GroundProcess) act;
                         if (gp.isActive(temp_temp)) {
+                            atLeastOne = true;
                             //System.out.println(gp.toEcoString());
                             AndCond precondition = (AndCond) waiting.getPreconditions();
                             precondition.addConditions(gp.getPreconditions());
@@ -800,6 +800,9 @@ public class SearchEngine {
                             waiting.setPreconditions(precondition);
                         }
                     }
+                }
+                if (!atLeastOne){
+                    return;
                 }
                 waiting_list.add(waiting);
 
@@ -859,7 +862,7 @@ public class SearchEngine {
             System.out.println("h(n = s_0)=inf");
             return null;
         }
-        System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().reachable.size());
+        System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getReachableTransitions().size());
         setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
         setHeuristicCpuTime(0);
         setNodesReopened(0);
@@ -911,7 +914,7 @@ public class SearchEngine {
             System.out.println("h(n = s_0)=inf");
             return null;
         }
-        System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().reachable.size());
+        System.out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getReachableTransitions().size());
         setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
         setHeuristicCpuTime(0);
         setNodesReopened(0);
@@ -1014,7 +1017,7 @@ public class SearchEngine {
                             }
                         } else {
                             if (this.helpfulActionsPruning) {
-                                problem.setReachableActions(heuristic.helpful_actions);
+                                problem.setReachableActions(heuristic.getHelpfulActions());
                             }
                             boolean atLeastOne = false;
 

@@ -120,8 +120,8 @@ public class habs_add extends Heuristic {
     private Float aibrReachabilityAnalysis (PDDLState s) {
         // reachability analysis on original problem using AIBR.
         Float ret = this.aibr_handle.computeEstimate(s);
-        A = this.aibr_handle.reachable;
-        reachable = this.aibr_handle.reachable;
+        A = this.aibr_handle.getReachableTransitions();
+        reachable = this.aibr_handle.getReachableTransitions();
 
         return ret;
     }
@@ -567,12 +567,12 @@ public class habs_add extends Heuristic {
         Float ret = habs.computeEstimate(s);
         if (this.helpful_actions_computation) {
             this.helpful_actions = new HashSet();
-            for (GroundAction gr : habs.helpful_actions) {
+            for (GroundAction gr : habs.getHelpfulActions()) {
                 GroundAction subaction = this.subactionOf.get(gr);
                 if (subaction != null)
-                    this.helpful_actions.add(this.subactionOf.get(gr));
+                    this.getHelpfulActions().add(this.subactionOf.get(gr));
                 else
-                    this.helpful_actions.add(gr);
+                    this.getHelpfulActions().add(gr);
             }
         }
         return ret;

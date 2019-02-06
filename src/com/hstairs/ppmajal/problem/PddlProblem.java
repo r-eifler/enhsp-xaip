@@ -70,7 +70,7 @@ public class PddlProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
-    protected Set<GroundAction> reachableActions;
+    protected Collection<GroundAction> reachableActions;
     PddlDomain linkedDomain;
     private FactoryConditions fc;
     private HashMap<GroundAction, GroundAction> heuristicActionToProblemAction;

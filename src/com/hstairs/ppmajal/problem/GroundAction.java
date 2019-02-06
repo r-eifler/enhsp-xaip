@@ -63,6 +63,24 @@ public class GroundAction extends PDDLGenericAction {
         achieve = new HashMap();
         this.id = id;
     }
+    
+    public GroundAction (GroundAction gr, int id) {
+        super();
+        this.name = gr.name;
+        numericFluentAffected = gr.numericFluentAffected;
+        this.parameters_as_terms = gr.parameters_as_terms;
+        this.preconditions = gr.preconditions;
+        this.numericEffects = gr.numericEffects;
+        this.addList = gr.addList;
+        this.delList = gr.delList;
+        this.cond_effects = gr.cond_effects;
+        //numericFluentAffected = new HashMap();
+        actionCost = gr.actionCost;
+        achieve = gr.achieve;
+        this.forall = gr.forall;
+        this.coefficientAffected = gr.coefficientAffected;
+        this.id = id;
+    }
 
     public int getId ( ) {
         return id;

@@ -49,9 +49,12 @@ public class Aibr extends Heuristic {
     private EPddlProblem problem;
     private EPddlProblem subProblem;
     private Collection<GroundAction> supporters;
+    
+        private RelState reacheable_state;
+
 
     public Aibr (EPddlProblem problem) {
-        super(problem.getGoals(), (Set<GroundAction>) problem.actions,problem.getProcessesSet(),problem.getEventsSet());
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet());
         this.supp_to_action = new HashMap();
         subProblem = new EPddlProblem();
         supporters = subProblem.actions;
@@ -73,7 +76,7 @@ public class Aibr extends Heuristic {
     }
 
     public void light_setup (PDDLState s_0, h1 aThis) {
-        this.all_conditions = aThis.all_conditions;
+        this.conditionUniverse = aThis.conditionUniverse;
 
         reachability = false;
         this.reachable = A;
@@ -166,7 +169,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private void generate_supporters (Set<GroundAction> actions) {
+    private void generate_supporters (Collection<GroundAction> actions) {
 
         Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {

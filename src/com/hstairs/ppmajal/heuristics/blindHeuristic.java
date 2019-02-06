@@ -32,20 +32,17 @@ import java.util.LinkedHashSet;
 /**
  * @author enrico
  */
-public class blindHeuristic extends h1 {
+public class blindHeuristic extends Aibr {
 
     public blindHeuristic (EPddlProblem problem){
         super(problem);
-        this.reachable = new LinkedHashSet(problem.actions);
     }
 
     @Override
     public Float computeEstimate (State s_0) {
-//        if (reachability) {
-//
-//            return super.computeEstimate(s_0);
-//
-//        }
+        if (reachability){
+            return super.computeEstimate(s_0);
+        }
         if (s_0.satisfy(this.G)) {
             return 0f;
         } else {

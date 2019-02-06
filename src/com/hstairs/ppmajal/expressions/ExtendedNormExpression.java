@@ -139,7 +139,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     //TO BE FIXed!!!!
-    public ExtendedNormExpression sum (ExtendedNormExpression right) throws Exception {
+    public ExtendedNormExpression sum (ExtendedNormExpression right){
 
         ExtendedNormExpression result = new ExtendedNormExpression();
 
