@@ -36,6 +36,7 @@ import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.IntPriorityQueues.SynchronizedPriorityQueue;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
@@ -88,6 +89,7 @@ public class h1 extends Heuristic {
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Condition, Boolean> new_condition;
     protected Collection<Comparison> complex_condition_set;
+    private GroundAction[] listRepresentation;
 
 
 
@@ -140,16 +142,18 @@ public class h1 extends Heuristic {
         fromConditionStringToUniqueInteger = new HashMap();
         ArrayList<GroundAction> internalActions = new ArrayList();
         heuristicActionsToProblemActions = new GroundAction[A.size()+1];
-        
+        listRepresentation = new GroundAction[A.size()+1];
         pseudoGoal = new GroundAction("goal",internalActions.size());
         pseudoGoal.setActionCost(0);
         pseudoGoal.setPreconditions(G);
         internalActions.add(pseudoGoal);
+        listRepresentation[pseudoGoal.getId()] = pseudoGoal;
         for (GroundAction b : A) {
 //            if (!internalActions.contains(b)){
                 GroundAction a = new GroundAction(b,internalActions.size());
                 internalActions.add(a);
                 heuristicActionsToProblemActions[a.getId()] = b;
+                listRepresentation[a.getId()] = a;
                 if (a.getPreconditions() != null) {
                     for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                         counter_conditions = establishHeuristicConditionId(c_1, counter_conditions);
@@ -218,8 +222,10 @@ public class h1 extends Heuristic {
         }
         allAchievers = new ReferenceLinkedOpenHashSet[conditionUniverse.size() + 1];
         float estimate = Float.MAX_VALUE;
-        FibonacciHeap<GroundAction> a_plus = new FibonacciHeap();//actions executable. Progressively updated
-        FibonacciHeapNode[] actionToFibNode = new FibonacciHeapNode[this.A.size()];//mapping between action and boolean. True if action has not been activated yet
+        IntHeapPriorityQueue a_plus = new it.unimi.dsi.fastutil.ints.IntHeapPriorityQueue(new GroundActionComparator());
+//        p = new IntPriorityQueues();
+        FibonacciHeap<GroundAction> a_plus2 = new FibonacciHeap();//actions executable. Progressively updated
+//        FibonacciHeapNode[] actionToFibNode = new FibonacciHeapNode[this.A.size()];//mapping between action and boolean. True if action has not been activated yet
         cost = new float[conditionUniverse.size() + 1];
         Arrays.fill(cost, Float.MAX_VALUE);
         action_comp_number_execution = new Object2FloatOpenHashMap();
@@ -240,10 +246,10 @@ public class h1 extends Heuristic {
             if (this.estimateCost(gr.getPreconditions()) != Float.MAX_VALUE) {
                 Condition extraPrecondition = extraActionPrecondition[gr.getId()];
                 if ((extraPrecondition == null) || (this.estimateCost(extraPrecondition) != Float.MAX_VALUE)) {
-                    FibonacciHeapNode node = new FibonacciHeapNode(gr);
-                    actionToFibNode[gr.getId()] = node;
-                    a_plus.insert(node, 0f);//add such an action
-                    actionHCost[gr.getId()] = 0f;
+//                    FibonacciHeapNode node = new FibonacciHeapNode(gr);
+//                    actionToFibNode[gr.getId()] = node;
+                    actionHCost[gr.getId()] = 0f;                    
+                    a_plus.enqueue(gr.getId());//add such an action
                     if (this.reachabilityRun) {
                         if (!this.reachable.contains(gr)){
                             this.reachable.add(gr);
@@ -254,12 +260,9 @@ public class h1 extends Heuristic {
         }
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
 
-            final GroundAction gr = a_plus.removeMin().getData();
-            //if (!conservativehmax || this.additive_h)
-            closed[gr.getId()] = true;
+            final GroundAction gr = listRepresentation[a_plus.dequeueInt()];
 
-//            Utils.dbg_print(debugLevel - 10, "Action Evaluated:" + gr + "\n");
-//            Utils.dbg_print(debugLevel - 10, "Cost:" + action_dist.get(gr.counter) + "\n");
+            closed[gr.getId()] = true;
             if (gr == pseudoGoal) {
                 estimate = actionHCost[gr.getId()];
                 if (!this.reachabilityRun && (this.additive_h || !conservativehmax)) {
@@ -275,7 +278,7 @@ public class h1 extends Heuristic {
                     return estimate;
                 }
             }
-            update_reachable_conditions_actions(s, gr, a_plus, actionToFibNode);//this procedure updates
+            update_reachable_conditions_actions(s, gr, a_plus);//this procedure updates
             //all the conditions that can be reached by using action gr.
             //This also changes the set a_plus whenever some new action becomes active becasue of gr
         }
@@ -310,7 +313,7 @@ public class h1 extends Heuristic {
     }
 
 
-    private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] never_active) {
+    private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, IntPriorityQueue a_plus) {
         float c_a = Math.max(gr.getActionCost(), minimumActionCost);
         for (final Condition comp : this.predicatesProduction(gr)) {//This is the set of all predicates reachable because of gr
             float current_distance = cost[comp.getHeuristicId()];
@@ -327,7 +330,7 @@ public class h1 extends Heuristic {
                             establishedAchiever[comp.getHeuristicId()] = gr;
                             establishedLocalCost[comp.getHeuristicId()] = c_a;
                         }
-                        updateReachableActions(gr, comp, a_plus, never_active);
+                        updateReachableActions(gr, comp, a_plus);
 
                     }
                 }
@@ -376,7 +379,7 @@ public class h1 extends Heuristic {
                                 establishedAchiever[comp.getHeuristicId()] = gr;
                                 establishedLocalCost[comp.getHeuristicId()] = rep_needed;
                             }
-                            updateReachableActions(gr, comp, a_plus, never_active);
+                            updateReachableActions(gr, comp, a_plus);
                         }
 
                     }
@@ -431,7 +434,7 @@ public class h1 extends Heuristic {
                             establishedAchiever[comp.getHeuristicId()] = gr;
                             establishedLocalCost[comp.getHeuristicId()] = new_distance;//this does not really work!!
                         }
-                        updateReachableActions(gr, comp, a_plus, never_active);
+                        updateReachableActions(gr, comp, a_plus);
                     }
 
                 }
@@ -529,7 +532,7 @@ public class h1 extends Heuristic {
         return this.achieve[gr.getId()];
     }
 
-    private void updateReachableActions (GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] action_to_fib_node) {
+    private void updateReachableActions (GroundAction gr, Condition comp, IntPriorityQueue a_plus) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
         Collection<GroundAction> triggeredActions = null;
@@ -563,15 +566,11 @@ public class h1 extends Heuristic {
 
             if (c < actionHCost[gr2.getId()]) {//are conditions all reached, and is this a better path?
                 actionHCost[gr2.getId()] = c;
-                if (action_to_fib_node[gr2.getId()] == null) {
-                    FibonacciHeapNode n = new FibonacciHeapNode(gr2);
-                    a_plus.insert(n, c);//push in the set of actions to consider.
-                    action_to_fib_node[gr2.getId()] = n;
-                } else if (closed[gr2.getId()]) {
-                    a_plus.insert(action_to_fib_node[gr2.getId()], c);
+   
+                
+                a_plus.enqueue(gr2.getId());//push in the set of actions to consider.
+                if (closed[gr2.getId()]) {
                     closed[gr2.getId()] = false;
-                } else {
-                    a_plus.decreaseKey(action_to_fib_node[gr2.getId()], c);//push in the set of actions to consider.
                 }
                 //Need to understand whether is worth to do check on the list to see if action already is there.
             }
@@ -1144,5 +1143,19 @@ public class h1 extends Heuristic {
         return cyclic;
     }
 
+     public class GroundActionComparator implements IntComparator{
+
+        @Override
+        public int compare(int o1, int o2) {
+            if (actionHCost[o1] < actionHCost[o2]){
+                return -1;
+            }else if (actionHCost[o1] > actionHCost[o2]){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+    
+    }
 
 }
