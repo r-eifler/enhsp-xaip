@@ -36,9 +36,9 @@ public class PDDLSearchEngine extends SearchEngine {
 
         LinkedList<GroundAction> plan = new LinkedList<>();
         lastState = input.s;
-        if (!(input instanceof SearchNode)){
+        if (!(input instanceof SearchNode)) {
             SimpleSearchNode temp = input;
-            while (temp.transition != null){
+            while (temp.transition != null) {
                 Double time = null;
                 GroundAction gr = null;
                 try {
@@ -58,8 +58,8 @@ public class PDDLSearchEngine extends SearchEngine {
             return plan;
         }
 
-        SearchNode c = (SearchNode)input;
-        while (( c.transition != null || c.list_of_actions != null)) {
+        SearchNode c = (SearchNode) input;
+        while ((c.transition != null || c.list_of_actions != null)) {
             Double time = null;
             if (c.father != null && c.father.s instanceof PDDLState) {
                 time = ((PDDLState) c.father.s).time;

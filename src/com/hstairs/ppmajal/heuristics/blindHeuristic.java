@@ -23,40 +23,26 @@
  */
 package com.hstairs.ppmajal.heuristics;
 
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.problem.GroundEvent;
-import com.hstairs.ppmajal.problem.GroundProcess;
+import com.hstairs.ppmajal.heuristics.advanced.h1;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 /**
  * @author enrico
  */
 public class blindHeuristic extends Aibr {
 
-    public blindHeuristic (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
-        super(G, A, P);
-    }
-
-    public blindHeuristic (ComplexCondition G, Set<GroundAction> A) {
-        super(G, A);
-    }
-
-    public blindHeuristic (ComplexCondition goals, Set actions, Set<GroundProcess> processesSet, Set<GroundEvent> eventsSet) {
-        super(goals, actions, processesSet, eventsSet);
-
+    public blindHeuristic (EPddlProblem problem){
+        super(problem);
     }
 
     @Override
     public Float computeEstimate (State s_0) {
-//        if (reachability) {
-//
-//            return super.computeEstimate(s_0);
-//
-//        }
-        this.reachable = A;
+        if (reachability){
+            return super.computeEstimate(s_0);
+        }
         if (s_0.satisfy(this.G)) {
             return 0f;
         } else {

@@ -65,8 +65,8 @@ public class ActionSchema extends PDDLGenericAction {
         return ret + ")";
     }
 
-    public GroundAction ground (Map substitution, PDDLObjects po) {
-        GroundAction ret = new GroundAction(this.name);
+    public GroundAction ground (Map substitution, PDDLObjects po, PddlProblem pp) {
+        GroundAction ret = new GroundAction(this.name,pp.getFreshActionId());
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -90,25 +90,9 @@ public class ActionSchema extends PDDLGenericAction {
 
     }
 
-    public GroundAction ground (Map substitution, int c) {
-        GroundAction ret = new GroundAction(this.name);
-        ParametersAsTerms input = new ParametersAsTerms();
-        for (Object o : parameters) {
-            Variable el = (Variable) o;
-            PDDLObject t = (PDDLObject) substitution.get(el);
-            input.add(t);
-        }
-        ret.setParameters(input);
 
-        ret.setNumericEffects((AndCond) this.numericEffects.ground(substitution, c++));
-        ret.setAddList((AndCond) this.addList.ground(substitution, c++));
-        ret.setDelList((AndCond) this.delList.ground(substitution, c++));
-        ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, c++));
-        return ret;
-    }
-
-    public GroundAction ground (ParametersAsTerms par, PDDLObjects po) {
-        GroundAction ret = new GroundAction(this.name);
+    public GroundAction ground (ParametersAsTerms par, PDDLObjects po, PddlProblem pp) {
+        GroundAction ret = new GroundAction(this.name, pp.getFreshActionId());
         int i = 0;
         Grounder g = new Grounder();
         Map substitution = g.obtain_sub_from_instance(parameters, par);
@@ -116,9 +100,9 @@ public class ActionSchema extends PDDLGenericAction {
 
         if (this.forall != null) {//Kind of special case for now
             AndCond temp = (AndCond) this.forall.ground(substitution, po);
-            if (po != null){
+            if (po != null) {
                 ret.create_effects_by_cases(temp);
-            }else{
+            } else {
                 ret.forall = temp;
             }
 
@@ -148,8 +132,8 @@ public class ActionSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundAction fakeGround ( ) {
-        GroundAction ret = new GroundAction(this.name);
+    public GroundAction fakeGround (PddlProblem pp) {
+        GroundAction ret = new GroundAction(this.name,pp.getFreshActionId());
         ParametersAsTerms input = new ParametersAsTerms();
 
         ret.setParameters(input);
@@ -174,7 +158,7 @@ public class ActionSchema extends PDDLGenericAction {
 
         ret.append(":parameters " + this.parameters + "\n");
         ret.append(":precondition ");
-        this.getPreconditions().pddlPrint(false,ret);
+        this.getPreconditions().pddlPrint(false, ret);
         ret.append("\n");
         //ret += ":effect " + this.pddlEffectsWithExtraObject();
         ret.append(":effect ");
@@ -184,12 +168,12 @@ public class ActionSchema extends PDDLGenericAction {
     }
 
 
-    protected void pddlEffects ( StringBuilder input) {
+    protected void pddlEffects (StringBuilder input) {
         input.append("(and ");
         if (this.getAddList() != null) {
             for (Object o : this.getAddList().sons) {
                 Predicate p = (Predicate) o;
-                p.pddlPrint(false,input);
+                p.pddlPrint(false, input);
             }
         }
         if (this.getDelList() != null) {
@@ -208,15 +192,15 @@ public class ActionSchema extends PDDLGenericAction {
         if (this.cond_effects != null) {
             for (Object o : this.cond_effects.sons) {
                 ConditionalEffect nE = (ConditionalEffect) o;
-                nE.pddlPrint(false,input);
+                nE.pddlPrint(false, input);
 
             }
         }
 
-        if (this.forall != null){
+        if (this.forall != null) {
             for (Object o : this.forall.sons) {
                 ForAll nE = (ForAll) o;
-                nE.pddlPrint(false,input);
+                nE.pddlPrint(false, input);
             }
         }
         input.append(")");
@@ -271,7 +255,7 @@ public class ActionSchema extends PDDLGenericAction {
         return ab;
     }
 
-    public ActionSchema clone(){
+    public ActionSchema clone ( ) {
         ActionSchema res = new ActionSchema();
         res.parameters = this.parameters;
         res.preconditions = (ComplexCondition) this.preconditions.clone();

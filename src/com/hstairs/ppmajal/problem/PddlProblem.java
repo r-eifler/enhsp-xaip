@@ -20,7 +20,10 @@ package com.hstairs.ppmajal.problem;
 
 import antlr.RecognitionException;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.domain.ActionSchema;
+import com.hstairs.ppmajal.domain.ParametersAsTerms;
+import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.parser.PddlLexer;
@@ -44,7 +47,7 @@ public class PddlProblem {
     public PDDLObjects objects;
     public State init;
     public ComplexCondition goals;
-    public Set<GroundAction> actions;
+    public Collection<GroundAction> actions;
     public int counterNumericFluents = 0;
     public Condition belief;
     public Collection<Predicate> unknonw_predicates;
@@ -67,51 +70,40 @@ public class PddlProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
+    public Collection<GroundAction> reachableActions;
     PddlDomain linkedDomain;
     private FactoryConditions fc;
-    protected Set<GroundAction> reachableActions;
-    private HashMap<GroundAction,GroundAction> heuristicActionToProblemAction;
+    private int totActions;
+
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
-        super();
+        this();
         try {
-            indexObject = 0;
-            indexInit = 0;
-            indexGoals = 0;
-            objects = new PDDLObjects();
             objects.addAll(po);
-            metric = new Metric("NO");
-            linkedDomain = null;
-            actions = new LinkedHashSet();
-            grounded_representation = false;
-            validatedAgainstDomain = false;
-            possStates = null;
-            simplifyActions = true;
             this.types = types;
             this.parseProblem(problemFile);
-
         } catch (IOException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PddlProblem.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
-
     /**
      *
      */
     public PddlProblem ( ) {
-
         indexObject = 0;
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
         metric = new Metric("NO");
         linkedDomain = null;
-        actions = new HashSet();
+        actions = new LinkedHashSet();
         grounded_representation = false;
-
+        totActions = 0;
+        simplifyActions = true;
+        validatedAgainstDomain = false;
+        possStates = null;
     }
 
     /**
@@ -167,8 +159,6 @@ public class PddlProblem {
     public void setPddlFilRef (String pddlFilRef) {
         this.pddlFilRef = pddlFilRef;
     }
-
-
 
 
     public void saveProblem (String pddlNewFile) throws IOException {
@@ -508,9 +498,9 @@ public class PddlProblem {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
                 if (!act.getPar().isEmpty()) {
-                    getActions().addAll(af.Propositionalize(act, getObjects()));
+                    getActions().addAll(af.Propositionalize(act, getObjects(),this));
                 } else {
-                    GroundAction gr = act.fakeGround();
+                    GroundAction gr = act.fakeGround(this);
                     getActions().add(gr);
                 }
             }
@@ -670,7 +660,7 @@ public class PddlProblem {
     /**
      * @return the actions
      */
-    public Set getActions ( ) {
+    public Collection getActions ( ) {
         return actions;
     }
 
@@ -843,7 +833,7 @@ public class PddlProblem {
             //estrapola tutti i predicati e ritornali come set di predicati
 //            AndCond and = new AndCond();
 //            and.addConditions();
-            return fc.buildPredicate(infoAction,null);
+            return fc.buildPredicate(infoAction, null);
         } else if (infoAction.getType() == PddlParser.UNKNOWN) {
 
             return addUnknown(infoAction.getChild(0));
@@ -853,9 +843,6 @@ public class PddlProblem {
             return null;
         }
     }
-
-
-
 
 
     public Condition getPredicate (Predicate aThis) {
@@ -903,7 +890,6 @@ public class PddlProblem {
     }
 
 
-
     public boolean isSafeState (State temp) {
         return true;
     }
@@ -917,33 +903,17 @@ public class PddlProblem {
         return reachableActions;
     }
 
-    public void setReachableActions (Collection<GroundAction> actionsToConsider) {
-        reachableActions = new LinkedHashSet();
-        for (GroundAction gr : actionsToConsider) {
-            GroundAction actionFromProblemModel = getActionFromProblemModel(gr);
-            if (actionFromProblemModel != null)
-                reachableActions.add(actionFromProblemModel);
-        }
+    
+
+
+
+    public int getFreshActionId ( ) {
+        int current = totActions;
+        totActions++;
+        return(current);
     }
 
-    private GroundAction getActionFromProblemModel (GroundAction gr) {
 
-        if (heuristicActionToProblemAction == null){
-            heuristicActionToProblemAction = new HashMap<>();
-        }
-        GroundAction res = heuristicActionToProblemAction.get(gr);
-        if (res == null) {
-            Iterator<GroundAction> it = this.actions.iterator();
-            while (it.hasNext()) {
-                GroundAction gr2 = it.next();
-                if (gr.equalsNoId(gr2)) {
-                    heuristicActionToProblemAction.put(gr,gr2);
-                    return gr2;
-                }
-            }
-        }
-        return res;
-    }
 
 
     private class stateContainer implements Iterator {

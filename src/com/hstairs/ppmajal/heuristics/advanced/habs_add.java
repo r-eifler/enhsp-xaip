@@ -6,7 +6,6 @@
 package com.hstairs.ppmajal.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Aibr;
@@ -26,6 +25,7 @@ public class habs_add extends Heuristic {
     private static final Boolean cost_sensitive = false; // this is really "metric-sensitive".
     private static final Double epsilon = 0.1d;
     private final Integer k;
+    protected final EPddlProblem problem;
     public Metric metric = null;
     public boolean onlineRepresentatives;
     public boolean midPointSampling;
@@ -36,25 +36,25 @@ public class habs_add extends Heuristic {
     private HashMap<Comparison, Float> comparisonBound;
     private boolean risky = false;
     private HashMap<GroundAction, GroundAction> subactionOf;
+    protected EPddlProblem subProblem;
+    private Collection<GroundAction> subProblemActions ;
 
-    public habs_add (ComplexCondition G, Set<GroundAction> A, Integer k) {
-        super(G, A);
 
+
+    public habs_add (EPddlProblem problem, Integer k) {
+        super(problem.goals,problem.actions,problem.getProcessesSet(),problem.getEventsSet());
+        this.problem = problem;
         this.k = k;
-        this.supporters = new LinkedHashSet<>();
+        subProblem = new EPddlProblem();
+        subProblemActions = subProblem.actions;
+        subProblem.goals = problem.getGoals();
     }
 
-    public habs_add (ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E, Integer k) {
-        super(G, A, P, E);
-
-        this.k = k;
-        this.supporters = new LinkedHashSet<>();
-    }
 
     public void setMetric (Metric metric) {
         this.metric = metric;
     }
-    
+
     /* Setup step for habs_add heuristic. Returns the heuristic for the initial
     state (if goal is reachable); otherwise, returns infinity.
     
@@ -70,7 +70,7 @@ public class habs_add extends Heuristic {
     public Float setup (State gs) {
         PDDLState s = (PDDLState) gs;
 
-        this.aibr_handle = new Aibr(this.G, this.A);
+        this.aibr_handle = new Aibr(problem);
         this.aibr_handle.setup(s);
         this.aibr_handle.set(true, true);
         // (1). Run AIBR reachability analysis step. Returns inf if not reachable.
@@ -94,9 +94,9 @@ public class habs_add extends Heuristic {
             // (2). Generate subactions by running AIBR operator counting procedure.
             //      The subactions are addded to this.supporters.
             generate_subactions(s);
-            System.out.println("|Subactions| = " + this.supporters.size());
+            System.out.println("|Subactions| = " + subProblemActions.size());
             if (debug > 100) {
-                for (GroundAction gr : this.supporters) {
+                for (GroundAction gr : subProblemActions) {
                     System.out.println(gr.toPDDL() + "\n\n");
                 }
             }
@@ -120,8 +120,8 @@ public class habs_add extends Heuristic {
     private Float aibrReachabilityAnalysis (PDDLState s) {
         // reachability analysis on original problem using AIBR.
         Float ret = this.aibr_handle.computeEstimate(s);
-        A = this.aibr_handle.reachable;
-        reachable = this.aibr_handle.reachable;
+        A = this.aibr_handle.getReachableTransitions();
+        reachable = this.aibr_handle.getReachableTransitions();
 
         return ret;
     }
@@ -143,7 +143,7 @@ public class habs_add extends Heuristic {
         RelState rsReachability = getReachabilityRelaxedState(s_0);
         // add AIBR reachability analysis relaxed states into the list
         relaxedStates.add(rsReachability);
-        
+
         NumEffect effectOnCost = null;
 
         System.out.println("Generating subactions.");
@@ -211,12 +211,8 @@ public class habs_add extends Heuristic {
     public void setup_habs (PDDLState s) {
 
         System.out.println("setting up...");
-        int totActions = 0;
-        for (GroundAction gr: this.supporters){
-            gr.setId(totActions);
-            totActions++;
-        }
-        habs = new h1(G, (Set<GroundAction>) this.supporters, new LinkedHashSet<>());
+
+        habs = new h1(subProblem);
         habs.light_setup(s);
         System.out.println("setup completed!");
     }
@@ -231,8 +227,6 @@ public class habs_add extends Heuristic {
      * @param gr           the action
      * @param effect       the effect to be decomposed
      * @param effectOnCost the effect on metric
-     * @param rs           relaxed goal state from AIBR
-     * @param s0           initial state in the original problem, used for setting metric.
      * @return null
      * @throws Exception does not support non-linear effect right now.
      *                   <p>
@@ -273,7 +267,7 @@ public class habs_add extends Heuristic {
                 }
             }
 
-            supporters.add(subaction);
+            this.subProblemActions.add(subaction);
         }
     }
 
@@ -408,9 +402,9 @@ public class habs_add extends Heuristic {
         }
     }
 
-    private ArrayList<Interval> getIis(NumEffect effect, ArrayList<RelState> relaxedStates) {
+    private ArrayList<Interval> getIis (NumEffect effect, ArrayList<RelState> relaxedStates) {
         ArrayList<Interval> iis = new ArrayList(); // increment interval sequence (IIS) 
-        
+
         Interval prevRhsInterval = null;
         for (RelState rs : relaxedStates) {
             Interval currentRhsInterval = effect.getRight().eval(rs);
@@ -449,9 +443,9 @@ public class habs_add extends Heuristic {
             iis.add(incrementInterval.clone());
         }
     }
-    
+
     private GroundAction generatePiecewiseSubaction (String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {
-        GroundAction subaction = new GroundAction(subactionName);
+        GroundAction subaction = new GroundAction(subactionName,subProblem.getFreshActionId());
 
         // set up effect
         NumEffect supEff = new NumEffect(effect.getOperator());
@@ -463,10 +457,10 @@ public class habs_add extends Heuristic {
 
         if (cost_sensitive && effectOnCost != null) {
             subaction.getNumericEffects().sons.add(effectOnCost);
-            subaction.setAction_cost(s_0, this.metric);
+            subaction.setActionCost(s_0, this.metric);
         } else {
             // if not metric sensitive, set uniform action cost
-            subaction.setAction_cost(1);
+            subaction.setActionCost(1);
         }
 
         // setup preconditions. Preconditions = (indirect_preconditions) U pre(gr)
@@ -514,12 +508,11 @@ public class habs_add extends Heuristic {
     /**
      * <p>
      *
-     * @param effect constant effect to generate supporters for.
      * @param name   a string to distinguish between effects.
      * @param gr     the grounded action.
      */
     private void addConstantSubaction (String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
-        GroundAction sup = new GroundAction(name);
+        GroundAction sup = new GroundAction(name,subProblem.getFreshActionId());
 
         // add preconditions
         sup.setPreconditions(gr.getPreconditions());
@@ -536,13 +529,13 @@ public class habs_add extends Heuristic {
         // add effect on metric
         if (cost_sensitive && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
-            sup.setAction_cost(s_0, metric);
+            sup.setActionCost(s_0, metric);
         } else {
             // if not metric sensitive, set uniform action cost
-            sup.setAction_cost(1);
+            sup.setActionCost(1);
         }
 
-        supporters.add(sup);
+        subProblemActions.add(sup);
     }
 
     @Override
@@ -553,7 +546,7 @@ public class habs_add extends Heuristic {
         if (debug > 10) {
             System.out.println("State: " + s);
             System.out.println("Before updating subactions are: ");
-            for (GroundAction gr : this.supporters) {
+            for (GroundAction gr : this.subProblemActions) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("===================\n\n");
@@ -565,7 +558,7 @@ public class habs_add extends Heuristic {
 
         if (debug > 10) {
             System.out.println("After updating subactions are: ");
-            for (GroundAction gr : this.supporters) {
+            for (GroundAction gr : this.subProblemActions) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("finish computeEstimate()!\n===================\n\n\n\n");
@@ -574,12 +567,12 @@ public class habs_add extends Heuristic {
         Float ret = habs.computeEstimate(s);
         if (this.helpful_actions_computation) {
             this.helpful_actions = new HashSet();
-            for (GroundAction gr : habs.helpful_actions) {
+            for (GroundAction gr : habs.getHelpfulActions()) {
                 GroundAction subaction = this.subactionOf.get(gr);
                 if (subaction != null)
-                    this.helpful_actions.add(this.subactionOf.get(gr));
+                    this.getHelpfulActions().add(this.subactionOf.get(gr));
                 else
-                    this.helpful_actions.add(gr);
+                    this.getHelpfulActions().add(gr);
             }
         }
         return ret;

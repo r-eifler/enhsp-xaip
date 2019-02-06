@@ -151,7 +151,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         //System.out.println(par);
 
-        GroundAction grAction = action.ground(par, null);
+        GroundAction grAction = action.ground(par, null, pp);
         grAction.generateAffectedNumFluents();
 //        if (pp instanceof EPddlProblem) 
 //            grAction.unifyVariablesReferences((EPddlProblem) pp);
@@ -818,7 +818,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         validationStructures = new IdentityHashMap();
 
         //Create a pseudo action for the goal, having null effects but precondition equal to the goal conditions
-        GroundAction goal = new GroundAction("goal");
+        GroundAction goal = new GroundAction("goal", -1);
         goal.setPreconditions(g);
         goal.normalize();
         this.add(goal);
@@ -1603,7 +1603,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : this) {
-            gr.setAction_cost(current, this.pp.getMetric());
+            gr.setActionCost(current, this.pp.getMetric());
 
             this.cost += gr.getActionCost();
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
@@ -1866,7 +1866,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
             this.apply_events(current, reachable_events);
 //            System.out.println("StartTime:"+start_time);
-            GroundProcess waiting = new GroundProcess("waiting");
+            GroundProcess waiting = new GroundProcess("waiting",-1);
             waiting.setNumericEffects(new AndCond());
             waiting.addDelta(delta);
 //            System.out.println("Clock:"+current.functionValue(new NumFluent("time_elapsed")).getNumber());
@@ -1919,11 +1919,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public void parseSolutionFromOtherPlan (SimplePlan newPlan) {
 
-        if (this.size() > 0){
+        if (this.size() > 0) {
             throw new RuntimeException("The plan needs to be empty at this stage");
         }
-        for (GroundAction gr : newPlan){
-            this.putAction(gr.getName(),gr.getParameters());
+        for (GroundAction gr : newPlan) {
+            this.putAction(gr.getName(), gr.getParameters());
         }
 
     }

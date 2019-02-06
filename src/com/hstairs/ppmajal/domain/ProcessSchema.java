@@ -75,8 +75,8 @@ public class ProcessSchema extends PDDLGenericAction {
 
     }
 
-    public GroundProcess ground (Map substitution, PDDLObjects po) {
-        GroundProcess ret = new GroundProcess(this.name);
+    public GroundProcess ground (Map substitution, PDDLObjects po, PddlProblem pp) {
+        GroundProcess ret = new GroundProcess(this.name,pp.getFreshActionId());
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -94,8 +94,8 @@ public class ProcessSchema extends PDDLGenericAction {
 
     }
 
-    public GroundProcess ground (Map substitution, int c) {
-        GroundProcess ret = new GroundProcess(this.name);
+    public GroundProcess ground (Map substitution, int c, PddlProblem pp) {
+        GroundProcess ret = new GroundProcess(this.name,pp.getFreshActionId());
         ParametersAsTerms input = new ParametersAsTerms();
         for (Object o : parameters) {
             Variable el = (Variable) o;
@@ -111,8 +111,8 @@ public class ProcessSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundProcess ground (ParametersAsTerms par, PDDLObjects po) {
-        GroundProcess ret = new GroundProcess(this.name);
+    public GroundProcess ground (ParametersAsTerms par, PDDLObjects po, PddlProblem pp) {
+        GroundProcess ret = new GroundProcess(this.name,pp.getFreshActionId());
         ParametersAsTerms input = new ParametersAsTerms();
         int i = 0;
 
@@ -143,8 +143,8 @@ public class ProcessSchema extends PDDLGenericAction {
         return ret;
     }
 
-    public GroundProcess ground ( ) {
-        GroundProcess ret = new GroundProcess(this.name);
+    public GroundProcess ground (  PddlProblem pp) {
+        GroundProcess ret = new GroundProcess(this.name, pp.getFreshActionId());
         ParametersAsTerms input = new ParametersAsTerms();
 
         ret.setParameters(input);

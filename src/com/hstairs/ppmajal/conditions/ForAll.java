@@ -178,7 +178,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
         ForAll res = new ForAll();
         res.parameters = parameters;
         HashSet<Condition> temp = new HashSet<>();
-        for (Condition cond : (Collection<Condition>)sons){
+        for (Condition cond : (Collection<Condition>) sons) {
             temp.add(cond.transform_equality());
         }
         sons.addAll(temp);
@@ -200,7 +200,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(forall ");
 
-        this.parameters.pddlPrint(true,bui);
+        this.parameters.pddlPrint(true, bui);
         if (sons.size() > 1)
             bui.append("(and ");
         for (Object o : sons) {
@@ -290,7 +290,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
 
 
-        if (objects == null){//this is the case where I don't want to ground really
+        if (objects == null) {//this is the case where I don't want to ground really
             ForAll res = new ForAll();
             res.parameters = this.parameters;
             for (Condition c : (Collection<Condition>) this.sons) {

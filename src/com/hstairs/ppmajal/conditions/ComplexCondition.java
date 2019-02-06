@@ -131,9 +131,6 @@ public abstract class ComplexCondition extends Condition {
     }
 
 
-
-
-
     @Override
     public Set<Condition> getTerminalConditions ( ) {
         Set ret;

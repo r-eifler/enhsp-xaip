@@ -29,6 +29,7 @@ import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.heuristics.utils.LpInterface;
 import com.hstairs.ppmajal.heuristics.utils.cplex_interface;
 import com.hstairs.ppmajal.heuristics.utils.ojalgo_interface;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
@@ -44,6 +45,8 @@ import static java.lang.Float.MAX_VALUE;
 import static java.lang.System.out;
 import static java.util.Collections.nCopies;
 
+
+
 /**
  * @author enrico
  */
@@ -56,38 +59,34 @@ public class quasi_hm extends Heuristic {
     private boolean cplex = true;
     private HashMap<Integer, Collection<GroundAction>> cond_to_actions;
     private boolean risky = true;
+    
+    public int n_lp_invocations;
+    public boolean greedy = false;
 
-    public quasi_hm (ComplexCondition G, Set<GroundAction> A) {
-        super(G, A);
-    }
 
-    /**
-     * @param processesSet
-     */
-    public quasi_hm (ComplexCondition G, Set A, Set processesSet) {
-        super(G, A, processesSet);
+    private EPddlProblem problem;
 
-    }
 
-    public quasi_hm (ComplexCondition G, Set<GroundAction> A, Set processesSet, ComplexCondition GC) {
-        super(G, A, processesSet, GC);
+    public quasi_hm (EPddlProblem problem) {
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.globalConstraints);
+        this.problem = problem;
     }
 
     @Override
     public Float setup (State gs) {
 
         PDDLState s = (PDDLState) gs;
-        Aibr first_reachH = new Aibr(this.G, this.A);
+        Aibr first_reachH = new Aibr(problem);
         first_reachH.setup(s);
         first_reachH.set(true, true);
         Float ret = first_reachH.computeEstimate(s);
         if (ret == Float.MAX_VALUE) {
             return ret;
         }
-        A = first_reachH.reachable;
+        A = first_reachH.getReachableTransitions();
         this.simplify_actions(s);
         this.cond_to_actions = new HashMap();
-        build_integer_representation();
+        forceUniquenessInConditionsAndInternalActions();
         //identify_complex_conditions(all_conditions, A);
         generate_achievers(s);
         try {
@@ -95,34 +94,35 @@ public class quasi_hm extends Heuristic {
         } catch (IloException ex) {
             Logger.getLogger(quasi_hm.class.getName()).log(Level.SEVERE, null, ex);
         }
+        n_lp_invocations = 0;
         reacheability_setting = true;
         Utils.dbg_print(debug, "Reachability Analysis Started");
         Float ret2 = computeEstimate(s);
         Utils.dbg_print(debug, "Reachability Analysis Terminated");
         reacheability_setting = false;
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
-        out.println("Hard Conditions: " + this.hard_conditions);
-        out.println("Simple Conditions: " + (this.all_conditions.size() - this.hard_conditions));
+        out.println("Hard Conditions: " + this.numberOfHardConditions);
+        out.println("Simple Conditions: " + (this.conditionUniverse.size() - this.numberOfHardConditions));
         return ret2;
     }
 
     @Override
-    public void build_integer_representation ( ) {
+    public void forceUniquenessInConditionsAndInternalActions ( ) {
         int counter2 = 0;
-        all_conditions = new LinkedHashSet();
+        conditionUniverse = new LinkedHashSet();
         int counter_actions = 0;
         G.setHeuristicId(counter2++);
-        all_conditions.add(G);
-        this.integer_ref = new HashMap();
+        conditionUniverse.add(G);
+        this.fromConditionStringToUniqueInteger = new HashMap();
         ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
         for (GroundAction a : actions_to_consider) {
 //            if (a.getPreconditions() != null) {
             if (a.getPreconditions() != null && a.getPreconditions().sons != null && !a.getPreconditions().sons.isEmpty()) {
-                counter2 = this.update_index_conditions(a.getPreconditions(), counter2);
+                counter2 = this.establishHeuristicConditionId(a.getPreconditions(), counter2);
                 update_mapping(a.getPreconditions(), a);
             } else {//this creates a fake precondition for the action. It is needed to trigger the very first set of actions that can be applied
                 a.setPreconditions(new AndCond());
-                counter2 = this.update_index_conditions(a.getPreconditions(), counter2);
+                counter2 = this.establishHeuristicConditionId(a.getPreconditions(), counter2);
                 update_mapping(a.getPreconditions(), a);
             }
 //            }
@@ -147,11 +147,11 @@ public class quasi_hm extends Heuristic {
 //            generate_lp(this.reachable,s);
 //        relaxed_plan_actions = new LinkedHashSet();
         //setting up the initial values
-        ArrayList<Boolean> closed = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
-        ArrayList<Float> distance = new ArrayList<>(nCopies(all_conditions.size() + 1, MAX_VALUE));
-        ArrayList<Boolean> open_list = new ArrayList<>(nCopies(all_conditions.size() + 1, false));
+        ArrayList<Boolean> closed = new ArrayList<>(nCopies(conditionUniverse.size() + 1, false));
+        ArrayList<Float> distance = new ArrayList<>(nCopies(conditionUniverse.size() + 1, MAX_VALUE));
+        ArrayList<Boolean> open_list = new ArrayList<>(nCopies(conditionUniverse.size() + 1, false));
         HashMap<Integer, FibonacciHeapNode> cond_to_entry = new HashMap();
-        for (Condition c : all_conditions) {
+        for (Condition c : conditionUniverse) {
             if (s.satisfy(c)) {
                 FibonacciHeapNode node = new FibonacciHeapNode(c);
                 q.insert(node, 0);
@@ -167,8 +167,7 @@ public class quasi_hm extends Heuristic {
             }
         }
 
-        reacheable_conditions = 0;
-        final_achiever = new HashMap();
+        numberOfReachableConditions = 0;
 
         ArrayList<Boolean> active_actions = new ArrayList<>(nCopies(A.size() + 1, false));
 //        for (GroundAction gr: temp_a){
@@ -276,7 +275,7 @@ public class quasi_hm extends Heuristic {
         //this should also include the indirect dependencies, otherwise does not work!!
         for (GroundAction gr : this.A) {
             poss_achiever.put(gr.getId(), new ArrayList());
-            for (Condition c1 : this.all_conditions) {
+            for (Condition c1 : this.conditionUniverse) {
                 if (gr.getPreconditions().getHeuristicId() != c1.getHeuristicId()) {
                     ComplexCondition c = (ComplexCondition) c1;
                     for (Condition c_in : (Collection<Condition>) c.sons) {
@@ -319,13 +318,13 @@ public class quasi_hm extends Heuristic {
             FibonacciHeapNode node = new FibonacciHeapNode(p);
             q.insert(node, current_cost);
             cond_to_entry.put(p.getHeuristicId(), node);
-            reacheable_conditions++;
+            numberOfReachableConditions++;
         }
     }
 
     private void generate_linear_programs (Collection<GroundAction> actions, PDDLState s_0) throws IloException {
         lps = new HashMap();
-        for (Condition c : all_conditions) {
+        for (Condition c : conditionUniverse) {
             LpInterface lp = null;
             if (cplex) {
 //                System.out.println("DEBUG: Using CPLEX");

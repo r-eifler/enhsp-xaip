@@ -66,7 +66,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     public Predicate (String name) {
-        this(name,false);
+        this(name, false);
     }
 
     public Predicate (boolean g) {
@@ -332,12 +332,12 @@ public class Predicate extends Terminal implements PostCondition {
         if (this.isUnsatisfiable())
             return false;
         if (!s.possBollValues.isEmpty()) {
-            int i = s.possBollValues.getOrDefault(this.getId(),-1);
+            int i = s.possBollValues.getOrDefault(this.getId(), -1);
             if (i == -1) {
                 return false;
             }
             return i >= 1;
-        }else{
+        } else {
             return false;
         }
         //return (i == 1) || (i == 2);

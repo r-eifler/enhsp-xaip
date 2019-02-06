@@ -230,7 +230,7 @@ public class PlanAdapter {
         gr = new NumericPlanningGraph();
         //compute a relaxed plan for each kernel starting from the init. Then the function gets a map (order2) 
         //between kernel and the distance given by the size of such plans.
-        Map order2 = gr.computeRelaxedPlans((PDDLState) problem.getInit(), kerns, problem.getActions(), i);
+        Map order2 = gr.computeRelaxedPlans((PDDLState) problem.getInit(), kerns, new LinkedHashSet(problem.getActions()), i);
         //System.out.println(order2);
         for (Object o : order2.keySet()) {
             int candidate = (Integer) o;

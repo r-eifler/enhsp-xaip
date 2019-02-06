@@ -44,7 +44,6 @@ public class hlm extends h1 {
     public boolean smart_intersection = false;
     public boolean mip;
     public boolean debug_landmarks_counting = false;
-    private ArrayList<Set<GroundAction>> condition_to_action;
     private ArrayList<Float> cond_dist;
     //    private IloCplex lp;
     private IloCplex lp_global;
@@ -55,73 +54,42 @@ public class hlm extends h1 {
     private HashMap<Integer, Boolean> has_state_dependent_achievers;
     private boolean needs_checking_state_dependent_constraints;
 
-    public hlm (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P) {
-        super(goal, A, P);
+    public hlm (EPddlProblem problem) {
+        super(problem);
 
     }
 
-    public hlm (ComplexCondition goal, Set<GroundAction> A, Set<GroundProcess> P, Set<GroundEvent> E) {
-        super(goal, A, P, E);
-
-    }
 
     @Override
     public Float setup (State gs) {
 
-        PDDLState s = (PDDLState) gs;
-        Aibr first_reachH = new Aibr(this.G, this.A);
-        first_reachH.setup(s);
-        first_reachH.set(true, true);
-        Float ret2 = first_reachH.computeEstimate(s);
-        if (ret2 == Float.MAX_VALUE) {
-            return ret2;
-        }
-        A = first_reachH.reachable;
+        this.additive_h = false;
+
+        super.dataStructureConstruction();
+        Float reachabilityComputeEstimate = reachabilityComputeEstimate(gs);
+        
         needs_checking_state_dependent_constraints = false;
-        this.simplify_actions(s);
-        if (red_constraints) {
-            try {
-                this.add_redundant_constraints();
-            } catch (Exception ex) {
-                System.out.println("Put something here");
-            }
-        }
-        boolean reconstruct = false;
-        do {
-            build_integer_representation();
-            identify_complex_conditions(A);
-            this.generate_link_precondition_action();
-            try {
-                reconstruct = generate_achievers();
-            } catch (Exception ex) {
-                System.out.println("Put something here");
-            }
-        } while (reconstruct);
 
         if (smart_intersection) {
             smart_intersection = check_if_smark_intersection_needed();
         }
         System.out.println("Smart Metric Intersection: " + smart_intersection);
-        init_lp(s);
-        reacheability_setting = true;
-        Utils.dbg_print(debug, "Reachability Analysis Started");
-        Float ret = computeEstimate(s);
-        Utils.dbg_print(debug, "Reachability Analysis Terminated");
-        reacheability_setting = false;
+        init_lp((PDDLState) gs);
+        
         sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
-        out.println("Hard Conditions: " + this.complex_conditions);
-        out.println("Simple Conditions: " + (this.all_conditions.size() - this.complex_conditions));
+        out.println("Hard Conditions: " + this.numberOfComplexConditions);
+        out.println("Simple Conditions: " + (this.conditionUniverse.size() - this.numberOfComplexConditions));
 
 //        redo construction of integer to avoid spurious actions
 //        build_integer_representation();
 //        identify_complex_conditions( A);
 //        this.generate_link_precondition_action();
 //        try {
-//            generate_achievers();
+//            generateAchievers();
 //        } catch (Exception ex) {
 //            Logger.getLogger(Uniform_cost_search_H1.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-        return ret;
+        return reachabilityComputeEstimate;
     }
 
     @Override
@@ -131,15 +99,15 @@ public class hlm extends h1 {
             return 0f;
         }
         Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
-        ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(all_conditions.size() + 1, null));//mapping between condition and landmarks
-        ArrayList<Boolean> never_active = new ArrayList<>(nCopies(total_number_of_actions + 1, true));//mapping between action and boolean. True if action has not been activated yet
+        ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(conditionUniverse.size() + 1, null));//mapping between condition and landmarks
+        ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
         // HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
-        reach_achievers = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
+        reach_achievers = new ArrayList<>(nCopies(conditionUniverse.size() + 1, null));
 
-        cond_dist = new ArrayList<>(nCopies(all_conditions.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
-        ArrayList<Float> target_value = new ArrayList<>(nCopies(all_conditions.size() + 1, 0f));//keep track of conditions that have been reachead yet
+        cond_dist = new ArrayList<>(nCopies(conditionUniverse.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
+        ArrayList<Float> target_value = new ArrayList<>(nCopies(conditionUniverse.size() + 1, 0f));//keep track of conditions that have been reachead yet
         try {
-            for (Condition c : all_conditions) {//update with a value of 0 to say that condition is sat in init state
+            for (Condition c : conditionUniverse) {//update with a value of 0 to say that condition is sat in init state
                 IloRange ilo = condition_to_cplex_constraint.get(c.getHeuristicId());
                 //Initially, all the conditions are assumed achieved. I am going to change only the ones that really need to be satisfied
                 if (ilo != null) {
@@ -177,7 +145,7 @@ public class hlm extends h1 {
                 if (this.check_conditions(gr)) {
                     a_plus.add(gr);//add such an action
                     never_active.set(gr.getId(), false);
-                    if (this.reacheability_setting) {
+                    if (!this.reachable.contains(gr)) {
                         this.reachable.add(gr);
                     }
                 }
@@ -192,7 +160,7 @@ public class hlm extends h1 {
                 //This also changes the set a_plus whenever some new action becomes active becasue of gr
             }
 
-            if (this.reacheability_setting) {
+            if (this.reachabilityRun) {
                 A = reachable;
             }
 
@@ -207,7 +175,7 @@ public class hlm extends h1 {
                     goal_landmark.addAll(lm.get(c.getHeuristicId()));
                 }
             }
-            if (this.reacheability_setting) {
+            if (this.reachabilityRun) {
                 System.out.println("Landmarks:" + goal_landmark.size());
                 System.out.println("Not Trivial Landmarks:" + (goal_landmark.size() - goal_not_true_in_init));
 
@@ -389,7 +357,7 @@ public class hlm extends h1 {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Set<GroundAction> set = condition_to_action.get(comp.getHeuristicId());
+        Collection<GroundAction> set = conditionToAction[comp.getHeuristicId()];
         //this mapping contains action that need to be triggered becasue of condition comp
         for (GroundAction gr2 : set) {
             if (gr2.getId() == gr.getId()) {//avoids self-loop. Thanks god I have integer mapping here.
@@ -409,7 +377,7 @@ public class hlm extends h1 {
                     a_plus.push(gr2);//push in the set of actions to consider. 
                     //Need to understand whether is worth to do check on the list to see if action already is there.
                     never_active.set(gr2.getId(), false);//now is not never active anymore (just pushed in the a_plus)_
-                    if (this.reacheability_setting) {
+                    if (this.reachabilityRun) {
                         this.reachable.add(gr2);
                     }
                 }
@@ -440,19 +408,19 @@ public class hlm extends h1 {
         return true;
     }
 
-    private void generate_link_precondition_action ( ) {
-        condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
-        for (Condition c : all_conditions) {
-            LinkedHashSet<GroundAction> set = new LinkedHashSet();
-            for (GroundAction gr : A) {
-                if (gr.getPreconditions().sons.contains(c)) {
-                    set.add(gr);
-                }
-            }
-            condition_to_action.set(c.getHeuristicId(), set);
-
-        }
-    }
+//    private void generate_link_precondition_action ( ) {
+//        condition_to_action = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
+//        for (Condition c : all_conditions) {
+//            LinkedHashSet<GroundAction> set = new LinkedHashSet();
+//            for (GroundAction gr : A) {
+//                if (gr.getPreconditions().sons.contains(c)) {
+//                    set.add(gr);
+//                }
+//            }
+//            condition_to_action.set(c.getHeuristicId(), set);
+//
+//        }
+//    }
 
     //TO-DO do the sensitive intersection to the metric
     private Set<Condition> metric_sensitive_intersection (Set<Condition> previous, Set<Condition> temp) {
@@ -506,10 +474,10 @@ public class hlm extends h1 {
             lp_global = new IloCplex();
             lp_global.setOut(null);
             objective_function = lp_global.linearNumExpr();
-            action_to_variable = new ArrayList<>(nCopies(total_number_of_actions + 1, null));
-            condition_to_cplex_constraint = new ArrayList<>(nCopies(all_conditions.size() + 1, null));
+            action_to_variable = new ArrayList<>(nCopies(A.size() + 1, null));
+            condition_to_cplex_constraint = new ArrayList<>(nCopies(conditionUniverse.size() + 1, null));
             has_state_dependent_achievers = new HashMap();
-            for (Condition c : all_conditions) {
+            for (Condition c : conditionUniverse) {
                 has_state_dependent_achievers.put(c.getHeuristicId(), false);
 //                System.out.println("Condition under analysis" + c);
                 IloLinearNumExpr expr = lp_global.linearNumExpr();
@@ -607,10 +575,10 @@ public class hlm extends h1 {
     }
 
     private boolean check_if_smark_intersection_needed ( ) {
-        for (int i = 0; i < all_conditions.toArray().length; i++) {
-            for (int j = i + 1; j < all_conditions.toArray().length; j++) {
-                Condition c1 = (Condition) all_conditions.toArray()[i];
-                Condition c2 = (Condition) all_conditions.toArray()[j];
+        for (int i = 0; i < conditionUniverse.toArray().length; i++) {
+            for (int j = i + 1; j < conditionUniverse.toArray().length; j++) {
+                Condition c1 = (Condition) conditionUniverse.toArray()[i];
+                Condition c2 = (Condition) conditionUniverse.toArray()[j];
                 if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
                     Comparison comp_c1 = (Comparison) c1;
                     Comparison comp_c2 = (Comparison) c2;
@@ -624,5 +592,19 @@ public class hlm extends h1 {
         }
         return false;
     }
+
+    private Float reachabilityComputeEstimate(State gs) {
+        reachabilityRun = true;
+        float ret = super.computeEstimate(gs);
+        reachabilityRun = false;
+        sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
+        out.println("Hard Conditions: " + this.numberOfComplexConditions);
+        out.println("Simple Conditions: " + (this.conditionUniverse.size() - this.numberOfComplexConditions));
+        return ret;
+    }
+
+
+    
+    
 
 }

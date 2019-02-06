@@ -35,8 +35,8 @@ public class GroundProcess extends GroundAction {
 
     private double delta;
 
-    public GroundProcess (String name) {
-        super(name);
+    public GroundProcess (String name, int id) {
+        super(name, id);
     }
 
     public boolean isActive (State s) {
@@ -45,7 +45,7 @@ public class GroundProcess extends GroundAction {
 
     @Override
     public Object clone ( ) {
-        GroundProcess ret = new GroundProcess(name);
+        GroundProcess ret = new GroundProcess(name,this.id);
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();
         }

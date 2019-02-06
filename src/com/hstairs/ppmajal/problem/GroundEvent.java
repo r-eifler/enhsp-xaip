@@ -30,8 +30,8 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
  */
 public class GroundEvent extends GroundAction {
 
-    public GroundEvent (String name) {
-        super(name);
+    public GroundEvent (String name, int id) {
+        super(name,id);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class GroundEvent extends GroundAction {
 
     @Override
     public Object clone ( ) {
-        GroundEvent ret = new GroundEvent(name);
+        GroundEvent ret = new GroundEvent(name,this.getId());
         if (this.addList != null) {
             ret.addList = (AndCond) this.addList.clone();
         }

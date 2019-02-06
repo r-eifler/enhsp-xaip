@@ -65,6 +65,13 @@ import static com.hstairs.ppmajal.extraUtils.Utils.searchParameterValue;
  * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
  * <p>
  * *******************************************************************
+ * <p>
+ * *******************************************************************
+ * Description: Part of the PPMaJaL library
+ * <p>
+ * Author: Enrico Scala 2013 Contact: enricos83@gmail.com
+ * <p>
+ * *******************************************************************
  */
 /**
  * *******************************************************************
