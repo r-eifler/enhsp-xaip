@@ -25,6 +25,7 @@ import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Aibr;
+import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.search.SearchEngine;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -1079,15 +1080,15 @@ public class EPddlProblem extends PddlProblem {
         return d < current_value && this.isSafeState(temp);
     }
 
-    private List<GroundEvent> getReacheableEvents ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Collection<GroundEvent> getReacheableEvents() {
+        return this.reachableEvents;
     }
 
-    private Iterable<GroundAction> getReachableProcesses ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Collection<GroundProcess> getReachableProcesses ( ) {
+        return this.reachableProcesses;
     }
 
-    private ArrayList<GroundEvent> eventsApplication (State s, float delta1, List<GroundEvent> events) throws CloneNotSupportedException {
+    private ArrayList<GroundEvent> eventsApplication (State s, float delta1, Collection<GroundEvent> events) throws CloneNotSupportedException {
         ArrayList<GroundEvent> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
@@ -1207,6 +1208,60 @@ public class EPddlProblem extends PddlProblem {
 
     public void putNumFluentReference (NumFluent t) {
         getNumericFluentReference().put(t.toString(), t);
+    }
+
+    private Collection<GroundProcess> reachableProcesses;
+    private LinkedHashSet<GroundEvent> reachableEvents;
+    private HashMap<GroundAction, GroundAction> heuristicActionToProblemAction;
+
+    private GroundAction findTransition(Iterator it, GroundAction gr) {
+        while (it.hasNext()) {
+            GroundAction gr2 = (GroundAction)it.next();
+            
+            if (gr.equalsNoId(gr2)) {
+                heuristicActionToProblemAction.put(gr, gr2);
+                return gr2;
+            }
+        }
+        return null;
+    }
+    
+    private GroundAction getActionFromProblemModel (GroundAction gr) {
+
+        if (heuristicActionToProblemAction == null) {
+            heuristicActionToProblemAction = new HashMap<>();
+        }
+        GroundAction res = heuristicActionToProblemAction.get(gr);
+        if (res == null) {
+            //look among actions
+            Iterator<GroundAction> it = this.actions.iterator();
+            res = (GroundAction) findTransition(it,gr);
+            if (res == null){
+                res = findTransition(this.processesSet.iterator(),gr);
+            }
+            if (res == null){
+                res = findTransition(this.eventsSet.iterator(),gr);
+            }
+        }
+        return res;
+    }
+    
+    public void setReachableTransitions (Collection<GroundAction> actionsToConsider) {
+        reachableActions = new LinkedHashSet();
+        reachableProcesses = new LinkedHashSet();
+        reachableEvents = new LinkedHashSet();
+        for (GroundAction gr : actionsToConsider) {
+            GroundAction actionFromProblemModel = getActionFromProblemModel(gr);
+            if (actionFromProblemModel != null){
+                if (actionFromProblemModel instanceof GroundProcess){
+                    reachableProcesses.add((GroundProcess)actionFromProblemModel);
+                }else if (actionFromProblemModel instanceof GroundEvent){
+                    reachableEvents.add((GroundEvent)actionFromProblemModel);
+                }else{
+                    reachableActions.add(actionFromProblemModel);
+                }
+            }
+        }
     }
 
 

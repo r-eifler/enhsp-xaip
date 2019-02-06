@@ -99,7 +99,7 @@ public abstract class Heuristic {
     //this initializer is mandatory for being executed before each invocation of the heuristic
     public abstract Float setup(State s_0);
 
-    public void forceUniquenessInConditions() {
+    public void forceUniquenessInConditionsAndInternalActions() {
         conditionUniverse = new ArrayList<>();
         int counter_conditions = 0;
 

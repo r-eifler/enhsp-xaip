@@ -73,8 +73,8 @@ public class PddlProblem {
     protected Collection<GroundAction> reachableActions;
     PddlDomain linkedDomain;
     private FactoryConditions fc;
-    private HashMap<GroundAction, GroundAction> heuristicActionToProblemAction;
     private int totActions;
+
 
     public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         this();
@@ -903,39 +903,17 @@ public class PddlProblem {
         return reachableActions;
     }
 
-    public void setReachableActions (Collection<GroundAction> actionsToConsider) {
-        reachableActions = new LinkedHashSet();
-        for (GroundAction gr : actionsToConsider) {
-            GroundAction actionFromProblemModel = getActionFromProblemModel(gr);
-            if (actionFromProblemModel != null)
-                reachableActions.add(actionFromProblemModel);
-        }
-    }
+    
 
-    private GroundAction getActionFromProblemModel (GroundAction gr) {
 
-        if (heuristicActionToProblemAction == null) {
-            heuristicActionToProblemAction = new HashMap<>();
-        }
-        GroundAction res = heuristicActionToProblemAction.get(gr);
-        if (res == null) {
-            Iterator<GroundAction> it = this.actions.iterator();
-            while (it.hasNext()) {
-                GroundAction gr2 = it.next();
-                if (gr.equalsNoId(gr2)) {
-                    heuristicActionToProblemAction.put(gr, gr2);
-                    return gr2;
-                }
-            }
-        }
-        return res;
-    }
 
     public int getFreshActionId ( ) {
         int current = totActions;
         totActions++;
         return(current);
     }
+
+
 
 
     private class stateContainer implements Iterator {

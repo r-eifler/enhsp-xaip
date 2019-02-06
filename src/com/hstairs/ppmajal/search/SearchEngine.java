@@ -101,60 +101,18 @@ public class SearchEngine {
         return visited;
     }
 
+    private void setupReachableActionsProcesses(EPddlProblem problem) {
 
-    private void setReachableActions (EPddlProblem problem) {
-        Collection<GroundAction> to_consider;
-        if (helpfulActionsPruning) {
-            System.out.println("Only Helpful Actions");
-            to_consider = new HashSet<>(getHeuristic().getHelpfulActions());
-        } else {
-            System.out.println("Take all reachable actions");
-            to_consider = getHeuristic().getReachableTransitions();
+        Collection<GroundAction> temp;
+        if (this.helpfulActionsPruning){
+            temp = this.getHeuristic().getHelpfulActions();
+        }else{
+            temp = this.getHeuristic().getReachableTransitions();
         }
-        problem.setReachableActions(to_consider);
-    }
+        problem.setReachableTransitions(temp);
+        this.reachableProcesses = problem.getReachableProcesses();
+        this.reachableEvents = problem.getReacheableEvents();
 
-    private void setReachableProcessesEvents (EPddlProblem problem) {
-        reachableProcesses = new LinkedHashSet<>();
-        reachableEvents = new LinkedHashSet<>();
-
-        Collection<GroundAction> reachableTransitions;
-//        if (only_relaxed_plan_actions)
-//            to_consider = getHeuristic().relaxed_plan_actions;
-//        else
-        reachableTransitions = getHeuristic().getReachableTransitions();
-
-        for (GroundAction gr3 : reachableTransitions) {
-            if (!(gr3 instanceof GroundProcess)) {
-                continue;
-            }
-            GroundProcess gr = (GroundProcess) gr3;
-            Iterator<GroundProcess> it = problem.getProcessesSet().iterator();
-            while (it.hasNext()) {
-                GroundProcess gr2 = it.next();
-                if (gr.equalsNoId(gr2)) {
-                    reachableProcesses.add(gr2);
-                }
-            }
-        }
-        for (GroundAction gr3 : reachableTransitions) {
-            if (!(gr3 instanceof GroundEvent)) {
-                continue;
-            }
-            GroundEvent gr = (GroundEvent) gr3;
-            Iterator<GroundEvent> it = problem.getEventsSet().iterator();
-            while (it.hasNext()) {
-                GroundEvent gr2 = it.next();
-                if (gr.equalsNoId(gr2)) {
-                    this.reachableEvents.add(gr2);
-                }
-            }
-        }
-    }
-
-    private void setupReachableActionsProcesses (EPddlProblem problem) {
-        setReachableActions(problem);
-        setReachableProcessesEvents(problem);
         System.out.println("Actions used at init:" + problem.getReachableActions().size());
         System.out.println("Processes used at init:"+ reachableProcesses.size());
     }
@@ -316,7 +274,7 @@ public class SearchEngine {
 //            System.out.println(current);
 
             if (this.helpfulActionsPruning) {
-                problem.setReachableActions(new LinkedHashSet<>(succ.relaxed_plan_from_heuristic));
+                problem.setReachableTransitions(new LinkedHashSet<>(succ.relaxed_plan_from_heuristic));
             }
             plan.addAll(extractPlan(succ));
             //System.out.println(plan);
@@ -352,7 +310,7 @@ public class SearchEngine {
 
             }
             if (this.helpfulActionsPruning) {
-                problem.setReachableActions(new LinkedHashSet<>(node.relaxed_plan_from_heuristic));
+                problem.setReachableTransitions(new LinkedHashSet<>(node.relaxed_plan_from_heuristic));
             }
 
 
@@ -544,7 +502,7 @@ public class SearchEngine {
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
                 if (this.helpfulActionsPruning) {
-                    problem.setReachableActions(currentNode.relaxed_plan_from_heuristic);
+                    problem.setReachableTransitions(currentNode.relaxed_plan_from_heuristic);
                 }
 
                 for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s); it.hasNext(); ) {
@@ -1017,7 +975,7 @@ public class SearchEngine {
                             }
                         } else {
                             if (this.helpfulActionsPruning) {
-                                problem.setReachableActions(heuristic.getHelpfulActions());
+                                problem.setReachableTransitions(heuristic.getHelpfulActions());
                             }
                             boolean atLeastOne = false;
 

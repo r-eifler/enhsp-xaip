@@ -57,8 +57,10 @@ public class h1 extends Heuristic {
     public boolean extractRelaxedPlan = false;
     public boolean conservativehmax = true;
     public boolean ibrDisabled = false;
-    protected boolean reachabilityRun;
+    public boolean integer_actions = false;
+    public boolean only_mutual_exclusion_processes = false;
 
+    protected boolean reachabilityRun;
     protected Collection<Terminal>[] achieve;
     protected Collection<GroundAction>[] invertedAchievers;
     protected Collection<Comparison>[] possibleAchievers;
@@ -81,16 +83,12 @@ public class h1 extends Heuristic {
     private GroundAction[] heuristicActionsToProblemActions;
     protected final EPddlProblem problem ;
     private HashMap redundant_constraints;
-    public boolean integer_actions = false;
-    public boolean only_mutual_exclusion_processes = false;
     
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Condition, Boolean> new_condition;
     protected Collection<Comparison> complex_condition_set;
     private GroundAction[] fromIdToAction;
-
-
-
+    private Set<GroundAction> masterProblemReachableTransitions;
 
 
     public h1(EPddlProblem problem){
@@ -101,16 +99,14 @@ public class h1 extends Heuristic {
     protected void dataStructureConstruction(){
     
         if (useRedundantConstraints) {
-                this.add_redundant_constraints();
+            this.addRedundantConstraints();
         }
         if (additive_h) {
             minimumActionCost = 0.001f;
         } else {
             minimumActionCost = 0.0f;
         }
-        
-        System.out.println("Actions After AIBR-Reachability:" + A.size());
-        forceUniquenessInConditions();
+        forceUniquenessInConditionsAndInternalActions();
         identifyComplexConditions(A);
         generateAchieversDataStructures();
         generateConditionToActionMap();
@@ -129,15 +125,22 @@ public class h1 extends Heuristic {
     
     @Override
     public Float setup (State s) {
+        
+        Aibr overRel = new Aibr(problem);
+        overRel.set(true, true);
+        Float setup = overRel.setup(s);
+        if (setup != Float.MAX_VALUE){
+            A = overRel.getReachableTransitions();
+        }else{
+            return Float.MAX_VALUE;
+        }
+       
         this.dataStructureConstruction();
         return this.reachabilityComputeEstimate(s);
     }
 
     @Override
-    public void forceUniquenessInConditions ( ) {
-        conditionUniverse = new ArrayList<>();
-        int counter_conditions = 0;
-        fromConditionStringToUniqueInteger = new HashMap();
+    public void forceUniquenessInConditionsAndInternalActions ( ) {
         ArrayList<GroundAction> internalActions = new ArrayList();
         heuristicActionsToProblemActions = new GroundAction[A.size()+1];
         fromIdToAction = new GroundAction[A.size()+1];
@@ -146,6 +149,10 @@ public class h1 extends Heuristic {
         pseudoGoal.setPreconditions(G);
         internalActions.add(pseudoGoal);
         fromIdToAction[pseudoGoal.getId()] = pseudoGoal;
+        
+        conditionUniverse = new ArrayList<>();
+        fromConditionStringToUniqueInteger = new HashMap();
+        int conditionsCounter = 0;
         for (GroundAction b : A) {
 //            if (!internalActions.contains(b)){
                 GroundAction a = new GroundAction(b,internalActions.size());
@@ -154,7 +161,7 @@ public class h1 extends Heuristic {
                 fromIdToAction[a.getId()] = a;
                 if (a.getPreconditions() != null) {
                     for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
-                        counter_conditions = establishHeuristicConditionId(c_1, counter_conditions);
+                        conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
                     }
                 }
 //            }
@@ -164,37 +171,20 @@ public class h1 extends Heuristic {
         for (GroundAction a : A) {
             if (a.getAddList() != null && a.getAddList().sons != null) {
                 for (Condition c_1 : (Set<Condition>) a.getAddList().sons) {
-                    counter_conditions = establishHeuristicConditionId(c_1, counter_conditions);
+                    conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
                 }
             }
         }
 
         for (Condition c_1 : G.getTerminalConditions()) {
-            counter_conditions = establishHeuristicConditionId(c_1, counter_conditions);
+            conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
         }
-        numberOfAtoms = counter_conditions;//index of the last atom
+        numberOfAtoms = conditionsCounter;//index of the last atom
     }
 
     
     public void light_setup (PDDLState s) {
-
-        pseudoGoal = new GroundAction("goal", problem.getFreshActionId());
-        pseudoGoal.setActionCost(0);
-        pseudoGoal.setPreconditions(G);
-        A.add(pseudoGoal);
-        simplify_actions(s);
-        forceUniquenessInConditions();
-        identifyComplexConditions(A);
-        this.generateConditionToActionMap();
-        generateAchieversDataStructures();
-
-        Utils.dbg_print(debug - 10, "Complex Condition set:" + this.complex_condition_set + "\n");
-
-        try {
-            instantiateAchieversDataStructures();
-        } catch (Exception ex) {
-            Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.dataStructureConstruction();
     }
 
     protected void addTriggerCondition (Predicate dummyPredicate, GroundAction pseudoGoal) {
@@ -780,6 +770,7 @@ public class h1 extends Heuristic {
         if (this.extractRelaxedPlan || this.helpful_actions_computation) {
             compute_relaxed_plan();
         }
+        
 
     }
 
@@ -892,21 +883,13 @@ public class h1 extends Heuristic {
         return cost;
     }
 
-    private void instantiateAchieversDataStructures ( ) {
-        achieve = new Collection[this.A.size()];
-        possibleAchievers = new Collection[this.A.size()];
-        this.invertedPossibleAchievers = new LinkedHashSet[this.conditionUniverse.size() + 1];
-        invertedAchievers = new LinkedHashSet[this.conditionUniverse.size() + 1];
-        precondition_mapping = new LinkedHashSet[this.conditionUniverse.size() + 1];
-    }
 
     protected void generateAchieversDataStructures ( ) {
         achieve = new Collection[this.A.size()];
         achieversSet = new AchieverSet[this.A.size()];
-
+        invertedAchievers = new Collection[this.conditionUniverse.size() + 1];
         possibleAchievers = new Collection[this.A.size()];
         this.invertedPossibleAchievers = new Collection[this.conditionUniverse.size() + 1];
-        invertedAchievers = new Collection[this.conditionUniverse.size() + 1];
         precondition_mapping = new Collection[this.conditionUniverse.size() + 1];
         //this should also include the indirect dependencies, otherwise does not work!!
         extraActionPrecondition = new AndCond[this.A.size()];
@@ -1004,7 +987,7 @@ public class h1 extends Heuristic {
         this.is_complex.add(false);
     }
 
-    protected void add_redundant_constraints ( ) {
+    protected void addRedundantConstraints ( ) {
         redundant_constraints = new HashMap();
 
         for (GroundAction a : A) {
@@ -1058,14 +1041,17 @@ public class h1 extends Heuristic {
 
     
     @Override
-    public Collection<GroundAction> getReachableTransitions() {
-        Collection<GroundAction> ret = new LinkedHashSet();
+    public Set<GroundAction> getReachableTransitions() {
+        if (masterProblemReachableTransitions != null){
+            return masterProblemReachableTransitions;
+        }
+        masterProblemReachableTransitions = new LinkedHashSet();
         for (GroundAction gr: this.A){
             if (gr != pseudoGoal){
-                ret.add(this.heuristicActionsToProblemActions[gr.getId()]);
+                masterProblemReachableTransitions.add(this.heuristicActionsToProblemActions[gr.getId()]);
             }
         }
-        return ret;
+        return masterProblemReachableTransitions;
     }
     
     
