@@ -767,8 +767,10 @@ public class h1 extends Heuristic {
 
     private void extract_helpful_actions_or_relaxed_plan ( ) {
 
-        if (this.extractRelaxedPlan || this.helpful_actions_computation) {
+        if (this.extractRelaxedPlan ) {
             compute_relaxed_plan();
+        }else if (this.helpful_actions_computation){
+            compute_helpful_actions();
         }
         
 
@@ -787,7 +789,8 @@ public class h1 extends Heuristic {
                         //System.out.println("Getting all the predicatesProduction as helpful actions..");
                         for (GroundAction gr : this.allAchievers[o.getHeuristicId()]) {
                             if (this.actionHCost[gr.getId()] == 0) {
-                                this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
+                                this.helpful_actions.add(gr);
+//                                this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
                             }
                         }
                     }
@@ -805,7 +808,8 @@ public class h1 extends Heuristic {
 //                            System.out.println("Max number of actions"+this.total_number_of_actions);
 //                        }
                     if (this.actionHCost[gr.getId()] == 0) {
-                        this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
+                        this.helpful_actions.add(gr);
+//                        this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
                     }
 
                 }

@@ -75,8 +75,7 @@ public class SearchEngine {
     private int causalDeadEnds;
     private Object2FloatMap<State> idaStar;
 
-
-    public SearchEngine ( ) {
+    public SearchEngine() {
         setNodesExpanded(0);
         setNodesReopened(0);
         setNumberOfEvaluatedStates(0);
@@ -91,7 +90,7 @@ public class SearchEngine {
         bfsTieBreaking = true;
     }
 
-    private Object getMap (Explorator explorator) {
+    private Object getMap(Explorator explorator) {
         Object visited = null;
         if (explorator.equals(Explorator.BRFS)) {
             visited = new Object2BooleanLinkedOpenHashMap();
@@ -104,9 +103,16 @@ public class SearchEngine {
     private void setupReachableActionsProcesses(EPddlProblem problem) {
 
         Collection<GroundAction> temp;
-        if (this.helpfulActionsPruning){
+        if (this.helpfulActionsPruning) {
             temp = this.getHeuristic().getHelpfulActions();
-        }else{
+            for (final GroundAction gr : this.getHeuristic().getReachableTransitions()) {
+                if (gr instanceof GroundProcess || gr instanceof GroundEvent) {
+                    if (!temp.contains(gr)) {
+                        temp.add(gr);
+                    }
+                }
+            }
+        } else {
             temp = this.getHeuristic().getReachableTransitions();
         }
         problem.setReachableTransitions(temp);
@@ -114,21 +120,20 @@ public class SearchEngine {
         this.reachableEvents = problem.getReacheableEvents();
 
         System.out.println("Actions used at init:" + problem.getReachableActions().size());
-        System.out.println("Processes used at init:"+ reachableProcesses.size());
+        System.out.println("Processes used at init:" + reachableProcesses.size());
     }
 
     /*
     Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
      */
-    private SearchNode queueSuccessor (Object frontier, State successorState, SearchNode current_node, Object action_s, float prev_cost, float succ_g, Object2FloatMap<State> g, boolean treeSearch) {
-
+    private SearchNode queueSuccessor(Object frontier, State successorState, SearchNode current_node, Object action_s, float prev_cost, float succ_g, Object2FloatMap<State> g, boolean treeSearch) {
 
         if (Objects.equals(prev_cost, this.G_DEFAULT) || succ_g < prev_cost) {
             setEvaluatedStates(getEvaluatedStates() + 1);
             long start = System.currentTimeMillis();
             Float d = getHeuristic().computeEstimate(successorState);
             setHeuristicCpuTime(getHeuristicCpuTime() + System.currentTimeMillis() - start);
-            if (d != Float.MAX_VALUE){// && (d + succ_g) < this.depthLimit) {
+            if (d != Float.MAX_VALUE) {// && (d + succ_g) < this.depthLimit) {
                 SearchNode node = null;
                 if (action_s instanceof ArrayList) {
                     node = new SearchNode(successorState, (ArrayList) action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
@@ -154,17 +159,17 @@ public class SearchEngine {
         }
     }
 
-    private void setGValue (State successorState, Object2FloatMap<State> g, float succ_g, boolean treeSearch) {
+    private void setGValue(State successorState, Object2FloatMap<State> g, float succ_g, boolean treeSearch) {
         if (!treeSearch) {
             g.put(successorState.getRepresentative(), succ_g);
         }
     }
 
-    private SearchNode queue_successor (Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g) {
+    private SearchNode queue_successor(Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g) {
         return queue_successor(frontier, successor_state, current_node, action_s, g, false);
     }
 
-    private SearchNode queue_successor (Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g, boolean treeSearch) {
+    private SearchNode queue_successor(Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g, boolean treeSearch) {
         float succ_g = current_node.gValue + 1;
         float prev_cost = getPreviousCost(g, successor_state, treeSearch);
 //        System.out.println("G:"+g.keySet());
@@ -176,7 +181,7 @@ public class SearchEngine {
         return this.queueSuccessor(frontier, successor_state, current_node, action_s, prev_cost, succ_g, g, treeSearch);
     }
 
-    private ArrayList<GroundEvent> apply_events (State s, float delta1) throws CloneNotSupportedException {
+    private ArrayList<GroundEvent> apply_events(State s, float delta1) throws CloneNotSupportedException {
         ArrayList<GroundEvent> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
@@ -198,7 +203,7 @@ public class SearchEngine {
 
     }
 
-    private void add_frontier (Object frontier, SearchNode new_node) {
+    private void add_frontier(Object frontier, SearchNode new_node) {
 
         //frontier.
 //        frontier.re
@@ -211,21 +216,21 @@ public class SearchEngine {
 
     }
 
-    public List<GroundAction> a_star (EPddlProblem problem) throws Exception {
+    public List<GroundAction> a_star(EPddlProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
         return this.WAStar(problem);
     }
 
-    public void setupHeuristic (Heuristic input) {
+    public void setupHeuristic(Heuristic input) {
         this.setHeuristic(input);
     }
 
-    public LinkedList<GroundAction> enforced_hill_climbing (EPddlProblem problem) throws Exception {
+    public LinkedList<GroundAction> enforced_hill_climbing(EPddlProblem problem) throws Exception {
         return this.enforced_hill_climbing(problem, Explorator.BRFS);
     }
 
-    public LinkedList<GroundAction> enforced_hill_climbing (EPddlProblem problem, Explorator explorator) throws Exception {
+    public LinkedList<GroundAction> enforced_hill_climbing(EPddlProblem problem, Explorator explorator) throws Exception {
         long start_global = System.currentTimeMillis();
 
         getHeuristic().setup(problem.getInit());
@@ -287,7 +292,7 @@ public class SearchEngine {
 
     }
 
-    public SearchNode breadth_first_search (State current, EPddlProblem problem, Object2BooleanMap<State> visited) throws Exception {
+    public SearchNode breadth_first_search(State current, EPddlProblem problem, Object2BooleanMap<State> visited) throws Exception {
         //System.out.println("Visited size:"+visited.size());
 
         Queue<SearchNode> frontier = new LinkedList<>();
@@ -313,9 +318,8 @@ public class SearchEngine {
                 problem.setReachableTransitions(new LinkedHashSet<>(node.relaxed_plan_from_heuristic));
             }
 
-
             visited.put(node.s, true);
-            for (Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext(); ) {
+            for (Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext();) {
                 final Pair<State, Object> next = it.next();
                 final Object act = next.getSecond();
                 State temp = next.getFirst();
@@ -368,18 +372,18 @@ public class SearchEngine {
      * depending on the evaluation function f the frontier is prioritized by,
      * where f = wg * g(n) + wh * h(n) wg = 1, wh = 0, UCS, wg = 1, wh = 1, A*,
      * wg = 1, wh > 1, weighted-A*. The weights wg and wh should be set by
-     * SearchStrategies.setWG() and SearchStrategies.setWH() before the
-     * method is called. Heuristics function should also be setup.
+     * SearchStrategies.setWG() and SearchStrategies.setWH() before the method
+     * is called. Heuristics function should also be setup.
      *
-     * @param problem     the problem to be solved.
-     * @param extCurrent  start from this current state if given as input
+     * @param problem the problem to be solved.
+     * @param extCurrent start from this current state if given as input
      * @param exitOnBestH exit on best h value found (in expansion)
      * @param treeSearch
      * @return null if the problem is unsolvable, a linked list of the plan
      * otherwise.
      * @throws Exception
      */
-    public SearchNode WAStar (EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch) throws Exception {
+    public SearchNode WAStar(EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch) throws Exception {
 
         State initState = null;
         if (extCurrent == null) {
@@ -505,7 +509,7 @@ public class SearchEngine {
                     problem.setReachableTransitions(currentNode.relaxed_plan_from_heuristic);
                 }
 
-                for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s); it.hasNext(); ) {
+                for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s); it.hasNext();) {
                     final Pair<State, Object> next = it.next();
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
@@ -525,22 +529,22 @@ public class SearchEngine {
         return null;
     }
 
-    private float getPreviousCost (Object2FloatMap<State> gMap, State successorState, boolean treeSearch) {
+    private float getPreviousCost(Object2FloatMap<State> gMap, State successorState, boolean treeSearch) {
         if (treeSearch) {
             return G_DEFAULT;
         }
         return gMap.getOrDefault(successorState.getRepresentative(), G_DEFAULT);
     }
 
-    public State getLastState ( ) {
+    public State getLastState() {
         return this.lastState;
     }
 
-    public LinkedList<GroundAction> WAStar (EPddlProblem problem) throws Exception {
+    public LinkedList<GroundAction> WAStar(EPddlProblem problem) throws Exception {
         return WAStar(problem, false);
     }
 
-    public LinkedList<GroundAction> WAStar (EPddlProblem problem, boolean treeSearch) throws Exception {
+    public LinkedList<GroundAction> WAStar(EPddlProblem problem, boolean treeSearch) throws Exception {
         SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch);
         if (end != null) {
             return this.extractPlan(end);
@@ -552,12 +556,13 @@ public class SearchEngine {
     /**
      * This function implements UCS as for Felner's paper SOCS 2011. It can also
      * be used in a depth first search manner (going towards the highest f nodes
-     * first, if search strategy is called with the bfsTieBreaking = false option.
+     * first, if search strategy is called with the bfsTieBreaking = false
+     * option.
      *
      * @return A sequence of actions
      * @throws Exception Throws generic expression for now.
      */
-    public LinkedList<GroundAction> blindSearch (EPddlProblem problem) throws Exception {
+    public LinkedList<GroundAction> blindSearch(EPddlProblem problem) throws Exception {
 
         System.out.println("Blind Search");
         if (this.tbRule == null) {
@@ -652,13 +657,13 @@ public class SearchEngine {
         return null;
     }
 
-    public LinkedList<GroundAction> greedy_best_first_search (EPddlProblem problem) throws Exception {
+    public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem);
     }
 
-    public LinkedList extractPlan (SimpleSearchNode c) {
+    public LinkedList extractPlan(SimpleSearchNode c) {
         LinkedList plan = new LinkedList<>();
         lastState = c.s;
         while (c.transition != null) {
@@ -673,61 +678,60 @@ public class SearchEngine {
     /**
      * @return the gw
      */
-    public float getGw ( ) {
+    public float getGw() {
         return gw;
     }
 
     /**
      * @param gw the gw to set
      */
-    public void setWG (float gw) {
+    public void setWG(float gw) {
         this.gw = gw;
     }
 
     /**
      * @return the hw
      */
-    public float getHw ( ) {
+    public float getHw() {
         return hw;
     }
 
     /**
      * @param hw the hw to set
      */
-    public void setWH (float hw) {
+    public void setWH(float hw) {
         this.hw = hw;
     }
-
 
     /**
      * @return the heuristic
      */
-    public Heuristic getHeuristic ( ) {
+    public Heuristic getHeuristic() {
         return heuristic;
     }
 
     /**
      * @param heuristic the heuristic to set
      */
-    public void setHeuristic (Heuristic heuristic) {
+    public void setHeuristic(Heuristic heuristic) {
         this.heuristic = heuristic;
     }
 
     /**
      * @return the states_evaluated
      */
-    public int getEvaluatedStates ( ) {
+    public int getEvaluatedStates() {
         return getNumberOfEvaluatedStates();
     }
 
     /**
      * @param states_evaluated the states_evaluated to set
      */
-    public void setEvaluatedStates (int states_evaluated) {
+    public void setEvaluatedStates(int states_evaluated) {
         this.setNumberOfEvaluatedStates(states_evaluated);
     }
 
-    private void advance_time (Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
+    private void advance_time(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
         try {
             float i = 0.00000f;
             State temp = current_node.s.clone();
@@ -759,9 +763,9 @@ public class SearchEngine {
                         }
                     }
                 }
-                if (!atLeastOne){
-                    return;
-                }
+//                if (!atLeastOne){
+//                    return;
+//                }
                 waiting_list.add(waiting);
 
                 temp_temp.apply(waiting);
@@ -800,13 +804,12 @@ public class SearchEngine {
         }
     }
 
-    public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
+    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false);
     }
 
-    public LinkedList idastar (EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         State initState = problem.getInit();
-
 
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
@@ -842,7 +845,7 @@ public class SearchEngine {
         float bound = hAtInit * this.hw;
         long startSearch = System.currentTimeMillis();
         Pair<IdaStarSearchNode, Float> res = null;
-        for (; ; ) {
+        for (;;) {
             res = boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix, showExpansion, idaStarWithMemory);
             if (res == null || res.getFirst() != null) {
                 break;
@@ -857,8 +860,7 @@ public class SearchEngine {
 
     }
 
-
-    public LinkedList dfsbnb (EPddlProblem problem) throws Exception {
+    public LinkedList dfsbnb(EPddlProblem problem) throws Exception {
         State initState = problem.getInit();
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
@@ -881,7 +883,6 @@ public class SearchEngine {
 
         long startSearch = System.currentTimeMillis();
 
-
         final Pair<IdaStarSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
@@ -891,7 +892,7 @@ public class SearchEngine {
 
     }
 
-    private boolean onThePath (State successorState, SimpleSearchNode father) {
+    private boolean onThePath(State successorState, SimpleSearchNode father) {
         while (father != null) {
             if (father.s.equals(successorState)) {
                 return true;
@@ -901,12 +902,11 @@ public class SearchEngine {
         return false;
     }
 
-
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) {
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) {
         return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, false);
     }
 
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch (EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory) {
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory) {
         final Stack<IdaStarSearchNode> frontier = new Stack();
 
         IdaStarSearchNode init = new IdaStarSearchNode(problem.getInit().clone(), null, null, 0);
@@ -979,7 +979,7 @@ public class SearchEngine {
                             }
                             boolean atLeastOne = false;
 
-                            for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext(); ) {
+                            for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext();) {
                                 final Pair<State, Object> next = it.next();
                                 boolean push = true;
                                 if (checkAlongPrefix) {
@@ -1014,7 +1014,7 @@ public class SearchEngine {
 
     }
 
-    private void updateTable (IdaStarSearchNode s, Float h) {
+    private void updateTable(IdaStarSearchNode s, Float h) {
         IdaStarSearchNode temp = s;
         Float bound = null;
         while (temp.father != null) {
@@ -1046,55 +1046,55 @@ public class SearchEngine {
         }
     }
 
-    public int getNodesReopened ( ) {
+    public int getNodesReopened() {
         return nodesReopened;
     }
 
-    public void setNodesReopened (int nodesReopened) {
+    public void setNodesReopened(int nodesReopened) {
         this.nodesReopened = nodesReopened;
     }
 
-    public int getNodesExpanded ( ) {
+    public int getNodesExpanded() {
         return nodesExpanded;
     }
 
-    public void setNodesExpanded (int nodesExpanded) {
+    public void setNodesExpanded(int nodesExpanded) {
         this.nodesExpanded = nodesExpanded;
     }
 
-    public long getHeuristicCpuTime ( ) {
+    public long getHeuristicCpuTime() {
         return heuristicCpuTime;
     }
 
-    public void setHeuristicCpuTime (long heuristicCpuTime) {
+    public void setHeuristicCpuTime(long heuristicCpuTime) {
         this.heuristicCpuTime = heuristicCpuTime;
     }
 
-    public long getOverallSearchTime ( ) {
+    public long getOverallSearchTime() {
         return overallSearchTime;
     }
 
-    public void setOverallSearchTime (long overallSearchTime) {
+    public void setOverallSearchTime(long overallSearchTime) {
         this.overallSearchTime = overallSearchTime;
     }
 
-    public int getNumberOfEvaluatedStates ( ) {
+    public int getNumberOfEvaluatedStates() {
         return numberOfEvaluatedStates;
     }
 
-    public void setNumberOfEvaluatedStates (int numberOfEvaluatedStates) {
+    public void setNumberOfEvaluatedStates(int numberOfEvaluatedStates) {
         this.numberOfEvaluatedStates = numberOfEvaluatedStates;
     }
 
-    public int getPriorityQueueSize ( ) {
+    public int getPriorityQueueSize() {
         return priorityQueueSize;
     }
 
-    public void setPriorityQueueSize (int priorityQueueSize) {
+    public void setPriorityQueueSize(int priorityQueueSize) {
         this.priorityQueueSize = priorityQueueSize;
     }
 
-    public int getCausalDeadEnds ( ) {
+    public int getCausalDeadEnds() {
         return causalDeadEnds;
     }
 
@@ -1103,7 +1103,6 @@ public class SearchEngine {
         HIGHERG,
         ARBITRARY
     }
-
 
     public enum Explorator {
         WASTAR, BRFS
@@ -1114,19 +1113,19 @@ public class SearchEngine {
         final SearchEngine.TieBreaking tb;
         public boolean bfs;
 
-        public TieBreaker (SearchEngine.TieBreaking tb) {
+        public TieBreaker(SearchEngine.TieBreaking tb) {
             super();
             this.tb = tb;
             bfs = true;
         }
 
-        public TieBreaker (SearchEngine.TieBreaking tieBreaking, boolean b) {
+        public TieBreaker(SearchEngine.TieBreaking tieBreaking, boolean b) {
             this(tieBreaking);
             bfs = b;
         }
 
         @Override
-        public int compare (SearchNode o1, SearchNode o2) {
+        public int compare(SearchNode o1, SearchNode o2) {
             final SearchNode other = o2;
             final SearchNode a = o1;
             if (a.f == other.f) {
