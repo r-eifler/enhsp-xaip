@@ -1318,12 +1318,10 @@ public class PddlParser extends Parser {
     protected DFA23 dfa23 = new DFA23(this);
     protected DFA71 dfa71 = new DFA71(this);
     private boolean wasError = false;
-
     // delegators
     public PddlParser (TokenStream input) {
         this(input, new RecognizerSharedState());
     }
-
     public PddlParser (TokenStream input, RecognizerSharedState state) {
         super(input, state);
         this.state.ruleMemo = new HashMap[227 + 1];

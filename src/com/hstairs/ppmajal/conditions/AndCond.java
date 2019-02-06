@@ -183,7 +183,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
             } else if (o instanceof ConditionalEffect) {
                 ConditionalEffect a = (ConditionalEffect) o;
                 ret.sons.add(a.clone());
-            } else if (o instanceof ForAll) {
+            }else if (o instanceof ForAll) {
                 ForAll a = (ForAll) o;
                 ret.sons.add(a.clone());
             }
@@ -753,6 +753,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         }
         return ret;
     }
+
 
 
     @Override

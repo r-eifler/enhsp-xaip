@@ -23,7 +23,6 @@ import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.problem.GroundEvent;
 import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.PddlProblem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +32,8 @@ import java.util.Map;
  */
 public class EventSchema extends ActionSchema {
 
-    public GroundEvent fakeGround ( PddlProblem pp) {
-        GroundEvent ret = new GroundEvent(this.name,pp.getFreshActionId());
+    public GroundEvent fakeGround ( ) {
+        GroundEvent ret = new GroundEvent(this.name);
         ParametersAsTerms input = new ParametersAsTerms();
 
         ret.setParameters(input);
@@ -65,8 +64,8 @@ public class EventSchema extends ActionSchema {
         return ret + ")";
     }
 
-    public GroundEvent ground (ParametersAsTerms par, PDDLObjects po, PddlProblem pp) {
-        GroundEvent ret = new GroundEvent(this.name, pp.getFreshActionId());
+    public GroundEvent ground (ParametersAsTerms par, PDDLObjects po) {
+        GroundEvent ret = new GroundEvent(this.name);
         int i = 0;
 
         Map substitution = new HashMap();

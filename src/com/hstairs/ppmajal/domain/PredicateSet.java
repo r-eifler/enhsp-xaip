@@ -28,7 +28,7 @@ import java.util.HashSet;
  */
 public class PredicateSet extends HashSet<Predicate> {
 
-    public PredicateSet ( ) {
+    public PredicateSet(){
         super();
     }
 
@@ -105,7 +105,7 @@ public class PredicateSet extends HashSet<Predicate> {
     public String pddlPrint (boolean typeInformation) {
         StringBuilder ret = new StringBuilder("");
         for (final Predicate elP : this) {
-            elP.pddlPrint(typeInformation, ret);
+            elP.pddlPrint(typeInformation,ret);
 //            ret += elP.pddlPrint(typeInformation);
         }
         ret.append(")");

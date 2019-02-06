@@ -256,7 +256,7 @@ public class Grounder {
         return ret;
     }
 
-    public Set Propositionalize (ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
+    public Set Propositionalize (ActionSchema a, PDDLObjects po) throws Exception {
         Set ret = new LinkedHashSet();
 
         Set combo = Substitutions(a, po);
@@ -268,11 +268,11 @@ public class Grounder {
             if (o instanceof ParametersAsTerms) {
                 if (a instanceof EventSchema) {
                     EventSchema b = (EventSchema) a;
-                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po,problem);
+                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 } else {
-                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po, problem);
+                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 }
@@ -283,13 +283,13 @@ public class Grounder {
 
     }
 
-    public Set Propositionalize (ProcessSchema a, PDDLObjects po, PddlProblem pp) throws Exception {
+    public Set Propositionalize (ProcessSchema a, PDDLObjects po) throws Exception {
         Set ret = new LinkedHashSet();
 
         Set combo = Substitutions(a, po);
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
-                GroundProcess toAdd = a.ground((ParametersAsTerms) o, po, pp);
+                GroundProcess toAdd = a.ground((ParametersAsTerms) o, po);
                 toAdd.generateAffectedNumFluents();
                 ret.add(toAdd);
             }

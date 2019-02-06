@@ -3,7 +3,6 @@ package com.hstairs.ppmajal.extraUtils;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
-import com.hstairs.ppmajal.heuristics.advanced.hlm;
 import com.hstairs.ppmajal.heuristics.blindHeuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
@@ -38,22 +37,18 @@ import java.util.LinkedList;
 public class PlannerUtils {
 
 
-    
-    
-    
     public int getPlanSize (String domainFileName, String problemFileName, String heuristic) throws Exception {
-        return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1, Integer.MAX_VALUE);
+        return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1);
     }
 
-    public int getPlanSize (String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
+    public int getPlanSize (String domainFileName, String problemFileName, String heuristic, int wg, int wh) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
-        domain.substituteEqualityConditions();
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
         domain.validate(problem);
 
         final PDDLSearchEngine searchStrategies = new PDDLSearchEngine(); //manager of the search strategies
-        searchStrategies.depthLimit = depthBound;
+
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
             //this is when you have processes
@@ -68,27 +63,23 @@ public class PlannerUtils {
 
         //set heuristic
         if (heuristic.equals("aibr")) {
-            searchStrategies.setupHeuristic(new Aibr(problem));
+            searchStrategies.setupHeuristic(new Aibr(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
             Aibr h = (Aibr) searchStrategies.getHeuristic();
             h.set(false, true);
-        } else if (heuristic.equals("hadd")) {
-            searchStrategies.setupHeuristic(new h1(problem));
+        }
+        if (heuristic.equals("hadd")) {
+            searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
             h.additive_h = true;
-        } else if (heuristic.equals("hmax")) {
-            searchStrategies.setupHeuristic(new h1(problem));
+        }
+        if (heuristic.equals("hmax")) {
+            searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
             h1 h = (h1) searchStrategies.getHeuristic();
             h.useRedundantConstraints = false;
             h.additive_h = false;
-        } else if (heuristic.equals("lm_actions")) {
-            searchStrategies.setupHeuristic(new hlm(problem));
-            hlm h = (hlm) searchStrategies.getHeuristic();
-            h.lp_cost_partinioning = true;
-            h.useRedundantConstraints = false;
-            h.additive_h = false;
         } else {
-            searchStrategies.setupHeuristic(new blindHeuristic(problem));
+            searchStrategies.setupHeuristic(new blindHeuristic(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
         }
 
         searchStrategies.setWG(wg);
@@ -122,7 +113,7 @@ public class PlannerUtils {
         problem.simplifyAndSetupInit();
 
         //set heuristic
-        searchStrategies.setupHeuristic(new h1(problem));
+        searchStrategies.setupHeuristic(new h1(problem.getGoals(), problem.getActions(), problem.getProcessesSet(), problem.getEventsSet()));
         h1 h = (h1) searchStrategies.getHeuristic();
         h.useRedundantConstraints = false;
         h.additive_h = true;
@@ -137,7 +128,7 @@ public class PlannerUtils {
         return hs0.intValue();
     }
 
-    public int computeNumberOfRelevantActions (String domainFileName, String problemFileName) throws Exception {
+    public int computeNumberOfRelevantActions(String domainFileName, String problemFileName) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();

@@ -65,7 +65,7 @@ public class RelState extends Object {
 
     public Interval functionValues (NumFluent f) {
 
-        if (!this.possNumValues.isEmpty()) {
+        if (!this.possNumValues.isEmpty()){
             Interval a = this.possNumValues.get(f.getId());
             if (a != null) {
                 return a;
@@ -89,16 +89,16 @@ public class RelState extends Object {
     public void makePositive (Predicate p) {
         Integer inter = possBollValues.get(p.getId());
         if (inter == null) {//if was negative by default
-            possBollValues.put(p.getId(), 2);
+            possBollValues.put(p.getId(),2);
         } else if (inter == 0) {//if was said to be negative
-            possBollValues.put(p.getId(), 2);
+            possBollValues.put(p.getId(),2);
         }//otherwise it was already fine
     }
 
 
     public boolean canBeTrue (Predicate p) {
 
-        int o = this.possBollValues.getOrDefault(p.getId(), -1);
+        int o = this.possBollValues.getOrDefault(p.getId(),-1);
         if (o == -1) {
             return false;
         }
@@ -107,7 +107,7 @@ public class RelState extends Object {
 
     public boolean canBeFalse (Predicate p) {
 
-        int o = this.possBollValues.getOrDefault(p.getId(), -1);
+        int o = this.possBollValues.getOrDefault(p.getId(),-1);
         if (o == -1) {
             return true;
         }
@@ -131,10 +131,10 @@ public class RelState extends Object {
     }
 
     public void makeNegative (Predicate p) {
-        int inter = possBollValues.getOrDefault(p.getId(), -1);
+        int inter = possBollValues.getOrDefault(p.getId(),-1);
         if (inter == -1) {//if was negative by default
         } else if (inter == 1) {//if was said to be positive it will also be negative
-            possBollValues.put(p.getId(), 2);
+            possBollValues.put(p.getId(),2);
         }//otherwise all good (inter == 2)
     }
 
@@ -200,12 +200,12 @@ public class RelState extends Object {
                     this.setFunctionValues(nf, (Interval) subst.get(o));
                 }
             } else {
-                this.possBollValues.put(((Predicate) o).getId(), (int) subst.get(o));
+                this.possBollValues.put(((Predicate)o).getId(),(int)subst.get(o));
             }
         }
     }
 
-    public RelState apply_with_generalized_interval_based_relaxation (GroundAction gr) {
+    public RelState apply_with_generalized_interval_based_relaxation(GroundAction gr){
         HashMap subst = new HashMap();
         AndCond del = gr.getDelList();
         if (del != null) {
@@ -234,14 +234,14 @@ public class RelState extends Object {
 
                 }
             } else {
-                this.possBollValues.put(((Predicate) o).getId(), (int) subst.get(o));
+                this.possBollValues.put(((Predicate)o).getId(),(int)subst.get(o));
             }
         }
         return this;
     }
 
 
-    public RelState apply (GroundAction gr) {
+    public RelState apply(GroundAction gr) {
 
 
         HashMap subst = new HashMap();

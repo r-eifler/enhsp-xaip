@@ -27,10 +27,7 @@ import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author enrico
@@ -48,8 +45,8 @@ public class PDDLState extends State {
 
     public PDDLState (DoubleArrayList numFluents, boolean[] propFluents) {
         this.numFluents = numFluents.clone();
-        for (int i = 0; i < propFluents.length; i++) {
-            boolFluents.set(i, propFluents[i]);
+        for (int i=0; i< propFluents.length;i++){
+            boolFluents.set(i,propFluents[i]);
         }
         time = -1;
     }
@@ -66,9 +63,9 @@ public class PDDLState extends State {
         this.boolFluents = new BitSet(initialPropFluents.size());
         for (int i = 0; i < initialPropFluents.size(); i++) {
             if (initialPropFluents.get(i) == null) {
-                this.boolFluents.set(i, false);
+                this.boolFluents.set(i,false);
             } else
-                this.boolFluents.set(i, initialPropFluents.get(i));
+                this.boolFluents.set(i,initialPropFluents.get(i));
         }
         time = -1;
 
@@ -76,16 +73,16 @@ public class PDDLState extends State {
 
     public PDDLState (ArrayList<Double> numFluents, BitSet otherBoolFluents) {
         this.numFluents = new DoubleArrayList(numFluents.size());
-        for (int i = 0; i < numFluents.size(); i++) {
+        for (int i=0; i< numFluents.size(); i++){
             this.numFluents.add((Double) numFluents.get(i));
         }
-        this.boolFluents = (BitSet) otherBoolFluents.clone();
+        this.boolFluents = (BitSet)otherBoolFluents.clone();
         time = -1;
     }
 
     public PDDLState (DoubleArrayList numFluents, BitSet otherBoolFluents) {
         this.numFluents = numFluents.clone();
-        this.boolFluents = (BitSet) otherBoolFluents.clone();
+        this.boolFluents = (BitSet)otherBoolFluents.clone();
         time = -1;
     }
 
@@ -128,7 +125,7 @@ public class PDDLState extends State {
         if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
-        if (!this.boolFluents.equals(other.boolFluents)) {
+        if (!this.boolFluents.equals(other.boolFluents)){
             return false;
         }
         return true;
@@ -164,7 +161,7 @@ public class PDDLState extends State {
 //            f.getId() = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
 //            this.boolFluents.add(after);
         } else {
-            this.boolFluents.set(f.getId(), after);
+            this.boolFluents.set(f.getId(),after);
         }
     }
 
@@ -232,17 +229,17 @@ public class PDDLState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             Double n = this.numFluents.get(i);
             if (n == null) {
-                ret_val.possNumValues.put(i, new Interval(Float.NaN));
+                ret_val.possNumValues.put(i,new Interval(Float.NaN));
             } else
-                ret_val.possNumValues.put(i, new Interval(new Float(this.numFluents.get(i))));
+                ret_val.possNumValues.put(i,new Interval(new Float(this.numFluents.get(i))));
 
         }
 
         for (int i = 0; i < this.boolFluents.length(); i++) {
             if (this.boolFluents.get(i))
-                ret_val.possBollValues.put(i, 1);
+                ret_val.possBollValues.put(i,1);
             else
-                ret_val.possBollValues.put(i, 0);
+                ret_val.possBollValues.put(i,0);
         }
 
         return ret_val;

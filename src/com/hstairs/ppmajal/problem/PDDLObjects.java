@@ -122,10 +122,10 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
         return pddlPrint("objects");
     }
 
-    public String pddlPrint (String head) {
+    public String pddlPrint (String head ) {
         final StringBuffer result = new StringBuffer();
 
-        result.append("(:" + head + " \n");
+        result.append("(:"+head+ " \n");
         for (final PDDLObject o : this) {
             result.append("   ").append(o.pddlPrint(true)).append("\n");
         }

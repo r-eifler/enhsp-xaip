@@ -116,7 +116,7 @@ public class PDDLVectorState extends State {
 
 
     public double fluentValue (NumFluent f) {
-        if (f.getId() == -1) {
+        if (f.getId() == -1 ) {
             throw new RuntimeException("Numeric Fluent " + f + " hasn't been assigned with a unique id ");
         }
         return this.numFluents.get(f.getId());
@@ -129,7 +129,7 @@ public class PDDLVectorState extends State {
     }
 
     public void setNumFluent (NumFluent f, Double after) {
-        if (f.getId() == -1) {
+        if (f.getId() == -1 ) {
             throw new RuntimeException("This shouldn't happen and is a bug. Numeric fluent wasn't on the table");
 //            f.getId() = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
@@ -212,14 +212,14 @@ public class PDDLVectorState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             Double n = this.numFluents.get(i);
             if (n == null) {
-                ret_val.possNumValues.put(i, new Interval(Float.NaN));
+                ret_val.possNumValues.put(i,new Interval(Float.NaN));
             } else
                 ret_val.possNumValues.put(i, new Interval(new Float(this.numFluents.get(i))));
 
         }
         for (int i = 0; i < this.boolFluents.length; i++) {
             if (this.boolFluents[i])
-                ret_val.possBollValues.put(i, 1);
+                ret_val.possBollValues.put(i,1);
             else
                 ret_val.possBollValues.put(i, 0);
         }

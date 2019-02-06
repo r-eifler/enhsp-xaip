@@ -139,7 +139,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     //TO BE FIXed!!!!
-    public ExtendedNormExpression sum (ExtendedNormExpression right){
+    public ExtendedNormExpression sum (ExtendedNormExpression right) throws Exception {
 
         ExtendedNormExpression result = new ExtendedNormExpression();
 
@@ -444,10 +444,10 @@ public class ExtendedNormExpression extends Expression {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
-            if (a.bin != null && a.linear == false) {
-                a.bin = (BinaryOp) a.bin.weakEval(problem, invFluents);
+            if (a.bin != null && a.linear == false){
+                a.bin = (BinaryOp)a.bin.weakEval(problem,invFluents);
                 ret.summations.add(a);
-            } else {
+            }else {
                 if (a.f != null) {
 //                System.out.println(a.f);
 //                //System.out.println(invFluents);
@@ -765,9 +765,9 @@ public class ExtendedNormExpression extends Expression {
                 current += ad.n;
             } else if (!action.getNumericFluentAffected().contains(ad.f)) {
                 current += ad.n * ad.f.eval(s_0);
-            } else {
+            } else{
                 Double coefficientAffected = action.getCoefficientAffected(ad.f);
-                if (coefficientAffected != null) {
+                if (coefficientAffected != null){
                     Double num = ad.f.eval(s_0);
                     if (num == null) {
                         return Float.NaN;

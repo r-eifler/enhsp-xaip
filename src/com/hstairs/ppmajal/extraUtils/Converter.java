@@ -33,7 +33,7 @@ import com.hstairs.ppmajal.problem.PddlProblem;
 public class Converter {
 
     static public GroundAction createInitAction (PddlProblem p, PDDLState s) {
-        GroundAction a = new GroundAction("InitAction",p.getFreshActionId());
+        GroundAction a = new GroundAction("InitAction");
 
         AndCond addList = new AndCond();
         AndCond numericEffects = new AndCond();

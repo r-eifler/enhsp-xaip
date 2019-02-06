@@ -178,10 +178,10 @@ public class NumFluent extends Expression {
     @Override
     public Double eval (State s) {
         if (s == null) {
-            throw new RuntimeException("State " + s + " is null at this stage. Bug");
+            throw new RuntimeException("State "+s+" is null at this stage. Bug");
         }
         final double d = ((PDDLState) s).fluentValue(this);
-        if (d == Double.NaN) {
+        if (d == Double.NaN){
             return null;
         }
         return d;
@@ -440,6 +440,7 @@ public class NumFluent extends Expression {
     public int getId ( ) {
         return id;
     }
+
 
 
     /**

@@ -169,13 +169,12 @@ public class Existential extends ComplexCondition {
         Existential res = new Existential();
         res.parameters = parameters;
         HashSet<Condition> temp = new HashSet<>();
-        for (Condition cond : (Collection<Condition>) sons) {
+        for (Condition cond : (Collection<Condition>)sons){
             temp.add(cond.transform_equality());
         }
         sons.addAll(temp);
         res.sons = sons;
-        return res;
-    }
+        return res;    }
 
     @Override
     public boolean is_affected_by (GroundAction gr) {

@@ -213,7 +213,7 @@ public class FactoryConditions {
                 if (o1 != null) {
                     a.addObject(o1);
                 } else {
-                    System.out.println("Constants/Objects in this problem:" + this.constants);
+                    System.out.println("Constants/Objects in this problem:"+this.constants);
                     throw new RuntimeException("Variable " + o + " is not a constant object");
                 }
             } else {
@@ -238,6 +238,7 @@ public class FactoryConditions {
     }
 
     public Expression createExpression (Tree t, SchemaParameters parTable) {
+
 
 
         switch (t.getType()) {
@@ -617,7 +618,7 @@ public class FactoryConditions {
 //                break;
 //                return one_of;
             default:
-                throw new RuntimeException("Oneof Parsing: Some serious error:" + infoAction);
+                throw  new RuntimeException("Oneof Parsing: Some serious error:" + infoAction);
 //                return null;
         }
 //        return null;

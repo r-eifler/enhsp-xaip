@@ -48,7 +48,7 @@ public class SearchNode extends SimpleSearchNode {
     private boolean bfs = true;
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
-        super(s1, action, father, action_cost_to_get_here);
+        super(s1,action,father, action_cost_to_get_here );
         this.h_n = goal_distance;
         json_rep = null;
         reacheable_condition = 0;
@@ -57,7 +57,7 @@ public class SearchNode extends SimpleSearchNode {
     }
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        super(s1, action, father, action_cost_to_get_here);
+        super(s1,action,father, action_cost_to_get_here);
         this.h_n = goal_distance;
         reacheable_condition = 0;
 
@@ -70,11 +70,7 @@ public class SearchNode extends SimpleSearchNode {
             if (action == null) {
                 json_rep.put("action", "init_state");
             } else {
-                if (action instanceof GroundAction){
-                    json_rep.put("action", ((GroundAction) action).toPDDL());
-                }else{
-                    json_rep.put("action", "<waiting>");
-                }
+                json_rep.put("action", action.toString());
             }
             json_rep.put("distance", goal_distance);
             json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
@@ -102,7 +98,7 @@ public class SearchNode extends SimpleSearchNode {
     }
 
     public SearchNode (State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        super(s1, null, null, action_cost_to_get_here);
+        super(s1,null,null, action_cost_to_get_here );
         this.h_n = goal_distance;
         reacheable_condition = 0;
 
@@ -122,7 +118,7 @@ public class SearchNode extends SimpleSearchNode {
             if (father == null) {
                 json_rep.put("ancestor", "init_state");
             } else {
-                json_rep.put("ancestor", ((SearchNode) father).json_rep.get("visited_step"));
+                json_rep.put("ancestor", ((SearchNode)father).json_rep.get("visited_step"));
             }
             json_rep.put("visited", false);
             json_rep.put("visit_step", -1);
@@ -143,7 +139,7 @@ public class SearchNode extends SimpleSearchNode {
     }
 
     public SearchNode (State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
-        super(s1, null, father, action_cost_to_get_here);
+        super(s1,null,father, action_cost_to_get_here );
         this.h_n = goal_distance;
         this.list_of_actions = list;
         reacheable_condition = 0;
@@ -189,7 +185,7 @@ public class SearchNode extends SimpleSearchNode {
     }
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
-        super(s1, action, father, action_cost_to_get_here);
+        super(s1,action,father, action_cost_to_get_here );
         this.h_n = goal_distance;
 
         if (saving_json) {

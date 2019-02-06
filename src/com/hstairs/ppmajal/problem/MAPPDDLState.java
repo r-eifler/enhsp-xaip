@@ -9,17 +9,16 @@ import java.util.HashMap;
 public class MAPPDDLState extends PDDLState {
 
 
-    final HashMap<String, Boolean> predicateValue;
-    final HashMap<String, PDDLNumber> numFluentValue;
-
+    final HashMap<String,Boolean> predicateValue;
+    final HashMap<String,PDDLNumber> numFluentValue;
     public MAPPDDLState (HashMap<NumFluent, PDDLNumber> numFluentReference, HashMap<Predicate, Boolean> initBoolFluentsValues) {
         numFluentValue = new HashMap<>();
         predicateValue = new HashMap<>();
-        for (NumFluent nf : numFluentReference.keySet()) {
-            numFluentValue.put(nf.toString(), numFluentReference.get(nf));
+        for (NumFluent nf :numFluentReference.keySet()){
+            numFluentValue.put(nf.toString(),numFluentReference.get(nf));
         }
-        for (Predicate p : initBoolFluentsValues.keySet()) {
-            predicateValue.put(p.toString(), initBoolFluentsValues.get(p));
+        for (Predicate p :initBoolFluentsValues.keySet()){
+            predicateValue.put(p.toString(),initBoolFluentsValues.get(p));
         }
     }
 

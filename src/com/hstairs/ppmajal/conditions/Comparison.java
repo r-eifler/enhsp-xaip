@@ -41,7 +41,6 @@ public class Comparison extends Terminal {
     private String comparator;
     private Expression left;
     private Expression right;
-
     public Comparison (String bin_comp_) {
         super();
         comparator = bin_comp_;
@@ -229,7 +228,7 @@ public class Comparison extends Terminal {
     @Override
     public boolean can_be_true (RelState s) {
 
-        if (s.possNumValues.isEmpty()) {
+        if (s.possNumValues.isEmpty()){
             return false;
         }
 
@@ -810,7 +809,7 @@ public class Comparison extends Terminal {
     @Override
     public boolean can_be_false (RelState s) {
 
-        if (s.possNumValues.isEmpty()) {
+        if (s.possNumValues.isEmpty()){
             return true;
         }
 
@@ -1017,6 +1016,7 @@ public class Comparison extends Terminal {
     }
 
 
+
     @Override
     public Collection<Predicate> getInvolvedPredicates ( ) {
         return new HashSet();
@@ -1024,7 +1024,7 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        Comparison comp = (Comparison) super.unifyVariablesReferences(p);
+        Comparison comp = (Comparison)super.unifyVariablesReferences(p);
         comp.left = comp.getLeft().unifyVariablesReferences(p);
         comp.right = comp.getRight().unifyVariablesReferences(p);
         return comp;

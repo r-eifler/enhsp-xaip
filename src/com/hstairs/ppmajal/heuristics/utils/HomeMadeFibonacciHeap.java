@@ -127,7 +127,7 @@ public final class HomeMadeFibonacciHeap<T> {
      * list in O(1) time. Because the lists may be empty, the return value is
      * the only pointer that's guaranteed to be to an element of the resulting
      * list.
-     * <p>
+     *
      * This function assumes that one and two are the minimum elements of the
      * lists they are in, and returns a pointer to whichever is smaller. If this
      * condition does not hold, the return value is some arbitrary pointer into
@@ -195,7 +195,7 @@ public final class HomeMadeFibonacciHeap<T> {
      * priority. Its priority must be a valid double, so you cannot set the
      * priority to NaN.
      *
-     * @param value    The value to insert.
+     * @param value The value to insert.
      * @param priority Its priority, which must be valid.
      * @return An Entry representing that element in the tree.
      */
@@ -408,14 +408,14 @@ public final class HomeMadeFibonacciHeap<T> {
      * IllegalArgumentException. The new priority must be a finite double, so
      * you cannot set the priority to be NaN, or +/- infinity. Doing so also
      * throws an IllegalArgumentException.
-     * <p>
+     *
      * It is assumed that the entry belongs in this heap. For efficiency
      * reasons, this is not checked at runtime.
      *
-     * @param entry       The element whose priority should be decreased.
+     * @param entry The element whose priority should be decreased.
      * @param newPriority The new priority to associate with this entry.
      * @throws IllegalArgumentException If the new priority exceeds the old
-     *                                  priority, or if the argument is not a finite double.
+     * priority, or if the argument is not a finite double.
      */
     public void decreaseKey (Entry<T> entry, double newPriority) {
         checkPriority(newPriority);
@@ -429,7 +429,7 @@ public final class HomeMadeFibonacciHeap<T> {
 
     /**
      * Deletes this Entry from the Fibonacci heap that contains it.
-     * <p>
+     *
      * It is assumed that the entry belongs in this heap. For efficiency
      * reasons, this is not checked at runtime.
      *
@@ -462,7 +462,7 @@ public final class HomeMadeFibonacciHeap<T> {
      * Decreases the key of a node in the tree without doing any checking to
      * ensure that the new priority is valid.
      *
-     * @param entry    The node whose key should be decreased.
+     * @param entry The node whose key should be decreased.
      * @param priority The node's new priority.
      */
     private void decreaseKeyUnchecked (Entry<T> entry, double priority) {
@@ -571,7 +571,7 @@ public final class HomeMadeFibonacciHeap<T> {
          * Constructs a new Entry that holds the given element with the
          * indicated priority.
          *
-         * @param elem     The element stored in this node.
+         * @param elem The element stored in this node.
          * @param priority The priority of this element.
          */
         private Entry (T elem, double priority) {
