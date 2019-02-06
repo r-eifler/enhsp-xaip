@@ -1264,6 +1264,12 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
+    public void setReachableActions(Collection<GroundAction> helpfulActions) {
+//        for (GroundAction gr : helpfulActions){
+            reachableActions = helpfulActions;
+//        }
+    }
+
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
         protected final State source;

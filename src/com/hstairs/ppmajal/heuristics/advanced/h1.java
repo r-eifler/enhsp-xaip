@@ -33,6 +33,8 @@ import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
+import com.hstairs.ppmajal.problem.GroundEvent;
+import com.hstairs.ppmajal.problem.GroundProcess;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.*;
@@ -789,7 +791,9 @@ public class h1 extends Heuristic {
                         //System.out.println("Getting all the predicatesProduction as helpful actions..");
                         for (GroundAction gr : this.allAchievers[o.getHeuristicId()]) {
                             if (this.actionHCost[gr.getId()] == 0) {
-                                this.helpful_actions.add(gr);
+                                if (!(gr instanceof GroundProcess) && !(gr instanceof GroundEvent)){
+                                    this.helpful_actions.add(gr);
+                                }
 //                                this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
                             }
                         }
@@ -808,8 +812,9 @@ public class h1 extends Heuristic {
 //                            System.out.println("Max number of actions"+this.total_number_of_actions);
 //                        }
                     if (this.actionHCost[gr.getId()] == 0) {
-                        this.helpful_actions.add(gr);
-//                        this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
+                            if (!(gr instanceof GroundProcess) && !(gr instanceof GroundEvent)){
+                                    this.helpful_actions.add(gr);
+                            }//                        this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
                     }
 
                 }
