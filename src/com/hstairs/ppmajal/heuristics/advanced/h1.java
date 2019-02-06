@@ -36,12 +36,10 @@ import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.ints.IntPriorityQueues.SynchronizedPriorityQueue;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import org.jgrapht.util.FibonacciHeap;
-import org.jgrapht.util.FibonacciHeapNode;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -89,7 +87,7 @@ public class h1 extends Heuristic {
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Condition, Boolean> new_condition;
     protected Collection<Comparison> complex_condition_set;
-    private GroundAction[] listRepresentation;
+    private GroundAction[] fromIdToAction;
 
 
 
@@ -142,18 +140,18 @@ public class h1 extends Heuristic {
         fromConditionStringToUniqueInteger = new HashMap();
         ArrayList<GroundAction> internalActions = new ArrayList();
         heuristicActionsToProblemActions = new GroundAction[A.size()+1];
-        listRepresentation = new GroundAction[A.size()+1];
+        fromIdToAction = new GroundAction[A.size()+1];
         pseudoGoal = new GroundAction("goal",internalActions.size());
         pseudoGoal.setActionCost(0);
         pseudoGoal.setPreconditions(G);
         internalActions.add(pseudoGoal);
-        listRepresentation[pseudoGoal.getId()] = pseudoGoal;
+        fromIdToAction[pseudoGoal.getId()] = pseudoGoal;
         for (GroundAction b : A) {
 //            if (!internalActions.contains(b)){
                 GroundAction a = new GroundAction(b,internalActions.size());
                 internalActions.add(a);
                 heuristicActionsToProblemActions[a.getId()] = b;
-                listRepresentation[a.getId()] = a;
+                fromIdToAction[a.getId()] = a;
                 if (a.getPreconditions() != null) {
                     for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
                         counter_conditions = establishHeuristicConditionId(c_1, counter_conditions);
@@ -222,10 +220,7 @@ public class h1 extends Heuristic {
         }
         allAchievers = new ReferenceLinkedOpenHashSet[conditionUniverse.size() + 1];
         float estimate = Float.MAX_VALUE;
-        IntHeapPriorityQueue a_plus = new it.unimi.dsi.fastutil.ints.IntHeapPriorityQueue(new GroundActionComparator());
-//        p = new IntPriorityQueues();
-        FibonacciHeap<GroundAction> a_plus2 = new FibonacciHeap();//actions executable. Progressively updated
-//        FibonacciHeapNode[] actionToFibNode = new FibonacciHeapNode[this.A.size()];//mapping between action and boolean. True if action has not been activated yet
+        IntPriorityQueue a_plus = new it.unimi.dsi.fastutil.ints.IntHeapPriorityQueue(new GroundActionComparator());
         cost = new float[conditionUniverse.size() + 1];
         Arrays.fill(cost, Float.MAX_VALUE);
         action_comp_number_execution = new Object2FloatOpenHashMap();
@@ -260,7 +255,7 @@ public class h1 extends Heuristic {
         }
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
 
-            final GroundAction gr = listRepresentation[a_plus.dequeueInt()];
+            final GroundAction gr = fromIdToAction[a_plus.dequeueInt()];
 
             closed[gr.getId()] = true;
             if (gr == pseudoGoal) {
