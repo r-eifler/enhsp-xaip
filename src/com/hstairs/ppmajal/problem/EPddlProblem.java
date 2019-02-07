@@ -1265,9 +1265,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     public void setReachableActions(Collection<GroundAction> helpfulActions) {
-//        for (GroundAction gr : helpfulActions){
-            reachableActions = helpfulActions;
-//        }
+        reachableActions = helpfulActions;
     }
 
 

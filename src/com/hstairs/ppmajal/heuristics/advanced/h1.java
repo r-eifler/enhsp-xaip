@@ -209,6 +209,7 @@ public class h1 extends Heuristic {
             establishedAchiever = new GroundAction[conditionUniverse.size() + 1];
             establishedLocalCost = new float[conditionUniverse.size() + 1];
             Arrays.fill(establishedLocalCost, Float.MAX_VALUE);
+            achieversSet = new AchieverSet[this.A.size()];
         }
         allAchievers = new ReferenceLinkedOpenHashSet[conditionUniverse.size() + 1];
         float estimate = Float.MAX_VALUE;
@@ -220,9 +221,7 @@ public class h1 extends Heuristic {
             final Condition c = (Condition) ((ArrayList) conditionUniverse).get(i);
             if (s.satisfy(c)) {
                 cost[c.getHeuristicId()] = 0f;
-            } else {
-            }
-
+            } 
         }
         actionHCost = new float[A.size()];
         Arrays.fill(actionHCost, Float.MAX_VALUE);
@@ -246,9 +245,7 @@ public class h1 extends Heuristic {
             }
         }
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
-
             final GroundAction gr = fromIdToAction[a_plus.dequeueInt()];
-
             closed[gr.getId()] = true;
             if (gr == pseudoGoal) {
                 estimate = actionHCost[gr.getId()];
@@ -303,8 +300,7 @@ public class h1 extends Heuristic {
     private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, IntPriorityQueue a_plus) {
         float c_a = Math.max(gr.getActionCost(), minimumActionCost);
         for (final Condition comp : this.predicatesProduction(gr)) {//This is the set of all predicates reachable because of gr
-            float current_distance = cost[comp.getHeuristicId()];
-            if (current_distance != 0f) {
+            if (cost[comp.getHeuristicId()] != 0f) {
 
                 float cond_dist_comp = c_a + this.actionHCost[gr.getId()];
                 if (cond_dist_comp != Float.MAX_VALUE) {
@@ -396,9 +392,9 @@ public class h1 extends Heuristic {
 
 //                    System.out.println("let's see how it goes for"+ temp);
 //                    System.out.println("With: "+ reachableActions);
-                    EPddlProblem problem = new EPddlProblem(temp,reachable);
-                    Aibr aibr_handle = new Aibr(problem);
                     //aibr_handle
+                    EPddlProblem tempProblem = new EPddlProblem(temp,reachable);
+                    Aibr aibr_handle = new Aibr(tempProblem);
                     aibr_handle.set(false, true);
 
                     aibr_handle.light_setup(s_0, this);
@@ -450,7 +446,6 @@ public class h1 extends Heuristic {
                     comparisons.add(comp);
 
                     if (this.is_complex.get(comp.getHeuristicId())) {
-
                         action_list.add(gr);
                     } else if (gr.is_possible_achiever_of(comp)) {
                         action_list.add(gr);
@@ -632,6 +627,7 @@ public class h1 extends Heuristic {
                         s.setCost(Math.max(s1.getCost(), s.getCost()));
                     }
                 }
+               
             }
         } else if (c instanceof OrCond) {
             OrCond and = (OrCond) c;
@@ -659,6 +655,7 @@ public class h1 extends Heuristic {
     }
 
     private float checkConditions (GroundAction gr2) {
+        
         Condition condition = this.extraActionPrecondition[gr2.getId()];
         Condition input = null;
         if (condition != null) {
@@ -668,13 +665,9 @@ public class h1 extends Heuristic {
         } else {
             input = gr2.getPreconditions();
         }
-        if (extractRelaxedPlan || this.helpful_actions_computation) {
-            AchieverSet s = estimateAchievers(input);
-            achieversSet[gr2.getId()] = s;
-            return s.getCost();
-        } else {
-            return estimateCost(input);
-        }
+
+        return estimateCost(input);
+        
 
     }
 
@@ -699,13 +692,14 @@ public class h1 extends Heuristic {
     private void compute_helpful_actions ( ) {
         LinkedList<GroundAction> list = new LinkedList();
         helpful_actions = new LinkedHashSet();
-        AchieverSet s = this.achieversSet[pseudoGoal.getId()];
+        AchieverSet s = getAchieverSet(pseudoGoal);
         getHelpfulActions(list, s);
         while (!list.isEmpty()) {
             GroundAction gr2 = list.pollLast();
-//            System.out.println(gr);
-            s = this.achieversSet[gr2.getId()];
-            getHelpfulActions(list, s);
+            s = getAchieverSet(gr2);
+            if (s.getCost() > 0){
+                getHelpfulActions(list, s);
+            }
         }
 //        Utils.dbg_print(debugLevel, "HelpfulActions: " + helpful_actions.toString() + "\n");
     }
@@ -716,7 +710,7 @@ public class h1 extends Heuristic {
         relaxedPlan = new ArrayList();
 
         helpful_actions = new ArrayList();
-        AchieverSet s = this.achieversSet[pseudoGoal.getId()];
+        AchieverSet s = this.getAchieverSet(pseudoGoal);
         
         boolean[] visited = new boolean[this.conditionUniverse.size()+1];
         Arrays.fill(visited, false);
@@ -742,7 +736,7 @@ public class h1 extends Heuristic {
                 if (this.actionHCost[gr.getId()] == 0) {
                     this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
                 } else {
-                    AchieverSet ach_set = this.achieversSet[gr.getId()];
+                    AchieverSet ach_set = this.getAchieverSet(gr);
                     if (ach_set != null) {
                         for (Condition c1 : ach_set.getTargetCond()) {
                             if (!visited[c1.getHeuristicId()]) {
@@ -780,6 +774,7 @@ public class h1 extends Heuristic {
 
     private void getHelpfulActions (LinkedList<GroundAction> list, AchieverSet s) {
         if (s != null) {
+            
             for (Condition o : s.getTargetCond()) {
                 if (cost[o.getHeuristicId()] == 0) {
                     continue;
@@ -791,10 +786,7 @@ public class h1 extends Heuristic {
                         //System.out.println("Getting all the predicatesProduction as helpful actions..");
                         for (GroundAction gr : this.allAchievers[o.getHeuristicId()]) {
                             if (this.actionHCost[gr.getId()] == 0) {
-                                if (!(gr instanceof GroundProcess) && !(gr instanceof GroundEvent)){
-                                    this.helpful_actions.add(gr);
-                                }
-//                                this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
+                                addToHelpfulIfPossible(gr);
                             }
                         }
                     }
@@ -812,14 +804,13 @@ public class h1 extends Heuristic {
 //                            System.out.println("Max number of actions"+this.total_number_of_actions);
 //                        }
                     if (this.actionHCost[gr.getId()] == 0) {
-                            if (!(gr instanceof GroundProcess) && !(gr instanceof GroundEvent)){
-                                    this.helpful_actions.add(gr);
-                            }//                        this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr.getId()]);
+                            addToHelpfulIfPossible(gr);
                     }
 
                 }
 //                }
             }
+            //this.checkAchievers(s);
             for (GroundAction gr : s.getActions()) {
                 if (gr != null) {
                     list.addFirst(gr);
@@ -895,7 +886,7 @@ public class h1 extends Heuristic {
 
     protected void generateAchieversDataStructures ( ) {
         achieve = new Collection[this.A.size()];
-        achieversSet = new AchieverSet[this.A.size()];
+        
         invertedAchievers = new Collection[this.conditionUniverse.size() + 1];
         possibleAchievers = new Collection[this.A.size()];
         this.invertedPossibleAchievers = new Collection[this.conditionUniverse.size() + 1];
@@ -1131,6 +1122,53 @@ public class h1 extends Heuristic {
         temp_mark.put(nf, false);
         list.addLast(nf);
         return cyclic;
+    }
+
+    private void checkAchievers(AchieverSet s) {
+        boolean found = true;
+        for (Condition c : s.getTargetCond()) {
+            if (cost[c.getHeuristicId()] != 0) {
+                found = false;
+               
+            }else{
+                System.out.println("Sat"+c);
+            }
+        }
+        if (found && !s.getActions().isEmpty()) {
+            System.out.println("This is broken");
+            for (GroundAction gr: this.A){
+                if (s == this.getAchieverSet(gr)){
+                    System.out.println("Action culprit:"+gr);
+                    System.out.println("Action it depends on:"+s.getActions());
+                    System.out.println("Cost:"+s.getCost());
+                }
+            }
+        }
+    }
+
+    private AchieverSet getAchieverSet(GroundAction gr) {
+        if (achieversSet[gr.getId()]== null){
+            Condition condition = this.extraActionPrecondition[gr.getId()];
+            Condition input = null;
+            if (condition != null) {
+                input = new AndCond();
+                ((AndCond) input).addConditions(condition);
+                ((AndCond) input).addConditions(gr.getPreconditions());
+            } else {
+                input = gr.getPreconditions();
+            }
+            AchieverSet s = this.estimateAchievers(input);
+            achieversSet[gr.getId()] = s;
+        }
+        return achieversSet[gr.getId()];
+       
+    }
+
+    private void addToHelpfulIfPossible(GroundAction gr) {
+        GroundAction helpful = this.heuristicActionsToProblemActions[gr.getId()];
+        if (!(helpful instanceof GroundProcess) && !(helpful instanceof GroundEvent)) {
+            this.helpful_actions.add(helpful);
+        }
     }
 
      public class GroundActionComparator implements IntComparator{

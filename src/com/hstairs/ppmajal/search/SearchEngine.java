@@ -507,7 +507,6 @@ public class SearchEngine {
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
                 if (this.helpfulActionsPruning) {
                     problem.setReachableActions(currentNode.relaxed_plan_from_heuristic);
-                    System.out.println(problem.reachableActions.size());
 //                    problem.setReachableTransitions(currentNode.relaxed_plan_from_heuristic);
                 }
 
