@@ -202,10 +202,7 @@ public class Comparison extends Terminal {
         return false;
     }
 
-    @Override
-    public boolean isSatisfied (State s) {
-        Double first = left.eval(s);
-        Double second = right.eval(s);
+    private boolean isSatisfied(Double first, Double second){
         if ((first == null) || (second == null)) {
             return false;//negation by failure.
         }
@@ -224,6 +221,13 @@ public class Comparison extends Terminal {
         }
 
         return false;
+    }
+    
+    @Override
+    public boolean isSatisfied (State s) {
+        Double first = left.eval(s);
+        Double second = right.eval(s);
+        return this.isSatisfied(first, second);
     }
 
     @Override
@@ -721,6 +725,19 @@ public class Comparison extends Terminal {
             return this;
         }
 
+        if (lValue instanceof PDDLNumber && rValue instanceof PDDLNumber){
+            PDDLNumber left = (PDDLNumber)lValue;
+            PDDLNumber right = (PDDLNumber)rValue;
+            if (this.isSatisfied(left.getNumber().doubleValue(),right.getNumber().doubleValue())){
+                this.setValid(true);
+                this.setUnsatisfiable(false);
+            }else{
+                this.setValid(false);
+                this.setUnsatisfiable(true);
+                
+            }
+            return this;
+        }
         comp.setLeft(lValue);
         comp.setRight(rValue);
 
