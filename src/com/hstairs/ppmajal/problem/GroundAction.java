@@ -47,7 +47,7 @@ public class GroundAction extends PDDLGenericAction {
     private HashMap<Predicate, Boolean> achieve;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
 
-
+    
     public GroundAction (String name, int id) {
         super();
         this.name = name;

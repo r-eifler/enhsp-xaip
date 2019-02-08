@@ -56,6 +56,11 @@ public abstract class Heuristic {
     protected int numberOfHardConditions;
     protected HashMap<String, Integer> fromConditionStringToUniqueInteger;
 
+    
+    public Heuristic(){
+        
+    }
+    
     public Heuristic(Set<GroundAction> A) {
         this(null, A, Collections.emptySet(), Collections.emptySet(), null);
     }
