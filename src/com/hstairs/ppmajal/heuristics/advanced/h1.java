@@ -127,16 +127,6 @@ public class h1 extends Heuristic {
     
     @Override
     public Float setup (State s) {
-        
-        Aibr overRel = new Aibr(problem);
-        overRel.set(true, true);
-        Float setup = overRel.setup(s);
-        if (setup != Float.MAX_VALUE){
-            A = overRel.getReachableTransitions();
-        }else{
-            return Float.MAX_VALUE;
-        }
-       
         this.dataStructureConstruction();
         return this.reachabilityComputeEstimate(s);
     }

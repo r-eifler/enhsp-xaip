@@ -101,26 +101,11 @@ public class SearchEngine {
     }
 
     private void setupReachableActionsProcesses(EPddlProblem problem) {
-
         Collection<GroundAction> temp;
-        if (this.helpfulActionsPruning) {
-            temp = this.getHeuristic().getHelpfulActions();
-            for (final GroundAction gr : this.getHeuristic().getReachableTransitions()) {
-                if (gr instanceof GroundProcess || gr instanceof GroundEvent) {
-                    if (!temp.contains(gr)) {
-                        temp.add(gr);
-                    }
-                }
-            }
-        } else {
-            temp = this.getHeuristic().getReachableTransitions();
-        }
+        temp = this.getHeuristic().getReachableTransitions();
         problem.setReachableTransitions(temp);
         this.reachableProcesses = problem.getReachableProcesses();
         this.reachableEvents = problem.getReacheableEvents();
-
-        System.out.println("Actions used at init:" + problem.getReachableActions().size());
-        System.out.println("Processes used at init:" + reachableProcesses.size());
     }
 
     /*
@@ -141,7 +126,7 @@ public class SearchEngine {
                     node = new SearchNode(successorState, action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
                 }
                 if (this.helpfulActionsPruning) {
-                    node.relaxed_plan_from_heuristic = getHeuristic().getHelpfulActions();
+                    node.helpfulActions = getHeuristic().getHelpfulActions();
                 }
                 if (saveSearchTreeAsJson) {
                     current_node.add_descendant(node);
@@ -279,7 +264,7 @@ public class SearchEngine {
 //            System.out.println(current);
 
             if (this.helpfulActionsPruning) {
-                problem.setReachableTransitions(new LinkedHashSet<>(succ.relaxed_plan_from_heuristic));
+                problem.setReachableTransitions(new LinkedHashSet<>(succ.helpfulActions));
             }
             plan.addAll(extractPlan(succ));
             //System.out.println(plan);
@@ -301,7 +286,7 @@ public class SearchEngine {
         SearchNode init = new SearchNode(current, null, null, 0, current_value);
         frontier.add(init);
         if (this.helpfulActionsPruning) {
-            init.relaxed_plan_from_heuristic = getHeuristic().getHelpfulActions();
+            init.helpfulActions = getHeuristic().getHelpfulActions();
         }
 //        System.out.println(init.relaxed_plan_from_heuristic);
         System.out.println("h(n):" + current_value + " ");
@@ -315,7 +300,7 @@ public class SearchEngine {
 
             }
             if (this.helpfulActionsPruning) {
-                problem.setReachableTransitions(new LinkedHashSet<>(node.relaxed_plan_from_heuristic));
+                problem.setReachableTransitions(new LinkedHashSet<>(node.helpfulActions));
             }
 
             visited.put(node.s, true);
@@ -345,7 +330,7 @@ public class SearchEngine {
                         SearchNode new_node = new SearchNode(temp, act, node, newG, 0);
                         frontier.add(new_node);
                         if (this.helpfulActionsPruning) {
-                            new_node.relaxed_plan_from_heuristic = heuristic.getHelpfulActions();
+                            new_node.helpfulActions = heuristic.getHelpfulActions();
                         }
                         if (problem.milestoneReached(d, current_value, temp)) {
 //                            if (d < current_value && problem.isSafeState(temp)) {
@@ -428,7 +413,7 @@ public class SearchEngine {
         SearchNode init = new SearchNode(initState.clone(), 0, hAtInit, this.saveSearchTreeAsJson, this.gw, this.hw);
         if (this.helpfulActionsPruning) {
             System.out.println("Selection actions from the helpful actions list");
-            init.relaxed_plan_from_heuristic = getHeuristic().getHelpfulActions();
+            init.helpfulActions = getHeuristic().getHelpfulActions();
         }
 
         if (saveSearchTreeAsJson) {
@@ -506,8 +491,7 @@ public class SearchEngine {
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
                 if (this.helpfulActionsPruning) {
-                    problem.setReachableActions(currentNode.relaxed_plan_from_heuristic);
-//                    problem.setReachableTransitions(currentNode.relaxed_plan_from_heuristic);
+                    problem.setReachableActions(currentNode.helpfulActions);
                 }
 
                 for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s); it.hasNext();) {

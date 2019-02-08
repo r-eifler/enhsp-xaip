@@ -583,8 +583,8 @@ public class EPddlProblem extends PddlProblem {
     protected void pruningViaReachability ( ) {
         //System.out.println("prova");
 
-        sweepStructuresForUnreachableStatements();
         this.saveInitInit();
+        sweepStructuresForUnreachableStatements();
         removeStaticParts();
         setActionCosts();
         setProcessEventsCost();
@@ -642,24 +642,11 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
         if (simplify) {
             System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-//            System.out.println("(Pre Simplification) - Global Constraints Size: " + this.globalConstraintSet.size());
-
             pruningViaReachability();
-
-//            pruningViaRelevance();
         }
         // normalize global constraints, once and forall
         globalConstraints.normalize();
-
         makeInit();
-
-        if (simplify) {
-//            System.out.println("(After Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-//            System.out.println("(After Simplification) - Global Constraints Size: " + this.globalConstraints.sons.size());
-            long end = System.currentTimeMillis();
-
-//            System.out.println("Simplification Time: " + (end - start));
-        }
     }
 
     public void simplifyAndSetupInit ( ) throws Exception {
