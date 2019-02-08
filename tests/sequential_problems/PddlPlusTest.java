@@ -55,11 +55,11 @@ public class PddlPlusTest {
     public void hello ( ) throws Exception {
 
         //get pddl description
-        List<String> heuristics = Arrays.asList("blind", "aibr", "hadd");
+        List<String> heuristics = Arrays.asList("blind", "aibr","hadd","hadd_ni");
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(17, temp.getPlanSize("unit_test_instances/car_linear_mt_sc/domain.pddl",
-                    "unit_test_instances/car_linear_mt_sc/sample.pddl", h));
+                    "unit_test_instances/car_linear_mt_sc/sample.pddl", h,1,1,18));
         }
 
 

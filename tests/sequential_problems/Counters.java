@@ -55,13 +55,12 @@ public class Counters {
     public void hello ( ) throws Exception {
 
         //get pddl description
-        List<String> heuristics = Arrays.asList("hmax");
+        List<String> heuristics = Arrays.asList("hadd");
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(3, temp.getPlanSize("unit_test_instances/fn-counters-small_instances/domain.pddl",
-                    "unit_test_instances/fn-counters-small_instances/instance_3.pddl", h, 0, 1));
+                    "unit_test_instances/fn-counters-small_instances/instance_3.pddl", h, 0, 1,1000));
         }
-
 
     }
 }
