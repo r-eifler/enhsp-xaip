@@ -1489,15 +1489,11 @@ public class GroundAction extends PDDLGenericAction {
                                 return false;
                             }
                             if (ne.getOperator().equals("increase")) {
-                                if (ne.isPseudo_num_effect()) {
-
-                                } else {
                                     try {
                                         positiveness += rhs.getNumber() * ad.n;
                                     } catch (Exception ex) {
                                         Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                     }
-                                }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {
                                     positiveness += (-1) * rhs.getNumber() * ad.n;
@@ -1506,7 +1502,12 @@ public class GroundAction extends PDDLGenericAction {
                                 }
                             } else if (ne.getOperator().equals("assign")) {
                                 try {
-                                    positiveness += rhs.getNumber() * ad.n;
+                                    double contribution = rhs.getNumber() * ad.n;
+                                    if (contribution < 0){
+                                        positiveness = -1;
+                                    }else{
+                                        positiveness = 1;
+                                    }
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }
@@ -1767,15 +1768,11 @@ public class GroundAction extends PDDLGenericAction {
                                 return Double.MAX_VALUE;
                             }
                             if (ne.getOperator().equals("increase")) {
-                                if (ne.isPseudo_num_effect()) {
-
-                                } else {
                                     try {
                                         positiveness += rhs.getNumber() * ad.n;
                                     } catch (Exception ex) {
                                         Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                     }
-                                }
                             } else if (ne.getOperator().equals("decrease")) {
                                 try {
                                     positiveness += (-1) * rhs.getNumber() * ad.n;
@@ -1784,7 +1781,7 @@ public class GroundAction extends PDDLGenericAction {
                                 }
                             } else if (ne.getOperator().equals("assign")) {
                                 try {
-                                    positiveness += rhs.getNumber() * ad.n;
+                                    positiveness += rhs.getNumber() * ad.n;//Treat this as it was an increase effect
                                 } catch (Exception ex) {
                                     Logger.getLogger(GroundAction.class.getName()).log(Level.SEVERE, null, ex);
                                 }

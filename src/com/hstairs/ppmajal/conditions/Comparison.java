@@ -816,8 +816,12 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition regress (GroundAction gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
+            Comparison c = new Comparison(this.comparator);
+            c.setLeft(this.getLeft().subst(gr.getNumericEffects()));
+            c.setRight(this.getRight().subst(gr.getNumericEffects()));
+            return c;
+        }    
 
     @Override
     public String pddlPrintWithExtraObject ( ) {

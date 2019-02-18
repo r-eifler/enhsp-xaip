@@ -91,6 +91,7 @@ public class h1 extends Heuristic {
     protected Collection<Comparison> complex_condition_set;
     private GroundAction[] fromIdToAction;
     private Set<GroundAction> masterProblemReachableTransitions;
+    private HashMap<Pair<Integer,Integer>,Comparison> directAssignmentConditionHandle;
 
 
     public h1(EPddlProblem problem){
@@ -109,9 +110,9 @@ public class h1 extends Heuristic {
             minimumActionCost = 0.0f;
         }
         forceUniquenessInConditionsAndInternalActions();
-        identifyComplexConditions(A);
         generateAchieversDataStructures();
         generateConditionToActionMap();
+        identifyComplexConditions(A);
     
     }
     
@@ -320,8 +321,14 @@ public class h1 extends Heuristic {
                             rep_needed = 1f * c_a;
                         }
                         if (this.invertedPossibleAchievers[comp.getHeuristicId()].size() == 1 || this.integer_actions) {
-
-                            rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
+                            Comparison get = directAssignmentConditionHandle.get(new Pair(gr.getId(),comp.getHeuristicId()));
+                            if (get != null){
+                                if (s_0.satisfy(get)){
+                                    rep_needed = 1f * c_a;
+                                }
+                            }else{
+                                rep_needed = gr.getNumberOfExecutionInt(s_0, (Comparison) comp) * c_a;
+                            }
                         } else {
                             rep_needed = gr.getNumberOfExecution(s_0, (Comparison) comp) * c_a;
                         }
@@ -884,10 +891,7 @@ public class h1 extends Heuristic {
         //this should also include the indirect dependencies, otherwise does not work!!
         extraActionPrecondition = new AndCond[this.A.size()];
 
-        Utils.dbg_print(debug, "Identify complex predicatesProduction");
-        if (!this.ibrDisabled) {
-            this.computeComplexAchievers();
-        }
+
     }
 
     private void computeComplexAchievers (Comparison comp) {
@@ -1052,6 +1056,7 @@ public class h1 extends Heuristic {
 
         new_condition = new HashMap();
         complex_condition_set = new LinkedHashSet();
+        directAssignmentConditionHandle = new HashMap();
         for (Condition c : conditionUniverse) {
 //            System.out.println("This is condition number:"+c.getCounter());
             if (c instanceof Comparison) {
@@ -1062,17 +1067,41 @@ public class h1 extends Heuristic {
                     is_complex.set(comp.getHeuristicId(), true);
                     complex_condition_set.add((Comparison) c);
                 }
+                boolean oneFound = false;
+                boolean oneAssignFound = false;
+
                 for (GroundAction gr : A) {
                     if (gr.getNumericEffects() != null) {
                         AndCond effects = gr.getNumericEffects();
+                        
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
-
-                                if ((!ne.getInvolvedNumericFluents().isEmpty() && !ne.isPseudo_num_effect()) || ne.getOperator().equals("assign")) {
+                                if (conditionToAction[c.getHeuristicId()] != null && conditionToAction[c.getHeuristicId()].size() == 1 && !conditionToAction[c.getHeuristicId()].isEmpty()) {
+                                    GroundAction next = conditionToAction[c.getHeuristicId()].iterator().next();
+                                    if (next.equals(gr)) {
+                                        break;
+                                    }
+                                }
+                                if (!ne.getInvolvedNumericFluents().isEmpty() || 
+                                        (gr.getNumericEffectsAsCollection().size() > 1) 
+                                        && (ne.getOperator().equals("assign")) ||
+                                        (oneFound) 
+                                        && (ne.getOperator().equals("assign")) && gr.is_possible_achiever_of(comp) ||
+                                        oneAssignFound && gr.is_possible_achiever_of(comp)
+                                    ) {
+                                    
                                     is_complex.set(comp.getHeuristicId(), true);
                                     complex_condition_set.add((Comparison) c);
-                                    //System.out.println("Complex condition:"+comp);
+                                    oneAssignFound = true;
                                 }
+                                if (gr.is_possible_achiever_of(comp)){
+                                    if (ne.getOperator().equals("assign")){
+                                        Condition regressEdComparison = comp.regress(gr);
+                                        directAssignmentConditionHandle.put(new Pair(gr.getId(),comp.getHeuristicId()), (Comparison) regressEdComparison);
+                                    }
+                                    oneFound = true;
+                                }
+                                
                             }
                         }
                     }
@@ -1081,6 +1110,10 @@ public class h1 extends Heuristic {
                     numberOfComplexConditions++;
                 }
             }
+        }
+        Utils.dbg_print(debug, "Identify complex predicatesProduction");
+        if (!this.ibrDisabled) {
+            this.computeComplexAchievers();
         }
     }
     

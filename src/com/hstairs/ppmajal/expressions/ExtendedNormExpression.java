@@ -504,7 +504,7 @@ public class ExtendedNormExpression extends Expression {
         result = (ExtendedNormExpression) this.clone();
         ArrayList toAdd = new ArrayList();
         ArrayList toRemove = new ArrayList();
-        Iterator it = summations.iterator();
+        Iterator it =result.summations.iterator();
         try {
             while (it.hasNext()) {
                 ExtendedAddendum ad = (ExtendedAddendum) it.next();

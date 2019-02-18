@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import java.io.PrintStream;
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -790,11 +791,17 @@ public class SearchEngine {
         }
     }
 
+      public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+        return idastar(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, Long.MAX_VALUE);
+    }
     public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
-        return idastar(problem, checkAlongPrefix, false, false);
+        return idastar(problem, checkAlongPrefix, false, false, Long.MAX_VALUE);
+    }
+    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix,long timeout) throws Exception {
+        return idastar(problem, checkAlongPrefix, false, false, timeout);
     }
 
-    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
         State initState = problem.getInit();
 
         beginningTime = System.currentTimeMillis();
@@ -832,7 +839,7 @@ public class SearchEngine {
         long startSearch = System.currentTimeMillis();
         Pair<IdaStarSearchNode, Float> res = null;
         for (;;) {
-            res = boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix, showExpansion, idaStarWithMemory);
+            res = boundedDepthFirstSearch(problem, bound, false, checkAlongPrefix, showExpansion, idaStarWithMemory,timeout);
             if (res == null || res.getFirst() != null) {
                 break;
             }
@@ -888,11 +895,11 @@ public class SearchEngine {
         return false;
     }
 
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) {
-        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, false);
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) throws TimeoutException {
+        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, false, Long.MAX_VALUE);
     }
 
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory) {
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory,long timeout) throws TimeoutException {
         final Stack<IdaStarSearchNode> frontier = new Stack();
 
         IdaStarSearchNode init = new IdaStarSearchNode(problem.getInit().clone(), null, null, 0);
@@ -905,6 +912,9 @@ public class SearchEngine {
         while (!frontier.isEmpty()) {
             final IdaStarSearchNode node = frontier.pop();
             long now = System.currentTimeMillis();
+            if (now - this.beginningTime > timeout){
+                throw new TimeoutException("");
+            }
             if ((now - previousTime) > 10000) {
                 out.println("-------------Time: " + (now - this.beginningTime) / 1000 + "s ; Expanded Nodes: " + getNodesExpanded());
                 out.println("-------------------(Dead-Ends: " + deadEndsDetected + ")");

@@ -11,7 +11,6 @@ public class IdaStarSearchNode extends SimpleSearchNode {
         super(s, transition, father, g);
         numberOfSons = 0;
         minSoFar = Float.MAX_VALUE;
-
     }
 
     @Override
