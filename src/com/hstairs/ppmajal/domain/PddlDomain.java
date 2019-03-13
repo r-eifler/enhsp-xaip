@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.domain;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Utils;
@@ -41,6 +42,8 @@ import java.util.logging.Logger;
  */
 public final class PddlDomain extends Object {
 
+    HashMap<String,Boolean> canBeDynamic;
+
     public final Collection<EventSchema> eventsSchema;
     public final PDDLObjects constants;
     private final Set<ProcessSchema> ProcessesSchema;
@@ -52,7 +55,6 @@ public final class PddlDomain extends Object {
     private String name;
     private PredicateSet predicates;
     private String pddlReferenceFile;
-    private HashMap abstractInvariantFluents;
     private LinkedHashSet<SchemaGlobalConstraint> SchemaGlobalConstraints;
     private FactoryConditions fc;
 
@@ -560,25 +562,50 @@ public final class PddlDomain extends Object {
         this.name = name;
     }
 
-    public HashMap generateAbstractInvariantFluents ( ) {
-        if (getAbstractInvariantFluents() != null) {
-            return getAbstractInvariantFluents();
-        }
-        abstractInvariantFluents = new HashMap();
-        for (final ActionSchema as : this.ActionsSchema) {
-            Set s = as.getAbstractNumericFluentAffected();
-            for (NumFluent nf : (Set<NumFluent>) s) {
-                abstractInvariantFluents.put(nf.getName(), false);
+    public HashMap<String,Boolean> getDynamicPredicateMap ( ) {
+       
+        if (canBeDynamic == null) {
+            canBeDynamic = new HashMap();
+            ArrayList<PDDLGenericAction> all = new ArrayList();
+            all.addAll(this.ActionsSchema);
+            all.addAll(this.ProcessesSchema);
+            all.addAll(this.eventsSchema);
+            for (int i = 0; i < all.size(); i++) {
+                Set<Condition> terminalConditions = all.get(i).getPreconditions().getTerminalConditions();
+                for (int j = 0; j < all.size(); j++) {
+                    PDDLGenericAction get = all.get(j);
+                    for (Condition cond : terminalConditions) {
+                        Terminal p = null;
+                        if (cond instanceof NotCond) {
+                            p = (Terminal) ((NotCond) cond).getSon();
+                        } else if ((cond instanceof Predicate) || (cond instanceof Comparison)) {
+                            p = (Terminal) cond;
+                        }
+                        if (p != null && p instanceof Predicate) {
+                            for (Predicate pred : get.getPropositionAffected()) {
+                                if (pred.getPredicateName().equals(((Predicate) p).getPredicateName())) {
+                                    canBeDynamic.put(((Predicate) p).getPredicateName(), true);
+                                }
+                            }
+                        }
+//                        if (p != null && p instanceof Comparison) {
+//                            for (NumFluent nf : get.getNumericFluentAffected()) {
+//                                for (NumFluent nf2 : p.getInvolvedFluents()) {
+//                                    if (nf.getName().equals(nf2.getName())) {
+//                                        canBeDynamic.put(p, true);
+//                                    }
+//                                }
+//                            }
+//                        }
+                    }
+                }
             }
         }
-        for (NumFluent nf : this.get_derived_variables()) {
-            abstractInvariantFluents.put(nf.getName(), false);
-        }
 
-        return abstractInvariantFluents;
+        return canBeDynamic;
     }
 
-    public Type getTypeByName (String text) {
+    public Type getTypeByName(String text) {
         for (Type t : this.getTypes()) {
             if (t.getName().equals(text)) {
                 return t;
@@ -587,7 +614,7 @@ public final class PddlDomain extends Object {
         return null;
     }
 
-    public HashMap<Object, Boolean> generateInvariant ( ) {
+    public HashMap<Object, Boolean> generateInvariant() {
         HashMap<Object, Boolean> ret = new HashMap();
         for (ActionSchema as : this.getActionsSchema()) {
             Condition prop_effects = as.getAddList();
@@ -644,19 +671,8 @@ public final class PddlDomain extends Object {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**
-     * @return the abstractInvariantFluents
-     */
-    public HashMap getAbstractInvariantFluents ( ) {
-        return abstractInvariantFluents;
-    }
 
-    /**
-     * @param abstractInvariantFluents the abstractInvariantFluents to set
-     */
-    public void setAbstractInvariantFluents (HashMap abstractInvariantFluents) {
-        this.abstractInvariantFluents = abstractInvariantFluents;
-    }
+
 
     private void addGlobal_constraint (Tree c) {
         SchemaGlobalConstraint con = new SchemaGlobalConstraint(c.getChild(0).getText());

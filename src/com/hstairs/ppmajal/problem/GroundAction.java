@@ -1052,47 +1052,6 @@ public class GroundAction extends PDDLGenericAction {
         return true;
     }
 
-    void simplifyModelWithControllableVariablesSem_old (PddlDomain domain, EPddlProblem problem) throws Exception {
-        HashMap abstractInvariantFluents = domain.generateAbstractInvariantFluents();
-
-        GroundAction a = this;
-        //a.normalizeAndCopy();
-
-        Condition con = a.getPreconditions();
-        AndCond eff = a.getNumericEffects();
-//                    System.out.println(con);
-//                    System.out.println(eff);
-        con.setFreeVarSemantic(true);
-
-        con = con.weakEval(problem, abstractInvariantFluents);
-        if (con == null) {
-            this.setName("");
-            return;
-        }
-
-        if (eff instanceof AndCond) {
-            for (Object o2 : eff.sons) {
-                NumEffect nEff = (NumEffect) o2;
-                //System.out.println(nEff.getRhs().getClass());
-                Expression rValue = nEff.getRight();
-                //System.out.println("before" + rValue);
-                rValue = rValue.weakEval(problem, abstractInvariantFluents);
-                if (rValue == null) {
-                    this.setName("");
-                    return;
-                }
-                nEff.setRight(rValue);
-                //System.out.println("after" + rValue);
-
-            }
-        } else {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        //System.out.println(a.toPDDL());
-        a.normalize();
-        //System.out.println(a.toPDDL());
-    }
-
     public void addPreconditions (Condition c) {
         if (this.getPreconditions() != null) {
             if (this.getPreconditions().sons != null) {

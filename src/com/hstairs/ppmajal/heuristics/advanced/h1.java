@@ -569,7 +569,7 @@ public class h1 extends Heuristic {
                 if (estimate == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 }
-                if (additive_h) {
+                if (additive_h){// && !this.extractRelaxedPlan) {
                     ret += estimate;
                 } else {
                     ret = (estimate > ret) ? estimate : ret;

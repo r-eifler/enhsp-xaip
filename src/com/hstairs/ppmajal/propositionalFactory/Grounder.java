@@ -256,13 +256,26 @@ public class Grounder {
         return ret;
     }
 
-    public Set Propositionalize (ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
-        Set ret = new LinkedHashSet();
-
+    public Set Propositionalize (ActionSchema a, PDDLObjects po, PddlProblem problem, Set combo2) throws Exception {
         Set combo = Substitutions(a, po);
         if (a.getPar().isEmpty()) {
             combo.add(new ParametersAsTerms());
         }
+        return this.Propositionalize(a, combo,po,problem);
+
+    }
+    
+    public Set Propositionalize (ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
+        Set combo = Substitutions(a, po);
+        if (a.getPar().isEmpty()) {
+            combo.add(new ParametersAsTerms());
+        }
+        return this.Propositionalize(a, combo,po,problem);
+
+    }
+    private Set Propositionalize (ActionSchema a, Set combo,PDDLObjects po, PddlProblem problem) throws Exception {
+        Set ret = new LinkedHashSet();
+
         for (Object o : combo) {
 
             if (o instanceof ParametersAsTerms) {

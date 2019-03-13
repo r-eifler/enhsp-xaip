@@ -39,7 +39,7 @@ public class Aibr extends Heuristic {
     public boolean conservative = false;
     //    protected ArrayList<Integer> dist;
     public boolean layers_counter;
-    boolean reachability;
+    protected boolean reachability;
     private boolean counting_layers = true;
     private boolean greedy_relaxed_plan = false;
     private boolean reversing = false;

@@ -111,7 +111,55 @@ public class EPddlProblem extends PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
-                getActions().addAll(af.Propositionalize(act, getObjects(),this));
+                Condition cond = act.getPreconditions();
+                Set combo = null;
+                if (cond instanceof AndCond){
+                    AndCond and = (AndCond)cond;
+                    for (Object c : and.sons){
+                        if (c instanceof Predicate){
+                            Predicate p = (Predicate)c;
+                            if (linkedDomain.getDynamicPredicateMap().get(p.getPredicateName())==null){
+                                combo = new LinkedHashSet();
+//                                System.out.println(p);
+                                for (Map.Entry<Predicate, Boolean> ele: this.initBoolFluentsValues.entrySet()){
+                                    Predicate pred = ele.getKey();
+                                    if (pred.getPredicateName().equals(p.getPredicateName())){
+                                        if (pred.getTerms().size() == p.getTerms().size()){
+                                            for (Object a : p.getTerms()){
+                                                for (Object b: pred.getTerms()){
+                                                    Type aType = null;
+                                                    Type bType = null;
+                                                    if (a instanceof Variable){
+                                                        aType = ((Variable) a).getType();
+                                                    }else if (a instanceof PDDLObject){
+                                                        aType = ((PDDLObject) a).getType();
+                                                    }
+                                                    
+                                                    if (b instanceof PDDLObject){
+                                                        bType = ((PDDLObject) b).getType();
+                                                    }
+//                                                    System.out.println(aType);
+//                                                    System.out.println(bType);
+                                                    if (aType.equals(bType) || aType.isAncestorOf(bType)){
+                                                        
+                                                        combo.add(new ParametersAsTerms(pred.getTerms()));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                     
+                            }
+                        }
+                    }
+                }
+                if (combo == null || true){//To fix the next one. Needs to take into account the fact that only subset of variables need to be considered
+                    getActions().addAll(af.Propositionalize(act, getObjects(),this));
+                }else{
+//                    System.out.println("This is the action with special grounding:"+act);
+//                    getActions().addAll(af.Propositionalize(act, combo,getObjects(),this));
+                }
             }
         } else {
             System.err.println("Please connect the domain of the problem via validation");

@@ -30,6 +30,16 @@ public class ParametersAsTerms<T> extends ArrayList {
 
     private Integer cached_hash;
 
+    public ParametersAsTerms(){
+        super();
+    }
+    
+    public ParametersAsTerms(ArrayList input) {
+        this.addAll(input);
+    }
+    
+    
+
     public PDDLObject containsTerm (PDDLObject o) {
         Integer ret_val = -1;
         Iterator it = this.iterator();

@@ -370,7 +370,21 @@ public class Predicate extends Terminal implements PostCondition {
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-        return Objects.equals(this.terms, other.terms);
+        
+        for (Object term : this.terms) {
+            for (Object term2 : other.terms) {
+                if (term instanceof Variable){
+                    if (!(term2 instanceof Variable)){
+                        return false;
+                    }else{
+                        if (!((Variable) term).getType().equals(((Variable)term2).getType())){
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public PDDLState remove (PDDLState s) {

@@ -323,7 +323,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
 
         if (this.invariantAnalysis) {
-            setInvariantFluents(this.pd.generateAbstractInvariantFluents());
             this.simplifyActions();
         }
     }
