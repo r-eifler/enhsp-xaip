@@ -111,55 +111,7 @@ public class EPddlProblem extends PddlProblem {
         if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
-                Condition cond = act.getPreconditions();
-                Set combo = null;
-                if (cond instanceof AndCond){
-                    AndCond and = (AndCond)cond;
-                    for (Object c : and.sons){
-                        if (c instanceof Predicate){
-                            Predicate p = (Predicate)c;
-                            if (linkedDomain.getDynamicPredicateMap().get(p.getPredicateName())==null){
-                                combo = new LinkedHashSet();
-//                                System.out.println(p);
-                                for (Map.Entry<Predicate, Boolean> ele: this.initBoolFluentsValues.entrySet()){
-                                    Predicate pred = ele.getKey();
-                                    if (pred.getPredicateName().equals(p.getPredicateName())){
-                                        if (pred.getTerms().size() == p.getTerms().size()){
-                                            for (Object a : p.getTerms()){
-                                                for (Object b: pred.getTerms()){
-                                                    Type aType = null;
-                                                    Type bType = null;
-                                                    if (a instanceof Variable){
-                                                        aType = ((Variable) a).getType();
-                                                    }else if (a instanceof PDDLObject){
-                                                        aType = ((PDDLObject) a).getType();
-                                                    }
-                                                    
-                                                    if (b instanceof PDDLObject){
-                                                        bType = ((PDDLObject) b).getType();
-                                                    }
-//                                                    System.out.println(aType);
-//                                                    System.out.println(bType);
-                                                    if (aType.equals(bType) || aType.isAncestorOf(bType)){
-                                                        
-                                                        combo.add(new ParametersAsTerms(pred.getTerms()));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                     
-                            }
-                        }
-                    }
-                }
-                if (combo == null || true){//To fix the next one. Needs to take into account the fact that only subset of variables need to be considered
-                    getActions().addAll(af.Propositionalize(act, getObjects(),this));
-                }else{
-//                    System.out.println("This is the action with special grounding:"+act);
-//                    getActions().addAll(af.Propositionalize(act, combo,getObjects(),this));
-                }
+                    getActions().addAll(af.Propositionalize(act, getObjects(),this, initBoolFluentsValues, linkedDomain));
             }
         } else {
             System.err.println("Please connect the domain of the problem via validation");
@@ -623,19 +575,19 @@ public class EPddlProblem extends PddlProblem {
     }
 
     protected void removeStaticParts ( ) {
-        this.staticFluents = null;//reset this
+//        this.staticFluents = null;//reset this
         removeStaticPart();
         removeUnnecessaryFluents();
     }
 
     protected void pruningViaReachability ( ) {
         //System.out.println("prova");
-
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
         removeStaticParts();
         setActionCosts();
         setProcessEventsCost();
+        sweepStructuresForUnreachableStatements();
 
         Aibr aibr = new Aibr(this);
         Float setup = aibr.setup(this.makePddlState());
@@ -649,11 +601,11 @@ public class EPddlProblem extends PddlProblem {
         this.staticFluents = null;
         //the following just remove actions/processes/events over false and static predicates
         cleanEasyUnreachableTransitions(actions);
-        this.staticFluents = null;
+//        this.staticFluents = null;
         cleanEasyUnreachableTransitions(processesSet);
-        this.staticFluents = null;
+//        this.staticFluents = null;
         cleanEasyUnreachableTransitions(eventsSet);
-        this.staticFluents = null;
+//        this.staticFluents = null;
         cleanIrrelevantConstraints(globalConstraintSet);
         this.processesHaveBeenGrounded = true;
         this.setGroundedRepresentation(true);
@@ -661,6 +613,12 @@ public class EPddlProblem extends PddlProblem {
 
         goals = (ComplexCondition) goals.weakEval(this, this.getActualFluents());
         goals.normalize();
+        if (goals.isUnsatisfiable()){
+            throw new RuntimeException("Goal is not reachable");
+        }
+        if (globalConstraints.isUnsatisfiable()){
+            throw new RuntimeException("Goal is not reachable");
+        }
 
         if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().weakEval(this, this.getActualFluents()));

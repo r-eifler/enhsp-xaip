@@ -34,6 +34,9 @@ public class SchemaParameters extends ArrayList {
     public SchemaParameters (SchemaParameters po) {
         super(po);
     }
+    public SchemaParameters (ArrayList po) {
+        super(po);
+    }
 
     public Variable containsVariable (Variable o) {
         Iterator it = this.iterator();

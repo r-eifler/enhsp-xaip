@@ -18,13 +18,19 @@
  */
 package com.hstairs.ppmajal.propositionalFactory;
 
+import com.google.common.collect.Sets;
+import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
+import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
 
 public class Grounder {
+
+    private boolean smartPruning = true;
 
     public Grounder ( ) {
         super();
@@ -40,7 +46,7 @@ public class Grounder {
             return ret;
         }
 
-        Set<ArrayList<PDDLObject>> sub_ret = sub(input, n_parametri, po);
+        Set<ArrayList<PDDLObject>> sub_ret = sub(new SchemaParameters(input), n_parametri, po, null);
 
         for (ArrayList<PDDLObject> ele : sub_ret) {
             int i = 0;
@@ -131,7 +137,7 @@ public class Grounder {
 
     }
 
-    public static Set sub (ArrayList param, int n_parametri, PDDLObjects po) {
+    public static Set sub (SchemaParameters param, int n_parametri, PDDLObjects po, HashMap<Variable, Set<PDDLObject>> varMap) {
         HashSet combo = new HashSet();
         ArrayList<PDDLObject>[] sub = new ArrayList[n_parametri];
 
@@ -150,8 +156,15 @@ public class Grounder {
         for (Object el1 : param) {
             sub[i] = new ArrayList();
             //System.out.println("Variable" + el1);
+            Collection<PDDLObject> temp = po;
+            if (varMap != null){
+                Set<PDDLObject> o1 = varMap.get(el1);
+                if (o1 != null){
+                    temp = o1;
+                }
+            }
             boolean at_least_one = false;
-            for (Object el : po) {
+            for (Object el : temp) {
                 PDDLObject t = (PDDLObject) el;
                 Variable v = (Variable) el1;
                 if ((v.getType().isAncestorOf(t.getType())) || (t.getType().equals(v.getType()))) {
@@ -203,30 +216,29 @@ public class Grounder {
         return combo;
     }
 
-    public Set Substitutions (ActionSchema a, PDDLObjects po) {
-        HashSet ret = new HashSet();
-        Set combo = new HashSet();
-        SchemaParameters param = a.getPar();
-        int n_parametri = a.getPar().size();
-        return sub(param, n_parametri, po);
-
+//    public Set Substitutions (ActionSchema a, PDDLObjects po) {
+//        HashSet ret = new HashSet();
+//        Set combo = new HashSet();
+//        SchemaParameters param = a.getPar();
+//        int n_parametri = a.getPar().size();
+//        return sub(param, n_parametri, po);
+//
+//    }
+    
+    public Set Substitutions (PDDLGenericAction a, PDDLObjects po) {
+        return(this.Substitutions(a, po, null));
     }
 
-    public Set Substitutions (ProcessSchema a, PDDLObjects po) {
-        HashSet ret = new HashSet();
-        Set combo = new HashSet();
+    public Set Substitutions (PDDLGenericAction a, PDDLObjects po, HashMap<Variable,Set<PDDLObject>> varMap) {
         SchemaParameters param = a.getPar();
         int n_parametri = a.getPar().size();
-        return sub(param, n_parametri, po);
-
+        return sub(param, n_parametri, po,varMap);
     }
 
     public Set Substitutions (SchemaGlobalConstraint constr, PDDLObjects po) {
         SchemaParameters param = constr.parameters;
         int n_parametri = constr.parameters.size();
-
         return sub(param, n_parametri, po);
-
     }
 
     public Set Substitutions (SchemaParameters param, PDDLObjects po) {
@@ -256,24 +268,105 @@ public class Grounder {
         return ret;
     }
 
-    public Set Propositionalize (ActionSchema a, PDDLObjects po, PddlProblem problem, Set combo2) throws Exception {
-        Set combo = Substitutions(a, po);
+    public Set Propositionalize(ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
+        Set combo = null;
         if (a.getPar().isEmpty()) {
             combo.add(new ParametersAsTerms());
+        } else {
+            combo = Substitutions(a, po);
         }
-        return this.Propositionalize(a, combo,po,problem);
+        return this.Propositionalize(a, combo, po, problem);
 
     }
-    
-    public Set Propositionalize (ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
-        Set combo = Substitutions(a, po);
-        if (a.getPar().isEmpty()) {
-            combo.add(new ParametersAsTerms());
+
+    public Set Propositionalize(ActionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) throws Exception {
+
+        HashMap<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
+
+        Set combo = null;
+        if (action.getPar().isEmpty()) {
+            combo = Collections.singleton(new ParametersAsTerms());
+//            combo.add(new ParametersAsTerms());
+        } else {
+            combo = new LinkedHashSet();
+            ComplexCondition cond = action.getPreconditions();
+            Collection<HashMap<Variable, Set<PDDLObject>>> S = new LinkedHashSet();
+            HashMap<Variable, Set<PDDLObject>> t = new HashMap();
+            for (Object o : action.getPar()) {
+                Variable v = (Variable) o;
+                t.put(v, po);
+            }
+            S.add(t);
+            if (cond instanceof AndCond && smartPruning) {
+                AndCond and = (AndCond) cond;
+                for (Object o : and.sons) {
+                    if (o instanceof Predicate) {
+                        Predicate predicateAction = (Predicate) o;
+                        if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null) {
+                            Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new LinkedHashSet();
+                            for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
+                                HashMap<Variable, Set<PDDLObject>> t1 = new HashMap();
+                                boolean consider = true;
+                                Predicate predicateInit = ele.getKey();
+                                if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
+                                    if (predicateInit.getTerms().size() == predicateAction.getTerms().size()) {
+                                        for (int i = 0; i < predicateInit.getTerms().size(); i++) {
+                                            Object a = predicateAction.getTerms().get(i);
+                                            Object b = predicateInit.getTerms().get(i);
+                                            Type aType = null;
+                                            Type bType = null;
+                                            if (a instanceof Variable) {
+                                                aType = ((Variable) a).getType();
+                                            } else if (a instanceof PDDLObject) {
+                                                aType = ((PDDLObject) a).getType();
+                                            }
+                                            if (b instanceof PDDLObject) {
+                                                bType = ((PDDLObject) b).getType();
+                                            }
+                                            if (aType.equals(bType) || aType.isAncestorOf(bType)) {
+                                                if (a instanceof Variable) {
+                                                    t1.put((Variable) a, Collections.singleton((PDDLObject) b));
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                                if (!t1.isEmpty()) {
+                                    for (HashMap<Variable, Set<PDDLObject>> ele2 : S) {
+                                        HashMap<Variable, Set<PDDLObject>> temp = new HashMap();
+                                        for (Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
+                                            Set<PDDLObject> temp2 = t1.get(ele3.getKey());
+                                            if (temp2 != null) {
+                                                temp.put(ele3.getKey(), Sets.intersection(temp2, ele3.getValue()));
+                                            } else {
+                                                temp.put(ele3.getKey(), Collections.EMPTY_SET);
+                                            }
+                                        }
+                                        S1.add(temp);
+                                    }
+                                }
+                            }
+                            S = S1;
+                        }
+                    }
+                }
+            }
+            for (HashMap<Variable, Set<PDDLObject>> temp : S) {
+                combo.add(Substitutions(action, po, temp));
+            }
+//            combo = Substitutions(action, po);
+            Collection res = new LinkedHashSet();
+            for (Object o1 : combo) {
+                res.addAll(this.Propositionalize(action, (Set) o1, po, problem));
+            }
+            return (Set) res;
         }
-        return this.Propositionalize(a, combo,po,problem);
+        return this.Propositionalize(action,combo, po, problem);
 
     }
-    private Set Propositionalize (ActionSchema a, Set combo,PDDLObjects po, PddlProblem problem) throws Exception {
+
+    private Set Propositionalize(ActionSchema a, Set combo, PDDLObjects po, PddlProblem problem) throws Exception {
         Set ret = new LinkedHashSet();
 
         for (Object o : combo) {
@@ -281,7 +374,7 @@ public class Grounder {
             if (o instanceof ParametersAsTerms) {
                 if (a instanceof EventSchema) {
                     EventSchema b = (EventSchema) a;
-                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po,problem);
+                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po, problem);
                     toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 } else {
