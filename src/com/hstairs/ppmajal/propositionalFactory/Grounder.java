@@ -30,7 +30,7 @@ import java.util.*;
 
 public class Grounder {
 
-    private boolean smartPruning = true;
+    private final boolean smartPruning = true;
 
     public Grounder ( ) {
         super();
@@ -306,10 +306,11 @@ public class Grounder {
                             Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new LinkedHashSet();
                             for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
                                 HashMap<Variable, Set<PDDLObject>> t1 = new HashMap();
-                                boolean consider = true;
+                                boolean foundToBeTrue = false;
                                 Predicate predicateInit = ele.getKey();
                                 if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
                                     if (predicateInit.getTerms().size() == predicateAction.getTerms().size()) {
+                                        foundToBeTrue = true;
                                         for (int i = 0; i < predicateInit.getTerms().size(); i++) {
                                             Object a = predicateAction.getTerms().get(i);
                                             Object b = predicateInit.getTerms().get(i);
@@ -326,24 +327,38 @@ public class Grounder {
                                             if (aType.equals(bType) || aType.isAncestorOf(bType)) {
                                                 if (a instanceof Variable) {
                                                     t1.put((Variable) a, Collections.singleton((PDDLObject) b));
+                                                }else{
+                                                    if (a instanceof PDDLObject){
+                                                        if (!a.equals(b)){
+                                                            foundToBeTrue = false;
+                                                            break;
+                                                        }
+                                                    }
                                                 }
+                                            }else{
+                                                foundToBeTrue = false;
+                                                break;
                                             }
 
                                         }
                                     }
                                 }
-                                if (!t1.isEmpty()) {
-                                    for (HashMap<Variable, Set<PDDLObject>> ele2 : S) {
-                                        HashMap<Variable, Set<PDDLObject>> temp = new HashMap();
-                                        for (Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
-                                            Set<PDDLObject> temp2 = t1.get(ele3.getKey());
-                                            if (temp2 != null) {
-                                                temp.put(ele3.getKey(), Sets.intersection(temp2, ele3.getValue()));
-                                            } else {
-                                                temp.put(ele3.getKey(), Collections.EMPTY_SET);
+                                if (foundToBeTrue) {
+                                    if (!t1.isEmpty()){
+                                        for (HashMap<Variable, Set<PDDLObject>> ele2 : S) {
+                                            HashMap<Variable, Set<PDDLObject>> temp = new HashMap();
+                                            for (Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
+                                                Set<PDDLObject> temp2 = t1.get(ele3.getKey());
+                                                if (temp2 != null) {
+                                                    temp.put(ele3.getKey(), Sets.intersection(temp2, ele3.getValue()));
+                                                } else {//not bound..shouldn't happen this
+                                                    //throw new RuntimeException("Something went wrong when checking static predicates in grounding "+
+                                                    //        action+ " for "+predicateAction);
+                                                    temp.put(ele3.getKey(), ele3.getValue());
+                                                }
                                             }
+                                            S1.add(temp);
                                         }
-                                        S1.add(temp);
                                     }
                                 }
                             }

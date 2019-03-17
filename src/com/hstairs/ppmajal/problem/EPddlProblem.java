@@ -575,7 +575,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     protected void removeStaticParts ( ) {
-//        this.staticFluents = null;//reset this
+        //this.staticFluents = null;//reset this
         removeStaticPart();
         removeUnnecessaryFluents();
     }
@@ -584,17 +584,17 @@ public class EPddlProblem extends PddlProblem {
         //System.out.println("prova");
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
-        removeStaticParts();
         setActionCosts();
         setProcessEventsCost();
-        sweepStructuresForUnreachableStatements();
-
+        
         Aibr aibr = new Aibr(this);
         Float setup = aibr.setup(this.makePddlState());
 //        System.out.println("(After AIBR):"+aibr.reachable.size());
         this.reachableActions = aibr.getReachableTransitions();
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
+
+        this.makePddlState(); //remake init so as to account for only reachable actions
     }
 
     protected void sweepStructuresForUnreachableStatements ( ) {
@@ -873,6 +873,9 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private PDDLState makePddlState ( ) {
+        //ensure compactness
+        removeStaticPart();
+        removeUnnecessaryFluents();
         DoubleArrayList numFluents = new DoubleArrayList();
         numFluents.resize(getNumericFluentReference().size());
         for (NumFluent nf : getNumericFluentReference().values()) {

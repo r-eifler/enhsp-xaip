@@ -359,34 +359,36 @@ public class hlm extends h1 {
 //        System.out.println(changed);
         Collection<GroundAction> set = conditionToAction[comp.getHeuristicId()];
         //this mapping contains action that need to be triggered becasue of condition comp
-        for (GroundAction gr2 : set) {
-            if (gr2.getId() == gr.getId()) {//avoids self-loop. Thanks god I have integer mapping here.
-                continue;
-            }
-            if (never_active.get(gr2.getId()) == null)//this is for useless actions
-            {
-                continue;
-            }
-
-//            System.out.println(never_active);
-//            if (!A.contains(gr2))
-//                continue;
-            if (never_active.get(gr2.getId())) {//if this action has never been used before..
-                if (check_conditions(gr2)) {//are conditions all reached?
-//                    if (!a_plus.contains(gr2))
-                    a_plus.push(gr2);//push in the set of actions to consider. 
-                    //Need to understand whether is worth to do check on the list to see if action already is there.
-                    never_active.set(gr2.getId(), false);//now is not never active anymore (just pushed in the a_plus)_
-                    if (this.reachabilityRun) {
-                        this.reachable.add(gr2);
-                    }
+        if (set != null){
+            for (GroundAction gr2 : set) {
+                if (gr2.getId() == gr.getId()) {//avoids self-loop. Thanks god I have integer mapping here.
+                    continue;
                 }
-            } else if (changed) {//if the lm of the condition has changed,
-                //we need to reconsider all the possible paths using this condition. Meaning all the possible actions
-//                if (!a_plus.contains(gr2)) 
-//                  if (!a_plus.contains(gr2))
-                a_plus.push(gr2);//see above for the eventual checking
-//                }
+                if (never_active.get(gr2.getId()) == null)//this is for useless actions
+                {
+                    continue;
+                }
+
+    //            System.out.println(never_active);
+    //            if (!A.contains(gr2))
+    //                continue;
+                if (never_active.get(gr2.getId())) {//if this action has never been used before..
+                    if (check_conditions(gr2)) {//are conditions all reached?
+    //                    if (!a_plus.contains(gr2))
+                        a_plus.push(gr2);//push in the set of actions to consider. 
+                        //Need to understand whether is worth to do check on the list to see if action already is there.
+                        never_active.set(gr2.getId(), false);//now is not never active anymore (just pushed in the a_plus)_
+                        if (this.reachabilityRun) {
+                            this.reachable.add(gr2);
+                        }
+                    }
+                } else if (changed) {//if the lm of the condition has changed,
+                    //we need to reconsider all the possible paths using this condition. Meaning all the possible actions
+    //                if (!a_plus.contains(gr2)) 
+    //                  if (!a_plus.contains(gr2))
+                    a_plus.push(gr2);//see above for the eventual checking
+    //                }
+                }
             }
         }
         Set<GroundAction> set2 = this.reach_achievers.get(comp.getHeuristicId());
