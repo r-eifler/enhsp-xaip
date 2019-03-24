@@ -106,10 +106,10 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void generateActions ( ) throws Exception {
+    public void generateActions ( ){
         long start = System.currentTimeMillis();
         if (this.isValidatedAgainstDomain()) {
-            Grounder af = new Grounder();
+            Grounder af = new Grounder(belief == null);
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
                     getActions().addAll(af.Propositionalize(act, getObjects(),this, initBoolFluentsValues, linkedDomain));
             }
@@ -1026,6 +1026,11 @@ public class EPddlProblem extends PddlProblem {
         }
         if (belief != null) {
             belief = belief.unifyVariablesReferences(inputProblem);
+        }
+        if (this.unknonw_predicates != null){
+            for (Predicate p: this.unknonw_predicates){
+                p = (Predicate) p.unifyVariablesReferences(inputProblem);
+            }
         }
     }
 

@@ -222,7 +222,18 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public Set<Condition> getTerminalConditions ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Set<Condition> res = new LinkedHashSet();
+        if (this.sons != null) {
+            for (Object o : this.sons) {
+                if (o instanceof Condition) {
+                    Condition c = (Condition) o;
+                    res.addAll(c.getTerminalConditions());
+                }else {
+                    System.out.println("Error in getting involved fluents");
+                }
+            }
+        }
+        return res;
     }
 
     @Override

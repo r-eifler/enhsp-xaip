@@ -220,7 +220,7 @@ public class PddlProblem {
 //        System.out.println("tree:" + t.toStringTree());
 //        exploreTree(t);
         this.one_of_s = new LinkedHashSet();
-        this.unknonw_predicates = new LinkedHashSet();
+        
         this.or_s = new LinkedHashSet();
 //        System.out.println(this.objects);
         fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.objects);
@@ -242,9 +242,20 @@ public class PddlProblem {
                     addInitFacts(child);
                     break;
                 case PddlParser.FORMULAINIT:
-                    this.belief = fc.createGoals(child.getChild(0));
+                    Tree andCondition = child.getChild(0).getChild(0);
+                    if (child.getChild(0).getChildCount()>1){
+                        if (this.unknonw_predicates == null){
+                            this.unknonw_predicates = new LinkedHashSet();
+                        }
+                        for (int j = 1; j< child.getChild(0).getChildCount();j++){
+                           this.unknonw_predicates.add((Predicate) addUnknown(child.getChild(0).getChild(j)));
+                        }
+                       
+                    }
+                    this.belief = fc.createGoals(andCondition);
 //                    this.belief = fc.createCondition(child.getChild(0), null);
                     break;
+
                 case PddlParser.GOAL:
                     this.goals = null;
                     Condition con = fc.createCondition(child.getChild(0), null);

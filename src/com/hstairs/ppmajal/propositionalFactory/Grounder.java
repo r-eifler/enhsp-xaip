@@ -30,10 +30,15 @@ import java.util.*;
 
 public class Grounder {
 
-    private final boolean smartPruning = true;
+    private final boolean smartPruning;
 
     public Grounder ( ) {
+        this(true);
+    }
+    
+    public Grounder (boolean smartPruning ) {
         super();
+        this.smartPruning = smartPruning;
     }
 
     public static Set substitutions (ArrayList<Variable> input, PDDLObjects po) {
@@ -279,7 +284,7 @@ public class Grounder {
 
     }
 
-    public Set Propositionalize(ActionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) throws Exception {
+    public Set Propositionalize(ActionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         HashMap<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
@@ -381,7 +386,7 @@ public class Grounder {
 
     }
 
-    private Set Propositionalize(ActionSchema a, Set combo, PDDLObjects po, PddlProblem problem) throws Exception {
+    private Set Propositionalize(ActionSchema a, Set combo, PDDLObjects po, PddlProblem problem) {
         Set ret = new LinkedHashSet();
 
         for (Object o : combo) {

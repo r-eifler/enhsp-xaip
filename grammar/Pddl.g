@@ -35,6 +35,7 @@ tokens {
     PRECONDITION;
     EFFECT;
     FORMULAINIT;/*This is to represent a belief instead of a fully specified state*/
+    BELIEF;
     AND_GD;
     OR_GD;
 	NOT_GD;
@@ -275,6 +276,11 @@ constraintDefBody
 //	| goalDesc
 //	;
 
+belief
+	: goalDesc
+	  initEl* -> ^(BELIEF goalDesc initEl*)
+;
+
 goalDesc
 	: atomicTermFormula
 	| '(' 'and' goalDesc* ')'
@@ -485,7 +491,7 @@ objectDecl
 init
 	: '(' ':init' initEl* ')'
 	-> ^(INIT initEl*)
-	| '(' ':init' goalDesc ')' -> ^(FORMULAINIT goalDesc)
+	| '(' ':init' belief ')' -> ^(FORMULAINIT belief)
 	;
 
 initEl
