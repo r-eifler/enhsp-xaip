@@ -20,10 +20,13 @@ package com.hstairs.ppmajal.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.OrCond;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import java.util.Collection;
+import java.util.Stack;
 
 /**
  *
@@ -41,16 +44,31 @@ public class GoalCounting extends Aibr{
         if (reachability){
             return super.computeEstimate(s_0);
         }
-        int counter = 0;
-        if (this.G instanceof AndCond){
-            for (Condition c: (Collection<Condition>)G.sons){
-                if (!c.isSatisfied(s_0)){
-                    counter++;
-                }
-            }
-        }
-        return (float)counter;
+        return (float)computeCost(G,s_0);
         
     }
     
+    
+    private int computeCost(Condition c, State s){
+        if (c instanceof Terminal){
+            return c.isSatisfied(s) ? 0 : 1;
+        }else if (c instanceof AndCond){
+            int counter = 0;
+            for (final Condition cSon : (Collection<Condition>)((AndCond)c).sons){
+                counter+=computeCost(cSon,s);
+            }
+            return counter;
+        }else if (c instanceof OrCond){
+            int subcost = 0;
+            for (final Condition cSon : (Collection<Condition>)((OrCond)c).sons){
+                subcost = computeCost(cSon,s);
+                if (subcost == 0){
+                    return 0;
+                }
+            }
+            return subcost;
+        }else{
+            throw new UnsupportedOperationException("Goal Counting does not support "+c.getClass());
+        }
+    }
 }
