@@ -294,20 +294,23 @@ public class habs_add extends Heuristic {
 
 //        System.out.println("inf: " + inf);
 //        System.out.println("sup: " + sup);
+//        
+//        System.out.println("infinity: " + Float.POSITIVE_INFINITY);
+//        System.out.println("max_value: " + Float.MAX_VALUE);
         if (Math.abs(inf) < 1e-5) { // inf = 0
-            if (sup == Float.POSITIVE_INFINITY) { // sup = +infty
+            if (sup == Float.POSITIVE_INFINITY || sup == Float.MAX_VALUE) { // sup = +infty
                 repSample = new ExtendedNormExpression(epsilon);
             } else { // sup > 0, but finite
                 repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
         } else if (inf > 0) {
-            if (sup == Float.POSITIVE_INFINITY) { // sup = +infty
+            if (sup >= Float.POSITIVE_INFINITY || sup == Float.MAX_VALUE) { // sup = +infty
                 repSample = new ExtendedNormExpression(inf.doubleValue());
             } else { // sup > 0, but finite
                 repSample = new ExtendedNormExpression((inf + sup) / 2.0f);
             }
         } else // inf < 0
-            if (inf == Float.NEGATIVE_INFINITY) { // inf = -infty
+            if (inf <=Float.NEGATIVE_INFINITY || inf == -Float.MAX_VALUE) { // inf = -infty
                 if (Math.abs(sup) < 1e-5) { // sup = 0
                     repSample = new ExtendedNormExpression(-epsilon.floatValue());
                 } else { // sup < 0, but finite
