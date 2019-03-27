@@ -422,23 +422,24 @@ public final class PddlDomain extends Object {
         if (t.getType() == PddlParser.PREDICATES) {//Sono uno dei predicati
             for (int i = 0; i < t.getChildCount(); i++) {
                 Tree child = t.getChild(i);
-                Predicate p = new Predicate();
-                p.setPredicateName(child.getText());
+                String name = child.getText();
+                ArrayList variables = new ArrayList();
                 Variable v;
                 for (int j = 0; j < child.getChildCount(); j++) {
                     v = (Variable) addPredicates(child.getChild(j));
-                    p.addVariable(v);
+                    variables.add(v);
                 }
-                col.add(p);
+                col.add(Predicate.createPredicate(name, variables));
             }
             return col;
         } else {
-            Variable v = new Variable(t.getText());
+            Type type = null;
             if (t.getChildCount() == 0) {
-                v.setType(new Type("object"));
+                type = new Type("object");
             } else {
-                v.setType(new Type(t.getChild(0).getText()));
+                type = new Type(t.getChild(0).getText());
             }
+            Variable v = new Variable(t.getText(),type);
             return v;
         }
     }

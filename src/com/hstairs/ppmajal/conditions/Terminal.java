@@ -30,7 +30,6 @@ import java.util.List;
  */
 public abstract class Terminal extends Condition {
 
-    protected boolean isUnique;
     private int id;
 
     @Override
@@ -55,7 +54,6 @@ public abstract class Terminal extends Condition {
         Terminal t = p.getTerminalReference(this.toString());
         if (t == null) {
             id = p.getNextTerminalReferenceId();
-            this.isUnique = true;
             p.putTerminalReference(this);
             return this;
         }

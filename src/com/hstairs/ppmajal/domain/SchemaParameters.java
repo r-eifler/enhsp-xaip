@@ -88,9 +88,7 @@ public class SchemaParameters extends ArrayList {
                 }
             }
             if (!found) {
-                Variable obj3 = new Variable();
-                obj3.setName(obj.getName() + counter);
-                obj3.setType(obj.getType());
+                Variable obj3 = new Variable(obj.getName()+counter,obj.getType());
                 //obj.setName(obj.getName()+counter);
                 this.add(obj3);
                 counter++;

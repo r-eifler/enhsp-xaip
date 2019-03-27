@@ -25,6 +25,7 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import java.util.ArrayList;
 import org.antlr.runtime.tree.Tree;
 
 import java.util.Collection;
@@ -203,15 +204,15 @@ public class FactoryConditions {
     }
 
     public Predicate buildPredicate (Tree t, SchemaParameters parTable) {
-        Predicate a = new Predicate();
-        a.setPredicateName(t.getChild(0).getText());
         //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
+        String name = t.getChild(0).getText();
+        ArrayList variables = new ArrayList();
         for (int i = 1; i < t.getChildCount(); i++) {
             if (t.getChild(i).getType() == PddlParser.NAME) {
                 PDDLObject o = new PDDLObject(t.getChild(i).getText());
                 PDDLObject o1 = this.constants.containsTerm(o);
                 if (o1 != null) {
-                    a.addObject(o1);
+                    variables.add(o1);
                 } else {
                     System.out.println("Constants/Objects in this problem:" + this.constants);
                     throw new RuntimeException("Variable " + o + " is not a constant object");
@@ -221,13 +222,14 @@ public class FactoryConditions {
 
                 Variable v1 = parTable.containsVariable(v);
                 if (v1 != null) {
-                    a.addVariable(v1);
+                    variables.add(v1);
                 } else {
                     throw new RuntimeException("BuildPredicate: Variable " + v + " not found in " + parTable);
 //                    System.exit(-1);
                 }
             }
         }
+        Predicate a = Predicate.createPredicate(name, variables);
         if (predicates != null) {
             if (!predicates.validate(a)) {
                 System.out.println("Predicate " + a + " is not valid");
@@ -632,13 +634,8 @@ public class FactoryConditions {
                 NumFluent ret = new NumFluent(c.getChild(i).getText());
                 Tree t = c.getChild(i);
                 for (int j = 0; j < t.getChildCount(); j++) {
-                    Variable v = new Variable(t.getChild(j).getText());
-                    if (t.getChild(j).getChild(0) != null) ;
-                    //System.out.println(t.getChild(j));
 
-                    //System.out.println(t.getChild(j).getChild(0));
-                    v.setType(new Type(t.getChild(j).getChild(0).getText()));
-
+                    Variable v  = new Variable(t.getChild(j).getText(),new Type(t.getChild(j).getChild(0).getText()));
                     ret.addVariable(v);
                 }
                 res.add(ret);

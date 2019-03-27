@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.domain;
 
+import com.google.common.base.Objects;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 
 import java.util.Map;
@@ -27,8 +28,8 @@ import java.util.Map;
  */
 public class Variable implements ActionParameter {
 
-    private String Name;
-    private Type type;
+    final private String Name;
+    final private Type type;
 
     public Variable (String Name, Type type) {
         super();
@@ -37,14 +38,9 @@ public class Variable implements ActionParameter {
     }
 
     public Variable (String text) {
-        super();
-        Name = text;
-
+        this(text,null);
     }
 
-    public Variable ( ) {
-        super();
-    }
 
     @Override
     public PDDLObject ground (Map<Variable, PDDLObject> substitution) {
@@ -78,7 +74,7 @@ public class Variable implements ActionParameter {
         if (o instanceof Variable) {
             Variable o1 = (Variable) o;
             if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
-                return o1.getType() == this.getType();
+                return Objects.equal    (this.type, o1.type);
             } else {
                 return false;
             }
@@ -94,25 +90,12 @@ public class Variable implements ActionParameter {
         return Name;
     }
 
-    /**
-     * @param Name the Name to set
-     */
-    public void setName (String Name) {
-        this.Name = Name;
-    }
 
     /**
      * @return the type
      */
     public Type getType ( ) {
         return type;
-    }
-
-    /**
-     * @param type the type to set
-     */
-    public void setType (Type type) {
-        this.type = type;
     }
 
     public String pddlPrint ( ) {

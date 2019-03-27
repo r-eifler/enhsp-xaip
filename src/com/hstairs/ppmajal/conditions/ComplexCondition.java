@@ -79,21 +79,21 @@ public abstract class ComplexCondition extends Condition {
             sons.add(c);
     }
 
-    /**
-     * @param substitution
-     */
-    @Override
-    public void changeVar (Map substitution) {
-        for (Object o : sons) {
-            if (o instanceof NumEffect) {
-                NumEffect el = (NumEffect) o;
-                el.changeVar(substitution);
-            } else {
-                Condition el = (Condition) o;
-                el.changeVar(substitution);
-            }
-        }
-    }
+//    /**
+//     * @param substitution
+//     */
+//    @Override
+//    public void changeVar (Map substitution) {
+//        for (Object o : sons) {
+//            if (o instanceof NumEffect) {
+//                NumEffect el = (NumEffect) o;
+//                el.changeVar(substitution);
+//            } else {
+//                Condition el = (Condition) o;
+//                el.changeVar(substitution);
+//            }
+//        }
+//    }
 
     @Override
     public void extendTerms (Variable v) {

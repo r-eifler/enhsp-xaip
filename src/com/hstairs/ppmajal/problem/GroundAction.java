@@ -734,9 +734,7 @@ public class GroundAction extends PDDLGenericAction {
         HashMap result = new HashMap();
         for (Object o : this.getParameters()) {
             PDDLObject po = (PDDLObject) o;
-            Variable absPo = new Variable();
-            absPo.setName("?" + po.getName());
-            absPo.setType(po.getType());
+            Variable absPo = new Variable("?"+po.getName(),po.getType());
             result.put(po.getName(), absPo);
         }
         return result;
@@ -1648,7 +1646,7 @@ public class GroundAction extends PDDLGenericAction {
 
     public OrCond getAdders (Predicate aThis) {
         OrCond or = new OrCond();
-        or.addConditions(new Predicate(Predicate.trueFalse.FALSE));
+        or.addConditions(Predicate.createPredicate(Predicate.trueFalse.FALSE));
 
         if (this.addList instanceof AndCond) {
             AndCond and = this.addList;
@@ -1668,7 +1666,7 @@ public class GroundAction extends PDDLGenericAction {
 
     public OrCond getDels (Predicate aThis) {
         OrCond or = new OrCond();
-        or.addConditions(new Predicate(Predicate.trueFalse.FALSE));
+        or.addConditions(Predicate.createPredicate(Predicate.trueFalse.FALSE));
         if (this.delList instanceof AndCond) {
             AndCond and = this.delList;
             Condition c = and.delete(aThis);

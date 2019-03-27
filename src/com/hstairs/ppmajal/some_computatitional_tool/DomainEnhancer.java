@@ -314,19 +314,21 @@ public class DomainEnhancer {
             for (Condition ent : entanglementsByInit) {
                 if (ent instanceof Predicate) {
                     Predicate entP = (Predicate) ent;
-                    Predicate temp = new Predicate();
+                    
                     Predicate predDefinition = domain.getPredicates().findAssociated(entP);
                     if (invariantFluent.get(predDefinition) != null) {
-                        temp.setPredicateName(entP.getPredicateName() + j);
-                        getCondition_to_reformulation().add(entP.pddlPrint(true) + "->" + temp.getPredicateName());
-
+                        String name;
+                        ArrayList variables = new ArrayList();
+                        name = entP.getPredicateName() + j;
                         j++;
-                        temp.setTerms(predDefinition.getTerms());
+                        variables = entP.getTerms();
+                        Predicate temp = Predicate.createPredicate(name, variables);
+                        getCondition_to_reformulation().add(entP.pddlPrint(true) + "->" + temp.getPredicateName());
                         domain.getPredicates().add(temp);
-                        temp.setTerms(entP.getTerms());
                         AndCond precondition = (AndCond) s.getPreconditions();
                         precondition.addConditions(temp);
                     }
+                    
                 } else if (ent instanceof Comparison) {
                     Comparison entP = (Comparison) ent;
                     Comparison temp = new Comparison(entP.getComparator());
@@ -447,13 +449,13 @@ public class DomainEnhancer {
             for (Condition ent : entanglementsByGoal) {
                 if (ent instanceof Predicate) {
                     Predicate entP = (Predicate) ent;
-                    Predicate temp = new Predicate();
                     Predicate predDefinition = domain.getPredicates().findAssociated(entP);
-                    temp.setPredicateName(entP.getPredicateName() + j);
+                    String name = entP.getPredicateName() + j;
+                    ArrayList variables = predDefinition.getTerms();
+                    Predicate temp = Predicate.createPredicate(name, variables);
+                    domain.getPredicates().add(temp);
                     getGoalCondition_Reformulation().add(entP.pddlPrint(true) + "->" + temp.getPredicateName());
                     j++;
-                    temp.setTerms(predDefinition.getTerms());
-                    domain.getPredicates().add(temp);
                 }
             }
 

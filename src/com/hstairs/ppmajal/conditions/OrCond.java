@@ -136,14 +136,14 @@ public class OrCond extends ComplexCondition {
         return false;
     }
 
-    @Override
-    public void changeVar (Map substitution) {
-
-        for (Object o : sons) {
-            Condition el = (Condition) o;
-            el.changeVar(substitution);
-        }
-    }
+//    @Override
+//    public void changeVar (Map substitution) {
+//
+//        for (Object o : sons) {
+//            Condition el = (Condition) o;
+//            el.changeVar(substitution);
+//        }
+//    }
 
     @Override
     public Condition clone ( ) {
@@ -412,7 +412,7 @@ public class OrCond extends ComplexCondition {
                         }
                     }
                 } else {
-                    return new Predicate(Predicate.trueFalse.TRUE);
+                    return Predicate.createPredicate(Predicate.trueFalse.TRUE);
                 }
             } else {
                 System.out.println("AndCond: Condition " + o + " cannot be regressed");

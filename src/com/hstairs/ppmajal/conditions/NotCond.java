@@ -112,10 +112,10 @@ public class NotCond extends Terminal implements PostCondition {
 
     }
 
-    @Override
-    public void changeVar (Map substitution) {
-        son.changeVar(substitution);
-    }
+//    @Override
+//    public void changeVar (Map substitution) {
+//        son.changeVar(substitution);
+//    }
 
     @Override
     public Condition clone ( ) {
@@ -216,10 +216,10 @@ public class NotCond extends Terminal implements PostCondition {
         if (temp.isValid()) {
 //            NotCond ret = new NotCond();
 //            ret.setUnsatisfiable(true);
-            return new Predicate(trueFalse.FALSE);
+            return Predicate.createPredicate(Predicate.trueFalse.FALSE);
         }
         if (temp.isUnsatisfiable()) {
-            return new Predicate(trueFalse.TRUE);
+            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
         }
         NotCond not = new NotCond(temp);
 
@@ -253,19 +253,13 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition delete (Predicate p) {
         if (son.equals(p)) {
-            return new Predicate(trueFalse.TRUE);
+            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
         }
         return null;
     }
 
     @Override
     public int hashCode ( ) {
-        if (isUnique)
-            return super.hashCode();
-        if (son == null) { // sometimes happen when the negation is trivially unsatisfiable
-            return 1;
-        }
-
         final int sonHash = son.hashCode();
         final int result = sonHash + 11;
         return result;
@@ -273,8 +267,6 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public boolean equals (Object obj) {
-        if (isUnique)
-            return super.equals(obj);
         if (this == obj) {
             return true;
         }

@@ -21,6 +21,7 @@ package com.hstairs.ppmajal.conditions;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 
@@ -31,52 +32,58 @@ import java.util.*;
  */
 public class Predicate extends Terminal implements PostCondition {
 
-    public HashSet son;
-    public Integer hash_code;
-    private String name;
-    private ArrayList terms; // seems to be a list of variables and/or PDDLObjects
-
-    public Predicate ( ) {
-        super();
-        //variables = new ArrayList();
-        terms = new ArrayList();
-    }
-
-    public Predicate (trueFalse input) {
-        super();
-        //variables = new ArrayList();
-        if (input == trueFalse.TRUE) {
-            this.setValid(true);
-            this.name = "TRUE";
-        } else {
-            this.setUnsatisfiable(true);
-            this.name = "FALSE";
-        }
-        terms = new ArrayList();
-
-    }
-
-    public Predicate (String name, boolean grounded) {
-        super();
-        //variables = new ArrayList();
+    final private String name;
+    final private ArrayList variables;
+    private static HashMap<Pair<String,ArrayList>,Predicate> predicates; 
+    final private static Predicate truePredicate = new Predicate(true);
+    final private static Predicate falsePredicate = new Predicate(false);
+    final private int id;
+    
+    private Predicate (String name, ArrayList variables, int id) {
         this.name = name;
-        terms = new ArrayList();
-        this.grounded = grounded;
-
+        this.variables = variables;
+        this.id = id;
+    }
+    
+    
+    public static Predicate createPredicate(String name, ArrayList variables){
+        if (predicates == null){
+            predicates = new HashMap();
+        }
+        Pair pair = new Pair(name,variables);
+        Predicate predicate = predicates.get(pair);
+        if (predicate == null){
+            predicate = new Predicate(name,variables,predicates.entrySet().size()+2);
+            predicates.put(pair,predicate);
+        }else{
+//            System.out.println()
+//            System.out.println(name);
+//            System.out.println(variables);
+//            System.out.println(predicate);
+        }
+        return predicate;
+    }
+    public static Predicate createPredicate(trueFalse input){
+        if (input == trueFalse.TRUE) {
+            return truePredicate;
+        } else {
+            return falsePredicate;
+        }
     }
 
-    public Predicate (String name) {
-        this(name, false);
+    private Predicate(boolean b) {
+        if (b){
+            this.name = "TRUE";
+            this.setValid(true);
+            this.id = 0;
+        }else{
+            this.name = "FALSE";
+            this.setUnsatisfiable(true);
+            this.id = 1;
+        }
+        variables = null;
     }
 
-    public Predicate (boolean g) {
-
-        super();
-        grounded = g;
-        //variables = new ArrayList();
-        terms = new ArrayList();
-
-    }
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -135,7 +142,7 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Condition achieve (Predicate p) {
         if (this.equals(p)) {
-            return new Predicate(trueFalse.TRUE);
+            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
         }
         return null;
     }
@@ -177,12 +184,7 @@ public class Predicate extends Terminal implements PostCondition {
         return name;
     }
 
-    /**
-     * @param predicateName the predicateName to set
-     */
-    public void setPredicateName (String predicateName) {
-        this.name = predicateName;
-    }
+
 
 //    //return a grounded copy of the Predicate
 //    public Predicate ground(ArrayList terms_) {
@@ -204,26 +206,6 @@ public class Predicate extends Terminal implements PostCondition {
 //        return ret_val;
 //    }
 
-    /**
-     * Adding a variable term to the predicate
-     *
-     * @param v the variable to add.
-     */
-    public void addVariable (Variable v) {
-////        if (isGrounded()) {
-////            System.out.println("Predicate grounded; no variable is possible");
-//        } else {
-        getTerms().add(v);
-//        }
-    }
-
-    public void addObject (PDDLObject t) {
-//        if (!isGrounded()) {
-//            System.out.println("Predicate not grounded; no term is possible");
-//        } else {
-        getTerms().add(t);
-//        }
-    }
 
     @Override
     public String toString ( ) {
@@ -253,15 +235,9 @@ public class Predicate extends Terminal implements PostCondition {
      * @return the terms
      */
     public ArrayList getTerms ( ) {
-        return terms;
+        return variables;
     }
 
-    /**
-     * @param terms the terms to set
-     */
-    public void setTerms (ArrayList terms) {
-        this.terms = terms;
-    }
 
     /**
      * @return the grounded
@@ -279,27 +255,30 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        Predicate ret = new Predicate(true);
-        ret.setPredicateName(name);
-        ret.grounded = true;
-
+        ArrayList localVariables = new ArrayList();
         //System.out.println(this);
-        for (Object o : terms) {
+        if (substitution.isEmpty()){
+            return this;
+        }
+        for (Object o : variables) {
             if (o instanceof Variable) {
                 final Variable v = (Variable) o;
                 PDDLObject t = substitution.get(v);
                 if (t == null) {
-                    ret.terms.add(v);
+                    localVariables.add(v);
 //                    System.out.println("Error in substitution  for " + o);
 //                    System.exit(-1);
                 } else {
-                    ret.terms.add(t);
+                    localVariables.add(t);
                 }
             } else {
-                ret.terms.add(o);
+                localVariables.add(o);
             }
         }
-        return ret;
+        Predicate createPredicate = Predicate.createPredicate(name, localVariables);
+//        System.out.println(createPredicate);
+        createPredicate.grounded = true;        
+        return createPredicate;
     }
 
     @Override
@@ -345,22 +324,15 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public int hashCode ( ) {
-        if (this.isUnique)
-            return super.hashCode();
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.name);
-        hash = 29 * hash + Objects.hashCode(this.terms);
-        return hash;
+        return id;
     }
 
     @Override
     public boolean equals (Object obj) {
-        if (this.isUnique)
-            return super.equals(obj);
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
+        if (this == null) {
             return false;
         }
         if (getClass() != obj.getClass()) {
@@ -368,7 +340,7 @@ public class Predicate extends Terminal implements PostCondition {
         }
         final Predicate other = (Predicate) obj;
         
-        return Objects.equals(this.terms, other.terms) && Objects.equals(this.name, other.name);
+        return this.id == other.id;
     }
 
     public PDDLState remove (PDDLState s) {
@@ -376,49 +348,6 @@ public class Predicate extends Terminal implements PostCondition {
         return s;
     }
 
-
-//    /**
-//     *
-//     * @param obj
-//     * @return
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        Predicate objF = (Predicate) obj;
-//        if (objF.getPredicateName().equalsIgnoreCase(this.getPredicateName())) {
-//            if (objF.terms.size() == this.terms.size()) {
-//                for (int i = 0; i < objF.terms.size(); i++) {
-//                    if (!(objF.terms.get(i).equals(this.terms.get(i)))) {
-//                        return false;
-//                    }
-//                }
-//            } else {
-//                return false;
-//            }
-//        } else {
-//            return false;
-//        }
-//        return true;
-//    }
-
-    @Override
-    public void changeVar (Map substitution) {
-        ArrayList newVar = new ArrayList();
-
-        for (Object o : terms) {
-            if (o instanceof Variable) {
-                Variable v = (Variable) substitution.get(o);
-                if (v == null) {
-                    System.out.println("Not Found Variable" + o);
-                    System.exit(-1);
-                }
-                newVar.add(v);
-            } else {
-                newVar.add(o);
-            }
-        }
-        terms = newVar;
-    }
 
     @Override
     public Condition clone ( ) {
@@ -442,9 +371,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Condition unGround (Map substitution) {
-        Predicate ret = new Predicate(true);
-        ret.setPredicateName(name);
-
+        ArrayList localVariables = new ArrayList();
         //System.out.println(this);
         for (Object o : this.getTerms()) {
             if (o instanceof PDDLObject) {
@@ -455,11 +382,12 @@ public class Predicate extends Terminal implements PostCondition {
                     System.out.println("Error in substitution  for " + o);
                     System.exit(-1);
                 } else {
-                    ret.terms.add(t);
+                    localVariables.add(t);
                 }
             }
         }
-        this.grounded = false;
+        Predicate ret = Predicate.createPredicate(name, localVariables);
+        ret.grounded = false;
         return ret;
     }
 
@@ -579,59 +507,7 @@ public class Predicate extends Terminal implements PostCondition {
         return or;
     }
 
-    public Condition regress_old (GroundAction gr) {
-        PostCondition achiever = gr.getAdder(this);
-        PostCondition destroyer = gr.getDeleter(this);
-        if (destroyer != null && destroyer instanceof Predicate) {
-            Condition con = new NotCond(null); // Maybe put a dummy here?
-            con.setUnsatisfiable(true);
-            return con;
-        }
-        if (destroyer == null) {
-            if (achiever == null) {
-                return this;
-            }
-            if (achiever instanceof Predicate) {
-                AndCond cond = new AndCond();
-                cond.setValid(true);
-                return cond;
-            }
-            if (achiever instanceof ConditionalEffect) {
-                ConditionalEffect c_eff = (ConditionalEffect) achiever;
-                OrCond cond = new OrCond();
-                cond.addConditions(c_eff.activation_condition);
-                cond.addConditions(this);
-                return cond;
-            }
-        } else {//destroyer is ConditionalEffect
-            ConditionalEffect c_eff = (ConditionalEffect) destroyer;
-            if (achiever == null) {
-                NotCond not = new NotCond(c_eff.activation_condition);
-                AndCond cond = new AndCond();
-                cond.addConditions(this);
-                cond.addConditions(not);
-                return cond;
-            }
-            if (achiever instanceof Predicate) {
-//                NotCond not = new NotCond(c_eff.activation_condition); // TODO: Verify whether ``not'' should be used?
-                AndCond cond = new AndCond();
-                cond.addConditions(this);
-                return cond;
-            }
-            //achiever is a ConditionalEffect
-            ConditionalEffect c_eff_ach = (ConditionalEffect) achiever;
-            OrCond ret = new OrCond();
-            NotCond not = new NotCond(c_eff.activation_condition);
-            AndCond cond = new AndCond();
-            cond.addConditions(this);
-            cond.addConditions(not);
-            ret.addConditions(cond);
-            ret.addConditions(c_eff_ach.activation_condition);
-            return ret;
-        }
-        return null;
-
-    }
+    
 
     @Override
     public HashMap apply (PDDLState s) {
@@ -683,7 +559,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public void storeInvolvedVariables (Collection<Variable> vars) {
-        vars.addAll(this.terms);
+        vars.addAll(this.variables);
     }
 
     @Override

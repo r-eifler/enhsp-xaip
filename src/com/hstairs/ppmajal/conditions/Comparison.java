@@ -26,6 +26,7 @@ import com.hstairs.ppmajal.problem.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.tuple.Triple;
 
 /**
  * @author enrico
@@ -35,13 +36,29 @@ public class Comparison extends Terminal {
     public boolean normalized;
     public Comparison fatherFromRegression = null;
     public Float maxDist;
-    private Integer hash_code;
     private String string_representation;
     private boolean linear;
     private String comparator;
     private Expression left;
     private Expression right;
+    
+    private static HashMap<Triple<String,Expression,Expression>,Comparison> comparisonDataBase;
+    
+    public static Comparison createComparison(String comparator, Expression left, Expression right){
+        if (comparisonDataBase == null){
+            comparisonDataBase = new HashMap();
+        }
+        
+        Comparison comp = comparisonDataBase.get(Triple.of(comparator,left,right));
+        if (comp == null){
+            comp = new Comparison(comparator,left,right);
+            comparisonDataBase.put(Triple.of(comparator, left, right), comp);
+        }
+        return comp;
+    }
 
+    
+    
     public Comparison (String bin_comp_) {
         super();
         comparator = bin_comp_;
@@ -51,10 +68,15 @@ public class Comparison extends Terminal {
         linear = true;
     }
 
+    private Comparison(String comparator, Expression left, Expression right) {
+        this.comparator = comparator;
+        this.left = left;
+        this.right = right;
+        normalized = false;
+    }
+
     @Override
     public boolean equals (Object obj) {
-        if (isUnique)
-            return super.equals(obj);
         if (obj == null) {
             return false;
         }
@@ -88,8 +110,6 @@ public class Comparison extends Terminal {
 
     @Override
     public int hashCode ( ) {
-        if (isUnique)
-            return super.hashCode();
         int hash = 7;
         hash = 67 * hash + (this.comparator != null ? this.comparator.hashCode() : 0);
         hash = 67 * hash + (this.left != null ? this.left.hashCode() : 0);
@@ -304,13 +324,13 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    @Override
-    public void changeVar (Map substitution) {
-
-        this.left.changeVar(substitution);
-        this.right.changeVar(substitution);
-
-    }
+//    @Override
+//    public void changeVar (Map substitution) {
+//
+//        this.left.changeVar(substitution);
+//        this.right.changeVar(substitution);
+//
+//    }
 
     @Deprecated //actually this function does not copy anything
     public Comparison normalizeAndCopy ( ) throws Exception {

@@ -128,10 +128,10 @@ public class PDDLObject extends Terminal implements ActionParameter {
         return true;
     }
 
-    @Override
-    public void changeVar (Map substitution) {
-        return;
-    }
+//    @Override
+//    public void changeVar (Map substitution) {
+//        return;
+//    }
 
     @Override
     public Condition clone ( ) {

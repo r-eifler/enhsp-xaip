@@ -450,7 +450,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 //                System.out.println(temp);
                 if (!temp.isValid()) {//needs to be satisfied
                     if (temp.isUnsatisfiable()) {
-                        return new Predicate(Predicate.trueFalse.FALSE);
+                        return Predicate.createPredicate(Predicate.trueFalse.FALSE);
                     } else if (temp instanceof AndCond) {
                         con.sons.addAll(((AndCond) temp).sons);
                     } else {
@@ -469,7 +469,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
         if (con.sons.isEmpty()) {
 //            System.out.println("Always valid");
-            return new Predicate(Predicate.trueFalse.TRUE);
+            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
         }
         return con;
     }
@@ -493,7 +493,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         for (Object p1 : this.sons) {
             if (p1 instanceof Predicate) {
                 if (p1.equals(p)) {
-                    return new Predicate(Predicate.trueFalse.TRUE);
+                    return Predicate.createPredicate(Predicate.trueFalse.TRUE);
                 }
             }
         }
@@ -508,7 +508,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                 NotCond nc = (NotCond) p1;
                 Predicate p2 = (Predicate) nc.getSon();
                 if (p2.equals(p)) {
-                    return new Predicate(Predicate.trueFalse.TRUE);
+                    return Predicate.createPredicate(Predicate.trueFalse.TRUE);
                 }
             }
         }
@@ -734,10 +734,9 @@ public class AndCond extends ComplexCondition implements PostCondition {
                         new_comparator = a1.getComparator();
                     }
 
-                    Comparison newC = new Comparison(new_comparator);
-                    newC.setLeft(expr);
-                    newC.setRight(new ExtendedNormExpression(0d));
-                    newC.normalize();
+                   
+                    Comparison newC = Comparison.createComparison(new_comparator,expr.normalize(),new ExtendedNormExpression(0d));
+                    
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
 

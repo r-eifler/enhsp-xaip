@@ -92,7 +92,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract boolean isSatisfied (State s);
 
-    public abstract void changeVar (Map substitution);
+//    public abstract void changeVar (Map substitution);
 
     public abstract String pddlPrintWithExtraObject ( );
 
