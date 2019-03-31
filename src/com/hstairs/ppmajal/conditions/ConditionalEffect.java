@@ -131,7 +131,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public void normalize ( ) {
+    public Condition normalize ( ) {
         this.activation_condition.normalize();
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
@@ -143,6 +143,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
             NumEffect ne = (NumEffect) this.effect;
             ne.setRight(ne.getRight().normalize());
         }
+        return this;
     }
 
     @Override
@@ -166,7 +167,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

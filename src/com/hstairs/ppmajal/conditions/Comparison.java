@@ -33,46 +33,50 @@ import org.apache.commons.lang3.tuple.Triple;
  */
 public class Comparison extends Terminal {
 
-    public boolean normalized;
+    private String comparator;
+    private Expression left;
+    private Expression right;
+    final private int id;
+    
+    boolean normalized;
+    //This needs to go away at some point
     public Comparison fatherFromRegression = null;
     public Float maxDist;
     private String string_representation;
     private boolean linear;
-    private String comparator;
-    private Expression left;
-    private Expression right;
     
-    private static HashMap<Triple<String,Expression,Expression>,Comparison> comparisonDataBase;
+    private static HashMap<Triple<String, String, String>, Comparison> comparisonDataBase;
+
+    private static void cancelComparison(String comp, String left, String right) {
+        if (comparisonDataBase!= null){
+            final Comparison remove = comparisonDataBase.remove(Triple.of(comp,left,right));
+        }
+    }
     
-    public static Comparison createComparison(String comparator, Expression left, Expression right){
-        if (comparisonDataBase == null){
+    public static Comparison createComparison(String comparator, Expression left, Expression right, boolean normalized) {
+        if (comparisonDataBase == null) {
             comparisonDataBase = new HashMap();
         }
-        
-        Comparison comp = comparisonDataBase.get(Triple.of(comparator,left,right));
-        if (comp == null){
-            comp = new Comparison(comparator,left,right);
-            comparisonDataBase.put(Triple.of(comparator, left, right), comp);
+        Triple<String, String, String> t = Triple.of(comparator, left.toString(), right.toString());
+        Comparison comp = comparisonDataBase.get(t);
+        if (comp == null) {
+            comp = new Comparison(t.getLeft(), left, right,comparisonDataBase.entrySet().size(),normalized);
+            comparisonDataBase.put(t, comp);
         }
         return comp;
     }
 
-    
-    
-    public Comparison (String bin_comp_) {
-        super();
-        comparator = bin_comp_;
-        normalized = false;
-        fatherFromRegression = null;
-        maxDist = null;
-        linear = true;
+    private Comparison(String comparator, Expression left, Expression right, int id) {
+        this(comparator, left, right, id, false);
+                
     }
-
-    private Comparison(String comparator, Expression left, Expression right) {
+    
+    private Comparison(String comparator, Expression left, Expression right, int id, boolean normalized) {
         this.comparator = comparator;
         this.left = left;
         this.right = right;
-        normalized = false;
+        this.id = id;
+        this.normalized = normalized;
     }
 
     @Override
@@ -85,40 +89,12 @@ public class Comparison extends Terminal {
         }
         final Comparison other = (Comparison) obj;
 
-        other.normalize();
-        this.normalize();
-
-        //System.out.println("Testing equality");
-//        if (!other.normalized || !this.normalized) {
-//            return false;
-//        }
-        if ((this.comparator == null) ? (other.comparator != null) : !this.comparator.equals(other.comparator)) {
-            return false;
-        }
-        if (this.left != other.left && (this.left == null || !this.left.equals(other.left))) {
-            return false;
-        }
-        if (this.right != other.right && (this.right == null || !this.right.equals(other.right))) {
-            return false;
-        }
-
-        ExtendedNormExpression left_expr = (ExtendedNormExpression) left;
-        ExtendedNormExpression left_expr2 = (ExtendedNormExpression) other.left;
-
-        return left_expr.equals(left_expr2);
+        return this.id == other.id;
     }
 
     @Override
     public int hashCode ( ) {
-        int hash = 7;
-        hash = 67 * hash + (this.comparator != null ? this.comparator.hashCode() : 0);
-        hash = 67 * hash + (this.left != null ? this.left.hashCode() : 0);
-        hash = 67 * hash + (this.right != null ? this.right.hashCode() : 0);
-        return hash;
-        //hash = 67 * hash + (this.normalized ? 1 : 0);
-//        hash_code = hash;
-//        }
-//        return hash_code;
+        return id;
     }
 
     @Override
@@ -140,12 +116,6 @@ public class Comparison extends Terminal {
         return comparator;
     }
 
-    /**
-     * @param bin_comp the bin_comp to set
-     */
-    public void setComparator (String bin_comp) {
-        this.comparator = bin_comp;
-    }
 
     /**
      * @return the one
@@ -154,12 +124,6 @@ public class Comparison extends Terminal {
         return left;
     }
 
-    /**
-     * @param one the one to set
-     */
-    public void setLeft (Expression one) {
-        this.left = one;
-    }
 
     /**
      * @return the two
@@ -168,19 +132,10 @@ public class Comparison extends Terminal {
         return right;
     }
 
-    /**
-     * @param two the two to set
-     */
-    public void setRight (Expression two) {
-        this.right = two;
-    }
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        Comparison ret = new Comparison(comparator);
-
-        ret.left = left.ground(substitution, po);
-        ret.right = right.ground(substitution, po);
+        Comparison ret = createComparison(comparator, left.ground(substitution, po), right.ground(substitution, po),false);
         ret.grounded = true;
         return ret;
     }
@@ -333,20 +288,21 @@ public class Comparison extends Terminal {
 //    }
 
     @Deprecated //actually this function does not copy anything
-    public Comparison normalizeAndCopy ( ) throws Exception {
-
+    private Comparison normalizeAndCopy ( ) throws Exception {
         if (normalized) {
+            this.linear = ((ExtendedNormExpression)this.left).linear && ((ExtendedNormExpression)this.right).linear;   
             return this;
         }
-//        System.out.println("Instanceof left: "+left);
-//        System.out.println("Instanceof Right: "+right);
-        this.setLeft(this.left.normalize());
-        this.setRight(this.right.normalize());
+        Comparison ret;
+        String comp = comparator;
+
+        String leftToRemove = left.toString();
+        String rightToRemove = left.toString();
 
         //System.out.println("Instanceof left: "+ret.left.getClass());
-        ExtendedNormExpression leftExpr = (ExtendedNormExpression) this.left;
+        ExtendedNormExpression leftExpr = (ExtendedNormExpression) this.left.normalize();
         //System.out.println(leftExpr);
-        ExtendedNormExpression rightExpr = (ExtendedNormExpression) this.right;
+        ExtendedNormExpression rightExpr = (ExtendedNormExpression) this.right.normalize();
         if (leftExpr.isNumber() && rightExpr.isNumber()) {
             Double first;
             first = leftExpr.getNumber();
@@ -369,7 +325,7 @@ public class Comparison extends Terminal {
                 }
             } else if (this.getComparator().equals("=")) {
                 Float res = new Float(Math.abs(first - second));
-                if (res < 0.00000000000000000000000000000000001) {
+                if (res < Double.MIN_VALUE) {
                     return null;
                 }
             }
@@ -381,43 +337,39 @@ public class Comparison extends Terminal {
         } else {
             //System.out.println("DEBUG");
             if (this.comparator.equals("<") || this.comparator.equals("<=") || this.comparator.equals("=")) {
-                setLeft(rightExpr.minus(leftExpr));
-                setRight(new ExtendedNormExpression(0d));
+                leftExpr = rightExpr.minus(leftExpr);
+                rightExpr = new ExtendedNormExpression(0d);
 
             } else {
-                setLeft(leftExpr.minus(rightExpr));
-                setRight(new ExtendedNormExpression(0d));
+                leftExpr = leftExpr.minus(rightExpr);
+                rightExpr = new ExtendedNormExpression(0d);
             }
 
             if (!this.comparator.equals("=")) {
                 if (this.comparator.contains("=")) {
-                    this.comparator = ">=";
+                    comp = ">=";
                 } else {
-                    this.comparator = ">";
+                    comp = ">";
                 }
             }
         }
 
-        setNormalized(true);
-
+//        cancelComparison(comparator,leftToRemove,rightToRemove);
+        //ret = createComparison(comp,leftExpr,rightExpr,true);
+        //ret.linear = leftExpr.linear && rightExpr.linear;    
+        left = leftExpr;
+        right = rightExpr;
+        comparator = comp;
+        linear = leftExpr.linear && rightExpr.linear;
+        normalized = true;
+        
         return this;
     }
 
     @Override
     public Condition clone ( ) {
-        Comparison ret = new Comparison(this.comparator);
-        ret.grounded = this.grounded;
-        ret.left = this.left.clone();
-        ret.right = this.right.clone();
-        ret.normalized = this.normalized;
-        if (this.maxDist != null) {
-            ret.maxDist = this.maxDist;
-        }
-        if (this.fatherFromRegression != null) {
-            ret.fatherFromRegression = this.fatherFromRegression;
-        }
-
-        return ret;
+        return this;
+//        throw new RuntimeException("Do not clone Comparison!");
     }
 
     public boolean involve (Collection<NumFluent> input) {
@@ -428,93 +380,6 @@ public class Comparison extends Terminal {
         }
     }
 
-    @Override
-    public void normalize ( ) {
-
-        //Comparison ret = new Comparison(this.comparator);
-        //System.out.println("Normalizzazione senza copia!!!");
-        if (normalized) {
-            //System.out.println("Already Normalized:"+this);
-            return;
-        }
-        //System.out.println(this);
-        setLeft(this.left.normalize());
-        setRight(this.right.normalize());
-        ExtendedNormExpression l = (ExtendedNormExpression) this.left;
-        ExtendedNormExpression r = (ExtendedNormExpression) this.right;
-        if (!l.linear || !r.linear) {
-            this.setLinear(false);
-        }
-        //System.out.println(l);
-        try {
-            if (l.isNumber() && r.isNumber()) {
-                Double first;
-                first = l.getNumber();
-                Double second = r.getNumber();
-                if (this.getComparator().equals("<")) {
-                    if ((first < second)) {
-                        return;
-                    }
-                } else if (this.getComparator().equals("<=")) {
-                    if ((first <= second)) {
-                        return;
-                    }
-                } else if (this.getComparator().equals(">")) {
-                    if ((first > second)) {
-                        return;
-                    }
-                } else if (this.getComparator().equals(">=")) {
-                    if ((first >= second)) {
-                        return;
-                    }
-                } else if (this.getComparator().equals("=")) {
-                    Double res = Math.abs(first - second);
-                    if (res < Double.MIN_VALUE) {
-                        return;
-                    }
-                }
-                //System.out.println(this.toString() + " will be never be satisfied");
-
-                setUnsatisfiable(true);
-            }
-        } catch (Exception ex) {
-            System.out.println("Expression malformed:" + this);
-            Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        if ("<".equals(this.comparator) || "<=".equals(this.comparator) || "=".equals(this.comparator)) {
-            try {
-                setLeft(r.minus(l));
-                setRight(new ExtendedNormExpression(0d));
-            } catch (CloneNotSupportedException ex) {
-                Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            try {
-                setLeft(l.minus(r));
-            } catch (CloneNotSupportedException ex) {
-                Logger.getLogger(Comparison.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            setRight(new ExtendedNormExpression(0d));
-
-        }
-
-        if (!this.comparator.equals("=")) {
-            if (this.comparator.contains("=")) {
-                this.comparator = ">=";
-            } else {
-                this.comparator = ">";
-            }
-        }
-        //System.out.println(this);
-
-//       ExtendedNormExpression lexp = (ExtendedNormExpression)this.left;
-//       ExtendedNormExpression rexp = (ExtendedNormExpression)this.right;
-//       lexp = lexp.minus(rexp);
-//       this.right = new ExtendedNormExpression(new Float(0.0));
-        setNormalized(true);
-
-    }
 
 
     /**
@@ -524,12 +389,6 @@ public class Comparison extends Terminal {
         return normalized;
     }
 
-    /**
-     * @param normalized the normalized to set
-     */
-    public void setNormalized (boolean normalized) {
-        this.normalized = normalized;
-    }
 
 
     public void computeMaxDist (RelState numericFleuntsBoundaries) {
@@ -556,11 +415,7 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition unGround (Map asbstractionOf) {
-
-        Comparison ret = new Comparison(comparator);
-
-        ret.left = left.unGround(asbstractionOf);
-        ret.right = right.unGround(asbstractionOf);
+        Comparison ret = Comparison.createComparison(comparator,left.unGround(asbstractionOf),right.unGround(asbstractionOf),false);
         ret.grounded = false;
         return ret;
     }
@@ -648,8 +503,6 @@ public class Comparison extends Terminal {
 
     public ArrayList<NumFluent> susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
 
-        this.left = this.left.susbtFluentsWithTheirInvariants(invariantFluent, j);
-        this.right = this.right.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
         ArrayList ret = new ArrayList();
         ret.addAll(this.left.getInvolvedNumericFluents());
         ret.addAll(this.right.getInvolvedNumericFluents());
@@ -758,18 +611,12 @@ public class Comparison extends Terminal {
             }
             return this;
         }
-        comp.setLeft(lValue);
-        comp.setRight(rValue);
-
-//        System.out.println(lValue);
-//         System.out.println(rValue);
-        return comp;
+        return createComparison(comparator,lValue,rValue,false);
     }
 
     public float eval_not_affected (PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
-            System.err.println("At the moment support just for normalized comparisons");
-            System.exit(-1);
+            throw new RuntimeException("At the moment support just for normalized comparisons"+this);
         }
         ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
         return exp.eval_not_affected(s_0, aThis);
@@ -777,8 +624,7 @@ public class Comparison extends Terminal {
 
     public float eval_affected (PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
-            System.err.println("At the moment support just for normalized comparisons");
-            System.exit(-1);
+            throw new RuntimeException("At the moment support just for normalized comparisons");
         }
         ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
         return exp.eval_affected(s_0, aThis);
@@ -811,16 +657,12 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         AndCond ret = new AndCond();
         Comparison comp = this;
         if (comp.getComparator().equals("=")) {
-            Comparison dual = new Comparison(">=");
-            Comparison dual2 = new Comparison("<=");
-            dual.setLeft(left);
-            dual.setRight(right);
-            dual2.setLeft(left);
-            dual2.setRight(right);
+            Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
+            Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
             ret.addConditions(dual);
             ret.addConditions(dual2);
         } else {
@@ -836,11 +678,7 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition regress (GroundAction gr) {
-
-            Comparison c = new Comparison(this.comparator);
-            c.setLeft(this.getLeft().subst(gr.getNumericEffects()));
-            c.setRight(this.getRight().subst(gr.getNumericEffects()));
-            return c;
+            return Comparison.createComparison(comparator, this.getLeft().subst(gr.getNumericEffects()), this.getRight().subst(gr.getNumericEffects()),false);
         }    
 
     @Override
@@ -962,16 +800,10 @@ public class Comparison extends Terminal {
      * @return the linear
      */
     public boolean isLinear ( ) {
+        this.linear = ((ExtendedNormExpression)this.left).linear && ((ExtendedNormExpression)this.right).linear;   
         return linear;
     }
 
-    /**
-     * @param linear the linear to set
-     */
-    public void setLinear (boolean linear) {
-        this.linear = linear;
-        return;
-    }
 
     @Override
     public void storeInvolvedVariables (Collection<Variable> vars) {
@@ -1022,33 +854,26 @@ public class Comparison extends Terminal {
     Condition invertOperator ( ) {
         if (this.getComparator().equals("=")) {
             OrCond a = new OrCond();
-            Comparison c1 = (Comparison) this.clone();
-            Comparison c2 = (Comparison) this.clone();
-            c1.setComparator("<");
-            c2.setComparator(">");
-            a.addConditions(c2);
-            a.addConditions(c1);
-            c1.string_representation = null;
-            c2.string_representation = null;
+            a.addConditions(Comparison.createComparison("<", left, right,false));
+            a.addConditions(Comparison.createComparison(">", left, right,false));
             return a;
         } else {
-            Comparison c1 = (Comparison) this.clone();
+            String comp = null;
             switch (this.getComparator()) {
                 case "<":
-                    c1.setComparator(">=");
+                    comp = ">=";
                     break;
                 case "<=":
-                    c1.setComparator(">");
+                    comp = ">";
                     break;
                 case ">=":
-                    c1.setComparator("<");
+                    comp = "<";
                     break;
                 case ">":
-                    c1.setComparator("<=");
+                    comp = "<=";
                     break;
             }
-            c1.string_representation = null;
-            return c1;
+            return Comparison.createComparison(comp, left, right,false).normalize();
         }
     }
 
@@ -1065,11 +890,22 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        Comparison comp = (Comparison) super.unifyVariablesReferences(p);
-        comp.left = comp.getLeft().unifyVariablesReferences(p);
-        comp.right = comp.getRight().unifyVariablesReferences(p);
-        return comp;
+        Expression newLeft = left.unifyVariablesReferences(p);
+        Expression newRight = right.unifyVariablesReferences(p);
+        return Comparison.createComparison(comparator, newLeft, newRight,this.normalized);
     }
+
+    @Override
+    public Condition normalize() {
+        try {
+            return this.normalizeAndCopy();
+        } catch (Exception ex) {
+            throw new RuntimeException("Something went wrong "+ex );      
+        }
+    }
+
+
+
 
 
 }

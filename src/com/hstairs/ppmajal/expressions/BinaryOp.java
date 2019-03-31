@@ -209,12 +209,7 @@ public class BinaryOp extends Expression {
 
     }
 
-    @Override
-    public void changeVar (Map<Variable, PDDLObject> substitution) {
-        this.lhs.changeVar(substitution);
-        this.rhs.changeVar(substitution);
 
-    }
 
     @Override
     public Expression weakEval (PddlProblem s, HashMap invF) {
@@ -383,12 +378,6 @@ public class BinaryOp extends Expression {
 
     }
 
-    @Override
-    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
-        this.lhs = this.lhs.susbtFluentsWithTheirInvariants(invariantFluent, j);
-        this.rhs = this.rhs.susbtFluentsWithTheirInvariants(invariantFluent, ++j);
-        return this;
-    }
 
     @Override
     public String toSmtVariableString (int i) {

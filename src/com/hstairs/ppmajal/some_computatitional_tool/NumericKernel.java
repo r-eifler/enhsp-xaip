@@ -198,13 +198,10 @@ public class NumericKernel extends HashMap {
                 Object o = it.next();
                 if (o instanceof Comparison) {
                     Comparison c = (Comparison) o;
-                    c = c.normalizeAndCopy();
                     if (c != null) {
                         ExtendedNormExpression left = (ExtendedNormExpression) c.getLeft();
                         ExtendedNormExpression right = (ExtendedNormExpression) c.getRight();
-                        c.setLeft(left.subst(a.getNumericEffects()));
-                        c.setRight(right.subst(a.getNumericEffects()));
-                        toAdd.add(c);
+                        toAdd.add(Comparison.createComparison(c.getComparator(), left.subst(a.getNumericEffects()), right.subst(a.getNumericEffects()),false));
                     }
                     it.remove();
 

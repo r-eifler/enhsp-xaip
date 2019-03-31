@@ -107,7 +107,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract boolean can_be_false (RelState aThis);
 
-    public abstract void normalize ( );
+    public abstract Condition normalize ( );
 
     public abstract Condition unGround (Map asbstractionOf);
 
@@ -174,7 +174,7 @@ public abstract class Condition extends PDDLProblemComponent {
         this.valid = valid;
     }
 
-    public abstract Condition transform_equality ( );
+    public abstract Condition transformEquality ( );
 
     public abstract boolean is_affected_by (GroundAction gr);
 

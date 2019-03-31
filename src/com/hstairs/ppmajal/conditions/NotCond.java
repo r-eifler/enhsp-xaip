@@ -18,15 +18,12 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.conditions.Predicate.trueFalse;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author enrico
@@ -50,9 +47,7 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public String toString ( ) {
         String ret_val = "(NOT ";
-
         ret_val = ret_val.concat(son.toString());
-
         ret_val = ret_val.concat(")");
 
         return ret_val;
@@ -73,8 +68,7 @@ public class NotCond extends Terminal implements PostCondition {
         return ret;
     }
 
-    //ECCO LA CLOSED WORLD ASSUMPTION---->>>>E ORA!?
-    //Assumiamo che non lo stato le cose che non ci sono sono considerate negate. Questo prevede che la lettura dello stato iniziale ELIMINI tutte le cose negative.....
+
     @Override
     public boolean eval (State s) {
 
@@ -97,19 +91,9 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public void normalize ( ) {
-        if (son instanceof Comparison) {
-            Comparison comp = (Comparison) son;
-            try {
-                comp.normalize();
-            } catch (Exception ex) {
-                Logger.getLogger(NotCond.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            Condition c = son;
-            c.normalize();
-        }
-
+    public Condition normalize ( ) {
+        son = son.normalize();
+        return this;
     }
 
 //    @Override
@@ -192,11 +176,11 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         if (this.son == null) {
             return this;
         }
-        final Condition transformedSon = son.transform_equality();
+        final Condition transformedSon = son.transformEquality();
         NotCond ret = new NotCond(transformedSon);
         //System.out.println(ret);
         return ret;

@@ -331,8 +331,7 @@ public class DomainEnhancer {
                     
                 } else if (ent instanceof Comparison) {
                     Comparison entP = (Comparison) ent;
-                    Comparison temp = new Comparison(entP.getComparator());
-                    temp = (Comparison) entP.clone();
+                    Comparison temp = (Comparison) entP.clone();
                     ArrayList<NumFluent> toAddInDefinition = temp.susbtFluentsWithTheirInvariants(invariantFluent, j);
                     j++;
                     //System.out.println(toAddInDefinition);
@@ -343,10 +342,11 @@ public class DomainEnhancer {
                         precondition.addConditions(temp);
                     }
                     for (NumFluent nf : toAddInDefinition) {
-                        if (!nf.getBeforeReformulation().equals("same")) {
-                            domain.functions.add(nf);
-                            getCondition_to_reformulation().add(nf.getBeforeReformulation() + "->" + nf.getName());
-                        }
+                        throw new RuntimeException("To be fixed");
+//                        if (!nf.getBeforeReformulation().equals("same")) {
+//                            domain.functions.add(nf);
+//                            getCondition_to_reformulation().add(nf.getBeforeReformulation() + "->" + nf.getName());
+//                        }
                     }
 
                 }

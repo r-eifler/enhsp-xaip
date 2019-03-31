@@ -958,13 +958,13 @@ public final class PddlDomain extends Object {
 
     public void substituteEqualityConditions ( ) {
         for (ActionSchema actionSchema : this.getActionsSchema()) {
-            actionSchema.setPreconditions((ComplexCondition) actionSchema.getPreconditions().transform_equality());
+            actionSchema.setPreconditions((ComplexCondition) actionSchema.getPreconditions().transformEquality());
         }
         for (EventSchema event : this.eventsSchema) {
-            event.setPreconditions((ComplexCondition) event.getPreconditions().transform_equality());
+            event.setPreconditions((ComplexCondition) event.getPreconditions().transformEquality());
         }
         for (ProcessSchema process : this.ProcessesSchema) {
-            process.setPreconditions((ComplexCondition) process.getPreconditions().transform_equality());
+            process.setPreconditions((ComplexCondition) process.getPreconditions().transformEquality());
         }
 //        for (SchemaGlobalConstraint gc :this.getSchemaGlobalConstraints()){
 //            gc.condition = gc.condition.transform_equality();

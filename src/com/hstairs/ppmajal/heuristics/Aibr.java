@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.ConditionalEffect;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.expressions.BinaryOp;
+import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
@@ -231,13 +232,15 @@ public class Aibr extends Heuristic {
 
     private GroundAction generate_supporter (NumEffect effect, String inequality, Float asymptote, String name, Condition precondition, GroundAction gr) {
         GroundAction ret = new GroundAction(name,subProblem.getFreshActionId());
-        Comparison indirect_precondition = new Comparison(inequality);
+        Comparison indirect_precondition;
+        Expression left;
         if (effect.getOperator().equals("assign")) {
-            indirect_precondition.setLeft(new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true));
+            left = new BinaryOp(effect.getRight(), "-", effect.getFluentAffected(), true);
         } else {
-            indirect_precondition.setLeft(effect.getRight());
+            left = effect.getRight();
         }
-        indirect_precondition.setRight(new PDDLNumber(0));
+        
+        indirect_precondition = (Comparison) Comparison.createComparison(inequality, left, new PDDLNumber(0),false).normalize();
         ret.getPreconditions().sons.add(indirect_precondition);
         NumEffect eff = new NumEffect("assign");
         eff.setFluentAffected(effect.getFluentAffected());

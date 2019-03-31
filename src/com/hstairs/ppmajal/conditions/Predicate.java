@@ -186,27 +186,6 @@ public class Predicate extends Terminal implements PostCondition {
 
 
 
-//    //return a grounded copy of the Predicate
-//    public Predicate ground(ArrayList terms_) {
-//
-//        Predicate ret_val = new Predicate(true);
-//        ret_val.setPredicateName(predicateName);
-//        int i = 0;
-//        if (terms_.size() != getVariables().size()) {
-//            return null;
-//        }
-//        for (Object o : terms_) {
-//            PDDLObject t = (PDDLObject) o;
-//            Variable v = (Variable) getVariables().get(i);
-//            if (!t.getType().equals(v.getType())) {
-//                return null;
-//            }
-//        }
-//        ret_val.setTerms(terms_);
-//        return ret_val;
-//    }
-
-
     @Override
     public String toString ( ) {
         String ret = "";
@@ -365,8 +344,8 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public void normalize ( ) {
-        return;
+    public Condition normalize ( ) {
+        return this;
     }
 
     @Override
@@ -479,7 +458,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         return this;
     }
 

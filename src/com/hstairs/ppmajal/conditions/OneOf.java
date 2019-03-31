@@ -92,7 +92,7 @@ public class OneOf extends ComplexCondition {
     }
 
     @Override
-    public void normalize ( ) {
+    public Condition normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -141,7 +141,7 @@ public class OneOf extends ComplexCondition {
     }
 
     @Override
-    public ComplexCondition transform_equality ( ) {
+    public ComplexCondition transformEquality ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

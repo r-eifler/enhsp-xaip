@@ -1012,10 +1012,7 @@ public class h1 extends Heuristic {
                     if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
                         new_comparator = ">";
                     }
-                    Comparison newC = new Comparison(new_comparator);
-                    newC.setLeft(expr);
-                    newC.setRight(new ExtendedNormExpression(0d));
-                    newC.normalize();
+                    Comparison newC = (Comparison) Comparison.createComparison(new_comparator, expr, new ExtendedNormExpression(0d),false).normalize();
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
 
@@ -1057,10 +1054,12 @@ public class h1 extends Heuristic {
         new_condition = new HashMap();
         complex_condition_set = new LinkedHashSet();
         directAssignmentConditionHandle = new HashMap();
-        for (Condition c : conditionUniverse) {
+        for (Condition c:conditionUniverse){
+            c.normalize();
 //            System.out.println("This is condition number:"+c.getCounter());
             if (c instanceof Comparison) {
                 Comparison comp = (Comparison) c;
+                
                 new_condition.put(comp, false);
                 is_complex.set(comp.getHeuristicId(), false);
                 if (!comp.isLinear()) {

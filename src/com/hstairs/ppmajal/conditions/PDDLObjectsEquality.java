@@ -137,8 +137,8 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public void normalize ( ) {
-        return;
+    public Condition normalize ( ) {
+        return this;
     }
 
     /**
@@ -279,7 +279,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         return this;
     }
 

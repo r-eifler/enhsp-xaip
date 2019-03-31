@@ -196,45 +196,40 @@ public abstract class ComplexCondition extends Condition {
         return freeVarSemantic;
     }
 
-    /**
-     *
-     */
-    @Override
-    public void normalize ( ) {
-        Iterator it = sons.iterator();
-        Collection<AndCond> to_add = new LinkedHashSet();
-        while (it.hasNext()) {
-            Object o = it.next();
-            if (o instanceof Comparison) {
-                Comparison comp = (Comparison) o;
-                try {
-                    //comp = comp.normalizeAndCopy();
-                    comp.normalize();
-                } catch (Exception ex) {
-                    Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                if (comp == null) {
-                    it.remove();
-                } else if (comp.isUnsatisfiable()) {
-                    this.setUnsatisfiable(true);
-                }
-            } else if (o instanceof AndCond) {
-                AndCond temp = (AndCond) o;
-                temp.normalize();
-                to_add.add(temp);
-                it.remove();
-            } else if (o instanceof NotCond) {
-                NotCond temp = (NotCond) o;
-                temp.normalize();
-            } else if (o instanceof OrCond) {
-                OrCond temp = (OrCond) o;
-                temp.normalize();
-            }
-        }
-        to_add.stream().forEach((AndCond ele) -> {
-            this.sons.addAll(ele.sons);
-        });
-    }
+//    /**
+//     *
+//     * @return 
+//     */
+//    @Override
+//    public Condition normalize ( ) {
+//        Iterator it = sons.iterator();
+//        Collection<AndCond> toAdd = new LinkedHashSet();
+//        while (it.hasNext()) {
+//            Object o = it.next();
+//            if (o instanceof Comparison) {
+//                Comparison comp = (Comparison) o;
+//                try {
+//                    comp = comp.normalizeAndCopy();
+//                } catch (Exception ex) {
+//                    Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                toAdd.add(comp);
+//            } else if (o instanceof AndCond) {
+//                AndCond temp = (AndCond) o;
+//                temp.normalize();
+//                toAdd.add(temp);
+//                it.remove();
+//            } else if (o instanceof NotCond) {
+//                NotCond temp = (NotCond) o;
+//                temp.normalize();
+//            } else if (o instanceof OrCond) {
+//                OrCond temp = (OrCond) o;
+//                temp.normalize();
+//            }
+//        }
+//        
+//        return this;
+//    }
 
 
     protected void sonHasIncorrectType (Object son) {

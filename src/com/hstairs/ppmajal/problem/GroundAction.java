@@ -259,7 +259,7 @@ public class GroundAction extends PDDLGenericAction {
         }
 
         if (this.getPreconditions() != null) {
-            this.getPreconditions().normalize();
+            this.setPreconditions((ComplexCondition) this.getPreconditions().normalize());
             if (this.getPreconditions().isUnsatisfiable()) {
                 this.setReacheable(true);
             }
@@ -311,53 +311,55 @@ public class GroundAction extends PDDLGenericAction {
     }
 
 
-    public Condition regress (GroundAction b, GroundAction a) {
-
+ /**
+     * @return the numericFluentAffected
+     */
+    private Condition regress (GroundAction b, GroundAction a) {
         /*Propositional Part first*/
+
         AndCond result = (AndCond) b.getPreconditions().clone();
 
         /*probably something more efficient can be done here*/
         for (Object o1 : a.getAddList().sons) {
             result.sons.remove(o1);
         }
+        ReferenceLinkedOpenHashSet sons2 = new ReferenceLinkedOpenHashSet();
         for (Object o1 : result.sons) {
 
             //Numeric part. Substitution of variables
             if (o1 instanceof Comparison) {
                 Comparison c = (Comparison) o1;
-                c.setLeft(c.getLeft().subst(a.getNumericEffects()));
-                c.setRight(c.getRight().subst(a.getNumericEffects()));
+                sons2.add(Comparison.createComparison(c.getComparator(), c.getLeft().subst(a.getNumericEffects()), c.getRight().subst(a.getNumericEffects()),false));
             } else if (a.getDelList() != null) {
                 if (a.getDelList().sons.contains(o1)) {
                     System.out.println("Error, " + a.name + " cannot be followed by " + b.name);
                     return null;
+                }else{
+                    sons2.add(o1);
                 }
+            }else{
+                sons2.add(o1);
             }
 
         }
 
+        result.sons = sons2;
         result.sons.addAll(a.getPreconditions().sons);
 
         //AndCond numericCondition = 
         return result;
+
     }
 
     public Comparison regressComparison (Comparison cond) {
-
-        Comparison c = cond;
-        c.setNormalized(false);
-        c.setLeft(c.getLeft().subst(this.getNumericEffects()));
-        c.setRight(c.getRight().subst(this.getNumericEffects()));
-        return c;
+        return Comparison.createComparison(name, cond.getLeft().subst(this.getNumericEffects()), cond.getRight().subst(this.getNumericEffects()),false);
     }
 
     public Condition regress (Condition cond) {
 
         if (cond instanceof Comparison) {
             Comparison c = (Comparison) cond;
-            c.setLeft(c.getLeft().subst(this.getNumericEffects()));
-            c.setRight(c.getRight().subst(this.getNumericEffects()));
-            return c;//this is an error!!!
+            return Comparison.createComparison(name, c.getLeft().subst(this.getNumericEffects()), c.getRight().subst(this.getNumericEffects()),false);
         }
 
         /*Propositional Part first*/
@@ -370,23 +372,29 @@ public class GroundAction extends PDDLGenericAction {
                 result.sons.remove(o1);
             }
         }
+        ReferenceLinkedOpenHashSet sons2 = new ReferenceLinkedOpenHashSet();
+        
         for (Object o1 : result.sons) {
 
             //Numeric part. Substitution of variables
             if (o1 instanceof Comparison) {
                 Comparison c = (Comparison) o1;
-                c.setLeft(c.getLeft().subst(this.getNumericEffects()));
-                c.setRight(c.getRight().subst(this.getNumericEffects()));
-
+                sons2.add(Comparison.createComparison(c.getComparator(), c.getLeft().subst(this.getNumericEffects()), c.getRight().subst(this.getNumericEffects()),false));
             } else if (this.getDelList() != null) {
                 if (this.getDelList().sons.contains(o1)) {
                     System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
                     return null;
+                }else{
+                    sons2.add(o1);
                 }
+            }else{
+                sons2.add(o1);
             }
 
         }
 
+        result.sons = sons2;
+        
         if (this.getPreconditions() != null) {
             result.sons.addAll(this.getPreconditions().sons);
         }
@@ -691,10 +699,9 @@ public class GroundAction extends PDDLGenericAction {
             if (o1 instanceof Comparison) {
                 Comparison temp = (Comparison) o1;
                 Comparison c = (Comparison) temp.clone();
-                c.setLeft(c.getLeft().subst(this.getNumericEffects()));
-                c.setRight(c.getRight().subst(this.getNumericEffects()));
-                c.fatherFromRegression = temp;
-                result.sons.add(c);
+                Comparison cond2 = Comparison.createComparison(c.getComparator(),c.getLeft().subst(this.getNumericEffects()),c.getRight().subst(this.getNumericEffects()),false);
+                cond2.fatherFromRegression = temp;
+                result.sons.add(cond2);
             } else if (this.getDelList() != null) {
                 if (this.getDelList().sons.contains(o1)) {
                     System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
@@ -930,56 +937,56 @@ public class GroundAction extends PDDLGenericAction {
         return ("ACTION" + this.name + parametri + "@").replaceAll("\\s+", "");
     }
 
-    //This function regresses the cond passed as input according to the model of the action. The value of the parameter will be modified. So if you want to generate a new condition please clone before using the function
-    public Condition regressNew (Condition cond) {
-
-        AndCond result = null;
-
-        /*Propositional Part first*/
-        if (cond instanceof AndCond) {
-            result = (AndCond) cond;
-        } else {
-            result = new AndCond();
-            result.addConditions(cond);
-        }
-
-
-        /*probably something more efficient can be done here*/
-        if (this.getAddList() != null) {
-            for (Object o1 : this.getAddList().sons) {
-                //System.out.println(result);
-                result.sons.remove(o1);
-                //System.out.println(result);
-            }
-
-        }
-        for (Object o1 : result.sons) {
-
-            //Numeric part. Substitution of variables
-            if (o1 instanceof Comparison) {
-                Comparison c = (Comparison) o1;
-                c.setLeft(c.getLeft().subst(this.getNumericEffects()));
-                c.setRight(c.getRight().subst(this.getNumericEffects()));
-
-            } else if (this.getDelList() != null) {
-                if (this.getDelList().sons.contains(o1)) {
-                    System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
-                    return null;
-                }
-            }
-
-        }
-
-        //System.out.println(result);
-        if (this.getPreconditions() != null) {
-            result.sons.addAll(this.getPreconditions().sons);
-        }
-
-        //System.out.println(result);
-        //AndCond numericCondition = 
-        return result;
-
-    }
+//    //This function regresses the cond passed as input according to the model of the action. The value of the parameter will be modified. So if you want to generate a new condition please clone before using the function
+//    public Condition regressNew (Condition cond) {
+//
+//        AndCond result = null;
+//
+//        /*Propositional Part first*/
+//        if (cond instanceof AndCond) {
+//            result = (AndCond) cond;
+//        } else {
+//            result = new AndCond();
+//            result.addConditions(cond);
+//        }
+//
+//
+//        /*probably something more efficient can be done here*/
+//        if (this.getAddList() != null) {
+//            for (Object o1 : this.getAddList().sons) {
+//                //System.out.println(result);
+//                result.sons.remove(o1);
+//                //System.out.println(result);
+//            }
+//
+//        }
+//        for (Object o1 : result.sons) {
+//
+//            //Numeric part. Substitution of variables
+//            if (o1 instanceof Comparison) {
+//                Comparison c = (Comparison) o1;
+//                c.setLeft(c.getLeft().subst(this.getNumericEffects()));
+//                c.setRight(c.getRight().subst(this.getNumericEffects()));
+//
+//            } else if (this.getDelList() != null) {
+//                if (this.getDelList().sons.contains(o1)) {
+//                    System.out.println("Error, " + this.name + " cannot weakAchiever " + cond.toString());
+//                    return null;
+//                }
+//            }
+//
+//        }
+//
+//        //System.out.println(result);
+//        if (this.getPreconditions() != null) {
+//            result.sons.addAll(this.getPreconditions().sons);
+//        }
+//
+//        //System.out.println(result);
+//        //AndCond numericCondition = 
+//        return result;
+//
+//    }
 
     public boolean improve (Comparison t1) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -1480,10 +1487,8 @@ public class GroundAction extends PDDLGenericAction {
             return positiveness > 0;
 
         } else {
-            System.out.println("At the moment only normalized expressions are considered");
-            System.exit(-1);
+            throw new RuntimeException("At the moment only normalized expressions are considered "+comp);
         }
-        return false;
     }
 
 
@@ -1774,7 +1779,7 @@ public class GroundAction extends PDDLGenericAction {
         if (metric != null && metric.getMetExpr() != null) {
             NumEffect neff = new NumEffect("increase");
 
-            neff.setFluentAffected(new NumFluent("total-time"));
+            neff.setFluentAffected(NumFluent.createNumFluent("total-time", new ArrayList()));
             PDDLNumber n = new PDDLNumber(1.0f);
             ExtendedNormExpression expr1 = n.normalize();
             neff.setRight(expr1);

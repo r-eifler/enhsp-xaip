@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -336,24 +337,27 @@ public class ActionSchema extends PDDLGenericAction {
         for (Object o1 : a.getAddList().sons) {
             result.sons.remove(o1);
         }
+        ReferenceLinkedOpenHashSet sons2 = new ReferenceLinkedOpenHashSet();
         for (Object o1 : result.sons) {
 
             //Numeric part. Substitution of variables
             if (o1 instanceof Comparison) {
                 Comparison c = (Comparison) o1;
-                c.setLeft(c.getLeft().subst(a.getNumericEffects()));
-
-                c.setRight(c.getRight().subst(a.getNumericEffects()));
-
+                sons2.add(Comparison.createComparison(c.getComparator(), c.getLeft().subst(a.getNumericEffects()), c.getRight().subst(a.getNumericEffects()),false));
             } else if (a.getDelList() != null) {
                 if (a.getDelList().sons.contains(o1)) {
                     System.out.println("Error, " + a.name + " cannot be followed by " + b.name);
                     return null;
+                }else{
+                    sons2.add(o1);
                 }
+            }else{
+                sons2.add(o1);
             }
 
         }
 
+        result.sons = sons2;
         result.sons.addAll(a.getPreconditions().sons);
 
         //AndCond numericCondition = 

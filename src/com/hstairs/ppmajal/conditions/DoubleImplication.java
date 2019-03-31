@@ -99,7 +99,7 @@ public class DoubleImplication extends ComplexCondition {
     }
 
     @Override
-    public void normalize ( ) {
+    public Condition normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -124,7 +124,7 @@ public class DoubleImplication extends ComplexCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

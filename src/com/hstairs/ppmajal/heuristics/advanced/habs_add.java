@@ -470,21 +470,24 @@ public class habs_add extends Heuristic {
         Comparison indirect_precondition_gt;
         Comparison indirect_precondition_lt;
 
+        String indirect_precondition_gt_com;
+        String indirect_precondition_lt_com;
+
         if (inf < 0) {
-            indirect_precondition_gt = new Comparison(">=");
-            indirect_precondition_lt = new Comparison("<");
+            indirect_precondition_gt_com = ">=";
+            indirect_precondition_lt_com = "<";
         } else {
-            indirect_precondition_gt = new Comparison(">");
-            indirect_precondition_lt = new Comparison("<=");
+            
+            indirect_precondition_gt_com = ">";
+            indirect_precondition_lt_com = "<=";
         }
 
-        indirect_precondition_gt.setRight(new PDDLNumber(inf));
-        indirect_precondition_lt.setRight(new PDDLNumber(sup));
-        indirect_precondition_gt.setLeft(effect.getRight());
-        indirect_precondition_lt.setLeft(effect.getRight());
 
-        indirect_precondition_gt.normalize();
-        indirect_precondition_lt.normalize();
+        indirect_precondition_gt = (Comparison) Comparison.createComparison(indirect_precondition_gt_com, effect.getRight(), new PDDLNumber(inf),false).normalize();
+        indirect_precondition_lt = (Comparison) Comparison.createComparison(indirect_precondition_lt_com, effect.getRight(), new PDDLNumber(sup),false).normalize();
+        
+        indirect_precondition_gt = (Comparison) indirect_precondition_gt.normalize();
+        indirect_precondition_lt = (Comparison) indirect_precondition_lt.normalize();
 
         // set pre-conditions for subactions
         subaction.getPreconditions().sons.add(indirect_precondition_lt);

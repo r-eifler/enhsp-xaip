@@ -109,10 +109,7 @@ public class PDDLNumber extends Expression {
 
     }
 
-    @Override
-    public void changeVar (Map<Variable, PDDLObject> substitution) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
+
 
     @Override
     public Expression weakEval (PddlProblem s, HashMap invF) {
@@ -159,10 +156,6 @@ public class PDDLNumber extends Expression {
         return this;
     }
 
-    @Override
-    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
-        return this;
-    }
 
     @Override
     public int hashCode ( ) {

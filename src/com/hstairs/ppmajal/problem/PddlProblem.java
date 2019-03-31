@@ -316,14 +316,13 @@ public class PddlProblem {
                 return ret;
             }
             case PddlParser.FUNC_HEAD: {
-                NumFluent ret = new NumFluent(t.getChild(0).getText());
-
+                String name = t.getChild(0).getText();
+                ArrayList variables = new ArrayList();
                 for (int i = 1; i < t.getChildCount(); i++) {
-                    ret.addTerms(this.getObjectByName(t.getChild(i).getText()));
+                    variables.add(this.getObjectByName(t.getChild(i).getText()));
                 }
 
-                ret.grounded = true;
-                return ret;
+                return NumFluent.createNumFluent(name, variables,true);
             }
             case PddlParser.UNARY_MINUS:
                 return new MinusUnary(createExpression(t.getChild(0)));
@@ -825,7 +824,7 @@ public class PddlProblem {
     }
 
     protected ComplexCondition generate_inequalities (Condition con) {
-        return (ComplexCondition) con.transform_equality();
+        return (ComplexCondition) con.transformEquality();
     }
 
     public boolean print_actions ( ) {

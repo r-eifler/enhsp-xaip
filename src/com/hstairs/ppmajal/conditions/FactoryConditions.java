@@ -127,11 +127,7 @@ public class FactoryConditions {
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
             case PddlParser.COMPARISON_GD:
-                //System.out.println("Comparison:" + infoAction.getText());
-                Comparison c = new Comparison(tree.getChild(0).getText());
-                c.setLeft(createExpression(tree.getChild(1), parTable));
-                c.setRight(createExpression(tree.getChild(2), parTable));
-                return c;
+                return Comparison.createComparison(tree.getChild(0).getText(), createExpression(tree.getChild(1), parTable), createExpression(tree.getChild(2), parTable),false);
             //Create an equality structure for comparing Objects
             case PddlParser.EQUALITY_CON:
                 PDDLObjectsEquality equality = new PDDLObjectsEquality();
@@ -276,7 +272,8 @@ public class FactoryConditions {
                 return ret;
             }
             case PddlParser.FUNC_HEAD: {
-                NumFluent ret = new NumFluent(t.getChild(0).getText());
+                String name = t.getChild(0).getText();
+                ArrayList variables = new ArrayList();
                 for (int i = 1; i < t.getChildCount(); i++) {
 //                System.out.println("Constant Type:" + PddlParser.CONSTANTS);
 //                System.out.println("Name Type:" + PddlParser.NAME);
@@ -285,7 +282,7 @@ public class FactoryConditions {
                         PDDLObject o = new PDDLObject(t.getChild(i).getText());
                         PDDLObject o1 = this.constants.containsTerm(o);
                         if (o1 != null) {
-                            ret.addTerms(o1);
+                            variables.add(o1);
                         } else {
 
                             System.out.println("NumFluent:Variable " + o + " is not a constant object");
@@ -297,7 +294,7 @@ public class FactoryConditions {
                         Variable v1 = parTable.containsVariable(v);
 
                         if (v1 != null) {
-                            ret.addVariable(v1);
+                            variables.add(v1);
                         } else {
 //                        System.out.println("t.getType: " + t.getChild(i).getText());
                             System.out.println("NumFluent: Variable " + v + " not involved in the action model");
@@ -305,6 +302,7 @@ public class FactoryConditions {
                         }
                     }
                 }
+                NumFluent ret = NumFluent.createNumFluent(name, variables);
                 return ret;
             }
             case PddlParser.UNARY_MINUS:
@@ -471,11 +469,7 @@ public class FactoryConditions {
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
             //System.out.println("Comparison:" + infoAction.getText());
             AndCond ret = new AndCond();
-            Comparison c = new Comparison(infoAction.getChild(0).getText());
-
-            c.setLeft(createExpression(infoAction.getChild(1)));
-            c.setRight(createExpression(infoAction.getChild(2)));
-            ret.addConditions(c);
+            ret.addConditions(Comparison.createComparison(infoAction.getChild(0).getText(), createExpression(infoAction.getChild(1)), createExpression(infoAction.getChild(2)),false));
             return ret;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -511,7 +505,8 @@ public class FactoryConditions {
                 return ret;
             }
             case PddlParser.FUNC_HEAD: {
-                NumFluent ret = new NumFluent(t.getChild(0).getText());
+                String name = t.getChild(0).getText();
+                ArrayList variables = new ArrayList();
                 for (int i = 1; i < t.getChildCount(); i++) {
 //                System.out.println("Constant Type:" + PddlParser.CONSTANTS);
 //                System.out.println("Name Type:" + PddlParser.NAME);
@@ -520,7 +515,7 @@ public class FactoryConditions {
                         PDDLObject o = new PDDLObject(t.getChild(i).getText());
                         PDDLObject o1 = this.constants.containsTerm(o);
                         if (o1 != null) {
-                            ret.addTerms(o1);
+                            variables.add(o1);
                         } else {
 
                             System.out.println("NumFluent:Variable " + o + " is not a constant object");
@@ -530,7 +525,7 @@ public class FactoryConditions {
 
                     }
                 }
-                return ret;
+                return NumFluent.createNumFluent(name, variables);
             }
             case PddlParser.UNARY_MINUS:
                 return new MinusUnary(createExpression(t.getChild(0)));
@@ -629,15 +624,14 @@ public class FactoryConditions {
         LinkedHashSet<NumFluent> res = new LinkedHashSet();
         if (c != null) {
             for (int i = 0; i < c.getChildCount(); i++) {
-
-                //System.out.println(c.getChild(i).getText());
-                NumFluent ret = new NumFluent(c.getChild(i).getText());
+                ArrayList variables = new ArrayList();
                 Tree t = c.getChild(i);
                 for (int j = 0; j < t.getChildCount(); j++) {
 
                     Variable v  = new Variable(t.getChild(j).getText(),new Type(t.getChild(j).getChild(0).getText()));
-                    ret.addVariable(v);
+                    variables.add(v);
                 }
+                NumFluent ret = NumFluent.createNumFluent(c.getChild(i).getText(), variables);
                 res.add(ret);
             }
         }

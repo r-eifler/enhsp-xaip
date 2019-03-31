@@ -47,7 +47,7 @@ public class Printer {
                     PDDLObject obj = (PDDLObject) o1;
                     ret.append(" ").append(obj.getName());
                 }
-                ret.append(") ").append(s.numFluents.get(nf.getId())).append(")\n");
+                ret.append(") ").append(s.getNumFluents().get(nf.getId())).append(")\n");
             }
         }
 

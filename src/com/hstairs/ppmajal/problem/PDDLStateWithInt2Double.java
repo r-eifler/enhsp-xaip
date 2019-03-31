@@ -27,6 +27,8 @@ import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -38,39 +40,35 @@ import java.util.Objects;
 /**
  * @author enrico
  */
-public class PDDLState extends State {
+public class PDDLStateWithInt2Double extends PDDLState {
 
-    private DoubleArrayList numFluents;
-//    private Int2DoubleArrayMap numFluents;
+//    private DoubleArrayList numFluents;
+    private Int2DoubleOpenHashMap numFluentsViaDoubleArray;
     
     private BitSet boolFluents;
     public double time;
 
-    private PDDLState(DoubleArrayList numFluents, BitSet boolFluents) {
-        this.numFluents = numFluents.clone();
+    private PDDLStateWithInt2Double(Int2DoubleOpenHashMap numFluents, BitSet boolFluents) {
+        this.numFluentsViaDoubleArray = numFluents.clone();
         this.boolFluents = (BitSet) boolFluents.clone();
     }
 
-    public DoubleArrayList getNumFluents() {
-        return numFluents;
-    }
 
     public BitSet getBoolFluents() {
         return boolFluents;
     }
 
-    public PDDLState ( ) {
+    public PDDLStateWithInt2Double ( ) {
         super();
 
     }
 
-    public PDDLState (HashMap<Integer,Double> numFluents, BitSet otherBoolFluents) {
+    public PDDLStateWithInt2Double (HashMap<Integer,Double> numFluents, BitSet otherBoolFluents) {
             
-        this.numFluents = new DoubleArrayList();
+        this.numFluentsViaDoubleArray = new Int2DoubleOpenHashMap();
         if (NumFluent.numFluentsBank != null){
-            this.numFluents.resize(NumFluent.numFluentsBank.size());
             for (Entry<Integer,Double> ele: numFluents.entrySet()){
-                this.numFluents.set(ele.getKey(), ele.getValue());
+                this.numFluentsViaDoubleArray.put(ele.getKey().intValue(), ele.getValue().doubleValue());
             }
         }
         this.boolFluents = (BitSet) otherBoolFluents.clone();
@@ -81,15 +79,15 @@ public class PDDLState extends State {
     @Override
     public String toString ( ) {
         return "PDDLState{" +
-                "numFluents=" + numFluents +
+                "numFluents=" + numFluentsViaDoubleArray +
                 ", boolFluents=" + boolFluents +
                 ", time=" + time +
                 '}';
     }
 
     @Override
-    public PDDLState clone ( ) {
-        PDDLState ret_val = new PDDLState(this.numFluents, this.boolFluents);
+    public PDDLStateWithInt2Double clone ( ) {
+        PDDLStateWithInt2Double ret_val = new PDDLStateWithInt2Double(this.numFluentsViaDoubleArray, this.boolFluents);
         ret_val.time = this.time;
         return ret_val;
     }
@@ -97,7 +95,7 @@ public class PDDLState extends State {
     @Override
     public int hashCode ( ) {
         int hash = 3;
-        hash = 53 * hash + Objects.hashCode(this.numFluents);
+        hash = 53 * hash + this.numFluentsViaDoubleArray.hashCode();
         hash = 53 * hash + this.boolFluents.hashCode();
         return hash;
     }
@@ -113,8 +111,9 @@ public class PDDLState extends State {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final PDDLState other = (PDDLState) obj;
-        if (!Objects.equals(this.numFluents, other.numFluents)) {
+        final PDDLStateWithInt2Double other = (PDDLStateWithInt2Double) obj;
+        if (!this.numFluentsViaDoubleArray.equals(other.numFluentsViaDoubleArray)){
+//        if (!Objects.equals(this.numFluentsViaDoubleArray, other.numFluentsViaDoubleArray)) {
             return false;
         }
         if (!this.boolFluents.equals(other.boolFluents)) {
@@ -124,26 +123,29 @@ public class PDDLState extends State {
     }
 
 
+    @Override
     public double fluentValue (NumFluent f) {
         if (f.getId() == -1) {
             return Double.NaN;
         }
-        return this.numFluents.get(f.getId());
+        return this.numFluentsViaDoubleArray.get(f.getId());
 
     }
 
 
+    @Override
     public boolean holds (Predicate p) {
         return (p.getId() != -1 && (this.boolFluents.get(p.getId())));
     }
 
+    @Override
     public void setNumFluent (NumFluent f, Double after) {
         if (f.getId() == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Numeric fluent wasn't on the table");
 //            f.getId() = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
         } else {
-            this.numFluents.set(f.getId(), after);
+            this.numFluentsViaDoubleArray.put(f.getId(), after.doubleValue());
         }
     }
 
@@ -218,12 +220,14 @@ public class PDDLState extends State {
 
     public RelState relaxState ( ) {
         RelState ret_val = new RelState();
-        for (int i = 0; i < this.numFluents.size(); i++) {
-            Double n = this.numFluents.get(i);
-            if (n == null) {
+//        for (int i = 0; i < this.numFluentsViaDoubleArray.size(); i++) {  
+        for (Int2DoubleMap.Entry int2DoubleEntrySet : this.numFluentsViaDoubleArray.int2DoubleEntrySet()){
+            int i = int2DoubleEntrySet.getIntKey();
+            double ele = int2DoubleEntrySet.getDoubleValue();
+            if (Double.isNaN(ele)) {
                 ret_val.possNumValues.put(i, new Interval(Float.NaN));
             } else
-                ret_val.possNumValues.put(i, new Interval(new Float(this.numFluents.get(i))));
+                ret_val.possNumValues.put(i, new Interval(new Float(ele)));
 
         }
 
@@ -238,7 +242,7 @@ public class PDDLState extends State {
 
     }
 
-    public void updateValues (HashSet<NumFluent> toUpdate, PDDLState temp) {
+    public void updateValues (HashSet<NumFluent> toUpdate, PDDLStateWithInt2Double temp) {
         for (NumFluent n : toUpdate) {
             this.setNumFluent(n, temp.fluentValue(n));
         }

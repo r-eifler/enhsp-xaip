@@ -42,12 +42,13 @@ public abstract class Expression extends Object {
 
     /**
      * Substitutes the variables in this expression with the PDDLObjects
-     * associated to each variable in the specified table. The returned
-     * expression is therefore grounded. This method may fail if there is no
-     * substitution for some variable.
+     * associated to each variable in the specified table.The returned
+ expression is therefore grounded. This method may fail if there is no
+ substitution for some variable.
      *
      * @param substitution the map that indicates what object should replace the
      *                     specified variable.
+     * @param po
      * @return a copy of this expression where each variable is replaced to the
      * object according to the specified mapping.
      */
@@ -60,7 +61,6 @@ public abstract class Expression extends Object {
     //public abstract PDDLState apply(PDDLState s);
     public abstract ExtendedNormExpression normalize ( );
 
-    public abstract void changeVar (Map<Variable, PDDLObject> substitution);
 
     /**
      * @param p
@@ -85,7 +85,6 @@ public abstract class Expression extends Object {
 
     public abstract Expression susbtFluentsWithTheirInvariants (int j);
 
-    public abstract Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j);
 
     public abstract String toSmtVariableString (int i);
 

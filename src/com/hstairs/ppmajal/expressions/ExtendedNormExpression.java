@@ -113,25 +113,14 @@ public class ExtendedNormExpression extends Expression {
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
-//            if (a.f != null) {
-//                if (first){
-//                    ret = ret.concat(a.n + "x" + a.f );
-//                    first = false;
-//                }else
-//                    ret = ret.concat(" + " + a.n + "x" + a.f );
-//            } else {
-//                if (first){
-//                    ret = ret.concat(a.n.toString());
-//                    first = false;
-//                }else
-//                    ret = ret.concat("+" + a.n);
-//            }
             if (!a.linear) {
                 ret = ret.concat(a.bin.toString());
             } else if (a.f != null) {
                 ret = ret.concat("(* " + a.n + " (" + a.f + "))");
-            } else {
+            } else if (a.n != null) {
                 ret = ret.concat(a.n.toString());
+            } else{
+                ret = ret.concat(a.bin.toString());
             }
         }
         ret = ret.concat(")");
@@ -202,6 +191,8 @@ public class ExtendedNormExpression extends Expression {
 
         ArrayList<ExtendedAddendum> copy_of_this = new ArrayList(this.summations);
         ArrayList<ExtendedAddendum> copy_of_right = new ArrayList(right.summations);
+//        System.out.println("this summations:"+copy_of_this);
+//        System.out.println("other summations:"+copy_of_right);
         HashMap<ExtendedAddendum, Boolean> already_added = new HashMap();
         for (ExtendedAddendum a : copy_of_this) {
             if (!a.linear) {
@@ -212,7 +203,7 @@ public class ExtendedNormExpression extends Expression {
                 for (ExtendedAddendum b : copy_of_right) {
                     if (b.linear && b.bin == null) {
                         if ((b.f == null) && (a.f == null)) {
-                            ele_to_add.n = a.n - b.n;
+                            ele_to_add.n = a.n - b.n;                     
                             if (ele_to_add.n == 0.0) {
                                 add = false;
                             }
@@ -391,6 +382,9 @@ public class ExtendedNormExpression extends Expression {
                 newA.f = a.f.ground(substitution, po);
             }
             newA.n = a.n;
+            if (a.bin != null){
+                newA.bin = (BinaryOp) a.bin.ground(substitution, po);
+            }
             ret.summations.add(newA);
         }
         return ret;
@@ -483,15 +477,7 @@ public class ExtendedNormExpression extends Expression {
         return this;
     }
 
-    @Override
-    public void changeVar (Map<Variable, PDDLObject> substitution) {
-        for (Object o : this.summations) {
 
-            ExtendedAddendum a = (ExtendedAddendum) o;
-            a.f.changeVar(substitution);
-
-        }
-    }
 
     @Override
     public ExtendedNormExpression subst (Condition input) {
@@ -714,10 +700,6 @@ public class ExtendedNormExpression extends Expression {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String toSmtVariableString (int j) {

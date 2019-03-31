@@ -176,14 +176,7 @@ public class NumEffect extends Expression implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    /**
-     * @param substitution
-     */
-    @Override
-    public void changeVar (Map<Variable, PDDLObject> substitution) {
-        this.fluentAffected.changeVar(substitution);
-        this.right.changeVar(substitution);
-    }
+
 
     /**
      * @param problem
@@ -293,10 +286,6 @@ public class NumEffect extends Expression implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String toSmtVariableString (int i) {

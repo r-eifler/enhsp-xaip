@@ -142,8 +142,8 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public void normalize ( ) {
-        return;
+    public Condition normalize ( ) {
+        return this;
     }
 
     @Override
@@ -177,7 +177,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
+import com.hstairs.ppmajal.conditions.Predicate.trueFalse;
 import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -406,13 +407,13 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         if (this.sons == null) {
             return this;
         }
         AndCond ret = new AndCond();
         for (Condition c1 : (Collection<Condition>) this.sons) {
-            Condition res = c1.transform_equality();
+            Condition res = c1.transformEquality();
             if (res instanceof AndCond) {
 
                 ret.sons.addAll(((AndCond) res).sons);
@@ -735,7 +736,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                     }
 
                    
-                    Comparison newC = Comparison.createComparison(new_comparator,expr.normalize(),new ExtendedNormExpression(0d));
+                    Comparison newC = (Comparison) Comparison.createComparison(new_comparator,expr.normalize(),new ExtendedNormExpression(0d),false).normalize();
                     
 
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
@@ -775,5 +776,25 @@ public class AndCond extends ComplexCondition implements PostCondition {
     @Override
     public boolean isUngroundVersionOf (Condition conditions) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition normalize() {
+        ReferenceLinkedOpenHashSet sons1 = new ReferenceLinkedOpenHashSet();
+        for (final Condition cond : (Collection<Condition>)sons ){
+            Condition condInternal = cond.normalize();
+            if (condInternal.isUnsatisfiable()){
+                this.setUnsatisfiable(true);
+                sons1.add(condInternal);
+            }else if (!condInternal.isValid()){
+                if (condInternal instanceof AndCond){
+                    sons1.addAll(((AndCond) condInternal).sons);
+                }else{
+                    sons1.add(condInternal);
+                }
+            }
+        }
+        sons = sons1;
+        return this;
     }
 }

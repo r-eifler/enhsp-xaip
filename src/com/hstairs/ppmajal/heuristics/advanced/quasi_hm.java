@@ -65,6 +65,7 @@ public class quasi_hm extends Heuristic {
 
 
     private EPddlProblem problem;
+    private Condition Gc;
 
 
     public quasi_hm (EPddlProblem problem) {
@@ -383,7 +384,7 @@ public class quasi_hm extends Heuristic {
                 Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        this.G.normalize();
-        this.gC.normalize();
+        this.G = (ComplexCondition) this.G.normalize();
+        this.Gc = this.gC.normalize();
     }
 }

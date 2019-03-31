@@ -85,10 +85,6 @@ public class TrigonometricFunction extends BinaryOp {
         return new ExtendedNormExpression(this);
     }
 
-    @Override
-    public void changeVar (Map<Variable, PDDLObject> substitution) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Expression weakEval (PddlProblem s, HashMap invF) {
@@ -161,10 +157,6 @@ public class TrigonometricFunction extends BinaryOp {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String toSmtVariableString (int i) {

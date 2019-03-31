@@ -119,7 +119,7 @@ public class Existential extends ComplexCondition {
     }
 
     @Override
-    public void normalize ( ) {
+    public Condition normalize ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -165,12 +165,12 @@ public class Existential extends ComplexCondition {
     }
 
     @Override
-    public ComplexCondition transform_equality ( ) {
+    public ComplexCondition transformEquality ( ) {
         Existential res = new Existential();
         res.parameters = parameters;
         HashSet<Condition> temp = new HashSet<>();
         for (Condition cond : (Collection<Condition>) sons) {
-            temp.add(cond.transform_equality());
+            temp.add(cond.transformEquality());
         }
         sons.addAll(temp);
         res.sons = sons;

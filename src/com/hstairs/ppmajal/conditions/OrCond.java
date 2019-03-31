@@ -51,33 +51,23 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public void normalize ( ) {
-        Iterator it = sons.iterator();
-        while (it.hasNext()) {
-            Object o = it.next();
-            if (o instanceof Comparison) {
-                Comparison comp = (Comparison) o;
-                try {
-//                    System.out.println(comp);
-                    comp = comp.normalizeAndCopy();
-                } catch (Exception ex) {
-                    Logger.getLogger(OrCond.class.getName()).log(Level.SEVERE, null, ex);
+    public Condition normalize() {
+        ReferenceLinkedOpenHashSet sons1 = new ReferenceLinkedOpenHashSet();
+        for (final Condition cond : (Collection<Condition>)sons ){
+            Condition condInternal = cond.normalize();
+            if (condInternal.isValid()){
+                this.setUnsatisfiable(true);
+                return Predicate.createPredicate(Predicate.trueFalse.FALSE);
+            }else if (!condInternal.isUnsatisfiable()){
+                if (condInternal instanceof OrCond){
+                    sons1.addAll(((AndCond) condInternal).sons);
+                }else{
+                    sons1.add(condInternal);
                 }
-                if (comp == null) {
-                    it.remove();
-                }
-            } else if (o instanceof AndCond) {
-                AndCond temp = (AndCond) o;
-                temp.normalize();
-            } else if (o instanceof NotCond) {
-                NotCond temp = (NotCond) o;
-                temp.normalize();
-            } else if (o instanceof OrCond) {
-                OrCond temp = (OrCond) o;
-                temp.normalize();
             }
         }
-
+        sons = sons1;
+        return this;
     }
 
     @Override
@@ -370,13 +360,13 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition transform_equality ( ) {
+    public Condition transformEquality ( ) {
         if (this.sons == null) {
             return this;
         }
         OrCond ret = new OrCond();
         for (Condition c1 : (Collection<Condition>) this.sons) {
-            ret.addConditions(c1.transform_equality());
+            ret.addConditions(c1.transformEquality());
         }
         return ret;
     }

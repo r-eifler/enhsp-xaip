@@ -99,7 +99,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         if (normalized) {
             return;
         }
-        this.condition.normalize();
+        this.condition = this.condition.normalize();
         if (this.condition.isUnsatisfiable()) {
             this.setReacheable(false);
         }

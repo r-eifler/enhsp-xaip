@@ -193,7 +193,7 @@ public abstract class Heuristic {
                 Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        this.G.normalize();
+        this.G = (ComplexCondition) this.G.normalize();
     }
 
     public float gValue(State s, Object transition, State next, Float previousG) {

@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
@@ -33,23 +34,36 @@ import java.util.*;
 public class NumFluent extends Expression {
 
     Integer cachedHashCode;
-    private String name;
-    private ArrayList<ActionParameter> terms;
-    private String beforeReformulation;
+    final private String name;
+    final private ArrayList<ActionParameter> terms;
     private Boolean has_to_be_tracked;
     private String terms_as_string;
-    private int id;
-    private Integer actual_hash;
-    private boolean isUnique;
+    final private int id;
 
-    public NumFluent (String name) {
+    public static HashMap<Pair<String,ArrayList>,NumFluent> numFluentsBank;
+    public static NumFluent createNumFluent(String name, ArrayList variables){
+        return createNumFluent(name,variables,false);
+    }
+    public static NumFluent createNumFluent(String name, ArrayList variables,boolean groundAlready){
+        if (numFluentsBank == null){
+            numFluentsBank = new HashMap();
+        }
+        Pair pair = new Pair(name,variables);
+        NumFluent ret = numFluentsBank.get(pair);
+        if (ret == null){
+            ret = new NumFluent(name,variables,numFluentsBank.entrySet().size());
+            ret.grounded = groundAlready;
+            numFluentsBank.put(pair, ret);
+        }
+        return ret;
+    }
+            
+    
+    private NumFluent (String name, ArrayList variables, int id) {
         super();
         this.name = name;
-        //variables = new ArrayList();
-        terms = new ArrayList<>();
-
-        this.beforeReformulation = null;
-        id = -1;
+        terms = variables;
+        this.id = id;
     }
 
     @Override
@@ -117,10 +131,12 @@ public class NumFluent extends Expression {
 
     @Override
     public NumFluent ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        NumFluent ret = new NumFluent(getName());
+        ArrayList variables = new ArrayList();
         for (final ActionParameter param : terms) {
-            ret.addTerms(param.ground(substitution));
+            variables.add(param.ground(substitution));
         }
+        NumFluent ret;
+        ret = createNumFluent(name, variables);
         ret.grounded = true;
         terms_as_string = this.terms.toString();
         return ret;
@@ -128,7 +144,8 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression unGround (Map substitution) {
-        NumFluent ret = new NumFluent(getName());
+        ArrayList variables = new ArrayList();
+
         for (Object o : terms) {
             if (o instanceof PDDLObject) {
                 PDDLObject obj = (PDDLObject) o;
@@ -137,12 +154,13 @@ public class NumFluent extends Expression {
                     System.out.println("Substitution Failed for " + o.toString());
                     System.exit(-1);
                 } else {
-                    ret.addVariable(t);
+                    variables.add(t);
                 }
             } else {
-                ret.addVariable((Variable) o);
+                variables.add(o);
             }
         }
+        NumFluent ret  = createNumFluent(name,variables);
         ret.grounded = false;
         return ret;
     }
@@ -154,12 +172,6 @@ public class NumFluent extends Expression {
         return terms;
     }
 
-    /**
-     * @param terms the terms to set
-     */
-    public void setTerms (ArrayList terms) {
-        this.terms = terms;
-    }
 
     public void addTerms (PDDLObject el) {
         terms.add(el);
@@ -212,17 +224,7 @@ public class NumFluent extends Expression {
 
     }
 
-    @Override
-    public void changeVar (Map<Variable, PDDLObject> substitution) {
-        final ArrayList<ActionParameter> newVar = new ArrayList();
-
-        for (final ActionParameter o : terms) {
-            final PDDLObject sub = o.ground(substitution);
-            newVar.add(sub);
-        }
-
-        terms = newVar;
-    }
+ 
 
     @Override
     public Expression weakEval (PddlProblem problem, HashMap invF) {
@@ -340,40 +342,10 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression susbtFluentsWithTheirInvariants (int j) {
-        NumFluent ret = new NumFluent(this.name + j);
-        ret.setTerms(terms);
-        ret.grounded = false;
-        return ret;
+        return createNumFluent(name+j,terms);
     }
 
-    @Override
-    public Expression susbtFluentsWithTheirInvariants (HashMap<Object, Boolean> invariantFluent, int j) {
 
-        if (invariantFluent.get(this) != null) {
-            NumFluent ret = new NumFluent(this.name + j);
-            ret.setTerms(terms);
-            ret.grounded = false;
-            ret.setBeforeReformulation(this.pddlPrint(true));
-            return ret;
-        } else {
-            this.setBeforeReformulation("same");
-            return this;
-        }
-    }
-
-    /**
-     * @return the beforeReformulation
-     */
-    public String getBeforeReformulation ( ) {
-        return beforeReformulation;
-    }
-
-    /**
-     * @param beforeReformulation the beforeReformulation to set
-     */
-    public void setBeforeReformulation (String beforeReformulation) {
-        this.beforeReformulation = beforeReformulation;
-    }
 
     @Override
     public String toSmtVariableString (int i) {
@@ -451,14 +423,7 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression unifyVariablesReferences (EPddlProblem p) {
-        NumFluent t = p.getNumfluentReference(this.toString());
-        if (t == null) {
-            id = p.getNextNumFluentReference();
-            this.isUnique = true;
-            p.putNumFluentReference(this);
-            return this;
-        }
-        return t;
-
+        p.putNumFluentReference(this);
+        return this;
     }
 }
