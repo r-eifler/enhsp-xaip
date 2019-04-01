@@ -1012,15 +1012,19 @@ public class h1 extends Heuristic {
                     if (a1.getComparator().equals(">") && a2.getComparator().equals(">")) {
                         new_comparator = ">";
                     }
-                    Comparison newC = (Comparison) Comparison.createComparison(new_comparator, expr, new ExtendedNormExpression(0d),false).normalize();
+                    Comparison newC = (Comparison) Comparison.createComparison(new_comparator, expr, new ExtendedNormExpression(0d), false).normalize();
+                    if (newC != null) {
 
-                    ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
+                        newC.normalize();
+                        ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
 
-                    if (tempLeft.summations.size() < 2) {
-                        continue;
+                        if (tempLeft.summations.size() < 2) {
+                            continue;
+                        }
+                        redundant_constraints.put(newC, true);
+                        temp.add(newC);
                     }
-                    redundant_constraints.put(newC, true);
-                    temp.add(newC);
+
                 }
             }
         }

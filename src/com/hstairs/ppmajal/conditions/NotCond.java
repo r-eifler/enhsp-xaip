@@ -404,7 +404,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     public boolean isTerminal ( ) {
-        return this.son instanceof Predicate;
+        return this.son instanceof Terminal;
     }
 
     @Override
