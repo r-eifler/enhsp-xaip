@@ -25,10 +25,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
-
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +39,8 @@ public class PDDLState extends State {
 
     private DoubleArrayList numFluents;
 //    private Int2DoubleArrayMap numFluents;
-    
+    private static int[] fromNf2StateId;
+    private static int[] fromStateId2Nf;
     private BitSet boolFluents;
     public double time;
 
@@ -64,16 +62,26 @@ public class PDDLState extends State {
 
     }
 
-    public PDDLState (HashMap<Integer,Double> numFluents, BitSet otherBoolFluents) {
-            
+    public PDDLState (HashMap<Integer,Double> inputNumFluents, BitSet otherBoolFluents) {
+
         this.numFluents = new DoubleArrayList();
-        if (NumFluent.numFluentsBank != null){
-            this.numFluents.resize(NumFluent.numFluentsBank.size());
-            for (Entry<Integer,Double> ele: numFluents.entrySet()){
-                this.numFluents.set(ele.getKey(), ele.getValue());
+        if (NumFluent.numFluentsBank != null) {
+            fromNf2StateId = new int[NumFluent.numFluentsBank.size()];
+            fromStateId2Nf = new int[inputNumFluents.entrySet().size()];
+            Arrays.fill(fromNf2StateId, -1);
+            Arrays.fill(fromStateId2Nf, -1);
+            this.numFluents.resize(inputNumFluents.entrySet().size());
+            int i = 0;
+            for (Entry<Integer, Double> ele : inputNumFluents.entrySet()) {
+                fromNf2StateId[ele.getKey()] = i;
+                fromStateId2Nf[i] = ele.getKey();
+                this.numFluents.set(i,ele.getValue());
+                i++;
             }
         }
         this.boolFluents = (BitSet) otherBoolFluents.clone();
+        System.out.println("Size(F):"+otherBoolFluents.size());
+        System.out.println("Size(X):"+numFluents.size());
         time = -1;
     }
     
@@ -128,7 +136,7 @@ public class PDDLState extends State {
         if (f.getId() == -1) {
             return Double.NaN;
         }
-        return this.numFluents.get(f.getId());
+        return this.numFluents.get(fromNf2StateId[f.getId()]);
 
     }
 
@@ -143,7 +151,7 @@ public class PDDLState extends State {
 //            f.getId() = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
         } else {
-            this.numFluents.set(f.getId(), after);
+            this.numFluents.set(fromNf2StateId[f.getId()], after);
         }
     }
 
@@ -221,9 +229,9 @@ public class PDDLState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             Double n = this.numFluents.get(i);
             if (n == null) {
-                ret_val.possNumValues.put(i, new Interval(Float.NaN));
+                ret_val.possNumValues.put(fromStateId2Nf[i], new Interval(Float.NaN));
             } else
-                ret_val.possNumValues.put(i, new Interval(new Float(this.numFluents.get(i))));
+                ret_val.possNumValues.put(fromStateId2Nf[i], new Interval(new Float(n)));
 
         }
 

@@ -742,7 +742,7 @@ public class ExtendedNormExpression extends Expression {
 
     public float eval_not_affected (PDDLState s_0, GroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
-        for (ExtendedAddendum ad : this.summations) {
+        for (final ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
                 current += ad.n;
             } else if (!action.getNumericFluentAffected().contains(ad.f)) {
@@ -774,6 +774,7 @@ public class ExtendedNormExpression extends Expression {
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
+                
                 if (aThis.getNumericFluentAffected().contains(ad.f)) {
                     current += ad.n * aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 }

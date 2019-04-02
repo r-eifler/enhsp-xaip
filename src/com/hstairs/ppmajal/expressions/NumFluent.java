@@ -23,10 +23,10 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
-import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author Enrico Scala
@@ -48,7 +48,7 @@ public class NumFluent extends Expression {
         if (numFluentsBank == null){
             numFluentsBank = new HashMap();
         }
-        Pair pair = new Pair(name,variables);
+        Pair pair = Pair.of(name,variables);
         NumFluent ret = numFluentsBank.get(pair);
         if (ret == null){
             ret = new NumFluent(name,variables,numFluentsBank.entrySet().size());

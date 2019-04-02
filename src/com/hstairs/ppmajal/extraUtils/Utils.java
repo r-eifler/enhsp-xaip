@@ -20,15 +20,20 @@ package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.Type;
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 //import static sun.org.mozilla.javascript.Token.name;
 
 /**
  * @author enrico
  */
 public class Utils {
+
+    public static HashMap interactsWith;
 
     public static void dbg_print (int debug, String string) {
         if (debug > 0) {

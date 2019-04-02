@@ -55,10 +55,10 @@ public abstract class Heuristic {
     protected boolean sat_test_within_cost = true;
     protected int numberOfHardConditions;
     protected HashMap<String, Integer> fromConditionStringToUniqueInteger;
+    protected EPddlProblem problem ;
 
-    
-    public Heuristic(){
-        
+    public Heuristic(EPddlProblem problem) {
+        this.problem = problem;
     }
     
     public Heuristic(Set<GroundAction> A) {
@@ -99,6 +99,7 @@ public abstract class Heuristic {
         reachable = new LinkedHashSet();
         conditionUniverse = new ArrayList();
         this.gC = GC;
+        problem = null;
     }
 
     //this initializer is mandatory for being executed before each invocation of the heuristic
@@ -205,6 +206,9 @@ public abstract class Heuristic {
     }
 
     public Collection<GroundAction> getReachableTransitions() {
+        if (this.reachable == null){
+            return this.A;
+        }
         return this.reachable;
     }
 

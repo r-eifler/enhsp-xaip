@@ -198,6 +198,10 @@ public abstract class PDDLGenericAction {
         this.generateAffectedNumFluents();
         return this.numericFluentAffected.keySet();
     }
+    public Object2BooleanMap getNumericFluentAffectedAsMap ( ) {
+        this.generateAffectedNumFluents();
+        return this.numericFluentAffected;
+    }
 
     public void forcedGenerateAffectedNumFluents ( ) {
 

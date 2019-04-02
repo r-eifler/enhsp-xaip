@@ -20,12 +20,15 @@ package com.hstairs.ppmajal.conditions;
 
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
+import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 /**
@@ -902,6 +905,25 @@ public class Comparison extends Terminal {
         } catch (Exception ex) {
             throw new RuntimeException("Something went wrong "+ex );      
         }
+    }
+
+    public boolean interactWith(GroundAction aThis) {
+        if (Utils.interactsWith == null){
+            Utils.interactsWith = new HashMap();
+        }
+        
+        
+        Pair<Integer, Integer> p = Pair.of(this.getId(), aThis.getId());
+        Boolean interact = (Boolean) Utils.interactsWith.get(p);
+        if (interact == null){
+            if (this.involve(aThis.getNumericFluentAffected())) {
+                interact = true;
+            }else{
+                interact = false;
+            }
+            Utils.interactsWith.put(p,interact);
+        }
+        return interact;
     }
 
 

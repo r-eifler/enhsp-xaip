@@ -59,6 +59,7 @@ public class EPddlProblem extends PddlProblem {
     private PDDLState pureInit;
     private HashMap<String, Terminal> terminalReference;
     private HashMap<String, NumFluent> numFluentReference;
+    private boolean smallExpensive = false;
 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super(problemFile, po, types);
@@ -907,7 +908,13 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
         }
-        PDDLState pddlState = new PDDLState(numFluents, boolFluents);
+        PDDLState pddlState = null;
+        if (smallExpensive){
+            pddlState = new PDDLStateWithInt2Double(numFluents, boolFluents);
+        }else{
+            pddlState = new PDDLState(numFluents,boolFluents);
+        }
+        
 //        System.out.println(Printer.stringBuilderPddlPrintWithDummyTrue(this, pddlState));
         return pddlState;
         

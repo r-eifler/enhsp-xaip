@@ -560,7 +560,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     public Pair<ArrayList<String>, HashSet<String>> regress_polynomial (Condition cond, HashMap<String, Predicate> str_to_pred) {
-        Pair<ArrayList<String>, HashSet<String>> ret = new Pair();
         ArrayList<String> simulation = new ArrayList();
         ArrayList<String> preference = new ArrayList();
 
@@ -626,10 +625,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
         all_preferences += "))";
         simulation.add(all_preferences);
-        ret.setFirst(simulation);
-        ret.setSecond(variables);
 
-        return ret;
+        return new Pair(simulation,variables);
     }
 
     public Condition regress (Condition cond) {

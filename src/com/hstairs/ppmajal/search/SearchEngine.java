@@ -200,7 +200,6 @@ public class SearchEngine {
         if (frontier instanceof Queue) {
             ((Queue) frontier).add(new_node);
         } else if (frontier instanceof ObjectHeapPriorityQueue) {
-
             ((ObjectHeapPriorityQueue) frontier).enqueue(new_node);
         }
 
@@ -239,7 +238,7 @@ public class SearchEngine {
         currentG = 0;
 
         while (true) {
-            Boolean b = problem.goalSatisfied(current);
+            final Boolean b = problem.goalSatisfied(current);
 
             if (b == null) {
                 return null;
@@ -248,7 +247,8 @@ public class SearchEngine {
                 break;
             }
 
-            SearchNode succ;
+            final SearchNode succ;
+            System.gc();
             if (explorator.equals(Explorator.BRFS)) {
                 succ = breadth_first_search(current, problem, (Object2BooleanMap<State>) visited);
             } else {
@@ -269,7 +269,6 @@ public class SearchEngine {
                 problem.setReachableTransitions(new LinkedHashSet<>(succ.helpfulActions));
             }
             plan.addAll(extractPlan(succ));
-            //out.println(plan);
             if (forgettingEhc) {
                 visited = getMap(explorator);
             }

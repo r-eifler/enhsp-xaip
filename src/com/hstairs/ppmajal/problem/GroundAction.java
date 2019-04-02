@@ -1188,13 +1188,14 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public Float getNumberOfExecution (PDDLState s_0, Comparison comp) {
-        Float a1;
-        Float b;
+        final Float a1;
+        final Float b;
 
 //        if (!this.interact_with(comp)){
 //            return Float.MAX_VALUE;
 //        }
-        if (!comp.involve(this.getNumericFluentAffected())) {
+        if (!comp.interactWith(this)){
+//        if (!comp.involve(this.getNumericFluentAffected())) {
             return Float.MAX_VALUE;
         }
 

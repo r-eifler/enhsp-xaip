@@ -496,15 +496,9 @@ public class habs_add extends Heuristic {
 
         if (onlineRepresentatives) {
             //the following is just a speculative data structure to speed up the update of the sample in the subactions
-            Pair<Comparison, Comparison> preconditions = new Pair();
-            preconditions.setFirst(indirect_precondition_gt);
             this.comparisonBound.put(indirect_precondition_gt, inf);
-            preconditions.setSecond(indirect_precondition_lt);
             this.comparisonBound.put(indirect_precondition_lt, sup);
-            Pair<NumEffect, NumEffect> effects = new Pair();
-            effects.setFirst(effect);
-            effects.setSecond(supEff);
-            this.subactionsMap.put(preconditions, effects);
+            this.subactionsMap.put(new Pair(indirect_precondition_gt,indirect_precondition_lt), new Pair(effect,supEff));
 //            throw new UnsupportedOperationException("This needs to be implemented");
         }
 
