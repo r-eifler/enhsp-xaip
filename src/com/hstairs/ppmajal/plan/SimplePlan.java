@@ -47,7 +47,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     public PddlProblem pp;
     public boolean print_trace;
-    public float cost;
+    private float cost;
     public JSONObject numeric_plan_trace;
     public Float ending_time;
     private PddlDomain pd;
@@ -1513,7 +1513,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public PDDLState execute (PDDLState current, Condition globalConstraints) {
         State temp = current.clone();
         int i = 0;
-        this.cost = 0f;
+        this.setCost(0f);
 
         HashMap<NumFluent, DoubleArrayList> nf_trace = new HashMap();
         numeric_plan_trace = null;
@@ -1530,7 +1530,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundAction gr : this) {
             gr.setActionCost(current, this.pp.getMetric());
 
-            this.cost += gr.getActionCost();
+            this.setCost(this.getCost() + gr.getActionCost());
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                 System.out.println("Global Constraint is not satisfied:" + globalConstraints);
                 return (PDDLState) temp;
@@ -1712,7 +1712,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //        System.out.println("steps number:" + steps_number);
         System.out.println("Resolution for validation:" + resolution);
         PDDLState current = init.clone();
-        this.cost = 0f;
+        this.setCost(0f);
         //current.addNumericFluent(new NumFluentValue("#t", resolution));
         nf_trace = new HashMap();
         numeric_plan_trace = null;
@@ -1851,5 +1851,19 @@ public class SimplePlan extends ArrayList<GroundAction> {
             this.putAction(gr.getName(), gr.getParameters());
         }
 
+    }
+
+    /**
+     * @return the cost
+     */
+    public float getCost() {
+        return cost;
+    }
+
+    /**
+     * @param cost the cost to set
+     */
+    public void setCost(float cost) {
+        this.cost = cost;
     }
 }

@@ -47,7 +47,6 @@ public class Aibr extends Heuristic {
     private HashMap<GroundAction, GroundAction> supp_to_action;
     private boolean cost_oriented = true;
 
-    private EPddlProblem problem;
     private EPddlProblem subProblem;
     private Collection<GroundAction> supporters;
     
@@ -60,6 +59,7 @@ public class Aibr extends Heuristic {
         subProblem = new EPddlProblem();
         supporters = subProblem.actions;
         generate_supporters(A);
+        this.problem = problem;
     }
 
 

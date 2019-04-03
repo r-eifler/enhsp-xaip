@@ -34,15 +34,23 @@ import java.util.Stack;
  */
 public class GoalCounting extends Aibr{
 
+    final private boolean easy;
     public GoalCounting(EPddlProblem problem) {
         super(problem);
+        this.easy = false;
+    }
+    public GoalCounting(EPddlProblem problem, boolean easy) {
+        super(problem);
+        this.easy = easy;
     }
 
 
     @Override
     public Float computeEstimate(State s_0) {
-        if (reachability){
+        if (reachability && !easy){
             return super.computeEstimate(s_0);
+        }else if (reachability){
+            reachable = A;
         }
         return (float)computeCost(G,s_0);
         

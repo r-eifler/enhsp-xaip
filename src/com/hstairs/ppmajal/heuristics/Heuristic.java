@@ -202,7 +202,11 @@ public abstract class Heuristic {
         if (gr == null) {
             return previousG;
         }
-        return previousG + gr.getActionCost(s);
+        if (problem.isAction_cost_from_metric()){
+            return previousG + gr.getActionCost(s);
+        }else{
+            return previousG + 1;
+        }
     }
 
     public Collection<GroundAction> getReachableTransitions() {
