@@ -405,7 +405,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Double eval (State s) {
+    public double eval (State s) {
         //PDDLNumber ret = new PDDLNumber(0);
         double ret = 0d;
         for (final Object o : this.summations) {
@@ -415,10 +415,10 @@ public class ExtendedNormExpression extends Expression {
 //                Float temp =  a.bin.eval(s).getNumber();
                 ret += a.bin.eval(s);
             } else if (a.f != null) {
-                double n = ((PDDLState) s).fluentValue(a.f);
+                final double n = ((PDDLState) s).fluentValue(a.f);
 
-                if (n == Double.NaN) {
-                    return null;
+                if (Double.isNaN(n)) {
+                    return Double.NaN;
                 }
                 ret += n * a.n;
             } else {

@@ -63,7 +63,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Double eval (State s) {
+    public double eval (State s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

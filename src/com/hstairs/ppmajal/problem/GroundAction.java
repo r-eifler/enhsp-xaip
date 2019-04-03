@@ -184,20 +184,17 @@ public class GroundAction extends PDDLGenericAction {
 //            return null;
 //        }
         HashMap subst = new HashMap();
-        AndCond del = delList;
-        if (del != null) {
-            del.apply(s, subst);
+        if (delList != null) {
+            delList.apply(s, subst);
         }
-        AndCond add = addList;
-        if (add != null) {
-            add.apply(s, subst);
+        if (addList != null) {
+            addList.apply(s, subst);
         }
 
-        AndCond c = this.getNumericEffects();
-        c.apply(s, subst);
+        this.getNumericEffects().apply(s, subst);
 
         if (this.cond_effects != null) {
-            AndCond c_eff = this.cond_effects;
+            final AndCond c_eff = this.cond_effects;
             c_eff.apply(s, subst);
         }
 

@@ -56,7 +56,7 @@ public abstract class Expression extends Object {
 
     public abstract Expression unGround (Map substitution);
 
-    public abstract Double eval (State s);
+    public abstract double eval (State s);
 
     //public abstract PDDLState apply(PDDLState s);
     public abstract ExtendedNormExpression normalize ( );

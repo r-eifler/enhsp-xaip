@@ -36,6 +36,7 @@ public class NumFluent extends Expression {
     Integer cachedHashCode;
     final private String name;
     final private ArrayList<ActionParameter> terms;
+    public static ArrayList<NumFluent> fromIdToNumFluents;
     private Boolean has_to_be_tracked;
     private String terms_as_string;
     final private int id;
@@ -47,11 +48,13 @@ public class NumFluent extends Expression {
     public static NumFluent createNumFluent(String name, ArrayList variables,boolean groundAlready){
         if (numFluentsBank == null){
             numFluentsBank = new HashMap();
+            fromIdToNumFluents = new ArrayList();
         }
         Pair pair = Pair.of(name,variables);
         NumFluent ret = numFluentsBank.get(pair);
         if (ret == null){
             ret = new NumFluent(name,variables,numFluentsBank.entrySet().size());
+            fromIdToNumFluents.add(ret.getId(),ret);
             ret.grounded = groundAlready;
             numFluentsBank.put(pair, ret);
         }
@@ -64,6 +67,7 @@ public class NumFluent extends Expression {
         this.name = name;
         terms = variables;
         this.id = id;
+        has_to_be_tracked = false;
     }
 
     @Override
@@ -188,13 +192,13 @@ public class NumFluent extends Expression {
 //        this.name = name;
 //    }
     @Override
-    public Double eval (State s) {
+    public double eval (State s) {
         if (s == null) {
             throw new RuntimeException("State " + s + " is null at this stage. Bug");
         }
         final double d = ((PDDLState) s).fluentValue(this);
         if (d == Double.NaN) {
-            return null;
+            return Double.NaN;
         }
         return d;
     }

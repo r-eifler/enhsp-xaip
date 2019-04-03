@@ -438,7 +438,7 @@ public class EPddlProblem extends PddlProblem {
                     NumEffect neff = (NumEffect) it.next();
                     if (neff.getOperator().equals("assign")) {
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (numberNumericEffects == 1 || risky)) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != Double.NaN && (numberNumericEffects == 1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
 //                            if (numberNumericEffects == 1) {
                             neff.setOperator("increase");
@@ -464,7 +464,7 @@ public class EPddlProblem extends PddlProblem {
                     if (neff.getOperator().equals("assign")) {
 
                         ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                        if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (numberNumericEffects == 1 || risky)) {//constant effect
+                        if (right.isNumber() && neff.getFluentAffected().eval(init) != Double.NaN && (numberNumericEffects == 1 || risky)) {//constant effect
                             //Utils.dbg_print(3,neff.toString());
 //                            if (numberNumericEffects == 1) {
                             neff.setOperator("increase");
@@ -857,6 +857,9 @@ public class EPddlProblem extends PddlProblem {
         }
         involved_fluents.addAll(goals.getInvolvedFluents());
 
+        for (NumFluent nf : involved_fluents) {
+            nf.setHas_to_be_tracked(true);
+        }
         Iterator<NumFluent> it = this.initNumFluentsValues.keySet().iterator();
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
@@ -870,6 +873,9 @@ public class EPddlProblem extends PddlProblem {
             if (!keep_it) {
                 nf2.setHas_to_be_tracked(false);
                 it.remove();
+            }
+            else{
+                nf2.setHas_to_be_tracked(true);
             }
         }
 
@@ -891,6 +897,7 @@ public class EPddlProblem extends PddlProblem {
                     } else {
                         numFluents.put(nf.getId(), number.getNumber().doubleValue());
                     }
+                    
                 }
             }
         }

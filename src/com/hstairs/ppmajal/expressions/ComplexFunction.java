@@ -65,8 +65,8 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Double eval (State s) {
-        Double arg_val = getArg().eval(s);
+    public double eval (State s) {
+        double arg_val = getArg().eval(s);
         switch (this.operator) {
             case "abs":
                 arg_val = Math.abs(arg_val);

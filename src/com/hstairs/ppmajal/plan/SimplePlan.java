@@ -724,10 +724,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
         if (problem.getMetric() != null) {
             if (problem.getMetric().getMetExpr() != null) {
                 //System.out.println(problem.getMetric().getMetExpr());
-                if (problem.getMetric().getMetExpr().eval(this.execute((PDDLState) problem.getInit())) == null) {
+                if (problem.getMetric().getMetExpr().eval(this.execute((PDDLState) problem.getInit())) == Double.NaN) {
                     return new Float(this.size());
                 }
-                return problem.getMetric().getMetExpr().eval(this.execute((PDDLState) problem.getInit())).floatValue();
+                return (float)problem.getMetric().getMetExpr().eval(this.execute((PDDLState) problem.getInit()));
             } else {
                 return new Float(this.size());
             }

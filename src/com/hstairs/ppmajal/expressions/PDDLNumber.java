@@ -94,7 +94,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Double eval (State s) {
+    public double eval (State s) {
         return this.number;
     }
 

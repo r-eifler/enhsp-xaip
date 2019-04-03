@@ -125,6 +125,16 @@ public class PDDLState extends State {
         if (!Objects.equals(this.numFluents, other.numFluents)) {
             return false;
         }
+//                for (int i = 0 ; i< this.numFluents.elementsCount; i++){
+//            final NumFluent nf = NumFluent.fromIdToNumFluents.get(fromStateId2Nf[i]);
+//            if (nf.has_to_be_tracked()){
+//                if (this.numFluents.get(i) != other.numFluents.get(i)){
+//                    return false;
+//                }
+//            }else{
+//                System.out.println(nf);
+//            }
+//        }
         if (!this.boolFluents.equals(other.boolFluents)) {
             return false;
         }

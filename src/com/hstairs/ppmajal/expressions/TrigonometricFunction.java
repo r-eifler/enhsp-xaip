@@ -63,20 +63,15 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Double eval (State s) {
-        double arg_val = getArg().eval(s);
+    public double eval (State s) {
         switch (this.operator) {
             case "sin":
-                arg_val = Math.sin(arg_val);
-                break;
+                return(Math.sin(getArg().eval(s)));
             case "cos":
-                arg_val = Math.cos(arg_val);
-                break;
+                return (Math.cos(getArg().eval(s)));
             default:
-                System.out.println("Eval error in: " + this);
-                System.exit(-1);
+                throw new RuntimeException("Wrong operator in trigonometric defintion ("+this.operator+")");
         }
-        return arg_val;
     }
 
     @Override

@@ -125,8 +125,8 @@ public class MultiOp extends Expression {
     }
 
     @Override
-    public Double eval (State s) {
-        Double ret_val = 0d;
+    public double eval (State s) {
+        double ret_val = 0d;
 
         for (Object o : this.expr) {
             Expression e = (Expression) o;

@@ -34,7 +34,6 @@ public class Predicate extends Terminal implements PostCondition {
 
     final private String name;
     final private ArrayList variables;
-    private static HashMap<Pair<String,ArrayList>,Predicate> predicates; 
     final private static Predicate truePredicate = new Predicate(true);
     final private static Predicate falsePredicate = new Predicate(false);
     final private int id;
@@ -46,6 +45,8 @@ public class Predicate extends Terminal implements PostCondition {
     }
     
     
+    private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
+    
     public static Predicate createPredicate(String name, ArrayList variables){
         if (predicates == null){
             predicates = new HashMap();
@@ -55,14 +56,11 @@ public class Predicate extends Terminal implements PostCondition {
         if (predicate == null){
             predicate = new Predicate(name,variables,predicates.entrySet().size()+2);
             predicates.put(pair,predicate);
-        }else{
-//            System.out.println()
-//            System.out.println(name);
-//            System.out.println(variables);
-//            System.out.println(predicate);
         }
         return predicate;
     }
+    
+    
     public static Predicate createPredicate(trueFalse input){
         if (input == trueFalse.TRUE) {
             return truePredicate;

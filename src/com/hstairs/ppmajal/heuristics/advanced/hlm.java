@@ -122,11 +122,11 @@ public class hlm extends h1 {
                     target_value.set(c.getHeuristicId(), 1f);
                 } else {
                     Comparison comp = (Comparison) c;
-                    Double number = comp.getLeft().eval(s);
-                    if (number == null) {
+                    double number = comp.getLeft().eval(s);
+                    if (number == Double.NaN) {
                     } else {
-                        Float t = comp.getLeft().eval(s).floatValue();
-                        target_value.set(c.getHeuristicId(), -t);
+                        double t = comp.getLeft().eval(s);
+                        target_value.set(c.getHeuristicId(), (float)-t);
                     }
 
                 }
@@ -523,7 +523,7 @@ public class hlm extends h1 {
 //                        System.out.println("ACtion Contribution:" + gr.getContribution(s_0, c));
                     }
                 }
-                float trg_value = 0f;
+                double trg_value = 0f;
                 if (c.isSatisfied(s_0)) {
 
                 } else if (c instanceof Predicate) {
@@ -532,13 +532,13 @@ public class hlm extends h1 {
                     trg_value = 1f;
                 } else {
                     Comparison comp = (Comparison) c;
-                    Double number = comp.getLeft().eval(s_0);
-                    if (number == null) {
+                    double number = comp.getLeft().eval(s_0);
+                    if (number == Double.NaN) {
                         System.out.println("Condition that cannot be evaluated are not supported:" + c);
                         System.exit(-1);
                     } else {
-                        float t = comp.getLeft().eval(s_0).floatValue();
-                        trg_value = -1 * t;
+                        double t = comp.getLeft().eval(s_0);
+                        trg_value = -1d * t;
                     }
 
                 }

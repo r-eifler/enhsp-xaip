@@ -113,12 +113,12 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Double eval (State s) {
-        Double ret_val = null;
-        Double first = this.lhs.eval(s);
-        Double second = this.rhs.eval(s);
-        if ((first == null) || (second == null) || (first.isNaN()) || (second.isNaN())) {
-            return null;//negation by failure.
+    public double eval (State s) {
+        double ret_val = Double.NaN;
+        double first = this.lhs.eval(s);
+        double second = this.rhs.eval(s);
+        if ((Double.isNaN(first)) || (Double.isNaN(first))) {
+            return Double.NaN;//negation by failure.
         }
         switch (this.getOperator()) {
             case "+":

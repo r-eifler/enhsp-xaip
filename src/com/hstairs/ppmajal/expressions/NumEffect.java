@@ -123,9 +123,9 @@ public class NumEffect extends Expression implements PostCondition {
      * @return a PDDLNumber or Null in case the operation is not supported
      */
     @Override
-    public Double eval (State state) {
-        Double first = this.fluentAffected.eval(state);
-        Double second = this.right.eval(state);
+    public double eval (State state) {
+        final double first = this.fluentAffected.eval(state);
+        final double second = this.right.eval(state);
         if (this.getOperator().equals("increase")) {
             return first + second;
         } else if (this.getOperator().equals("decrease")) {
@@ -135,7 +135,7 @@ public class NumEffect extends Expression implements PostCondition {
         } else {
             System.out.println(this.getOperator() + " does not supported");
         }
-        return null;
+        return Double.NaN;
 
     }
 

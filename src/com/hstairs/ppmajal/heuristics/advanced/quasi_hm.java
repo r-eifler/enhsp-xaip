@@ -364,7 +364,7 @@ public class quasi_hm extends Heuristic {
                         if (neff.getOperator().equals("assign")) {
                             ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
                             try {
-                                if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {//constant effect
+                                if (right.isNumber() && neff.getFluentAffected().eval(init) != Double.NaN && (number_numericEffects == 1 || risky)) {//constant effect
                                     //Utils.dbg_print(3,neff.toString());
 //                            if (number_numericEffects == 1) {
                                     neff.setOperator("increase");
