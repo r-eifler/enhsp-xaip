@@ -23,11 +23,8 @@ import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -83,7 +80,17 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public boolean equals (Object obj) {
+    public int hashCode() {
+        int hash = 7;
+        hash = 47 * hash + this.id;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null) {
             return false;
         }
@@ -91,14 +98,13 @@ public class Comparison extends Terminal {
             return false;
         }
         final Comparison other = (Comparison) obj;
-
-        return this.id == other.id;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
     }
 
-    @Override
-    public int hashCode ( ) {
-        return id;
-    }
+
 
     @Override
     public String toString ( ) {

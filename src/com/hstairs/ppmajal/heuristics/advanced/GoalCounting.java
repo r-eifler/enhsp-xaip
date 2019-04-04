@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.State;
 import java.util.Collection;
 import java.util.Stack;
@@ -36,12 +37,29 @@ public class GoalCounting extends Aibr{
 
     final private boolean easy;
     public GoalCounting(EPddlProblem problem) {
-        super(problem);
-        this.easy = false;
+        this(problem,false);
     }
     public GoalCounting(EPddlProblem problem, boolean easy) {
         super(problem);
         this.easy = easy;
+    }
+
+    @Override
+    public Float setup(State s_0) {
+        if (easy){
+            A = problem.actions;
+            return (float)computeCost(G,s_0);
+        }
+        return super.setup(s_0); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Collection<GroundAction> getReachableTransitions() {
+        if (easy){
+            return problem.actions;
+        }else{
+            return reachable;
+        }
     }
 
 
@@ -49,8 +67,6 @@ public class GoalCounting extends Aibr{
     public Float computeEstimate(State s_0) {
         if (reachability && !easy){
             return super.computeEstimate(s_0);
-        }else if (reachability){
-            reachable = A;
         }
         return (float)computeCost(G,s_0);
         

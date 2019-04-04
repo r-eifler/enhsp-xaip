@@ -30,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class GroundAction extends PDDLGenericAction {
 
@@ -46,6 +47,7 @@ public class GroundAction extends PDDLGenericAction {
     private Float actionCost;
     private HashMap<Predicate, Boolean> achieve;
     private LinkedHashSet<NumEffect> list_of_numeric_fluents_affected;
+    private AndCond sdac;
 
     
     public GroundAction (String name, int id) {
@@ -1354,6 +1356,16 @@ public class GroundAction extends PDDLGenericAction {
         }
 
     }
+    
+    public Pair<NumEffect,Boolean> expressionToBeEvaluated (NumFluent f, PDDLState s_0) {
+        for (Object c : this.getNumericEffects().sons) {
+            NumEffect nEff = (NumEffect) c;
+            if (nEff.getFluentAffected().equals(f)) {
+                return Pair.of(nEff,false);
+            }
+        }
+        return null;
+    }
 
     public Float getValueOfRightExpApartFromAffected (NumFluent f, PDDLState s_0) {
         for (Object c : this.getNumericEffects().sons) {
@@ -1370,9 +1382,7 @@ public class GroundAction extends PDDLGenericAction {
             }
 
         }
-        System.err.println("Some errors occured");
-        System.exit(-1);
-        return null;
+        throw new RuntimeException("Likely, you have state dependent numeric effects, which aren't supported at the moment");
     }
 
     /**
@@ -1785,21 +1795,26 @@ public class GroundAction extends PDDLGenericAction {
             this.numericEffects.sons.add(neff);
             this.forcedGenerateAffectedNumFluents();
             ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
-            float cont = expr.eval_affected(init, this);
-            this.getNumericEffects().sons.remove(neff);
-            this.forcedGenerateAffectedNumFluents();
-            if (cont == 0) {
-                this.actionCost = 0f;
-            } else if (metric.getOptimization().equals("maximise")) {
-                if (cont < 0) {
+            AndCond stateDependentConditionalEffect = getStateDependentConditionalEffects(expr);
+            if (stateDependentConditionalEffect == null){
+                float cont = expr.eval_affected(init, this);
+                this.getNumericEffects().sons.remove(neff);
+                this.forcedGenerateAffectedNumFluents();
+                if (cont == 0) {
+                    this.actionCost = 0f;
+                } else if (metric.getOptimization().equals("maximise")) {
+                    if (cont < 0) {
+                        this.actionCost = cont;
+                    } else {
+                        this.actionCost = 0f;
+                    }
+                } else if (cont > 0) {
                     this.actionCost = cont;
                 } else {
                     this.actionCost = 0f;
                 }
-            } else if (cont > 0) {
-                this.actionCost = cont;
-            } else {
-                this.actionCost = 0f;
+            }else{
+                sdac = stateDependentConditionalEffect;
             }
         } else {
             this.set_unit_cost(init);
@@ -1982,6 +1997,10 @@ public class GroundAction extends PDDLGenericAction {
 
         }
         return false;
+    }
+
+    private AndCond getStateDependentConditionalEffects(ExtendedNormExpression expr) {
+        return null;
     }
 
 }

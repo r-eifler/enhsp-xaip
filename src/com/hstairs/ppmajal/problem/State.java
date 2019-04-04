@@ -19,6 +19,8 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.Condition;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author enrico
@@ -53,4 +55,9 @@ public abstract class State {
     public State getRepresentative ( ) {
         return this;
     }
+
+    public abstract List getNumFluents();
+
+    public abstract List getNumPredicates();
+
 }

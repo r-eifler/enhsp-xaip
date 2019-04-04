@@ -71,18 +71,14 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public int hashCode ( ) {
-        if (cachedHashCode == null) {
-            cachedHashCode = 3;
-            cachedHashCode = 67 * cachedHashCode + Objects.hashCode(this.name);
-            cachedHashCode = 67 * cachedHashCode + Objects.hashCode(this.terms);
-        }
-        return cachedHashCode;
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + this.id;
+        return hash;
     }
 
     @Override
-    public boolean equals (Object obj) {
-
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -93,17 +89,13 @@ public class NumFluent extends Expression {
             return false;
         }
         final NumFluent other = (NumFluent) obj;
-        if (this.id != -1 && other.getId() != -1) {
-            return this.id == other.getId();
-        }
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        if (!Objects.equals(this.terms, other.terms)) {
+        if (this.id != other.id) {
             return false;
         }
         return true;
     }
+
+    
 
     public void addVariable (Variable variable) {
         terms.add(variable);

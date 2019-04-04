@@ -344,14 +344,16 @@ public class AndCond extends ComplexCondition implements PostCondition {
                     Condition c = (Condition) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
                     c = c.weakEval(s, invF);
-                    if (c.isValid()) {
-                        //not keeping as will always be sat)
-                    } else if (c.isUnsatisfiable()) {
-                        this.setUnsatisfiable(true);
-                        this.setValid(false);
-                        return this;
-                    } else {
-                        to_keep.add(c);
+                    if (c != null && this instanceof PostCondition){
+                        if (c.isValid()) {
+                            //not keeping as will always be sat)
+                        } else if (c.isUnsatisfiable()) {
+                            this.setUnsatisfiable(true);
+                            this.setValid(false);
+                            return this;
+                        } else {
+                            to_keep.add(c);
+                        }
                     }
                 } else if (o2 instanceof NumEffect) {
                     NumEffect ne = (NumEffect) o2;

@@ -273,8 +273,8 @@ public class Grounder {
         return ret;
     }
 
-    public Set Propositionalize(ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
-        Set combo = null;
+    public Collection Propositionalize(ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
+        Collection combo = null;
         if (a.getPar().isEmpty()) {
             combo.add(new ParametersAsTerms());
         } else {
@@ -284,18 +284,19 @@ public class Grounder {
 
     }
 
-    public Set Propositionalize(ActionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection Propositionalize(ActionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         HashMap<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
-        Set combo = null;
+        Collection combo;
         if (action.getPar().isEmpty()) {
-            combo = Collections.singleton(new ParametersAsTerms());
+            combo = Collections.singletonList(new ParametersAsTerms());
+//            combo = Collections.singleton(new ParametersAsTerms());
 //            combo.add(new ParametersAsTerms());
         } else {
             combo = new LinkedHashSet();
             ComplexCondition cond = action.getPreconditions();
-            Collection<HashMap<Variable, Set<PDDLObject>>> S = new LinkedHashSet();
+            Collection<HashMap<Variable, Set<PDDLObject>>> S = new HashSet();
             HashMap<Variable, Set<PDDLObject>> t = new HashMap();
             for (Object o : action.getPar()) {
                 Variable v = (Variable) o;
@@ -308,7 +309,7 @@ public class Grounder {
                     if (o instanceof Predicate) {
                         Predicate predicateAction = (Predicate) o;
                         if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null) {
-                            Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new LinkedHashSet();
+                            Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new HashSet();
                             for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
                                 HashMap<Variable, Set<PDDLObject>> t1 = new HashMap();
                                 boolean foundToBeTrue = false;
@@ -378,16 +379,16 @@ public class Grounder {
 //            combo = Substitutions(action, po);
             Collection res = new LinkedHashSet();
             for (Object o1 : combo) {
-                res.addAll(this.Propositionalize(action, (Set) o1, po, problem));
+                res.addAll(this.Propositionalize(action, (Collection)o1, po, problem));
             }
-            return (Set) res;
+            return res;
         }
         return this.Propositionalize(action,combo, po, problem);
 
     }
 
-    private Set Propositionalize(ActionSchema a, Set combo, PDDLObjects po, PddlProblem problem) {
-        Set ret = new LinkedHashSet();
+    private Collection Propositionalize(ActionSchema a, Collection combo, PDDLObjects po, PddlProblem problem) {
+        List ret = new ArrayList();
 
         for (Object o : combo) {
 

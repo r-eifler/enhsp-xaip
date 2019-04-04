@@ -1272,7 +1272,12 @@ public class EPddlProblem extends PddlProblem {
         reachableActions = new LinkedHashSet();
         reachableProcesses = new LinkedHashSet();
         reachableEvents = new LinkedHashSet();
+        if (actionsToConsider == actions){
+            reachableActions = actions;
+            return;
+        }
         for (GroundAction gr : actionsToConsider) {
+            
             GroundAction actionFromProblemModel = getActionFromProblemModel(gr);
             if (actionFromProblemModel != null){
                 if (actionFromProblemModel instanceof GroundProcess){

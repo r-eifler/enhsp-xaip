@@ -42,27 +42,39 @@ public class PDDLObject extends Terminal implements ActionParameter {
 
     public PDDLObject (String n, Type atype) {
         grounded = true;
-
         name = n;
         type = atype;
     }
 
     @Override
-    public boolean equals (Object o) {
-        if (o instanceof PDDLObject) {
-            PDDLObject o1 = (PDDLObject) o;
-            return (o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()));
-        }
-        return false;
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + Objects.hashCode(this.name);
+        hash = 53 * hash + Objects.hashCode(this.type);
+        return hash;
     }
 
     @Override
-    public int hashCode ( ) {
-        int hash = 7;
-        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
-        //hash = 29 * hash + (this.type != null ? this.type.hashCode() : 0);
-        return hash;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PDDLObject other = (PDDLObject) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        return true;
     }
+
 
     /**
      * @return the type

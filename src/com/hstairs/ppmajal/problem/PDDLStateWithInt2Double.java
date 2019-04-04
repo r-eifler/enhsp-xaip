@@ -18,24 +18,21 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
-import it.unimi.dsi.fastutil.ints.Int2DoubleArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
+import java.util.Arrays;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 /**
  * @author enrico
@@ -53,7 +50,14 @@ public class PDDLStateWithInt2Double extends PDDLState {
         this.boolFluents = (BitSet) boolFluents.clone();
     }
 
+    @Override
+    public List getNumFluents() {
+        return Arrays.asList(numFluentsViaDoubleArray.keySet());
+    }
 
+
+    
+    
     public BitSet getBoolFluents() {
         return boolFluents;
     }

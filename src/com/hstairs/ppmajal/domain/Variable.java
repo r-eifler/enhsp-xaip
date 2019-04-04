@@ -62,26 +62,55 @@ public class Variable implements ActionParameter {
     }
 
     @Override
-    public int hashCode ( ) {
-        int hash = 7;
-        hash = 97 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
-        hash = 97 * hash + (this.getType() != null ? this.getType().hashCode() : 0);
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + java.util.Objects.hashCode(this.Name);
+        hash = 67 * hash + java.util.Objects.hashCode(this.type);
         return hash;
     }
 
     @Override
-    public boolean equals (Object o) {
-        if (o instanceof Variable) {
-            Variable o1 = (Variable) o;
-            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
-                return Objects.equal    (this.type, o1.type);
-            } else {
-                return false;
-            }
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return false;
-
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Variable other = (Variable) obj;
+        if (!java.util.Objects.equals(this.Name, other.Name)) {
+            return false;
+        }
+        if (!java.util.Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        return true;
     }
+
+//    @Override
+//    public int hashCode ( ) {
+//        int hash = 7;
+//        hash = 97 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
+//        hash = 97 * hash + (this.getType() != null ? this.getType().hashCode() : 0);
+//        return hash;
+//    }
+//
+//    @Override
+//    public boolean equals (Object o) {
+//        if (o instanceof Variable) {
+//            Variable o1 = (Variable) o;
+//            if ((o1.getName() == null ? this.getName() == null : o1.getName().equalsIgnoreCase(this.getName()))) {
+//                return Objects.equal(this.type, o1.type);
+//            } else {
+//                return false;
+//            }
+//        }
+//        return false;
+//
+//    }
 
     /**
      * @return the Name

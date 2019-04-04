@@ -57,7 +57,6 @@ public class ConditionalEffect extends Condition implements PostCondition {
 
     public String toString ( ) {
         if (this.activation_condition != null) {
-//            System.out.println("DEBUG:"+this);
             return "(when " + this.activation_condition.pddlPrint(true) + " " + this.effect.pddlPrint(true) + ")";
         }
         return null;
@@ -68,6 +67,9 @@ public class ConditionalEffect extends Condition implements PostCondition {
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
             this.effect = (PostCondition) con.weakEval(s, invF);
+            if (this.effect == null){
+                return null;
+            }
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
             this.effect = sub.weakEval(s, invF);

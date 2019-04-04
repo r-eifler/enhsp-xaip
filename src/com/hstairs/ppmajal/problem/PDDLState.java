@@ -25,10 +25,14 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 
@@ -49,8 +53,8 @@ public class PDDLState extends State {
         this.boolFluents = (BitSet) boolFluents.clone();
     }
 
-    public DoubleArrayList getNumFluents() {
-        return numFluents;
+    public List getNumFluents() {
+        return Arrays.asList(numFluents);
     }
 
     public BitSet getBoolFluents() {
@@ -80,8 +84,6 @@ public class PDDLState extends State {
             }
         }
         this.boolFluents = (BitSet) otherBoolFluents.clone();
-        System.out.println("Size(F):"+otherBoolFluents.size());
-        System.out.println("Size(X):"+numFluents.size());
         time = -1;
     }
     
@@ -264,6 +266,11 @@ public class PDDLState extends State {
 
     void increase_time_by_epsilon ( ) {
         time += 0.1f;
+    }
+
+    @Override
+    public List getNumPredicates() {
+        return Arrays.asList(this.boolFluents);
     }
 
 }

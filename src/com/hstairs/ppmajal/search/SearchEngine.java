@@ -45,7 +45,7 @@ public class SearchEngine {
     public SearchNode searchSpaceHandle;
     public int debugLevel;
     //configuration
-    public long depthLimit;
+    public float depthLimit;
     public boolean bfsTieBreaking;
     public boolean helpfulActionsPruning;
     public boolean forgettingEhc;
@@ -109,9 +109,10 @@ public class SearchEngine {
     }
 
     private void setupReachableActionsProcesses(EPddlProblem problem) {
-        Collection<GroundAction> temp;
-        temp = this.getHeuristic().getReachableTransitions();
-        problem.setReachableTransitions(temp);
+        if (problem.actions == this.getHeuristic().getReachableTransitions()){
+            problem.reachableActions = problem.actions;
+        }
+        problem.setReachableTransitions(this.getHeuristic().getReachableTransitions());
         this.reachableProcesses = problem.getReachableProcesses();
         this.reachableEvents = problem.getReacheableEvents();
     }
@@ -253,7 +254,7 @@ public class SearchEngine {
                 succ = breadth_first_search(current, problem, (Object2BooleanMap<State>) visited);
             } else {
 
-                succ = WAStar(problem, current, true, (Object2FloatMap<State>) visited, false);
+                succ = WAStar(problem, current, true, (Object2FloatMap<State>) visited, false, Long.MAX_VALUE);
             }
 
             if (succ == null) {
@@ -369,7 +370,7 @@ public class SearchEngine {
      * otherwise.
      * @throws Exception
      */
-    public SearchNode WAStar(EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch) throws Exception {
+    public SearchNode WAStar(EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch, long timeout) throws Exception {
 
         State initState = null;
         if (extCurrent == null) {
@@ -448,6 +449,9 @@ public class SearchEngine {
 
             if (g_node == previousG || treeSearch) {
                 long fromTheBeginning = (System.currentTimeMillis() - start_global);
+                if (fromTheBeginning >= timeout){
+                    throw new TimeoutException("Timeout has been reached: bailing out");
+                }
                 if (fromTheBeginning >= previous + 10000) {
                     out.println("-------------Time: " + fromTheBeginning / 1000 + "s ; Expanded Nodes: " + getNodesExpanded() + "; Evaluated States: " + getNumberOfEvaluatedStates());
                     previous = fromTheBeginning;
@@ -527,11 +531,14 @@ public class SearchEngine {
     }
 
     public LinkedList<GroundAction> WAStar(EPddlProblem problem) throws Exception {
-        return WAStar(problem, false);
+        return WAStar(problem, false, Long.MAX_VALUE);
+    }
+    public LinkedList<GroundAction> WAStar(EPddlProblem problem, long timeout) throws Exception {
+        return WAStar(problem, false, timeout);
     }
 
-    public LinkedList<GroundAction> WAStar(EPddlProblem problem, boolean treeSearch) throws Exception {
-        SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch);
+    public LinkedList<GroundAction> WAStar(EPddlProblem problem, boolean treeSearch, long timeout) throws Exception {
+        SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch, timeout);
         if (end != null) {
             return this.extractPlan(end);
         } else {
@@ -643,10 +650,14 @@ public class SearchEngine {
         return null;
     }
 
-    public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem) throws Exception {
+    public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem) throws Exception{
+        return this.greedy_best_first_search(problem,Long.MAX_VALUE);
+    }
+    
+    public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem,long timeout) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
-        return this.WAStar(problem);
+        return this.WAStar(problem,timeout);
     }
 
     public LinkedList extractPlan(SimpleSearchNode c) {

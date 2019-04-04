@@ -29,7 +29,9 @@ import com.hstairs.ppmajal.expressions.PDDLNumber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -236,6 +238,16 @@ public class PDDLVectorState extends State {
 
     void increase_time_by_epsilon ( ) {
         time += 0.1f;
+    }
+
+    @Override
+    public List getNumFluents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List getNumPredicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

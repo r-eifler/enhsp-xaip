@@ -300,25 +300,31 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public int hashCode ( ) {
-        return id;
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + this.id;
+        return hash;
     }
 
     @Override
-    public boolean equals (Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (this == null) {
+        if (obj == null) {
             return false;
         }
         if (getClass() != obj.getClass()) {
             return false;
         }
         final Predicate other = (Predicate) obj;
-        
-        return this.id == other.id;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
     }
+
+    
 
     public PDDLState remove (PDDLState s) {
         s.setPropFluent(this, false);
@@ -446,7 +452,7 @@ public class Predicate extends Terminal implements PostCondition {
             }
             return this;
         } else {//this is meant to couple all the predicates in a unique representation
-            return problem.getPredicate(this);
+            return this;//problem.getPredicate(this);
         }
     }
 

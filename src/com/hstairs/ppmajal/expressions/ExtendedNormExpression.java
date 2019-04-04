@@ -774,7 +774,7 @@ public class ExtendedNormExpression extends Expression {
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
-                
+
                 if (aThis.getNumericFluentAffected().contains(ad.f)) {
                     current += ad.n * aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 }
@@ -782,6 +782,8 @@ public class ExtendedNormExpression extends Expression {
         }
         return current;
     }
+    
+    
 
     public float eval_apart_from_f (NumFluent f, PDDLState s) {//this applies only to linear expression. In the other cases the behavior is undefined
         float ret = 0;
