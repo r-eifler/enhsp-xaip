@@ -143,9 +143,11 @@ public class AndCond extends ComplexCondition implements PostCondition {
             } else if (o instanceof Comparison) {
                 Comparison comp = (Comparison) o;
                 ret_val = ret_val.concat(comp.pddlPrintWithExtraObject());
-            } else {
+            } else if (o instanceof NumEffect) {
                 System.out.println("Error in pddlPrint:" + this);
                 System.exit(-1);
+            } else{
+                throw new RuntimeException("This is not supported in this condition"+o);
             }
         }
         ret_val = ret_val.concat(")");
@@ -518,31 +520,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         return null;
     }
 
-    @Override
-    public int hashCode ( ) {
-        final int sonHash = sons.hashCode();
-        final int result = sonHash + 7;
-        return result;
-    }
-
-    @Override
-    public boolean equals (Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null) {
-            return false;
-        }
-
-        if (!(obj instanceof AndCond)) {
-            return false;
-        }
-
-        final AndCond other = (AndCond) obj;
-
-        return this.sons.equals(other.sons);
-    }
+   
 
     @Override
     public HashMap apply (PDDLState s) {
@@ -605,9 +583,10 @@ public class AndCond extends ComplexCondition implements PostCondition {
 //            } else if (o instanceof Comparison) { // ??? a Comparison is already a Conditions
 //                Comparison comp = (Comparison) o;
 //                ret_val = ret_val.concat(comp.pddlPrint(typeInformation));
-            } else {
-                System.out.println("Error in pddlPrint: " + this);
-                System.exit(-1);
+            } else if (o instanceof NumEffect) {
+                ((NumEffect) o).pddlPrint(typeInformation,bui);
+            } else{
+                throw new RuntimeException("This is not supported in this condition: "+o);
             }
         }
         bui.append(")");
@@ -783,17 +762,22 @@ public class AndCond extends ComplexCondition implements PostCondition {
     @Override
     public Condition normalize() {
         ReferenceLinkedOpenHashSet sons1 = new ReferenceLinkedOpenHashSet();
-        for (final Condition cond : (Collection<Condition>)sons ){
-            Condition condInternal = cond.normalize();
-            if (condInternal.isUnsatisfiable()){
-                this.setUnsatisfiable(true);
-                sons1.add(condInternal);
-            }else if (!condInternal.isValid()){
-                if (condInternal instanceof AndCond){
-                    sons1.addAll(((AndCond) condInternal).sons);
-                }else{
+        for (final Object cond : (Collection<Object>)sons ){
+            if (cond instanceof Condition){
+                Condition condInternal = ((Condition)cond).normalize();
+                if (condInternal.isUnsatisfiable()){
+                    this.setUnsatisfiable(true);
                     sons1.add(condInternal);
+                }else if (!condInternal.isValid()){
+                    if (condInternal instanceof AndCond){
+                        sons1.addAll(((AndCond) condInternal).sons);
+                    }else{
+                        sons1.add(condInternal);
+                    }
                 }
+            }else if (cond instanceof NumEffect){
+                ((NumEffect) cond).setRight(((NumEffect)cond).getRight().normalize());
+                sons1.add(cond);
             }
         }
         sons = sons1;

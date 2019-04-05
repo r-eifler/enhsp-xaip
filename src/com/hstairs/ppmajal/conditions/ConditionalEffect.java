@@ -62,8 +62,12 @@ public class ConditionalEffect extends Condition implements PostCondition {
         return null;
     }
 
-    public ConditionalEffect weakEval (PddlProblem s, HashMap invF) {
+    @Override
+    public Condition weakEval (PddlProblem s, HashMap invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
+        if (this.activation_condition.isValid()){
+            this.activation_condition = Predicate.createPredicate(Predicate.trueFalse.TRUE);
+        }
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
             this.effect = (PostCondition) con.weakEval(s, invF);
@@ -72,7 +76,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
             }
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
-            this.effect = sub.weakEval(s, invF);
+            this.effect = (PostCondition) sub.weakEval(s, invF);
 
         } else if (this.effect instanceof NumEffect) {
             NumEffect ne = (NumEffect) this.effect;
@@ -137,13 +141,12 @@ public class ConditionalEffect extends Condition implements PostCondition {
         this.activation_condition.normalize();
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
-            con.normalize();
+            this.effect = (PostCondition) con.normalize();
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
-            sub.normalize();
+            this.effect = (PostCondition) sub.normalize();
         } else if (this.effect instanceof NumEffect) {
-            NumEffect ne = (NumEffect) this.effect;
-            ne.setRight(ne.getRight().normalize());
+            ((NumEffect) this.effect).getRight().normalize();
         }
         return this;
     }

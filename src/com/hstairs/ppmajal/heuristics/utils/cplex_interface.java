@@ -25,8 +25,10 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.problem.PddlProblem;
 import ilog.concert.*;
 import ilog.cplex.IloCplex;
 
@@ -50,8 +52,8 @@ public final class cplex_interface extends LpInterface {
     public HashMap<Integer, IloNumVar> action_to_variable;
     public IloLinearNumExpr objective;
 
-    public cplex_interface (ComplexCondition cond, ComplexCondition global_constraint) throws IloException {
-        super(cond, global_constraint);
+    public cplex_interface (PddlProblem inputProblem,ComplexCondition cond, ComplexCondition global_constraint) throws IloException {
+        super(cond, global_constraint,inputProblem);
         n_invocations = 0;
         integer_variables = false;
         additive_h = false;
@@ -61,6 +63,7 @@ public final class cplex_interface extends LpInterface {
         action_to_variable = new HashMap();
         pos_affectors_of = new HashMap();
         this.affectors_of = new HashMap();
+        
 
     }
 
@@ -213,7 +216,8 @@ public final class cplex_interface extends LpInterface {
                                         //                                    System.out.println(neff);
 
 //                                        gr.set_unit_cost(s_0);
-                                        Float action_cost = gr.getActionCost();
+                                        Float action_cost = getActionCost(s_0,gr);
+                                        
                                         if (action_cost.isNaN()) {
                                             continue;
                                         }
@@ -270,7 +274,7 @@ public final class cplex_interface extends LpInterface {
                             pos_affectors_of.get(cond).add(gr);
                             affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 //                            gr.set_unit_cost(s_0);
-                            Float action_cost = gr.getActionCost();
+                            Float action_cost = getActionCost(s_0,gr);
                             if (action_cost.isNaN()) {
                                 continue;
                             }
@@ -366,5 +370,7 @@ public final class cplex_interface extends LpInterface {
         }
 
     }
+
+
 
 }

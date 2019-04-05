@@ -1528,9 +1528,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             }
         }
         for (GroundAction gr : this) {
-            gr.setActionCost(current, this.pp.getMetric());
 
-            this.setCost(this.getCost() + gr.getActionCost());
+            this.setCost(this.getCost() + gr.getActionCost(temp, pp.getMetric()));
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
                 System.out.println("Global Constraint is not satisfied:" + globalConstraints);
                 return (PDDLState) temp;

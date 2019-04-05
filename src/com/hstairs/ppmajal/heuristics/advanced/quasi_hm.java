@@ -329,11 +329,11 @@ public class quasi_hm extends Heuristic {
             LpInterface lp = null;
             if (cplex) {
 //                System.out.println("DEBUG: Using CPLEX");
-                lp = new cplex_interface((ComplexCondition) c, this.gC);
+                lp = new cplex_interface(problem,(ComplexCondition) c, this.gC);
             } else {
 //                System.out.println("DEBUG: Using OJALGO");
 
-                lp = new ojalgo_interface((ComplexCondition) c, this.gC);
+                lp = new ojalgo_interface(problem,(ComplexCondition) c, this.gC);
             }
             lp.additive_h = this.additive_h;
             lp.initialize(actions, s_0);

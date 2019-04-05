@@ -2,6 +2,7 @@ package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.heuristics.Aibr;
+import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.heuristics.advanced.hlm;
 import com.hstairs.ppmajal.heuristics.blindHeuristic;
@@ -51,44 +52,43 @@ public class PlannerUtils {
         final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
         domain.prettyPrint();
         domain.validate(problem);
+        if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
 
-        final PDDLSearchEngine searchStrategies = new PDDLSearchEngine(); //manager of the search strategies
+            problem.setDeltaTimeVariable("1");
+        }
+
+        problem.groundingActionProcessesConstraints();
+        problem.simplifyAndSetupInit();
+        Heuristic h = null;
+        //set heuristic
+        if (heuristic.equals("aibr")) {
+            h = new Aibr(problem);
+            ((Aibr)h).set(false, true);
+        } else if (heuristic.equals("hadd")) {
+            h = new h1(problem);
+            ((h1)h).useRedundantConstraints = false;
+            ((h1)h).additive_h = true;
+        } else if (heuristic.equals("hmax")) {
+            h = new h1(problem);
+            ((h1)h).useRedundantConstraints = false;
+            ((h1)h).additive_h = false;
+        } else if (heuristic.equals("lm_actions")) {
+            h = new hlm(problem);
+            ((hlm)h).lp_cost_partinioning = true;
+            ((hlm)h).useRedundantConstraints = false;
+            h.additive_h = false;
+        } else {
+             h = new blindHeuristic(problem);
+        }
+        final PDDLSearchEngine searchStrategies = new PDDLSearchEngine(h); //manager of the search strategies
         searchStrategies.depthLimit = depthBound;
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
             //this is when you have processes
-            problem.setDeltaTimeVariable("1");
             searchStrategies.executionDelta = Float.parseFloat("1");
             searchStrategies.processes = true;
             searchStrategies.planningDelta = Float.parseFloat("1");
         } else {//this is when you have processes
-        }
-        problem.groundingActionProcessesConstraints();
-        problem.simplifyAndSetupInit();
-
-        //set heuristic
-        if (heuristic.equals("aibr")) {
-            searchStrategies.setupHeuristic(new Aibr(problem));
-            Aibr h = (Aibr) searchStrategies.getHeuristic();
-            h.set(false, true);
-        } else if (heuristic.equals("hadd")) {
-            searchStrategies.setupHeuristic(new h1(problem));
-            h1 h = (h1) searchStrategies.getHeuristic();
-            h.useRedundantConstraints = false;
-            h.additive_h = true;
-        } else if (heuristic.equals("hmax")) {
-            searchStrategies.setupHeuristic(new h1(problem));
-            h1 h = (h1) searchStrategies.getHeuristic();
-            h.useRedundantConstraints = false;
-            h.additive_h = false;
-        } else if (heuristic.equals("lm_actions")) {
-            searchStrategies.setupHeuristic(new hlm(problem));
-            hlm h = (hlm) searchStrategies.getHeuristic();
-            h.lp_cost_partinioning = true;
-            h.useRedundantConstraints = false;
-            h.additive_h = false;
-        } else {
-            searchStrategies.setupHeuristic(new blindHeuristic(problem));
         }
 
         searchStrategies.setWG(wg);
@@ -107,25 +107,24 @@ public class PlannerUtils {
         domain.prettyPrint();
         domain.validate(problem);
 
-        final SearchEngine searchStrategies = new SearchEngine(); //manager of the search strategies
-
+        
+        problem.groundingActionProcessesConstraints();
+        problem.simplifyAndSetupInit();
+        if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
+            problem.setDeltaTimeVariable("1");
+        }
+        h1 h1 = new h1(problem);
+        h1.useRedundantConstraints = false;
+        h1.additive_h = true;
+        final SearchEngine searchStrategies = new SearchEngine(h1); //manager of the search strategies
         //set deltas in case is a pddl+ problem
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
             //this is when you have processes
-            problem.setDeltaTimeVariable("1");
             searchStrategies.executionDelta = Float.parseFloat("1");
             searchStrategies.processes = true;
             searchStrategies.planningDelta = Float.parseFloat("1");
         } else {//this is when you have processes
         }
-        problem.groundingActionProcessesConstraints();
-        problem.simplifyAndSetupInit();
-
-        //set heuristic
-        searchStrategies.setupHeuristic(new h1(problem));
-        h1 h = (h1) searchStrategies.getHeuristic();
-        h.useRedundantConstraints = false;
-        h.additive_h = true;
 
         searchStrategies.getHeuristic().setup(problem.init);
         long start = System.nanoTime();

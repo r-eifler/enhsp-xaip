@@ -166,15 +166,6 @@ public class NumEffect extends Expression implements PostCondition {
 
     }
 
-    //@Override
-
-    /**
-     * @return
-     */
-    @Override
-    public ExtendedNormExpression normalize ( ) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
 
 
@@ -576,5 +567,10 @@ public class NumEffect extends Expression implements PostCondition {
 //        System.out.println("right:"+right);
         this.right = right.unifyVariablesReferences(p);
         return this;
+    }
+
+    @Override
+    public ExtendedNormExpression normalize() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

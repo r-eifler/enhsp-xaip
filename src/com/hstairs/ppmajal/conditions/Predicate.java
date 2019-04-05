@@ -186,23 +186,26 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public String toString ( ) {
+        
         String ret = "";
         ret += "(" + this.name;
-        for (Object o1 : this.getTerms()) {
-            if (o1 == null) {
-                throw new RuntimeException("Null object found at the level "
-                        + "of " + this.name);
+        if (this.getTerms() != null) {
+            for (Object o1 : this.getTerms()) {
+                if (o1 == null) {
+                    throw new RuntimeException("Null object found at the level "
+                            + "of " + this.name);
+                }
+
+                if (o1 instanceof PDDLObject) {
+                    PDDLObject obj = (PDDLObject) o1;
+                    ret = ret.concat(" " + obj.getName());
+                } else {
+                    Variable obj = (Variable) o1;
+                    ret = ret.concat(" " + obj.getName() + obj.getType());
+
+                }
+
             }
-
-            if (o1 instanceof PDDLObject) {
-                PDDLObject obj = (PDDLObject) o1;
-                ret = ret.concat(" " + obj.getName());
-            } else {
-                Variable obj = (Variable) o1;
-                ret = ret.concat(" " + obj.getName() + obj.getType());
-
-            }
-
         }
         ret = ret.concat(")");
         return ret;
@@ -442,6 +445,13 @@ public class Predicate extends Terminal implements PostCondition {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
+        if (this.isValid()){
+            return this;
+        }
+        if (this.isUnsatisfiable()){
+            return this;
+        }
+        
         if (invF.get(this) == null) {//this means it is a static predicate
             if (problem.getInitBoolFluentValue(this)) {
                 this.setValid(true);

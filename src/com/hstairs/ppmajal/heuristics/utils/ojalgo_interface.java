@@ -27,6 +27,7 @@ import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.problem.PddlProblem;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
@@ -50,8 +51,8 @@ public final class ojalgo_interface extends LpInterface {
 
     public ExpressionsBasedModel lp;
 
-    public ojalgo_interface (ComplexCondition cond, ComplexCondition global_constraint) {
-        super(cond, global_constraint);
+    public ojalgo_interface (PddlProblem problem, ComplexCondition cond, ComplexCondition global_constraint) {
+        super(cond, global_constraint,problem);
         n_invocations = 0;
         integer_variables = false;
         additive_h = false;
@@ -181,7 +182,7 @@ public final class ojalgo_interface extends LpInterface {
                                     //                                    System.out.println(neff);
 
 //                                    gr.set_unit_cost(s_0);
-                                    Float action_cost = gr.getActionCost();
+                                    Float action_cost = getActionCost(s_0,gr);
                                     if (action_cost.isNaN()) {
                                         continue;
                                     }
@@ -243,7 +244,7 @@ public final class ojalgo_interface extends LpInterface {
                         pos_affectors_of.get(cond).add(gr);
                         affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list
 //                        gr.set_unit_cost(s_0);
-                        Float action_cost = gr.getActionCost();
+                        Float action_cost = getActionCost(s_0,gr);
                         if (action_cost.isNaN()) {
                             continue;
                         }

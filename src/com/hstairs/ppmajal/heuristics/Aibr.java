@@ -296,12 +296,12 @@ public class Aibr extends Heuristic {
                         System.out.println("L(" + layer_counter + ")Action/Process: " + gr);
                     }
                     //counter++;//=
-                    if (cost_oriented) {
-//                        gr.set_unit_cost(s);
-                        counter += gr.getActionCost();
-                    } else {
+//                    if (cost_oriented) {
+////                        gr.set_unit_cost(s);
+//                        counter += gr.getActionCost();
+//                    } else {
                         counter++;
-                    }
+//                    }
                     fix_point = false;
                     if (rs2.satisfy(G) && greedy_relaxed_plan) {
                         if (counting_layers) {

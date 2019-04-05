@@ -47,7 +47,6 @@ public class EPddlProblem extends PddlProblem {
     private Set<GroundProcess> processesSet;
     private Set<GroundEvent> eventsSet;
     private boolean grounding;
-    private boolean action_cost_from_metric = true;
     private boolean risky = false;
     private NumFluent time;
     private boolean processesHaveBeenGrounded;
@@ -541,21 +540,6 @@ public class EPddlProblem extends PddlProblem {
     }
 
 
-    public void set_cost_from_metric ( ) {
-        Iterator it = getActions().iterator();
-
-        //System.out.println("prova");
-//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
-        while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
-            if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setActionCost((PDDLState) init, this.getMetric());
-            } else {
-                act.set_unit_cost((PDDLState) init);
-            }
-        }
-
-    }
 
     public void cleanEasyUnreachableTransitions (Iterable toWorkOut) {
         Iterator it = toWorkOut.iterator();
@@ -581,17 +565,24 @@ public class EPddlProblem extends PddlProblem {
         removeUnnecessaryFluents();
     }
 
+    
     protected void pruningViaReachability ( ) {
+        this.pruningViaReachability(true);
+    }
+    
+    protected void pruningViaReachability (boolean aibrPreprocessing ) {
         //System.out.println("prova");
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
-        setActionCosts();
-        setProcessEventsCost();
         
-        Aibr aibr = new Aibr(this);
-        Float setup = aibr.setup(this.makePddlState());
-//        System.out.println("(After AIBR):"+aibr.reachable.size());
-        this.reachableActions = aibr.getReachableTransitions();
+        if (aibrPreprocessing) {
+            Aibr aibr = new Aibr(this);
+            Float setup = aibr.setup(this.makePddlState());
+        System.out.println("(After AIBR):"+aibr.getReachableTransitions().size());
+            this.reachableActions = aibr.getReachableTransitions();
+        } else {
+            this.reachableActions = actions;
+        }
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
 
@@ -645,17 +636,20 @@ public class EPddlProblem extends PddlProblem {
         //At this point there should be even less relevant facts that needs to be stored
     }
 
-
-    public void simplifyAndSetupInit (boolean simplify) throws Exception {
-
+        public void simplifyAndSetupInit (boolean simplify, boolean aibrPreprocessing) throws Exception {
+       
         long start = System.currentTimeMillis();
         if (simplify) {
             System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-            pruningViaReachability();
+            pruningViaReachability(aibrPreprocessing);
         }
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
+        }
+
+    public void simplifyAndSetupInit (boolean simplify) throws Exception {
+        this.simplifyAndSetupInit(simplify, true);
     }
 
     public void simplifyAndSetupInit ( ) throws Exception {
@@ -697,14 +691,7 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    private void setProcessEventsCost ( ) {
-        for (GroundProcess gp : processesSet) {
-            gp.setActionCost(1);
-        }
-        for (GroundEvent gp : eventsSet) {
-            gp.setActionCost(1);
-        }
-    }
+
 
     protected Collection<GroundAction> keepOnlyRelTransitions (Collection<GroundAction> transitions, Condition necessaryGoals) {
         if (transitions.isEmpty()) {
@@ -937,34 +924,9 @@ public class EPddlProblem extends PddlProblem {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**
-     * @return the action_cost_from_metric
-     */
-    public boolean isAction_cost_from_metric ( ) {
-        return action_cost_from_metric;
-    }
 
-    /**
-     * @param action_cost_from_metric the action_cost_from_metric to set
-     */
-    public void setAction_cost_from_metric (boolean action_cost_from_metric) {
-        this.action_cost_from_metric = action_cost_from_metric;
-    }
+    
 
-    private void setActionCosts ( ) {
-        Iterator it = getActions().iterator();
-
-        //System.out.println("prova");
-//        System.out.println("DEBUG: Before simplifications, |A|:"+getActions().size());
-        while (it.hasNext()) {
-            GroundAction act = (GroundAction) it.next();
-            if (this.getMetric() != null && isAction_cost_from_metric()) {// &&  !this.getMetric().pddlPrint().contains("total-time")) {
-                act.setActionCost((PDDLState) init, this.getMetric());
-            } else {
-                act.set_unit_cost((PDDLState) init);
-            }
-        }
-    }
 
     public Boolean goalSatisfied (State s) {
         return s.satisfy(this.getGoals());

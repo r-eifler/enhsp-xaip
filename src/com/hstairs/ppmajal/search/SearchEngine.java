@@ -65,7 +65,7 @@ public class SearchEngine {
     private int priorityQueueSize;
     private int numberOfEvaluatedStates;
     private float hw;
-    private Heuristic heuristic;
+    final private Heuristic heuristic;
     private float gw;
     private boolean optimality;
     private long beginningTime;
@@ -78,11 +78,11 @@ public class SearchEngine {
     private Object2FloatMap<State> idaStar;
     private PrintStream out;
     
-    public SearchEngine() {
-        this(System.out);
+    public SearchEngine(Heuristic h) {
+        this(System.out,h);
     }
     
-    public SearchEngine(PrintStream out) {
+    public SearchEngine(PrintStream out, Heuristic h) {
         setNodesExpanded(0);
         setNodesReopened(0);
         setNumberOfEvaluatedStates(0);
@@ -96,6 +96,7 @@ public class SearchEngine {
         forgettingEhc = false;
         bfsTieBreaking = true;
         this.out = out;
+        heuristic= h;
     }
 
     private Object getMap(Explorator explorator) {
@@ -212,9 +213,7 @@ public class SearchEngine {
         return this.WAStar(problem);
     }
 
-    public void setupHeuristic(Heuristic input) {
-        this.setHeuristic(input);
-    }
+
 
     public LinkedList<GroundAction> enforced_hill_climbing(EPddlProblem problem) throws Exception {
         return this.enforced_hill_climbing(problem, Explorator.BRFS);
@@ -623,18 +622,19 @@ public class SearchEngine {
 
                     if (closed.get(temp) != null) {
                         if (cost.get(temp) != null) {
-                            if (!(cost.get(temp) >= current_node.gValue + act.getActionCost(current_node.s))) {
+                            float costTemp = heuristic.getTransitionCost(current_node.s, act, current_node.gValue);
+                            if (!(cost.get(temp) >= costTemp)) {
                                 continue;
                             }
                         }
                     }
 
                     closed.put(current_node.s, Boolean.TRUE);
-                    cost.put(temp, current_node.gValue + act.getActionCost(current_node.s));
+                    cost.put(temp, heuristic.getTransitionCost(current_node.s, act, current_node.gValue));
                     setEvaluatedStates(getEvaluatedStates() + 1);
 
 //                    act.set_unit_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, current_node.gValue + act.getActionCost(current_node.s), 0, this.saveSearchTreeAsJson, this.gw, 0);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, heuristic.getTransitionCost(current_node.s, act, current_node.gValue), 0, this.saveSearchTreeAsJson, this.gw, 0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (saveSearchTreeAsJson) {
                         current_node.add_descendant(new_node);
@@ -707,12 +707,7 @@ public class SearchEngine {
         return heuristic;
     }
 
-    /**
-     * @param heuristic the heuristic to set
-     */
-    public void setHeuristic(Heuristic heuristic) {
-        this.heuristic = heuristic;
-    }
+
 
     /**
      * @return the states_evaluated
@@ -862,8 +857,14 @@ public class SearchEngine {
         return null;
 
     }
+    
+        public LinkedList dfsbnb(EPddlProblem problem) throws Exception {
+            return this.dfsbnb(problem, false);
+        }
 
-    public LinkedList dfsbnb(EPddlProblem problem) throws Exception {
+    
+
+    public LinkedList dfsbnb(EPddlProblem problem, boolean memory) throws Exception {
         State initState = problem.getInit();
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
@@ -883,10 +884,13 @@ public class SearchEngine {
         setNodesReopened(0);
         setNodesExpanded(0);
         this.setEvaluatedStates(0);
+        if (memory) {
+            idaStar = new Object2FloatOpenHashMap<>();
+        }
 
         long startSearch = System.currentTimeMillis();
 
-        final Pair<IdaStarSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true);
+        final Pair<IdaStarSearchNode, Float> res = boundedDepthFirstSearch(problem, depthLimit, true, true,memory);
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
             return this.extractPlan(res.getFirst());
@@ -905,8 +909,8 @@ public class SearchEngine {
         return false;
     }
 
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix) throws TimeoutException {
-        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, false, Long.MAX_VALUE);
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix,boolean memory) throws TimeoutException {
+        return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, memory, Long.MAX_VALUE);
     }
 
     private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory,long timeout) throws TimeoutException {

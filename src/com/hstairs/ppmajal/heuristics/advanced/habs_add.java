@@ -460,7 +460,6 @@ public class habs_add extends Heuristic {
 
         if (cost_sensitive && effectOnCost != null) {
             subaction.getNumericEffects().sons.add(effectOnCost);
-            subaction.setActionCost(s_0, this.metric);
         } else {
             // if not metric sensitive, set uniform action cost
             subaction.setActionCost(1);
@@ -529,7 +528,6 @@ public class habs_add extends Heuristic {
         // add effect on metric
         if (cost_sensitive && effectOnCost != null) {
             sup.getNumericEffects().sons.add(effectOnCost);
-            sup.setActionCost(s_0, metric);
         } else {
             // if not metric sensitive, set uniform action cost
             sup.setActionCost(1);

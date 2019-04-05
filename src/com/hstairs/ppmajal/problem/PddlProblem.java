@@ -66,6 +66,8 @@ public class PddlProblem {
     protected boolean grounded_representation;
     protected RelState possStates;
     protected boolean simplifyActions;
+        private boolean action_cost_from_metric = true;
+
     protected HashMap staticFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
@@ -124,6 +126,20 @@ public class PddlProblem {
         this.grounded_representation = groundedActions;
     }
 
+        /**
+     * @return the action_cost_from_metric
+     */
+    public boolean isAction_cost_from_metric ( ) {
+        return action_cost_from_metric;
+    }
+
+    /**
+     * @param action_cost_from_metric the action_cost_from_metric to set
+     */
+    public void setAction_cost_from_metric (boolean action_cost_from_metric) {
+        this.action_cost_from_metric = action_cost_from_metric;
+    }
+    
     /**
      * Get the value of domainName
      *

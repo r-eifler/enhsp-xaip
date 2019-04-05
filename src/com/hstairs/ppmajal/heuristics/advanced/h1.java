@@ -138,7 +138,6 @@ public class h1 extends Heuristic {
         heuristicActionsToProblemActions = new GroundAction[A.size()+1];
         fromIdToAction = new GroundAction[A.size()+1];
         pseudoGoal = new GroundAction("goal",internalActions.size());
-        pseudoGoal.setActionCost(0);
         pseudoGoal.setPreconditions(G);
         internalActions.add(pseudoGoal);
         fromIdToAction[pseudoGoal.getId()] = pseudoGoal;
@@ -292,7 +291,7 @@ public class h1 extends Heuristic {
 
 
     private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] actionToFibNode) {
-        float c_a = Math.max(gr.getActionCost(), minimumActionCost);
+        float c_a = Math.max(this.getTransitionCost(s_0,gr,0f), minimumActionCost);
         for (final Condition comp : this.predicatesProduction(gr)) {//This is the set of all predicates reachable because of gr
             if (cost[comp.getHeuristicId()] != 0f) {
 

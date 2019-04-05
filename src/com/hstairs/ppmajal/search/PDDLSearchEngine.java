@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.search;
 
+import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.GroundProcess;
@@ -31,6 +32,10 @@ import java.util.logging.Logger;
  * @author enrico
  */
 public class PDDLSearchEngine extends SearchEngine {
+
+    public PDDLSearchEngine(Heuristic h) {
+        super(h);
+    }
 
     @Override
     public LinkedList<GroundAction> extractPlan (SimpleSearchNode input) {
