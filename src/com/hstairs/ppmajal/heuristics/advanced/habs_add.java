@@ -42,7 +42,7 @@ public class habs_add extends Heuristic {
 
 
     public habs_add (EPddlProblem problem, Integer k) {
-        super(problem.goals,problem.actions,problem.getProcessesSet(),problem.getEventsSet());
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);
         this.problem = problem;
         this.k = k;
         subProblem = new EPddlProblem();

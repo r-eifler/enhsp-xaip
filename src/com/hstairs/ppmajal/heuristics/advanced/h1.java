@@ -95,7 +95,7 @@ public class h1 extends Heuristic {
 
 
     public h1(EPddlProblem problem){
-        super(problem.goals,problem.actions,problem.getProcessesSet(),problem.getEventsSet());
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);
         this.problem = problem;
     }
 

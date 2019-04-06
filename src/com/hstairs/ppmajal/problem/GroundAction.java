@@ -1755,8 +1755,8 @@ public class GroundAction extends PDDLGenericAction {
 
     private List<Pair<Condition, Float>> getSdac(PDDLState init, Metric metric) {
         if (this.sdac == null) {
+            this.sdac = new ArrayList<>();
             if (metric != null && metric.getMetExpr() != null) {
-                this.sdac = new ArrayList<>();
                 this.forcedGenerateAffectedNumFluents();
                 ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
                 //first numeric effect normal
@@ -1857,15 +1857,16 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public float getActionCost (State s, Metric m) {
-        if (m == null){
+        if (m == null || m.getMetExpr() == null ){
             return 1f;
         }
 //        List<Pair<Condition, Float>> sdac1 = this.getSdac((PDDLState) s, m);
 //        if (sdac1 == null){
 //            return 1f;
 //        }
+        List<Pair<Condition, Float>> sdac1 = this.getSdac((PDDLState) s, m);
         float impact = 0f;
-        for (Pair<Condition,Float> ele : this.getSdac((PDDLState) s, m)){
+        for (Pair<Condition,Float> ele : sdac1){
             if (ele.getLeft().isSatisfied(s)){
                 impact+=ele.getRight();
             }

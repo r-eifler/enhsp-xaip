@@ -20,6 +20,7 @@ package com.hstairs.ppmajal.heuristics.operator_counting;
 
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.heuristics.Heuristic;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.State;
 
@@ -31,8 +32,8 @@ import java.util.Set;
 public class operator_counting_heuristic extends Heuristic {
 
     //this is meant to build the very basic data structures
-    public operator_counting_heuristic (ComplexCondition goal, Set<GroundAction> actions) {
-        super(goal, actions);
+    public operator_counting_heuristic (EPddlProblem problem) {
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);
     }
 
     @Override

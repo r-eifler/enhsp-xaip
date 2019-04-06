@@ -61,31 +61,8 @@ public abstract class Heuristic {
         this.problem = problem;
     }
     
-    public Heuristic(Set<GroundAction> A) {
-        this(null, A, Collections.emptySet(), Collections.emptySet(), null);
-    }
 
-    public Heuristic(ComplexCondition G, Collection<GroundAction> A) {
-        this(G, new LinkedHashSet(A), Collections.emptySet(), Collections.emptySet(), null);
-    }
-
-    public Heuristic(ComplexCondition G, Set<GroundAction> A) {
-        this(G, A, Collections.emptySet(), Collections.emptySet(), null);
-    }
-
-    public Heuristic(ComplexCondition G, Set<GroundAction> A, Set<GroundProcess> P) {
-        this(G, A, P, Collections.emptySet(), null);
-    }
-
-    public Heuristic(ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, Collection<GroundEvent> E) {
-        this(G, A, P, E, null);
-    }
-
-    public Heuristic(ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, ComplexCondition GC) {
-        this(G, A, P, Collections.emptySet(), GC);
-    }
-
-    public Heuristic(ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, Collection<GroundEvent> E, ComplexCondition GC) {
+    public Heuristic(ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, Collection<GroundEvent> E, ComplexCondition GC, EPddlProblem problem) {
         super();
         this.G = G;
         this.A = new LinkedHashSet();
@@ -99,7 +76,7 @@ public abstract class Heuristic {
         reachable = new LinkedHashSet();
         conditionUniverse = new ArrayList();
         this.gC = GC;
-        problem = null;
+        this.problem = problem;
     }
 
     //this initializer is mandatory for being executed before each invocation of the heuristic

@@ -64,13 +64,11 @@ public class quasi_hm extends Heuristic {
     public boolean greedy = false;
 
 
-    private EPddlProblem problem;
     private Condition Gc;
 
 
     public quasi_hm (EPddlProblem problem) {
-        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.globalConstraints);
-        this.problem = problem;
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),problem.globalConstraints,problem);
     }
 
     @Override

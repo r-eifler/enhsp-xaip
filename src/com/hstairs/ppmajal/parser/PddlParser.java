@@ -10241,11 +10241,15 @@ public class PddlParser extends Parser {
 			{
 				// /home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/grammar/Pddl.g:488:5: ^( OBJECTS typedNameList )
 				{
-				Object root_1 = (Object)adaptor.nil();
-				root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(OBJECTS, "OBJECTS"), root_1);
-				adaptor.addChild(root_1, stream_typedNameList.nextTree());
-				adaptor.addChild(root_0, root_1);
-				}
+                                Object root_1 = (Object) adaptor.nil();
+                                root_1 = (Object) adaptor.becomeRoot((Object) adaptor.create(OBJECTS, "OBJECTS"), root_1);
+
+                                if (stream_typedNameList.hasNext()) {//This is a hack to handle empty lists. Something could be probably done in the parser
+                                    adaptor.addChild(root_1, stream_typedNameList.nextTree());
+                                    adaptor.addChild(root_0, root_1);
+                                }
+
+                         			}
 
 			}
 

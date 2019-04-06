@@ -54,7 +54,7 @@ public class Aibr extends Heuristic {
 
 
     public Aibr (EPddlProblem problem) {
-        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet());
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);
         this.supp_to_action = new HashMap();
         subProblem = new EPddlProblem();
         supporters = subProblem.actions;
