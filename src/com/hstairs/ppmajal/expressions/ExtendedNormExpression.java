@@ -35,6 +35,7 @@ public class ExtendedNormExpression extends Expression {
 
     public ArrayList<ExtendedAddendum> summations;
     public boolean linear;
+    private HashMap involve;
 
     public ExtendedNormExpression ( ) {
         this.summations = new ArrayList();
@@ -628,22 +629,34 @@ public class ExtendedNormExpression extends Expression {
 
     @Override
     public boolean involve (NumFluent nf) {
-
-        for (Object o : this.summations) {
-            ExtendedAddendum a = (ExtendedAddendum) o;
-
-            if (!a.linear) {
-                if (a.bin.involve(nf)) {
-                    return true;
-                }
-            } else if (a.f != null) {
-                if (a.f.equals(nf)) {
-                    return true;
-                }
-            }
-
+        if (involve == null){
+            involve = new HashMap();
         }
-        return false;
+        Boolean involved = (Boolean) involve.get(nf.getId());
+        if (involved == null){
+            for (Object o : this.summations) {
+                ExtendedAddendum a = (ExtendedAddendum) o;
+
+                if (!a.linear) {
+                    if (a.bin.involve(nf)) {
+                        involved = true;
+                        involve.put(nf.getId(),involved);
+                        return true;
+                    }
+                } else if (a.f != null) {
+                    if (a.f.equals(nf)) {
+                        involved = true;
+                        involve.put(nf.getId(),involved);
+                        return true;
+                    }
+                }
+
+            }
+            involved = false;
+            involve.put(nf.getId(),involved);
+        }
+        return involved;
+        
     }
 
     public boolean isNumber ( ) {
