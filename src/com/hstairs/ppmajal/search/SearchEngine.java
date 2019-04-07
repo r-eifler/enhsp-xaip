@@ -622,7 +622,7 @@ public class SearchEngine {
 
                     if (closed.get(temp) != null) {
                         if (cost.get(temp) != null) {
-                            float costTemp = heuristic.getTransitionCost(current_node.s, act, current_node.gValue);
+                            float costTemp = heuristic.gValue(current_node.s, act,temp, current_node.gValue);
                             if (!(cost.get(temp) >= costTemp)) {
                                 continue;
                             }
@@ -630,11 +630,11 @@ public class SearchEngine {
                     }
 
                     closed.put(current_node.s, Boolean.TRUE);
-                    cost.put(temp, heuristic.getTransitionCost(current_node.s, act, current_node.gValue));
+                    cost.put(temp, heuristic.gValue(current_node.s, act,temp, current_node.gValue));
                     setEvaluatedStates(getEvaluatedStates() + 1);
 
 //                    act.set_unit_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, heuristic.getTransitionCost(current_node.s, act, current_node.gValue), 0, this.saveSearchTreeAsJson, this.gw, 0);
+                    SearchNode new_node = new SearchNode(temp, act, current_node, heuristic.gValue(current_node.s, act,temp, current_node.gValue), 0, this.saveSearchTreeAsJson, this.gw, 0);
                     //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
                     if (saveSearchTreeAsJson) {
                         current_node.add_descendant(new_node);
