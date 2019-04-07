@@ -58,6 +58,6 @@ public abstract class State {
 
     public abstract List getNumFluents();
 
-    public abstract List getNumPredicates();
+    public abstract int getBoolFluentsSize();
 
 }

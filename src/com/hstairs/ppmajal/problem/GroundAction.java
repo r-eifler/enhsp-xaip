@@ -126,14 +126,17 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public String toEcoString() {
+        return toEcoString(false);
+    }
+    public String toEcoString(boolean timeInfo) {
         String parameters = "";
         if (getParameters() != null) {
             for (Object o : getParameters()) {
                 parameters = parameters.concat(o.toString()).concat(" ");
             }
         }
-        if (this.time == null) {
-            return " " + this.name + " Parameters: " + parameters;
+        if (!timeInfo) {
+            return "" + this.name + " Parameters: " + parameters;
         } else {
             return "(" + String.format("%.5f", time) + ") " + this.name + " Parameters: " + parameters;
         }

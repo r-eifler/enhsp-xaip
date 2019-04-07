@@ -881,11 +881,12 @@ public class PddlProblem {
     }
 
     public NumFluent getNumFluent (NumFluent f) {
-        for (NumFluent p : this.initNumFluentsValues.keySet()) {
-            if (p.equals(f)) {
-                return p;
-            }
-        }
+//        for (NumFluent p : this.initNumFluentsValues.keySet()) {
+//            if (p.equals(f)) {
+//                return p;
+//            }
+//        }
+        
         return f;
     }
 

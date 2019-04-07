@@ -56,9 +56,11 @@ public abstract class Heuristic {
     protected int numberOfHardConditions;
     protected HashMap<String, Integer> fromConditionStringToUniqueInteger;
     protected EPddlProblem problem ;
+    protected boolean ignoreCostInHeuristic;
 
     public Heuristic(EPddlProblem problem) {
         this.problem = problem;
+        ignoreCostInHeuristic  = false;
     }
     
 
@@ -179,10 +181,13 @@ public abstract class Heuristic {
         if (gr == null) {
             return previousG;
         }
-        return getTransitionCost(s, gr,previousG);
+        return getTransitionCost(s, gr,previousG,false);
     }
     
-    public float getTransitionCost(State s, GroundAction gr, Float previousG){   
+    protected float getTransitionCost(State s, GroundAction gr, Float previousG, boolean ignoreCost){   
+        if (ignoreCost){
+            return previousG + 1;
+        }
         if (problem.isAction_cost_from_metric()){
             return previousG + gr.getActionCost(s,problem.getMetric());
         }else{

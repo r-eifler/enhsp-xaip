@@ -58,8 +58,8 @@ public class PDDLStateWithInt2Double extends PDDLState {
 
     
     
-    public BitSet getBoolFluents() {
-        return boolFluents;
+    public int getBoolFluentsSize() {
+        return boolFluents.cardinality();
     }
 
     public PDDLStateWithInt2Double ( ) {

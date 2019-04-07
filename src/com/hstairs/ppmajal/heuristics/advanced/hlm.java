@@ -495,7 +495,7 @@ public class hlm extends h1 {
 
                         IloNumVar action;
 //                        gr.set_unit_cost(s_0);
-                        Float action_cost = this.getTransitionCost(s_0,gr,0f);
+                        Float action_cost = this.getTransitionCost(s_0,gr,0f,ignoreCostInHeuristic);
                         if (action_cost.isNaN()) {
 //                            System.out.println("Action: " + gr);
                             continue;

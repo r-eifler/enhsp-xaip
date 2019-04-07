@@ -59,6 +59,8 @@ public class EPddlProblem extends PddlProblem {
     private HashMap<String, Terminal> terminalReference;
     private HashMap<String, NumFluent> numFluentReference;
     private boolean smallExpensive = false;
+    private int numberOfBooleanVariables;
+    private int numberOfNumericVariables;
 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super(problemFile, po, types);
@@ -873,7 +875,7 @@ public class EPddlProblem extends PddlProblem {
         removeStaticPart();
         removeUnnecessaryFluents();
         HashMap<Integer,Double> numFluents = new HashMap();
-        
+        numberOfNumericVariables = 0;
         if (NumFluent.numFluentsBank != null){
 //        System.out.println(NumFluent.numFluentsBank);
             for (NumFluent nf : getNumericFluentReference().values()) {
@@ -884,21 +886,24 @@ public class EPddlProblem extends PddlProblem {
                     } else {
                         numFluents.put(nf.getId(), number.getNumber().doubleValue());
                     }
-                    
+                    numberOfNumericVariables++;
                 }
             }
         }
+        
         BitSet boolFluents = new BitSet();
+        numberOfBooleanVariables = 0;
         for (Terminal t : getTerminalReference().values()) {
             if (t instanceof Predicate) {
                 Predicate p = (Predicate) t;
                 if (this.getActualFluents().get(p) != null) {
                     Boolean r = this.initBoolFluentsValues.get(p);
                     if (r == null || !r) {
-                        boolFluents.set(p.getId(), false);
+                        //boolFluents.set(p.getId(), false);
                     } else {
                         boolFluents.set(p.getId(), true);
                     }
+                    numberOfBooleanVariables++;
                 }
             }
         }
@@ -919,6 +924,11 @@ public class EPddlProblem extends PddlProblem {
         addTimeFluentToInit();
     }
 
+    public int getNumberOfBooleanVariables() {
+        return numberOfBooleanVariables;
+    }
+
+    
 
     private void add_possible_numeric_fluents_from_assignments ( ) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -1255,6 +1265,10 @@ public class EPddlProblem extends PddlProblem {
 
     public void setReachableActions(Collection<GroundAction> helpfulActions) {
         reachableActions = helpfulActions;
+    }
+
+    public int getNumberOfNumericVariables() {
+        return numberOfNumericVariables;
     }
 
 

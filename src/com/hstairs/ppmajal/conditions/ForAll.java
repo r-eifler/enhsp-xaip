@@ -109,14 +109,6 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition clone ( ) {
-        ForAll res = new ForAll();
-        res.parameters = this.parameters;
-        res.sons = this.sons.clone();
-        return res;
-    }
-
-    @Override
     public boolean can_be_true (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -377,6 +369,11 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public void extendTerms (Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition clone() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

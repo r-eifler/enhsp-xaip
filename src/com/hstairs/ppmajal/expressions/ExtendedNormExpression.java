@@ -110,22 +110,22 @@ public class ExtendedNormExpression extends Expression {
 
     @Override
     public String toString ( ) {
-        String ret = "(+ ";
+        StringBuilder ret = new StringBuilder("(+ ");
 
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (!a.linear) {
-                ret = ret.concat(a.bin.toString());
+                ret = ret.append(a.bin.toString());
             } else if (a.f != null) {
-                ret = ret.concat("(* " + a.n + " (" + a.f + "))");
+                ret = ret.append("(* ").append(a.n).append(" (").append(a.f).append("))");
             } else if (a.n != null) {
-                ret = ret.concat(a.n.toString());
+                ret = ret.append(a.n.toString());
             } else{
-                ret = ret.concat(a.bin.toString());
+                ret = ret.append(a.bin.toString());
             }
         }
-        ret = ret.concat(")");
-        return ret;
+        ret = ret.append(")");
+        return ret.toString();
     }
 
     //TO BE FIXed!!!!

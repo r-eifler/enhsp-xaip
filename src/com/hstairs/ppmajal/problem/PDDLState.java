@@ -53,12 +53,14 @@ public class PDDLState extends State {
         this.boolFluents = (BitSet) boolFluents.clone();
     }
 
+    @Override
     public List getNumFluents() {
         return Arrays.asList(numFluents);
     }
 
-    public BitSet getBoolFluents() {
-        return boolFluents;
+    @Override
+    public int getBoolFluentsSize() {
+        return boolFluents.cardinality();
     }
 
     public PDDLState ( ) {
@@ -268,9 +270,5 @@ public class PDDLState extends State {
         time += 0.1f;
     }
 
-    @Override
-    public List getNumPredicates() {
-        return Arrays.asList(this.boolFluents);
-    }
 
 }

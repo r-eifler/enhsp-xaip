@@ -573,4 +573,39 @@ public class NumEffect extends Expression implements PostCondition {
     public ExtendedNormExpression normalize() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + Objects.hashCode(this.operator);
+        hash = 53 * hash + Objects.hashCode(this.fluentAffected);
+        hash = 53 * hash + Objects.hashCode(this.right);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NumEffect other = (NumEffect) obj;
+        if (!Objects.equals(this.operator, other.operator)) {
+            return false;
+        }
+        if (!Objects.equals(this.fluentAffected, other.fluentAffected)) {
+            return false;
+        }
+        if (!Objects.equals(this.right, other.right)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

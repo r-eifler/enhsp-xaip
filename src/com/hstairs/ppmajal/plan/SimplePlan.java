@@ -69,6 +69,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
     private boolean newMethod = true;
     private ArrayList<GroundAction> inst_actions;
     private HashMap<NumFluent, DoubleArrayList> nf_trace;
+    private double duration;
+    final private boolean pddlPlus;
 
     public SimplePlan (PddlDomain dom) {
         super();
@@ -76,6 +78,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
         invariantAnalysis = false;
         employedMacro = 0;
+        pddlPlus = true;
     }
 
     public SimplePlan (PddlDomain dom, PddlProblem prob) {
@@ -84,14 +87,22 @@ public class SimplePlan extends ArrayList<GroundAction> {
         pp = prob;
         invariantAnalysis = false;
         employedMacro = 0;
+                pddlPlus = true;
+
     }
 
-    public SimplePlan (PddlDomain a, PddlProblem p, boolean performInvariantAnalysis) {
+        public SimplePlan (PddlDomain a, PddlProblem p, boolean performInvariantAnalysis) {
+            this(a,p,performInvariantAnalysis,false);
+        }
+
+    
+    public SimplePlan (PddlDomain a, PddlProblem p, boolean performInvariantAnalysis, boolean pddlPlusPlan) {
         super();
         pd = a;
         pp = p;
         invariantAnalysis = performInvariantAnalysis;
         employedMacro = 0;
+        pddlPlus = pddlPlusPlan;
     }
 
     //    @Override
@@ -328,15 +339,17 @@ public class SimplePlan extends ArrayList<GroundAction> {
     }
 
     @Override
-    public String toString ( ) {
+    public String toString() {
         String ret_val = "";
-
+        int counter = 0;
         for (Object o : this) {
             if (o instanceof GroundAction) {
                 GroundAction a = (GroundAction) o;
-
-                ret_val = ret_val.concat(a.toEcoString() + "\n");
-
+                if (!pddlPlus) {
+                    ret_val = ret_val.concat(counter + " - ");
+                }
+                ret_val = ret_val.concat(a.toEcoString(pddlPlus) + "\n");
+                counter++;
             }
         }
         return ret_val;
@@ -1831,7 +1844,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (start + 0.01 < gr.time) {
                 ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", gr.time) + ")------>waiting\n";
             }
-            ret += gr.toEcoString() + "\n";
+            ret += gr.toEcoString(pddlPlus) + "\n";
             start = gr.time;
 
         }
@@ -1865,4 +1878,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public void setCost(float cost) {
         this.cost = cost;
     }
+
+    public void setDuration(double time) {
+        duration = time;
+    }
+
+    public double getDuration() {
+        return duration;
+    }
+    
 }

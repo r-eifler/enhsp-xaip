@@ -91,12 +91,16 @@ public class h1 extends Heuristic {
     protected Collection<Comparison> complex_condition_set;
     private GroundAction[] fromIdToAction;
     private Set<GroundAction> masterProblemReachableTransitions;
-    private HashMap<Pair<Integer,Integer>,Comparison> directAssignmentConditionHandle;
+    private HashMap<Pair<Integer, Integer>, Comparison> directAssignmentConditionHandle;
 
+    public h1(EPddlProblem problem) {
+        this(problem, false);
+    }
 
-    public h1(EPddlProblem problem){
-        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);
+    public h1(EPddlProblem problem, boolean ignoreCostHeuristic) {
+        super(problem.getGoals(), problem.actions, problem.getProcessesSet(), problem.getEventsSet(), null, problem);
         this.problem = problem;
+        this.ignoreCostInHeuristic = ignoreCostHeuristic;
     }
 
     protected void dataStructureConstruction(){
@@ -291,7 +295,7 @@ public class h1 extends Heuristic {
 
 
     private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] actionToFibNode) {
-        float c_a = Math.max(this.getTransitionCost(s_0,gr,0f), minimumActionCost);
+        float c_a = Math.max(this.getTransitionCost(s_0,gr,0f,ignoreCostInHeuristic), minimumActionCost);
         for (final Condition comp : this.predicatesProduction(gr)) {//This is the set of all predicates reachable because of gr
             if (cost[comp.getHeuristicId()] != 0f) {
 

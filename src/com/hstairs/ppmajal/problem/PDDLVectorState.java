@@ -246,9 +246,12 @@ public class PDDLVectorState extends State {
     }
 
     @Override
-    public List getNumPredicates() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getBoolFluentsSize() {
+        return this.boolFluents.length;
     }
+
+
+
 
 
 }

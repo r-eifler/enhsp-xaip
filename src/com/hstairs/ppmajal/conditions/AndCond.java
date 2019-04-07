@@ -25,7 +25,6 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -103,7 +102,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      */
     @Override
     public boolean isSatisfied (State s) {
-        for (Object o : this.sons) {
+        for (final Object o : this.sons) {
             if (o instanceof Condition) {
                 Condition c = (Condition) o;
                 if (!c.isSatisfied(s)) {
@@ -162,7 +161,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         AndCond ret = new AndCond();
         ret.grounded = this.grounded;
         //ret.sons = (HashSet)this.sons.clone();
-        ret.sons = new ReferenceLinkedOpenHashSet();
+        ret.sons = new HashSet();
 
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
@@ -336,7 +335,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition weakEval (PddlProblem s, HashMap invF) {
-        ReferenceLinkedOpenHashSet to_keep = new ReferenceLinkedOpenHashSet();
+        HashSet to_keep = new HashSet();
 
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
@@ -761,7 +760,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition normalize() {
-        ReferenceLinkedOpenHashSet sons1 = new ReferenceLinkedOpenHashSet();
+        HashSet sons1 = new HashSet();
         for (final Object cond : (Collection<Object>)sons ){
             if (cond instanceof Condition){
                 Condition condInternal = ((Condition)cond).normalize();
