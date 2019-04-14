@@ -841,7 +841,7 @@ public class h1 extends Heuristic {
     private float min_over_possible_achievers (Condition comp) {
         Set<GroundAction> set = this.allAchievers[comp.getHeuristicId()];
         float min = Float.MAX_VALUE;
-        for (GroundAction gr : set) {
+        for (GroundAction gr : set) {//can be optimised
             min = Math.min(actionHCost[gr.getId()], min);
             if (min == 0) {
                 return 0f;

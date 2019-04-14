@@ -241,8 +241,8 @@ public class PDDLState extends State {
     public RelState relaxState ( ) {
         RelState ret_val = new RelState();
         for (int i = 0; i < this.numFluents.size(); i++) {
-            Double n = this.numFluents.get(i);
-            if (n == null) {
+            double n = this.numFluents.get(i);
+            if (n == Double.NaN) {
                 ret_val.possNumValues.put(fromStateId2Nf[i], new Interval(Float.NaN));
             } else
                 ret_val.possNumValues.put(fromStateId2Nf[i], new Interval(new Float(n)));

@@ -366,9 +366,9 @@ public class NumFluent extends Expression {
     public boolean has_to_be_tracked ( ) {
         if (has_to_be_tracked == null) {
             if (this.getName().equals("total-cost")) {
-                setHas_to_be_tracked(Boolean.FALSE);
+                needsTrackingInState(Boolean.FALSE);
             } else {
-                setHas_to_be_tracked(Boolean.TRUE);
+                needsTrackingInState(Boolean.TRUE);
             }
         }
         return has_to_be_tracked;
@@ -413,7 +413,7 @@ public class NumFluent extends Expression {
     /**
      * @param has_to_be_tracked the has_to_be_tracked to set
      */
-    public void setHas_to_be_tracked (Boolean has_to_be_tracked) {
+    public void needsTrackingInState (Boolean has_to_be_tracked) {
         this.has_to_be_tracked = has_to_be_tracked;
     }
 

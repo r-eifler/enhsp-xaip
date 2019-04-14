@@ -45,7 +45,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
     
     
-    private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
+    public static HashMap<Pair<String,ArrayList>,Predicate> predicates;
     
     public static Predicate createPredicate(String name, ArrayList variables){
         if (predicates == null){

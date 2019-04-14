@@ -26,8 +26,6 @@ import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Enrico Scala
@@ -36,7 +34,7 @@ public abstract class ComplexCondition extends Condition {
     public Collection sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
 
     public ComplexCondition ( ) {
-        sons = new HashSet();
+        sons = new LinkedHashSet();
     }
 
     @Override
@@ -80,7 +78,7 @@ public abstract class ComplexCondition extends Condition {
     }
 
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        HashSet ret = new HashSet();
+        HashSet ret = new LinkedHashSet();
         for (Object c : this.sons) {
             if (c instanceof NumEffect) {
                 NumEffect neff = (NumEffect) c;
@@ -131,7 +129,7 @@ public abstract class ComplexCondition extends Condition {
 
     @Override
     public Set<NumFluent> getInvolvedFluents ( ) {
-        Set<NumFluent> ret = new HashSet();
+        Set<NumFluent> ret = new LinkedHashSet();
         if (this.sons != null) {
             for (Object o : this.sons) {
                 if (o instanceof NumFluent) {

@@ -61,6 +61,7 @@ public class EPddlProblem extends PddlProblem {
     private boolean smallExpensive = false;
     private int numberOfBooleanVariables;
     private int numberOfNumericVariables;
+    private boolean debug;
 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super(problemFile, po, types);
@@ -568,22 +569,37 @@ public class EPddlProblem extends PddlProblem {
     }
 
     
-    protected void pruningViaReachability ( ) {
+    protected void pruningViaReachability() {
         this.pruningViaReachability(true);
     }
-    
-    protected void pruningViaReachability (boolean aibrPreprocessing ) {
+
+    protected void pruningViaReachability(boolean aibrPreprocessing) {
         //System.out.println("prova");
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
+        System.out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+
+        debug = false;
+        if (debug){
+            System.out.print("This is the universe of numeric fluent:");
+            for (NumFluent nf : NumFluent.numFluentsBank.values()){
+                System.out.println("ID:"+nf.getId()+"->"+nf);
+            }
+            System.out.print("This is the universe of propositional fluent:");
+            for (Predicate pred : Predicate.predicates.values()){
+                System.out.println("ID:"+pred.getId()+"->"+pred);
+            }
+        }
         
         if (aibrPreprocessing) {
             Aibr aibr = new Aibr(this);
             Float setup = aibr.setup(this.makePddlState());
-        System.out.println("(After AIBR):"+aibr.getReachableTransitions().size());
+            System.out.println("(After AIBR):" + aibr.getReachableTransitions().size());
             this.reachableActions = aibr.getReachableTransitions();
         } else {
             this.reachableActions = actions;
+            this.reachableActions.addAll(this.getProcessesSet());
+            this.reachableActions.addAll(this.getEventsSet());
         }
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
@@ -846,10 +862,7 @@ public class EPddlProblem extends PddlProblem {
         }
         involved_fluents.addAll(goals.getInvolvedFluents());
 
-        for (NumFluent nf : involved_fluents) {
-            nf.setHas_to_be_tracked(true);
-        }
-        Iterator<NumFluent> it = this.initNumFluentsValues.keySet().iterator();
+        Iterator<NumFluent> it = this.getNumericFluentReference().values().iterator();
         while (it.hasNext()) {
             NumFluent nf2 = it.next();
             boolean keep_it = false;
@@ -860,11 +873,11 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
             if (!keep_it) {
-                nf2.setHas_to_be_tracked(false);
+                nf2.needsTrackingInState(false);
                 it.remove();
             }
             else{
-                nf2.setHas_to_be_tracked(true);
+                nf2.needsTrackingInState(true);
             }
         }
 

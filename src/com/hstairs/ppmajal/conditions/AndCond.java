@@ -161,7 +161,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         AndCond ret = new AndCond();
         ret.grounded = this.grounded;
         //ret.sons = (HashSet)this.sons.clone();
-        ret.sons = new HashSet();
+        ret.sons = new LinkedHashSet();
 
         for (Object o : this.sons) {
             if (o instanceof AndCond) {
@@ -335,7 +335,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition weakEval (PddlProblem s, HashMap invF) {
-        HashSet to_keep = new HashSet();
+        HashSet to_keep = new LinkedHashSet();
 
         if (this.sons != null) {
             Iterator it = this.sons.iterator();
@@ -737,7 +737,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Set<NumFluent> affectedNumericFluents ( ) {
-        Set<NumFluent> ret = new HashSet();
+        Set<NumFluent> ret = new LinkedHashSet();
         if (this.sons.isEmpty()) {
             return ret;
         } else {
@@ -760,7 +760,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition normalize() {
-        HashSet sons1 = new HashSet();
+        HashSet sons1 = new LinkedHashSet();
         for (final Object cond : (Collection<Object>)sons ){
             if (cond instanceof Condition){
                 Condition condInternal = ((Condition)cond).normalize();
