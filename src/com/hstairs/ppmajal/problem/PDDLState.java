@@ -22,14 +22,16 @@ import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.ConditionalEffect;
+import com.hstairs.ppmajal.conditions.NotCond;
+import com.hstairs.ppmajal.conditions.PostCondition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -202,7 +204,18 @@ public class PDDLState extends State {
     }
 
     public void apply (GroundAction gr) {
-        gr.apply(this);
+        if (gr.getDelList() != null) {
+            this.apply(gr.getDelList());
+        }
+        if (gr.getAddList() != null) {
+            this.apply(gr.getAddList());
+        }
+        if (gr.cond_effects != null && !gr.cond_effects.sons.isEmpty()){
+            this.apply(gr.cond_effects);
+        }
+        if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()){
+            this.apply(gr.getNumericEffects());
+        }
     }
 
 
@@ -269,6 +282,41 @@ public class PDDLState extends State {
     void increase_time_by_epsilon ( ) {
         time += 0.1f;
     }
+
+    private void apply(PostCondition effect) {        
+        if (effect instanceof AndCond){
+            for (PostCondition c: (Collection<PostCondition>)((AndCond) effect).sons){
+                this.apply((PostCondition)c);
+            }
+        }else if (effect instanceof NotCond) {
+            final NotCond nc = (NotCond) effect;
+            this.setPropFluent((Predicate) nc.getSon(), false);
+        } else if (effect instanceof Predicate) {
+            this.setPropFluent((Predicate) effect, true);
+        } else if (effect instanceof NumEffect) {
+            final NumEffect nf = (NumEffect) effect;
+            if (nf.getFluentAffected().has_to_be_tracked()) {
+                if (nf.getOperator().equals("increase")) {
+                    final double currentValue = this.fluentValue(nf.getFluentAffected());
+                    if (currentValue != Double.NaN)
+                        this.setNumFluent(nf.getFluentAffected(), currentValue + nf.getRight().eval(this));
+                } else if (nf.getOperator().equals("decrease")) {
+                    final double currentValue = this.fluentValue(nf.getFluentAffected());
+                    if (currentValue != Double.NaN)
+                        this.setNumFluent(nf.getFluentAffected(), currentValue - nf.getRight().eval(this));
+                } else if (nf.getOperator().equals("assign")) {
+                    this.setNumFluent(nf.getFluentAffected(),  nf.getRight().eval(this));
+                }
+            }
+        } else if (effect instanceof ConditionalEffect) {
+            ConditionalEffect cond = (ConditionalEffect) effect;
+            if (this.satisfy(cond.activation_condition)) {
+                this.apply(cond.effect);
+            }
+        }
+    }
+
+
 
 
 }

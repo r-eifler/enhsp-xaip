@@ -522,7 +522,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         PDDLState temp = s.clone();
         for (int j = i; j < this.size(); j++) {
             GroundAction action = this.get(j);
-            action.apply(temp);
+
+            temp.apply(action);
         }
         ret += "S[plan(" + i + ")] \n";
         //System.out.println(this.getInvariantFluents());
@@ -550,7 +551,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundAction gr : this) {
             if (gr.isApplicable(temp)) {
                 i++;
-                temp = (PDDLState) gr.apply(temp);
+                temp.apply(gr);
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
                     //System.out.println(temp.pddlPrint());
@@ -1556,7 +1557,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 if (debug > 1) {
                     System.out.println(Printer.pddlPrint(pp, (PDDLState) temp));
                 }
-                temp = gr.apply(temp);
+//                temp = gr.apply(temp);
+                temp.apply(gr);
 
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
@@ -1636,7 +1638,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                    System.out.println("DEBUG:Applying:"+this.get(index).toPDDL());
 //                    System.out.println("DEBUG:on the state:"+tempInit);
                     if (this.get(index).hasApplicableEffects(tempInit)) {
-                        tempInit = (PDDLState) this.get(index).apply(tempInit);
+//                        tempInit = (PDDLState) this.get(index).apply(tempInit);
+                        tempInit.apply(this.get(index));
 //                        System.out.println("DEBUG: After Modification"+tempInit);
                     }
                 }
@@ -1758,7 +1761,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (gr instanceof GroundEvent) {
 
             } else if (gr.isApplicable(current)) {
-                current = (PDDLState) gr.apply(current);
+//                current = (PDDLState) gr.apply(current);
+                current.apply(gr);
 
                 //current_time = gr.time;
             } else {
@@ -1782,7 +1786,8 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundEvent ev : reachable_events) {
 
             if (ev.isApplicable(s)) {
-                s = (PDDLState) ev.apply(s);
+//                s = (PDDLState) ev.apply(s);
+                s.apply(ev);
                 GroundEvent ev1 = (GroundEvent) ev.clone();
                 ret.add(ev1);
 //                System.out.println("Applying event"+ev1);

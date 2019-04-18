@@ -174,7 +174,7 @@ public class GroundAction extends PDDLGenericAction {
         this.parameters_as_terms = parameters;
     }
 
-    public State apply(State s) {
+    protected State apply(State s) {
 
 //        System.out.println(this.getClass());
 //        System.out.println(s.getClass());
