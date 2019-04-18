@@ -219,6 +219,7 @@ public class PDDLState extends State {
     }
 
 
+    @Override
     public boolean satisfy (Condition input) {
 
         return input.isSatisfied(this);

@@ -209,8 +209,8 @@ public class Comparison extends Terminal {
     
     @Override
     public boolean isSatisfied (State s) {
-        double first = left.eval(s);
-        double second = right.eval(s);
+        final double first = left.eval(s);
+        final double second = right.eval(s);
         return this.isSatisfied(first, second);
     }
 

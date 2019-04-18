@@ -57,6 +57,7 @@ public abstract class Heuristic {
     protected HashMap<String, Integer> fromConditionStringToUniqueInteger;
     protected EPddlProblem problem ;
     protected boolean ignoreCostInHeuristic;
+    protected boolean reachability;
 
     public Heuristic(EPddlProblem problem) {
         this.problem = problem;

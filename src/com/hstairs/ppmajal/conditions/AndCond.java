@@ -104,7 +104,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     public boolean isSatisfied (State s) {
         for (final Object o : this.sons) {
             if (o instanceof Condition) {
-                Condition c = (Condition) o;
+                final Condition c = (Condition) o;
                 if (!c.isSatisfied(s)) {
                     //System.out.println(c.toString() + " is not satisfied in " + s);
                     return false;

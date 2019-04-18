@@ -23,24 +23,25 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.heuristics.Aibr;
+import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.State;
 import java.util.Collection;
-import java.util.Stack;
 
 /**
  *
  * @author enrico
  */
-public class GoalCounting extends Aibr{
+public class GoalCounting extends Heuristic{
 
     final private boolean easy;
     public GoalCounting(EPddlProblem problem) {
         this(problem,false);
     }
     public GoalCounting(EPddlProblem problem, boolean easy) {
-        super(problem);
+        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);        
+        this.problem = problem;
         this.easy = easy;
     }
 
@@ -50,7 +51,7 @@ public class GoalCounting extends Aibr{
             A = problem.actions;
             return (float)computeCost(G,s_0);
         }
-        return super.setup(s_0); //To change body of generated methods, choose Tools | Templates.
+        return this.computeEstimate(s_0); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -66,7 +67,7 @@ public class GoalCounting extends Aibr{
     @Override
     public Float computeEstimate(State s_0) {
         if (reachability && !easy){
-            return super.computeEstimate(s_0);
+            return this.computeEstimate(s_0);
         }
         return (float)computeCost(G,s_0);
         
