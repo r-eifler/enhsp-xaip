@@ -36,7 +36,7 @@ public class Comparison extends Terminal {
     private String comparator;
     private Expression left;
     private Expression right;
-    final private int id;
+    public final int id;
     
     boolean normalized;
     //This needs to go away at some point
@@ -47,6 +47,11 @@ public class Comparison extends Terminal {
     
     private static HashMap<Triple<String, String, String>, Comparison> comparisonDataBase;
 
+    public static HashMap<Triple<String, String, String>, Comparison> getComparisonDataBase() {
+        return comparisonDataBase;
+    }
+
+    
     private static void cancelComparison(String comp, String left, String right) {
         if (comparisonDataBase!= null){
             final Comparison remove = comparisonDataBase.remove(Triple.of(comp,left,right));
@@ -81,9 +86,7 @@ public class Comparison extends Terminal {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 47 * hash + this.id;
-        return hash;
+        return id;
     }
 
     @Override
@@ -104,6 +107,11 @@ public class Comparison extends Terminal {
         return true;
     }
 
+    
+    @Override
+    public int getId() {
+        return id; //To change body of generated methods, choose Tools | Templates.
+    }
 
 
     @Override
@@ -186,7 +194,7 @@ public class Comparison extends Terminal {
         return false;
     }
 
-    private boolean isSatisfied(Double first, Double second){
+    public boolean isSatisfied(Double first, Double second){
         if ((first == null) || (second == null)) {
             return false;//negation by failure.
         }
@@ -209,9 +217,8 @@ public class Comparison extends Terminal {
     
     @Override
     public boolean isSatisfied (State s) {
-        final double first = left.eval(s);
-        final double second = right.eval(s);
-        return this.isSatisfied(first, second);
+        return s.satisfy(this);
+//        return this.isSatisfied(left.eval(s), right.eval(s));
     }
 
     @Override

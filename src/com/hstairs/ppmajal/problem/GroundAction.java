@@ -300,11 +300,11 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public boolean isApplicable(State s) {
-        PDDLState current = (PDDLState) s;
         if (this.getPreconditions() == null) {
             return true;
         }
-        return this.getPreconditions().isSatisfied(current);
+        PDDLState current = (PDDLState) s;
+        return current.satisfy(this.getPreconditions());
     }
 
     /**

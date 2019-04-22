@@ -45,6 +45,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
     
     
+    
     public static HashMap<Pair<String,ArrayList>,Predicate> predicates;
     
     public static Predicate createPredicate(String name, ArrayList variables){
@@ -82,6 +83,13 @@ public class Predicate extends Terminal implements PostCondition {
         variables = null;
     }
 
+    @Override
+    public int getId() {
+        return id; //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
+    
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -304,9 +312,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 79 * hash + this.id;
-        return hash;
+        return id;
     }
 
     @Override
