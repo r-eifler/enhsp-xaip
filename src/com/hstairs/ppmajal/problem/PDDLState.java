@@ -43,20 +43,16 @@ import java.util.Objects;
  */
 public class PDDLState extends State {
 
-    private DoubleArrayList numFluents;
+    protected DoubleArrayList numFluents;
 //    private Int2DoubleArrayMap numFluents;
     private static int[] fromNf2StateId;
     private static int[] fromStateId2Nf;
-    private BitSet boolFluents;
+    protected BitSet boolFluents;
     public double time;
-
-    private int[] compSat; //0 is false //1 is true //-1 is unknown
     
     private PDDLState(DoubleArrayList numFluents, BitSet boolFluents) {
-        this();
         this.numFluents = numFluents.clone();
         this.boolFluents = (BitSet) boolFluents.clone();
-
     }
 
     @Override
@@ -71,14 +67,9 @@ public class PDDLState extends State {
 
     public PDDLState ( ) {
         super();
-        if (Comparison.getComparisonDataBase()!= null){
-            compSat = new int[Comparison.getComparisonDataBase().values().size()];
-        Arrays.fill(compSat, -1);
-        }
     }
 
     public PDDLState (HashMap<Integer,Double> inputNumFluents, BitSet otherBoolFluents) {
-        this();
         this.numFluents = new DoubleArrayList();
         if (NumFluent.numFluentsBank != null) {
             fromNf2StateId = new int[NumFluent.numFluentsBank.size()];
@@ -228,21 +219,6 @@ public class PDDLState extends State {
 
     @Override
     public boolean satisfy (Condition input) {
-        if (input instanceof Comparison){
-            final Comparison comp = (Comparison)input;
-//            System.out.println(comp.getId());
-//            System.out.println(comp.id);
-            if (compSat[comp.getId()] == -1){
-                final double first = comp.getLeft().eval(this);
-                final double second = comp.getRight().eval(this);
-                if (comp.isSatisfied(first, second)){
-                    compSat[comp.getId()] = 1;
-                }else{
-                    compSat[comp.getId()] = 0; 
-                }   
-            }
-            return compSat[comp.getId()] == 1;
-        }
         return input.isSatisfied(this);
 
     }

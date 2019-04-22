@@ -217,8 +217,8 @@ public class Comparison extends Terminal {
     
     @Override
     public boolean isSatisfied (State s) {
-        return s.satisfy(this);
-//        return this.isSatisfied(left.eval(s), right.eval(s));
+//        return s.satisfy(this);
+        return this.isSatisfied(left.eval(s), right.eval(s));
     }
 
     @Override

@@ -18,14 +18,12 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.carrotsearch.hppc.DoubleArrayList;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Aibr;
-import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.search.SearchEngine;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -62,6 +60,7 @@ public class EPddlProblem extends PddlProblem {
     private int numberOfBooleanVariables;
     private int numberOfNumericVariables;
     private boolean debug;
+    private boolean cacheComparison = false;
 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
         super(problemFile, po, types);
@@ -921,10 +920,14 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         PDDLState pddlState = null;
-        if (smallExpensive){
-            pddlState = new PDDLStateWithInt2Double(numFluents, boolFluents);
+        if (cacheComparison){
+            pddlState = new PDDLStateWithCache(numFluents,boolFluents);
         }else{
-            pddlState = new PDDLState(numFluents,boolFluents);
+            if (smallExpensive){
+                pddlState = new PDDLStateWithInt2Double(numFluents, boolFluents);
+            }else{
+                pddlState = new PDDLState(numFluents,boolFluents);
+            }
         }
         
 //        System.out.println(Printer.stringBuilderPddlPrintWithDummyTrue(this, pddlState));
