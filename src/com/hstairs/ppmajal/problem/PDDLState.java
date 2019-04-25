@@ -77,7 +77,7 @@ public class PDDLState extends State {
     public PDDLState (HashMap<Integer,Double> inputNumFluents, BitSet otherBoolFluents) {
         this.numFluents = new DoubleArrayList();
         if (NumFluent.numFluentsBank != null) {
-            fromProblemNFId2StateNFId = new int[NumFluent.numFluentsBank.size()];
+            fromProblemNFId2StateNFId = new int[NumFluent.numFluentsBank.values().size()];
             fromStateNFId2ProblemNFId = new int[inputNumFluents.entrySet().size()];
             Arrays.fill(fromProblemNFId2StateNFId, -1);
             Arrays.fill(fromStateNFId2ProblemNFId, -1);

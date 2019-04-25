@@ -574,7 +574,7 @@ public class OrCond extends ComplexCondition {
     AndCond push_negation_demorgan ( ) {
         AndCond res = new AndCond();
         for (Condition c : (Collection<Condition>) this.sons) {
-            NotCond nc = new NotCond(c);
+            NotCond nc = NotCond.createNotCond(c);
             res.addConditions(nc);
         }
         return res;

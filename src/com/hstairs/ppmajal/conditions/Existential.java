@@ -295,7 +295,7 @@ public class Existential extends ComplexCondition {
 
 
         for (Condition c : (Collection<Condition>) this.sons) {
-            NotCond nc = new NotCond(c);
+            NotCond nc = NotCond.createNotCond(c);
             res.sons.add(nc);
         }
         return res;

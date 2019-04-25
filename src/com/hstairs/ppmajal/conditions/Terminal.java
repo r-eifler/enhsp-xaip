@@ -50,12 +50,7 @@ public abstract class Terminal extends Condition {
 
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
-        Terminal t = p.getTerminalReference(this.toString());
-        if (t == null) {
-            p.putTerminalReference(this);
-            return this;
-        }
-        return t;
+        return this;
     }
 
 

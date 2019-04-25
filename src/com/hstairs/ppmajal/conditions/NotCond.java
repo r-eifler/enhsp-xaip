@@ -32,13 +32,33 @@ public class NotCond extends Terminal implements PostCondition {
     /**
      * The condition that is negated in this condition.
      */
-    private Condition son;
+    final private Condition son;
+    final int id;
 
-    public NotCond (Condition son) {
+    public static HashMap<Condition,NotCond> notcondDB;
+    public static NotCond createNotCond(Condition c){
+        if (notcondDB == null){
+            notcondDB = new HashMap();
+        }
+        NotCond nc = notcondDB.get(c);
+        if (nc == null){
+            nc = new NotCond(c,notcondDB.values().size());
+            notcondDB.put(c,nc);
+        }
+        return nc;
+    }
+    
+    private NotCond (Condition son, int id) {
         super();
         this.son = son;
+        this.id = id;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    
     public Condition getSon ( ) {
         return son;
     }
@@ -55,7 +75,7 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         final Condition groundedSon = son.ground(substitution, po);
-        NotCond ret = new NotCond(groundedSon);
+        NotCond ret = NotCond.createNotCond(groundedSon);
         ret.grounded = true;
         return ret;
     }
@@ -91,7 +111,7 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public Condition normalize ( ) {
-        son = son.normalize();
+        son.normalize();
         return this;
     }
 
@@ -102,10 +122,7 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public Condition clone ( ) {
-        final Condition clonedSon = this.son.clone();
-        NotCond ret = new NotCond(clonedSon);
-        ret.grounded = this.grounded;
-        return ret;
+        return this;
     }
 
     @Override
@@ -123,7 +140,7 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition unGround (Map substitution) {
         final Condition ungroundSon = son.unGround(substitution);
-        NotCond ret = new NotCond(ungroundSon);
+        NotCond ret = NotCond.createNotCond(ungroundSon);
         ret.grounded = false;
         return ret;
     }
@@ -180,7 +197,7 @@ public class NotCond extends Terminal implements PostCondition {
             return this;
         }
         final Condition transformedSon = son.transformEquality();
-        NotCond ret = new NotCond(transformedSon);
+        NotCond ret = NotCond.createNotCond(transformedSon);
         //System.out.println(ret);
         return ret;
     }
@@ -204,7 +221,7 @@ public class NotCond extends Terminal implements PostCondition {
         if (temp.isUnsatisfiable()) {
             return Predicate.createPredicate(Predicate.trueFalse.TRUE);
         }
-        NotCond not = new NotCond(temp);
+        NotCond not = NotCond.createNotCond(temp);
 
         return not;
     }
@@ -242,30 +259,31 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public int hashCode ( ) {
-        final int sonHash = son.hashCode();
-        final int result = sonHash + 11;
-        return result;
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.id;
+        return hash;
     }
 
     @Override
-    public boolean equals (Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-
         if (obj == null) {
             return false;
         }
-
-        if (!(obj instanceof NotCond)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-
         final NotCond other = (NotCond) obj;
-
-        return this.son.equals(other.son);
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
     }
+
+   
 
     @Override
     public HashMap apply (PDDLState s) {
@@ -426,7 +444,7 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
         NotCond nc = (NotCond) super.unifyVariablesReferences(p);
-        nc.son = nc.son.unifyVariablesReferences(p);
+        //nc.son = nc.son.unifyVariablesReferences(p);
         return nc;
     }
 

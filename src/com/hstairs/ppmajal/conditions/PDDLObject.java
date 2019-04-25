@@ -44,7 +44,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
         }
         PDDLObject obj = objectsDB.get(name);
         if (obj == null){
-            obj = new PDDLObject(name,type,objectsDB.size());
+            obj = new PDDLObject(name,type,objectsDB.values().size());
             objectsDB.put(name, obj);
         }
         return obj;

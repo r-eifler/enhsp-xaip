@@ -666,7 +666,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     OrCond push_negation_demorgan ( ) {
         OrCond res = new OrCond();
         for (Condition c : (Collection<Condition>) this.sons) {
-            NotCond nc = new NotCond(c);
+            NotCond nc = NotCond.createNotCond(c);
             res.addConditions(nc);
         }
         return res;

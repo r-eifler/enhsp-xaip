@@ -122,7 +122,7 @@ public class FactoryConditions {
                         cond = ret_val;
                     }
                 }
-                NotCond not = new NotCond(cond);
+                NotCond not = NotCond.createNotCond(cond);
                 return not;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -361,7 +361,7 @@ public class FactoryConditions {
                 return and;
             case PddlParser.NOT_EFFECT:
                 Condition ret_val = (Condition) createPostCondition(parameters, tree.getChild(0));
-                NotCond not = new NotCond(ret_val);
+                NotCond not = NotCond.createNotCond(ret_val);
                 return not;
             case PddlParser.ASSIGN_EFFECT:
                 NumEffect a = new NumEffect(tree.getChild(0).getText());
@@ -424,7 +424,7 @@ public class FactoryConditions {
                     cond = ret_val;
                 }
             }
-            NotCond not = new NotCond(cond);
+            NotCond not = NotCond.createNotCond(cond);
             return not;
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -541,7 +541,7 @@ public class FactoryConditions {
                         cond = ret_val;
                     }
                 }
-                NotCond not = new NotCond(cond);
+                NotCond not = NotCond.createNotCond(cond);
                 return not;
             case PddlParser.PRED_INST:
                 //estrapola tutti i predicati e ritornali come set di predicati
@@ -562,7 +562,7 @@ public class FactoryConditions {
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Condition ret_val = addOneOf(infoAction.getChild(i));
                     if (ret_val != null) {
-                        nc = new NotCond(ret_val);
+                        nc = NotCond.createNotCond(ret_val);
                         return nc;
                     }
                 }

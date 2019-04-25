@@ -499,7 +499,7 @@ public class Predicate extends Terminal implements PostCondition {
         OrCond or = new OrCond();
         AndCond effect_reasons = new AndCond();
         AndCond frame_axiom = new AndCond();
-        NotCond no_del = new NotCond(deleters);
+        NotCond no_del = NotCond.createNotCond(deleters);
 
         effect_reasons.addConditions(achievers);
         effect_reasons.addConditions(no_del);

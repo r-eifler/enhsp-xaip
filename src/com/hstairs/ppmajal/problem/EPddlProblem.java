@@ -526,7 +526,7 @@ public class EPddlProblem extends PddlProblem {
         }
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        syncAllVariables(this);
+        syncAllVariablesAndUpdateCollections(this);
 
     }
 
@@ -845,22 +845,25 @@ public class EPddlProblem extends PddlProblem {
         }
         involved_fluents.addAll(goals.getInvolvedFluents());
 
-        Iterator<NumFluent> it = this.getNumericFluentReference().values().iterator();
-        while (it.hasNext()) {
-            NumFluent nf2 = it.next();
-            boolean keep_it = false;
-            for (NumFluent nf : involved_fluents) {
-                if (nf.getName().equals(nf2.getName())) {
-                    keep_it = true;
-                    break;
+        
+        if (NumFluent.numFluentsBank != null){
+            Iterator<NumFluent> it = this.getNumericFluentReference().values().iterator();
+            while (it.hasNext()) {
+                NumFluent nf2 = it.next();
+                boolean keep_it = false;
+                for (NumFluent nf : involved_fluents) {
+                    if (nf.getName().equals(nf2.getName())) {
+                        keep_it = true;
+                        break;
+                    }
                 }
-            }
-            if (!keep_it) {
-                nf2.needsTrackingInState(false);
-                it.remove();
-            }
-            else{
-                nf2.needsTrackingInState(true);
+                if (!keep_it) {
+                    nf2.needsTrackingInState(false);
+                    it.remove();
+                }
+                else{
+                    nf2.needsTrackingInState(true);
+                }
             }
         }
 
@@ -874,7 +877,7 @@ public class EPddlProblem extends PddlProblem {
         numberOfNumericVariables = 0;
         if (NumFluent.numFluentsBank != null){
 //        System.out.println(NumFluent.numFluentsBank);
-            for (NumFluent nf : getNumericFluentReference().values()) {
+            for (NumFluent nf : NumFluent.numFluentsBank.values()) {
                 if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
                     PDDLNumber number = this.initNumFluentsValues.get(nf);
                     if (number == null) {
@@ -890,9 +893,8 @@ public class EPddlProblem extends PddlProblem {
         booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
         numberOfBooleanVariables = 0;
-        for (Terminal t : getTerminalReference().values()) {
-            if (t instanceof Predicate) {
-                Predicate p = (Predicate) t;
+        if (Predicate.idToPredicate != null) {
+            for (Predicate p : Predicate.idToPredicate.values()) {
                 if (this.getActualFluents().get(p) != null) {
                     Boolean r = this.initBoolFluentsValues.get(p);
                     if (r == null || !r) {
@@ -903,6 +905,7 @@ public class EPddlProblem extends PddlProblem {
                     numberOfBooleanVariables++;
                     booleanFluents.add(p);
                 }
+
             }
         }
         PDDLState pddlState = null;
@@ -974,7 +977,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
 
-    public void syncAllVariables (EPddlProblem inputProblem) {
+    public void syncAllVariablesAndUpdateCollections (EPddlProblem inputProblem) {
 
         if (inputProblem == null) {
             inputProblem = this;
@@ -1007,6 +1010,7 @@ public class EPddlProblem extends PddlProblem {
                 act.unifyVariablesReferences(inputProblem);
             }
         }
+        
         goals = (ComplexCondition) goals.unifyVariablesReferences(inputProblem);
 
         Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
