@@ -29,7 +29,6 @@ import java.util.*;
  * @author enrico
  */
 public class NotCond extends Terminal implements PostCondition {
-
     /**
      * The condition that is negated in this condition.
      */
@@ -397,10 +396,9 @@ public class NotCond extends Terminal implements PostCondition {
         } else if (son instanceof ForAll) {
             throw new RuntimeException("NNF with negated forall not supported yet");
         } else {
-            System.out.println("Condition " + son.getClass() + " not supported");
-            System.exit(-1);
+            throw new RuntimeException("This condition is not supported:"+this);
+
         }
-        return null;
     }
 
     public boolean isTerminal ( ) {

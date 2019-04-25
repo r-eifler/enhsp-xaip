@@ -45,16 +45,21 @@ public class PDDLState extends State {
 
     protected DoubleArrayList numFluents;
 //    private Int2DoubleArrayMap numFluents;
-    private static int[] fromNf2StateId;
-    private static int[] fromStateId2Nf;
+    private static int[] fromProblemNFId2StateNFId;
+    private static int[] fromStateNFId2ProblemNFId;
     protected BitSet boolFluents;
     public double time;
+    private PDDLState prev;
     
     private PDDLState(DoubleArrayList numFluents, BitSet boolFluents) {
         this.numFluents = numFluents.clone();
         this.boolFluents = (BitSet) boolFluents.clone();
     }
 
+    private PDDLState(DoubleArrayList numFluents) {
+        this.numFluents = numFluents.clone();
+    }
+    
     @Override
     public List getNumFluents() {
         return Arrays.asList(numFluents);
@@ -72,15 +77,15 @@ public class PDDLState extends State {
     public PDDLState (HashMap<Integer,Double> inputNumFluents, BitSet otherBoolFluents) {
         this.numFluents = new DoubleArrayList();
         if (NumFluent.numFluentsBank != null) {
-            fromNf2StateId = new int[NumFluent.numFluentsBank.size()];
-            fromStateId2Nf = new int[inputNumFluents.entrySet().size()];
-            Arrays.fill(fromNf2StateId, -1);
-            Arrays.fill(fromStateId2Nf, -1);
+            fromProblemNFId2StateNFId = new int[NumFluent.numFluentsBank.size()];
+            fromStateNFId2ProblemNFId = new int[inputNumFluents.entrySet().size()];
+            Arrays.fill(fromProblemNFId2StateNFId, -1);
+            Arrays.fill(fromStateNFId2ProblemNFId, -1);
             this.numFluents.resize(inputNumFluents.entrySet().size());
             int i = 0;
             for (Entry<Integer, Double> ele : inputNumFluents.entrySet()) {
-                fromNf2StateId[ele.getKey()] = i;
-                fromStateId2Nf[i] = ele.getKey();
+                fromProblemNFId2StateNFId[ele.getKey()] = i;
+                fromStateNFId2ProblemNFId[i] = ele.getKey();
                 this.numFluents.set(i,ele.getValue());
                 i++;
             }
@@ -92,11 +97,17 @@ public class PDDLState extends State {
 
     @Override
     public String toString ( ) {
-        return "PDDLState{" +
-                "numFluents=" + numFluents +
-                ", boolFluents=" + boolFluents +
-                ", time=" + time +
-                '}';
+        StringBuilder str = new StringBuilder("");
+        for (int i=0; i < numFluents.size(); i++){
+            int idNFProblem = PDDLState.fromStateNFId2ProblemNFId[i];
+            NumFluent fluent = NumFluent.fromIdToNumFluents.get(idNFProblem);
+            str.append(fluent).append("=").append(numFluents.get(i)).append(" ");
+        }
+        str.append("\n");
+        for (Predicate fluent : EPddlProblem.booleanFluents){
+            str.append(fluent).append("=").append(this.holds(fluent)).append(" ");
+        }
+        return str.toString();
     }
 
     @Override
@@ -150,7 +161,7 @@ public class PDDLState extends State {
         if (f.getId() == -1) {
             return Double.NaN;
         }
-        return this.numFluents.get(fromNf2StateId[f.getId()]);
+        return this.numFluents.get(fromProblemNFId2StateNFId[f.getId()]);
 
     }
 
@@ -165,7 +176,7 @@ public class PDDLState extends State {
 //            f.getId() = this.numFluents.size(); //This should handle the case where numFluent wasn't initialised
 //            this.numFluents.add(after);
         } else {
-            this.numFluents.set(fromNf2StateId[f.getId()], after);
+            this.numFluents.set(fromProblemNFId2StateNFId[f.getId()], after);
         }
     }
 
@@ -179,9 +190,6 @@ public class PDDLState extends State {
         }
     }
 
-    public boolean satisfy (AndCond con) {
-        return con.isSatisfied(this);
-    }
 
     public boolean satisfyNumerically (AndCond con) {
 
@@ -201,19 +209,23 @@ public class PDDLState extends State {
 
     }
 
-    public void apply (GroundAction gr) {
+    @Override
+    public void apply (GroundAction gr, State prev) {
         if (gr.getDelList() != null) {
-            this.apply(gr.getDelList());
+            this.apply(gr.getDelList(), prev);
         }
         if (gr.getAddList() != null) {
-            this.apply(gr.getAddList());
+            this.apply(gr.getAddList(), prev);
         }
-        if (gr.cond_effects != null && !gr.cond_effects.sons.isEmpty()){
-            this.apply(gr.cond_effects);
+        
+        if (gr.cond_effects != null && !gr.cond_effects.sons.isEmpty()) {
+            this.apply(gr.cond_effects, prev);
         }
-        if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()){
-            this.apply(gr.getNumericEffects());
+        if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
+            this.apply(gr.getNumericEffects(), prev);
         }
+        prev = null;
+
     }
 
 
@@ -254,9 +266,9 @@ public class PDDLState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             double n = this.numFluents.get(i);
             if (n == Double.NaN) {
-                ret_val.possNumValues.put(fromStateId2Nf[i], new Interval(Float.NaN));
+                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new Interval(Float.NaN));
             } else
-                ret_val.possNumValues.put(fromStateId2Nf[i], new Interval(new Float(n)));
+                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new Interval(new Float(n)));
 
         }
 
@@ -281,10 +293,10 @@ public class PDDLState extends State {
         time += 0.1f;
     }
 
-    private void apply(PostCondition effect) {        
+    private void apply(PostCondition effect, State prev) {        
         if (effect instanceof AndCond){
             for (PostCondition c: (Collection<PostCondition>)((AndCond) effect).sons){
-                this.apply((PostCondition)c);
+                this.apply((PostCondition)c, prev);
             }
         }else if (effect instanceof NotCond) {
             final NotCond nc = (NotCond) effect;
@@ -296,20 +308,22 @@ public class PDDLState extends State {
             if (nf.getFluentAffected().has_to_be_tracked()) {
                 if (nf.getOperator().equals("increase")) {
                     final double currentValue = this.fluentValue(nf.getFluentAffected());
-                    if (currentValue != Double.NaN)
-                        this.setNumFluent(nf.getFluentAffected(), currentValue + nf.getRight().eval(this));
+                    if (currentValue != Double.NaN) {
+                        this.setNumFluent(nf.getFluentAffected(), currentValue + nf.getRight().eval(prev));
+                    }
                 } else if (nf.getOperator().equals("decrease")) {
                     final double currentValue = this.fluentValue(nf.getFluentAffected());
-                    if (currentValue != Double.NaN)
-                        this.setNumFluent(nf.getFluentAffected(), currentValue - nf.getRight().eval(this));
+                    if (currentValue != Double.NaN) {
+                        this.setNumFluent(nf.getFluentAffected(), currentValue - nf.getRight().eval(prev));
+                    }
                 } else if (nf.getOperator().equals("assign")) {
-                    this.setNumFluent(nf.getFluentAffected(),  nf.getRight().eval(this));
+                    this.setNumFluent(nf.getFluentAffected(),  nf.getRight().eval(prev));
                 }
             }
         } else if (effect instanceof ConditionalEffect) {
             ConditionalEffect cond = (ConditionalEffect) effect;
             if (this.satisfy(cond.activation_condition)) {
-                this.apply(cond.effect);
+                this.apply(cond.effect,prev);
             }
         }
     }

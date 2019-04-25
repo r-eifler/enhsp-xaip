@@ -24,14 +24,11 @@ import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Variable;
-import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Converter;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.problem.*;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
 
@@ -39,6 +36,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 /**
  * @author enrico
@@ -216,11 +215,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 s1 = s1.substring(parEndIndex + 1);
                             }
                             //System.out.println(par);
-                            PDDLObject obj = new PDDLObject(par);
                             //System.out.println(obj);
                             ActionSchema a = this.pd.getActionByName(nameOperator);
                             Variable v = (Variable) a.getPar().get(objectCounter);
-                            obj.setType(v.getType());
+                            PDDLObject obj = PDDLObject.createObject(par,v.getType());
+//                            obj.setType(v.getType());
 
                             pars.add(obj);
                             objectCounter++;
@@ -262,14 +261,13 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     s1 = s1.substring(parEndIndex + 1);
                 }
                 //System.out.println(par);
-                PDDLObject obj = new PDDLObject(par);
                 //System.out.println(nameOperator);
                 ActionSchema a = this.pd.getActionByName(nameOperator);
 //                System.out.println(a);
 //               System.out.println(a.getParameters().size());
 //                System.out.println(objectCounter);
                 Variable v = (Variable) a.getPar().get(objectCounter);
-                obj.setType(v.getType());
+                PDDLObject obj = PDDLObject.createObject(par,v.getType());
 
                 pars.add(obj);
                 objectCounter++;
@@ -523,7 +521,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (int j = i; j < this.size(); j++) {
             GroundAction action = this.get(j);
 
-            temp.apply(action);
+            temp.apply(action,temp.clone());
         }
         ret += "S[plan(" + i + ")] \n";
         //System.out.println(this.getInvariantFluents());
@@ -551,7 +549,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (GroundAction gr : this) {
             if (gr.isApplicable(temp)) {
                 i++;
-                temp.apply(gr);
+                temp.apply(gr,temp.clone());
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
                     //System.out.println(temp.pddlPrint());
@@ -1558,7 +1556,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                     System.out.println(Printer.pddlPrint(pp, (PDDLState) temp));
                 }
 //                temp = gr.apply(temp);
-                temp.apply(gr);
+                temp.apply(gr,temp.clone());
 
                 if (debug > 1) {
                     System.out.println(gr.getName() + " action has been applied");
@@ -1639,7 +1637,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 //                    System.out.println("DEBUG:on the state:"+tempInit);
                     if (this.get(index).hasApplicableEffects(tempInit)) {
 //                        tempInit = (PDDLState) this.get(index).apply(tempInit);
-                        tempInit.apply(this.get(index));
+                        tempInit.apply(this.get(index),tempInit.clone());
 //                        System.out.println("DEBUG: After Modification"+tempInit);
                     }
                 }
@@ -1762,7 +1760,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             } else if (gr.isApplicable(current)) {
 //                current = (PDDLState) gr.apply(current);
-                current.apply(gr);
+                current.apply(gr,current.clone());
 
                 //current_time = gr.time;
             } else {
@@ -1787,7 +1785,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
             if (ev.isApplicable(s)) {
 //                s = (PDDLState) ev.apply(s);
-                s.apply(ev);
+                s.apply(ev,s.clone());
                 GroundEvent ev1 = (GroundEvent) ev.clone();
                 ret.add(ev1);
 //                System.out.println("Applying event"+ev1);

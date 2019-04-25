@@ -28,9 +28,6 @@ import com.hstairs.ppmajal.wrapped_planners.metricFFWrapper;
 import org.jgraph.JGraph;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 
 import javax.swing.*;
@@ -39,6 +36,9 @@ import java.util.*;
 
 import static com.hstairs.ppmajal.extraUtils.Utils.searchParameter;
 import static com.hstairs.ppmajal.extraUtils.Utils.searchParameterValue;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.ext.JGraphModelAdapter;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 /**
  * *******************************************************************
@@ -131,7 +131,6 @@ public class deordering {
         PddlProblem prob = new PddlProblem();
         prob.parseProblem(problemFile);
 
-        dom.validate(prob);
         SimplePlan plan = new SimplePlan(dom, prob, true);
 
         metricFFWrapper p = new metricFFWrapper();

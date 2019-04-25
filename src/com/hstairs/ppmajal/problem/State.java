@@ -33,7 +33,7 @@ public abstract class State {
         super();
     }
 
-    public abstract void apply (GroundAction gr);
+    public abstract void apply (GroundAction gr, State prev);
 
     public abstract boolean satisfy (Condition input);
 

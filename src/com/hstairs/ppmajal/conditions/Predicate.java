@@ -47,15 +47,19 @@ public class Predicate extends Terminal implements PostCondition {
     
     
     public static HashMap<Pair<String,ArrayList>,Predicate> predicates;
+    public static HashMap<Integer,Predicate> idToPredicate;
     
     public static Predicate createPredicate(String name, ArrayList variables){
         if (predicates == null){
             predicates = new HashMap();
+            idToPredicate = new HashMap();
         }
         Pair pair = new Pair(name,variables);
         Predicate predicate = predicates.get(pair);
         if (predicate == null){
-            predicate = new Predicate(name,variables,predicates.entrySet().size()+2);
+            int idN = predicates.entrySet().size()+2;
+            predicate = new Predicate(name,variables,idN);
+            idToPredicate.put(idN,predicate);
             predicates.put(pair,predicate);
         }
         return predicate;
@@ -83,7 +87,7 @@ public class Predicate extends Terminal implements PostCondition {
         variables = null;
     }
 
-    @Override
+//    @Override
     public int getId() {
         return id; //To change body of generated methods, choose Tools | Templates.
     }

@@ -18,60 +18,61 @@
  */
 package com.hstairs.ppmajal.domain;
 
+import java.util.HashMap;
+import java.util.Set;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+
 /**
  * @author enrico
  */
 public class Type extends Object {
 
-    private String name;
-    private Type subTypeOf;
 
-    public Type (String text) {
-        setName(text);
-        if (!(text.equals("object"))) {
-            subTypeOf = new Type("object");
-        } else {
-            subTypeOf = null;
-
+    final private String name;
+    final private String fatherType;
+    final int id;
+    
+    private static HashMap<String,Type> typeDB;
+    private static DirectedAcyclicGraph hierarchy;
+    
+    
+    public static Type createType(String text) {
+        if (hierarchy == null || typeDB == null || typeDB.get(text)==null){
+            throw new RuntimeException("This type ("+text+") has not been defined before");
         }
+        return typeDB.get(text);
+    }
+    public static Type createType(String name, String father){
+        if (hierarchy == null){
+            hierarchy = new DirectedAcyclicGraph(DefaultEdge.class);
+        }
+        if (typeDB == null){
+            typeDB = new HashMap();
+        }
+        Type t = typeDB.get(name);
+        if (t == null){
+            t = new Type(name,father,typeDB.size());
+            hierarchy.addVertex(name);
+            hierarchy.addVertex(father);
+            hierarchy.addEdge(father, name);
+            typeDB.put(name,t);
+        }
+        return t;
     }
 
-    public Type (String text, Type fatherType) {
-        setName(text);
-        subTypeOf = fatherType;
-    }
-
-    public boolean isObject ( ) {
-        return name.equals("object");
+    private Type(String name, String fatherType, int id) {
+        this.name = name;
+        this.fatherType = fatherType;
+        this.id = id;
     }
 
     public boolean isAncestorOf (Type anc) {
-        if (anc.subTypeOf == null) {
-            //System.out.println("NULL");
-            return false;
-        }
-        if (anc.subTypeOf.equals(this)) {
-            //System.out.println("UGUALE!!");
+        Set ancestors = hierarchy.getAncestors(anc.name);
+        if (ancestors.contains(name)){
             return true;
-        } else {
-            return this.isAncestorOf(anc.subTypeOf);
-        }
-    }
-
-    @Override
-    public boolean equals (Object other) {
-        if (other instanceof Type) {
-            Type a = (Type) other;
-            return a.getName() == null ? this.getName() == null : a.getName().equalsIgnoreCase(this.getName());
         }
         return false;
-    }
-
-    @Override
-    public int hashCode ( ) {
-        int hash = 5;
-        hash = 83 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
-        return hash;
     }
 
     @Override
@@ -80,32 +81,40 @@ public class Type extends Object {
     }
 
     public String pddlString ( ) {
-        if (this.getSubTypeOf() != null) {
-            return this.getName() + " - " + this.getSubTypeOf().getName() + " ";
-        } else {
-            return this.getName() + " - object ";
-        }
+        return this.getName() + " - " + this.getFatherType() + " ";
     }
 
     public String getName ( ) {
         return name;
     }
-
-    public void setName (String name) {
-        this.name = name;
+    
+    public String getFatherType() {
+        return fatherType;
     }
 
-    /**
-     * @return the subTypeOf
-     */
-    public Type getSubTypeOf ( ) {
-        return subTypeOf;
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + this.id;
+        return hash;
     }
 
-    /**
-     * @param subTypeOf the subTypeOf to set
-     */
-    public void setSubTypeOf (Type subTypeOf) {
-        this.subTypeOf = subTypeOf;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Type other = (Type) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
     }
+
 }

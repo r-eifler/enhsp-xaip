@@ -65,7 +65,7 @@ public final class PddlDomain extends Object {
         types = new LinkedHashSet<>();
 
         //Add default dummy type object
-        Type t = new Type("object");
+        Type t = Type.createType("object","null");
         types.add(t);
 
         ActionsSchema = new TreeSet<>(new ActionComparator());
@@ -86,151 +86,6 @@ public final class PddlDomain extends Object {
         this.derived_variables = derived_variables;
     }
 
-    /**
-     * @param p - The PddlProblem to validate the consistency for. BETA
-     * @return true whether the problem is consistent wrt to the domain.
-     * Otherwise false
-     */
-    public boolean validate (PddlProblem p) {
-
-        for (Object o : p.getProblemObjects()) {
-            PDDLObject t = (PDDLObject) o;
-            if (t.getType() == null) {
-                continue;
-            }
-            Iterator<Type> it = types.iterator();
-            boolean founded = false;
-            while (it.hasNext()) {
-                Type ele = it.next();
-                if (ele.equals(t.getType())) {
-                    t.setType(ele);
-                    founded = true;
-                    break;
-                }
-            }
-            if (!founded) {
-                throw new RuntimeException("The following object is not valid:" + t);
-//                System.exit(-1);
-            }
-        }
-
-        for (NumFluent nf : p.getNumFluentsInvolvedInInit()) {
-
-            for (Object o1 : nf.getTerms()) {
-                PDDLObject t = (PDDLObject) o1;
-                Iterator<Type> it = types.iterator();
-                boolean founded = false;
-                while (it.hasNext()) {
-                    Type ele = it.next();
-                    if (ele.equals(t.getType())) {
-                        t.setType(ele);
-                        founded = true;
-                        break;
-                    }
-                }
-                if (!founded) {
-                    System.out.println("The following object is not valid:" + t);
-                    System.exit(-1);
-                }
-            }
-        }
-        for (Predicate t1 : p.getPredicatesInvolvedInInit()) {
-            for (Object o1 : t1.getTerms()) {
-                PDDLObject t = (PDDLObject) o1;
-                Iterator<Type> it = types.iterator();
-                boolean found = false;
-                while (it.hasNext()) {
-                    Type ele = it.next();
-                    if (ele.equals(t.getType())) {
-                        t.setType(ele);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    System.out.println("The following object is not valid:" + t);
-                    System.exit(-1);
-                }
-            }
-        }
-
-
-        for (Object o : p.getNumFluentsInvolvedInInit()) {
-
-            if (o instanceof NumFluent) {
-
-                NumFluent nf = (NumFluent) o;
-//                System.out.println(nf.getName());
-                for (Object o1 : nf.getTerms()) {
-                    PDDLObject t = (PDDLObject) o1;
-                    Iterator<Type> it = types.iterator();
-                    boolean found = false;
-                    while (it.hasNext()) {
-                        Type ele = it.next();
-                        if (t == null) {
-                            System.out.println("Type error; Probably you are using an object in a numeric fluent which is not specified..");
-                            System.out.println("    It happened when dealing with: " + nf);
-                            return false;
-                        }
-                        if (ele.equals(t.getType())) {
-                            t.setType(ele);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("The following object is not valid:" + t);
-                        System.exit(-1);
-                    }
-                }
-            } else {
-                Predicate t1 = (Predicate) o;
-                for (Object o1 : t1.getTerms()) {
-                    PDDLObject t = (PDDLObject) o1;
-                    Iterator<Type> it = types.iterator();
-                    boolean found = false;
-                    while (it.hasNext()) {
-                        Type ele = it.next();
-                        if (ele.equals(t.getType())) {
-                            t.setType(ele);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("The following object is not valid:" + t);
-                        System.exit(-1);
-                    }
-                }
-            }
-        }
-        if (p.getGoals().sons != null) {
-            for (Object o : p.getGoals().sons) {
-
-                if (o instanceof Predicate) {
-
-                    Predicate t = (Predicate) o;
-                    //                if (!predicates.validateInst(t)) {
-                    //                    System.out.println("Predicato: " + t + " non valido");
-                    //                    System.exit(-1);
-                    //
-                    //                }
-                }
-            }
-        }
-        for (final PDDLObject o : this.getConstants()) {
-            p.getProblemObjects().add(o);
-        }
-        //System.out.println(p.getProblemObjects());
-
-        p.setDomain(this);
-        p.setValidatedAgainstDomain(true);
-
-//        p.generate_universe_of_variables(this.getPredicates(),this.getFunctions(),this.derived_variables);
-//        System.out.println(p.num_fluent_universe);
-//        System.out.println(p.predicates_universe);
-        return true;
-    }
 
     /**
      * @param file - the path of the pddl file representing the domain. As
@@ -299,7 +154,7 @@ public final class PddlDomain extends Object {
                         break;
                     case PddlParser.GLOBAL_CONSTRAINT:
                         fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
-                        addGlobal_constraint(c);
+                        addGlobalConstraint(c);
                         break;
                     case PddlParser.PROCESS:
                         addProcess(c);
@@ -362,41 +217,14 @@ public final class PddlDomain extends Object {
     //da migliorare perchè dovrebbe rappresentare una potenziale gerarchica di oggetti!!!
     private void addTypes (Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            Type tip = new Type(c.getChild(i).getText());
 
             Tree tipo = c.getChild(i);
+            String father = "object";
             if (tipo.getChildCount() > 0) {
-                boolean subTypeOfExist = false;
-                Type father = new Type(tipo.getChild(0).getText());
-                if (father.isObject()) {
-                    types.add(father);
-                    tip.setSubTypeOf(father);
-                    subTypeOfExist = true;
-                } else {
-                    Iterator<Type> it = types.iterator();
-                    while (it.hasNext()) {
-                        Type ele = it.next();
-                        if (ele.equals(father)) {
-                            tip.setSubTypeOf(ele);
-                            subTypeOfExist = true;
-                            break;
-                        }
-                    }
-                }
-                if (subTypeOfExist) {
-                    this.types.add(tip);
-                } else {
-                    System.out.println("Error: " + tip + " has declared father: " + father + " which is not a type neither an object; inferring object");
-                    tip.setSubTypeOf(new Type("object"));
-                    this.types.add(tip);
-                }
-            } else {
-                this.types.add(tip);
+                father = tipo.getChild(0).getText();               
             }
-//                
-//            
-//            this.types.add(tip);
-
+            Type tip = Type.createType(c.getChild(i).getText(),father);
+            this.types.add(tip);
         }
     }
 
@@ -409,16 +237,6 @@ public final class PddlDomain extends Object {
         if (t == null) {
             return null;
         }
-//        } //Assumo che ogni variabile sia tipata: da aggiungere nella grammatica l'impossibilità di avere variabili non tipate
-//        //in realtà anche per pddl non tipati funziona. Il risultato ritornato è un null che è comunque un risultato accettabile come tipo.
-//        if (t.getChildCount() == 0) {
-//            Type unTipo = new Type("Object");
-//            if (types.contains(unTipo)) {
-//                return unTipo;
-//            } else {
-//                return null;
-//            }
-//        }
         if (t.getType() == PddlParser.PREDICATES) {//Sono uno dei predicati
             for (int i = 0; i < t.getChildCount(); i++) {
                 Tree child = t.getChild(i);
@@ -433,13 +251,11 @@ public final class PddlDomain extends Object {
             }
             return col;
         } else {
-            Type type = null;
-            if (t.getChildCount() == 0) {
-                type = new Type("object");
-            } else {
-                type = new Type(t.getChild(0).getText());
+            String father = "object";
+            if (t.getChildCount() > 0) {
+                father = t.getChild(0).getText();
             }
-            Variable v = new Variable(t.getText(),type);
+            Variable v = new Variable(t.getText(),Type.createType(father));
             return v;
         }
     }
@@ -496,9 +312,11 @@ public final class PddlDomain extends Object {
 
         for (int i = 0; i < c.getChildCount(); i++) {
             if (c.getChild(i).getChildCount() > 0) {
-                this.getConstants().add(new PDDLObject(c.getChild(i).getText(), new Type(c.getChild(i).getChild(0).getText())));
+                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.createType(c.getChild(i).getChild(0).getText()));
+                this.getConstants().add(o);
             } else {
-                this.getConstants().add(new PDDLObject(c.getChild(i).getText(), new Type("object")));
+                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.createType("object"));
+                this.getConstants().add(o);
             }
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
 //            System.out.println("che è di tipo:" + new Type(c.getChild(i).getChild(0).getText()));
@@ -675,7 +493,7 @@ public final class PddlDomain extends Object {
 
 
 
-    private void addGlobal_constraint (Tree c) {
+    private void addGlobalConstraint (Tree c) {
         SchemaGlobalConstraint con = new SchemaGlobalConstraint(c.getChild(0).getText());
         //System.out.println("Adding:"+a.getName());
         this.getSchemaGlobalConstraints().add(con);
@@ -700,21 +518,8 @@ public final class PddlDomain extends Object {
                     if (infoConstraint.getChild(0) == null) {
                         break;
                     }
-                    Type t = new Type(infoConstraint.getChild(0).getText());
-                    boolean found = false;
-                    for (Object o : this.getTypes()) {
-                        if (t.equals(o)) {
-                            t = (Type) o;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("Type: " + t + " is not specified. Please revise the model");
-                        System.exit(-1);
-                    } else {
-                        con.parameters.add(new Variable(infoConstraint.getText(), t));
-                    }
+                    Type t = Type.createType(infoConstraint.getChild(0).getText());
+                    con.parameters.add(new Variable(infoConstraint.getText(), t));
                     break;
 
             }
@@ -761,22 +566,11 @@ public final class PddlDomain extends Object {
                     if (infoAction.getChild(0) == null) {
                         break;
                     }
-                    Type t = new Type(infoAction.getChild(0).getText());
-                    boolean found = false;
-                    for (Object o : this.getTypes()) {
-                        if (t.equals(o)) {
-                            t = (Type) o;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        throw new RuntimeException("Type: " + t + " is not specified. Please Fix the Model");
-                    } else {
+                    Type t = Type.createType(infoAction.getChild(0).getText());
+                    
                         Variable variable = new Variable(infoAction.getText(), t);
 //                        System.out.print(variable);
                         a.addParameter(variable);
-                    }
                     break;
                 case (PddlParser.EFFECT):
                     addEffects(a, infoAction);
@@ -899,23 +693,11 @@ public final class PddlDomain extends Object {
                     break;
                 case (PddlParser.VARIABLE):
                     if (infoAction.getChild(0) == null) {
-                        a.addParameter(new Variable(infoAction.getText(), new Type("object")));
+                        a.addParameter(new Variable(infoAction.getText(), Type.createType("object")));
                         break;
                     } else {
-                        Type t = new Type(infoAction.getChild(0).getText());
-                        boolean found = false;
-                        for (Object o : this.getTypes()) {
-                            if (t.equals(o)) {
-                                t = (Type) o;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            throw new RuntimeException("Type: " + t + " is not specified. Please Fix the Model");
-                        } else {
-                            a.addParameter(new Variable(infoAction.getText(), t));
-                        }
+                        Type t = Type.createType(infoAction.getChild(0).getText());
+                        a.addParameter(new Variable(infoAction.getText(), t));
                         break;
                     }
                 case (PddlParser.EFFECT):

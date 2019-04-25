@@ -157,21 +157,10 @@ public class FactoryConditions {
                             if (child.getChild(0) == null) {
                                 break;
                             }
-                            Type t = new Type(child.getChild(0).getText());
-                            boolean found = false;
-                            for (Object o : this.types) {
-                                if (t.equals(o)) {
-                                    t = (Type) o;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                throw new RuntimeException("Type: " + t + " is not specified. Please Fix the Model");
+                            Type t = Type.createType(child.getChild(0).getText());
 
-                            } else {
-                                exist.addParameter(new Variable(child.getText(), t));
-                            }
+                            exist.addParameter(new Variable(child.getText(), t));
+
                             break;
                         default:
                             //at this point I should have collected all the parameters for grounding
@@ -205,14 +194,8 @@ public class FactoryConditions {
         ArrayList variables = new ArrayList();
         for (int i = 1; i < t.getChildCount(); i++) {
             if (t.getChild(i).getType() == PddlParser.NAME) {
-                PDDLObject o = new PDDLObject(t.getChild(i).getText());
-                PDDLObject o1 = this.constants.containsTerm(o);
-                if (o1 != null) {
-                    variables.add(o1);
-                } else {
-                    System.out.println("Constants/Objects in this problem:" + this.constants);
-                    throw new RuntimeException("Variable " + o + " is not a constant object");
-                }
+                PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
+                variables.add(o);
             } else {
                 Variable v = new Variable(t.getChild(i).getText());
 
@@ -279,15 +262,8 @@ public class FactoryConditions {
 //                System.out.println("Name Type:" + PddlParser.NAME);
 //                System.out.println("Current Type:" + t.getChild(i).getType());
                     if (t.getChild(i).getType() == PddlParser.NAME) {
-                        PDDLObject o = new PDDLObject(t.getChild(i).getText());
-                        PDDLObject o1 = this.constants.containsTerm(o);
-                        if (o1 != null) {
-                            variables.add(o1);
-                        } else {
-
-                            System.out.println("NumFluent:Variable " + o + " is not a constant object");
-                            System.exit(-1);
-                        }
+                        PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
+                        variables.add(o);
                     } else {
                         Variable v = new Variable(t.getChild(i).getText());
                         //System.out.println(parTable);
@@ -332,22 +308,8 @@ public class FactoryConditions {
                     if (child.getChild(0) == null) {
                         break;
                     }
-                    Type t = new Type(child.getChild(0).getText());
-                    boolean found = false;
-//                    System.out.println(types);
-                    for (Object o : this.types) {
-                        if (t.equals(o)) {
-                            t = (Type) o;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        throw new RuntimeException("Type: " + t + " is not specified. Please Fix the Model");
-
-                    } else {
-                        forall.addParameter(new Variable(child.getText(), t));
-                    }
+                    Type t = Type.createType(child.getChild(0).getText());
+                    forall.addParameter(new Variable(child.getText(), t));
                     break;
                 default:
                     //at this point I should have collected all the parameters for grounding
@@ -512,15 +474,8 @@ public class FactoryConditions {
 //                System.out.println("Name Type:" + PddlParser.NAME);
 //                System.out.println("Current Type:" + t.getChild(i).getType());
                     if (t.getChild(i).getType() == PddlParser.NAME) {
-                        PDDLObject o = new PDDLObject(t.getChild(i).getText());
-                        PDDLObject o1 = this.constants.containsTerm(o);
-                        if (o1 != null) {
-                            variables.add(o1);
-                        } else {
-
-                            System.out.println("NumFluent:Variable " + o + " is not a constant object");
-                            System.exit(-1);
-                        }
+                        PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
+                        variables.add(o);
                     } else {
 
                     }
@@ -627,8 +582,9 @@ public class FactoryConditions {
                 ArrayList variables = new ArrayList();
                 Tree t = c.getChild(i);
                 for (int j = 0; j < t.getChildCount(); j++) {
+                    Type type = Type.createType(t.getChild(j).getChild(0).getText());
 
-                    Variable v  = new Variable(t.getChild(j).getText(),new Type(t.getChild(j).getChild(0).getText()));
+                    Variable v = new Variable(t.getChild(j).getText(), type);
                     variables.add(v);
                 }
                 NumFluent ret = NumFluent.createNumFluent(c.getChild(i).getText(), variables);

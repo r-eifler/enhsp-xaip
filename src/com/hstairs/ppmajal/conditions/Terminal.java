@@ -30,8 +30,6 @@ import java.util.List;
  */
 public abstract class Terminal extends Condition {
 
-    private int id;
-
     @Override
     public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
         int current_dist = dist.get(this.getHeuristicId());
@@ -54,29 +52,12 @@ public abstract class Terminal extends Condition {
     public Condition unifyVariablesReferences (EPddlProblem p) {
         Terminal t = p.getTerminalReference(this.toString());
         if (t == null) {
-            id = p.getNextTerminalReferenceId();
             p.putTerminalReference(this);
             return this;
         }
         return t;
     }
 
-    @Override
-    public boolean equals (Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Terminal)) return false;
-        Terminal terminal = (Terminal) o;
-        return getId() == terminal.getId();
-    }
-
-    @Override
-    public int hashCode ( ) {
-        return getId();
-    }
-
-    public int getId ( ) {
-        return id;
-    }
 
     @Override
     public boolean involve (Condition c) {

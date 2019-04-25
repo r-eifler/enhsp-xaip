@@ -154,9 +154,7 @@ public class produceEntaglements {
 
     private static void learn_entanglements_with_problem_given_in_input (PddlDomain dom) throws Exception {
         PddlProblem prob = new PddlProblem();
-        prob.setDomain(dom);
         prob.parseProblem(problemFile);
-        dom.validate(prob);
         //System.out.println(dom.getActionsSchema());
         planJustInCase(dom, prob);
         //System.out.println(sp);
@@ -221,9 +219,7 @@ public class produceEntaglements {
             problemFile = scanner.next();
             planFile = scanner.next();
             PddlProblem prob = new PddlProblem();
-            prob.setDomain(dom);
             prob.parseProblem(problemFile);
-            dom.validate(prob);
             //System.out.println(dom.getActionsSchema());
 
             planJustInCase(dom, prob);

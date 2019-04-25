@@ -61,7 +61,6 @@ public class PddlProblem {
     protected Metric metric;
     protected String pddlFilRef;
     protected String domainName;
-    protected boolean validatedAgainstDomain;
     protected long propositionalTime;
     protected boolean grounded_representation;
     protected RelState possStates;
@@ -73,13 +72,19 @@ public class PddlProblem {
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
     public Collection<GroundAction> reachableActions;
-    PddlDomain linkedDomain;
+    final PddlDomain linkedDomain;
     private FactoryConditions fc;
     private int totActions;
 
 
-    public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
-        this();
+    public PddlProblem(){
+        linkedDomain = null;
+        actions = new LinkedHashSet();
+        
+    }
+    
+    public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
+        this(linked);
         try {
             objects.addAll(po);
             this.types = types;
@@ -93,21 +98,26 @@ public class PddlProblem {
     /**
      *
      */
-    public PddlProblem ( ) {
+    public PddlProblem ( PddlDomain linked) {
         indexObject = 0;
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
         metric = new Metric("NO");
-        linkedDomain = null;
+        linkedDomain = linked;
         actions = new LinkedHashSet();
         grounded_representation = false;
         totActions = 0;
         simplifyActions = true;
-        validatedAgainstDomain = false;
         possStates = null;
     }
 
+    public PddlDomain getLinkedDomain() {
+        return linkedDomain;
+    }
+
+    
+    
     /**
      * Get the value of groundedActions
      *
@@ -296,19 +306,16 @@ public class PddlProblem {
 
     protected void addObjects (Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
-            if (this.linkedDomain != null && false) {
+            if (this.linkedDomain != null) {
                 Type t = linkedDomain.getTypeByName(c.getChild(i).getChild(0).getText());
                 if (t == null) {
                     System.out.println(c.getChild(i).getChild(0).getText() + " not found");
                     System.exit(-1);
                 }
-                this.getObjects().add(new PDDLObject(c.getChild(i).getText(), t));
+                this.getObjects().add(PDDLObject.createObject(c.getChild(i).getText(), t));
 
             } else {
-                Type type = new Type("object");
-                if (c.getChild(i).getChildCount() > 0)
-                    type = new Type(c.getChild(i).getChild(0).getText());
-                this.getObjects().add(new PDDLObject(c.getChild(i).getText(), type));
+                throw new RuntimeException("Need to link the domain first");
             }
         }
     }
@@ -512,15 +519,10 @@ public class PddlProblem {
         return new ArrayList(this.initNumFluentsValues.keySet());
     }
 
-    public void setDomain (PddlDomain aThis) {
-        linkedDomain = aThis;
-
-    }
 
     public void generateActions ( ) throws Exception {
 
         long start = System.currentTimeMillis();
-        if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
                 if (!act.getPar().isEmpty()) {
@@ -530,11 +532,7 @@ public class PddlProblem {
                     getActions().add(gr);
                 }
             }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
+
         Iterator it = getActions().iterator();
         //System.out.println("prova");
         System.out.println("|A| just after grounding:" + getActions().size());
@@ -759,20 +757,6 @@ public class PddlProblem {
     }
 
     /**
-     * @return the validatedAgainstDomain
-     */
-    public boolean isValidatedAgainstDomain ( ) {
-        return validatedAgainstDomain;
-    }
-
-    /**
-     * @param validatedAgainstDomain the validatedAgainstDomain to set
-     */
-    public void setValidatedAgainstDomain (boolean validatedAgainstDomain) {
-        this.validatedAgainstDomain = validatedAgainstDomain;
-    }
-
-    /**
      * @return the possStates
      */
     public RelState getPossStates ( ) {
@@ -969,7 +953,7 @@ public class PddlProblem {
         @Override
         public Pair<State, GroundAction> next ( ) {
             State newState = source.clone();
-            newState.apply(current);
+            newState.apply(current,source);
             return new Pair(newState, current);
         }
     }

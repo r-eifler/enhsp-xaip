@@ -29,9 +29,7 @@ import com.hstairs.ppmajal.some_computatitional_tool.NumericKernel;
 import com.hstairs.ppmajal.some_computatitional_tool.NumericPlanningGraph;
 import com.hstairs.ppmajal.wrapped_planners.metricFFWrapper;
 import com.hstairs.ppmajal.wrapped_planners.planningTool;
-import org.jgrapht.alg.BiconnectivityInspector;
 import org.jgrapht.alg.TransitiveClosure;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.jgrapht.graph.AsUndirectedGraph;
 
 import java.io.File;
@@ -40,6 +38,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.alg.connectivity.BiconnectivityInspector;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 /**
  * @author enrico
@@ -174,7 +174,7 @@ public class PlanAdapter {
             }
 
             //Temporary Problem to emulate a new goal in a PDDL problem description
-            PddlProblem tempProblem = new PddlProblem();
+            PddlProblem tempProblem = new PddlProblem(dom);
             tempProblem.parseProblem(prob.getPddlFileReference());
             tempProblem.setGoals((ComplexCondition) nk.get(i));
             tempProblem.saveProblem("temp.pddl");

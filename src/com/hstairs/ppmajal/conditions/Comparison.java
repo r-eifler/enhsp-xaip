@@ -50,13 +50,6 @@ public class Comparison extends Terminal {
     public static HashMap<Triple<String, String, String>, Comparison> getComparisonDataBase() {
         return comparisonDataBase;
     }
-
-    
-    private static void cancelComparison(String comp, String left, String right) {
-        if (comparisonDataBase!= null){
-            final Comparison remove = comparisonDataBase.remove(Triple.of(comp,left,right));
-        }
-    }
     
     public static Comparison createComparison(String comparator, Expression left, Expression right, boolean normalized) {
         if (comparisonDataBase == null) {
@@ -108,7 +101,7 @@ public class Comparison extends Terminal {
     }
 
     
-    @Override
+//    @Override
     public int getId() {
         return id; //To change body of generated methods, choose Tools | Templates.
     }

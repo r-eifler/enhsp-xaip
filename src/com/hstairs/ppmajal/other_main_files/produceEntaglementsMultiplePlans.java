@@ -119,9 +119,7 @@ public class produceEntaglementsMultiplePlans {
         PddlDomain dom = new PddlDomain(domainFile);
 
         PddlProblem prob = new PddlProblem();
-        prob.setDomain(dom);
         prob.parseProblem(problemFile);
-        dom.validate(prob);
         //System.out.println(dom.getActionsSchema());
         metricFFWrapper p = new metricFFWrapper();
         p.setTimeout(100000);

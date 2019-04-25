@@ -32,25 +32,36 @@ import java.util.*;
  */
 public class PDDLObject extends Terminal implements ActionParameter {
 
-    private String name;
-    private Type type;
+    final private String name;
+    final private Type type;
+    final int id;
 
-    public PDDLObject (String name) {
-        grounded = true;
-        this.name = name;
+    public static HashMap<String,PDDLObject> objectsDB;
+    
+    public static PDDLObject createObject(String name, Type type){
+        if (objectsDB == null){
+            objectsDB = new HashMap();
+        }
+        PDDLObject obj = objectsDB.get(name);
+        if (obj == null){
+            obj = new PDDLObject(name,type,objectsDB.size());
+            objectsDB.put(name, obj);
+        }
+        return obj;
+            
     }
 
-    public PDDLObject (String n, Type atype) {
+    private PDDLObject (String n, Type atype, int id) {
         grounded = true;
         name = n;
         type = atype;
+        this.id = id;
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 53 * hash + Objects.hashCode(this.name);
-        hash = 53 * hash + Objects.hashCode(this.type);
+        hash = 97 * hash + this.id;
         return hash;
     }
 
@@ -66,10 +77,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
             return false;
         }
         final PDDLObject other = (PDDLObject) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        if (!Objects.equals(this.type, other.type)) {
+        if (this.id != other.id) {
             return false;
         }
         return true;
@@ -83,12 +91,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
         return type;
     }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType (Type type) {
-        this.type = type;
-    }
 
     @Override
     public String toString ( ) {
@@ -106,16 +108,10 @@ public class PDDLObject extends Terminal implements ActionParameter {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName (String name) {
-        this.name = name;
-    }
 
     @Override
     public PDDLObject ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        return new PDDLObject(name, type); // TODO: Why not return this?
+        return this; // TODO: Why not return this?
     }
 
     @Override
@@ -253,7 +249,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
 
     @Override
     public PDDLObject ground (Map<Variable, PDDLObject> substitution) {
-        return new PDDLObject(name, type); // TODO: Why not return this?
+        return this; // TODO: Why not return this?
     }
 
     @Override
@@ -271,4 +267,12 @@ public class PDDLObject extends Terminal implements ActionParameter {
         return this;
     }
 
+//    @Override
+    public int getId() {
+        return id; //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
+    
+    
 }

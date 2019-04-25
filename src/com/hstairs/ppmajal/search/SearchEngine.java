@@ -181,7 +181,8 @@ public class SearchEngine {
 
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
-                    s.apply(ev);
+                    
+                    s.apply(ev,s.clone());
                     GroundEvent ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
@@ -614,7 +615,7 @@ public class SearchEngine {
                 if (act instanceof GroundProcess) {
                 } else if (act.isApplicable(current_node.s)) {
                     State temp = current_node.s.clone();
-                    temp.apply(act);
+                    temp.apply(act,current_node.s);
                     //act.normalize();
                     if (!temp.satisfy(problem.globalConstraints)) {
                         continue;
@@ -760,7 +761,7 @@ public class SearchEngine {
 //                }
                 waiting_list.add(waiting);
 
-                temp_temp.apply(waiting);
+                temp_temp.apply(waiting,temp_temp.clone());
                 waiting_list.addAll(apply_events(temp_temp, i));
 
                 //the next has to be written better!!!! Spend a bit of time on that!

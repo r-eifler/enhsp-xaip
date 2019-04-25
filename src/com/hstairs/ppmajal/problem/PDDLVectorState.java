@@ -172,7 +172,7 @@ public class PDDLVectorState extends State {
 
     }
 
-    public void apply (GroundAction gr) {
+    public void apply (GroundAction gr, State prev) {
         gr.apply(this);
     }
 

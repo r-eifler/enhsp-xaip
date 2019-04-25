@@ -20,8 +20,6 @@ package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.Type;
-import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 import java.io.File;
 import java.util.Collection;

@@ -36,7 +36,6 @@ public class PDDLObjectsEquality extends Terminal {
     private Variable rightV;
 
     public PDDLObjectsEquality ( ) {
-
         grounded = false;
     }
 

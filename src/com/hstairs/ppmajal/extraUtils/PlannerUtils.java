@@ -49,9 +49,8 @@ public class PlannerUtils {
     public int getPlanSize (String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
         domain.substituteEqualityConditions();
-        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
+        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes(),domain);
         domain.prettyPrint();
-        domain.validate(problem);
         if (!domain.getProcessesSchema().isEmpty() || !domain.eventsSchema.isEmpty()) {
 
             problem.setDeltaTimeVariable("1");
@@ -103,9 +102,8 @@ public class PlannerUtils {
 
     public int heuristicEstimate (String domainFileName, String problemFileName, String heuristic) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
-        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
+        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes(),domain);
         domain.prettyPrint();
-        domain.validate(problem);
 
         
         problem.groundingActionProcessesConstraints();
@@ -138,9 +136,8 @@ public class PlannerUtils {
 
     public int computeNumberOfRelevantActions (String domainFileName, String problemFileName) throws Exception {
         final PddlDomain domain = new PddlDomain(domainFileName);
-        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes());
+        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes(),domain);
         domain.prettyPrint();
-        domain.validate(problem);
         problem.groundingActionProcessesConstraints();
         problem.simplifyAndSetupInit();
         Collection<GroundAction> reachableActions = problem.getReachableActions();

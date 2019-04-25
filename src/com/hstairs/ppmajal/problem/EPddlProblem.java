@@ -61,9 +61,10 @@ public class EPddlProblem extends PddlProblem {
     private int numberOfNumericVariables;
     private boolean debug;
     private boolean cacheComparison = false;
+    static public HashSet<Predicate> booleanFluents;
 
-    public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types) {
-        super(problemFile, po, types);
+    public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
+        super(problemFile, po, types, linked);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond();
@@ -72,20 +73,22 @@ public class EPddlProblem extends PddlProblem {
         totEvents = 0;
     }
 
-    public EPddlProblem ( ) {
+    public EPddlProblem() {
         super();
     }
 
-    public EPddlProblem (ComplexCondition goal, Collection<GroundAction> reachableActions) {
-        this.goals = goal;
-        actions = reachableActions;
+    public EPddlProblem(AndCond temp, Collection<GroundAction> reachable) {
+        this();
+        goals = temp;
+        actions = reachable;
     }
+
 
 
     @Override
     public Object clone ( ) throws CloneNotSupportedException {
 
-        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types);
+        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
         cloned.processesSet = new LinkedHashSet();
         for (GroundAction gr : this.actions) {
             cloned.actions.add((GroundAction) gr.clone());
@@ -110,15 +113,11 @@ public class EPddlProblem extends PddlProblem {
     @Override
     public void generateActions ( ){
         long start = System.currentTimeMillis();
-        if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder(belief == null);
             for (ActionSchema act : linkedDomain.getActionsSchema()) {
                     getActions().addAll(af.Propositionalize(act, getObjects(),this, initBoolFluentsValues, linkedDomain));
             }
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
+
 
     }
 
@@ -160,7 +159,6 @@ public class EPddlProblem extends PddlProblem {
     public void generateProcesses ( ) throws Exception {
         long start = System.currentTimeMillis();
         processesSet = new LinkedHashSet();
-        if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (ProcessSchema process : linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
@@ -171,11 +169,7 @@ public class EPddlProblem extends PddlProblem {
                     getProcessesSet().add(gr);
                 }
             }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
+
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
         this.processesHaveBeenGrounded = true;
@@ -498,7 +492,6 @@ public class EPddlProblem extends PddlProblem {
     }
 
     public void generateConstraints ( ) throws Exception {
-        if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (SchemaGlobalConstraint constr : linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
@@ -510,11 +503,7 @@ public class EPddlProblem extends PddlProblem {
                     globalConstraintSet.add(gr);
                 }
             }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
+
         this.globalConstraintGrounded = true;
     }
 
@@ -794,7 +783,6 @@ public class EPddlProblem extends PddlProblem {
 
     private void generateEvents ( ) {
         long start = System.currentTimeMillis();
-        if (this.isValidatedAgainstDomain()) {
             Grounder af = new Grounder();
             for (EventSchema event_schema : linkedDomain.eventsSchema) {
 //                af.Propositionalize(act, objects);
@@ -810,11 +798,7 @@ public class EPddlProblem extends PddlProblem {
 
                 }
             }
-            //pruneActions();
-        } else {
-            System.err.println("Please connect the domain of the problem via validation");
-            System.exit(-1);
-        }
+
 
     }
 
@@ -903,6 +887,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         
+        booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
         numberOfBooleanVariables = 0;
         for (Terminal t : getTerminalReference().values()) {
@@ -916,6 +901,7 @@ public class EPddlProblem extends PddlProblem {
                         boolFluents.set(p.getId(), true);
                     }
                     numberOfBooleanVariables++;
+                    booleanFluents.add(p);
                 }
             }
         }
@@ -1105,7 +1091,7 @@ public class EPddlProblem extends PddlProblem {
             for (GroundEvent ev : events) {
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
-                    s.apply(ev);
+                    s.apply(ev,s.clone());
                     GroundEvent ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
@@ -1154,7 +1140,7 @@ public class EPddlProblem extends PddlProblem {
                 }
                 waiting_list.add(waiting);
 
-                temp_temp.apply(waiting);
+                temp_temp.apply(waiting,temp_temp.clone());
                 waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
 
                 //the next has to be written better!!!! Spend a bit of time on that!
@@ -1310,7 +1296,7 @@ public class EPddlProblem extends PddlProblem {
                 current = it.next();
                 if (((GroundAction) current).isApplicable(source)) {
                     newState = source.clone();
-                    newState.apply(((GroundAction) current));
+                    newState.apply(((GroundAction) current),source);
                     if (newState.satisfy(globalConstraints)){
                         return true;
                     }
