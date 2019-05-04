@@ -142,8 +142,12 @@ public class GroundAction extends PDDLGenericAction {
         }
 
     }
-
+    
     public String toFileCompliant() {
+        return toFileCompliant(false);
+    }
+
+    public String toFileCompliant(boolean timeInfo) {
 
         StringBuilder parametri = new StringBuilder();
         StringBuilder res = new StringBuilder();
@@ -151,7 +155,7 @@ public class GroundAction extends PDDLGenericAction {
             PDDLObject obj = (PDDLObject) o;
             parametri = parametri.append(obj.getName().concat(" "));
         }
-        if (time == null) {
+        if (!timeInfo) {
             res.append("(").append(this.name).append(" ").append(parametri).append(")");
             return res.toString();
         } else {

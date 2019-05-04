@@ -162,7 +162,7 @@ public class EPddlProblem extends PddlProblem {
             Grounder af = new Grounder();
             for (ProcessSchema process : linkedDomain.getProcessesSchema()) {
 //                af.Propositionalize(act, objects);
-                if (process.getParameters().size() != 0) {
+                if (!process.getParameters().isEmpty()) {
                     getProcessesSet().addAll(af.Propositionalize(process, getObjects(),this));
                 } else {
                     GroundProcess gr = process.ground(this);
@@ -496,7 +496,7 @@ public class EPddlProblem extends PddlProblem {
             for (SchemaGlobalConstraint constr : linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
 
-                if (constr.parameters.size() != 0) {
+                if (!constr.parameters.isEmpty()) {
                     globalConstraintSet.addAll(af.Propositionalize(constr, getObjects()));
                 } else {
                     GlobalConstraint gr = constr.ground();

@@ -339,15 +339,15 @@ public class SimplePlan extends ArrayList<GroundAction> {
     @Override
     public String toString() {
         String ret_val = "";
-        int counter = 0;
+        float counter = 0f;
         for (Object o : this) {
             if (o instanceof GroundAction) {
                 GroundAction a = (GroundAction) o;
                 if (!pddlPlus) {
-                    ret_val = ret_val.concat(counter + " - ");
+                    ret_val = ret_val.concat(counter + ": ");
                 }
-                ret_val = ret_val.concat(a.toEcoString(pddlPlus) + "\n");
-                counter++;
+                ret_val = ret_val.concat(a.toFileCompliant() + "\n");
+                counter += 1;
             }
         }
         return ret_val;
@@ -1847,7 +1847,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (start + 0.01 < gr.time) {
                 ret += "(" + String.format("%.5f", start) + "," + String.format("%.5f", gr.time) + ")------>waiting\n";
             }
-            ret += gr.toEcoString(pddlPlus) + "\n";
+            ret += gr.toFileCompliant(pddlPlus) + "\n";
             start = gr.time;
 
         }

@@ -625,7 +625,8 @@ public class Comparison extends Terminal {
 
     public float eval_not_affected (PDDLState s_0, GroundAction aThis) {
         if (!this.normalized) {
-            throw new RuntimeException("At the moment support just for normalized comparisons"+this);
+            this.normalize();
+            //throw new RuntimeException("At the moment support just for normalized comparisons"+this+". Current expressions are:"+this.getLeft().getClass()+" "+this.getRight().getClass());
         }
         ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
         return exp.eval_not_affected(s_0, aThis);

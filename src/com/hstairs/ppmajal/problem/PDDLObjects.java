@@ -125,7 +125,7 @@ public class PDDLObjects extends LinkedHashSet<PDDLObject> {
     public String pddlPrint (String head) {
         final StringBuffer result = new StringBuffer();
 
-        result.append("(:" + head + " \n");
+        result.append("(:").append(head).append(" \n");
         for (final PDDLObject o : this) {
             result.append("   ").append(o.pddlPrint(true)).append("\n");
         }
