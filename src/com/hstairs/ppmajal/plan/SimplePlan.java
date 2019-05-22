@@ -1731,12 +1731,16 @@ public class SimplePlan extends ArrayList<GroundAction> {
         numeric_plan_trace = null;
         if (print_trace) {
             numeric_plan_trace = new JSONObject();
-            Iterator it = pp.getNumFluentsInvolvedInInit().iterator();
-            while (it.hasNext()) {
-                NumFluent nf = (NumFluent) it.next();
-                DoubleArrayList nf_traj = new DoubleArrayList();
-                nf_traj.add(current.fluentValue(nf));
-                nf_trace.put(nf, nf_traj);
+            for (NumFluent nf : pp.getNumFluentsInvolvedInInit()) {
+                try {
+                    if (pp.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
+                        DoubleArrayList nf_traj = new DoubleArrayList();
+                        nf_traj.add(current.fluentValue(nf));
+                        nf_trace.put(nf, nf_traj);
+                    }
+                } catch (Exception ex) {
+                    Logger.getLogger(SimplePlan.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
 

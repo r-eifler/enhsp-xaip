@@ -441,15 +441,15 @@ public class ExtendedNormExpression extends Expression {
         for (ExtendedAddendum a : this.summations) {
             if (a.bin != null && a.linear == false) {
                 a.bin = (BinaryOp) a.bin.weakEval(problem, invFluents);
+                if (a.bin == null) {
+                    return null;
+                }
                 ret.summations.add(a);
             } else {
+                if (a.n == null){
+                    throw new RuntimeException("Something didn't work in the weak evaluator for normalised expression");
+                }
                 if (a.f != null) {
-//                System.out.println(a.f);
-//                //System.out.println(invFluents);
-//                if (invFluents.get(a.f)==null){
-//                    System.out.println("Fluent not present in inv. a.f:"+a.f+"invFluents:"+invFluents);
-//                }
-
                     if (invFluents.get(a.f) == null || (Boolean) invFluents.get(a.f)) {
                         PDDLNumber fluent = problem.getNumFluentInitialValue(a.f);
                         if (fluent == null || problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
@@ -673,7 +673,7 @@ public class ExtendedNormExpression extends Expression {
         return true;
     }
 
-    public Double getNumber ( ) throws Exception {
+    public Double getNumber ( ) {
         if (this.isNumber()) {
             Double temp = 0d;
             for (Object o : summations) {

@@ -297,7 +297,7 @@ public class Comparison extends Terminal {
 //    }
 
     @Deprecated //actually this function does not copy anything
-    private Comparison normalizeAndCopy ( ) throws Exception {
+    private Comparison normalizeAndCopy ( ) throws CloneNotSupportedException  {
         if (normalized) {
             this.linear = ((ExtendedNormExpression)this.left).linear && ((ExtendedNormExpression)this.right).linear;   
             return this;
@@ -591,12 +591,17 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition weakEval (PddlProblem s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, HashMap invF) {
+        if (this.isUnsatisfiable())
+            return this;
         Comparison comp = this;
         Expression lValue = comp.getLeft();
         Expression rValue = comp.getRight();
-//                    System.out.println("before" + lValue + rValue);
-//                    System.out.println("lvalueClass:" + lValue.getClass());
+//        System.out.println(this.isValid());
+//        System.out.println("lValue Before" + lValue  );
+//        System.out.println("rValue Before" + rValue);
+//        System.out.println("lvalueClass:" + lValue.getClass());
+//        System.out.println("rvalueClass:" + rValue.getClass());
         lValue.setFreeVarSemantic(this.freeVarSemantic);
         rValue.setFreeVarSemantic(this.freeVarSemantic);
         lValue = lValue.weakEval(s, invF);
@@ -606,11 +611,15 @@ public class Comparison extends Terminal {
             this.setValid(false);
             return this;
         }
+//        System.out.println("lValue after" + lValue  );
+//        System.out.println("rValue after" + rValue);
+//        System.out.println("lvalueClass after" + lValue.getClass());
+//        System.out.println("rvalueClass after" + rValue.getClass());
 
-        if (lValue instanceof PDDLNumber && rValue instanceof PDDLNumber){
-            PDDLNumber left = (PDDLNumber)lValue;
-            PDDLNumber right = (PDDLNumber)rValue;
-            if (this.isSatisfied(left.getNumber().doubleValue(),right.getNumber().doubleValue())){
+        if (lValue instanceof PDDLNumber && rValue instanceof PDDLNumber) {
+            PDDLNumber left = (PDDLNumber) lValue;
+            PDDLNumber right = (PDDLNumber) rValue;
+            if (this.isSatisfied(left.getNumber().doubleValue(), right.getNumber().doubleValue())) {
                 this.setValid(true);
                 this.setUnsatisfiable(false);
             }else{
@@ -620,6 +629,8 @@ public class Comparison extends Terminal {
             }
             return this;
         }
+//        System.out.println(lValue);
+//        System.out.println(rValue);
         return createComparison(comparator,lValue,rValue,false);
     }
 
@@ -900,6 +911,9 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition unifyVariablesReferences (EPddlProblem p) {
+        if (this.isUnsatisfiable()){
+            return this;
+        }
         Expression newLeft = left.unifyVariablesReferences(p);
         Expression newRight = right.unifyVariablesReferences(p);
         return Comparison.createComparison(comparator, newLeft, newRight,this.normalized);
@@ -909,7 +923,7 @@ public class Comparison extends Terminal {
     public Condition normalize() {
         try {
             return this.normalizeAndCopy();
-        } catch (Exception ex) {
+        } catch (CloneNotSupportedException ex) {
             throw new RuntimeException("Something went wrong "+ex );      
         }
     }
