@@ -5,6 +5,8 @@
     (:init
 	(a)
 	(= (x) 2)
+    (= (total-cost) 0)
+    (= (total-cost2) 0)
     )
     (:goal 
 	    (and

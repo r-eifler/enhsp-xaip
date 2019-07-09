@@ -32,8 +32,8 @@ public class bfwsPlanner extends planningTool {
     public bfwsPlanner ( ) {
         super();
         option1 = "";       //"-O";
-        //option2 = "";
-        option2 = " --BFWS-goalcount-only 1";
+        option2 = "";
+        //option2 = " --BFWS-goalcount-only 1";
         this.domain_file_option = " --domain ";
         this.problem_file_option = " --problem ";
         planningExec = "llbfws";

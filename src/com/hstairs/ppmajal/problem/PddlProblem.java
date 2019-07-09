@@ -250,6 +250,9 @@ public class PddlProblem {
         this.or_s = new LinkedHashSet();
 //        System.out.println(this.objects);
         fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.objects);
+        if (this.unknonw_predicates == null) {
+            this.unknonw_predicates = new LinkedHashSet();
+        }
         for (int i = 0; i < t.getChildCount(); i++) {
             Tree child = t.getChild(i);
             //System.out.println(child.getChild(0).getText());
@@ -270,9 +273,6 @@ public class PddlProblem {
                 case PddlParser.FORMULAINIT:
                     Tree andCondition = child.getChild(0).getChild(0);
                     if (child.getChild(0).getChildCount()>1){
-                        if (this.unknonw_predicates == null){
-                            this.unknonw_predicates = new LinkedHashSet();
-                        }
                         for (int j = 1; j< child.getChild(0).getChildCount();j++){
                            this.unknonw_predicates.add((Predicate) addUnknown(child.getChild(0).getChild(j)));
                         }
