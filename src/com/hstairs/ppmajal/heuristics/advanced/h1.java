@@ -712,7 +712,7 @@ public class h1 extends Heuristic {
 //        Utils.dbg_print(debugLevel, "HelpfulActions: " + helpful_actions.toString() + "\n");
     }
 
-    private void compute_relaxed_plan ( ) {//this should be updated!
+    private void computeRelaxPlan ( ) {//this should be updated!
 
         LinkedList<Condition> list = new LinkedList();
         relaxedPlan = new ArrayList();
@@ -727,14 +727,16 @@ public class h1 extends Heuristic {
             visited[c.getHeuristicId()] =  true;
         }
         while (!list.isEmpty()) {
-            Condition c = list.pollLast();
+            final Condition c = list.pollLast();
+//          Only conditions not already satsified participate here
             if (this.cost[c.getHeuristicId()] != 0) {
+//              This is what you get in forward analysis
                 GroundAction gr = this.establishedAchiever[c.getHeuristicId()];
-                this.update_relaxed_plan((ArrayList) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()]);
-                if (this.is_complex.get(c.getHeuristicId()) || weak_helpful_actions_pruning) {
-                    Set<GroundAction> allAchiever = this.allAchievers[c.getHeuristicId()];
+                this.updateRelaxPlan((ArrayList) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()]);
+                if (this.is_complex.get(c.getHeuristicId()) || allAchieverActions) {
+                    final Set<GroundAction> allAchiever = this.allAchievers[c.getHeuristicId()];
                     if (allAchiever != null) {
-                        for (GroundAction gr2 : allAchiever) {
+                        for (final GroundAction gr2 : allAchiever) {
                             if (this.actionHCost[gr2.getId()] == 0) {
                                 this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr2.getId()]);
                             }
@@ -746,7 +748,7 @@ public class h1 extends Heuristic {
                 } else {
                     AchieverSet ach_set = this.getAchieverSet(gr);
                     if (ach_set != null) {
-                        for (Condition c1 : ach_set.getTargetCond()) {
+                        for (final Condition c1 : ach_set.getTargetCond()) {
                             if (!visited[c1.getHeuristicId()]) {
                                 list.add(c1);
                                 visited[c1.getHeuristicId()] = true;
@@ -772,7 +774,7 @@ public class h1 extends Heuristic {
     private void extract_helpful_actions_or_relaxed_plan ( ) {
 
         if (this.extractRelaxedPlan ) {
-            compute_relaxed_plan();
+            computeRelaxPlan();
         }else if (this.helpful_actions_computation){
             compute_helpful_actions();
         }
@@ -789,7 +791,7 @@ public class h1 extends Heuristic {
                 }
 //                if (o != null) {
                 //System.out.println("Helpful actions extraction");
-                if (this.is_complex.get(o.getHeuristicId()) || weak_helpful_actions_pruning) {
+                if (this.is_complex.get(o.getHeuristicId()) || allAchieverActions) {
                     if (this.allAchievers[o.getHeuristicId()] != null) {
                         //System.out.println("Getting all the predicatesProduction as helpful actions..");
                         for (GroundAction gr : this.allAchievers[o.getHeuristicId()]) {
@@ -850,7 +852,7 @@ public class h1 extends Heuristic {
         return min;
     }
 
-    private void update_relaxed_plan (List<Pair<GroundAction, Float>> plan, GroundAction g, Float cost) {
+    private void updateRelaxPlan (List<Pair<GroundAction, Float>> plan, GroundAction g, Float cost) {
 
         for (int i = plan.size() - 1; i >= 0; i--) {
             Pair<GroundAction, Float> gr_pair = plan.get(i);
@@ -864,12 +866,6 @@ public class h1 extends Heuristic {
                 if (g instanceof com.hstairs.ppmajal.problem.GroundProcess || g instanceof com.hstairs.ppmajal.problem.GroundEvent) {//very very conservative
                     if (gr_pair.getLeft() instanceof com.hstairs.ppmajal.problem.GroundProcess || gr_pair.getLeft() instanceof com.hstairs.ppmajal.problem.GroundEvent) {
                         if (!gr_pair.getLeft().getPreconditions().mutual_exclusion_guaranteed(g.getPreconditions())) {
-                            //Float current_cost = gr_pair.getSecond();
-//                            if (cost > current_cost){
-//                                gr_pair.setSecond(cost);
-//                                gr_pair.setFirst(g);
-//                                return;
-//                            }
                             plan.set(i, Pair.of(gr_pair.getLeft(),Math.max(cost, gr_pair.getRight())));
                             return;
                         }

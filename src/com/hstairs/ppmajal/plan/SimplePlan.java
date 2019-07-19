@@ -28,6 +28,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Converter;
 import com.hstairs.ppmajal.extraUtils.Pair;
+import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.problem.*;
 import org.jgrapht.graph.DefaultEdge;
 import org.json.simple.JSONObject;
@@ -321,7 +322,11 @@ public class SimplePlan extends ArrayList<GroundAction> {
                                 par = s1.substring(0, parEndIndex);
                                 s1 = s1.substring(parEndIndex + 1);
                             }
-                            pars.add(pp.getObjectByName(par));
+                            PDDLObject objectByName = pp.getObjectByName(par);
+                            if (objectByName == null && pd.constants != null && !pd.constants.isEmpty()){
+                                objectByName = Utils.getObjectByName(pd.constants,par);
+                            }
+                            pars.add(objectByName);
                         } while (!finish);
                     }
                     //System.out.println(nameOperator +  pars );
@@ -459,7 +464,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 }
 
                 GroundAction a = (GroundAction) o;
-                output.write(a.toFileCompliant() + "\n");
+                output.write(a.toFileCompliant(pddlPlus) + "\n");
             }
             output.close();
             return true;

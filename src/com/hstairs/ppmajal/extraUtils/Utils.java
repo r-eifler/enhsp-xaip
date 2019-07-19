@@ -18,8 +18,10 @@
  */
 package com.hstairs.ppmajal.extraUtils;
 
+import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.Type;
+import com.hstairs.ppmajal.problem.PDDLObjects;
 
 import java.io.File;
 import java.util.Collection;
@@ -38,7 +40,15 @@ public class Utils {
             System.out.print(string);
         }
     }
-
+    public static PDDLObject getObjectByName(PDDLObjects objects, String name){
+        for (Object o : objects) {
+            PDDLObject el = (PDDLObject) o;
+            if (el.getName().equalsIgnoreCase(name)) {
+                return el;
+            }
+        }
+        return null;
+    }
     public static String toPDDLSet (Collection c) {
         String ret = "";
         for (Object o : c) {

@@ -48,7 +48,7 @@ public abstract class Heuristic {
     public int horizon = Integer.MAX_VALUE;
     public ComplexCondition gC;
     public boolean helpful_actions_computation = false;
-    public Boolean weak_helpful_actions_pruning = true;
+    public Boolean allAchieverActions = true;
     protected Collection<Condition> conditionUniverse;
     protected int numberOfAtoms;
     protected int numberOfComplexConditions;

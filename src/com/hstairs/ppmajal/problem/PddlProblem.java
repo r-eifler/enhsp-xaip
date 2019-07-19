@@ -26,6 +26,7 @@ import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
+import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
@@ -491,13 +492,7 @@ public class PddlProblem {
      * @return the term representing the object
      */
     public PDDLObject getObjectByName (String string) {
-        for (Object o : this.getObjects()) {
-            PDDLObject el = (PDDLObject) o;
-            if (el.getName().equalsIgnoreCase(string)) {
-                return el;
-            }
-        }
-        return null;
+        return Utils.getObjectByName(this.objects,string);
     }
 
     public double getInitFunctionValue (NumFluent f) {

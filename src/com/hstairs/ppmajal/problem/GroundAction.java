@@ -148,7 +148,7 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public String toFileCompliant(boolean timeInfo) {
-
+        
         StringBuilder parametri = new StringBuilder();
         StringBuilder res = new StringBuilder();
         for (Object o : getParameters()) {
