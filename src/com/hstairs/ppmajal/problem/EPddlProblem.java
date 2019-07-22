@@ -1254,8 +1254,7 @@ public class EPddlProblem extends PddlProblem {
             reachableActions = actions;
             return;
         }
-        for (GroundAction gr : actionsToConsider) {
-            
+        for (final GroundAction gr : actionsToConsider) {
             GroundAction actionFromProblemModel = getActionFromProblemModel(gr);
             if (actionFromProblemModel != null){
                 if (actionFromProblemModel instanceof GroundProcess){

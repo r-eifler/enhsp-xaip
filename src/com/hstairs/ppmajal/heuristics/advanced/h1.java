@@ -92,6 +92,7 @@ public class h1 extends Heuristic {
     private GroundAction[] fromIdToAction;
     private Set<GroundAction> masterProblemReachableTransitions;
     private HashMap<Pair<Integer, Integer>, Comparison> directAssignmentConditionHandle;
+    public boolean aggressiveRelaxedPlan;
 
     public h1(EPddlProblem problem) {
         this(problem, false);
@@ -246,7 +247,7 @@ public class h1 extends Heuristic {
             closed[gr.getId()] = true;
             if (gr == pseudoGoal) {
                 estimate = actionHCost[gr.getId()];
-                if (!this.reachabilityRun && (this.additive_h || !conservativehmax)) {
+                if (!this.reachabilityRun && (this.extractRelaxedPlan || this.additive_h || !conservativehmax)) {
 //                    System.out.println(this.additive_h);
 //                    System.out.println(this.conservativehmax);
                     extract_helpful_actions_or_relaxed_plan();
@@ -378,7 +379,7 @@ public class h1 extends Heuristic {
                     continue;
                 }
                 float new_distance = Float.MAX_VALUE;
-                if (!this.additive_h || ibrDisabled) {
+                if (!this.additive_h || ibrDisabled ) {
                     new_distance = actionHCost[gr.getId()] + c_a;//this is a very conservative measure.
                 } else {
                     //This can be cached with a map, so that supporters are kept, and only the new ones are added
@@ -540,7 +541,7 @@ public class h1 extends Heuristic {
         for (final GroundAction gr2 : triggeredActions) {
 
             if (closed[gr2.getId()]) {
-                if (this.additive_h || !this.conservativehmax) {
+                if (this.additive_h || !this.conservativehmax || this.extractRelaxedPlan) {
                     continue;
                 }
             }
@@ -633,6 +634,10 @@ public class h1 extends Heuristic {
                         s.getTargetCond().addAll(s1.getTargetCond());
                     } else {
                         s.setCost(Math.max(s1.getCost(), s.getCost()));
+                        if (this.extractRelaxedPlan || this.helpful_actions_computation){
+                            s.getActions().addAll(s1.getActions());
+                            s.getTargetCond().addAll(s1.getTargetCond());
+                        }
                     }
                 }
                
@@ -732,7 +737,7 @@ public class h1 extends Heuristic {
             if (this.cost[c.getHeuristicId()] != 0) {
 //              This is what you get in forward analysis
                 GroundAction gr = this.establishedAchiever[c.getHeuristicId()];
-                this.updateRelaxPlan((ArrayList) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()]);
+                this.updateRelaxPlan((ArrayList) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()], c instanceof Comparison);
                 if (this.is_complex.get(c.getHeuristicId()) || allAchieverActions) {
                     final Set<GroundAction> allAchiever = this.allAchievers[c.getHeuristicId()];
                     if (allAchiever != null) {
@@ -852,13 +857,17 @@ public class h1 extends Heuristic {
         return min;
     }
 
-    private void updateRelaxPlan (List<Pair<GroundAction, Float>> plan, GroundAction g, Float cost) {
+    private void updateRelaxPlan (List<Pair<GroundAction, Float>> plan, GroundAction g, Float cost, boolean isComparison) {
 
         for (int i = plan.size() - 1; i >= 0; i--) {
             Pair<GroundAction, Float> gr_pair = plan.get(i);
             //if (gr_pair.getFirst().equals(g)) {
             if (gr_pair.getLeft().getId() == g.getId()) {
-                plan.set(i, Pair.of(gr_pair.getLeft(),Math.max(cost, gr_pair.getRight())));
+                if (aggressiveRelaxedPlan && isComparison){
+                    plan.set(i, Pair.of(gr_pair.getLeft(), cost + gr_pair.getRight()));
+                }else{
+                    plan.set(i, Pair.of(gr_pair.getLeft(),Math.max(cost, gr_pair.getRight())));
+                }
                 return;
             }
 
@@ -1041,7 +1050,7 @@ public class h1 extends Heuristic {
 
     
     @Override
-    public Set<GroundAction> getReachableTransitions() {
+    final public Set<GroundAction> getReachableTransitions() {
         if (masterProblemReachableTransitions != null){
             return masterProblemReachableTransitions;
         }
@@ -1050,6 +1059,9 @@ public class h1 extends Heuristic {
             if (gr != pseudoGoal){
                 masterProblemReachableTransitions.add(this.heuristicActionsToProblemActions[gr.getId()]);
             }
+        }
+        if (problem.getProcessesSet().isEmpty() && problem.getEventsSet().isEmpty()){
+            problem.actions = masterProblemReachableTransitions;
         }
         return masterProblemReachableTransitions;
     }
