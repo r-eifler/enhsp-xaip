@@ -22,12 +22,13 @@ import com.hstairs.ppmajal.extraUtils.Utils;
 
 import java.io.*;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class bfwsPlanner extends planningTool {
 
     private String memoryLimit;
+    private Pattern solvablePattern;
 
     public bfwsPlanner ( ) {
         super();
@@ -50,13 +51,13 @@ public class bfwsPlanner extends planningTool {
     @Override
     public String plan ( ) {
         try {
-//            System.out.println("Planning...");
+            System.out.println("Planning...");
             File tempFile = File. createTempFile("tempPlanFile", ".tmp");
             this.option1 = new StringBuilder("--output ").append(tempFile.getAbsolutePath()).toString();
 //            System.out.println(option1);
             long current = System.currentTimeMillis();
             this.executePlanning();
-            //System.out.println(outputPlanning);
+            System.out.println(outputPlanning);
             if (this.isTimeoutFail()) {
                 System.out.println("....TIMEOUT");
                 return null;
@@ -67,30 +68,29 @@ public class bfwsPlanner extends planningTool {
                 this.findTotalTimeInFile(outputPlanning.toString());
                 return null;
             }
-            if (!this.outputPlanning.toString().contains("Plan found")) {
+
+            if (!this.outputPlanning.toString().replace("\n", "").replace("\r", "").matches(".*cost: \\d+.*")) {
                 this.failed = false;
                 this.setPlannerError(true);
                 System.out.println("....UNKNOWN ERROR!!");
                 this.findTotalTimeInFile(outputPlanning.toString());
-                throw new RuntimeException("Planning with FF failed. Output is:" + outputPlanning);
+                throw new RuntimeException("Planning with BFWS failed. Output is:" + outputPlanning);
             }
             storedSolutionPath = tempFile.getAbsolutePath();
 //            System.out.println("....SUCCESS");
             
             this.setTimePlanner((int) (System.currentTimeMillis()-current));
-//this.findTotalTimeInFile(outputPlanning.toString());
+            this.findTotalTimeInFile(outputPlanning.toString());
 
             return this.storedSolutionPath;
         } catch (IOException ex) {
-            Logger.getLogger(bfwsPlanner.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
+            throw new RuntimeException(ex);
         }
     }
 
     @Override
     public String plan (String domainFile, String problemFile) {
 
-        //System.out.println("planning");
         this.setDomainFile(domainFile);
         this.setProblemFile(problemFile);
 

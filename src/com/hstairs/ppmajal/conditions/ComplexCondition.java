@@ -305,5 +305,39 @@ public abstract class ComplexCondition extends Condition {
         return false;
     }
 
+    
+    protected Collection cloneSons() {
+        Collection ret = new LinkedHashSet();
+
+        for (Object o : this.sons) {
+            if (o instanceof AndCond) {
+                AndCond a = (AndCond) o;
+                ret.add(a.clone());
+            } else if (o instanceof NotCond) {
+                NotCond a = (NotCond) o;
+                ret.add(a.clone());
+            } else if (o instanceof OrCond) {
+                OrCond a = (OrCond) o;
+                ret.add(a.clone());
+            } else if (o instanceof Predicate) {
+                Predicate a = (Predicate) o;
+                ret.add(a.clone());
+            } else if (o instanceof Comparison) {
+                Comparison a = (Comparison) o;
+                ret.add(a.clone());
+            } else if (o instanceof NumEffect) {
+                NumEffect a = (NumEffect) o;
+                ret.add(a.clone());
+            } else if (o instanceof ConditionalEffect) {
+                ConditionalEffect a = (ConditionalEffect) o;
+                ret.add(a.clone());
+            } else if (o instanceof ForAll) {
+                ForAll a = (ForAll) o;
+                ret.add(a.clone());
+            }
+        }
+        return ret;
+    }
+
 
 }

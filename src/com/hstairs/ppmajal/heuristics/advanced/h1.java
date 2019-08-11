@@ -888,9 +888,11 @@ public class h1 extends Heuristic {
 
     private float extract_tot_cost (List<Pair<GroundAction, Float>> plan) {
         float cost = 0f;
-        for (Pair<GroundAction, Float> p : plan) {
+        for (final Pair<GroundAction, Float> p : plan) {
+//            System.out.println("("+p.getLeft().toEcoString()+","+p.getRight()+")");
             cost += p.getRight();
         }
+//        System.exit(-1);
         return cost;
     }
 

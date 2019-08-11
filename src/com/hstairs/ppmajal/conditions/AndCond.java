@@ -161,35 +161,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         AndCond ret = new AndCond();
         ret.grounded = this.grounded;
         //ret.sons = (HashSet)this.sons.clone();
-        ret.sons = new LinkedHashSet();
-
-        for (Object o : this.sons) {
-            if (o instanceof AndCond) {
-                AndCond a = (AndCond) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof NotCond) {
-                NotCond a = (NotCond) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof OrCond) {
-                OrCond a = (OrCond) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof Predicate) {
-                Predicate a = (Predicate) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof Comparison) {
-                Comparison a = (Comparison) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof NumEffect) {
-                NumEffect a = (NumEffect) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof ConditionalEffect) {
-                ConditionalEffect a = (ConditionalEffect) o;
-                ret.sons.add(a.clone());
-            } else if (o instanceof ForAll) {
-                ForAll a = (ForAll) o;
-                ret.sons.add(a.clone());
-            }
-        }
+        ret.sons = cloneSons();
 
         ret.specialAndForExpression = this.specialAndForExpression;
         return ret;

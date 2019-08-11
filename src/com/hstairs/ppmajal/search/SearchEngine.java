@@ -797,17 +797,17 @@ public class SearchEngine {
         }
     }
 
-      public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+      public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         return idastar(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, Long.MAX_VALUE);
     }
-    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
+    public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, Long.MAX_VALUE);
     }
-    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix,long timeout) throws Exception {
+    public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix,long timeout) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, timeout);
     }
 
-    public LinkedList idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
+    public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
         State initState = problem.getInit();
 
         beginningTime = System.currentTimeMillis();
@@ -859,13 +859,13 @@ public class SearchEngine {
 
     }
     
-        public LinkedList dfsbnb(EPddlProblem problem) throws Exception {
+        public LinkedList<GroundAction> dfsbnb(EPddlProblem problem) throws Exception {
             return this.dfsbnb(problem, false);
         }
 
     
 
-    public LinkedList dfsbnb(EPddlProblem problem, boolean memory) throws Exception {
+    public LinkedList<GroundAction> dfsbnb(EPddlProblem problem, boolean memory) throws Exception {
         State initState = problem.getInit();
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
