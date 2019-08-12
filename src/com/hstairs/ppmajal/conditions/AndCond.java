@@ -733,17 +733,21 @@ public class AndCond extends ComplexCondition implements PostCondition {
     @Override
     public Condition normalize() {
         HashSet sons1 = new LinkedHashSet();
-        for (final Object cond : (Collection<Object>)sons ){
-            if (cond instanceof Condition){
-                Condition condInternal = ((Condition)cond).normalize();
-                if (condInternal.isUnsatisfiable()){
+        for (final Object cond : (Collection<Object>) sons) {
+            if (cond instanceof Condition) {
+                Condition condInternal = ((Condition) cond).normalize();
+                if (condInternal == null) {
                     this.setUnsatisfiable(true);
-                    sons1.add(condInternal);
-                }else if (!condInternal.isValid()){
-                    if (condInternal instanceof AndCond){
-                        sons1.addAll(((AndCond) condInternal).sons);
-                    }else{
+                } else {
+                    if (condInternal.isUnsatisfiable()) {
+                        this.setUnsatisfiable(true);
                         sons1.add(condInternal);
+                    } else if (!condInternal.isValid()) {
+                        if (condInternal instanceof AndCond) {
+                            sons1.addAll(((AndCond) condInternal).sons);
+                        } else {
+                            sons1.add(condInternal);
+                        }
                     }
                 }
             }else if (cond instanceof NumEffect){
