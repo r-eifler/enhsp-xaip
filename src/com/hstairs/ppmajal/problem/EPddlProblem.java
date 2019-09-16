@@ -121,7 +121,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void grounding_plus_simplifications ( ) throws Exception {
+    public void groundingSimplication( ) throws Exception {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();

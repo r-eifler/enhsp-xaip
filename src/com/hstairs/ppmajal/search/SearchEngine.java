@@ -652,6 +652,7 @@ public class SearchEngine {
     }
 
     public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem) throws Exception{
+        this.optimality = false;
         return this.greedy_best_first_search(problem,Long.MAX_VALUE);
     }
     

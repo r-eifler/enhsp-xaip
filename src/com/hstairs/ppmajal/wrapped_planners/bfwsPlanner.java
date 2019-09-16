@@ -105,7 +105,7 @@ public class bfwsPlanner extends planningTool {
         Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
         output.write("\n");
         while (sc.hasNextLine()) {
-            if (sc.findInLine("[0-9]: ") != null) {
+            if (sc.findInLine("[0-9]: ") != null && sc.findInLine("reach-goal")== null) {
                 //System.out.println("("+sc.nextLine()+")");
                 output.write("(" + sc.nextLine() + ")\n");
                 atleastanaction = true;

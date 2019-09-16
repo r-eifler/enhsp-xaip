@@ -159,9 +159,10 @@ public class SimplePlan extends ArrayList<GroundAction> {
         ActionSchema action = pd.getActionByName(actionName);
         if (action == null) {
             System.out.println("Action not found in the domain theory!!" + actionName);
+            return;
         }
         //System.out.println(par);
-
+        
         GroundAction grAction = action.ground(par, null, pp);
         grAction.generateAffectedNumFluents();
 //        if (pp instanceof EPddlProblem) 
@@ -1679,7 +1680,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public Float build_pddl_plus_plan (LinkedList<GroundAction> raw_plan, float delta, Float epsilon) {
+    public Float build_pddl_plus_plan (LinkedList<GroundAction> raw_plan, Float epsilon) {
 
         System.out.println("Epsilon set to be:" + epsilon);
         Float time = 0f;

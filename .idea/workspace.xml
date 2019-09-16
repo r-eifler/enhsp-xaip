@@ -7,22 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f99947d6-6a23-4570-8f47-f8ea33eb11bf" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/PPMAJAL2.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PPMAJAL2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/PPMAJAL2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grammar/output/Pddl.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/grammar/output/Pddl.tokens" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/build-impl.xml" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/build-impl.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/genfiles.properties" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/genfiles.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/project.properties" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/project.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nbproject/project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/project.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hstairs/ppmajal/conditions/AndCond.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hstairs/ppmajal/conditions/AndCond.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hstairs/ppmajal/conditions/ComplexCondition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hstairs/ppmajal/conditions/ComplexCondition.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hstairs/ppmajal/conditions/ForAll.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hstairs/ppmajal/conditions/ForAll.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hstairs/ppmajal/heuristics/advanced/h1.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hstairs/ppmajal/heuristics/advanced/h1.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hstairs/ppmajal/search/SearchEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hstairs/ppmajal/search/SearchEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hstairs/ppmajal/wrapped_planners/bfwsPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hstairs/ppmajal/wrapped_planners/bfwsPlanner.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

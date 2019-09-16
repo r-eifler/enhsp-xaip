@@ -157,7 +157,7 @@ public class metricFFWrapper extends planningTool {
         Writer output = new BufferedWriter(new FileWriter(storedSolutionPath));
         output.write("\n");
         while (sc.hasNextLine()) {
-            if (sc.findInLine("[0-9]: ") != null) {
+            if (sc.findInLine("[0-9]: ") != null && sc.findInLine("REACH-GOAL")== null) {
                 //System.out.println("("+sc.nextLine()+")");
                 output.write("(" + sc.nextLine() + ")\n");
                 atleastanaction = true;

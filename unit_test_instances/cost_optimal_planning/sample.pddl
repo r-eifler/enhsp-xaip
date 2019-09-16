@@ -14,7 +14,6 @@
 	    )
     )
     (:metric
-        minimize (+ (total-cost)
-         (total-cost2))
+        minimize (total-cost)
     )
 )
