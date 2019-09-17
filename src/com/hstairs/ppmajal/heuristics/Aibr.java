@@ -173,9 +173,9 @@ public class Aibr extends Heuristic {
 
         Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
         for (GroundAction gr : actions) {
-            if (gr.cond_effects != null) {
+            if (gr.conditionalEffects != null) {
 //                System.out.println(gr);
-                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(), gr.getParameters(), gr.cond_effects));
+                actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(), gr.getParameters(), gr.conditionalEffects));
             }
         }
         //System.out.println(actions_plus_action_for_supporters);

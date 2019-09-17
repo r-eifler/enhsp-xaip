@@ -18,6 +18,8 @@
  */
 package com.hstairs.ppmajal.extraUtils;
 
+import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.Type;
@@ -34,6 +36,8 @@ import java.util.HashMap;
 public class Utils {
 
     public static HashMap interactsWith;
+
+
 
     public static void dbg_print (int debug, String string) {
         if (debug > 0) {

@@ -18,9 +18,11 @@
  */
 package com.hstairs.ppmajal.domain;
 
+import com.google.common.collect.ImmutableSet;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
@@ -29,87 +31,25 @@ import java.util.*;
 
 public abstract class PDDLGenericAction {
 
-    public AndCond cond_effects;
-    public Float time = null;
-    public AndCond forall;
-    protected String name;
-    protected AndCond addList;
-    protected AndCond delList;
-    protected AndCond numericEffects;
-    protected ComplexCondition preconditions;
+    protected Float time = null;
+    final protected String name;
+    final protected ImmutableSet<Pair<Condition,Terminal>> conditionalPropositionalEffects;
+    final protected ImmutableSet<Pair<Condition,NumEffect>> conditionalNumericEffects;
+    final protected Condition preconditions;
     protected Object2BooleanMap numericFluentAffected;
-    protected SchemaParameters parameters;
 
-    /**
-     * @return the addList
-     */
-    public AndCond getAddList ( ) {
-        return addList;
+    protected PDDLGenericAction(String name, ImmutableSet<Pair<Condition, Terminal>> conditionalPropositionalEffects, ImmutableSet<Pair<Condition, NumEffect>> conditionalNumericEffects, Condition preconditions) {
+        this.name = name;
+        this.conditionalPropositionalEffects = conditionalPropositionalEffects;
+        this.conditionalNumericEffects = conditionalNumericEffects;
+        this.preconditions = preconditions;
     }
 
-    /**
-     * @param addList the addList to set
-     */
-    public void setAddList (AndCond addList) {
-        this.addList = addList;
-    }
-
-    public SchemaParameters getPar ( ) {
-        return parameters;
-    }
-
-    /**
-     * @return the delList
-     */
-    public AndCond getDelList ( ) {
-        return delList;
-    }
-
-    /**
-     * @param delList the delList to set
-     */
-    public void setDelList (AndCond delList) {
-        this.delList = delList;
-    }
 
     public String getName ( ) {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName (String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the numericEffects
-     */
-    public AndCond getNumericEffects ( ) {
-        return numericEffects;
-    }
-
-    /**
-     * @param numericEffects the numericEffects to set
-     */
-    public void setNumericEffects (AndCond numericEffects) {
-        this.numericEffects = numericEffects;
-    }
-
-    /**
-     * @return the preconditions
-     */
-    public ComplexCondition getPreconditions ( ) {
-        return preconditions;
-    }
-
-    /**
-     * @param preconditions the preconditions to set
-     */
-    public void setPreconditions (ComplexCondition preconditions) {
-        this.preconditions = preconditions;
-    }
 
     @Override
     public String toString ( ) {
@@ -117,67 +57,12 @@ public abstract class PDDLGenericAction {
     }
 
 
-    /**
-     * @return the parameters
-     */
-    /**
-     * @param parameters the parameters to set
-     */
-    public void setParameters (SchemaParameters parameters) {
-        this.parameters = parameters;
-    }
-
-    protected void push_not_to_terminals ( ) {
-        ComplexCondition c = (ComplexCondition) this.getPreconditions().push_not_to_terminals();
-        if (!(c instanceof AndCond)) {
-            AndCond and = new AndCond();
-            and.addConditions(c);
-            this.setPreconditions(and);
-        } else {
-            this.setPreconditions(c);
-        }
-        if (this.cond_effects != null) {
-            this.cond_effects.push_not_to_terminals();
-        }
-
-    }
-
+    //This can be cached
     protected Collection<Predicate> getPropositionAffected ( ) {
         LinkedHashSet ret = new LinkedHashSet();
-        if (this.addList != null) {
-            ret.addAll(this.addList.getInvolvedPredicates());
-        }
-        if (this.cond_effects != null) {
-            AndCond temp2 = this.cond_effects;
-            for (Condition cEff : (Collection<Condition>) temp2.sons) {
-                if (cEff instanceof ConditionalEffect) {
-                    ConditionalEffect conditional = (ConditionalEffect) cEff;
-                    Collection<Predicate> temp = ((AndCond) conditional.effect).getInvolvedPredicates();
-                    for (Condition c : temp) {
-                        if (c instanceof NotCond) {
-                            NotCond nc = (NotCond) c;
-                            ret.add(nc.getSon());
-                        } else if (c instanceof Predicate) {
-                            ret.add(c);
-                        } else {
-                            throw new RuntimeException("A conditional effect terminal conditions function does not work");
-                        }
-                    }
-                } else {
-                    throw new RuntimeException("Needs to fix the conditional effect");
-                }
-            }
-        }
-
-        if (this.delList != null) {
-            if (this.delList instanceof ComplexCondition) {
-
-                for (Condition c : (Collection<Condition>) this.delList.sons) {
-                    if (c instanceof NotCond) {
-                        NotCond nc = (NotCond) c;
-                        ret.add(nc.getSon());
-                    }
-                }
+        for( Pair<Condition,Terminal> ele : this.conditionalPropositionalEffects){
+            if (ele.getSecond() instanceof Predicate) {
+                ret.add(ele);
             }
         }
         return ret;
@@ -198,61 +83,23 @@ public abstract class PDDLGenericAction {
         this.generateAffectedNumFluents();
         return this.numericFluentAffected.keySet();
     }
-    public Object2BooleanMap getNumericFluentAffectedAsMap ( ) {
-        this.generateAffectedNumFluents();
-        return this.numericFluentAffected;
-    }
-
-    public void forcedGenerateAffectedNumFluents ( ) {
-
-        numericFluentAffected = new Object2BooleanOpenHashMap();
-        AndCond num = this.getNumericEffects();
-        if (num != null) {
-            for (Object o : num.sons) {
-                if (o instanceof NumEffect) {
-                    NumEffect e = (NumEffect) o;
-                    this.numericFluentAffected.put(e.getFluentAffected(), Boolean.TRUE);
-                }
-            }
-        }
-        if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
-                for (NumFluent nf : c_eff.affectedNumericFluents()) {
-                    this.numericFluentAffected.put(nf, Boolean.TRUE);
-                }
-            }
-        }
-    }
 
     public void generateAffectedNumFluents ( ) {
         if (numericFluentAffected != null) {
             return;
         }
         numericFluentAffected = new Object2BooleanOpenHashMap();
-        AndCond num = this.getNumericEffects();
-        if (num != null) {
-            for (Object o : num.sons) {
-                if (o instanceof NumEffect) {
-                    NumEffect e = (NumEffect) o;
-                    this.numericFluentAffected.put(e.getFluentAffected(), true);
-                }
-            }
+        for (Pair<Condition, NumEffect> ele : conditionalNumericEffects) {
+            NumEffect e = ele.getSecond();
+            this.numericFluentAffected.put(e.getFluentAffected(), true);
         }
-
-        if (this.cond_effects != null) {
-            for (ConditionalEffect c_eff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
-                for (NumFluent nf : c_eff.affectedNumericFluents()) {
-                    this.numericFluentAffected.put(nf, true);
-                }
-            }
-        }
-
     }
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution ( ) {
         Set<NumFluent> ret = new HashSet();
-        for (NumEffect neff : (Collection<NumEffect>) this.getNumericEffects().sons) {
-            ret.addAll(neff.getRight().getInvolvedNumericFluents());
+        for (Pair<Condition, NumEffect> ele : conditionalNumericEffects) {
+            NumEffect e = ele.getSecond();
+            ret.addAll(e.getRight().getInvolvedNumericFluents());
         }
         return ret;
     }
@@ -268,7 +115,7 @@ public abstract class PDDLGenericAction {
                 } else if (o instanceof NumEffect) {
                     this.numericEffects.sons.add(o);
                 } else if (o instanceof ConditionalEffect) {
-                    this.cond_effects.sons.add(o);
+                    this.conditionalEffects.sons.add(o);
                 } else if (o instanceof ForAll) {
                     this.forall.sons.add(o);
                 }
@@ -280,7 +127,7 @@ public abstract class PDDLGenericAction {
         } else if (res instanceof NumEffect) {
             this.numericEffects.sons.add(res);
         } else if (res instanceof ConditionalEffect) {
-            this.cond_effects.sons.add(res);
+            this.conditionalEffects.sons.add(res);
         } else if (res instanceof ForAll) {
             this.forall.sons.add(res);
 //            this.forall.sons.add(res);
@@ -304,8 +151,8 @@ public abstract class PDDLGenericAction {
         if (this.delList != null) {
             ret.addAll(this.delList.getInvolvedPredicates());
         }
-        if (this.cond_effects != null) {
-            ret.addAll(this.cond_effects.getInvolvedPredicates());
+        if (this.conditionalEffects != null) {
+            ret.addAll(this.conditionalEffects.getInvolvedPredicates());
         }
         return ret;
     }
@@ -316,7 +163,7 @@ public abstract class PDDLGenericAction {
         addList = (AndCond) addList.unifyVariablesReferences(p);
         delList = (AndCond) delList.unifyVariablesReferences(p);
         numericEffects = (AndCond) numericEffects.unifyVariablesReferences(p);
-        cond_effects = (AndCond) cond_effects.unifyVariablesReferences(p);
+        conditionalEffects = (AndCond) conditionalEffects.unifyVariablesReferences(p);
     }
 
     @Override

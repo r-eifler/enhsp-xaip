@@ -220,8 +220,8 @@ public class RelState extends Object {
 //        System.out.println("GroundAction:"+this);
         subst.putAll(c.apply(this));
 
-        if (gr.cond_effects != null) {
-            AndCond c_eff = gr.cond_effects;
+        if (gr.conditionalEffects != null) {
+            AndCond c_eff = gr.conditionalEffects;
             subst.putAll(c_eff.apply(this));
         }
 
@@ -257,8 +257,8 @@ public class RelState extends Object {
         AndCond c = gr.getNumericEffects();
         c.apply(this, subst);
 
-        if (gr.cond_effects != null) {
-            AndCond c_eff = gr.cond_effects;
+        if (gr.conditionalEffects != null) {
+            AndCond c_eff = gr.conditionalEffects;
             c_eff.apply(this, subst);
         }
 

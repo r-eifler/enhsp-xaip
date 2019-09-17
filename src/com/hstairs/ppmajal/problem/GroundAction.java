@@ -49,7 +49,7 @@ public class GroundAction extends PDDLGenericAction {
     private List<Pair<Condition, Float>> sdac;
 
     public GroundAction(String name, int id) {
-        super();
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
         this.name = name;
         numericFluentAffected = null;
         this.parameters_as_terms = new ParametersAsTerms();
@@ -57,14 +57,14 @@ public class GroundAction extends PDDLGenericAction {
         this.numericEffects = new AndCond();
         this.addList = new AndCond();
         this.delList = new AndCond();
-        this.cond_effects = new AndCond();
+        this.conditionalEffects = new AndCond();
         //numericFluentAffected = new HashMap();
         achieve = new HashMap();
         this.id = id;
     }
 
     public GroundAction(GroundAction gr, int id) {
-        super();
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
         this.name = gr.name;
         numericFluentAffected = gr.numericFluentAffected;
         this.parameters_as_terms = gr.parameters_as_terms;
@@ -72,7 +72,7 @@ public class GroundAction extends PDDLGenericAction {
         this.numericEffects = gr.numericEffects;
         this.addList = gr.addList;
         this.delList = gr.delList;
-        this.cond_effects = gr.cond_effects;
+        this.conditionalEffects = gr.conditionalEffects;
         //numericFluentAffected = new HashMap();
         achieve = gr.achieve;
         this.forall = gr.forall;
@@ -97,8 +97,8 @@ public class GroundAction extends PDDLGenericAction {
         if (this.numericEffects != null) {
             ret.numericEffects = (AndCond) this.numericEffects.clone();
         }
-        if (this.cond_effects != null) {
-            ret.cond_effects = (AndCond) this.cond_effects.clone();
+        if (this.conditionalEffects != null) {
+            ret.conditionalEffects = (AndCond) this.conditionalEffects.clone();
         }
 
         if (this.numericFluentAffected != null) {
@@ -196,8 +196,8 @@ public class GroundAction extends PDDLGenericAction {
 
         this.getNumericEffects().apply(s, subst);
 
-        if (this.cond_effects != null) {
-            final AndCond c_eff = this.cond_effects;
+        if (this.conditionalEffects != null) {
+            final AndCond c_eff = this.conditionalEffects;
             c_eff.apply(s, subst);
         }
 
@@ -236,8 +236,8 @@ public class GroundAction extends PDDLGenericAction {
                     }
                 }
             }
-            if (this.cond_effects != null) {
-                for (ConditionalEffect ceff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+            if (this.conditionalEffects != null) {
+                for (ConditionalEffect ceff : (Collection<ConditionalEffect>) this.conditionalEffects.sons) {
                     AndCond effect = (AndCond) ceff.effect;
                     for (Object o : effect.sons) {
                         if (o instanceof NumEffect) {
@@ -275,7 +275,7 @@ public class GroundAction extends PDDLGenericAction {
                 }
             }
         }
-        this.cond_effects.normalize();
+        this.conditionalEffects.normalize();
         this.normalized = true;
     }
 
@@ -527,8 +527,8 @@ public class GroundAction extends PDDLGenericAction {
                 ret += nE.pddlPrint(true);
             }
         }
-        if (this.cond_effects != null) {
-            for (Object o : this.cond_effects.sons) {
+        if (this.conditionalEffects != null) {
+            for (Object o : this.conditionalEffects.sons) {
                 ConditionalEffect nE = (ConditionalEffect) o;
                 ret += nE.pddlPrint(true);
 
@@ -755,8 +755,8 @@ public class GroundAction extends PDDLGenericAction {
                     return true;
                 }
             }
-            if (this.cond_effects != null) {
-                for (ConditionalEffect ceff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+            if (this.conditionalEffects != null) {
+                for (ConditionalEffect ceff : (Collection<ConditionalEffect>) this.conditionalEffects.sons) {
                     if (ceff.effect.achieve(p) != null) {
                         this.achieve.put(p, true);
                         return true;
@@ -782,8 +782,8 @@ public class GroundAction extends PDDLGenericAction {
                 }
             }
         }
-        if (this.cond_effects != null) {
-            for (ConditionalEffect ceff : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+        if (this.conditionalEffects != null) {
+            for (ConditionalEffect ceff : (Collection<ConditionalEffect>) this.conditionalEffects.sons) {
                 if (ceff.effect.delete(p) != null) {
                     return true;
                 }
@@ -1038,7 +1038,7 @@ public class GroundAction extends PDDLGenericAction {
         eff.setFreeVarSemantic(free_var_semantics);
         eff = eff.weakEval(problem, invariantFluents);
 
-        a.cond_effects = (AndCond) a.cond_effects.weakEval(problem, invariantFluents);
+        a.conditionalEffects = (AndCond) a.conditionalEffects.weakEval(problem, invariantFluents);
         if (eff == null) {
 //            System.out.println("Pruning because of the effect");
             return false;
@@ -1576,7 +1576,7 @@ public class GroundAction extends PDDLGenericAction {
                 return eff;
             }
         }
-        for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
+        for (PostCondition eff : (Collection<PostCondition>) this.conditionalEffects.sons) {
             ConditionalEffect c_eff = (ConditionalEffect) eff;
 //            Predicate p = (Predicate)c_eff.effect;
             if (c_eff.effect instanceof AndCond) {
@@ -1600,7 +1600,7 @@ public class GroundAction extends PDDLGenericAction {
                 return p;
             }
         }
-        for (PostCondition eff : (Collection<PostCondition>) this.cond_effects.sons) {
+        for (PostCondition eff : (Collection<PostCondition>) this.conditionalEffects.sons) {
             ConditionalEffect c_eff = (ConditionalEffect) eff;
             //for now single condition effect. Extend to andcond
             if (c_eff.effect instanceof AndCond) {
@@ -1646,7 +1646,7 @@ public class GroundAction extends PDDLGenericAction {
                 or.addConditions(c);
             }
         }
-        for (ConditionalEffect c : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+        for (ConditionalEffect c : (Collection<ConditionalEffect>) this.conditionalEffects.sons) {
             Condition c1 = c.achieve(aThis);
             if (c1 != null) {
                 or.addConditions(c1);
@@ -1665,7 +1665,7 @@ public class GroundAction extends PDDLGenericAction {
                 or.addConditions(c);
             }
         }
-        for (ConditionalEffect c : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+        for (ConditionalEffect c : (Collection<ConditionalEffect>) this.conditionalEffects.sons) {
             Condition c1 = c.delete(aThis);
             if (c1 != null) {
                 or.addConditions(c1);
@@ -1784,7 +1784,7 @@ public class GroundAction extends PDDLGenericAction {
                     Predicate truePredicate = Predicate.createPredicate(Predicate.trueFalse.TRUE);
                     this.sdac.add(Pair.of(truePredicate, exprImpact));
                 }
-                for (ConditionalEffect cond : (Collection<ConditionalEffect>) this.cond_effects.sons) {
+                for (ConditionalEffect cond : (Collection<ConditionalEffect>) this.conditionalEffects.sons) {
                     AndCond effect = (AndCond) cond.effect;
                     exprImpact = 0f;
                     for (Object innerCondition : (Collection<Object>) effect.sons) {
@@ -1950,52 +1950,6 @@ public class GroundAction extends PDDLGenericAction {
     }
 
 
-    public Boolean weakAchiever (Terminal t) {
-        if (t.isValid())
-            return true;
-        if (t.isUnsatisfiable())
-            return false;
-        if (t instanceof Comparison) {
-            Set<NumFluent> involvedFluents = t.getInvolvedFluents();
-            for (NumFluent nf : this.getNumericFluentAffected()) {
-                if (involvedFluents.contains(nf))
-                    return null;
-            }
-            return false;
-        }
-        if (t instanceof Predicate) {
-            return this.addList.getTerminalConditions().contains(t);
-        }
-        if (t instanceof NotCond) {
-            return this.delete((Predicate) ((NotCond) t).getSon());
-        }
-        throw new RuntimeException("Unsupported instance of terminal: " + t.getClass());
-    }
-
-
-    //Here Assumption on calling this method only over Terminal conditions
-    public boolean weakThreat (Condition c) {
-        if (!(c instanceof Terminal)) {
-            throw new RuntimeException("Only terminals supported for threat detection");
-        }
-        if (c instanceof Predicate) {
-            if (this.delete((Predicate) c))
-                return true;
-        } else if (c instanceof NotCond) {
-            Predicate son = (Predicate) ((NotCond) c).getSon();
-            if (this.weakAchiever(son)) {
-                return true;
-            }
-        } else if (c instanceof Comparison) {
-            Set<NumFluent> involvedFluents = c.getInvolvedFluents();
-            for (NumFluent nf : this.getNumericFluentAffected()) {
-                if (involvedFluents.contains(nf))
-                    return true;
-            }
-
-        }
-        return false;
-    }
 
     public void setActionCost(int i) {
         this.sdac = Collections.singletonList(Pair.of(Predicate.createPredicate(Predicate.trueFalse.TRUE), (float)i));

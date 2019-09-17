@@ -75,8 +75,8 @@ public class GroundEvent extends GroundAction {
         if (this.numericEffects != null) {
             ret.numericEffects = (AndCond) this.numericEffects.clone();
         }
-        if (this.cond_effects != null) {
-            ret.cond_effects = (AndCond) this.cond_effects.clone();
+        if (this.conditionalEffects != null) {
+            ret.conditionalEffects = (AndCond) this.conditionalEffects.clone();
         }
 
         if (this.numericFluentAffected != null) {

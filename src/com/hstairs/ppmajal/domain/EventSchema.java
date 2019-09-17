@@ -42,7 +42,7 @@ public class EventSchema extends ActionSchema {
         ret.setAddList(addList);
         ret.setDelList(delList);
         ret.setNumericEffects(numericEffects);
-        ret.cond_effects = cond_effects;
+        ret.conditionalEffects = conditionalEffects;
         return ret;
     }
 
@@ -102,8 +102,8 @@ public class EventSchema extends ActionSchema {
         if (preconditions != null) {
             ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
-        if (cond_effects != null) {
-            ret.cond_effects.sons.addAll(((ComplexCondition) this.cond_effects.ground(substitution, po)).sons);
+        if (conditionalEffects != null) {
+            ret.conditionalEffects.sons.addAll(((ComplexCondition) this.conditionalEffects.ground(substitution, po)).sons);
         }
         return ret;
     }

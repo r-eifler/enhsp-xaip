@@ -38,7 +38,7 @@ public class ProcessSchema extends PDDLGenericAction {
     //private SchemaParameters parameters;
     //private HashSet numericFluentAffected;
     public ProcessSchema ( ) {
-        super();
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
         parameters = new SchemaParameters();
         this.addList = new AndCond();
         this.delList = new AndCond();

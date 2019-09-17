@@ -218,8 +218,8 @@ public class PDDLState extends State {
             this.apply(gr.getAddList(), prev);
         }
         
-        if (gr.cond_effects != null && !gr.cond_effects.sons.isEmpty()) {
-            this.apply(gr.cond_effects, prev);
+        if (gr.conditionalEffects != null && !gr.conditionalEffects.sons.isEmpty()) {
+            this.apply(gr.conditionalEffects, prev);
         }
         if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
             this.apply(gr.getNumericEffects(), prev);

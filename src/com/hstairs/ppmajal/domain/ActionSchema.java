@@ -36,14 +36,14 @@ import java.util.Set;
 public class ActionSchema extends PDDLGenericAction {
 
     public ActionSchema ( ) {
-        super();
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
         parameters = new SchemaParameters();
 //        numericFluentAffected = new HashSet();
         this.addList = new AndCond();
         this.delList = new AndCond();
         this.numericEffects = new AndCond();
         this.preconditions = new AndCond();
-        this.cond_effects = new AndCond();
+        this.conditionalEffects = new AndCond();
         this.forall = new AndCond();
 
     }
@@ -85,7 +85,7 @@ public class ActionSchema extends PDDLGenericAction {
         ret.setAddList((AndCond) this.addList.ground(substitution, po));
         ret.setDelList((AndCond) this.delList.ground(substitution, po));
         ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
-        ret.cond_effects = (AndCond) this.cond_effects.ground(substitution, po);
+        ret.conditionalEffects = (AndCond) this.conditionalEffects.ground(substitution, po);
 
         return ret;
 
@@ -127,8 +127,8 @@ public class ActionSchema extends PDDLGenericAction {
         if (preconditions != null) {
             ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
         }
-        if (cond_effects != null) {
-            ret.cond_effects.sons.addAll(((ComplexCondition) this.cond_effects.ground(substitution, po)).sons);
+        if (conditionalEffects != null) {
+            ret.conditionalEffects.sons.addAll(((ComplexCondition) this.conditionalEffects.ground(substitution, po)).sons);
         }
         return ret;
     }
@@ -142,7 +142,7 @@ public class ActionSchema extends PDDLGenericAction {
         ret.setAddList(addList);
         ret.setDelList(delList);
         ret.setNumericEffects(numericEffects);
-        ret.cond_effects = cond_effects;
+        ret.conditionalEffects = conditionalEffects;
         return ret;
     }
 
@@ -190,8 +190,8 @@ public class ActionSchema extends PDDLGenericAction {
 
             }
         }
-        if (this.cond_effects != null) {
-            for (Object o : this.cond_effects.sons) {
+        if (this.conditionalEffects != null) {
+            for (Object o : this.conditionalEffects.sons) {
                 ConditionalEffect nE = (ConditionalEffect) o;
                 nE.pddlPrint(false, input);
 
@@ -262,7 +262,7 @@ public class ActionSchema extends PDDLGenericAction {
         res.preconditions = (ComplexCondition) this.preconditions.clone();
         res.addList = (AndCond) this.addList.clone();
         res.delList = (AndCond) this.delList.clone();
-        res.cond_effects = (AndCond) this.cond_effects.clone();
+        res.conditionalEffects = (AndCond) this.conditionalEffects.clone();
         res.forall = (AndCond) this.forall.clone();
         res.numericEffects = (AndCond) this.numericEffects.clone();
         res.name = this.name;
@@ -386,8 +386,8 @@ public class ActionSchema extends PDDLGenericAction {
 
             }
         }
-        if (this.cond_effects != null) {
-            for (Object o : this.cond_effects.sons) {
+        if (this.conditionalEffects != null) {
+            for (Object o : this.conditionalEffects.sons) {
                 ConditionalEffect cond_eff = (ConditionalEffect) o;
                 ret += "(forall (?interpr - interpretation) " + cond_eff.pddlPrintWithExtraObject() + ")";
 
