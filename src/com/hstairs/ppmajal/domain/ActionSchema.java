@@ -33,10 +33,10 @@ import java.util.Set;
 /**
  * @author enrico
  */
-public class ActionSchema extends PDDLGenericAction {
+public class ActionSchema extends Transition {
 
     public ActionSchema ( ) {
-        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantics);
         parameters = new SchemaParameters();
 //        numericFluentAffected = new HashSet();
         this.addList = new AndCond();

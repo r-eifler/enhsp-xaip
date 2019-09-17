@@ -21,9 +21,13 @@ package com.hstairs.ppmajal.propositionalFactory;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
+import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.domain.Transition.Semantics;
+import com.hstairs.ppmajal.domain.Transition.TransitionGround;
+import com.hstairs.ppmajal.domain.Transition.TransitionSchema;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
@@ -230,11 +234,11 @@ public class Grounder {
 //
 //    }
     
-    public Set Substitutions (PDDLGenericAction a, PDDLObjects po) {
+    public Set Substitutions (Transition a, PDDLObjects po) {
         return(this.Substitutions(a, po, null));
     }
 
-    public Set Substitutions (PDDLGenericAction a, PDDLObjects po, HashMap<Variable,Set<PDDLObject>> varMap) {
+    public Set Substitutions (Transition a, PDDLObjects po, HashMap<Variable,Set<PDDLObject>> varMap) {
         SchemaParameters param = a.getPar();
         int n_parametri = a.getPar().size();
         return sub(param, n_parametri, po,varMap);
@@ -284,21 +288,21 @@ public class Grounder {
 
     }
 
-    public Collection Propositionalize(ActionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         HashMap<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
         Collection combo;
-        if (action.getPar().isEmpty()) {
+        if (action.getParameters().isEmpty()) {
             combo = Collections.singletonList(new ParametersAsTerms());
 //            combo = Collections.singleton(new ParametersAsTerms());
 //            combo.add(new ParametersAsTerms());
         } else {
             combo = new LinkedHashSet();
-            ComplexCondition cond = action.getPreconditions();
+            Condition cond = action.getPreconditions();
             Collection<HashMap<Variable, Set<PDDLObject>>> S = new HashSet();
             HashMap<Variable, Set<PDDLObject>> t = new HashMap();
-            for (Object o : action.getPar()) {
+            for (Object o : action.getParameters()) {
                 Variable v = (Variable) o;
                 t.put(v, po);
             }
@@ -387,20 +391,17 @@ public class Grounder {
 
     }
 
-    private Collection Propositionalize(ActionSchema a, Collection combo, PDDLObjects po, PddlProblem problem) {
+    private Collection Propositionalize(TransitionSchema a, Collection combo, PDDLObjects po, PddlProblem problem) {
         List ret = new ArrayList();
 
         for (Object o : combo) {
 
             if (o instanceof ParametersAsTerms) {
-                if (a instanceof EventSchema) {
-                    EventSchema b = (EventSchema) a;
-                    GroundEvent toAdd = b.ground((ParametersAsTerms) o, po, problem);
-                    toAdd.generateAffectedNumFluents();
+                if (a.getSemantics().equals(Semantics.EVENT)) {
+                    GroundEvent toAdd = this.ground(a,(ParametersAsTerms) o, po, problem);
                     ret.add(toAdd);
                 } else {
                     GroundAction toAdd = a.ground((ParametersAsTerms) o, po, problem);
-                    toAdd.generateAffectedNumFluents();
                     ret.add(toAdd);
                 }
             }
@@ -523,6 +524,37 @@ public class Grounder {
             i++;
         }
         return substitution;
+
+    }
+
+    private TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, PddlProblem problem) {
+
+        
+        Map substitution = this.obtain_sub_from_instance(a.getParameters(), parametersAsTerms);
+        
+
+//        System.out.println(this);
+        if (numericEffects != null || !numericEffects.sons.isEmpty()) {
+            //System.out.println(this);
+            ret.numericEffects.sons.addAll(((AndCond) this.numericEffects.ground(substitution, po)).sons);
+//            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
+        }
+        if (addList != null) {
+            ret.addList.sons.addAll(((AndCond) this.addList.ground(substitution, po)).sons);
+//            ret.setAddList(this.addList.ground(substitution, po));
+        }
+        if (delList != null) {
+            ret.delList.sons.addAll(((AndCond) this.delList.ground(substitution, po)).sons);
+
+//            ret.setDelList(this.delList.ground(substitution, po));
+        }
+        if (preconditions != null) {
+            ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
+        }
+        if (conditionalEffects != null) {
+            ret.conditionalEffects.sons.addAll(((ComplexCondition) this.conditionalEffects.ground(substitution, po)).sons);
+        }
+        return new TransitionGround(a.getName(), parametersAsTerms, parametersAsTerms, preconditions, parametersAsTerms, Semantics.ACTION) {
 
     }
 }

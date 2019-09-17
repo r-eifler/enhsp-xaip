@@ -33,12 +33,12 @@ import java.util.Set;
 /**
  * @author enrico
  */
-public class ProcessSchema extends PDDLGenericAction {
+public class ProcessSchema extends Transition {
 
     //private SchemaParameters parameters;
     //private HashSet numericFluentAffected;
     public ProcessSchema ( ) {
-        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantics);
         parameters = new SchemaParameters();
         this.addList = new AndCond();
         this.delList = new AndCond();

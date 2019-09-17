@@ -114,7 +114,8 @@ public class EPddlProblem extends PddlProblem {
     public void generateActions ( ){
         long start = System.currentTimeMillis();
             Grounder af = new Grounder(belief == null);
-            for (ActionSchema act : linkedDomain.getActionsSchema()) {
+            for (Transition act : linkedDomain.getActionsSchema()) {
+                
                     getActions().addAll(af.Propositionalize(act, getObjects(),this, initBoolFluentsValues, linkedDomain));
             }
 
@@ -999,14 +1000,14 @@ public class EPddlProblem extends PddlProblem {
         }
         this.initNumFluentsValues = tempInitFluent;
 
-        for (PDDLGenericAction act : this.actions) {
+        for (Transition act : this.actions) {
             act.unifyVariablesReferences(inputProblem);
         }
-        for (PDDLGenericAction act : this.getEventsSet()) {
+        for (Transition act : this.getEventsSet()) {
             act.unifyVariablesReferences(inputProblem);
         }
         if (this.getProcessesSet() != null) {
-            for (PDDLGenericAction act : this.getProcessesSet()) {
+            for (Transition act : this.getProcessesSet()) {
                 act.unifyVariablesReferences(inputProblem);
             }
         }

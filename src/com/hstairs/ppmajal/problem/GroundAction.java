@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class GroundAction extends PDDLGenericAction {
+public class GroundAction extends Transition {
 
     final protected int id;
     public boolean numeric_effect_undefined;
@@ -49,7 +49,7 @@ public class GroundAction extends PDDLGenericAction {
     private List<Pair<Condition, Float>> sdac;
 
     public GroundAction(String name, int id) {
-        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantics);
         this.name = name;
         numericFluentAffected = null;
         this.parameters_as_terms = new ParametersAsTerms();
@@ -64,7 +64,7 @@ public class GroundAction extends PDDLGenericAction {
     }
 
     public GroundAction(GroundAction gr, int id) {
-        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions);
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantics);
         this.name = gr.name;
         numericFluentAffected = gr.numericFluentAffected;
         this.parameters_as_terms = gr.parameters_as_terms;

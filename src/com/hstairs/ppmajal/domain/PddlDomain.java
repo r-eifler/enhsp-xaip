@@ -18,14 +18,15 @@
  */
 package com.hstairs.ppmajal.domain;
 
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.domain.Transition.Semantics;
+import com.hstairs.ppmajal.domain.Transition.TransitionSchema;
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -36,6 +37,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.alg.util.Pair;
 
 /**
  * @author enrico
@@ -51,7 +53,7 @@ public final class PddlDomain extends Object {
     public Set<Type> types;
     public Collection functions;
     public Collection<String> requirements;
-    protected Collection<ActionSchema> ActionsSchema;
+    protected Collection<TransitionSchema> ActionsSchema;
     private String name;
     private PredicateSet predicates;
     private String pddlReferenceFile;
@@ -157,7 +159,7 @@ public final class PddlDomain extends Object {
                         addGlobalConstraint(c);
                         break;
                     case PddlParser.PROCESS:
-                        addProcess(c);
+                        addTransition(c, Semantics.PROCESS);
                         break;
 //                case PddlParser.DOM_CONSTRAINTS:
 //                    addGlobalConstraints(c);
@@ -196,7 +198,7 @@ public final class PddlDomain extends Object {
      * @return the ActionsSchema- a Set which contains all the action schema of
      * the domain
      */
-    public Collection<ActionSchema> getActionsSchema ( ) {
+    public Collection<TransitionSchema> getActionsSchema ( ) {
         return ActionsSchema;
     }
 
@@ -283,8 +285,8 @@ public final class PddlDomain extends Object {
      * assumes that there is a 1:1 relation between action and name, i.e. we
      * cannot have different actions with the same name
      */
-    public ActionSchema getActionByName (String name) {
-        for (final ActionSchema el : ActionsSchema) {
+    public TransitionSchema getActionByName (String name) {
+        for (final TransitionSchema el : ActionsSchema) {
             final String elname = el.getName();
             if (elname.equalsIgnoreCase(name)) {
                 return el;
@@ -385,14 +387,14 @@ public final class PddlDomain extends Object {
        
         if (canBeDynamic == null) {
             canBeDynamic = new HashMap();
-            ArrayList<PDDLGenericAction> all = new ArrayList();
+            ArrayList<Transition> all = new ArrayList();
             all.addAll(this.ActionsSchema);
             all.addAll(this.ProcessesSchema);
             all.addAll(this.eventsSchema);
             for (int i = 0; i < all.size(); i++) {
                 Set<Condition> terminalConditions = all.get(i).getPreconditions().getTerminalConditions();
                 for (int j = 0; j < all.size(); j++) {
-                    PDDLGenericAction get = all.get(j);
+                    Transition get = all.get(j);
                     for (Condition cond : terminalConditions) {
                         Terminal p = null;
                         if (cond instanceof NotCond) {
@@ -433,49 +435,6 @@ public final class PddlDomain extends Object {
         return null;
     }
 
-    public HashMap<Object, Boolean> generateInvariant() {
-        HashMap<Object, Boolean> ret = new HashMap();
-        for (ActionSchema as : this.getActionsSchema()) {
-            Condition prop_effects = as.getAddList();
-            if (prop_effects instanceof AndCond) {
-                AndCond ac = (AndCond) prop_effects;
-                for (Object o : ac.sons) {
-                    if (o instanceof Predicate) {
-                        Predicate p = (Predicate) o;
-                        Predicate pDef = this.getPredicates().findAssociated(p);
-                        ret.put(pDef, Boolean.FALSE);
-                    }
-                }
-            } else {
-                System.out.println("Support only and cond as prop effects. In case of singleton, please put it under AND");
-            }
-            prop_effects = as.getDelList();
-            if (prop_effects != null) {
-                if (prop_effects instanceof AndCond) {
-                    AndCond ac = (AndCond) prop_effects;
-                    for (Object o : ac.sons) {
-                        if (o instanceof NotCond) {
-                            NotCond nc = (NotCond) o;
-                            //System.out.println(nc);
-//                            for (Object o1 : nc.son) {
-                            Predicate p = (Predicate) nc.getSon();
-                            Predicate pDef = this.getPredicates().findAssociated(p);
-                            ret.put(pDef, Boolean.FALSE);
-//                            }
-
-                        }
-                    }
-                } else {
-                    System.out.println("Support only AND as prop effects. In case of singleton, please put it under AND also if it is just one proposition");
-                }
-            }
-            Set<NumFluent> anfa = (Set<NumFluent>) as.getAbstractNumericFluentAffected();
-            for (NumFluent nf : anfa) {
-                ret.put(nf, Boolean.FALSE);
-            }
-        }
-        return ret;
-    }
 
 
     /**
@@ -541,12 +500,14 @@ public final class PddlDomain extends Object {
         this.SchemaGlobalConstraints = SchemaGlobalConstraints;
     }
 
-    private void addProcess (Tree c) {
-        ProcessSchema a = new ProcessSchema();
+    private void addTransition (Tree c, Semantics semantics) {
         Tree process = c.getChild(0);
-        a.setName(process.getText());
 //        System.out.println("DEBUG: Adding:"+a.getName());
-        this.ProcessesSchema.add(a);
+        String processName = process.getText();
+        Condition precondition = null;
+        SchemaParameters par = null;
+        Map<Condition,Collection<Terminal>> propEffect = new HashMap();
+        Map<Condition,Collection<NumEffect>> numEffect = new HashMap();
 
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);
@@ -557,9 +518,9 @@ public final class PddlDomain extends Object {
                     if ((con instanceof Comparison) || (con instanceof Predicate)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
-                        a.setPreconditions(and);
+                        precondition = and;
                     } else if (con != null) {
-                        a.setPreconditions((ComplexCondition) con);
+                        precondition = con;
                     }
                     break;
                 case (PddlParser.VARIABLE):
@@ -568,19 +529,58 @@ public final class PddlDomain extends Object {
                     }
                     Type t = Type.createType(infoAction.getChild(0).getText());
                     
-                        Variable variable = new Variable(infoAction.getText(), t);
+                    Variable variable = new Variable(infoAction.getText(), t);
 //                        System.out.print(variable);
-                        a.addParameter(variable);
+                    par.add(variable);
                     break;
                 case (PddlParser.EFFECT):
-                    addEffects(a, infoAction);
+                    
+                    PostCondition res = fc.createPostCondition(par, infoAction.getChild(0));
+                    
+                    if (res instanceof AndCond) {
+                        AndCond pc = (AndCond) res;
+                        for (Object o : pc.sons) {
+                            if (o instanceof Predicate) {
+                                propEffect.get(null).add((Terminal) o);
+                            } else if (o instanceof NotCond) {
+                                propEffect.get(null).add((Terminal) o);
+                            } else if (o instanceof NumEffect) {
+                                numEffect.get(null).add(o);
+
+                            } else if (o instanceof ConditionalEffect) {
+                                ConditionalEffect cond = (ConditionalEffect)o;
+                                if (cond.effect instanceof NumEffect){
+                                    numEffect.put(cond.activation_condition, List.of(cond.effect));
+                                }
+                            } else if (o instanceof ForAll) {
+                                this.forall.sons.add(o);
+                            }
+                        }
+                    } else if (res instanceof Predicate) {
+                        this.addList.sons.add(res);
+                    } else if (res instanceof NotCond) {
+                        this.delList.sons.add(res);
+                    } else if (res instanceof NumEffect) {
+                        this.numericEffects.sons.add(res);
+                    } else if (res instanceof ConditionalEffect) {
+                        this.conditionalEffects.sons.add(res);
+                    } else if (res instanceof ForAll) {
+                        this.forall.sons.add(res);
+//            this.forall.sons.add(res);
+                    }
+            }
+
+                    
+                    
 //                    System.out.println(a);
                     break;
 
             }
+            
 
         }
     }
+    
 
     /**
      * @return the ProcessesSchema
@@ -602,11 +602,12 @@ public final class PddlDomain extends Object {
 //        }
 //        return null;
 //    }
-    private void addEffects (PDDLGenericAction a, Tree infoAction) {
+    private void addEffects (SchemaParameters parameters, Tree infoAction) {
         //PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
-        PostCondition res = fc.createPostCondition(a.parameters, infoAction.getChild(0));
-        a.create_effects_by_cases(res);
+        PostCondition res = fc.createPostCondition(parameters, infoAction.getChild(0));
+        parameters.create_effects_by_cases(res);
     }
+    
 
     public void saveDomainWithInterpretationObjects (String file) throws IOException {
         PddlDomain domain = this;
