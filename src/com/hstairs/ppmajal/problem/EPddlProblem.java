@@ -21,6 +21,8 @@ package com.hstairs.ppmajal.problem;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.transition.Transition;
+import com.hstairs.ppmajal.transition.TransitionSchema;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Aibr;
@@ -785,9 +787,9 @@ public class EPddlProblem extends PddlProblem {
     private void generateEvents ( ) {
         long start = System.currentTimeMillis();
             Grounder af = new Grounder();
-            for (EventSchema event_schema : linkedDomain.eventsSchema) {
+            for (TransitionSchema event_schema : linkedDomain.eventsSchema) {
 //                af.Propositionalize(act, objects);
-                if (!event_schema.getPar().isEmpty()) {
+                if (!event_schema.getParameters().isEmpty()) {
                     try {
                         this.getEventsSet().addAll(af.Propositionalize(event_schema, getObjects(),this));
                     } catch (Exception ex) {
@@ -836,7 +838,7 @@ public class EPddlProblem extends PddlProblem {
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
         }
-        for (EventSchema a : this.linkedDomain.eventsSchema) {
+        for (TransitionSchema a : this.linkedDomain.eventsSchema) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 

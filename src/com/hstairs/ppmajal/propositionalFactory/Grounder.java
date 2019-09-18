@@ -25,9 +25,10 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
-import com.hstairs.ppmajal.domain.Transition.Semantics;
-import com.hstairs.ppmajal.domain.Transition.TransitionGround;
-import com.hstairs.ppmajal.domain.Transition.TransitionSchema;
+import com.hstairs.ppmajal.transition.Transition;
+import com.hstairs.ppmajal.transition.Transition.Semantics;
+import com.hstairs.ppmajal.transition.TransitionGround;
+import com.hstairs.ppmajal.transition.TransitionSchema;
 import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
@@ -234,13 +235,13 @@ public class Grounder {
 //
 //    }
     
-    public Set Substitutions (Transition a, PDDLObjects po) {
+    public Set Substitutions (TransitionSchema a, PDDLObjects po) {
         return(this.Substitutions(a, po, null));
     }
 
-    public Set Substitutions (Transition a, PDDLObjects po, HashMap<Variable,Set<PDDLObject>> varMap) {
-        SchemaParameters param = a.getPar();
-        int n_parametri = a.getPar().size();
+    public Set Substitutions (TransitionSchema a, PDDLObjects po, HashMap<Variable,Set<PDDLObject>> varMap) {
+        SchemaParameters param = a.getParameters();
+        int n_parametri = a.getParameters().size();
         return sub(param, n_parametri, po,varMap);
     }
 
@@ -277,9 +278,9 @@ public class Grounder {
         return ret;
     }
 
-    public Collection Propositionalize(ActionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
+    public Collection Propositionalize(TransitionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
         Collection combo = null;
-        if (a.getPar().isEmpty()) {
+        if (a.getParameters().isEmpty()) {
             combo.add(new ParametersAsTerms());
         } else {
             combo = Substitutions(a, po);
@@ -393,39 +394,15 @@ public class Grounder {
 
     private Collection Propositionalize(TransitionSchema a, Collection combo, PDDLObjects po, PddlProblem problem) {
         List ret = new ArrayList();
-
-        for (Object o : combo) {
-
-            if (o instanceof ParametersAsTerms) {
-                if (a.getSemantics().equals(Semantics.EVENT)) {
-                    GroundEvent toAdd = this.ground(a,(ParametersAsTerms) o, po, problem);
-                    ret.add(toAdd);
-                } else {
-                    GroundAction toAdd = a.ground((ParametersAsTerms) o, po, problem);
-                    ret.add(toAdd);
-                }
-            }
-        }
-
-        return ret;
-
-    }
-
-    public Set Propositionalize (ProcessSchema a, PDDLObjects po, PddlProblem pp) throws Exception {
-        Set ret = new LinkedHashSet();
-
-        Set combo = Substitutions(a, po);
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
-                GroundProcess toAdd = a.ground((ParametersAsTerms) o, po, pp);
-                toAdd.generateAffectedNumFluents();
-                ret.add(toAdd);
+                    TransitionGround toAdd = this.ground(a,(ParametersAsTerms) o, po, problem);
+                    ret.add(toAdd);
             }
         }
-
         return ret;
-
     }
+
 
     public Set Propositionalize (SchemaGlobalConstraint constr, PDDLObjects po) throws Exception {
         Set ret = new LinkedHashSet();
@@ -531,9 +508,7 @@ public class Grounder {
 
         
         Map substitution = this.obtain_sub_from_instance(a.getParameters(), parametersAsTerms);
-        
 
-//        System.out.println(this);
         if (numericEffects != null || !numericEffects.sons.isEmpty()) {
             //System.out.println(this);
             ret.numericEffects.sons.addAll(((AndCond) this.numericEffects.ground(substitution, po)).sons);

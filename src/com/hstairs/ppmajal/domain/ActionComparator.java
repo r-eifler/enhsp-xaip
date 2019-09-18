@@ -20,6 +20,8 @@ package com.hstairs.ppmajal.domain;
 
 //import java.util.Comparator;
 
+import com.hstairs.ppmajal.transition.Transition;
+
 import java.util.Comparator;
 
 /**

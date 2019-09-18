@@ -20,10 +20,10 @@ package com.hstairs.ppmajal.problem;
 
 import antlr.RecognitionException;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Type;
+import com.hstairs.ppmajal.transition.TransitionSchema;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
@@ -299,7 +299,7 @@ public class PddlProblem {
 
             }
         }
-        this.goals = (ComplexCondition) this.goals.push_not_to_terminals();
+        this.goals = (ComplexCondition) this.goals.pushNotToTerminals();
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(), this.getObjects());
 
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
@@ -519,7 +519,7 @@ public class PddlProblem {
 
         long start = System.currentTimeMillis();
             Grounder af = new Grounder();
-            for (ActionSchema act : linkedDomain.getActionsSchema()) {
+            for (TransitionSchema act : linkedDomain.getActionsSchema()) {
                 if (!act.getPar().isEmpty()) {
                     getActions().addAll(af.Propositionalize(act, getObjects(),this));
                 } else {

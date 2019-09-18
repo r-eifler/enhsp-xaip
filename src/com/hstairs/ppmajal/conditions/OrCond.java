@@ -26,8 +26,6 @@ import com.hstairs.ppmajal.problem.*;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author enrico
@@ -550,13 +548,13 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         if (this.sons == null) {
             return this;
         }
         OrCond res = new OrCond();
         for (Condition c : (Collection<Condition>) this.sons) {
-            c = c.push_not_to_terminals();
+            c = c.pushNotToTerminals();
             res.addConditions(c);
         }
 

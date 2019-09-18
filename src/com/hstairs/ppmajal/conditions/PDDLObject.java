@@ -243,7 +243,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         return this;
     }
 

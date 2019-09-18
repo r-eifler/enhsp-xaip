@@ -19,6 +19,7 @@
 package com.hstairs.ppmajal.domain;
 
 import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLObjects;

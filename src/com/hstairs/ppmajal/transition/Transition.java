@@ -16,24 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.hstairs.ppmajal.domain;
+package com.hstairs.ppmajal.transition;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.extraUtils.Pair;
-
-import java.util.*;
 
 public abstract class Transition {
 
     protected Float time = null;// It is possible for this action to be timed
     final protected String name;
-    final protected Map<Condition, Collection<Terminal>> conditionalPropositionalEffects;
-    final protected Map<Condition, Collection<NumEffect>> conditionalNumericEffects;
+    final protected ConditionalEffects conditionalPropositionalEffects;
+    final protected ConditionalEffects conditionalNumericEffects;
     final protected Condition preconditions;
     final protected Semantics semantics;
 
-    protected Transition(String name, Map<Condition, Collection<Terminal>> conditionalPropositionalEffects, Map<Condition, Collection<NumEffect>> conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
+    protected Transition(String name, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
         this.name = name;
         this.conditionalPropositionalEffects = conditionalPropositionalEffects;
         this.conditionalNumericEffects = conditionalNumericEffects;
@@ -49,49 +45,24 @@ public abstract class Transition {
         return preconditions;
     }
 
-    public Map<Condition, Collection<NumEffect>> getConditionalNumericEffects() {
+    public ConditionalEffects getConditionalNumericEffects() {
         return conditionalNumericEffects;
     }
 
-    public Map<Condition, Collection<Terminal>> getConditionalPropositionalEffects() {
+    public ConditionalEffects getConditionalPropositionalEffects() {
         return conditionalPropositionalEffects;
     }
-
-    
-
     public Semantics getSemantics() {
         return semantics;
     }
-    
-    
-     
-            
-    public class TransitionSchema extends Transition {
-        final protected SchemaParameters parameters;
 
-        public TransitionSchema(SchemaParameters parameters, String name, Map<Condition, Collection<Terminal>> conditionalPropositionalEffects, Map<Condition, Collection<NumEffect>> conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
-            super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantcis);
-            this.parameters = parameters;
-        }
-        public SchemaParameters getParameters() {
-            return parameters;
-        }
-        
+    public Iterable<? extends Predicate> getPropositionAffected() {
+        return this.conditionalPropositionalEffects.getAllAffectedVariables();
     }
-    public class TransitionGround extends Transition {
-        final protected List<PDDLObject> parameters;
 
-        public TransitionGround(List<PDDLObject> parameters, String name, Map<Condition, Collection<Terminal>> conditionalPropositionalEffects, Map<Condition, Collection<NumEffect>> conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
-            super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantcis);
-            this.parameters = parameters;
-        }
-        
-        public List<PDDLObject> getParameters() {
-            return parameters;
-        }
-        
-    }
     public enum Semantics{ACTION, PROCESS, EVENT}
+
+
 }
 
 

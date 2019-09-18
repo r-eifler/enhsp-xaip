@@ -213,14 +213,14 @@ public class Existential extends ComplexCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         if (this.sons == null) {
             return this;
         }
         Existential res = new Existential();
         res.parameters = this.parameters;
         for (Condition c : (Collection<Condition>) this.sons) {
-            Condition c1 = c.push_not_to_terminals();
+            Condition c1 = c.pushNotToTerminals();
             if (c1 instanceof OrCond) {
                 res.sons.addAll(((OrCond) c1).sons);
             } else {

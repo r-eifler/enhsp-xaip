@@ -236,7 +236,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
 
-    public abstract Condition push_not_to_terminals ( );
+    public abstract Condition pushNotToTerminals( );
 
     public boolean isSatisfied (RelState rs) {
         return rs.satisfy(this);

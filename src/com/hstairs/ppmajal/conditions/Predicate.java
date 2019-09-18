@@ -584,7 +584,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         return this;
     }
 

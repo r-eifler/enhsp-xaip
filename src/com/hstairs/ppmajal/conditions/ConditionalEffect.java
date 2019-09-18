@@ -336,9 +336,9 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         if (this.activation_condition != null)
-            this.activation_condition = this.activation_condition.push_not_to_terminals();
+            this.activation_condition = this.activation_condition.pushNotToTerminals();
         return this;
         //To change body of generated methods, choose Tools | Templates.
     }

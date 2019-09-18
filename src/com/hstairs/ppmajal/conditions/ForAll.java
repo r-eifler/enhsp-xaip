@@ -244,14 +244,14 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         if (this.sons == null) {
             return this;
         }
         ForAll res = new ForAll();
         res.parameters = this.parameters;
         for (Condition c : (Collection<Condition>) this.sons) {
-            Condition c1 = c.push_not_to_terminals();
+            Condition c1 = c.pushNotToTerminals();
             if (c1 instanceof AndCond) {
                 res.sons.addAll(((AndCond) c1).sons);
             } else {

@@ -20,6 +20,7 @@ package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.plan.SimplePlan;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;

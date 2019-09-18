@@ -417,7 +417,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         return this;
     }
 

@@ -19,8 +19,10 @@
 package com.hstairs.ppmajal.domain;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.Transition.Semantics;
-import com.hstairs.ppmajal.domain.Transition.TransitionSchema;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
+import com.hstairs.ppmajal.transition.Transition;
+import com.hstairs.ppmajal.transition.Transition.Semantics;
+import com.hstairs.ppmajal.transition.TransitionSchema;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Utils;
@@ -37,7 +39,6 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jgrapht.alg.util.Pair;
 
 /**
  * @author enrico
@@ -46,9 +47,9 @@ public final class PddlDomain extends Object {
 
     HashMap<String,Boolean> canBeDynamic;
 
-    public final Collection<EventSchema> eventsSchema;
+    public final Collection<TransitionSchema> eventsSchema;
     public final PDDLObjects constants;
-    private final Set<ProcessSchema> ProcessesSchema;
+    private final Set<TransitionSchema> ProcessesSchema;
     private final Collection<NumFluent> derived_variables;
     public Set<Type> types;
     public Collection functions;
@@ -81,7 +82,7 @@ public final class PddlDomain extends Object {
     }
 
 
-    public PddlDomain (Collection<EventSchema> eventsSchema, PDDLObjects constants, Set<ProcessSchema> processesSchema, Collection<NumFluent> derived_variables) {
+    public PddlDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables) {
         this.eventsSchema = eventsSchema;
         this.constants = constants;
         ProcessesSchema = processesSchema;
@@ -136,10 +137,10 @@ public final class PddlDomain extends Object {
                     case PddlParser.ACTION:
                         //fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
 //                        System.out.println(fc.constants);
-                        addActions(c);
+                        addTransition(c, Semantics.ACTION);
                         break;
                     case PddlParser.EVENT:
-                        addEvent(c);
+                        addTransition(c, Semantics.EVENT);
                         break;
                     case PddlParser.REQUIREMENTS:
                         addRequirements(c);
@@ -166,7 +167,7 @@ public final class PddlDomain extends Object {
 //                    break;
                 }
             }
-            push_not_at_the_terminals();
+            pushNotAtTheTerminals();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -229,11 +230,6 @@ public final class PddlDomain extends Object {
             this.types.add(tip);
         }
     }
-
-    private void addActions (Tree c) {
-        this.addGenericActionSchemas(c, new ActionSchema());
-    }
-
     private Object addPredicates (Tree t) {
         PredicateSet col = new PredicateSet();
         if (t == null) {
@@ -394,7 +390,7 @@ public final class PddlDomain extends Object {
             for (int i = 0; i < all.size(); i++) {
                 Set<Condition> terminalConditions = all.get(i).getPreconditions().getTerminalConditions();
                 for (int j = 0; j < all.size(); j++) {
-                    Transition get = all.get(j);
+                    Transition transition = all.get(j);
                     for (Condition cond : terminalConditions) {
                         Terminal p = null;
                         if (cond instanceof NotCond) {
@@ -403,14 +399,14 @@ public final class PddlDomain extends Object {
                             p = (Terminal) cond;
                         }
                         if (p != null && p instanceof Predicate) {
-                            for (Predicate pred : get.getPropositionAffected()) {
+                            for (Predicate pred : transition.getPropositionAffected()) {
                                 if (pred.getPredicateName().equals(((Predicate) p).getPredicateName())) {
                                     canBeDynamic.put(((Predicate) p).getPredicateName(), true);
                                 }
                             }
                         }
 //                        if (p != null && p instanceof Comparison) {
-//                            for (NumFluent nf : get.getNumericFluentAffected()) {
+//                            for (NumFluent nf : transition.getNumericFluentAffected()) {
 //                                for (NumFluent nf2 : p.getInvolvedFluents()) {
 //                                    if (nf.getName().equals(nf2.getName())) {
 //                                        canBeDynamic.put(p, true);
@@ -506,15 +502,15 @@ public final class PddlDomain extends Object {
         String processName = process.getText();
         Condition precondition = null;
         SchemaParameters par = null;
-        Map<Condition,Collection<Terminal>> propEffect = new HashMap();
-        Map<Condition,Collection<NumEffect>> numEffect = new HashMap();
-
+        ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PREDICATE);
+        ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMFLUENTS);
+        
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
             switch (type) {
                 case (PddlParser.PRECONDITION):
-                    Condition con = fc.createCondition(infoAction.getChild(0), a.getParameters());
+                    Condition con = fc.createCondition(infoAction.getChild(0), par);
                     if ((con instanceof Comparison) || (con instanceof Predicate)) {
                         AndCond and = new AndCond();
                         and.addConditions(con);
@@ -541,51 +537,58 @@ public final class PddlDomain extends Object {
                         AndCond pc = (AndCond) res;
                         for (Object o : pc.sons) {
                             if (o instanceof Predicate) {
-                                propEffect.get(null).add((Terminal) o);
+                                propEffect.add((Terminal) o);
                             } else if (o instanceof NotCond) {
-                                propEffect.get(null).add((Terminal) o);
+                                propEffect.add((Terminal) o);
                             } else if (o instanceof NumEffect) {
-                                numEffect.get(null).add(o);
-
+                                numEffect.add((NumEffect) o);
                             } else if (o instanceof ConditionalEffect) {
                                 ConditionalEffect cond = (ConditionalEffect)o;
                                 if (cond.effect instanceof NumEffect){
-                                    numEffect.put(cond.activation_condition, List.of(cond.effect));
+                                    numEffect.add(cond.activation_condition, (NumEffect) cond.effect);
                                 }
                             } else if (o instanceof ForAll) {
-                                this.forall.sons.add(o);
+                                throw new UnsupportedOperationException();
                             }
                         }
                     } else if (res instanceof Predicate) {
-                        this.addList.sons.add(res);
+                        propEffect.add((Terminal) res);
                     } else if (res instanceof NotCond) {
-                        this.delList.sons.add(res);
+                        propEffect.add((Terminal) res);
                     } else if (res instanceof NumEffect) {
-                        this.numericEffects.sons.add(res);
+                        numEffect.add((NumEffect) res);
                     } else if (res instanceof ConditionalEffect) {
-                        this.conditionalEffects.sons.add(res);
+                        numEffect.add((NumEffect) res);
                     } else if (res instanceof ForAll) {
-                        this.forall.sons.add(res);
-//            this.forall.sons.add(res);
+                        throw new UnsupportedOperationException();
                     }
             }
-
-                    
-                    
-//                    System.out.println(a);
-                    break;
-
-            }
-            
+            break;
 
         }
+
+        TransitionSchema transition = new TransitionSchema(par,name,propEffect,numEffect,precondition,semantics);
+        switch (semantics) {
+            case ACTION:
+                this.ActionsSchema.add(transition);
+                break;
+            case PROCESS:
+                this.ProcessesSchema.add(transition);
+                break;
+            case EVENT:
+                this.eventsSchema.add(transition);
+                break;
+        }
+
     }
-    
+
+
+
 
     /**
      * @return the ProcessesSchema
      */
-    public Set<ProcessSchema> getProcessesSchema ( ) {
+    public Set<TransitionSchema> getProcessesSchema ( ) {
         return ProcessesSchema;
     }
 
@@ -602,12 +605,7 @@ public final class PddlDomain extends Object {
 //        }
 //        return null;
 //    }
-    private void addEffects (SchemaParameters parameters, Tree infoAction) {
-        //PostCondition res = createPostCondition(a.parameters, infoAction.getChild(0));
-        PostCondition res = fc.createPostCondition(parameters, infoAction.getChild(0));
-        parameters.create_effects_by_cases(res);
-    }
-    
+
 
     public void saveDomainWithInterpretationObjects (String file) throws IOException {
         PddlDomain domain = this;
@@ -640,123 +638,42 @@ public final class PddlDomain extends Object {
         f.close();
     }
 
-    private void push_not_at_the_terminals ( ) {
-        for (ActionSchema a : this.ActionsSchema) {
-            a.push_not_to_terminals();
-        }
+    private void pushNotAtTheTerminals( ) {
+        ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
+        listViewOfTransitions.addAll(this.getProcessesSchema());
+        listViewOfTransitions.addAll(this.eventsSchema);
+        ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
 
-        for (ProcessSchema a : this.ProcessesSchema) {
-            a.push_not_to_terminals();
-        }
-        for (EventSchema a : this.eventsSchema) {
-            a.push_not_to_terminals();
-        }
-
-    }
-
-    private void addEvent (Tree c) {
-        this.addGenericActionSchemas(c, new EventSchema());
-    }
-
-    private void addGenericActionSchemas (Tree c, ActionSchema a) {
-
-        Tree action = c.getChild(0);
-        a.setName(action.getText());
-        //System.out.println("Adding:"+a.getName());
-        if (a instanceof EventSchema) {
-            this.eventsSchema.add((EventSchema) a);
-
-        } else if (a instanceof ActionSchema) {
-            this.ActionsSchema.add(a);
-        }
-        for (int i = 1; i < c.getChildCount(); i++) {
-            Tree infoAction = c.getChild(i);
-            int type = infoAction.getType();
-//            System.out.println(type);
-//            System.out.println(infoAction);
-            switch (type) {
-                case (PddlParser.PRECONDITION):
-
-                    Condition con = null;
-                    if (a.parameters == null)
-                        con = fc.createCondition(infoAction.getChild(0), null);
-                    else
-                        con = fc.createCondition(infoAction.getChild(0), a.parameters);
-                    //con = fc.createCondition(infoAction.getChild(0), a.parameters);
-
-                    if ((con instanceof NotCond) || (con instanceof Comparison) || (con instanceof Predicate) || (con instanceof ForAll)) {
-                        AndCond and = new AndCond();
-                        and.addConditions(con);
-                        a.setPreconditions(and);
-                    } else if (con != null) {
-                        a.setPreconditions((ComplexCondition) con);
-                    }
-                    break;
-                case (PddlParser.VARIABLE):
-                    if (infoAction.getChild(0) == null) {
-                        a.addParameter(new Variable(infoAction.getText(), Type.createType("object")));
-                        break;
-                    } else {
-                        Type t = Type.createType(infoAction.getChild(0).getText());
-                        a.addParameter(new Variable(infoAction.getText(), t));
-                        break;
-                    }
-                case (PddlParser.EFFECT):
-                    addEffects(a, infoAction);
-//                    System.out.println(a);
-                    break;
-                default:
-                    System.out.println("This hasn't been anticipated in the grammar properly");
-                    System.out.println("Type: " + type);
-                    System.out.println("InfoAction: " + infoAction);
-                    break;
-            }
-
+        while(iterator.hasNext()) {
+            TransitionSchema next = iterator.next();
+            iterator.set(new TransitionSchema(next.getParameters(),next.getName(),
+                    next.getConditionalPropositionalEffects(),
+                    next.getConditionalNumericEffects(),
+                    next.getPreconditions().pushNotToTerminals(),
+                    next.getSemantics()));
         }
     }
 
-    public boolean can_be_abstract_dominant_constraints ( ) {
-        Set<Condition> set = new HashSet();
-        for (ActionSchema as : this.ActionsSchema) {
-            set.addAll(as.getPreconditions().getTerminalConditions());
-        }
 
-        for (int i = 0; i < set.toArray().length; i++) {
-            for (int j = i + 1; j < set.toArray().length; j++) {
-                Condition c1 = (Condition) set.toArray()[i];
-                Condition c2 = (Condition) set.toArray()[j];
-                if ((c1 instanceof Comparison) && (c2 instanceof Comparison)) {
-                    Comparison comp_c1 = (Comparison) c1;
-                    Comparison comp_c2 = (Comparison) c2;
-                    if (comp_c1.getInvolvedFluents().equals(comp_c2.getInvolvedFluents())) {
-                        //System.out.println(comp_c1+" "+comp_c2);
-                        return true;
-                    }
-                }
-            }
 
-        }
-        return false;
-    }
 
     public void substituteEqualityConditions ( ) {
-        for (ActionSchema actionSchema : this.getActionsSchema()) {
-            actionSchema.setPreconditions((ComplexCondition) actionSchema.getPreconditions().transformEquality());
+        ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
+        listViewOfTransitions.addAll(this.getProcessesSchema());
+        listViewOfTransitions.addAll(this.eventsSchema);
+        ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
+
+        while(iterator.hasNext()) {
+            TransitionSchema next = iterator.next();
+
+            iterator.set(new TransitionSchema(next.getParameters(),next.getName(),
+                    next.getConditionalPropositionalEffects(),
+                    next.getConditionalNumericEffects(),
+                    next.getPreconditions().transformEquality(),
+                    next.getSemantics()));
         }
-        for (EventSchema event : this.eventsSchema) {
-            event.setPreconditions((ComplexCondition) event.getPreconditions().transformEquality());
-        }
-        for (ProcessSchema process : this.ProcessesSchema) {
-            process.setPreconditions((ComplexCondition) process.getPreconditions().transformEquality());
-        }
-//        for (SchemaGlobalConstraint gc :this.getSchemaGlobalConstraints()){
-//            gc.condition = gc.condition.transform_equality();
-//        }
     }
 
-    public void setActionSchema (Collection<ActionSchema> actionsSchema) {
-        this.ActionsSchema = actionsSchema;
-    }
 
     public PddlDomain clone ( ) {
 
@@ -764,8 +681,9 @@ public final class PddlDomain extends Object {
         res.setName(this.name);
         res.requirements = new ArrayList<>(this.requirements);
         res.ActionsSchema = new LinkedHashSet<>();
-        for (ActionSchema as : this.ActionsSchema) {
-            res.ActionsSchema.add(as.clone());
+        for (TransitionSchema as : this.ActionsSchema) {
+            throw new UnsupportedOperationException("Cloning of the domain not supported yet");
+//            res.ActionsSchema.add(as.clone());
         }
         res.types = new LinkedHashSet<>(this.types);
         res.predicates = new PredicateSet(this.predicates);

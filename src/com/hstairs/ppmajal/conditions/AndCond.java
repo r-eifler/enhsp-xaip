@@ -18,7 +18,6 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.conditions.Predicate.trueFalse;
 import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -619,13 +618,13 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         if (this.sons == null) {
             return this;
         }
         AndCond res = new AndCond();
         for (Condition c : (Collection<Condition>) this.sons) {
-            Condition c1 = c.push_not_to_terminals();
+            Condition c1 = c.pushNotToTerminals();
             if (c1 instanceof AndCond) {
                 res.sons.addAll(((AndCond) c1).sons);
             } else {

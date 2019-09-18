@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.transition.TransitionSchema;
 
 import java.io.File;
 import java.util.Collection;
@@ -93,10 +94,11 @@ public class Utils {
         return ret;
     }
 
-    public static String toPDDLWithExtraObject (Collection<ActionSchema> c) {
+    public static String toPDDLWithExtraObject (Collection<TransitionSchema> c) {
         String ret = "";
-        for (ActionSchema o : c) {
-            ret += o.pddlPrintWithExtraObject() + "\n";
+        for (TransitionSchema o : c) {
+            throw new UnsupportedOperationException("Implement writer with extra object, for whatever that means");
+//            ret += o.pddlPrintWithExtraObject() + "\n";
         }
         return ret;
     }

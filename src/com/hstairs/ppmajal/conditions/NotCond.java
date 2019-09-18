@@ -384,7 +384,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition push_not_to_terminals ( ) {
+    public Condition pushNotToTerminals( ) {
         if (son instanceof Predicate) {
             return this;
         } else if (son instanceof Comparison) {
@@ -394,23 +394,23 @@ public class NotCond extends Terminal implements PostCondition {
         } else if (son instanceof AndCond) {
             AndCond and = (AndCond) son;
             OrCond or = and.push_negation_demorgan();
-            Condition c = or.push_not_to_terminals();
+            Condition c = or.pushNotToTerminals();
             return c;
         } else if (son instanceof OrCond) {
             OrCond or = (OrCond) son;
             AndCond and = or.push_negation_demorgan();
-            Condition c = and.push_not_to_terminals();
+            Condition c = and.pushNotToTerminals();
             return c;
         } else if (son instanceof PDDLObjectsEquality) {
             return this;
         } else if (son instanceof NotCond) {
             NotCond nc = (NotCond) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
-            return nc.son.push_not_to_terminals();
+            return nc.son.pushNotToTerminals();
         } else if (son instanceof Existential) {
             Existential nc = (Existential) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
-            return nc.pushNegationDemorgan().push_not_to_terminals();
+            return nc.pushNegationDemorgan().pushNotToTerminals();
         } else if (son instanceof ForAll) {
             throw new RuntimeException("NNF with negated forall not supported yet");
         } else {
