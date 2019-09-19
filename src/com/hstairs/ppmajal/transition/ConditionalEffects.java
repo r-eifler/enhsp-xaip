@@ -1,11 +1,10 @@
 package com.hstairs.ppmajal.transition;
 
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.Variable;
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 
 import java.util.*;
@@ -63,6 +62,24 @@ public class ConditionalEffects<T> {
         return res;
     }
     public ConditionalEffects<T> ground(Map<Variable, PDDLObject> substitution, PDDLObjects po){
-        throw new UnsupportedOperationException();
+        ConditionalEffects res = new ConditionalEffects(this.t);
+        final Set<Map.Entry<Condition, Collection<T>>> entries = this.actualConditionalEffects.entrySet();
+        for (Map.Entry<Condition,Collection<T>> entry : entries){
+            for (T e: entry.getValue()){
+                if (e instanceof NumEffect){
+                    res.add(entry.getKey().ground(substitution,po),((NumEffect) e).ground(substitution,po));
+                }else{
+                    res.add(entry.getKey().ground(substitution,po),((Condition) e).ground(substitution,po));
+                }
+            }
+        }
+        for (T e: this.unconditionalEffect){
+            if (e instanceof NumEffect){
+                res.add(((NumEffect) e).ground(substitution,po));
+            }else{
+                res.add(((Condition) e).ground(substitution,po));
+            }
+        }
+        return res;
     }
 }

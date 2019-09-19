@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.transition.Transition;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
@@ -44,8 +45,8 @@ public class EPddlProblem extends PddlProblem {
     public HashSet<GlobalConstraint> globalConstraintSet;
     public AndCond globalConstraints;
     protected int nActions;
-    private Set<GroundProcess> processesSet;
-    private Set<GroundEvent> eventsSet;
+    private Set<TransitionGround> processesSet;
+    private Set<TransitionGround> eventsSet;
     private boolean grounding;
     private boolean risky = false;
     private NumFluent time;
@@ -95,8 +96,8 @@ public class EPddlProblem extends PddlProblem {
         for (GroundAction gr : this.actions) {
             cloned.actions.add((GroundAction) gr.clone());
         }
-        for (GroundProcess pr : this.getProcessesSet()) {
-            cloned.getProcessesSet().add((GroundProcess) pr.clone());
+        for (TransitionGround pr : this.getProcessesSet()) {
+            throw new UnsupportedOperationException();
         }
         for (GlobalConstraint constr : this.globalConstraintSet) {
             cloned.globalConstraintSet.add((GlobalConstraint) constr.clone());
@@ -113,12 +114,26 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public void generateActions ( ){
+    public void generateTransitions( ){
         long start = System.currentTimeMillis();
             Grounder af = new Grounder(belief == null);
-            for (Transition act : linkedDomain.getActionsSchema()) {
-                
-                    getActions().addAll(af.Propositionalize(act, getObjects(),this, initBoolFluentsValues, linkedDomain));
+            ArrayList<TransitionSchema> transitions = new ArrayList<>();
+            transitions.addAll(linkedDomain.getProcessesSchema());
+            transitions.addAll(linkedDomain.getProcessesSchema());
+            transitions.addAll(linkedDomain.getProcessesSchema());
+            for (TransitionSchema act : transitions) {
+                Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, initBoolFluentsValues, linkedDomain);
+                switch (act.getSemantics()){
+                    case ACTION:
+                        getActions().addAll(propositionalize);
+                        break;
+                    case PROCESS:
+                        getEventsSet().addAll(propositionalize);
+                        break;
+                    case EVENT:
+                        getProcessesSet().addAll(propositionalize);
+                        break;
+                }
             }
 
 
@@ -514,10 +529,10 @@ public class EPddlProblem extends PddlProblem {
         long start = System.currentTimeMillis();
 
         this.groundGoals();
-        this.generateActions();
+        this.generateTransitions();
         this.generateProcesses();
-        this.generateConstraints();
         this.generateEvents();
+        this.generateConstraints();
         this.setGroundedRepresentation(true);
         this.processesHaveBeenGrounded = true;
         this.globalConstraintGrounded = true;
@@ -785,21 +800,14 @@ public class EPddlProblem extends PddlProblem {
     }
 
     private void generateEvents ( ) {
-        long start = System.currentTimeMillis();
             Grounder af = new Grounder();
             for (TransitionSchema event_schema : linkedDomain.eventsSchema) {
-//                af.Propositionalize(act, objects);
-                if (!event_schema.getParameters().isEmpty()) {
-                    try {
-                        this.getEventsSet().addAll(af.Propositionalize(event_schema, getObjects(),this));
-                    } catch (Exception ex) {
-                        Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    GroundEvent event = event_schema.fakeGround(this);
-                    this.getEventsSet().add(event);
-
+                try {
+                    eventsSet.addAll(af.Propositionalize(event_schema, getObjects(),this));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
             }
 
 
@@ -1126,7 +1134,6 @@ public class EPddlProblem extends PddlProblem {
                 waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
                 i += delta;
 
-                GroundProcess waiting = new GroundProcess("waiting",-1);
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
                 //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);
@@ -1145,6 +1152,7 @@ public class EPddlProblem extends PddlProblem {
                         }
                     }
                 }
+                TransitionGround waiting = new TransitionGround("waiting",-1);
                 waiting_list.add(waiting);
 
                 temp_temp.apply(waiting,temp_temp.clone());
@@ -1183,11 +1191,11 @@ public class EPddlProblem extends PddlProblem {
         return new Pair(states, transitions);
     }
 
-    public Set<GroundEvent> getEventsSet ( ) {
+    public Set<TransitionGround> getEventsSet ( ) {
         return eventsSet;
     }
 
-    public Set<GroundProcess> getProcessesSet ( ) {
+    public Set<TransitionGround> getProcessesSet ( ) {
         return processesSet;
     }
 

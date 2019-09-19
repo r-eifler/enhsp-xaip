@@ -515,7 +515,7 @@ public class PddlProblem {
     }
 
 
-    public void generateActions ( ) throws Exception {
+    public void generateTransitions( ) throws Exception {
 
         long start = System.currentTimeMillis();
             Grounder af = new Grounder();
@@ -803,7 +803,7 @@ public class PddlProblem {
         if (staticFluents == null) {
             staticFluents = new HashMap();
             if (this.getActions() == null || this.getActions().isEmpty()) {
-                this.generateActions();
+                this.generateTransitions();
             }
             for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
                 for (NumFluent nf : gr.getNumericFluentAffected()) {

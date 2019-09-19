@@ -20,18 +20,19 @@ package com.hstairs.ppmajal.propositionalFactory;
 
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
-import com.hstairs.ppmajal.transition.Transition;
-import com.hstairs.ppmajal.transition.Transition.Semantics;
+import com.hstairs.ppmajal.problem.GlobalConstraint;
+import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.problem.PddlProblem;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
-import com.hstairs.ppmajal.problem.*;
 
 import java.util.*;
+
 
 public class Grounder {
 
@@ -506,30 +507,13 @@ public class Grounder {
 
     private TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, PddlProblem problem) {
 
-        
         Map substitution = this.obtain_sub_from_instance(a.getParameters(), parametersAsTerms);
+        final ConditionalEffects groundedConditionalPropEffects = a.getConditionalPropositionalEffects().ground(substitution,po);
+        final ConditionalEffects groundedConditionalNumericEffects = a.getConditionalNumericEffects().ground(substitution,po);
+        final Condition preconditions = a.getPreconditions().ground(substitution,po);
 
-        if (numericEffects != null || !numericEffects.sons.isEmpty()) {
-            //System.out.println(this);
-            ret.numericEffects.sons.addAll(((AndCond) this.numericEffects.ground(substitution, po)).sons);
-//            ret.setNumericEffects(this.numericEffects.ground(substitution, po));
-        }
-        if (addList != null) {
-            ret.addList.sons.addAll(((AndCond) this.addList.ground(substitution, po)).sons);
-//            ret.setAddList(this.addList.ground(substitution, po));
-        }
-        if (delList != null) {
-            ret.delList.sons.addAll(((AndCond) this.delList.ground(substitution, po)).sons);
-
-//            ret.setDelList(this.delList.ground(substitution, po));
-        }
-        if (preconditions != null) {
-            ret.setPreconditions((ComplexCondition) this.preconditions.ground(substitution, po));
-        }
-        if (conditionalEffects != null) {
-            ret.conditionalEffects.sons.addAll(((ComplexCondition) this.conditionalEffects.ground(substitution, po)).sons);
-        }
-        return new TransitionGround(a.getName(), parametersAsTerms, parametersAsTerms, preconditions, parametersAsTerms, Semantics.ACTION) {
+        return new TransitionGround( parametersAsTerms,a.getName(), groundedConditionalPropEffects,groundedConditionalNumericEffects, preconditions,
+                a.getSemantics());
 
     }
 }
