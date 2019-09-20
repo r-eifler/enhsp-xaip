@@ -34,7 +34,7 @@ class ActionComparator implements Comparator<Transition> {
 
     @Override
     public int compare (Transition gat1, Transition gat2) {
-        return gat1.name.compareTo(gat2.name);
+        return gat1.getName().compareTo(gat2.getName());
     }
 
 }

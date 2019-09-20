@@ -20,9 +20,9 @@ package com.hstairs.ppmajal.heuristics.utils;
 
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +55,7 @@ public abstract class LpInterface {
         problem = inputProblem;
     }
 
-    public abstract void initialize (Collection<GroundAction> actions, PDDLState s_0);
+    public abstract void initialize (Collection<TransitionGround> actions, PDDLState s_0);
 
     public abstract void update_conditions_bound_plus_reset_variables (PDDLState s_0);
 
@@ -63,11 +63,11 @@ public abstract class LpInterface {
 
     public abstract float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h);
 
-    protected abstract void init_condition(Collection<GroundAction> pool, PDDLState s_0);
+    protected abstract void init_condition(Collection<TransitionGround> pool, PDDLState s_0);
 
     protected abstract void update_condition(PDDLState s_0, ComplexCondition temp);
 
-    protected Float getActionCost(PDDLState s_0, GroundAction gr) {
+    protected Float getActionCost(PDDLState s_0, TransitionGround gr) {
         if (problem.isAction_cost_from_metric()) {
             return gr.getActionCost(s_0, problem.getMetric());
         }

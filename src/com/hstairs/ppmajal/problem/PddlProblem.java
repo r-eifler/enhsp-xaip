@@ -23,13 +23,12 @@ import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Type;
-import com.hstairs.ppmajal.transition.TransitionSchema;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
-import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
@@ -48,7 +47,7 @@ public class PddlProblem {
     public PDDLObjects objects;
     public State init;
     public ComplexCondition goals;
-    public Collection<GroundAction> actions;
+    public Collection<TransitionGround> actions;
     public int counterNumericFluents = 0;
     public Condition belief;
     public Collection<Predicate> unknonw_predicates;
@@ -72,7 +71,7 @@ public class PddlProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
-    public Collection<GroundAction> reachableActions;
+    public Collection<TransitionGround> reachableActions;
     final PddlDomain linkedDomain;
     private FactoryConditions fc;
     private int totActions;
@@ -515,151 +514,10 @@ public class PddlProblem {
     }
 
 
-    public void generateTransitions( ) throws Exception {
 
-        long start = System.currentTimeMillis();
-            Grounder af = new Grounder();
-            for (TransitionSchema act : linkedDomain.getActionsSchema()) {
-                if (!act.getPar().isEmpty()) {
-                    getActions().addAll(af.Propositionalize(act, getObjects(),this));
-                } else {
-                    GroundAction gr = act.fakeGround(this);
-                    getActions().add(gr);
-                }
-            }
 
-        Iterator it = getActions().iterator();
-        //System.out.println("prova");
-        System.out.println("|A| just after grounding:" + getActions().size());
-        while (it.hasNext()) {//iteration of the action for pruning the trivial unreacheable ones (because of the grounding and weak evaluation)
-            GroundAction act = (GroundAction) it.next();
-            boolean keep = true;
-            if (isSimplifyActions()) {
-//                System.out.println(act.toPDDL());
-                keep = act.simplifyModel(linkedDomain, this);
-//                System.out.println(act.toPDDL());
 
-            }
-            if (!keep) {
-                //System.out.println("Action removed:" + act.toEcoString());
-                it.remove();
-            }
-        }
-        System.out.println("|A| just after simplification:" + getActions().size());
 
-        setPropositionalTime(System.currentTimeMillis() - start);
-        this.setGroundedRepresentation(true);
-
-    }
-
-    public int distance (PDDLState sIn, Condition c) {
-
-        Set level;
-        RelState s = sIn.relaxState();
-        int distance = 0;
-        while (true) {
-            if (s.satisfy(c)) {
-                return distance;
-            } else {
-                distance++;
-                level = new HashSet();
-                for (Iterator it = getActions().iterator(); it.hasNext(); ) {
-                    GroundAction gr = (GroundAction) it.next();
-                    if (gr.getPreconditions().can_be_true(s)) {
-                        level.add(gr);
-                        it.remove();
-                    }
-                }
-                if (level.isEmpty()) {
-                    return Integer.MAX_VALUE;
-                }
-                for (Object o : level) {
-                    GroundAction gr = (GroundAction) o;
-                    gr.apply(s);
-                }
-            }
-        }
-    }
-
-    public Map distance (PDDLState sIn, List c_s) {
-
-        Set level;
-        RelState s = sIn.relaxState();
-
-        Map order = new HashMap();
-        ArrayList toVisit = new ArrayList();
-        toVisit.addAll(c_s);
-        int distance = 0;
-        while (true) {
-            for (Iterator it = toVisit.iterator(); it.hasNext(); ) {
-                Condition c = (Condition) it.next();
-                if (s.satisfy(c)) {
-                    order.put(c, distance);
-                    it.remove();
-                }
-
-            }
-            if (toVisit.isEmpty()) {
-                return order;
-            } else {
-                distance++;
-                level = new HashSet();
-                for (Iterator it = getActions().iterator(); it.hasNext(); ) {
-                    GroundAction gr = (GroundAction) it.next();
-                    if (gr.getPreconditions().can_be_true(s)) {
-                        level.add(gr);
-                        it.remove();
-                    }
-                }
-                if (level.isEmpty()) {
-                    return order;
-                }
-                for (Object o : level) {
-                    GroundAction gr = (GroundAction) o;
-                    gr.apply(s);
-                }
-            }
-        }
-    }
-
-    protected void pruneActions ( ) {
-        boolean finished = false;
-        boolean goalReached = false;
-        Set level;
-        RelState s = ((PDDLState) this.init).relaxState();
-        int prec = 0;
-        int distance = 0;
-        Set totalActions = new HashSet();
-        while (!finished && !goalReached) {
-            distance++;
-            level = new HashSet();
-            for (Iterator it = getActions().iterator(); it.hasNext(); ) {
-                GroundAction gr = (GroundAction) it.next();
-                //System.out.println(gr.toEcoString());
-                if (gr.getPreconditions().can_be_true(s)) {
-                    totalActions.add(gr);
-                    level.add(gr);
-                    it.remove();
-                }
-            }
-
-            for (Object o : level) {
-                GroundAction gr = (GroundAction) o;
-                gr.apply(s);
-            }
-            //if (s.satisfy(getGoals()))
-            //  goalReached=true;
-            System.out.println("Distance: " + distance);
-            System.out.println("ApplicableActions: " + level.size());
-            if (prec == totalActions.size()) {
-                finished = true;
-                getActions().clear();
-                setActions(totalActions);
-            }
-            prec = totalActions.size();
-        }
-
-    }
 
 
     /**
@@ -690,61 +548,6 @@ public class PddlProblem {
         this.actions = actions;
     }
 
-    public Map computeKernelDistance (ArrayList k) {
-        boolean finished = false;
-        boolean kernelVisited = false;
-        Set level;
-        RelState s = ((PDDLState) this.init).relaxState();
-        int prec = 0;
-        ArrayList toVisit = new ArrayList();
-        toVisit.addAll(k);
-        Map order = new HashMap();
-        Set totalActions = new HashSet();
-        int distance = -1;
-        while (!finished && !kernelVisited) {
-            distance++;
-            level = new HashSet();
-            for (Iterator it = getActions().iterator(); it.hasNext(); ) {
-                GroundAction gr = (GroundAction) it.next();
-                //System.out.println(gr.toEcoString());
-                if (gr.getPreconditions().can_be_true(s)) {
-                    totalActions.add(gr);
-                    level.add(gr);
-                    it.remove();
-                }
-            }
-
-            for (Object o : level) {
-                GroundAction gr = (GroundAction) o;
-                gr.apply(s);
-            }
-            for (Iterator it = toVisit.iterator(); it.hasNext(); ) {
-                Condition con = (Condition) it.next();
-
-                if (s.satisfy(con)) {
-                    //System.out.println("Kernel " + con + " raggiunto a livello:" + distance);
-                    order.put((k.size() - k.indexOf(con)), distance);
-                    it.remove();
-                }
-            }
-            if (toVisit.isEmpty()) {
-                kernelVisited = true;
-
-            }
-            //  goalReached=true;
-            System.out.println("Distance: " + distance);
-            System.out.println("ApplicableActions: " + level.size());
-            if (prec == totalActions.size()) {
-                finished = true;
-            } else {
-                prec = totalActions.size();
-            }
-        }
-        getActions().clear();
-        setActions(totalActions);
-
-        return order;
-    }
 
     public void parseProblem (String string, PDDLObjects constants) throws IOException, RecognitionException, org.antlr.runtime.RecognitionException {
         this.getObjects().addAll(constants);
@@ -799,20 +602,7 @@ public class PddlProblem {
         this.simplifyActions = simplifyActions;
     }
 
-    public HashMap getActualFluents ( ) throws Exception {
-        if (staticFluents == null) {
-            staticFluents = new HashMap();
-            if (this.getActions() == null || this.getActions().isEmpty()) {
-                this.generateTransitions();
-            }
-            for (GroundAction gr : (Collection<GroundAction>) this.getActions()) {
-                for (NumFluent nf : gr.getNumericFluentAffected()) {
-                    staticFluents.put(nf, Boolean.FALSE);
-                }
-            }
-        }
-        return staticFluents;
-    }
+
 
     public void transformGoal ( ) throws Exception {
         this.goals = generate_inequalities(goals);
@@ -822,13 +612,6 @@ public class PddlProblem {
         return (ComplexCondition) con.transformEquality();
     }
 
-    public boolean print_actions ( ) {
-        for (GroundAction gr : this.actions) {
-            System.out.println(gr.toFileCompliant());
-        }
-
-        return true;
-    }
 
     private Condition addUnknown (Tree infoAction) {
         if (infoAction == null) {
@@ -905,7 +688,7 @@ public class PddlProblem {
         return new stateContainer(s, getReachableActions());
     }
 
-    public Collection<GroundAction> getReachableActions ( ) {
+    public Collection<TransitionGround> getReachableActions ( ) {
         return reachableActions;
     }
 
@@ -924,11 +707,11 @@ public class PddlProblem {
 
     private class stateContainer implements Iterator {
         final private State source;
-        final private Collection<GroundAction> actionsSet;
-        GroundAction current;
-        private Iterator<GroundAction> it;
+        final private Collection<TransitionGround> actionsSet;
+        TransitionGround current;
+        private Iterator<TransitionGround> it;
 
-        public stateContainer (State source, Collection<GroundAction> actionsSet) {
+        public stateContainer (State source, Collection<TransitionGround> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
             it = actionsSet.iterator();
@@ -946,7 +729,7 @@ public class PddlProblem {
         }
 
         @Override
-        public Pair<State, GroundAction> next ( ) {
+        public Pair<State, TransitionGround> next ( ) {
             State newState = source.clone();
             newState.apply(current,source);
             return new Pair(newState, current);

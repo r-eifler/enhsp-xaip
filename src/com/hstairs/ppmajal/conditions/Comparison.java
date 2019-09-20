@@ -23,10 +23,11 @@ import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
-
-import java.util.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+
+import java.util.*;
 
 /**
  * @author enrico
@@ -429,69 +430,7 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    public boolean isDirectlyOrIndirectlyAffected (HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) {
 
-        if (!get.mayInfluence(this)) {
-            //System.out.println("Action does not affect");
-            return false;
-        }
-
-        //If the action affects one of the fluent the comparison depends on, then the comparison can be prevented
-        return get.influence(dependsOn);
-
-    }
-
-    public boolean couldBePrevented (HashMap<NumFluent, HashSet<NumFluent>> dependsOn, GroundAction get) throws CloneNotSupportedException {
-
-//        if (!get.mayInfluence(this)) {
-//            //System.out.println("Action does not affect");
-//            return false;
-//        }
-        //If the action affects one of the fluent the comparison depends on, then the comparison can be prevented
-        if (get.influence(dependsOn)) {
-            //System.out.println("Ordering for indirect influence");
-            return true;
-        }
-        //todo add the == case
-        //if the action does not threaten the dependant fluents, then let see if it is a proper weakThreat for c.
-        Comparison c = (Comparison) get.regress(this.clone());
-
-        if ((this.getRight() instanceof ExtendedNormExpression) && (this.getLeft() instanceof ExtendedNormExpression)) {
-            ExtendedNormExpression lExpr = (ExtendedNormExpression) this.getLeft();
-            ExtendedNormExpression lExprNew = (ExtendedNormExpression) c.getLeft();
-//            System.out.println(lExpr);
-//            System.out.println(lExprNew);
-//            System.out.println(this.getRhs());
-
-            ExtendedNormExpression toTest = lExprNew.minus((ExtendedNormExpression) lExpr.clone());
-            Double total = 0d;
-            for (ExtendedAddendum add : toTest.summations) {
-                if (add.f != null) {
-                    return true;
-                } else {
-                    total += add.n;
-                }
-            }
-            if (this.getComparator().equals(">=")) {
-                return total < 0;
-
-            } else if (this.getComparator().equals(">")) {
-                return total <= 0;
-            } else if (this.getComparator().equals("<=")) {
-                return total > 0;
-            } else if (this.getComparator().equals("<")) {
-                return total >= 0;
-            } else if (this.getComparator().equals("=")) {
-                return total != 0;
-            }
-        } else {
-            System.out.println("Non valutata");
-
-        }
-        //System.out.println("Acion may prevent...");
-        return true;
-
-    }
 
     public boolean couldBePrevented (HashMap<NumFluent, HashSet<NumFluent>> computeFluentDependencePlanDependant) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -524,60 +463,62 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public String toSmtVariableString (int k, GroundAction gr, String var) {
-        if (!gr.mayInfluence(this)) {
-            return " true ";
-        }
-        ExtendedNormExpression norm = (ExtendedNormExpression) this.getLeft();
-        String ret_val = "";
-
-        HashMap<NumFluent, NumEffect> affector = new HashMap();
-        for (NumEffect neff : (Collection<NumEffect>) gr.getNumericEffects().sons) {
-            if (this.getInvolvedFluents().contains(neff.getFluentAffected())) {
-                affector.put(neff.getFluentAffected(), neff);
-            }
-        }
-        {
-            //System.out.println(summations);
-            ExtendedAddendum ad = norm.summations.get(0);
-            if (ad.bin != null) {
-                System.out.println("repetition cannot be activated for actions having non-linear constraints");
-                System.exit(-1);
-            }
-            if (ad.f == null) {
-                ret_val = " " + ad.n + " ";
-            } else {
-                NumEffect neff = affector.get(ad.f);
-                if (neff != null) {
-                    ret_val = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
-                } else {
-                    ret_val = ad.f.toSmtVariableString(k);
-                }
-
-                ret_val = "(* " + ret_val + " " + ad.n + ")";
-            }
-        }
-        {
-            for (int i = 1; i < norm.summations.size(); i++) {
-                ExtendedAddendum ad = norm.summations.get(i);
-                if (ad.f == null) {
-                    ret_val = "(+ " + ret_val + " " + ad.n + " )";
-                } else {
-                    NumEffect neff = affector.get(ad.f);
-                    String temp = null;
-                    if (neff != null) {
-                        temp = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
-                    } else {
-                        temp = ad.f.toSmtVariableString(k);
-                    }
-                    ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n + "))";
-
-//                    ret_val += "(* " + temp + " " + ad.n.pddlPrint(false) + ")";
-                }
-            }
-        }
-
-        return "( " + this.comparator + " " + ret_val + " " + this.getRight().toSmtVariableString(k) + " )";
+    public String toSmtVariableString (int k, TransitionGround gr, String var) {
+//        if (!gr.mayInfluence(this)) {
+//            return " true ";
+//        }
+//        ExtendedNormExpression norm = (ExtendedNormExpression) this.getLeft();
+//        String ret_val = "";
+//
+//        HashMap<NumFluent, NumEffect> affector = new HashMap();
+//
+//        for (NumEffect neff : (Collection<NumEffect>) gr.getNumericEffects().sons) {
+//            if (this.getInvolvedFluents().contains(neff.getFluentAffected())) {
+//                affector.put(neff.getFluentAffected(), neff);
+//            }
+//        }
+//        {
+//            //System.out.println(summations);
+//            ExtendedAddendum ad = norm.summations.get(0);
+//            if (ad.bin != null) {
+//                System.out.println("repetition cannot be activated for actions having non-linear constraints");
+//                System.exit(-1);
+//            }
+//            if (ad.f == null) {
+//                ret_val = " " + ad.n + " ";
+//            } else {
+//                NumEffect neff = affector.get(ad.f);
+//                if (neff != null) {
+//                    ret_val = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
+//                } else {
+//                    ret_val = ad.f.toSmtVariableString(k);
+//                }
+//
+//                ret_val = "(* " + ret_val + " " + ad.n + ")";
+//            }
+//        }
+//        {
+//            for (int i = 1; i < norm.summations.size(); i++) {
+//                ExtendedAddendum ad = norm.summations.get(i);
+//                if (ad.f == null) {
+//                    ret_val = "(+ " + ret_val + " " + ad.n + " )";
+//                } else {
+//                    NumEffect neff = affector.get(ad.f);
+//                    String temp = null;
+//                    if (neff != null) {
+//                        temp = neff.to_smtlib_with_repetition_for_the_right_part(k, var);
+//                    } else {
+//                        temp = ad.f.toSmtVariableString(k);
+//                    }
+//                    ret_val = "(+ " + ret_val + " " + "(* " + temp + " " + ad.n + "))";
+//
+////                    ret_val += "(* " + temp + " " + ad.n.pddlPrint(false) + ")";
+//                }
+//            }
+//        }
+//
+//        return "( " + this.comparator + " " + ret_val + " " + this.getRight().toSmtVariableString(k) + " )";
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -634,22 +575,6 @@ public class Comparison extends Terminal {
         return createComparison(comparator,lValue,rValue,false);
     }
 
-    public float eval_not_affected (PDDLState s_0, GroundAction aThis) {
-        if (!this.normalized) {
-            this.normalize();
-            //throw new RuntimeException("At the moment support just for normalized comparisons"+this+". Current expressions are:"+this.getLeft().getClass()+" "+this.getRight().getClass());
-        }
-        ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
-        return exp.eval_not_affected(s_0, aThis);
-    }
-
-    public float eval_affected (PDDLState s_0, GroundAction aThis) {
-        if (!this.normalized) {
-            throw new RuntimeException("At the moment support just for normalized comparisons");
-        }
-        ExtendedNormExpression exp = (ExtendedNormExpression) this.getLeft();
-        return exp.eval_affected(s_0, aThis);
-    }
 
     public boolean is_evaluable (PDDLState tempInit) {
         Collection<NumFluent> set = this.getInvolvedFluents();
@@ -661,21 +586,7 @@ public class Comparison extends Terminal {
         return true;
     }
 
-    public String regress_repeatedely (GroundAction action, int number_of_repetition, PDDLState s_0) {
-        float a1;
-        float b;
 
-        if (!this.involve(action.getNumericFluentAffected())) {
-            return this.getLeft().eval(s_0) + this.comparator + this.getRight().eval(s_0);
-        }
-
-        a1 = this.eval_not_affected(s_0, action);
-        b = this.eval_affected(s_0, action);
-        Float lhs = (b * number_of_repetition + a1);
-
-        return lhs.toString() + ">=" + 0;
-
-    }
 
     @Override
     public Condition transformEquality ( ) {
@@ -692,15 +603,14 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    @Override
-    public boolean is_affected_by (GroundAction gr) {
-        return this.getLeft().involve(gr.getNumericFluentAffected()) || this.getRight().involve(gr.getNumericFluentAffected());
-    }
+
 
     @Override
-    public Condition regress (GroundAction gr) {
-            return Comparison.createComparison(comparator, this.getLeft().subst(gr.getNumericEffects()), this.getRight().subst(gr.getNumericEffects()),false);
-        }    
+    public Condition regress (TransitionGround gr) {
+
+//            return Comparison.createComparison(comparator, this.getLeft().subst(gr.getNumericEffects()), this.getRight().subst(gr.getNumericEffects()),false);
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -858,7 +768,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.setCost(cond_dist.get(this.getHeuristicId()));
         s.getActions().add(established_achiever.get(this.getHeuristicId()));
@@ -928,24 +838,6 @@ public class Comparison extends Terminal {
         }
     }
 
-    public boolean interactWith(GroundAction aThis) {
-        if (Utils.interactsWith == null){
-            Utils.interactsWith = new HashMap();
-        }
-        
-        
-        Pair<Integer, Integer> p = Pair.of(this.getId(), aThis.getId());
-        Boolean interact = (Boolean) Utils.interactsWith.get(p);
-        if (interact == null){
-            if (this.involve(aThis.getNumericFluentAffected())) {
-                interact = true;
-            }else{
-                interact = false;
-            }
-            Utils.interactsWith.put(p,interact);
-        }
-        return interact;
-    }
 
 
 

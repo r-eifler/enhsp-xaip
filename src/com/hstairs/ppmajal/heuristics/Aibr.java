@@ -29,6 +29,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 
@@ -43,11 +44,11 @@ public class Aibr extends Heuristic {
     private boolean counting_layers = true;
     private boolean greedy_relaxed_plan = false;
     private boolean reversing = false;
-    private HashMap<GroundAction, GroundAction> supp_to_action;
+    private HashMap<TransitionGround, TransitionGround> supp_to_action;
     private boolean cost_oriented = true;
 
     private EPddlProblem subProblem;
-    private Collection<GroundAction> supporters;
+    private Collection<TransitionGround> supporters;
     
         private RelState reacheable_state;
 
@@ -83,9 +84,9 @@ public class Aibr extends Heuristic {
 
     }
 
-    private LinkedHashSet<GroundAction> filterApplicable (Collection<GroundAction> actions, RelState rs) {
-        LinkedHashSet<GroundAction> res = new LinkedHashSet<>();
-        for (GroundAction ga : actions) {
+    private LinkedHashSet<TransitionGround> filterApplicable (Collection<TransitionGround> actions, RelState rs) {
+        LinkedHashSet<TransitionGround> res = new LinkedHashSet<>();
+        for (TransitionGround ga : actions) {
             if (ga.isApplicable(rs)) {
                 res.add(ga);
             }
@@ -169,10 +170,10 @@ public class Aibr extends Heuristic {
 
     }
 
-    private void generate_supporters (Collection<GroundAction> actions) {
+    private void generate_supporters (Collection<TransitionGround> actions) {
 
-        Collection<GroundAction> actions_plus_action_for_supporters = new LinkedHashSet();
-        for (GroundAction gr : actions) {
+        Collection<TransitionGround> actions_plus_action_for_supporters = new LinkedHashSet();
+        for (TransitionGround gr : actions) {
             if (gr.conditionalEffects != null) {
 //                System.out.println(gr);
                 actions_plus_action_for_supporters.addAll(generate_actions_for_cond_effects(gr.getName(), gr.getParameters(), gr.conditionalEffects));
@@ -180,7 +181,7 @@ public class Aibr extends Heuristic {
         }
         //System.out.println(actions_plus_action_for_supporters);
         actions_plus_action_for_supporters.addAll(actions);
-        for (GroundAction gr : actions_plus_action_for_supporters) {
+        for (TransitionGround gr : actions_plus_action_for_supporters) {
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                 for (NumEffect effect : (Collection<NumEffect>) gr.getNumericEffects().sons) {
                     effect.additive_relaxation = true;
@@ -201,8 +202,8 @@ public class Aibr extends Heuristic {
 
     }
 
-    private GroundAction generate_constant_supporter (NumEffect effect, String name, Condition precondition, GroundAction gr) {
-        GroundAction ret = new GroundAction(name + "constantassign",subProblem.getFreshActionId());
+    private TransitionGround generate_constant_supporter (NumEffect effect, String name, Condition precondition, TransitionGround gr) {
+        TransitionGround ret = new GroundAction(name + "constantassign",subProblem.getFreshActionId());
         NumEffect assign = new NumEffect("assign");
         assign.setFluentAffected(effect.getFluentAffected());
         assign.setRight(effect.getRight());
@@ -212,7 +213,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private GroundAction generate_plus_inf_supporter (NumEffect effect, String name, Condition precondition, GroundAction gr) {
+    private TransitionGround generate_plus_inf_supporter (NumEffect effect, String name, Condition precondition, TransitionGround gr) {
         String disequality = "";
         Float asymptote = Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -229,8 +230,8 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "plusinf", precondition, gr);
     }
 
-    private GroundAction generate_supporter (NumEffect effect, String inequality, Float asymptote, String name, Condition precondition, GroundAction gr) {
-        GroundAction ret = new GroundAction(name,subProblem.getFreshActionId());
+    private TransitionGround generate_supporter (NumEffect effect, String inequality, Float asymptote, String name, Condition precondition, TransitionGround gr) {
+        TransitionGround ret = new GroundAction(name,subProblem.getFreshActionId());
         Comparison indirect_precondition;
         Expression left;
         if (effect.getOperator().equals("assign")) {
@@ -250,7 +251,7 @@ public class Aibr extends Heuristic {
         return ret;
     }
 
-    private GroundAction generate_minus_inf_supporter (NumEffect effect, String name, Condition precondition, GroundAction gr) {
+    private TransitionGround generate_minus_inf_supporter (NumEffect effect, String name, Condition precondition, TransitionGround gr) {
         String disequality = "";
         Float asymptote = -Float.MAX_VALUE;
         switch (effect.getOperator()) {
@@ -268,8 +269,8 @@ public class Aibr extends Heuristic {
         return generate_supporter(effect, disequality, asymptote, name + "minusinf", precondition, gr);
     }
 
-    private GroundAction generate_propositional_action (String name, ComplexCondition cond, GroundAction gr) {
-        GroundAction ret = new GroundAction(name,subProblem.getFreshActionId());
+    private TransitionGround generate_propositional_action (String name, ComplexCondition cond, TransitionGround gr) {
+        TransitionGround ret = new GroundAction(name,subProblem.getFreshActionId());
         ret.setPreconditions(cond);
         ret.setAddList(gr.getAddList());
         ret.setDelList(gr.getDelList());
@@ -288,7 +289,7 @@ public class Aibr extends Heuristic {
 
             boolean fix_point = true;
             layer_counter++;
-            for (final GroundAction gr : this.reachable) {
+            for (final TransitionGround gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
                     if (debug > 10) {
@@ -356,7 +357,7 @@ public class Aibr extends Heuristic {
 
     }
 
-    private Collection<? extends GroundAction> generate_actions_for_cond_effects (String name, ParametersAsTerms p, ComplexCondition cond_effects) {
+    private Collection<TransitionGround> generate_actions_for_cond_effects (String name, ParametersAsTerms p, ComplexCondition cond_effects) {
         Set ret = new LinkedHashSet();
         Integer counter = 0;
         for (Object o : cond_effects.sons) {
@@ -382,7 +383,7 @@ public class Aibr extends Heuristic {
 
         while (true) {
             boolean fix_point = true;
-            for (GroundAction gr : this.reachable) {
+            for (TransitionGround gr : this.reachable) {
                 if (gr.isApplicable(rs2)) {
                     gr.apply_with_generalized_interval_based_relaxation(rs2);
                     fix_point = false;

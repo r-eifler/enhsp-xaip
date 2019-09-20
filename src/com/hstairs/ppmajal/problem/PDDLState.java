@@ -29,14 +29,11 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
+import com.hstairs.ppmajal.transition.TransitionGround;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 /**
  * @author enrico
@@ -210,22 +207,20 @@ public class PDDLState extends State {
     }
 
     @Override
-    public void apply (GroundAction gr, State prev) {
-        if (gr.getDelList() != null) {
-            this.apply(gr.getDelList(), prev);
+    public void apply (TransitionGround gr, State prev) {
+        final Set<ConditionalEffects> effs = Set.of(gr.getConditionalPropositionalEffects(), gr.getConditionalNumericEffects());
+        for (final ConditionalEffects<PostCondition> eff: effs) {
+            for (final Entry<Condition, Collection<PostCondition>> entry : eff.getActualConditionalEffects().entrySet()) {
+                if (entry.getKey().isSatisfied(this)) {
+                    for (final PostCondition n : entry.getValue()) {
+                        this.apply(n, prev);
+                    }
+                }
+            }
+            for (final PostCondition n : eff.getUnconditionalEffect()) {
+                this.apply(n, prev);
+            }
         }
-        if (gr.getAddList() != null) {
-            this.apply(gr.getAddList(), prev);
-        }
-        
-        if (gr.conditionalEffects != null && !gr.conditionalEffects.sons.isEmpty()) {
-            this.apply(gr.conditionalEffects, prev);
-        }
-        if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-            this.apply(gr.getNumericEffects(), prev);
-        }
-        prev = null;
-
     }
 
 

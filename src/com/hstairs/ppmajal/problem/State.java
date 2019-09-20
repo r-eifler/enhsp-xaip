@@ -19,7 +19,8 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.Condition;
-import java.util.Collection;
+import com.hstairs.ppmajal.transition.TransitionGround;
+
 import java.util.List;
 
 /**
@@ -27,13 +28,13 @@ import java.util.List;
  */
 public abstract class State {
 
-    private Iterable<GroundAction> applicableActions;
+    private Iterable<TransitionGround> applicableActions;
 
     public State ( ) {
         super();
     }
 
-    public abstract void apply (GroundAction gr, State prev);
+    public abstract void apply (TransitionGround gr, State prev);
 
     public abstract boolean satisfy (Condition input);
 
@@ -44,11 +45,11 @@ public abstract class State {
         return true;
     }
 
-    public Iterable<GroundAction> getApplicableActions ( ) {
+    public Iterable<TransitionGround> getApplicableActions ( ) {
         return applicableActions;
     }
 
-    public void setApplicableActions (Iterable<GroundAction> applicableActions) {
+    public void setApplicableActions (Iterable<TransitionGround> applicableActions) {
         this.applicableActions = applicableActions;
     }
 

@@ -18,8 +18,8 @@
  */
 package com.hstairs.ppmajal.search;
 
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -44,7 +44,7 @@ public class SearchNode extends SimpleSearchNode {
     public float wh;
     public float f;
     public ArrayList<Object> list_of_actions;
-    public Collection<GroundAction> helpfulActions;
+    public Collection<TransitionGround> helpfulActions;
     private boolean bfs = true;
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
@@ -70,8 +70,9 @@ public class SearchNode extends SimpleSearchNode {
             if (action == null) {
                 json_rep.put("action", "init_state");
             } else {
-                if (action instanceof GroundAction){
-                    json_rep.put("action", ((GroundAction) action).toPDDL());
+                if (action instanceof TransitionGround){
+                    throw new UnsupportedOperationException();
+//                    json_rep.put("action", ((TransitionGround) action));
                 }else{
                     json_rep.put("action", "<waiting>");
                 }

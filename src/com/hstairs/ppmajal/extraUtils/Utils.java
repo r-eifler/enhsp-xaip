@@ -18,10 +18,7 @@
  */
 package com.hstairs.ppmajal.extraUtils;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.transition.TransitionSchema;
@@ -86,13 +83,7 @@ public class Utils {
         return strBuilder.toString();
     }
 
-    public static String toPDDLActionSetWithBreak (Collection<ActionSchema> c) {
-        String ret = "";
-        for (ActionSchema o : c) {
-            ret += o.toString() + "\n";
-        }
-        return ret;
-    }
+
 
     public static String toPDDLWithExtraObject (Collection<TransitionSchema> c) {
         String ret = "";

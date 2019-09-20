@@ -21,9 +21,9 @@ package com.hstairs.ppmajal.conditions;
 import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -348,7 +348,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public String toSmtVariableString (int i, GroundAction gr, String var) {
+    public String toSmtVariableString (int i, TransitionGround gr, String var) {
         String ret = "";
         if (this.sons != null) {
             if (this.sons.size() > 1) {
@@ -399,24 +399,10 @@ public class AndCond extends ComplexCondition implements PostCondition {
         return ret;
     }
 
-    @Override
-    public boolean is_affected_by (GroundAction gr) {
 
-        if (this.sons != null && !this.sons.isEmpty()) {
-
-            for (Condition c : (Collection<Condition>) this.sons) {
-                if (c.is_affected_by(gr)) {
-                    return true;
-                }
-            }
-
-        }
-
-        return false;
-    }
 
     @Override
-    public Condition regress (GroundAction gr) {
+    public Condition regress (TransitionGround gr) {
         AndCond con = new AndCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -463,34 +449,6 @@ public class AndCond extends ComplexCondition implements PostCondition {
         return false;
     }
 
-    @Override
-    public Condition achieve (Predicate p) {
-        for (Object p1 : this.sons) {
-            if (p1 instanceof Predicate) {
-                if (p1.equals(p)) {
-                    return Predicate.createPredicate(Predicate.trueFalse.TRUE);
-                }
-            }
-        }
-        return null;
-
-    }
-
-    @Override
-    public Condition delete (Predicate p) {
-        for (Object p1 : this.sons) {
-            if (p1 instanceof NotCond) {
-                NotCond nc = (NotCond) p1;
-                Predicate p2 = (Predicate) nc.getSon();
-                if (p2.equals(p)) {
-                    return Predicate.createPredicate(Predicate.trueFalse.TRUE);
-                }
-            }
-        }
-        return null;
-    }
-
-   
 
     @Override
     public HashMap apply (PDDLState s) {
@@ -592,7 +550,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
         if (this.sons == null) {
             s.setCost(0f);
@@ -699,24 +657,6 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
                 } catch (Exception ex) {
                     Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return ret;
-    }
-
-
-    @Override
-    public Set<NumFluent> affectedNumericFluents ( ) {
-        Set<NumFluent> ret = new LinkedHashSet();
-        if (this.sons.isEmpty()) {
-            return ret;
-        } else {
-
-            for (Object con : this.sons) {
-                if (con instanceof NumEffect) {
-                    NumEffect temp = (NumEffect) con;
-                    ret.add(temp.getFluentAffected());
                 }
             }
         }

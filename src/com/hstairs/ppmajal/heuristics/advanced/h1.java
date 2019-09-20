@@ -31,11 +31,9 @@ import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
-import com.hstairs.ppmajal.problem.GroundEvent;
-import com.hstairs.ppmajal.problem.GroundProcess;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
@@ -43,8 +41,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import org.jgrapht.util.FibonacciHeap;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.lang.System.out;
 import static java.util.Collections.nCopies;
@@ -65,32 +61,32 @@ public class h1 extends Heuristic {
 
     protected boolean reachabilityRun;
     protected Collection<Terminal>[] achieve;
-    protected Collection<GroundAction>[] invertedAchievers;
+    protected ReferenceLinkedOpenHashSet<TransitionGround>[] invertedAchievers;
     protected Collection<Comparison>[] possibleAchievers;
-    protected Collection<GroundAction>[] invertedPossibleAchievers;
-    protected Collection<GroundAction>[] precondition_mapping;
-    protected GroundAction pseudoGoal;
+    protected ReferenceLinkedOpenHashSet<TransitionGround>[] invertedPossibleAchievers;
+    protected Collection<TransitionGround>[] precondition_mapping;
+    protected TransitionGround pseudoGoal;
     protected AndCond[] extraActionPrecondition;
-    protected Collection<GroundAction>[] conditionToAction;
+    protected Collection<TransitionGround>[] conditionToAction;
     private float[] cost;
     private float[] actionHCost;
-    private GroundAction[] establishedAchiever;
+    private TransitionGround[] establishedAchiever;
     private AchieverSet[] achieversSet;
-    private Set<GroundAction>[] allAchievers;
+    private Set<TransitionGround>[] allAchievers;
     private boolean[] closed;
     private float minimumActionCost;
-    private List<Pair<GroundAction, Float>> relaxedPlan;
+    private List<Pair<TransitionGround, Float>> relaxedPlan;
     private float[] establishedLocalCost;
     private Object2FloatMap action_comp_number_execution;
-    private GroundAction[] extraTrigger;
-    private GroundAction[] heuristicActionsToProblemActions;
+    private TransitionGround[] extraTrigger;
+    private TransitionGround[] heuristicActionsToProblemActions;
     private HashMap redundant_constraints;
     
     protected ArrayList<Boolean> is_complex;
     protected HashMap<Condition, Boolean> new_condition;
     protected Collection<Comparison> complex_condition_set;
-    private GroundAction[] fromIdToAction;
-    private Set<GroundAction> masterProblemReachableTransitions;
+    private TransitionGround[] fromIdToAction;
+    private Set<TransitionGround> masterProblemReachableTransitions;
     private HashMap<Pair<Integer, Integer>, Comparison> directAssignmentConditionHandle;
     public boolean aggressiveRelaxedPlan;
 
@@ -139,9 +135,9 @@ public class h1 extends Heuristic {
 
     @Override
     public void forceUniquenessInConditionsAndInternalActions ( ) {
-        ArrayList<GroundAction> internalActions = new ArrayList();
-        heuristicActionsToProblemActions = new GroundAction[A.size()+1];
-        fromIdToAction = new GroundAction[A.size()+1];
+        ArrayList<TransitionGround> internalActions = new ArrayList();
+        heuristicActionsToProblemActions = new com.hstairs.ppmajal.transition.TransitionGround[A.size()+1];
+        fromIdToAction = new com.hstairs.ppmajal.transition.TransitionGround[A.size()+1];
         pseudoGoal = new GroundAction("goal",internalActions.size());
         pseudoGoal.setPreconditions(G);
         internalActions.add(pseudoGoal);
@@ -150,9 +146,9 @@ public class h1 extends Heuristic {
         conditionUniverse = new ArrayList<>();
         fromConditionStringToUniqueInteger = new HashMap();
         int conditionsCounter = 0;
-        for (GroundAction b : A) {
+        for (TransitionGround b : A) {
 //            if (!internalActions.contains(b)){
-                GroundAction a = new GroundAction(b,internalActions.size());
+                TransitionGround a = new GroundAction(b,internalActions.size());
                 internalActions.add(a);
                 heuristicActionsToProblemActions[a.getId()] = b;
                 fromIdToAction[a.getId()] = a;
@@ -165,7 +161,7 @@ public class h1 extends Heuristic {
         }
         A = internalActions;
         
-        for (GroundAction a : A) {
+        for (TransitionGround a : A) {
             if (a.getAddList() != null && a.getAddList().sons != null) {
                 for (Condition c_1 : (Set<Condition>) a.getAddList().sons) {
                     conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
@@ -184,7 +180,7 @@ public class h1 extends Heuristic {
         this.dataStructureConstruction();
     }
 
-    protected void addTriggerCondition (Predicate dummyPredicate, GroundAction pseudoGoal) {
+    protected void addTriggerCondition (Predicate dummyPredicate, TransitionGround pseudoGoal) {
         getExtraTrigger()[dummyPredicate.getHeuristicId()] = pseudoGoal;
     }
 
@@ -201,7 +197,7 @@ public class h1 extends Heuristic {
         }
 
         if (this.extractRelaxedPlan || this.helpful_actions_computation) {
-            establishedAchiever = new GroundAction[conditionUniverse.size() + 1];
+            establishedAchiever = new TransitionGround[conditionUniverse.size() + 1];
             establishedLocalCost = new float[conditionUniverse.size() + 1];
             Arrays.fill(establishedLocalCost, Float.MAX_VALUE);
             achieversSet = new AchieverSet[this.A.size()];
@@ -225,7 +221,7 @@ public class h1 extends Heuristic {
         closed = new boolean[A.size()];
         Arrays.fill(closed, false);
         for (int i = 0 ; i < this.A.size(); i++){
-            GroundAction gr = ((ArrayList<GroundAction>)this.A).get(i);
+            TransitionGround gr = ((ArrayList<GroundAction>)this.A).get(i);
             if (this.estimateCost(gr.getPreconditions()) != Float.MAX_VALUE) {
                 Condition extraPrecondition = extraActionPrecondition[gr.getId()];
                 if ((extraPrecondition == null) || (this.estimateCost(extraPrecondition) != Float.MAX_VALUE)) {
@@ -243,7 +239,7 @@ public class h1 extends Heuristic {
         }
         while (!a_plus.isEmpty()) {//keep going till no action is in the list.
 //            final GroundAction gr = fromIdToAction[a_plus.dequeueInt()];
-            final GroundAction gr = a_plus.removeMin().getData();
+            final TransitionGround gr = a_plus.removeMin().getData();
             closed[gr.getId()] = true;
             if (gr == pseudoGoal) {
                 estimate = actionHCost[gr.getId()];
@@ -271,7 +267,7 @@ public class h1 extends Heuristic {
                 System.out.println("Goal unreachable from init state. Please revise model or instance file");
                 findUnsatReasons(this.pseudoGoal);
                 System.out.println("Actions Applicable till fix point:");
-                for (GroundAction gr : reachable) {
+                for (TransitionGround gr : reachable) {
                     System.out.println(gr.toEcoString());
                 }
             }
@@ -295,7 +291,7 @@ public class h1 extends Heuristic {
     }
 
 
-    private void update_reachable_conditions_actions (PDDLState s_0, GroundAction gr, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] actionToFibNode) {
+    private void update_reachable_conditions_actions (PDDLState s_0, TransitionGround gr, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] actionToFibNode) {
         float c_a = Math.max(this.getTransitionCost(s_0,gr,0f,ignoreCostInHeuristic), minimumActionCost);
         for (final Condition comp : this.predicatesProduction(gr)) {//This is the set of all predicates reachable because of gr
             if (cost[comp.getHeuristicId()] != 0f) {
@@ -433,7 +429,7 @@ public class h1 extends Heuristic {
     }
 
 
-    private void computeAchievers (GroundAction gr) {
+    private void computeAchievers (TransitionGround gr) {
         Collection<Comparison> comparisons = new ReferenceLinkedOpenHashSet<>();
         Collection<Terminal> predicatesAchieved = new ReferenceLinkedOpenHashSet<>();
         for (Condition c : this.conditionUniverse) {
@@ -441,7 +437,7 @@ public class h1 extends Heuristic {
             if (precondition_mapping[c.getHeuristicId()] == null) {
                 precondition_mapping[c.getHeuristicId()] = new LinkedHashSet();
             }
-            LinkedHashSet<GroundAction> action_list = new LinkedHashSet();
+            ReferenceLinkedOpenHashSet<TransitionGround> action_list = new LinkedHashSet();
             if (c instanceof Comparison) {
 //                    System.out.println("Condition under analysis:"+c);
 //                    System.out.println("Counter is:"+c.getCounter());
@@ -458,7 +454,7 @@ public class h1 extends Heuristic {
                 if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
                     this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
                 } else {
-                    Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+                    Collection<TransitionGround> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
                     temp.addAll(action_list);
                     this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
                 }
@@ -471,7 +467,7 @@ public class h1 extends Heuristic {
                 if (this.invertedAchievers[p.getHeuristicId()] == null) {
                     this.invertedAchievers[p.getHeuristicId()] = action_list;
                 } else {
-                    Collection<GroundAction> temp = this.invertedAchievers[p.getHeuristicId()];
+                    Collection<TransitionGround> temp = this.invertedAchievers[p.getHeuristicId()];
                     temp.addAll(action_list);
                     this.invertedAchievers[p.getHeuristicId()] = temp;
                 }
@@ -490,7 +486,7 @@ public class h1 extends Heuristic {
                 if (this.invertedAchievers[c1.getHeuristicId()] == null) {
                     this.invertedAchievers[c1.getHeuristicId()] = action_list;
                 } else {
-                    Collection<GroundAction> temp = this.invertedAchievers[c1.getHeuristicId()];
+                    Collection<TransitionGround> temp = this.invertedAchievers[c1.getHeuristicId()];
                     temp.addAll(action_list);
                     this.invertedAchievers[c1.getHeuristicId()] = temp;
                 }
@@ -502,7 +498,7 @@ public class h1 extends Heuristic {
         }
     }
 
-    private Iterable<? extends Condition> numericProduction (GroundAction gr) {
+    private Iterable<? extends Condition> numericProduction (TransitionGround gr) {
         Collection<Comparison> comparisons = this.possibleAchievers[gr.getId()];
         if (comparisons == null) {
             this.computeAchievers(gr);
@@ -510,7 +506,7 @@ public class h1 extends Heuristic {
         return this.possibleAchievers[gr.getId()];
     }
 
-    private Iterable<? extends Condition> predicatesProduction (GroundAction gr) {
+    private Iterable<? extends Condition> predicatesProduction (TransitionGround gr) {
         Collection<Terminal> terminals = this.achieve[gr.getId()];
         if (terminals == null) {
             this.computeAchievers(gr);
@@ -518,15 +514,15 @@ public class h1 extends Heuristic {
         return this.achieve[gr.getId()];
     }
 
-    private void updateReachableActions (GroundAction gr, Condition comp, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] action_to_fib_node) {
+    private void updateReachableActions (TransitionGround gr, Condition comp, FibonacciHeap<GroundAction> a_plus, FibonacciHeapNode[] action_to_fib_node) {
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Collection<GroundAction> triggeredActions = null;
+        Collection<TransitionGround> triggeredActions = null;
         if (comp.getHeuristicId() < conditionToAction.length) {
             triggeredActions = conditionToAction[comp.getHeuristicId()];
         }
         if (this.extraTrigger != null) {
-            GroundAction groundAction = this.extraTrigger[comp.getHeuristicId()];
+            TransitionGround groundAction = this.extraTrigger[comp.getHeuristicId()];
             if (triggeredActions == null && groundAction != null) {
                 triggeredActions = Collections.singleton(groundAction);
             } else if (groundAction != null) {
@@ -538,7 +534,7 @@ public class h1 extends Heuristic {
             return;
         }
         //this mapping contains action that need to be triggered becasue of condition comp
-        for (final GroundAction gr2 : triggeredActions) {
+        for (final TransitionGround gr2 : triggeredActions) {
 
             if (closed[gr2.getId()]) {
                 if (this.additive_h || !this.conservativehmax || this.extractRelaxedPlan) {
@@ -667,7 +663,7 @@ public class h1 extends Heuristic {
         return s;
     }
 
-    private float checkConditions (GroundAction gr2) {
+    private float checkConditions (TransitionGround gr2) {
         
         Condition condition = this.extraActionPrecondition[gr2.getId()];
         Condition input = null;
@@ -686,10 +682,10 @@ public class h1 extends Heuristic {
 
     private void generateConditionToActionMap ( ) {
         conditionToAction = new ArrayList[conditionUniverse.size() + 1];
-        for (GroundAction gr : A) {
+        for (TransitionGround gr : A) {
             Collection<Condition> terminalConditions = gr.getPreconditions().getTerminalConditionsInArray();
             for (Condition c : terminalConditions) {
-                Collection<GroundAction> groundActions = conditionToAction[c.getHeuristicId()];
+                Collection<TransitionGround> groundActions = conditionToAction[c.getHeuristicId()];
                 if (groundActions == null) {
                     groundActions = new ArrayList<>();
 
@@ -703,12 +699,12 @@ public class h1 extends Heuristic {
 
 
     private void compute_helpful_actions ( ) {
-        LinkedList<GroundAction> list = new LinkedList();
+        LinkedList<TransitionGround> list = new LinkedList();
         helpful_actions = new LinkedHashSet();
         AchieverSet s = getAchieverSet(pseudoGoal);
         getHelpfulActions(list, s);
         while (!list.isEmpty()) {
-            GroundAction gr2 = list.pollLast();
+            TransitionGround gr2 = list.pollLast();
             s = getAchieverSet(gr2);
             if (s.getCost() > 0){
                 getHelpfulActions(list, s);
@@ -736,12 +732,12 @@ public class h1 extends Heuristic {
 //          Only conditions not already satsified participate here
             if (this.cost[c.getHeuristicId()] != 0) {
 //              This is what you get in forward analysis
-                GroundAction gr = this.establishedAchiever[c.getHeuristicId()];
+                TransitionGround gr = this.establishedAchiever[c.getHeuristicId()];
                 this.updateRelaxPlan((ArrayList) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()], c instanceof Comparison);
                 if (this.is_complex.get(c.getHeuristicId()) || allAchieverActions) {
-                    final Set<GroundAction> allAchiever = this.allAchievers[c.getHeuristicId()];
+                    final Set<TransitionGround> allAchiever = this.allAchievers[c.getHeuristicId()];
                     if (allAchiever != null) {
-                        for (final GroundAction gr2 : allAchiever) {
+                        for (final TransitionGround gr2 : allAchiever) {
                             if (this.actionHCost[gr2.getId()] == 0) {
                                 this.getHelpfulActions().add(this.heuristicActionsToProblemActions[gr2.getId()]);
                             }
@@ -766,7 +762,7 @@ public class h1 extends Heuristic {
     }
 
 
-    private void update_achiever (Condition comp, GroundAction gr) {
+    private void update_achiever (Condition comp, TransitionGround gr) {
 
         Set s = allAchievers[comp.getHeuristicId()];
         if (s == null) {
@@ -787,7 +783,7 @@ public class h1 extends Heuristic {
 
     }
 
-    private void getHelpfulActions (LinkedList<GroundAction> list, AchieverSet s) {
+    private void getHelpfulActions (LinkedList<TransitionGround> list, AchieverSet s) {
         if (s != null) {
             
             for (Condition o : s.getTargetCond()) {
@@ -799,7 +795,7 @@ public class h1 extends Heuristic {
                 if (this.is_complex.get(o.getHeuristicId()) || allAchieverActions) {
                     if (this.allAchievers[o.getHeuristicId()] != null) {
                         //System.out.println("Getting all the predicatesProduction as helpful actions..");
-                        for (GroundAction gr : this.allAchievers[o.getHeuristicId()]) {
+                        for (TransitionGround gr : this.allAchievers[o.getHeuristicId()]) {
                             if (this.actionHCost[gr.getId()] == 0) {
                                 addToHelpfulIfPossible(gr);
                             }
@@ -807,7 +803,7 @@ public class h1 extends Heuristic {
                     }
                 } else {//Add helpful action if this action is an established achiever of any condition in the target condition and is applicable
                     //in the initial state
-                    GroundAction gr = this.establishedAchiever[o.getHeuristicId()];
+                    TransitionGround gr = this.establishedAchiever[o.getHeuristicId()];
 //                        if (gr==null && cond_dist[o.getCounter())!=0]{
 //                            System.out.println("this is bizzare");
 //                            System.out.println(o);
@@ -826,7 +822,7 @@ public class h1 extends Heuristic {
 //                }
             }
             //this.checkAchievers(s);
-            for (GroundAction gr : s.getActions()) {
+            for (TransitionGround gr : s.getActions()) {
                 if (gr != null) {
                     list.addFirst(gr);
                 }
@@ -834,7 +830,7 @@ public class h1 extends Heuristic {
         }
     }
 
-    private void findUnsatReasons (GroundAction goal) {
+    private void findUnsatReasons (TransitionGround goal) {
 
         //works only for conjunction
         for (Condition c : goal.getPreconditions().getTerminalConditions()) {
@@ -846,9 +842,9 @@ public class h1 extends Heuristic {
     }
 
     private float min_over_possible_achievers (Condition comp) {
-        Set<GroundAction> set = this.allAchievers[comp.getHeuristicId()];
+        Set<TransitionGround> set = this.allAchievers[comp.getHeuristicId()];
         float min = Float.MAX_VALUE;
-        for (GroundAction gr : set) {//can be optimised
+        for (TransitionGround gr : set) {//can be optimised
             min = Math.min(actionHCost[gr.getId()], min);
             if (min == 0) {
                 return 0f;
@@ -857,10 +853,10 @@ public class h1 extends Heuristic {
         return min;
     }
 
-    private void updateRelaxPlan (List<Pair<GroundAction, Float>> plan, GroundAction g, Float cost, boolean isComparison) {
+    private void updateRelaxPlan (List<Pair<TransitionGround, Float>> plan, TransitionGround g, Float cost, boolean isComparison) {
 
         for (int i = plan.size() - 1; i >= 0; i--) {
-            Pair<GroundAction, Float> gr_pair = plan.get(i);
+            Pair<TransitionGround, Float> gr_pair = plan.get(i);
             //if (gr_pair.getFirst().equals(g)) {
             if (gr_pair.getLeft().getId() == g.getId()) {
                 if (aggressiveRelaxedPlan && isComparison){
@@ -886,9 +882,9 @@ public class h1 extends Heuristic {
         plan.add(Pair.of(g, cost));
     }
 
-    private float extract_tot_cost (List<Pair<GroundAction, Float>> plan) {
+    private float extract_tot_cost (List<Pair<TransitionGround, Float>> plan) {
         float cost = 0f;
-        for (final Pair<GroundAction, Float> p : plan) {
+        for (final Pair<TransitionGround, Float> p : plan) {
 //            System.out.println("("+p.getLeft().toEcoString()+","+p.getRight()+")");
             cost += p.getRight();
         }
@@ -916,7 +912,7 @@ public class h1 extends Heuristic {
         HashMap<NumEffect, Boolean> per_mark = new HashMap();
         LinkedList<NumEffect> sorted_nodes;
         sorted_nodes = new LinkedList();
-        for (GroundAction gr : A) {
+        for (TransitionGround gr : A) {
             for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
                 temp_mark.put(nf, false);
                 per_mark.put(nf, false);
@@ -928,8 +924,8 @@ public class h1 extends Heuristic {
                 visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
             }
         }
-        ReferenceLinkedOpenHashSet<GroundAction> action_list = new ReferenceLinkedOpenHashSet();
-        for (GroundAction gr : A) {
+        ReferenceLinkedOpenHashSet<TransitionGround> action_list = new ReferenceLinkedOpenHashSet();
+        for (TransitionGround gr : A) {
             for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
 
                 if (sorted_nodes.contains(neff)) {
@@ -945,7 +941,7 @@ public class h1 extends Heuristic {
         if (this.invertedPossibleAchievers[comp.getHeuristicId()] == null) {
             this.invertedPossibleAchievers[comp.getHeuristicId()] = action_list;
         } else {
-            Collection<GroundAction> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
+            Collection<TransitionGround> temp = this.invertedPossibleAchievers[comp.getHeuristicId()];
             temp.addAll(action_list);
             this.invertedPossibleAchievers[comp.getHeuristicId()] = temp;
         }
@@ -974,7 +970,7 @@ public class h1 extends Heuristic {
         this.achieve[gr.getId()] = terminals;
     }
 
-    protected void addRequired (GroundAction action, Predicate dummyPredicate) {
+    protected void addRequired (TransitionGround action, Predicate dummyPredicate) {
         AndCond condition = this.extraActionPrecondition[action.getId()];
         if (condition == null) {
             condition = new AndCond();
@@ -984,9 +980,9 @@ public class h1 extends Heuristic {
         getExtraTrigger()[dummyPredicate.getHeuristicId()] = action;
     }
 
-    private GroundAction[] getExtraTrigger ( ) {
+    private TransitionGround[] getExtraTrigger ( ) {
         if (this.extraTrigger == null) {
-            this.extraTrigger = new GroundAction[this.conditionUniverse.size()+1];
+            this.extraTrigger = new TransitionGround[this.conditionUniverse.size()+1];
         }
         return this.extraTrigger;
     }
@@ -1000,7 +996,7 @@ public class h1 extends Heuristic {
     protected void addRedundantConstraints ( ) {
         redundant_constraints = new HashMap();
 
-        for (GroundAction a : A) {
+        for (TransitionGround a : A) {
             if (a.getPreconditions() != null) {
                 compute_redundant_constraint((Set<ComplexCondition>) a.getPreconditions().sons);
             }
@@ -1052,12 +1048,12 @@ public class h1 extends Heuristic {
 
     
     @Override
-    final public Set<GroundAction> getReachableTransitions() {
+    final public Collection<TransitionGround> getReachableTransitions() {
         if (masterProblemReachableTransitions != null){
             return masterProblemReachableTransitions;
         }
         masterProblemReachableTransitions = new LinkedHashSet();
-        for (GroundAction gr: this.A){
+        for (TransitionGround gr: this.A){
             if (gr != pseudoGoal){
                 masterProblemReachableTransitions.add(this.heuristicActionsToProblemActions[gr.getId()]);
             }
@@ -1069,7 +1065,7 @@ public class h1 extends Heuristic {
     }
     
     
-    protected void identifyComplexConditions(Collection<GroundAction> A) {
+    protected void identifyComplexConditions(Collection<TransitionGround> A) {
         //For each condition, identify whether there is at least an action whose effects are not simple. This condition
         // will be considered complex in that checking its satisfaction is hard
         is_complex = new ArrayList<>(nCopies(conditionUniverse.size() + 1, false));
@@ -1092,14 +1088,14 @@ public class h1 extends Heuristic {
                 boolean oneFound = false;
                 boolean oneAssignFound = false;
 
-                for (GroundAction gr : A) {
+                for (TransitionGround gr : A) {
                     if (gr.getNumericEffects() != null) {
                         AndCond effects = gr.getNumericEffects();
                         
                         for (NumEffect ne : (Collection<NumEffect>) effects.sons) {
                             if (comp.getInvolvedFluents().contains(ne.getFluentAffected())) {
                                 if (conditionToAction[c.getHeuristicId()] != null && conditionToAction[c.getHeuristicId()].size() == 1 && !conditionToAction[c.getHeuristicId()].isEmpty()) {
-                                    GroundAction next = conditionToAction[c.getHeuristicId()].iterator().next();
+                                    TransitionGround next = conditionToAction[c.getHeuristicId()].iterator().next();
                                     if (next.equals(gr)) {
                                         break;
                                     }
@@ -1181,7 +1177,7 @@ public class h1 extends Heuristic {
         }
         if (found && !s.getActions().isEmpty()) {
             System.out.println("This is broken");
-            for (GroundAction gr: this.A){
+            for (TransitionGround gr: this.A){
                 if (s == this.getAchieverSet(gr)){
                     System.out.println("Action culprit:"+gr);
                     System.out.println("Action it depends on:"+s.getActions());
@@ -1191,7 +1187,7 @@ public class h1 extends Heuristic {
         }
     }
 
-    private AchieverSet getAchieverSet(GroundAction gr) {
+    private AchieverSet getAchieverSet(TransitionGround gr) {
         if (achieversSet[gr.getId()]== null){
             Condition condition = this.extraActionPrecondition[gr.getId()];
             Condition input = null;
@@ -1209,8 +1205,8 @@ public class h1 extends Heuristic {
        
     }
 
-    private void addToHelpfulIfPossible(GroundAction gr) {
-        GroundAction helpful = this.heuristicActionsToProblemActions[gr.getId()];
+    private void addToHelpfulIfPossible(TransitionGround gr) {
+        TransitionGround helpful = this.heuristicActionsToProblemActions[gr.getId()];
         if (!(helpful instanceof GroundProcess) && !(helpful instanceof GroundEvent)) {
             this.helpful_actions.add(helpful);
         }
@@ -1232,7 +1228,7 @@ public class h1 extends Heuristic {
     }
      
     @Override
-     public Collection<GroundAction> getHelpfulActions(){
+     public Collection<TransitionGround> getHelpfulActions(){
          return this.helpful_actions;
      }
 

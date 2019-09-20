@@ -5,6 +5,7 @@ import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 
 import java.util.*;
@@ -12,11 +13,40 @@ import java.util.*;
 public class ConditionalEffects<T> {
     private Map<Condition, Collection<T>> actualConditionalEffects;
     private Collection<T> unconditionalEffect;
+
+    public ConditionalEffects weakEval(EPddlProblem ePddlProblem, HashMap invariantFluents) {
+        ConditionalEffects res = new ConditionalEffects(this.t);
+        for (Map.Entry<Condition,Collection<T>> entry: actualConditionalEffects.entrySet()){
+            Collection<T> toAdd = new HashSet();
+            for (T e: entry.getValue()){
+                if (e instanceof Condition){
+                    toAdd.add((T)((Condition) e).weakEval(ePddlProblem,invariantFluents));
+                }else if (e instanceof NumEffect){
+                    toAdd.add((T)((NumEffect) e).weakEval(ePddlProblem,invariantFluents));
+                }else{
+                    throw new UnsupportedOperationException();
+                }
+            }
+            res.add(entry.getKey().weakEval(ePddlProblem,invariantFluents),toAdd);
+        }
+        for (T e: unconditionalEffect){
+            if (e instanceof Condition){
+                res.add((T)((Condition) e).weakEval(ePddlProblem,invariantFluents));
+            }else if (e instanceof NumEffect){
+                res.add((T)((NumEffect) e).weakEval(ePddlProblem,invariantFluents));
+            }else{
+                throw new UnsupportedOperationException();
+            }
+        }
+        return res;
+    }
+
     public enum VariableType {PREDICATE, NUMFLUENTS};
     final private VariableType  t;
     public ConditionalEffects(VariableType  t1){
         this.t = t1;
     }
+
     public void add(T element){
         if (unconditionalEffect == null){
             unconditionalEffect = new HashSet<>();
@@ -34,6 +64,15 @@ public class ConditionalEffects<T> {
             ts.add(element);
         }
     }
+
+    public Collection<T> getUnconditionalEffect() {
+        return unconditionalEffect;
+    }
+
+    public Map<Condition, Collection<T>> getActualConditionalEffects() {
+        return actualConditionalEffects;
+    }
+
     public Collection<T> getEffects(){
         if (unconditionalEffect == null){
             return Collections.EMPTY_SET;
@@ -46,19 +85,37 @@ public class ConditionalEffects<T> {
         }
         return actualConditionalEffects.get(c);
     }
-
-    public Iterable<? extends T> getAllAffectedVariables() {
+    private Collection<T> getVariables(Collection<T> effects){
         Collection<T> res = new ArrayList<>();
-        for (Collection<T> ele : this.actualConditionalEffects.values()){
-            for (T e: ele){
-                if (e instanceof NotCond){
-                    final Condition son = ((NotCond) e).getSon();
-                    res.add((T) son);
-                }else {
-                    res.add(e);
-                }
+        for (T e: effects){
+            if (e instanceof NotCond){
+                final Condition son = ((NotCond) e).getSon();
+                res.add((T) son);
+            }else if (e instanceof NumEffect) {
+                res.add((T) ((NumEffect) e).affectedNumericFluents());
+            }else {
+                res.add(e);
             }
         }
+        return res;
+    }
+
+
+
+    public Collection<T> getAllAffectedVariables() {
+        final Collection<T> res = new ArrayList<>();
+        for (Collection<T> ele : this.actualConditionalEffects.values()){
+            res.addAll(getVariables(ele));
+        }
+        res.addAll(getVariables(unconditionalEffect));
+        return res;
+    }
+
+
+    public Collection<T> getAllEffects() {
+        final Collection<T> res = new ArrayList<>();
+        res.addAll((Collection<? extends T>) this.actualConditionalEffects.values());
+        res.addAll(this.unconditionalEffect);
         return res;
     }
     public ConditionalEffects<T> ground(Map<Variable, PDDLObject> substitution, PDDLObjects po){

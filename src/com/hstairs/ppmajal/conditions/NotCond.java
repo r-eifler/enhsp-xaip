@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 
@@ -187,7 +188,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString (int i, GroundAction gr, String var) {
+    public String toSmtVariableString (int i, TransitionGround gr, String var) {
         return "(not " + son.toSmtVariableString(i, gr, var) + ")";
     }
 
@@ -202,15 +203,10 @@ public class NotCond extends Terminal implements PostCondition {
         return ret;
     }
 
-    @Override
-    public boolean is_affected_by (GroundAction gr) {
 
-        return son.is_affected_by(gr);
-
-    }
 
     @Override
-    public Condition regress (GroundAction gr) {
+    public Condition regress (TransitionGround gr) {
 
         Condition temp = son.regress(gr);
         if (temp.isValid()) {
@@ -243,19 +239,6 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public boolean can_be_false (RelState s) {
         return son.can_be_true(s);
-    }
-
-    @Override
-    public Condition achieve (Predicate p) {
-        return null;
-    }
-
-    @Override
-    public Condition delete (Predicate p) {
-        if (son.equals(p)) {
-            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
-        }
-        return null;
     }
 
     @Override
@@ -375,7 +358,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.setCost(cond_dist.get(this.getHeuristicId()));
         s.getActions().add(established_achiever.get(this.getHeuristicId()));
@@ -421,11 +404,6 @@ public class NotCond extends Terminal implements PostCondition {
 
     public boolean isTerminal ( ) {
         return this.son instanceof Terminal;
-    }
-
-    @Override
-    public Set<NumFluent> affectedNumericFluents ( ) {
-        return new HashSet();
     }
 
     @Override

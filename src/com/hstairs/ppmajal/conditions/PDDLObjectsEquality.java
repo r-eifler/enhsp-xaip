@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 
@@ -273,7 +274,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public String toSmtVariableString (int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, TransitionGround gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -283,12 +284,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public boolean is_affected_by (GroundAction gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Condition regress (GroundAction gr) {
+    public Condition regress (TransitionGround gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -412,7 +408,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

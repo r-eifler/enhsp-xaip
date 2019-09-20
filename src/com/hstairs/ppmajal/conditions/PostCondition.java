@@ -78,11 +78,5 @@ public interface PostCondition {
 
     String pddlPrintWithExtraObject ( );
 
-    Condition achieve (Predicate p);
-
-    Condition delete (Predicate p);
-
-    Set<NumFluent> affectedNumericFluents ( );
-
 
 }

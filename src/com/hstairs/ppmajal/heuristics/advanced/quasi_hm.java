@@ -30,9 +30,9 @@ import com.hstairs.ppmajal.heuristics.utils.LpInterface;
 import com.hstairs.ppmajal.heuristics.utils.cplex_interface;
 import com.hstairs.ppmajal.heuristics.utils.ojalgo_interface;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import ilog.concert.IloException;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
@@ -218,10 +218,10 @@ public class quasi_hm extends Heuristic {
                     }
                     return Math.max(distance.get(cn.getHeuristicId()), 1f);
                 }
-                Collection<GroundAction> actions = this.cond_to_actions.get(cn.getHeuristicId());
+                Collection<TransitionGround> actions = this.cond_to_actions.get(cn.getHeuristicId());
 //                System.out.println("Action activated:"+gr);
                 if (actions != null) {
-                    for (GroundAction gr : actions) {
+                    for (TransitionGround gr : actions) {
                         if (gr != null) {
                             //System.out.println("Action identified as reachable:"+gr);
                             active_actions.set(gr.getId(), Boolean.TRUE);
@@ -272,7 +272,7 @@ public class quasi_hm extends Heuristic {
     private void generate_achievers (PDDLState s_0) {
         poss_achiever = new HashMap();
         //this should also include the indirect dependencies, otherwise does not work!!
-        for (GroundAction gr : this.A) {
+        for (TransitionGround gr : this.A) {
             poss_achiever.put(gr.getId(), new ArrayList());
             for (Condition c1 : this.conditionUniverse) {
                 if (gr.getPreconditions().getHeuristicId() != c1.getHeuristicId()) {
@@ -321,7 +321,7 @@ public class quasi_hm extends Heuristic {
         }
     }
 
-    private void generate_linear_programs (Collection<GroundAction> actions, PDDLState s_0) throws IloException {
+    private void generate_linear_programs (Collection<TransitionGround> actions, PDDLState s_0) throws IloException {
         lps = new HashMap();
         for (Condition c : conditionUniverse) {
             LpInterface lp = null;
@@ -353,7 +353,7 @@ public class quasi_hm extends Heuristic {
     }
 
     protected void simplify_actions (PDDLState init) {
-        for (GroundAction gr : this.A) {
+        for (TransitionGround gr : this.A) {
             try {
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();

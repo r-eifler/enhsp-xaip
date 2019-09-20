@@ -26,6 +26,7 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -172,8 +173,8 @@ public class PDDLVectorState extends State {
 
     }
 
-    public void apply (GroundAction gr, State prev) {
-        gr.apply(this);
+    public void apply (TransitionGround gr, State prev) {
+        throw new UnsupportedOperationException();
     }
 
 

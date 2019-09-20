@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import ilog.concert.*;
 import ilog.cplex.IloCplex;
 
@@ -50,7 +51,7 @@ public class hlm extends h1 {
     private IloLinearNumExpr objective_function;
     private ArrayList<IloNumVar> action_to_variable;
     private ArrayList<IloRange> condition_to_cplex_constraint;
-    private ArrayList<Set<GroundAction>> reach_achievers;
+    private ArrayList<Set<TransitionGround>> reach_achievers;
     private HashMap<Integer, Boolean> has_state_dependent_achievers;
     private boolean needs_checking_state_dependent_constraints;
 
@@ -98,11 +99,11 @@ public class hlm extends h1 {
         if (s.satisfy(G)) {
             return 0f;
         }
-        Stack<GroundAction> a_plus = new Stack();//actions executable. Progressively updated
+        Stack<TransitionGround> a_plus = new Stack();//actions executable. Progressively updated
         ArrayList<Set<Condition>> lm = new ArrayList<>(nCopies(conditionUniverse.size() + 1, null));//mapping between condition and landmarks
         ArrayList<Boolean> never_active = new ArrayList<>(nCopies(A.size() + 1, true));//mapping between action and boolean. True if action has not been activated yet
         // HashMap<GroundAction, IloNumVar> action_to_variable = new HashMap();//mapping between action representation and integer variable in cplex
-        reach_achievers = new ArrayList<>(nCopies(conditionUniverse.size() + 1, null));
+        reach_achievers = new ArrayList<Set<TransitionGround>>(nCopies(conditionUniverse.size() + 1, null));
 
         cond_dist = new ArrayList<>(nCopies(conditionUniverse.size() + 1, Float.MAX_VALUE));//keep track of conditions that have been reachead yet
         ArrayList<Float> target_value = new ArrayList<>(nCopies(conditionUniverse.size() + 1, 0f));//keep track of conditions that have been reachead yet
@@ -134,7 +135,7 @@ public class hlm extends h1 {
                 //reachable_poss_achievers.set(c.getCounter(), new LinkedHashSet());//this is a mapping between condition and its possible (reachable) achievers
             }
             //Iterator it = this.A.iterator();
-            for (GroundAction gr : this.A) {//see which actions are executable in the current state
+            for (TransitionGround gr : this.A) {//see which actions are executable in the current state
                 IloNumVar var = this.action_to_variable.get(gr.getId());
                 if (var == null) {
                     never_active.set(gr.getId(), null);
@@ -151,7 +152,7 @@ public class hlm extends h1 {
                 }
             }
             while (!a_plus.isEmpty()) {//keep going till no action is in the list. Look that here actions can be re-added
-                GroundAction gr = a_plus.pop();
+                TransitionGround gr = a_plus.pop();
                 if (never_active.get(gr.getId()) == null) {
                     continue;
                 }
@@ -192,7 +193,7 @@ public class hlm extends h1 {
                             return Float.MAX_VALUE;
                         }
                         ilo.setLB(target_value.get(c.getHeuristicId()));
-                        Set<GroundAction> set = reach_achievers.get(c.getHeuristicId());
+                        Set<TransitionGround> set = reach_achievers.get(c.getHeuristicId());
                         boolean revise_terms = false;
 
                         //the following ask whether the condition depends on some action whose positiveness of the effects depend on the current state
@@ -204,7 +205,7 @@ public class hlm extends h1 {
                                 revise_terms = true;
                             }
                         }
-                        for (GroundAction gr : set) {
+                        for (TransitionGround gr : set) {
                             free_variable_modify_contribution_if_needed(s, c, revise_terms, gr);
 
                         }
@@ -240,7 +241,7 @@ public class hlm extends h1 {
         return Float.MAX_VALUE;
     }
 
-    private boolean update_lm (Condition p, GroundAction gr, ArrayList<Set<Condition>> lm) {
+    private boolean update_lm (Condition p, TransitionGround gr, ArrayList<Set<Condition>> lm) {
 
         Set<Condition> previous = lm.get(p.getHeuristicId());
 
@@ -326,7 +327,7 @@ public class hlm extends h1 {
 
     }
 
-    private void update_actions_conditions (PDDLState s_0, GroundAction gr, Stack<GroundAction> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
+    private void update_actions_conditions (PDDLState s_0, TransitionGround gr, Stack<TransitionGround> a_plus, ArrayList<Boolean> never_active, ArrayList<Set<Condition>> lm) {
         for (Condition comp : this.achieve[gr.getId()]) {//This is the set of all predicates reachable because of gr
             // Float rep_needed = 1f;
             if (cond_dist.get(comp.getHeuristicId()) != 0f) {//if this isn't in the init state yet
@@ -353,14 +354,14 @@ public class hlm extends h1 {
         }
     }
 
-    private void update_action_condition (GroundAction gr, Condition comp, ArrayList<Set<Condition>> lm, ArrayList<Boolean> never_active, Stack<GroundAction> a_plus) {
+    private void update_action_condition (TransitionGround gr, Condition comp, ArrayList<Set<Condition>> lm, ArrayList<Boolean> never_active, Stack<TransitionGround> a_plus) {
         boolean changed = update_lm(comp, gr, lm);//update set of landmarks for this condition.
         //this procedure shrink landmarks for condition comp using action gr
 //        System.out.println(changed);
-        Collection<GroundAction> set = conditionToAction[comp.getHeuristicId()];
+        Collection<TransitionGround> set = conditionToAction[comp.getHeuristicId()];
         //this mapping contains action that need to be triggered becasue of condition comp
         if (set != null){
-            for (GroundAction gr2 : set) {
+            for (TransitionGround gr2 : set) {
                 if (gr2.getId() == gr.getId()) {//avoids self-loop. Thanks god I have integer mapping here.
                     continue;
                 }
@@ -391,7 +392,7 @@ public class hlm extends h1 {
                 }
             }
         }
-        Set<GroundAction> set2 = this.reach_achievers.get(comp.getHeuristicId());
+        Set<TransitionGround> set2 = this.reach_achievers.get(comp.getHeuristicId());
         if (set2 == null) {
             set2 = new HashSet();
         }
@@ -400,7 +401,7 @@ public class hlm extends h1 {
 
     }
 
-    private boolean check_conditions (GroundAction gr2) {
+    private boolean check_conditions (TransitionGround gr2) {
 
         for (Condition c : (Collection<Condition>) gr2.getPreconditions().sons) {
             if (cond_dist.get(c.getHeuristicId()) == Float.MAX_VALUE) {
@@ -483,7 +484,7 @@ public class hlm extends h1 {
                 has_state_dependent_achievers.put(c.getHeuristicId(), false);
 //                System.out.println("Condition under analysis" + c);
                 IloLinearNumExpr expr = lp_global.linearNumExpr();
-                Collection<GroundAction> set = null;
+                Collection<TransitionGround> set = null;
                 if (c instanceof Predicate) {
                     set = this.invertedAchievers[c.getHeuristicId()];
                 } else if (c instanceof Comparison) {
@@ -491,7 +492,7 @@ public class hlm extends h1 {
                 }
                 if (set != null) {
 //                    System.out.println("Possible achievers...");
-                    for (GroundAction gr : set) {
+                    for (TransitionGround gr : set) {
 
                         IloNumVar action;
 //                        gr.set_unit_cost(s_0);
@@ -558,7 +559,7 @@ public class hlm extends h1 {
         }
     }
 
-    private void free_variable_modify_contribution_if_needed (PDDLState s_0, Condition c, boolean revise_terms, GroundAction gr) throws IloException {
+    private void free_variable_modify_contribution_if_needed (PDDLState s_0, Condition c, boolean revise_terms, TransitionGround gr) throws IloException {
 
         IloNumVar action_var = this.action_to_variable.get(gr.getId());
         action_var.setUB(Float.MAX_VALUE);//add only useful actions

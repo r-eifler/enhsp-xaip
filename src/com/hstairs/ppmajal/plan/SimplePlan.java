@@ -20,17 +20,15 @@ package com.hstairs.ppmajal.plan;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.ActionSchema;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.extraUtils.Converter;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.problem.*;
-import org.jgrapht.graph.DefaultEdge;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import org.json.simple.JSONObject;
 
 import java.io.*;
@@ -525,7 +523,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         String ret = "";
         PDDLState temp = s.clone();
         for (int j = i; j < this.size(); j++) {
-            GroundAction action = this.get(j);
+            TransitionGround action = this.get(j);
 
             temp.apply(action,temp.clone());
         }
@@ -552,7 +550,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
     public PDDLState execute (PDDLState init) {
         PDDLState temp = init.clone();
         int i = 0;
-        for (GroundAction gr : this) {
+        for (TransitionGround gr : this) {
             if (gr.isApplicable(temp)) {
                 i++;
                 temp.apply(gr,temp.clone());
@@ -754,316 +752,6 @@ public class SimplePlan extends ArrayList<GroundAction> {
         }
     }
 
-    public DirectedAcyclicGraph buildValidationStructures (PDDLState init, ComplexCondition g) throws Exception {
-        DirectedAcyclicGraph po = new DirectedAcyclicGraph(DefaultEdge.class);
-        po.addVertex(-1);
-        //DirectedAcyclicGraph po = new DirectedAcyclicGraph();
-        validationStructures = new IdentityHashMap();
-
-        //Create a pseudo action for the goal, having null effects but precondition equal to the goal conditions
-        GroundAction goal = new GroundAction("goal", -1);
-        goal.setPreconditions(g);
-        goal.normalize();
-        this.add(goal);
-        long totalTimeSpentForChainSearch = 0;
-        //create init action from the initial state.
-        GroundAction start = Converter.createInitAction(pp, init);
-        this.add(0, start);
-        System.out.println("DEBUG: Dummy Start Action" + start.toPDDL());
-        //System.out.print("Building Validation Structure for : ");
-        for (int i = 0; i < this.size(); i++) {
-            GroundAction a = this.get(i);
-            //System.out.println(a);
-            if (!(a.getPreconditions() instanceof AndCond)) {
-                System.out.println("Only AND conditions are supported");
-                System.exit(-1);
-            }
-            //the following structure will contain all the sufficient actions for the execution of action i
-            IdentityHashMap validationStructure = new IdentityHashMap();
-            getValidationStructures().put(a, validationStructure);
-            //System.out.print(+i+",");
-            AndCond conds = (AndCond) a.getPreconditions();
-
-            if (conds != null) {
-                for (Object o : conds.sons) {
-
-                    TreeSet<Integer> chain = new TreeSet();
-                    Condition c = (Condition) o;
-                    if (c instanceof AndCond) {//this is a hack!!!
-                        AndCond b = (AndCond) c;
-                        c = (Condition) b.sons.iterator().next();
-                    }
-                    //Finding the numeric justification. This requires a local search in the space of actions which have been planned to be executed before i
-                    //System.out.println("Looking for!:" + c );
-//                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
-
-                    if (c instanceof Comparison) {
-                        boolean supported = false;
-                        long startingTimeChainSearch = System.currentTimeMillis();
-                        double temp;
-                        while (true) {
-                            temp = take_max(chain, i, (Comparison) c);
-//                            System.out.println(temp);
-                            if (temp > 0) {
-                                supported = true;
-                                break;
-                            } else if (chain.size() >= i) {
-                                break;
-                            }
-                        }
-                        totalTimeSpentForChainSearch += (System.currentTimeMillis() - startingTimeChainSearch);
-
-                        if (supported) {
-                            validationStructure.put(c, chain);
-//                            for (Integer l1: chain){
-//                                for (Integer l2: chain){
-//                                    if (l1!=l2){
-//                                        po.addVertex(l1);
-//                                        po.addVertex(l2);
-//                                        po.addEdge(l1, l2);//this add an implicit order. This is due to the fact that we are committing to a specific chain of actions
-//                                    }
-//                                }
-//                            }
-                            //System.out.println(chain+"-->"+i);
-                        } else {
-                            chain.add(-1);
-                            po.addVertex(i);
-                            po.addEdge(-1, i);
-                            validationStructure.put(c, chain);
-//                            System.out.println(chain);
-//                            System.out.println("Level:"+i);
-//                            System.out.println("Action: "+a);
-                            System.out.println("Numeric Failure!:" + c + " cannot be achieved?!");
-                        }
-
-                    } else {
-                        //for the propositional case the search is much simpler...
-                        boolean supported = false;
-                        if (c instanceof Predicate) {
-                            Predicate p = (Predicate) c;
-
-                            for (Integer z = 0; z < i; z++) {
-                                //for (Integer z = i-1; z >=0 ; z--) {
-
-                                if (this.get(z).weakAchiever(p)) {
-                                    //System.out.println("Candidate:" + z);
-                                    boolean threat = false;
-                                    for (int k = z + 1; k < i; k++) {
-                                        //System.out.println(this.get(k));
-                                        //System.out.println("checking for"+p);
-                                        if (this.get(k).delete(p)) {
-                                            //System.out.println("Threat:" + this.get(k));
-                                            threat = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!threat) {
-                                        //System.out.println("Candidate ok");
-                                        chain.add(z);
-                                        supported = true;
-                                        break;
-                                    } else {
-                                        //System.out.println("Candidate ko");
-                                    }
-
-                                }
-
-                            }
-
-                            if (supported) {
-                                validationStructure.put(c, chain);
-                                //System.out.println(chain+"-->"+i);
-                            } else {
-                                chain.add(-1);
-                                po.addVertex(i);
-                                validationStructure.put(c, chain);
-                                po.addEdge(-1, i);
-                                System.out.println("Propositional Failure!:" + c + " cannot be achieved?!");
-                                //System.out.println("Failure");
-                            }
-                        } else if (c instanceof NotCond) {
-
-                        } else {
-                            System.out.println("Condition under analysis:" + c);
-                            System.out.println("Only Conjunctive Preconditions/Conditions are supported");
-                            System.exit(-1);
-                        }
-
-                    }
-
-                }
-            }
-        }
-
-        //achieveGoal = goalAchievers(po);
-        System.out.println("\nTIME FOR CHAIN SEARCH: " + totalTimeSpentForChainSearch);
-        //System.out.println("\nTIME FOR CHAIN SEARCH(Evaluation): " + totalStartingTimeChainSearchEvaluate);
-
-        return po;
-    }
-
-    public DirectedAcyclicGraph deorder (PDDLState init, ComplexCondition g, boolean computeGoalAchievers) throws Exception {
-
-        DirectedAcyclicGraph po = this.buildValidationStructures(init, g);
-        if (debug > 0) {
-            System.out.println(po);
-        }
-        if (computeGoalAchievers) {
-            setGoalAchiever(this.goalAchievers(this.getValidationStructures()));
-        }
-        //this provides information on the missing constraint and/or prediction services
-
-        System.out.println("\nValidation Structure has been built. Now let us see which are the constraints that can be removed");
-
-        //having found out the validation structure for an action, let us see now which are the ordering constraint that are really necessary
-        //these two for emulate the total order inside the plan. 
-        for (int i = 0; i < this.size() - 1; i++) {
-            po.addVertex(i);//set in the graph representing the pop the action under examination
-            for (int j = i + 1; j < this.size(); j++) {
-                //int j=i+1;
-                boolean preserveOrderConstraint = false;
-                String Motivation = "Motivation: ";//Debug
-                if (!po.vertexSet().contains(j)) {
-                    po.addVertex(j);
-                }
-//                System.out.print("Ordering bewteen: ");
-//                System.out.println(this.get(i));
-//                System.out.println(this.get(j));
-
-                //Firstly check if action i belongs to the validation structure of j
-                AndCond condsJ = (AndCond) this.get(j).getPreconditions();
-                if (condsJ != null) {
-                    IdentityHashMap validationStructureForJ = (IdentityHashMap) getValidationStructures().get(this.get(j));
-                    for (Object o : condsJ.sons) {
-                        TreeSet<Integer> chain = (TreeSet) validationStructureForJ.get(o);
-                        if (chain != null) {
-                            //System.out.println("chain trovata");
-                            if (chain.contains(i)) {
-                                preserveOrderConstraint = true;
-                                orderingByJustification++;
-                                //Motivation += o.toString()+" (nelle giustificazioni)";
-                                break;
-                            }
-
-                        }
-                    }
-                }
-                //in case there is no justification for <i,j> let's see the implication of removing <i,j>
-
-                if (!preserveOrderConstraint) {
-                    //in this case I see if putting j before i can harm the consistency of the plan
-                    AndCond conds = (AndCond) this.get(i).getPreconditions();
-                    if (conds != null) {
-                        IdentityHashMap validationStructure = (IdentityHashMap) getValidationStructures().get(this.get(i));
-                        //System.out.println(validationStructure);
-                        for (Object o : conds.sons) {
-                            TreeSet<Integer> chain = (TreeSet) validationStructure.get(o);
-                            //I guess the following is useless cause it is dominated by the check performed above
-                            if (chain != null) {
-                                //System.out.println("chain trovata");
-                                if (chain.contains(j)) {
-                                    preserveOrderConstraint = true;
-                                    orderingByStrangeness++;
-                                    System.out.println("Strange Situation!!");
-                                    break;
-                                }
-                            }
-                            if (o instanceof Predicate) {
-                                Predicate p = (Predicate) o;
-                                if (this.get(j).delete(p)) {
-                                    preserveOrderConstraint = true;
-                                    orderingByPropositionalThreatBack++;
-                                    Motivation += o.toString() + "Back Propositional Threat";
-                                    break;
-                                }
-
-                            } else if (o instanceof Comparison) {
-                                Comparison c = (Comparison) o;
-                                HashSet<NumFluent> toTest = new HashSet(c.getLeft().getInvolvedNumericFluents());
-                                toTest.addAll(c.getRight().getInvolvedNumericFluents());
-                                if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(j))) {
-                                    preserveOrderConstraint = true;
-                                    orderingByNumericThreatBack++;
-                                    Motivation += o.toString() + "Back Numeric Threat";
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (!preserveOrderConstraint) {
-                    AndCond conds;
-                    for (int k = j + 1; k < this.size(); k++) {
-                        IdentityHashMap validationStructure = (IdentityHashMap) getValidationStructures().get(this.get(k));
-                        conds = (AndCond) this.get(k).getPreconditions();
-
-                        if (conds != null) {
-                            for (Object o : conds.sons) {
-                                if (o instanceof Predicate) {
-                                    Predicate p = (Predicate) o;
-                                    TreeSet<Integer> chain = (TreeSet) validationStructure.get(p);
-                                    if (chain != null) {
-                                        if (chain.contains(j)) {
-                                            if (this.get(i).delete(p)) {
-                                                preserveOrderConstraint = true;
-                                                orderingByThreatPropositionForward++;
-                                                Motivation += o.toString() + " (forward prop weakThreat)";
-                                            }
-                                            break;
-                                        }
-                                    } else {
-                                        //System.out.println("Add some actions for:"+p);
-                                    }
-                                } else if (o instanceof Comparison) {
-                                    Comparison c = (Comparison) o;
-                                    TreeSet<Integer> chain = (TreeSet) validationStructure.get(c);
-                                    if (chain != null) {
-                                        if (chain.contains(j)) {
-                                            HashSet<NumFluent> toTest = new HashSet(c.getLeft().getInvolvedNumericFluents());
-                                            toTest.addAll(c.getRight().getInvolvedNumericFluents());
-                                            if (c.couldBePrevented(computeFluentDependencePlanDependant(toTest), this.get(i))) {
-                                                preserveOrderConstraint = true;
-                                                orderingByThreatNumericForward++;
-                                                Motivation += o.toString() + " (forward numeric weakThreat)";
-                                            }
-                                            break;
-                                        }
-                                    } else {
-                                        //System.out.println("Add some actions for:"+c);
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-
-                }
-                if (preserveOrderConstraint) {
-                    po.addEdge(i, j);
-                    //System.out.println("<" + i + "," + j + ">");
-                    //System.out.println(Motivation);
-                }
-            }
-        }
-        add_ordering_because_of_within_chain(po);
-
-//        for (Object v1 : po.vertexSet()) {
-//            for (Object v2 : po.vertexSet()) {
-//                for (Object v3 : po.vertexSet()) {
-//
-//                }
-//            }
-//        }
-//       
-//        System.out.println("DEBUG. Ordering preserved for different reasons.of which:\n for VD: " + this.orderingByJustification
-//                + "\n for propositional treath backward:" + this.orderingByPropositionalThreatBack
-//                + "\n for numeric treath backward:" + this.orderingByNumericThreatBack
-//                + "\n for propositional treath forward:" + this.orderingByThreatPropositionForward
-//                + "\n for numeric treath forward:" + this.orderingByThreatNumericForward);
-        //System.out.println("Flexibility: " + computeFlexibility(po));
-        //removeIndirectOrdering(po);
-        return po;
-    }
 
 
     private HashMap<NumFluent, HashSet<NumFluent>> computeFluentDependencePlanDependant (HashSet<NumFluent> nfSet) {
@@ -1134,7 +822,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (Set s : getConnectedSetBuilder().connectedSets()) {
             TreeSet<Integer> ordered = new TreeSet(s);
             //System.out.println("Trying to Merge"+ordered);
-            GroundAction macro = null;
+            TransitionGround macro = null;
             for (Integer v : ordered) {
                 //System.out.println("Appending:"+v);
                 if (splittingSet.contains(v)) {
@@ -1545,7 +1233,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
                 nf_trace.put(nf, nf_traj);
             }
         }
-        for (GroundAction gr : this) {
+        for (TransitionGround gr : this) {
 
             this.setCost(this.getCost() + gr.getActionCost(temp, pp.getMetric()));
             if (!temp.satisfy(globalConstraints) && (debug > 0)) {
@@ -1601,7 +1289,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
         for (List s : (List<List>) blocks) {
             TreeSet<Integer> ordered = new TreeSet(s);
             //System.out.println("Trying to Merge"+ordered);
-            GroundAction macro = null;
+            TransitionGround macro = null;
 //            System.out.println("Building Macro");
             if (s.size() <= 1) {
                 continue;
@@ -1714,7 +1402,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    public PDDLState execute (PDDLState init, Condition GC, Set<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
+    public PDDLState execute (PDDLState init, Condition GC, Set<GroundProcess> processesSet, Set<GroundProcess> reachable_events, float delta, float resolution, Float time) throws CloneNotSupportedException {
 
         if (resolution > delta) {
             resolution = delta;
@@ -1762,7 +1450,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
             if (debug > 0) {
                 System.out.println(Printer.pddlPrint(pp, current));
             }
-            GroundAction gr = inst_actions.get(i);
+            TransitionGround gr = inst_actions.get(i);
 
             //Execute till next action
             current = advance_time(current, processesSet, reachable_events, resolution, gr.time);
@@ -1789,9 +1477,9 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private Set<GroundEvent> apply_events (PDDLState s, Set<GroundEvent> reachable_events) throws CloneNotSupportedException {
+    private Set<GroundEvent> apply_events (PDDLState s, Set<GroundProcess> reachable_events) throws CloneNotSupportedException {
         Set<GroundEvent> ret = new LinkedHashSet();
-        for (GroundEvent ev : reachable_events) {
+        for (GroundProcess ev : reachable_events) {
 
             if (ev.isApplicable(s)) {
 //                s = (PDDLState) ev.apply(s);
@@ -1805,7 +1493,7 @@ public class SimplePlan extends ArrayList<GroundAction> {
 
     }
 
-    private PDDLState advance_time (PDDLState current, Set<GroundProcess> processesSet, Set<GroundEvent> reachable_events, float delta, Float time) throws CloneNotSupportedException {
+    private PDDLState advance_time (PDDLState current, Set<GroundProcess> processesSet, Set<GroundProcess> reachable_events, float delta, Float time) throws CloneNotSupportedException {
 
         //System.out.println("Advance time!");
 //        System.out.println("StartTime:");

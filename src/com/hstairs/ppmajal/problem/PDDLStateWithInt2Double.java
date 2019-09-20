@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import java.util.Arrays;
@@ -185,9 +186,6 @@ public class PDDLStateWithInt2Double extends PDDLState {
 
     }
 
-    public void apply (GroundAction gr) {
-        gr.apply(this);
-    }
 
 
     public boolean satisfy (Condition input) {

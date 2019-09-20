@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 
@@ -150,19 +151,6 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition achieve (Predicate p) {
-        if (this.equals(p)) {
-            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
-        }
-        return null;
-    }
-
-    @Override
-    public Condition delete (Predicate p) {
-        return null;
-    }
-
-    @Override
     public Set<Condition> getTerminalConditions ( ) {
         return Sets.newHashSet(this);
     }
@@ -170,11 +158,6 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         return cond_dist.get(this.getHeuristicId());
-    }
-
-    @Override
-    public Set<NumFluent> affectedNumericFluents ( ) {
-        return new HashSet();
     }
 
     @Override
@@ -477,7 +460,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString (int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, TransitionGround gr, String var) {
         return " true ";
     }
 
@@ -487,27 +470,22 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public boolean is_affected_by (GroundAction gr) {
-        return gr.weakAchiever(this) || gr.delete(this);
-    }
-
-    @Override
-    public Condition regress (GroundAction gr) {
-
-        OrCond achievers = gr.getAdders(this);
-        OrCond deleters = gr.getDels(this);
-        OrCond or = new OrCond();
-        AndCond effect_reasons = new AndCond();
-        AndCond frame_axiom = new AndCond();
-        NotCond no_del = NotCond.createNotCond(deleters);
-
-        effect_reasons.addConditions(achievers);
-        effect_reasons.addConditions(no_del);
-        frame_axiom.addConditions(no_del);
-        frame_axiom.addConditions(this);
-        or.addConditions(effect_reasons);
-        or.addConditions(frame_axiom);
-        return or;
+    public Condition regress (TransitionGround gr) {
+        throw new UnsupportedOperationException();
+//        OrCond achievers = gr.getAdders(this);
+//        OrCond deleters = gr.getDels(this);
+//        OrCond or = new OrCond();
+//        AndCond effect_reasons = new AndCond();
+//        AndCond frame_axiom = new AndCond();
+//        NotCond no_del = NotCond.createNotCond(deleters);
+//
+//        effect_reasons.addConditions(achievers);
+//        effect_reasons.addConditions(no_del);
+//        frame_axiom.addConditions(no_del);
+//        frame_axiom.addConditions(this);
+//        or.addConditions(effect_reasons);
+//        or.addConditions(frame_axiom);
+//        return or;
     }
 
     
@@ -574,7 +552,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.setCost(cond_dist.get(this.getHeuristicId()));
         s.getActions().add(established_achiever.get(this.getHeuristicId()));

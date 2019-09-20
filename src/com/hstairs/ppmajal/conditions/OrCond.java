@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
 import java.util.*;
@@ -327,7 +328,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public String toSmtVariableString (int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, TransitionGround gr, String var) {
         String ret = "";
 
         //System.out.println(this);
@@ -369,23 +370,9 @@ public class OrCond extends ComplexCondition {
         return ret;
     }
 
-    @Override
-    public boolean is_affected_by (GroundAction gr) {
-        if (this.sons != null && !this.sons.isEmpty()) {
-
-            for (Condition c : (Collection<Condition>) this.sons) {
-                if (c.is_affected_by(gr)) {
-                    return true;
-                }
-            }
-
-        }
-
-        return false;
-    }
 
     @Override
-    public Condition regress (GroundAction gr) {
+    public Condition regress (TransitionGround gr) {
         OrCond con = new OrCond();
         for (Object o : this.sons) {
             if (o instanceof Condition) {
@@ -527,7 +514,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
         s.setCost(Float.MAX_VALUE);
         if (this.sons == null) {

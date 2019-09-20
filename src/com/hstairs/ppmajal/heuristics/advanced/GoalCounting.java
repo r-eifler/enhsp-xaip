@@ -22,11 +22,11 @@ import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
+
 import java.util.Collection;
 
 /**
@@ -55,7 +55,7 @@ public class GoalCounting extends Heuristic{
     }
 
     @Override
-    public Collection<GroundAction> getReachableTransitions() {
+    public Collection<TransitionGround> getReachableTransitions() {
         if (easy){
             return problem.actions;
         }else{

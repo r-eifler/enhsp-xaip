@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.*;
 import java.io.PrintStream;
 
@@ -71,7 +72,7 @@ public class SearchEngine {
     private long beginningTime;
     //dealing with continuous change
     private Collection<GroundProcess> reachableProcesses;
-    private Collection<GroundEvent> reachableEvents;
+    private Collection<TransitionGround> reachableEvents;
     private boolean incremental;
     private long previousTime;
     private int causalDeadEnds;
@@ -173,17 +174,17 @@ public class SearchEngine {
         return this.queueSuccessor(frontier, successor_state, current_node, action_s, prev_cost, succ_g, g, treeSearch);
     }
 
-    private ArrayList<GroundEvent> apply_events(State s, float delta1) throws CloneNotSupportedException {
-        ArrayList<GroundEvent> ret = new ArrayList<>();
+    private ArrayList<TransitionGround> apply_events(State s, float delta1) throws CloneNotSupportedException {
+        ArrayList<TransitionGround> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
-            for (GroundEvent ev : this.reachableEvents) {
+            for (TransitionGround ev : this.reachableEvents) {
 
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
                     
                     s.apply(ev,s.clone());
-                    GroundEvent ev1 = (GroundEvent) ev.clone();
+                    TransitionGround ev1 = (GroundEvent) ev.clone();
                     ev1.time = delta1;
                     ret.add(ev1);
 
@@ -267,7 +268,7 @@ public class SearchEngine {
             currentG = succ.gValue;
 
             if (this.helpfulActionsPruning) {
-                problem.setReachableTransitions(new LinkedHashSet<>(succ.helpfulActions));
+                problem.setReachableTransitions(new LinkedHashSet<TransitionGround>(succ.helpfulActions));
             }
             plan.addAll(extractPlan(succ));
             if (forgettingEhc) {
@@ -302,7 +303,7 @@ public class SearchEngine {
 
             }
             if (this.helpfulActionsPruning) {
-                problem.setReachableTransitions(new LinkedHashSet<>(node.helpfulActions));
+                problem.setReachableTransitions(new LinkedHashSet<TransitionGround>(node.helpfulActions));
             }
 
             visited.put(node.s, true);
@@ -611,7 +612,7 @@ public class SearchEngine {
                 advance_time(frontier, current_node, problem, null);
             }
 
-            for (GroundAction act : getHeuristic().getReachableTransitions()) {
+            for (TransitionGround act : getHeuristic().getReachableTransitions()) {
                 if (act instanceof GroundProcess) {
                 } else if (act.isApplicable(current_node.s)) {
                     State temp = current_node.s.clone();
@@ -729,14 +730,14 @@ public class SearchEngine {
         try {
             float i = 0.00000f;
             State temp = current_node.s.clone();
-            ArrayList<GroundAction> waiting_list = new ArrayList<>();
+            ArrayList<TransitionGround> waiting_list = new ArrayList<>();
             boolean at_least_one = false;
             while (i < planningDelta) {
                 State temp_temp = temp.clone();
                 waiting_list.addAll(apply_events(temp_temp, i));
                 i += executionDelta;
 
-                GroundProcess waiting = new GroundProcess("waiting", -1);
+                TransitionGround waiting = new GroundProcess("waiting", -1);
                 waiting.setNumericEffects(new AndCond());
                 waiting.setPreconditions(new AndCond());
                 //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);

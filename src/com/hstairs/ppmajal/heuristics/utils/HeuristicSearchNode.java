@@ -18,7 +18,7 @@
  */
 package com.hstairs.ppmajal.heuristics.utils;
 
-import com.hstairs.ppmajal.problem.GroundAction;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.Set;
 
@@ -27,13 +27,13 @@ import java.util.Set;
  */
 public class HeuristicSearchNode implements Comparable {
 
-    public GroundAction action;
+    public TransitionGround action;
     public int goal_distance;
     public HeuristicSearchNode father;
     public int action_cost_to_get_here;
     public Set orderings;
 
-    public HeuristicSearchNode (GroundAction action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
+    public HeuristicSearchNode (TransitionGround action, HeuristicSearchNode father, int action_cost_to_get_here, int goal_distance) {
 
         this.action = action;
         this.goal_distance = goal_distance;

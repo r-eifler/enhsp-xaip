@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 
@@ -68,7 +69,7 @@ public abstract class Condition extends PDDLProblemComponent {
                activation conditions.
     
      */
-    public abstract Condition regress (GroundAction gr);
+    public abstract Condition regress (TransitionGround gr);
 
     /**
      * Substitutes the variables in this conditions with the PDDLObjects
@@ -88,7 +89,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract boolean eval (State s);
 
-    public abstract String toSmtVariableString (int k, GroundAction gr, String var);
+    public abstract String toSmtVariableString (int k, TransitionGround gr, String var);
 
     public abstract boolean isSatisfied (State s);
 
@@ -176,7 +177,6 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition transformEquality ( );
 
-    public abstract boolean is_affected_by (GroundAction gr);
 
     /**
      * @return
@@ -234,7 +234,7 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract ComplexCondition and (Condition precondition);
 
-    public abstract AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever);
+    public abstract AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever);
 
     public abstract Condition pushNotToTerminals( );
 

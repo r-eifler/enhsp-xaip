@@ -18,16 +18,28 @@
  */
 package com.hstairs.ppmajal.transition;
 
-import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
+import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLState;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 public abstract class Transition {
+    public enum Semantics{ACTION, PROCESS, EVENT}
 
-    protected Float time = null;// It is possible for this action to be timed
     final protected String name;
     final protected ConditionalEffects conditionalPropositionalEffects;
     final protected ConditionalEffects conditionalNumericEffects;
     final protected Condition preconditions;
     final protected Semantics semantics;
+
+
 
     protected Transition(String name, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
         this.name = name;
@@ -60,10 +72,69 @@ public abstract class Transition {
         return this.conditionalPropositionalEffects.getAllAffectedVariables();
     }
 
-    public enum Semantics{ACTION, PROCESS, EVENT}
+    public Collection<NumFluent> getNumericFluentAffected() {
+        return this.conditionalNumericEffects.getAllAffectedVariables();
+    }
 
+    public boolean affect(NumFluent f) {
+        return this.getNumericFluentAffected().contains(f);
+    }
+
+    // TODO: 20/09/19 This function needs to be cached
+    public Double getCoefficientAffected(NumFluent f) {
+        HashMap<NumFluent,Double> coefficientAffected  = new HashMap<>();
+        for (Object c : this.getConditionalNumericEffects().getAllEffects()) {
+            NumEffect nEff = (NumEffect) c;
+            ExtendedNormExpression right = (ExtendedNormExpression) nEff.getRight();
+            if (nEff.getOperator().equals("increase") || nEff.getOperator().equals("decrease")) {
+                coefficientAffected.put(nEff.getFluentAffected(), 1 + right.getCoefficient(nEff.getFluentAffected()));
+            } else {
+                coefficientAffected.put(nEff.getFluentAffected(), right.getCoefficient(nEff.getFluentAffected()));
+            }
+        }
+        return coefficientAffected.get(f);
+    }
+
+    public float getValueOfRightExpApartFromAffected(NumFluent f, PDDLState s_0) {
+        for (Object c : this.getConditionalNumericEffects().getAllEffects()) {
+            NumEffect nEff = (NumEffect) c;
+            if (nEff.getFluentAffected().equals(f)) {
+                ExtendedNormExpression right = (ExtendedNormExpression) nEff.getRight();
+                if (nEff.getOperator().equals("increase")) {
+                    return right.eval_apart_from_f(f, s_0);
+                } else if (nEff.getOperator().equals("decrease")) {
+                    return right.eval_apart_from_f(f, s_0) * -1.0f;
+
+                }
+                return right.eval_apart_from_f(f, s_0);
+            }
+
+        }
+        return 0;
+    }
+
+    public HashMap updateInvariantFluents(HashMap invariantFluents) {
+        for (Object nf : this.getNumericFluentAffected()) {
+            invariantFluents.put(nf, Boolean.FALSE);
+        }
+        for (Predicate p : this.getPropositionAffected()) {
+            invariantFluents.put(p, Boolean.FALSE);
+        }
+        return invariantFluents;
+    }
+
+    public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {
+        Collection<NumFluent> res = new ArrayList<>();
+        for (NumEffect e: (Collection<NumEffect>)this.getConditionalNumericEffects().getAllEffects()){
+            res.addAll(e.getRight().getInvolvedNumericFluents());
+        }
+        return res;
+    }
 
 }
+
+
+
 
 
 //

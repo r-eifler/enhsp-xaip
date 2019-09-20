@@ -18,13 +18,9 @@
  */
 package com.hstairs.ppmajal.heuristics.operator_counting;
 
-import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.State;
-
-import java.util.Set;
 
 /**
  * @author enrico

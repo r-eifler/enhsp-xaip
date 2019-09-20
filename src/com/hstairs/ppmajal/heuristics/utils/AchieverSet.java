@@ -19,7 +19,7 @@
 package com.hstairs.ppmajal.heuristics.utils;
 
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.problem.GroundAction;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 /**
@@ -28,7 +28,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 public class AchieverSet {
 
     private float cost;
-    private ReferenceOpenHashSet<GroundAction> actions;
+    private ReferenceOpenHashSet<TransitionGround> actions;
     private ReferenceOpenHashSet<Condition> targetCond;
 
     public AchieverSet ( ) {
@@ -44,11 +44,11 @@ public class AchieverSet {
         this.cost = cost;
     }
 
-    public ReferenceOpenHashSet<GroundAction> getActions ( ) {
+    public ReferenceOpenHashSet<TransitionGround> getActions ( ) {
         return actions;
     }
 
-    public void setActions (ReferenceOpenHashSet<GroundAction> actions) {
+    public void setActions (ReferenceOpenHashSet<TransitionGround> actions) {
         this.actions = actions;
     }
 

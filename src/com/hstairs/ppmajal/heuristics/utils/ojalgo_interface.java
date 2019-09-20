@@ -25,9 +25,9 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import org.ojalgo.optimisation.Expression;
 import org.ojalgo.optimisation.ExpressionsBasedModel;
 import org.ojalgo.optimisation.Optimisation;
@@ -62,7 +62,7 @@ public final class ojalgo_interface extends LpInterface {
     }
 
     @Override
-    public void initialize (Collection<GroundAction> actions, PDDLState s_0) {
+    public void initialize (Collection<TransitionGround> actions, PDDLState s_0) {
         this.cond_lp_formulation = new HashMap();
         this.var_to_expr = new HashMap();
         this.affectors_of = new HashMap();
@@ -151,7 +151,7 @@ public final class ojalgo_interface extends LpInterface {
         return Float.MAX_VALUE;
     }
 
-    protected void init_condition (Collection<GroundAction> pool, PDDLState s_0) {
+    protected void init_condition (Collection<TransitionGround> pool, PDDLState s_0) {
 
         action_to_variable = new HashMap();
         Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
@@ -171,7 +171,7 @@ public final class ojalgo_interface extends LpInterface {
                 ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                 for (ExtendedAddendum ad : left.summations) {
                     if (ad.f != null) {
-                        for (GroundAction gr : pool) {
+                        for (TransitionGround gr : pool) {
 //                                                        System.out.println(gr);
 
                             if (gr.getNumericFluentAffected().contains(ad.f)) {
@@ -239,7 +239,7 @@ public final class ojalgo_interface extends LpInterface {
             } else if (cond instanceof Predicate) {
                 condition.lower(1);
                 Predicate p = (Predicate) cond;
-                for (GroundAction gr : pool) {
+                for (TransitionGround gr : pool) {
                     if (gr.weakAchiever(p)) {
                         pos_affectors_of.get(cond).add(gr);
                         affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list

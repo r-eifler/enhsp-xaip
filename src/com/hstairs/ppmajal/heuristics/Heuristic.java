@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -35,13 +36,13 @@ import java.util.logging.Logger;
  */
 public abstract class Heuristic {
 
-    protected Collection<GroundAction> reachable;
+    protected Collection<TransitionGround> reachable;
     public boolean additive_h = true;
     public int debug = 0;
-    public Collection<GroundAction> A;
+    public Collection<TransitionGround> A;
     public ComplexCondition G;
     public boolean why_not_active = false;
-    protected Collection<GroundAction> helpful_actions;
+    protected Collection<TransitionGround> helpful_actions;
     
     
     public int numberOfReachableConditions;
@@ -65,7 +66,7 @@ public abstract class Heuristic {
     }
     
 
-    public Heuristic(ComplexCondition G, Collection<GroundAction> A, Collection<GroundProcess> P, Collection<GroundEvent> E, ComplexCondition GC, EPddlProblem problem) {
+    public Heuristic(ComplexCondition G, Collection<TransitionGround> A, Collection<TransitionGround> P, Collection<TransitionGround> E, ComplexCondition GC, EPddlProblem problem) {
         super();
         this.G = G;
         this.A = new LinkedHashSet();
@@ -137,7 +138,7 @@ public abstract class Heuristic {
     }
 
     protected void simplify_actions(State init) {
-        for (GroundAction gr : this.A) {
+        for (TransitionGround gr : this.A) {
             try {
                 if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
                     int number_numericEffects = gr.getNumericEffects().sons.size();
@@ -178,14 +179,14 @@ public abstract class Heuristic {
     }
 
     public float gValue(State s, Object transition, State next, Float previousG) {
-        GroundAction gr = (GroundAction) transition;
+        TransitionGround gr = (GroundAction) transition;
         if (gr == null) {
             return previousG;
         }
         return getTransitionCost(s, gr,previousG,false);
     }
     
-    protected float getTransitionCost(State s, GroundAction gr, Float previousG, boolean ignoreCost){   
+    protected float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost){
         if (ignoreCost){
             return previousG + 1;
         }
@@ -196,7 +197,7 @@ public abstract class Heuristic {
         }  
     }
 
-    public Collection<GroundAction> getReachableTransitions() {
+    public Collection<TransitionGround> getReachableTransitions() {
         if (this.reachable == null){
             return this.A;
         }
@@ -206,7 +207,7 @@ public abstract class Heuristic {
     /**
      * @return the helpful_actions
      */
-    public Collection<GroundAction> getHelpfulActions() {
+    public Collection<TransitionGround> getHelpfulActions() {
         return this.reachable;
     }
 

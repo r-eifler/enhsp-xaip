@@ -411,16 +411,6 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Condition achieve (Predicate p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Condition delete (Predicate p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public HashMap apply (PDDLState state) {
         HashMap ret = new HashMap();
         apply(state, ret);
@@ -526,6 +516,60 @@ public class NumEffect extends Expression implements PostCondition {
         modifications.put(fluentAffected, after);
     }
 
+
+    public RelState apply (RelState s, RelState prev) {
+        if (!fluentAffected.has_to_be_tracked()) {
+            return s;
+        }
+        final Interval after = new Interval();
+        final Interval current = prev.functionValues(fluentAffected);
+
+        final Interval eval = this.getRight().eval(s);
+
+        if (this.getOperator().equals("increase")) {
+//            System.out.println(this);
+//            System.out.println(current);
+//            System.out.println(eval);
+            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
+                after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
+            }
+        } else if (getOperator().equals("decrease")) {
+            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
+                after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
+            }
+        } else if (getOperator().equals("assign")) {
+            if (additive_relaxation) {
+                if (this.getRight().getInvolvedNumericFluents().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                    } else {
+                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                    }
+                } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
+                    //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
+                    //monotonicity. Look at the report on generalize interval based relaxation.
+                    BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
+                    Interval monotonic_eval = bin.eval(s);
+                    after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
+                    after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
+                }
+            } else if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
+                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
+                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+            } else {
+                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
+                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+            }
+
+        }
+        s.possNumValues.put(fluentAffected.getId(),after);
+        return s;
+    }
+
     @Override
     public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         bui.append("(");
@@ -554,7 +598,6 @@ public class NumEffect extends Expression implements PostCondition {
         }
     }
 
-    @Override
     public Set<NumFluent> affectedNumericFluents ( ) {
         Set<NumFluent> ret = new HashSet();
         ret.add(fluentAffected);

@@ -11,6 +11,7 @@ import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -35,9 +36,9 @@ public class habs_add extends Heuristic {
     private HashMap<Pair<Comparison, Comparison>, Pair<NumEffect, NumEffect>> subactionsMap;
     private HashMap<Comparison, Float> comparisonBound;
     private boolean risky = false;
-    private HashMap<GroundAction, GroundAction> subactionOf;
+    private HashMap<TransitionGround, TransitionGround> subactionOf;
     protected EPddlProblem subProblem;
-    private Collection<GroundAction> subProblemActions ;
+    private Collection<TransitionGround> subProblemActions ;
 
 
 
@@ -96,7 +97,7 @@ public class habs_add extends Heuristic {
             generate_subactions(s);
             System.out.println("|Subactions| = " + subProblemActions.size());
             if (debug > 100) {
-                for (GroundAction gr : subProblemActions) {
+                for (TransitionGround gr : subProblemActions) {
                     System.out.println(gr.toPDDL() + "\n\n");
                 }
             }
@@ -151,7 +152,7 @@ public class habs_add extends Heuristic {
         // a holder for constant numeric effects
         ArrayList<NumEffect> allConstantEffects = new ArrayList();
 
-        for (GroundAction gr : A) {
+        for (TransitionGround gr : A) {
             allConstantEffects.clear();
 
             if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
@@ -231,7 +232,7 @@ public class habs_add extends Heuristic {
      * @throws Exception does not support non-linear effect right now.
      *                   <p>
      */
-    private void addPiecewiseSubactions (String name, GroundAction gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, PDDLState s_0) {
+    private void addPiecewiseSubactions (String name, TransitionGround gr, NumEffect effect, NumEffect effectOnCost, ArrayList<RelState> relaxedStates, PDDLState s_0) {
         // decomposition
         ArrayList<Interval> iis = decomposeRhs(effect, relaxedStates);
 
@@ -252,7 +253,7 @@ public class habs_add extends Heuristic {
             }
 //            repSample = midSampling(inf, sup);
             subactionName = name + " (" + inf.toString() + ',' + sup.toString() + ") ";// + effect.getFluentAffected().toString();
-            GroundAction subaction = generatePiecewiseSubaction(subactionName,
+            TransitionGround subaction = generatePiecewiseSubaction(subactionName,
                     repSample,
                     inf,
                     sup,
@@ -447,8 +448,8 @@ public class habs_add extends Heuristic {
         }
     }
 
-    private GroundAction generatePiecewiseSubaction (String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, GroundAction gr, PDDLState s_0) {
-        GroundAction subaction = new GroundAction(subactionName,subProblem.getFreshActionId());
+    private TransitionGround generatePiecewiseSubaction (String subactionName, Expression repSample, Float inf, Float sup, NumEffect effect, NumEffect effectOnCost, TransitionGround gr, PDDLState s_0) {
+        TransitionGround subaction = new GroundAction(subactionName,subProblem.getFreshActionId());
 
         // set up effect
         NumEffect supEff = new NumEffect(effect.getOperator());
@@ -510,8 +511,8 @@ public class habs_add extends Heuristic {
      * @param name   a string to distinguish between effects.
      * @param gr     the grounded action.
      */
-    private void addConstantSubaction (String name, GroundAction gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
-        GroundAction sup = new GroundAction(name,subProblem.getFreshActionId());
+    private void addConstantSubaction (String name, TransitionGround gr, ArrayList<NumEffect> allConstantEffects, NumEffect effectOnCost, PDDLState s_0) {
+        TransitionGround sup = new GroundAction(name,subProblem.getFreshActionId());
 
         // add preconditions
         sup.setPreconditions(gr.getPreconditions());
@@ -544,7 +545,7 @@ public class habs_add extends Heuristic {
         if (debug > 10) {
             System.out.println("State: " + s);
             System.out.println("Before updating subactions are: ");
-            for (GroundAction gr : this.subProblemActions) {
+            for (TransitionGround gr : this.subProblemActions) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("===================\n\n");
@@ -556,7 +557,7 @@ public class habs_add extends Heuristic {
 
         if (debug > 10) {
             System.out.println("After updating subactions are: ");
-            for (GroundAction gr : this.subProblemActions) {
+            for (TransitionGround gr : this.subProblemActions) {
                 System.out.println(gr.toPDDL() + "\n");
             }
             System.out.println("finish computeEstimate()!\n===================\n\n\n\n");
@@ -565,8 +566,8 @@ public class habs_add extends Heuristic {
         Float ret = habs.computeEstimate(s);
         if (this.helpful_actions_computation) {
             this.helpful_actions = new HashSet();
-            for (GroundAction gr : habs.getHelpfulActions()) {
-                GroundAction subaction = this.subactionOf.get(gr);
+            for (TransitionGround gr : habs.getHelpfulActions()) {
+                TransitionGround subaction = this.subactionOf.get(gr);
                 if (subaction != null)
                     this.getHelpfulActions().add(this.subactionOf.get(gr));
                 else

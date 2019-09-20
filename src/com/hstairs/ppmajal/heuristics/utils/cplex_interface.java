@@ -25,10 +25,9 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.heuristics.Heuristic;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import ilog.concert.*;
 import ilog.cplex.IloCplex;
 
@@ -41,10 +40,10 @@ import java.util.logging.Logger;
  */
 public final class cplex_interface extends LpInterface {
 
-    public final HashMap<Integer, Collection<GroundAction>> affectors_of;
-    public final HashMap<Condition, Collection<GroundAction>> pos_affectors_of;
+    public final HashMap<Integer, Collection<TransitionGround>> affectors_of;
+    public final HashMap<Condition, Collection<TransitionGround>> pos_affectors_of;
     public final IloCplex lp;
-    public HashMap<Integer, Collection<GroundAction>> affectors_of_temp;
+    public HashMap<Integer, Collection<TransitionGround>> affectors_of_temp;
     public ArrayList<Boolean> first_time;
     public IloNumVar[] action_variables;
     public Collection<IloConstraint> constraints;
@@ -68,7 +67,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    public void initialize (Collection<GroundAction> actions, PDDLState s_0) {
+    public void initialize (Collection<TransitionGround> actions, PDDLState s_0) {
 
         //first_time.set(c.getCounter(),true);
         this.init_condition(actions, s_0);
@@ -107,10 +106,10 @@ public final class cplex_interface extends LpInterface {
     @Override
     public float update_cost (PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h) {
 
-        Collection<GroundAction> affectors = this.affectors_of_temp.get(c.getHeuristicId());
-        Iterator<GroundAction> it = affectors.iterator();
+        Collection<TransitionGround> affectors = this.affectors_of_temp.get(c.getHeuristicId());
+        Iterator<TransitionGround> it = affectors.iterator();
         while (it.hasNext()) {
-            GroundAction gr = it.next();
+            TransitionGround gr = it.next();
             if (active_actions.get(gr.getId())) {
                 try {
                     IloNumVar v = this.action_to_variable.get(gr.getId());
@@ -174,7 +173,7 @@ public final class cplex_interface extends LpInterface {
     }
 
     @Override
-    protected void init_condition (Collection<GroundAction> pool, PDDLState s_0) {
+    protected void init_condition (Collection<TransitionGround> pool, PDDLState s_0) {
 
         action_to_variable = new HashMap();
         Collection<Condition> conditions_to_evaluate = new LinkedHashSet();
@@ -205,7 +204,7 @@ public final class cplex_interface extends LpInterface {
                     ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                     for (ExtendedAddendum ad : left.summations) {
                         if (ad.f != null) {
-                            for (GroundAction gr : pool) {
+                            for (TransitionGround gr : pool) {
 //                                                        System.out.println(gr);
 
                                 if (gr.getNumericFluentAffected().contains(ad.f)) {
@@ -269,7 +268,7 @@ public final class cplex_interface extends LpInterface {
                 try {
                     IloLinearNumExpr e = lp.linearNumExpr();
                     Predicate p = (Predicate) cond;
-                    for (GroundAction gr : pool) {
+                    for (TransitionGround gr : pool) {
                         if (gr.weakAchiever(p)) {
                             pos_affectors_of.get(cond).add(gr);
                             affectors_of.get(c.getHeuristicId()).add(gr);//add the actions to the affectors list

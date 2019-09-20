@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -753,12 +754,12 @@ public class ExtendedNormExpression extends Expression {
         return ret_val;
     }
 
-    public float eval_not_affected (PDDLState s_0, GroundAction action) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_not_affected (PDDLState s_0, TransitionGround action) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (final ExtendedAddendum ad : this.summations) {
             if (ad.f == null) {
                 current += ad.n;
-            } else if (!action.getNumericFluentAffected().contains(ad.f)) {
+            } else if (!action.affect(ad.f)) {
                 current += ad.n * ad.f.eval(s_0);
             } else {
                 Double coefficientAffected = action.getCoefficientAffected(ad.f);
@@ -783,7 +784,7 @@ public class ExtendedNormExpression extends Expression {
         return 0d;
     }
 
-    public float eval_affected (PDDLState s_0, GroundAction aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
+    public float eval_affected (PDDLState s_0, TransitionGround aThis) {//this applies only to linear expression. In the other cases the behavior is undefined
         float current = 0;
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {

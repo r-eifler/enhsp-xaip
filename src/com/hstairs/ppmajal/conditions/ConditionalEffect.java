@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
 
@@ -116,7 +117,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public String toSmtVariableString (int k, GroundAction gr, String var) {
+    public String toSmtVariableString (int k, TransitionGround gr, String var) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -176,13 +177,9 @@ public class ConditionalEffect extends Condition implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public boolean is_affected_by (GroundAction gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
-    public Condition regress (GroundAction gr) {
+    public Condition regress (TransitionGround gr) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -194,43 +191,6 @@ public class ConditionalEffect extends Condition implements PostCondition {
     @Override
     public boolean can_be_false (RelState aThis) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Condition achieve (Predicate p) {
-        Condition c = this.effect.achieve(p);
-        if (c == null) {
-            return null;
-        }
-        if (c.isValid()) {
-            return this.activation_condition;
-        }
-        if (c.isUnsatisfiable()) {
-            return c;
-        }
-        AndCond and = new AndCond();
-        and.addConditions(this.activation_condition);
-        and.addConditions(c);
-        return and;
-
-    }
-
-    @Override
-    public Condition delete (Predicate p) {
-        Condition c = this.effect.delete(p);
-        if (c == null) {
-            return null;
-        }
-        if (c.isValid()) {
-            return this.activation_condition;
-        }
-        if (c.isUnsatisfiable()) {
-            return c;
-        }
-        AndCond and = new AndCond();
-        and.addConditions(this.activation_condition);
-        and.addConditions(c);
-        return and;
     }
 
     @Override
@@ -331,7 +291,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<GroundAction> established_achiever) {
+    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -351,14 +311,6 @@ public class ConditionalEffect extends Condition implements PostCondition {
     @Override
     public Condition introduce_red_constraints ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Set<NumFluent> affectedNumericFluents ( ) {
-        if (this.effect != null)
-            return this.effect.affectedNumericFluents();
-        else
-            return new HashSet();
     }
 
     @Override

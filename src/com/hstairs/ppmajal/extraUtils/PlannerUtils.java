@@ -7,9 +7,9 @@ import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.heuristics.advanced.hlm;
 import com.hstairs.ppmajal.heuristics.blindHeuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.GroundAction;
 import com.hstairs.ppmajal.search.PDDLSearchEngine;
 import com.hstairs.ppmajal.search.SearchEngine;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -140,7 +140,7 @@ public class PlannerUtils {
         domain.prettyPrint();
         problem.groundingActionProcessesConstraints();
         problem.simplifyAndSetupInit();
-        Collection<GroundAction> reachableActions = problem.getReachableActions();
+        Collection<TransitionGround> reachableActions = problem.getReachableActions();
         return reachableActions.size();
 
     }
