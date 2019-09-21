@@ -502,8 +502,8 @@ public final class PddlDomain extends Object {
         String processName = process.getText();
         Condition precondition = null;
         SchemaParameters par = null;
-        ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PREDICATE);
-        ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMFLUENTS);
+        ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PROPEFFECT);
+        ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMEFFECT);
         
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);

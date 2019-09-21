@@ -18,11 +18,12 @@
  */
 package com.hstairs.ppmajal.search;
 
-import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.*;
 import java.io.PrintStream;
@@ -71,7 +72,7 @@ public class SearchEngine {
     private boolean optimality;
     private long beginningTime;
     //dealing with continuous change
-    private Collection<GroundProcess> reachableProcesses;
+    private Collection<TransitionGround> reachableProcesses;
     private Collection<TransitionGround> reachableEvents;
     private boolean incremental;
     private long previousTime;
@@ -182,12 +183,8 @@ public class SearchEngine {
 
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
-                    
                     s.apply(ev,s.clone());
-                    TransitionGround ev1 = (GroundEvent) ev.clone();
-                    ev1.time = delta1;
-                    ret.add(ev1);
-
+                    ret.add(ev);
                 }
             }
             if (!at_least_one) {
@@ -209,7 +206,7 @@ public class SearchEngine {
 
     }
 
-    public List<GroundAction> a_star(EPddlProblem problem) throws Exception {
+    public List<TransitionGround> a_star(EPddlProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
         return this.WAStar(problem);
@@ -217,11 +214,11 @@ public class SearchEngine {
 
 
 
-    public LinkedList<GroundAction> enforced_hill_climbing(EPddlProblem problem) throws Exception {
+    public LinkedList<TransitionGround> enforced_hill_climbing(EPddlProblem problem) throws Exception {
         return this.enforced_hill_climbing(problem, Explorator.BRFS);
     }
 
-    public LinkedList<GroundAction> enforced_hill_climbing(EPddlProblem problem, Explorator explorator) throws Exception {
+    public LinkedList<TransitionGround> enforced_hill_climbing(EPddlProblem problem, Explorator explorator) throws Exception {
         long start_global = System.currentTimeMillis();
 
         getHeuristic().setup(problem.getInit());
@@ -230,7 +227,7 @@ public class SearchEngine {
 
         State current = problem.getInit();
 
-        LinkedList<GroundAction> plan = new LinkedList<>();
+        LinkedList<TransitionGround> plan = new LinkedList<>();
         //a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit(), problem.getActions()));
 //        rel_actions = getHeuristic().reachable;
         setNumberOfEvaluatedStates(0);
@@ -531,14 +528,14 @@ public class SearchEngine {
         return this.lastState;
     }
 
-    public LinkedList<GroundAction> WAStar(EPddlProblem problem) throws Exception {
+    public LinkedList<TransitionGround> WAStar(EPddlProblem problem) throws Exception {
         return WAStar(problem, false, Long.MAX_VALUE);
     }
-    public LinkedList<GroundAction> WAStar(EPddlProblem problem, long timeout) throws Exception {
+    public LinkedList<TransitionGround> WAStar(EPddlProblem problem, long timeout) throws Exception {
         return WAStar(problem, false, timeout);
     }
 
-    public LinkedList<GroundAction> WAStar(EPddlProblem problem, boolean treeSearch, long timeout) throws Exception {
+    public LinkedList<TransitionGround> WAStar(EPddlProblem problem, boolean treeSearch, long timeout) throws Exception {
         SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch, timeout);
         if (end != null) {
             return this.extractPlan(end);
@@ -556,7 +553,7 @@ public class SearchEngine {
      * @return A sequence of actions
      * @throws Exception Throws generic expression for now.
      */
-    public LinkedList<GroundAction> blindSearch(EPddlProblem problem) throws Exception {
+    public LinkedList<TransitionGround> blindSearch(EPddlProblem problem) throws Exception {
 
         out.println("Blind Search");
         if (this.tbRule == null) {
@@ -613,7 +610,7 @@ public class SearchEngine {
             }
 
             for (TransitionGround act : getHeuristic().getReachableTransitions()) {
-                if (act instanceof GroundProcess) {
+                if (act.getSemantics() == Transition.Semantics.PROCESS) {
                 } else if (act.isApplicable(current_node.s)) {
                     State temp = current_node.s.clone();
                     temp.apply(act,current_node.s);
@@ -652,12 +649,12 @@ public class SearchEngine {
         return null;
     }
 
-    public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem) throws Exception{
+    public LinkedList<TransitionGround> greedy_best_first_search(EPddlProblem problem) throws Exception{
         this.optimality = false;
         return this.greedy_best_first_search(problem,Long.MAX_VALUE);
     }
     
-    public LinkedList<GroundAction> greedy_best_first_search(EPddlProblem problem,long timeout) throws Exception {
+    public LinkedList<TransitionGround> greedy_best_first_search(EPddlProblem problem, long timeout) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem,timeout);
@@ -737,27 +734,26 @@ public class SearchEngine {
                 waiting_list.addAll(apply_events(temp_temp, i));
                 i += executionDelta;
 
-                TransitionGround waiting = new GroundProcess("waiting", -1);
-                waiting.setNumericEffects(new AndCond());
-                waiting.setPreconditions(new AndCond());
-                //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);
-                waiting.addDelta(executionDelta);
+
                 boolean atLeastOne = false;
-                for (GroundAction act : this.reachableProcesses) {
-                    if (act instanceof GroundProcess) {
-                        GroundProcess gp = (GroundProcess) act;
-                        if (gp.isActive(temp_temp)) {
+                ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
+                for (TransitionGround act : this.reachableProcesses) {
+                    if (act.getSemantics() == Transition.Semantics.PROCESS) {
+                        TransitionGround gp = (TransitionGround) act;
+                        if (gp.isApplicable(temp_temp)) {
                             atLeastOne = true;
                             //out.println(gp.toEcoString());
-                            AndCond precondition = (AndCond) waiting.getPreconditions();
-                            precondition.addConditions(gp.getPreconditions());
-                            for (NumEffect eff : gp.getNumericEffectsAsCollection()) {
-                                waiting.add_numeric_effect(eff);
+
+                            for (NumEffect eff : (Collection<NumEffect>)gp.getConditionalNumericEffects().getAllEffects()) {
+                                numEffect.add(eff);
                             }
-                            waiting.setPreconditions(precondition);
                         }
+                    }else{
+                        throw new RuntimeException("This shouldn't happen");
                     }
                 }
+
+                TransitionGround waiting = new TransitionGround(null,"waiting",null,numEffect,null, Transition.Semantics.PROCESS);
 //                if (!atLeastOne){
 //                    return;
 //                }
@@ -799,17 +795,17 @@ public class SearchEngine {
         }
     }
 
-      public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+      public LinkedList<TransitionGround> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         return idastar(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, Long.MAX_VALUE);
     }
-    public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
+    public LinkedList<TransitionGround> idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, Long.MAX_VALUE);
     }
-    public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix,long timeout) throws Exception {
+    public LinkedList<TransitionGround> idastar(EPddlProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, timeout);
     }
 
-    public LinkedList<GroundAction> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
+    public LinkedList<TransitionGround> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
         State initState = problem.getInit();
 
         beginningTime = System.currentTimeMillis();
@@ -861,13 +857,13 @@ public class SearchEngine {
 
     }
     
-        public LinkedList<GroundAction> dfsbnb(EPddlProblem problem) throws Exception {
+        public LinkedList<TransitionGround> dfsbnb(EPddlProblem problem) throws Exception {
             return this.dfsbnb(problem, false);
         }
 
     
 
-    public LinkedList<GroundAction> dfsbnb(EPddlProblem problem, boolean memory) throws Exception {
+    public LinkedList<TransitionGround> dfsbnb(EPddlProblem problem, boolean memory) throws Exception {
         State initState = problem.getInit();
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;

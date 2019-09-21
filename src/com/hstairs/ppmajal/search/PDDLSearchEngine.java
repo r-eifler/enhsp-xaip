@@ -20,7 +20,9 @@ package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -36,28 +38,16 @@ public class PDDLSearchEngine extends SearchEngine {
     }
 
     @Override
-    public LinkedList<TransitionGround> extractPlan (SimpleSearchNode input) {
+    public LinkedList<Pair<Float,TransitionGround>> extractPlan (SimpleSearchNode input) {
 
-        LinkedList<TransitionGround> plan = new LinkedList<>();
+        LinkedList<Pair<Float,TransitionGround>> plan = new LinkedList<>();
         lastState = input.s;
         if (!(input instanceof SearchNode)) {
             SimpleSearchNode temp = input;
             while (temp.transition != null) {
                 Double time = null;
-                TransitionGround gr = null;
-                    throw new UnsupportedOperationException();
-//                try {
-//                    gr = (TransitionGround) ((TransitionGround) temp.transition).clone();
-//                    if (time != null) {
-//                        gr.time = time.floatValue();
-//                    } else {
-//                        gr.time = 0f;
-//                    }
 
-//                } catch (CloneNotSupportedException ex) {
-//                    Logger.getLogger(PDDLSearchEngine.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-                plan.addFirst(gr);
+                plan.addFirst(Pair.of(0f,(TransitionGround)temp.transition));
                 temp = temp.father;
             }
             return plan;
@@ -70,32 +60,15 @@ public class PDDLSearchEngine extends SearchEngine {
                 time = ((PDDLState) c.father.s).time;
             }
             if (c.transition != null) {//this is an action
-                TransitionGround gr = null;
-                throw new UnsupportedOperationException();
-
-//                try {
-//                    gr = (GroundAction) ((GroundAction) c.transition).clone();
-//                    if (time != null) {
-//                        gr.time = time.floatValue();
-//                    } else {
-//                        gr.time = 0f;
-//                    }
-//
-//                } catch (CloneNotSupportedException ex) {
-//                    Logger.getLogger(PDDLSearchEngine.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-
-                plan.addFirst(gr);
+                plan.addFirst(Pair.of(time.floatValue(),(TransitionGround)c.transition));
             } else {//this is a process or an event
                 for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
                     TransitionGround w = (TransitionGround) c.list_of_actions.get(k);
-                    if (w instanceof TransitionGround) {
-                        w.setName("--------->waiting");
-                        plan.addFirst(w);
-                    } else {
+                    if (w.getSemantics() == Transition.Semantics.PROCESS) {
                         //w.setName("--------->waiting");
-//                            ((GroundEvent) w).time = new Float(time);
-                        plan.addFirst(w);
+                        plan.addFirst(Pair.of(0f,w));
+                    } else {
+                        plan.addFirst(Pair.of(0f,w));
                     }
                 }
             }

@@ -41,7 +41,7 @@ public class ConditionalEffects<T> {
         return res;
     }
 
-    public enum VariableType {PREDICATE, NUMFLUENTS};
+    public enum VariableType {PROPEFFECT, NUMEFFECT};
     final private VariableType  t;
     public ConditionalEffects(VariableType  t1){
         this.t = t1;
