@@ -19,16 +19,10 @@
 package com.hstairs.ppmajal.heuristics;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.extraUtils.Pair;
-import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -86,13 +80,13 @@ public abstract class Heuristic {
     //this initializer is mandatory for being executed before each invocation of the heuristic
     public abstract Float setup(State s_0);
 
-    public void forceUniquenessInConditionsAndInternalActions() {
+    public void forceUniquenessInConditionsAndInternalActions(State s) {
         conditionUniverse = new ArrayList<>();
         int counter_conditions = 0;
 
         fromConditionStringToUniqueInteger = new HashMap();
-        ArrayList<GroundAction> actions_to_consider = new ArrayList(A);
-        for (GroundAction a : actions_to_consider) {
+        ArrayList<TransitionGround> actions_to_consider = new ArrayList(A);
+        for (TransitionGround a : actions_to_consider) {
 
             if (a.getPreconditions() != null) {
                 for (Condition condition : a.getPreconditions().getTerminalConditions()) {
@@ -100,11 +94,9 @@ public abstract class Heuristic {
                 }
             }
         }
-        for (GroundAction a : actions_to_consider) {
-            if (a.getAddList() != null && a.getAddList().sons != null) {
-                for (Condition condition : (Set<Condition>) a.getAddList().sons) {
-                    counter_conditions = establishHeuristicConditionId(condition, counter_conditions);
-                }
+        for (TransitionGround a : actions_to_consider) {
+            for (Condition condition : a.getAllEffectPredicates()) {
+                counter_conditions = establishHeuristicConditionId(condition, counter_conditions);
             }
         }
 
@@ -137,49 +129,9 @@ public abstract class Heuristic {
 
     }
 
-    protected void simplify_actions(State init) {
-        for (TransitionGround gr : this.A) {
-            try {
-                if (gr.getNumericEffects() != null && !gr.getNumericEffects().sons.isEmpty()) {
-                    int number_numericEffects = gr.getNumericEffects().sons.size();
-                    for (Iterator it = gr.getNumericEffects().sons.iterator(); it.hasNext();) {
-                        NumEffect neff = (NumEffect) it.next();
-                        if (neff.getOperator().equals("assign")) {
-                            ExtendedNormExpression right = (ExtendedNormExpression) neff.getRight();
-                            try {
-
-                                //The following has been disabled as it is not clear whether particular assignments can indeed be treated
-                                //as pseudo increase effects which aren't state dependent.
-//                                if (true) {
-//
-//                                } else {
-//                                    if (right.isNumber() && neff.getFluentAffected().eval(init) != null && (number_numericEffects == 1 || risky)) {
-//                                        //constant effect
-//                                        //Utils.dbg_print(3,neff.toString());
-//                                        //                            if (number_numericEffects == 1) {
-//                                        System.out.println(neff);
-//                                        neff.setOperator("increase");
-//                                        neff.setRhs(new BinaryOp(neff.getRhs(), "-", neff.getFluentAffected(), true).normalize());
-//                                        neff.setPseudo_num_effect(true);
-//                                        //                            }
-//                                    }
-////                                }
-                            } catch (Exception ex) {
-                                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    }
-                }
-                gr.normalize();
-            } catch (Exception ex) {
-                Logger.getLogger(h1.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        this.G = (ComplexCondition) this.G.normalize();
-    }
 
     public float gValue(State s, Object transition, State next, Float previousG) {
-        TransitionGround gr = (GroundAction) transition;
+        TransitionGround gr = (TransitionGround) transition;
         if (gr == null) {
             return previousG;
         }

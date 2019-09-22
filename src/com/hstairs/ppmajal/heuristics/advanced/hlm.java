@@ -19,8 +19,6 @@
 package com.hstairs.ppmajal.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.extraUtils.Utils;
-import com.hstairs.ppmajal.heuristics.Aibr;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import ilog.concert.*;
@@ -66,7 +64,7 @@ public class hlm extends h1 {
 
         this.additive_h = false;
 
-        super.dataStructureConstruction();
+        super.dataStructureConstruction(s);
         Float reachabilityComputeEstimate = reachabilityComputeEstimate(gs);
         
         needs_checking_state_dependent_constraints = false;

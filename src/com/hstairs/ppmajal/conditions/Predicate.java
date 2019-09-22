@@ -44,9 +44,7 @@ public class Predicate extends Terminal implements PostCondition {
         this.variables = variables;
         this.id = id;
     }
-    
-    
-    
+
     public static HashMap<Pair<String,ArrayList>,Predicate> predicates;
     public static HashMap<Integer,Predicate> idToPredicate;
     

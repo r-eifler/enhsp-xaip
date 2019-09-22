@@ -85,7 +85,7 @@ public class quasi_hm extends Heuristic {
         A = first_reachH.getReachableTransitions();
         this.simplify_actions(s);
         this.cond_to_actions = new HashMap();
-        forceUniquenessInConditionsAndInternalActions();
+        forceUniquenessInConditionsAndInternalActions(s);
         //identify_complex_conditions(all_conditions, A);
         generate_achievers(s);
         try {
@@ -106,7 +106,7 @@ public class quasi_hm extends Heuristic {
     }
 
     @Override
-    public void forceUniquenessInConditionsAndInternalActions ( ) {
+    public void forceUniquenessInConditionsAndInternalActions(State s) {
         int counter2 = 0;
         conditionUniverse = new LinkedHashSet();
         int counter_actions = 0;

@@ -23,30 +23,35 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
+
 
 public abstract class Transition {
+    public static int totNumberOfTransitions = 0;
+    final private int id;
+    public static ArrayList<Transition> id2transition= new ArrayList();
     public enum Semantics{ACTION, PROCESS, EVENT}
 
     final protected String name;
     final protected ConditionalEffects conditionalPropositionalEffects;
-    final protected ConditionalEffects conditionalNumericEffects;
+    final protected ConditionalEffects<NumEffect> conditionalNumericEffects;
     final protected Condition preconditions;
     final protected Semantics semantics;
-
-
-
     protected Transition(String name, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
         this.name = name;
         this.conditionalPropositionalEffects = conditionalPropositionalEffects;
         this.conditionalNumericEffects = conditionalNumericEffects;
         this.preconditions = preconditions;
         this.semantics = semantcis;
+        id = this.totNumberOfTransitions;
+        id2transition.add(this);
+        totNumberOfTransitions++;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
@@ -57,7 +62,7 @@ public abstract class Transition {
         return preconditions;
     }
 
-    public ConditionalEffects getConditionalNumericEffects() {
+    public ConditionalEffects<NumEffect> getConditionalNumericEffects() {
         return conditionalNumericEffects;
     }
 
@@ -72,7 +77,7 @@ public abstract class Transition {
         return this.conditionalPropositionalEffects.getAllAffectedVariables();
     }
 
-    public Collection<NumFluent> getNumericFluentAffected() {
+    public Collection<NumEffect> getNumericFluentAffected() {
         return this.conditionalNumericEffects.getAllAffectedVariables();
     }
 
@@ -130,6 +135,15 @@ public abstract class Transition {
         }
         return res;
     }
+    public Iterable<? extends Condition> getAllEffectPredicates() {
+        Collection<Condition> res = new HashSet<>();
+        res.addAll(this.conditionalNumericEffects.getActualConditionalEffects().keySet());
+        res.addAll(this.conditionalPropositionalEffects.getActualConditionalEffects().keySet());
+        res.addAll(this.conditionalPropositionalEffects.getEffects());
+        res.addAll(this.conditionalPropositionalEffects.getActualConditionalEffects().values());
+        return res;
+    }
+
 
 }
 

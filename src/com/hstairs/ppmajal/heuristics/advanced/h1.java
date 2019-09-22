@@ -33,6 +33,7 @@ import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
@@ -65,7 +66,6 @@ public class h1 extends Heuristic {
     protected Collection<Comparison>[] possibleAchievers;
     protected ReferenceLinkedOpenHashSet<TransitionGround>[] invertedPossibleAchievers;
     protected Collection<TransitionGround>[] precondition_mapping;
-    protected TransitionGround pseudoGoal;
     protected AndCond[] extraActionPrecondition;
     protected Collection<TransitionGround>[] conditionToAction;
     private float[] cost;
@@ -90,6 +90,14 @@ public class h1 extends Heuristic {
     private HashMap<Pair<Integer, Integer>, Comparison> directAssignmentConditionHandle;
     public boolean aggressiveRelaxedPlan;
 
+
+    private int pseudoGoal;
+    private Condition[] preconditionFunction;
+    private Collection<Condition>[] propEffectFunction;
+    private Collection<NumEffect>[] numericEffectFunction;
+    private float[] actionCost;
+    private int heuristicNumberOfActions;
+
     public h1(EPddlProblem problem) {
         this(problem, false);
     }
@@ -100,7 +108,7 @@ public class h1 extends Heuristic {
         this.ignoreCostInHeuristic = ignoreCostHeuristic;
     }
 
-    protected void dataStructureConstruction(){
+    protected void dataStructureConstruction(State s){
     
         if (useRedundantConstraints) {
             this.addRedundantConstraints();
@@ -110,7 +118,7 @@ public class h1 extends Heuristic {
         } else {
             minimumActionCost = 0.0f;
         }
-        forceUniquenessInConditionsAndInternalActions();
+        buildAbstractDynamicsRepresentation(s);
         generateAchieversDataStructures();
         generateConditionToActionMap();
         identifyComplexConditions(A);
@@ -129,59 +137,37 @@ public class h1 extends Heuristic {
     
     @Override
     public Float setup (State s) {
-        this.dataStructureConstruction();
+        this.dataStructureConstruction(s);
         return this.reachabilityComputeEstimate(s);
     }
 
-    @Override
-    public void forceUniquenessInConditionsAndInternalActions ( ) {
+    public void buildAbstractDynamicsRepresentation(State s) {
         ArrayList<TransitionGround> internalActions = new ArrayList();
-        heuristicActionsToProblemActions = new com.hstairs.ppmajal.transition.TransitionGround[A.size()+1];
-        fromIdToAction = new com.hstairs.ppmajal.transition.TransitionGround[A.size()+1];
-        pseudoGoal = new GroundAction("goal",internalActions.size());
-        pseudoGoal.setPreconditions(G);
-        internalActions.add(pseudoGoal);
-        fromIdToAction[pseudoGoal.getId()] = pseudoGoal;
-        
-        conditionUniverse = new ArrayList<>();
-        fromConditionStringToUniqueInteger = new HashMap();
-        int conditionsCounter = 0;
+        pseudoGoal = Transition.totNumberOfTransitions;
+        heuristicNumberOfActions = Transition.totNumberOfTransitions+1;
+        preconditionFunction = new Condition[heuristicNumberOfActions];
+        propEffectFunction = new Collection[heuristicNumberOfActions];
+        numericEffectFunction = new Collection[heuristicNumberOfActions];
         for (TransitionGround b : A) {
-//            if (!internalActions.contains(b)){
-                TransitionGround a = new GroundAction(b,internalActions.size());
-                internalActions.add(a);
-                heuristicActionsToProblemActions[a.getId()] = b;
-                fromIdToAction[a.getId()] = a;
-                if (a.getPreconditions() != null) {
-                    for (Condition c_1 : a.getPreconditions().getTerminalConditions()) {
-                        conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
-                    }
-                }
-//            }
-        }
-        A = internalActions;
-        
-        for (TransitionGround a : A) {
-            if (a.getAddList() != null && a.getAddList().sons != null) {
-                for (Condition c_1 : (Set<Condition>) a.getAddList().sons) {
-                    conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
-                }
+            if (useRedundantConstraints) {
+                preconditionFunction[b.getId()] = b.getPreconditions().introduce_red_constraints();
+            }else{
+                preconditionFunction[b.getId()] = b.getPreconditions();
             }
+            propEffectFunction[b.getId()] = b.getConditionalPropositionalEffects().getAllEffects();
+            numericEffectFunction[b.getId()] = b.getConditionalNumericEffects().getAllEffects();
+            actionCost[b.getId()] = b.getActionCost(s,problem.getMetric());
         }
-
-        for (Condition c_1 : G.getTerminalConditions()) {
-            conditionsCounter = establishHeuristicConditionId(c_1, conditionsCounter);
+        if (useRedundantConstraints){
+            preconditionFunction[pseudoGoal] = G.introduce_red_constraints();
+        }else {
+            preconditionFunction[pseudoGoal] = G;
         }
-        numberOfAtoms = conditionsCounter;//index of the last atom
     }
 
     
     public void light_setup (PDDLState s) {
-        this.dataStructureConstruction();
-    }
-
-    protected void addTriggerCondition (Predicate dummyPredicate, TransitionGround pseudoGoal) {
-        getExtraTrigger()[dummyPredicate.getHeuristicId()] = pseudoGoal;
+        this.dataStructureConstruction(s);
     }
 
     @Override
@@ -191,8 +177,7 @@ public class h1 extends Heuristic {
         if (this.reachabilityRun) {
             this.reachable = new ArrayList();
         }
-        if (s.satisfy(pseudoGoal.getPreconditions()) && extraActionPrecondition[pseudoGoal.getId()] == null) {
-//            System.out.println("Goal satisfied??");
+        if (s.satisfy(preconditionFunction[pseudoGoal]) && extraActionPrecondition[pseudoGoal] == null) {
             return 0f;
         }
 
@@ -204,8 +189,8 @@ public class h1 extends Heuristic {
         }
         allAchievers = new ReferenceLinkedOpenHashSet[conditionUniverse.size() + 1];
         float estimate = Float.MAX_VALUE;
-        FibonacciHeap<GroundAction> a_plus = new FibonacciHeap();
-        FibonacciHeapNode[] actionToFibNode = new FibonacciHeapNode[this.A.size()];
+        FibonacciHeap<Integer> a_plus = new FibonacciHeap();
+        FibonacciHeapNode[] actionToFibNode = new FibonacciHeapNode[heuristicNumberOfActions];
 //        IntPriorityQueue a_plus = new it.unimi.dsi.fastutil.ints.IntHeapPriorityQueue(new GroundActionComparator());
         cost = new float[conditionUniverse.size() + 1];
         Arrays.fill(cost, Float.MAX_VALUE);
