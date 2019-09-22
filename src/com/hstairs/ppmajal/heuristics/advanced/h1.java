@@ -97,6 +97,7 @@ public class h1 extends Heuristic {
     private Collection<NumEffect>[] numericEffectFunction;
     private float[] actionCost;
     private int heuristicNumberOfActions;
+    private int totNumberOfTerms;
 
     public h1(EPddlProblem problem) {
         this(problem, false);
@@ -163,6 +164,8 @@ public class h1 extends Heuristic {
         }else {
             preconditionFunction[pseudoGoal] = G;
         }
+        totNumberOfTerms = Predicate.predicates.values().size() + Comparison.getComparisonDataBase().values().size() + NotCond.notcondDB.values().size();
+
     }
 
     
