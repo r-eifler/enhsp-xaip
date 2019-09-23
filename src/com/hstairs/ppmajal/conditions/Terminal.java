@@ -30,6 +30,12 @@ import java.util.List;
  */
 public abstract class Terminal extends Condition {
 
+    public final int id;
+
+    public Terminal(int id) {
+        this.id = id;
+    }
+
     @Override
     public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
         int current_dist = dist.get(this.getHeuristicId());

@@ -35,14 +35,13 @@ public class Predicate extends Terminal implements PostCondition {
 
     final private String name;
     final private ArrayList variables;
-    final private static Predicate truePredicate = new Predicate(true);
-    final private static Predicate falsePredicate = new Predicate(false);
-    final private int id;
-    
+    final private static Predicate truePredicate = new Predicate(0);
+    final private static Predicate falsePredicate = new Predicate(1);
+
     private Predicate (String name, ArrayList variables, int id) {
+        super(id);
         this.name = name;
         this.variables = variables;
-        this.id = id;
     }
 
     public static HashMap<Pair<String,ArrayList>,Predicate> predicates;
@@ -73,15 +72,15 @@ public class Predicate extends Terminal implements PostCondition {
         }
     }
 
-    private Predicate(boolean b) {
-        if (b){
+    //This is a mere convention
+    private Predicate(int id) {
+        super(id);
+        if (id == 0){
             this.name = "TRUE";
             this.setValid(true);
-            this.id = 0;
         }else{
             this.name = "FALSE";
             this.setUnsatisfiable(true);
-            this.id = 1;
         }
         variables = null;
     }

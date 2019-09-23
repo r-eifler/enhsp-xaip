@@ -37,8 +37,7 @@ public class Comparison extends Terminal {
     private String comparator;
     private Expression left;
     private Expression right;
-    public final int id;
-    
+
     boolean normalized;
     //This needs to go away at some point
     public Comparison fatherFromRegression = null;
@@ -71,10 +70,10 @@ public class Comparison extends Terminal {
     }
     
     private Comparison(String comparator, Expression left, Expression right, int id, boolean normalized) {
+        super(id);
         this.comparator = comparator;
         this.left = left;
         this.right = right;
-        this.id = id;
         this.normalized = normalized;
     }
 

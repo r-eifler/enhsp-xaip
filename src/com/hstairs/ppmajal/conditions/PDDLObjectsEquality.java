@@ -20,6 +20,7 @@ package com.hstairs.ppmajal.conditions;
 
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
@@ -36,17 +37,21 @@ public class PDDLObjectsEquality extends Terminal {
     private Variable leftV;
     private Variable rightV;
 
+
+
     public PDDLObjectsEquality ( ) {
-        grounded = false;
+        super(-1); grounded = false;
     }
 
     public PDDLObjectsEquality (Variable leftV, Variable rightV) {
+        super(-1);
         this.leftV = leftV;
         this.rightV = rightV;
         grounded = false;
     }
 
     private PDDLObjectsEquality (PDDLObject t1, PDDLObject t2) {
+        super(-1);
         left = t1;
         right = t2;
         grounded = true;

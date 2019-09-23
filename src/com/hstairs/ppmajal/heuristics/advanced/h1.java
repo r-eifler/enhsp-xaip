@@ -23,6 +23,7 @@
  */
 package com.hstairs.ppmajal.heuristics.advanced;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -36,13 +37,13 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import org.jgrapht.util.FibonacciHeap;
 
 import java.util.*;
 
+import static com.google.common.collect.Sets.*;
 import static java.lang.System.out;
 import static java.util.Collections.nCopies;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,62 +52,77 @@ import org.jgrapht.util.FibonacciHeapNode;
 /**
  * @author enrico
  */
-public class h1 extends Heuristic {
+public class h1 implements Heuristic {
 
-    public boolean useRedundantConstraints = false;
-    public boolean extractRelaxedPlan = false;
-    public boolean conservativehmax = true;
-    public boolean ibrDisabled = false;
-    public boolean integer_actions = false;
-    public boolean only_mutual_exclusion_processes = false;
+    final private boolean useRedundantConstraints;
+    final public boolean extractRelaxedPlan;
 
-    protected boolean reachabilityRun;
-    protected Collection<Terminal>[] achieve;
-    protected ReferenceLinkedOpenHashSet<TransitionGround>[] invertedAchievers;
-    protected Collection<Comparison>[] possibleAchievers;
-    protected ReferenceLinkedOpenHashSet<TransitionGround>[] invertedPossibleAchievers;
-    protected Collection<TransitionGround>[] precondition_mapping;
-    protected AndCond[] extraActionPrecondition;
-    protected Collection<TransitionGround>[] conditionToAction;
-    private float[] cost;
-    private float[] actionHCost;
-    private TransitionGround[] establishedAchiever;
-    private AchieverSet[] achieversSet;
-    private Set<TransitionGround>[] allAchievers;
-    private boolean[] closed;
-    private float minimumActionCost;
-    private List<Pair<TransitionGround, Float>> relaxedPlan;
-    private float[] establishedLocalCost;
-    private Object2FloatMap action_comp_number_execution;
-    private TransitionGround[] extraTrigger;
-    private TransitionGround[] heuristicActionsToProblemActions;
-    private HashMap redundant_constraints;
-    
-    protected ArrayList<Boolean> is_complex;
-    protected HashMap<Condition, Boolean> new_condition;
-    protected Collection<Comparison> complex_condition_set;
-    private TransitionGround[] fromIdToAction;
-    private Set<TransitionGround> masterProblemReachableTransitions;
-    private HashMap<Pair<Integer, Integer>, Comparison> directAssignmentConditionHandle;
-    public boolean aggressiveRelaxedPlan;
+    final private int pseudoGoal;
+    final private Condition[] preconditionFunction;
+    final private Collection<Condition>[] propEffectFunction;
+    final private Collection<NumEffect>[] numericEffectFunction;
+    final private int heuristicNumberOfActions;
+    final private int totNumberOfTerms;
+    final private EPddlProblem problem;
+    private final Collection[] invertedAchievers;
+    private final Collection[] achieve;
+    private final Collection[] possibleAchievers;
+    private final Collection[] invertedPossibleAchievers;
+    private final Collection[] preconditionToAction;
+    private final Collection[] conditionToAction;
 
-
-    private int pseudoGoal;
-    private Condition[] preconditionFunction;
-    private Collection<Condition>[] propEffectFunction;
-    private Collection<NumEffect>[] numericEffectFunction;
     private float[] actionCost;
-    private int heuristicNumberOfActions;
-    private int totNumberOfTerms;
 
     public h1(EPddlProblem problem) {
-        this(problem, false);
-    }
-
-    public h1(EPddlProblem problem, boolean ignoreCostHeuristic) {
-        super(problem.getGoals(), problem.actions, problem.getProcessesSet(), problem.getEventsSet(), null, problem);
         this.problem = problem;
-        this.ignoreCostInHeuristic = ignoreCostHeuristic;
+        this.useRedundantConstraints = false;
+        extractRelaxedPlan = true;
+        ArrayList<TransitionGround> internalActions = new ArrayList<>();
+        pseudoGoal = Transition.totNumberOfTransitions;
+        heuristicNumberOfActions = Transition.totNumberOfTransitions+1;
+        preconditionFunction = new Condition[heuristicNumberOfActions];
+        propEffectFunction = new Collection[heuristicNumberOfActions];
+        numericEffectFunction = new Collection[heuristicNumberOfActions];
+
+        SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(problem.actions), problem.getEventsSet()),problem.getProcessesSet());
+        for (TransitionGround b : transitions) {
+            if (useRedundantConstraints) {
+                preconditionFunction[b.getId()] = b.getPreconditions().introduce_red_constraints();
+            }else{
+                preconditionFunction[b.getId()] = b.getPreconditions();
+            }
+            propEffectFunction[b.getId()] = b.getConditionalPropositionalEffects().getAllEffects();
+            numericEffectFunction[b.getId()] = b.getConditionalNumericEffects().getAllEffects();
+            actionCost[b.getId()] = b.getActionCost(problem.getInit(),problem.getMetric());
+        }
+        if (useRedundantConstraints){
+            preconditionFunction[pseudoGoal] = problem.getGoals().introduce_red_constraints();
+        }else {
+            preconditionFunction[pseudoGoal] = problem.getGoals();
+        }
+        totNumberOfTerms = Predicate.predicates.values().size() + Comparison.getComparisonDataBase().values().size() + NotCond.notcondDB.values().size();
+
+        achieve = new Collection[heuristicNumberOfActions];
+
+        invertedAchievers = new Collection[totNumberOfTerms];
+        possibleAchievers = new Collection[heuristicNumberOfActions];
+        invertedPossibleAchievers = new Collection[totNumberOfTerms];
+        preconditionToAction = new Collection[totNumberOfTerms];
+        conditionToAction = new Collection[totNumberOfTerms];
+
+        for (int i = 0; i < heuristicNumberOfActions; i++) {
+            Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
+            for (Condition c : terminalConditions) {
+                if (c instanceof  Terminal ) {
+                    Collection<TransitionGround> groundActions = conditionToAction[((Terminal) c).id];
+                    if (groundActions == null) {
+                        groundActions = new ArrayList<>();
+
+                    }
+                    conditionToAction[c.getHeuristicId()] = groundActions;
+                }
+            }
+        }
     }
 
     protected void dataStructureConstruction(State s){
@@ -114,27 +130,14 @@ public class h1 extends Heuristic {
         if (useRedundantConstraints) {
             this.addRedundantConstraints();
         }
-        if (additive_h) {
-            minimumActionCost = 0.001f;
-        } else {
-            minimumActionCost = 0.0f;
-        }
+
         buildAbstractDynamicsRepresentation(s);
         generateAchieversDataStructures();
         generateConditionToActionMap();
         identifyComplexConditions(A);
     
     }
-    
-    private Float reachabilityComputeEstimate(State s){
-        reachabilityRun = true;
-        float ret = computeEstimate(s);
-        reachabilityRun = false;
-        sat_test_within_cost = false; //don't need to recheck precondition sat for each state. It is done in the beginning for every possible condition
-        out.println("Hard Conditions: " + this.numberOfComplexConditions);
-        out.println("Simple Conditions: " + (this.conditionUniverse.size() - this.numberOfComplexConditions));
-        return ret;
-    }
+
     
     @Override
     public Float setup (State s) {
@@ -143,28 +146,6 @@ public class h1 extends Heuristic {
     }
 
     public void buildAbstractDynamicsRepresentation(State s) {
-        ArrayList<TransitionGround> internalActions = new ArrayList();
-        pseudoGoal = Transition.totNumberOfTransitions;
-        heuristicNumberOfActions = Transition.totNumberOfTransitions+1;
-        preconditionFunction = new Condition[heuristicNumberOfActions];
-        propEffectFunction = new Collection[heuristicNumberOfActions];
-        numericEffectFunction = new Collection[heuristicNumberOfActions];
-        for (TransitionGround b : A) {
-            if (useRedundantConstraints) {
-                preconditionFunction[b.getId()] = b.getPreconditions().introduce_red_constraints();
-            }else{
-                preconditionFunction[b.getId()] = b.getPreconditions();
-            }
-            propEffectFunction[b.getId()] = b.getConditionalPropositionalEffects().getAllEffects();
-            numericEffectFunction[b.getId()] = b.getConditionalNumericEffects().getAllEffects();
-            actionCost[b.getId()] = b.getActionCost(s,problem.getMetric());
-        }
-        if (useRedundantConstraints){
-            preconditionFunction[pseudoGoal] = G.introduce_red_constraints();
-        }else {
-            preconditionFunction[pseudoGoal] = G;
-        }
-        totNumberOfTerms = Predicate.predicates.values().size() + Comparison.getComparisonDataBase().values().size() + NotCond.notcondDB.values().size();
 
     }
 
@@ -192,7 +173,7 @@ public class h1 extends Heuristic {
         }
         allAchievers = new ReferenceLinkedOpenHashSet[conditionUniverse.size() + 1];
         float estimate = Float.MAX_VALUE;
-        FibonacciHeap<Integer> a_plus = new FibonacciHeap();
+        FibonacciHeap<Integer> a_plus = new FibonacciHeap<>();
         FibonacciHeapNode[] actionToFibNode = new FibonacciHeapNode[heuristicNumberOfActions];
 //        IntPriorityQueue a_plus = new it.unimi.dsi.fastutil.ints.IntHeapPriorityQueue(new GroundActionComparator());
         cost = new float[conditionUniverse.size() + 1];
@@ -422,8 +403,8 @@ public class h1 extends Heuristic {
         Collection<Terminal> predicatesAchieved = new ReferenceLinkedOpenHashSet<>();
         for (Condition c : this.conditionUniverse) {
 
-            if (precondition_mapping[c.getHeuristicId()] == null) {
-                precondition_mapping[c.getHeuristicId()] = new LinkedHashSet();
+            if (preconditionToAction[c.getHeuristicId()] == null) {
+                preconditionToAction[c.getHeuristicId()] = new LinkedHashSet();
             }
             ReferenceLinkedOpenHashSet<TransitionGround> action_list = new LinkedHashSet();
             if (c instanceof Comparison) {
@@ -687,7 +668,7 @@ public class h1 extends Heuristic {
 
 
     private void compute_helpful_actions ( ) {
-        LinkedList<TransitionGround> list = new LinkedList();
+        LinkedList<TransitionGround> list = new LinkedList<>();
         helpful_actions = new LinkedHashSet();
         AchieverSet s = getAchieverSet(pseudoGoal);
         getHelpfulActions(list, s);
@@ -703,7 +684,7 @@ public class h1 extends Heuristic {
 
     private void computeRelaxPlan ( ) {//this should be updated!
 
-        LinkedList<Condition> list = new LinkedList();
+        LinkedList<Condition> list = new LinkedList<>();
         relaxedPlan = new ArrayList();
 
         helpful_actions = new ArrayList();
@@ -721,7 +702,7 @@ public class h1 extends Heuristic {
             if (this.cost[c.getHeuristicId()] != 0) {
 //              This is what you get in forward analysis
                 TransitionGround gr = this.establishedAchiever[c.getHeuristicId()];
-                this.updateRelaxPlan((ArrayList) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()], c instanceof Comparison);
+                this.updateRelaxPlan((ArrayList<Pair<TransitionGround, Float>>) relaxedPlan, gr, this.establishedLocalCost[c.getHeuristicId()], c instanceof Comparison);
                 if (this.is_complex.get(c.getHeuristicId()) || allAchieverActions) {
                     final Set<TransitionGround> allAchiever = this.allAchievers[c.getHeuristicId()];
                     if (allAchiever != null) {
@@ -752,9 +733,9 @@ public class h1 extends Heuristic {
 
     private void update_achiever (Condition comp, TransitionGround gr) {
 
-        Set s = allAchievers[comp.getHeuristicId()];
+        Set<TransitionGround> s = allAchievers[comp.getHeuristicId()];
         if (s == null) {
-            s = new ReferenceLinkedOpenHashSet();
+            s = new ReferenceLinkedOpenHashSet<>();
         }
         s.add(gr);
         allAchievers[comp.getHeuristicId()] = s;
@@ -887,19 +868,17 @@ public class h1 extends Heuristic {
         invertedAchievers = new Collection[this.conditionUniverse.size() + 1];
         possibleAchievers = new Collection[this.A.size()];
         this.invertedPossibleAchievers = new Collection[this.conditionUniverse.size() + 1];
-        precondition_mapping = new Collection[this.conditionUniverse.size() + 1];
+        preconditionToAction = new Collection[this.conditionUniverse.size() + 1];
         //this should also include the indirect dependencies, otherwise does not work!!
         extraActionPrecondition = new AndCond[this.A.size()];
-
-
     }
 
     private void computeComplexAchievers (Comparison comp) {
-        HashSet<NumEffect> num_effects = new LinkedHashSet();
-        HashMap<NumEffect, Boolean> temp_mark = new HashMap();
-        HashMap<NumEffect, Boolean> per_mark = new HashMap();
+        HashSet<NumEffect> num_effects = new LinkedHashSet<>();
+        HashMap<NumEffect, Boolean> temp_mark = new HashMap<>();
+        HashMap<NumEffect, Boolean> per_mark = new HashMap<>();
         LinkedList<NumEffect> sorted_nodes;
-        sorted_nodes = new LinkedList();
+        sorted_nodes = new LinkedList<>();
         for (TransitionGround gr : A) {
             for (NumEffect nf : gr.getNumericEffectsAsCollection()) {
                 temp_mark.put(nf, false);
@@ -912,7 +891,7 @@ public class h1 extends Heuristic {
                 visit(a, num_effects, temp_mark, per_mark, sorted_nodes);
             }
         }
-        ReferenceLinkedOpenHashSet<TransitionGround> action_list = new ReferenceLinkedOpenHashSet();
+        ReferenceLinkedOpenHashSet<TransitionGround> action_list = new ReferenceLinkedOpenHashSet<>();
         for (TransitionGround gr : A) {
             for (NumEffect neff : gr.getNumericEffectsAsCollection()) {
 
@@ -994,8 +973,8 @@ public class h1 extends Heuristic {
         compute_redundant_constraint((Set<ComplexCondition>) G.sons);
     }
     protected void compute_redundant_constraint (Set<ComplexCondition> set) {
-        LinkedHashSet temp = new LinkedHashSet();
-        ArrayList<Condition> set_as_array = new ArrayList(set);
+        LinkedHashSet<Comparison> temp = new LinkedHashSet<>();
+        ArrayList<Condition> set_as_array = new ArrayList<>(set);
         int counter = 0;
         for (int i = 0; i < set_as_array.size(); i++) {
             for (int j = i + 1; j < set_as_array.size(); j++) {

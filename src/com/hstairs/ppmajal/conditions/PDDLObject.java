@@ -35,7 +35,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
 
     final private String name;
     final private Type type;
-    final int id;
 
     public static HashMap<String,PDDLObject> objectsDB;
     
@@ -53,10 +52,10 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     private PDDLObject (String n, Type atype, int id) {
+        super(id);
         grounded = true;
         name = n;
         type = atype;
-        this.id = id;
     }
 
     @Override

@@ -34,7 +34,6 @@ public class NotCond extends Terminal implements PostCondition {
      * The condition that is negated in this condition.
      */
     final private Condition son;
-    final int id;
 
     public static HashMap<Condition,NotCond> notcondDB;
     public static NotCond createNotCond(Condition c){
@@ -50,13 +49,8 @@ public class NotCond extends Terminal implements PostCondition {
     }
     
     private NotCond (Condition son, int id) {
-        super();
+        super(id);
         this.son = son;
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
     }
 
     
