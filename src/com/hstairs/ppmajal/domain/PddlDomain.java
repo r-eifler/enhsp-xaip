@@ -497,11 +497,11 @@ public final class PddlDomain extends Object {
     }
 
     private void addTransition (Tree c, Semantics semantics) {
-        Tree process = c.getChild(0);
+        Tree name = c.getChild(0);
 //        System.out.println("DEBUG: Adding:"+a.getName());
-        String processName = process.getText();
+        String transitionName = name.getText();
         Condition precondition = null;
-        SchemaParameters par = null;
+        SchemaParameters par = new SchemaParameters();
         ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PROPEFFECT);
         ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMEFFECT);
         
@@ -562,12 +562,12 @@ public final class PddlDomain extends Object {
                     } else if (res instanceof ForAll) {
                         throw new UnsupportedOperationException();
                     }
+                    break;
             }
-            break;
 
         }
 
-        TransitionSchema transition = new TransitionSchema(par,name,propEffect,numEffect,precondition,semantics);
+        TransitionSchema transition = new TransitionSchema(par, transitionName, propEffect, numEffect, precondition, semantics);
         switch (semantics) {
             case ACTION:
                 this.ActionsSchema.add(transition);

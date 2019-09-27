@@ -63,6 +63,17 @@ public class TransitionGround extends Transition {
         return true;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder res= new StringBuilder();
+        res.append("(").append(name);
+        for(final PDDLObject obj : this.parameters){
+            res.append(" ").append(obj.getName());
+        }
+        res.append(")");
+        return res.toString();
+    }
+
     private Float getExprImpact(PDDLState s_0, NumEffect nEff, NumFluent f) {
         if (nEff.getFluentAffected().equals(f)) {
             ExtendedNormExpression right = (ExtendedNormExpression) nEff.getRight();

@@ -39,7 +39,7 @@ public class Grounder {
     private final boolean smartPruning;
 
     public Grounder ( ) {
-        this(true);
+        this(false);
     }
     
     public Grounder (boolean smartPruning ) {

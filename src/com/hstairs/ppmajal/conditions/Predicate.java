@@ -44,7 +44,7 @@ public class Predicate extends Terminal implements PostCondition {
         this.variables = variables;
     }
 
-    public static HashMap<Pair<String,ArrayList>,Predicate> predicates;
+    private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
     public static HashMap<Integer,Predicate> idToPredicate;
     
     public static Predicate createPredicate(String name, ArrayList variables){
@@ -85,7 +85,14 @@ public class Predicate extends Terminal implements PostCondition {
         variables = null;
     }
 
-//    @Override
+    public static Map<Pair<String,ArrayList>,Predicate>  getPredicatesDB() {
+        if (predicates == null) {
+            return Collections.EMPTY_MAP;
+        }
+        return predicates;
+    }
+
+    //    @Override
     public int getId() {
         return id; //To change body of generated methods, choose Tools | Templates.
     }
@@ -154,7 +161,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.getHeuristicId());
+        return cond_dist.get(this.id);
     }
 
     @Override
@@ -551,8 +558,8 @@ public class Predicate extends Terminal implements PostCondition {
     @Override
     public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
-        s.setCost(cond_dist.get(this.getHeuristicId()));
-        s.getActions().add(established_achiever.get(this.getHeuristicId()));
+        s.setCost(cond_dist.get(this.id));
+        s.getActions().add(established_achiever.get(this.id));
         s.getTargetCond().add(this);
         return s;
 

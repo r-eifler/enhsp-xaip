@@ -149,9 +149,6 @@ public abstract class Condition extends PDDLProblemComponent {
     /**
      * @return the counter
      */
-    public int getHeuristicId ( ) {
-        return heuristicId;
-    }
 
     /**
      * @param counter the counter to set

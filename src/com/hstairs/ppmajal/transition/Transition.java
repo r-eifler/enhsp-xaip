@@ -20,6 +20,7 @@ package com.hstairs.ppmajal.transition;
 
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
@@ -31,7 +32,16 @@ import java.util.*;
 public abstract class Transition {
     public static int totNumberOfTransitions = 0;
     final private int id;
-    public static ArrayList<Transition> id2transition= new ArrayList();
+    private static ArrayList<Transition> id2transition= new ArrayList();
+
+    public static ArrayList<Transition> getId2transition() {
+        return id2transition;
+    }
+
+    public static void setId2transition(ArrayList<Transition> id2transition) {
+        Transition.id2transition = id2transition;
+    }
+
     public enum Semantics{ACTION, PROCESS, EVENT}
 
     final protected String name;
@@ -46,7 +56,7 @@ public abstract class Transition {
         this.preconditions = preconditions;
         this.semantics = semantcis;
         id = this.totNumberOfTransitions;
-        id2transition.add(this);
+        getId2transition().add(this);
         totNumberOfTransitions++;
     }
 
@@ -135,12 +145,10 @@ public abstract class Transition {
         }
         return res;
     }
-    public Iterable<? extends Condition> getAllEffectPredicates() {
-        Collection<Condition> res = new HashSet<>();
-        res.addAll(this.conditionalNumericEffects.getActualConditionalEffects().keySet());
-        res.addAll(this.conditionalPropositionalEffects.getActualConditionalEffects().keySet());
-        res.addAll(this.conditionalPropositionalEffects.getEffects());
+    public Collection<Terminal> getAllAchievableLiterals() {
+        Collection<Terminal> res = new HashSet<>();
         res.addAll(this.conditionalPropositionalEffects.getActualConditionalEffects().values());
+        res.addAll(this.conditionalPropositionalEffects.getEffects());
         return res;
     }
 

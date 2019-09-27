@@ -77,6 +77,14 @@ public class Comparison extends Terminal {
         this.normalized = normalized;
     }
 
+    public static int getNumberOfComparisons() {
+        if (Comparison.getComparisonDataBase() == null){
+            return 0;
+        }else{
+            return NotCond.notcondDB.values().size();
+        }
+    }
+
     @Override
     public int hashCode() {
         return id;
@@ -755,7 +763,7 @@ public class Comparison extends Terminal {
 
     @Override
     public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.getHeuristicId());
+        return cond_dist.get(this.id);
     }
 
     @Override
@@ -769,8 +777,8 @@ public class Comparison extends Terminal {
     @Override
     public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
         AchieverSet s = new AchieverSet();
-        s.setCost(cond_dist.get(this.getHeuristicId()));
-        s.getActions().add(established_achiever.get(this.getHeuristicId()));
+        s.setCost(cond_dist.get(this.id));
+        s.getActions().add(established_achiever.get(this.id));
         s.getTargetCond().add(this);
         return s;
 

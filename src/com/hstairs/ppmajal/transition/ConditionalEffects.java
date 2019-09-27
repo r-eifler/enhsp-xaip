@@ -16,26 +16,30 @@ public class ConditionalEffects<T> {
 
     public ConditionalEffects weakEval(EPddlProblem ePddlProblem, HashMap invariantFluents) {
         ConditionalEffects res = new ConditionalEffects(this.t);
-        for (Map.Entry<Condition,Collection<T>> entry: actualConditionalEffects.entrySet()){
-            Collection<T> toAdd = new HashSet();
-            for (T e: entry.getValue()){
-                if (e instanceof Condition){
-                    toAdd.add((T)((Condition) e).weakEval(ePddlProblem,invariantFluents));
-                }else if (e instanceof NumEffect){
-                    toAdd.add((T)((NumEffect) e).weakEval(ePddlProblem,invariantFluents));
-                }else{
+        if (actualConditionalEffects != null) {
+            for (Map.Entry<Condition, Collection<T>> entry : actualConditionalEffects.entrySet()) {
+                Collection<T> toAdd = new HashSet();
+                for (T e : entry.getValue()) {
+                    if (e instanceof Condition) {
+                        toAdd.add((T) ((Condition) e).weakEval(ePddlProblem, invariantFluents));
+                    } else if (e instanceof NumEffect) {
+                        toAdd.add((T) ((NumEffect) e).weakEval(ePddlProblem, invariantFluents));
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+                res.add(entry.getKey().weakEval(ePddlProblem, invariantFluents), toAdd);
+            }
+        }
+        if (unconditionalEffect != null) {
+            for (T e : unconditionalEffect) {
+                if (e instanceof Condition) {
+                    res.add((T) ((Condition) e).weakEval(ePddlProblem, invariantFluents));
+                } else if (e instanceof NumEffect) {
+                    res.add((T) ((NumEffect) e).weakEval(ePddlProblem, invariantFluents));
+                } else {
                     throw new UnsupportedOperationException();
                 }
-            }
-            res.add(entry.getKey().weakEval(ePddlProblem,invariantFluents),toAdd);
-        }
-        for (T e: unconditionalEffect){
-            if (e instanceof Condition){
-                res.add((T)((Condition) e).weakEval(ePddlProblem,invariantFluents));
-            }else if (e instanceof NumEffect){
-                res.add((T)((NumEffect) e).weakEval(ePddlProblem,invariantFluents));
-            }else{
-                throw new UnsupportedOperationException();
             }
         }
         return res;
@@ -66,10 +70,16 @@ public class ConditionalEffects<T> {
     }
 
     public Collection<T> getUnconditionalEffect() {
+        if (unconditionalEffect == null){
+            return Collections.EMPTY_SET;
+        }
         return unconditionalEffect;
     }
 
     public Map<Condition, Collection<T>> getActualConditionalEffects() {
+        if (actualConditionalEffects == null){
+            return Collections.emptyMap();
+        }
         return actualConditionalEffects;
     }
 
@@ -101,40 +111,41 @@ public class ConditionalEffects<T> {
     }
 
 
-
     public Collection<T> getAllAffectedVariables() {
         final Collection<T> res = new ArrayList<>();
-        for (Collection<T> ele : this.actualConditionalEffects.values()){
+        for (Collection<T> ele : this.getActualConditionalEffects().values()) {
             res.addAll(getVariables(ele));
         }
-        res.addAll(getVariables(unconditionalEffect));
+
+        res.addAll(getVariables(this.getUnconditionalEffect()));
+
         return res;
     }
 
 
     public Collection<T> getAllEffects() {
         final Collection<T> res = new ArrayList<>();
-        res.addAll((Collection<? extends T>) this.actualConditionalEffects.values());
-        res.addAll(this.unconditionalEffect);
+        res.addAll((Collection<? extends T>) this.getActualConditionalEffects().values());
+        res.addAll(this.getUnconditionalEffect());
         return res;
     }
     public ConditionalEffects<T> ground(Map<Variable, PDDLObject> substitution, PDDLObjects po){
         ConditionalEffects res = new ConditionalEffects(this.t);
-        final Set<Map.Entry<Condition, Collection<T>>> entries = this.actualConditionalEffects.entrySet();
-        for (Map.Entry<Condition,Collection<T>> entry : entries){
-            for (T e: entry.getValue()){
-                if (e instanceof NumEffect){
-                    res.add(entry.getKey().ground(substitution,po),((NumEffect) e).ground(substitution,po));
-                }else{
-                    res.add(entry.getKey().ground(substitution,po),((Condition) e).ground(substitution,po));
+        final Set<Map.Entry<Condition, Collection<T>>> entries = this.getActualConditionalEffects().entrySet();
+        for (Map.Entry<Condition, Collection<T>> entry : entries) {
+            for (T e : entry.getValue()) {
+                if (e instanceof NumEffect) {
+                    res.add(entry.getKey().ground(substitution, po), ((NumEffect) e).ground(substitution, po));
+                } else {
+                    res.add(entry.getKey().ground(substitution, po), ((Condition) e).ground(substitution, po));
                 }
             }
         }
-        for (T e: this.unconditionalEffect){
-            if (e instanceof NumEffect){
-                res.add(((NumEffect) e).ground(substitution,po));
-            }else{
-                res.add(((Condition) e).ground(substitution,po));
+        for (T e : this.getUnconditionalEffect()) {
+            if (e instanceof NumEffect) {
+                res.add(((NumEffect) e).ground(substitution, po));
+            } else {
+                res.add(((Condition) e).ground(substitution, po));
             }
         }
         return res;

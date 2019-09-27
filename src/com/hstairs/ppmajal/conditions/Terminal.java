@@ -38,11 +38,11 @@ public abstract class Terminal extends Condition {
 
     @Override
     public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
-        int current_dist = dist.get(this.getHeuristicId());
+        int current_dist = dist.get(this.id);
         if (current_dist < i) {
             return true;
         } else if (this.can_be_true(rs)) {
-            dist.set(this.getHeuristicId(), i);
+            dist.set(this.id, i);
             return true;
         }
         return false;

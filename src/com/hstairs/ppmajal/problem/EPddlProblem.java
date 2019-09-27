@@ -169,22 +169,6 @@ public class EPddlProblem extends PddlProblem {
         return staticFluents;
     }
 
-    public void generateProcesses ( ) throws Exception {
-        long start = System.currentTimeMillis();
-        processesSet = new LinkedHashSet();
-            Grounder af = new Grounder();
-            for (TransitionSchema process : linkedDomain.getProcessesSchema()) {
-//                af.Propositionalize(act, objects);
-                if (!process.getParameters().isEmpty()) {
-                    getProcessesSet().addAll(af.Propositionalize(process, getObjects(),this));
-                }
-            }
-
-
-        setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        this.processesHaveBeenGrounded = true;
-
-    }
 
 
 
@@ -263,41 +247,28 @@ public class EPddlProblem extends PddlProblem {
         removeUnnecessaryFluents();
     }
 
-    
-    protected void pruningViaReachability() {
-        this.pruningViaReachability(true);
-    }
 
-    protected void pruningViaReachability(boolean aibrPreprocessing) {
+    protected void easyCleanUp() {
         //System.out.println("prova");
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
-        System.out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
 
         debug = false;
-        if (debug){
+        if (debug) {
             System.out.print("This is the universe of numeric fluent:");
-            for (NumFluent nf : NumFluent.numFluentsBank.values()){
-                System.out.println("ID:"+nf.getId()+"->"+nf);
+            for (NumFluent nf : NumFluent.numFluentsBank.values()) {
+                System.out.println("ID:" + nf.getId() + "->" + nf);
             }
             System.out.print("This is the universe of propositional fluent:");
-            for (Predicate pred : Predicate.predicates.values()){
-                System.out.println("ID:"+pred.getId()+"->"+pred);
+            for (Predicate pred : Predicate.getPredicatesDB().values()) {
+                System.out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
-        
-        if (!aibrPreprocessing) {
-            this.reachableActions = actions;
-            this.reachableActions.addAll(this.getProcessesSet());
-            this.reachableActions.addAll(this.getEventsSet());
-        }else{
-            throw new UnsupportedOperationException();
-//            Aibr aibr = new Aibr(this);
-//            Float setup = aibr.setup(this.makePddlState());
-//            System.out.println("(After AIBR):" + aibr.getReachableTransitions().size());
-//            this.reachableActions = aibr.getReachableTransitions();
-//        } else {
-        }
+
+        this.reachableActions = actions;
+        this.reachableActions.addAll(this.getProcessesSet());
+        this.reachableActions.addAll(this.getEventsSet());
+
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
 
@@ -343,26 +314,15 @@ public class EPddlProblem extends PddlProblem {
     }
 
 
+    public void simplifyAndSetupInit() throws Exception {
 
-        public void simplifyAndSetupInit (boolean simplify, boolean aibrPreprocessing) throws Exception {
-       
         long start = System.currentTimeMillis();
-        if (simplify) {
-            System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-            pruningViaReachability(aibrPreprocessing);
-        }
+        System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        easyCleanUp();
+        System.out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
-        }
-
-    public void simplifyAndSetupInit (boolean simplify) throws Exception {
-        this.simplifyAndSetupInit(simplify, true);
-    }
-
-    public void simplifyAndSetupInit ( ) throws Exception {
-
-        this.simplifyAndSetupInit(true);
     }
 
 
@@ -423,19 +383,6 @@ public class EPddlProblem extends PddlProblem {
         this.initNumFluentsValues.put(NumFluent.createNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));
     }
 
-    private void generateEvents ( ) {
-            Grounder af = new Grounder();
-            for (TransitionSchema event_schema : linkedDomain.eventsSchema) {
-                try {
-                    eventsSet.addAll(af.Propositionalize(event_schema, getObjects(),this));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-
-    }
 
     private void removeStaticPart ( ) {
         //invariant fluents
@@ -568,30 +515,13 @@ public class EPddlProblem extends PddlProblem {
         return numberOfBooleanVariables;
     }
 
-    
-
-    private void add_possible_numeric_fluents_from_assignments ( ) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
-    
-
-
     public Boolean goalSatisfied (State s) {
         return s.satisfy(this.getGoals());
     }
 
     private void groundGoals ( ) {
-
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(), objects);
-
     }
-
-    public int getNextTerminalReferenceId ( ) {
-        return getTerminalReference().size();
-    }
-
 
     public Terminal getTerminalReference (String s) {
         if (this.terminalReference == null) {
@@ -696,7 +626,7 @@ public class EPddlProblem extends PddlProblem {
 //        if (s.getApplicableActions()!=null) {
 //            return new stateContainer(s, (Iterable) s.getApplicableActions());
 //        }
-        return new stateContainer(s, (Collection) getReachableActions());
+        return new stateContainer(s, (Collection) actions);
     }
 
     public boolean milestoneReached (Float d, Float current_value, State temp) {
@@ -802,10 +732,16 @@ public class EPddlProblem extends PddlProblem {
 //    }
 
     public Set<TransitionGround> getEventsSet ( ) {
+        if (eventsSet == null){
+            eventsSet = new LinkedHashSet<>();
+        }
         return eventsSet;
     }
 
     public Set<TransitionGround> getProcessesSet ( ) {
+        if (processesSet == null){
+            processesSet = new LinkedHashSet<>();
+        }
         return processesSet;
     }
 
