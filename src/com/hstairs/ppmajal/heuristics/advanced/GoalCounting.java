@@ -33,67 +33,10 @@ import java.util.Collection;
  *
  * @author enrico
  */
-public class GoalCounting extends Heuristic{
-
-    final private boolean easy;
-    public GoalCounting(EPddlProblem problem) {
-        this(problem,false);
-    }
-    public GoalCounting(EPddlProblem problem, boolean easy) {
-        super(problem.getGoals(),problem.actions,problem.getProcessesSet(),problem.getEventsSet(),null,problem);        
-        this.problem = problem;
-        this.easy = easy;
-    }
+public class GoalCounting implements Heuristic{
 
     @Override
-    public Float setup(State s_0) {
-        if (easy){
-            A = problem.actions;
-            return (float)computeCost(G,s_0);
-        }
-        return this.computeEstimate(s_0); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Collection<TransitionGround> getReachableTransitions() {
-        if (easy){
-            return problem.actions;
-        }else{
-            return reachable;
-        }
-    }
-
-
-    @Override
-    public Float computeEstimate(State s_0) {
-        if (reachability && !easy){
-            return this.computeEstimate(s_0);
-        }
-        return (float)computeCost(G,s_0);
-        
-    }
-    
-    
-    private int computeCost(Condition c, State s){
-        if (c instanceof Terminal){
-            return c.isSatisfied(s) ? 0 : 1;
-        }else if (c instanceof AndCond){
-            int counter = 0;
-            for (final Condition cSon : (Collection<Condition>)((AndCond)c).sons){
-                counter+=computeCost(cSon,s);
-            }
-            return counter;
-        }else if (c instanceof OrCond){
-            int subcost = 0;
-            for (final Condition cSon : (Collection<Condition>)((OrCond)c).sons){
-                subcost = computeCost(cSon,s);
-                if (subcost == 0){
-                    return 0;
-                }
-            }
-            return subcost;
-        }else{
-            throw new UnsupportedOperationException("Goal Counting does not support "+c.getClass());
-        }
+    public float computeEstimate(State s) {
+        return 0;
     }
 }

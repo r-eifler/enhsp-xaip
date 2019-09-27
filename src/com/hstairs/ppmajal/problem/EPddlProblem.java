@@ -18,28 +18,21 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
+import com.hstairs.ppmajal.domain.Type;
+import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.expressions.PDDLNumber;
+import com.hstairs.ppmajal.extraUtils.Pair;
+import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
-import com.hstairs.ppmajal.expressions.*;
-import com.hstairs.ppmajal.extraUtils.Pair;
-import com.hstairs.ppmajal.heuristics.Aibr;
-import com.hstairs.ppmajal.propositionalFactory.Grounder;
-import com.hstairs.ppmajal.search.SearchEngine;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ReferenceSet;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.util.Set.of;
 
 /**
  * @author enrico
@@ -293,15 +286,17 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         
-        if (aibrPreprocessing) {
-            Aibr aibr = new Aibr(this);
-            Float setup = aibr.setup(this.makePddlState());
-            System.out.println("(After AIBR):" + aibr.getReachableTransitions().size());
-            this.reachableActions = aibr.getReachableTransitions();
-        } else {
+        if (!aibrPreprocessing) {
             this.reachableActions = actions;
             this.reachableActions.addAll(this.getProcessesSet());
             this.reachableActions.addAll(this.getEventsSet());
+        }else{
+            throw new UnsupportedOperationException();
+//            Aibr aibr = new Aibr(this);
+//            Float setup = aibr.setup(this.makePddlState());
+//            System.out.println("(After AIBR):" + aibr.getReachableTransitions().size());
+//            this.reachableActions = aibr.getReachableTransitions();
+//        } else {
         }
         splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();

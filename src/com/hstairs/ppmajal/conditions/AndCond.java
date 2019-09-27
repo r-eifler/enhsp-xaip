@@ -22,7 +22,10 @@ import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
-import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.problem.PddlProblem;
+import com.hstairs.ppmajal.problem.RelState;
+import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;

@@ -20,6 +20,7 @@ package com.hstairs.ppmajal.heuristics;
 
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;
@@ -31,4 +32,22 @@ import java.util.*;
 public interface Heuristic {
 
     float computeEstimate(State s);
+
+    default Float gValue(State s, Object act, State temp, float gValue, Metric m) {
+        TransitionGround gr = (TransitionGround) act;
+        if (gr == null) {
+            return gValue;
+        }
+        return getTransitionCost(s, gr,gValue,false,m);
+    }
+    default float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m){
+        if (ignoreCost){
+            return previousG + 1;
+        }
+        if (m != null){
+            return previousG + gr.getActionCost(s,m);
+        }else{
+            return previousG + 1;
+        }
+    }
 }
