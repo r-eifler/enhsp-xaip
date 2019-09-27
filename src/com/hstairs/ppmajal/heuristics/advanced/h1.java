@@ -65,7 +65,13 @@ public class h1 implements Heuristic {
     protected float[] actionHCost;
 
 
-    public h1(EPddlProblem problem) {
+    private final boolean additive;
+
+    public h1(EPddlProblem problem){
+        this(problem,true);
+    }
+    public h1(EPddlProblem problem, boolean additive) {
+        this.additive = additive;
         this.problem = problem;
         this.useRedundantConstraints = false;
         extractRelaxedPlan = true;

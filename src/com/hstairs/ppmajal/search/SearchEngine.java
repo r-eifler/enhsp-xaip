@@ -21,13 +21,14 @@ package com.hstairs.ppmajal.search;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Heuristic;
-import com.hstairs.ppmajal.problem.*;
+import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.objects.*;
-import java.io.PrintStream;
 
+import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -111,14 +112,6 @@ public class SearchEngine {
         return visited;
     }
 
-    private void setupReachableActionsProcesses(EPddlProblem problem) {
-        if (problem.actions == this.getHeuristic().getReachableTransitions()){
-            problem.reachableActions = problem.actions;
-        }
-        problem.setReachableTransitions(this.getHeuristic().getReachableTransitions());
-        this.reachableProcesses = problem.getReachableProcesses();
-        this.reachableEvents = problem.getReacheableEvents();
-    }
 
     /*
     Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
@@ -221,8 +214,6 @@ public class SearchEngine {
 
     public LinkedList<TransitionGround> enforced_hill_climbing(EPddlProblem problem, Explorator explorator) throws Exception {
         long start_global = System.currentTimeMillis();
-
-        setupReachableActionsProcesses(problem);
         setEvaluatedStates(getEvaluatedStates() + 1);
 
         State current = problem.getInit();
@@ -398,8 +389,8 @@ public class SearchEngine {
 //                out.println("h(n = s_0)=inf");
 //                return null;
 //            }
-            out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getReachableTransitions().size());
-            setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
+            out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
+//            setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
             setHeuristicCpuTime(0);
             duplicatesNumber = 0;
             setNodesReopened(0);
@@ -408,16 +399,16 @@ public class SearchEngine {
 
         Float hAtInit = getHeuristic().computeEstimate(initState);
 
-        getHeuristic().why_not_active = true;
+//        getHeuristic().why_not_active = true;
 
         out.println("h(n = s_0)=" + hAtInit);//debugging information
 
-        getHeuristic().why_not_active = false;
+//        getHeuristic().why_not_active = false;
 
         SearchNode init = new SearchNode(initState.clone(), 0, hAtInit, this.saveSearchTreeAsJson, this.gw, this.hw);
         if (this.helpfulActionsPruning) {
-            out.println("Selection actions from the helpful actions list");
-            init.helpfulActions = getHeuristic().getHelpfulActions();
+            throw new UnsupportedOperationException();
+            //            init.helpfulActions = getHeuristic().getHelpfulActions();
         }
 
         if (saveSearchTreeAsJson) {
@@ -506,7 +497,7 @@ public class SearchEngine {
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     //skip this if violates global constraints
-                    final float successorG = heuristic.gValue(currentNode.s, act, successorState, currentNode.gValue);
+                    final float successorG = heuristic.gValue(currentNode.s, act, successorState, currentNode.gValue,problem.getMetric());
                     if (Objects.equals(successorG, this.G_DEFAULT)) {
                         this.deadEndsDetected++;
                         continue;
@@ -548,110 +539,7 @@ public class SearchEngine {
         }
     }
 
-    /**
-     * This function implements UCS as for Felner's paper SOCS 2011. It can also
-     * be used in a depth first search manner (going towards the highest f nodes
-     * first, if search strategy is called with the bfsTieBreaking = false
-     * option.
-     *
-     * @return A sequence of actions
-     * @throws Exception Throws generic expression for now.
-     */
-    public LinkedList<TransitionGround> blindSearch(EPddlProblem problem) throws Exception {
 
-        out.println("Blind Search");
-        if (this.tbRule == null) {
-            tbRule = TieBreaking.ARBITRARY;
-        }
-
-        long start_global = System.currentTimeMillis();
-        PriorityQueue<SearchNode> frontier = new PriorityQueue<>(new TieBreaker(this.tbRule, bfsTieBreaking));
-        State current = problem.getInit();
-        //problem.generateActions();
-        //LinkedHashSet a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit().clone(), problem.getActions()));
-
-        getHeuristic().setup(current);
-        out.println("After Reacheability Actions:" + getHeuristic().getReachableTransitions().size());
-        Float current_value = 0f;
-        SearchNode init = new SearchNode(problem.getInit().clone(), 0, current_value, this.saveSearchTreeAsJson, this.gw, this.hw);
-        if (saveSearchTreeAsJson) {
-            searchSpaceHandle = init;
-        }
-        frontier.add(init);
-        HashMap<State, Boolean> closed = new HashMap<>();
-        HashMap<State, Float> cost = new HashMap<>();
-        cost.put(problem.getInit(), 0f);
-        setHeuristicCpuTime(0);
-        while (!frontier.isEmpty()) {
-            SearchNode current_node = frontier.poll();
-            if (saveSearchTreeAsJson) {
-                current_node.set_visited(getNodesExpanded());
-            }
-
-            setNodesExpanded(getNodesExpanded() + 1);
-            setPriorityQueueSize(frontier.size());
-            //out.println("Current Distance:"+current_node.gValue);
-            //out.println("Current Cost:"+current_node.gValue);
-            if (current_value > current_node.h_n) {
-                out.println("Current Distance:" + current_node.h_n);
-
-                current_value = current_node.h_n;
-            }
-//            if (current_node.action!= null)
-//                out.println("Action:"+current_node.action);
-            if (current_node.s.satisfy(problem.getGoals())) {
-                setOverallSearchTime(System.currentTimeMillis() - start_global);
-                return extractPlan(current_node);
-            }
-
-            if (current_node.gValue >= depthLimit) {
-                setOverallSearchTime(System.currentTimeMillis() - start_global);
-                continue;
-            }
-
-            if (processes) {
-                advance_time(frontier, current_node, problem, null);
-            }
-
-            for (TransitionGround act : getHeuristic().getReachableTransitions()) {
-                if (act.getSemantics() == Transition.Semantics.PROCESS) {
-                } else if (act.isApplicable(current_node.s)) {
-                    State temp = current_node.s.clone();
-                    temp.apply(act,current_node.s);
-                    //act.normalize();
-                    if (!temp.satisfy(problem.globalConstraints)) {
-                        continue;
-                    }
-
-                    if (closed.get(temp) != null) {
-                        if (cost.get(temp) != null) {
-                            float costTemp = heuristic.gValue(current_node.s, act,temp, current_node.gValue);
-                            if (!(cost.get(temp) >= costTemp)) {
-                                continue;
-                            }
-                        }
-                    }
-
-                    closed.put(current_node.s, Boolean.TRUE);
-                    cost.put(temp, heuristic.gValue(current_node.s, act,temp, current_node.gValue));
-                    setEvaluatedStates(getEvaluatedStates() + 1);
-
-//                    act.set_unit_cost(temp);
-                    SearchNode new_node = new SearchNode(temp, act, current_node, heuristic.gValue(current_node.s, act,temp, current_node.gValue), 0, this.saveSearchTreeAsJson, this.gw, 0);
-                    //SearchNode new_node = new SearchNode(temp,act,current_node,1,d*hw);
-                    if (saveSearchTreeAsJson) {
-                        current_node.add_descendant(new_node);
-                    }
-                    frontier.add(new_node);
-//                            if (new_node.s.satisfy(problem.getGoals()))
-//                              return extract_plan(new_node);
-
-                }
-            }
-        }
-
-        return null;
-    }
 
     public LinkedList<TransitionGround> greedy_best_first_search(EPddlProblem problem) throws Exception{
         this.optimality = false;
@@ -820,12 +708,8 @@ public class SearchEngine {
         }
         deadEndsDetected = 0;
         constraintsViolations = 0;
-        if (getHeuristic().setup(initState) == Float.MAX_VALUE) {
-            out.println("h(n = s_0)=inf");
-            return null;
-        }
-        out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getReachableTransitions().size());
-        setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
+        out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
+//        setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
         setHeuristicCpuTime(0);
         setNodesReopened(0);
         setNodesExpanded(0);
@@ -877,12 +761,8 @@ public class SearchEngine {
         }
         deadEndsDetected = 0;
         constraintsViolations = 0;
-        if (getHeuristic().setup(initState) == Float.MAX_VALUE) {
-            out.println("h(n = s_0)=inf");
-            return null;
-        }
-        out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getReachableTransitions().size());
-        setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
+        out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
+//        setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
         setHeuristicCpuTime(0);
         setNodesReopened(0);
         setNodesExpanded(0);
@@ -939,7 +819,7 @@ public class SearchEngine {
             }
             final float g;
             if (node.transition != null) {
-                g = heuristic.gValue(node.father.s, node.transition, node.s, node.gValue);
+                g = heuristic.gValue(node.father.s, node.transition, node.s, node.gValue,problem.getMetric());
             } else {
                 g = 0;
             }
@@ -988,7 +868,8 @@ public class SearchEngine {
                             }
                         } else {
                             if (this.helpfulActionsPruning) {
-                                problem.setReachableTransitions(heuristic.getHelpfulActions());
+                                throw new UnsupportedOperationException();
+//                                problem.setReachableTransitions(heuristic.getHelpfulActions());
                             }
                             boolean atLeastOne = false;
 

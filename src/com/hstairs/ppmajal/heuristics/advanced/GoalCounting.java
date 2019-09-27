@@ -35,6 +35,9 @@ import java.util.Collection;
  */
 public class GoalCounting implements Heuristic{
 
+    public GoalCounting(EPddlProblem problem){
+
+    }
     @Override
     public float computeEstimate(State s) {
         return 0;

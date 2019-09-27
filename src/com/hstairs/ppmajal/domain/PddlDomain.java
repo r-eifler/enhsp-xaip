@@ -19,16 +19,16 @@
 package com.hstairs.ppmajal.domain;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.transition.ConditionalEffects;
-import com.hstairs.ppmajal.transition.Transition;
-import com.hstairs.ppmajal.transition.Transition.Semantics;
-import com.hstairs.ppmajal.transition.TransitionSchema;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
+import com.hstairs.ppmajal.transition.Transition;
+import com.hstairs.ppmajal.transition.Transition.Semantics;
+import com.hstairs.ppmajal.transition.TransitionSchema;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
