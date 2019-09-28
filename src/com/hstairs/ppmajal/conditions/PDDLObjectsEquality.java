@@ -39,18 +39,18 @@ public class PDDLObjectsEquality extends Terminal {
 
 
     public PDDLObjectsEquality ( ) {
-        super(-1); grounded = false;
+        super(); grounded = false;
     }
 
     public PDDLObjectsEquality (Variable leftV, Variable rightV) {
-        super(-1);
+        super();
         this.leftV = leftV;
         this.rightV = rightV;
         grounded = false;
     }
 
     private PDDLObjectsEquality (PDDLObject t1, PDDLObject t2) {
-        super(-1);
+        super();
         left = t1;
         right = t2;
         grounded = true;

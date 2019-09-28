@@ -42,14 +42,14 @@ public class NotCond extends Terminal implements PostCondition {
         }
         NotCond nc = notcondDB.get(c);
         if (nc == null){
-            nc = new NotCond(c,notcondDB.values().size());
+            nc = new NotCond(c);
             notcondDB.put(c,nc);
         }
         return nc;
     }
     
-    private NotCond (Condition son, int id) {
-        super(id);
+    private NotCond (Condition son) {
+        super();
         this.son = son;
     }
 
@@ -243,30 +243,7 @@ public class NotCond extends Terminal implements PostCondition {
         return son.can_be_true(s);
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + this.id;
-        return hash;
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final NotCond other = (NotCond) obj;
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
-    }
 
    
 
@@ -347,9 +324,10 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.id);
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return null;
     }
+
 
     @Override
     public ComplexCondition and (Condition precondition) {
@@ -360,13 +338,10 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        AchieverSet s = new AchieverSet();
-        s.setCost(cond_dist.get(this.id));
-        s.getActions().add(established_achiever.get(this.id));
-        s.getTargetCond().add(this);
-        return s;
+    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
+        return null;
     }
+
 
     @Override
     public Condition pushNotToTerminals( ) {

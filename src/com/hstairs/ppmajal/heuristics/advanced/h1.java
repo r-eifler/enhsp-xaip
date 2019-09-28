@@ -24,7 +24,10 @@
 package com.hstairs.ppmajal.heuristics.advanced;
 
 import com.google.common.collect.Sets;
-import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.OrCond;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
@@ -32,9 +35,9 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntComparator;
-import it.unimi.dsi.fastutil.ints.IntHeapPriorityQueue;
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -56,13 +59,10 @@ public class h1 implements Heuristic {
     final private int heuristicNumberOfActions;
     final private int totNumberOfTerms;
     final private EPddlProblem problem;
-    private final Collection[] invertedAchievers;
-    private final Collection[] achieve;
     private final Collection[] possibleAchievers;
-    private final Collection[] invertedPossibleAchievers;
-    private final Collection[] preconditionToAction;
     private final Collection[] conditionToAction;
     private final HashSet<Terminal> allConditions;
+    private final FibonacciHeapNode[] nodeOf;
 
     private float[] actionCost;
     private float[] actionHCost;
@@ -81,7 +81,7 @@ public class h1 implements Heuristic {
         extractRelaxedPlan = true;
         pseudoGoal = Transition.totNumberOfTransitions;
         heuristicNumberOfActions = Transition.totNumberOfTransitions+1;
-        totNumberOfTerms = Predicate.getPredicatesDB().values().size() + Comparison.getNumberOfComparisons() + NotCond.getNumberOfNotCond();
+        totNumberOfTerms = Terminal.getTotCounter();
 
         preconditionFunction = new Condition[heuristicNumberOfActions];
         propEffectFunction = new Collection[heuristicNumberOfActions];
@@ -106,50 +106,60 @@ public class h1 implements Heuristic {
         }else {
             preconditionFunction[pseudoGoal] = problem.getGoals();
         }
-        achieve = new Collection[heuristicNumberOfActions];
 
-        invertedAchievers = new Collection[totNumberOfTerms];
         possibleAchievers = new Collection[heuristicNumberOfActions];
-        invertedPossibleAchievers = new Collection[totNumberOfTerms];
-        preconditionToAction = new Collection[totNumberOfTerms];
         conditionToAction = new Collection[totNumberOfTerms];
         allConditions = new HashSet();
 
+        nodeOf = new FibonacciHeapNode[heuristicNumberOfActions];
+
         for (TransitionGround b : transitions) {
-            int i = b.getId();
-            Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
+            final int i = b.getId();
             updatePreconditionFunction(i);
         }
         updatePreconditionFunction(pseudoGoal);
     }
 
     void updatePreconditionFunction(int i){
-        Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
+        final Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
         for (Condition c : terminalConditions) {
             if (c instanceof  Terminal ) {
                 Terminal t = (Terminal)c;
-                Collection<Integer> groundActions = conditionToAction[((Terminal) c).id];
+                Collection<Integer> groundActions = conditionToAction[((Terminal) c).getId()];
                 if (groundActions == null) {
-                    groundActions = new ArrayList<>();
-
+                    groundActions = new HashSet<>();
                 }
                 groundActions.add(i);
-                conditionToAction[t.id] = groundActions;
+                conditionToAction[t.getId()] = groundActions;
                 allConditions.add((Terminal) c);
             }
         }
     }
 
 
-    void updateActions(final Terminal c,final IntHeapPriorityQueue p) {
-        Collection<Integer> actions = conditionToAction[c.id];
+    void updateActions(final Terminal c, final FibonacciHeap p) {
+        final Collection<Integer> actions = conditionToAction[c.getId()];
         if (actions != null) {
-            for (int i : actions) {
+            for (final int i : actions) {
                 if (!closed[i]) {
                     final float v = estimateCost(preconditionFunction[i]);
                     if (v < Float.MAX_VALUE) {
-                        actionHCost[i] = Math.min(v, actionHCost[i]);
-                        p.enqueue(i);
+                        if (v < actionHCost[i]){
+                            if (actionHCost[i] == Float.MAX_VALUE){
+                                actionHCost[i] = v;
+                                final FibonacciHeapNode fibonacciHeapNode = new FibonacciHeapNode(i);
+                                p.insert(fibonacciHeapNode,v);
+//                                if (pseudoGoal == i) {
+//                                    System.out.println(" goal" + v);
+//                                    Condition goalPrecondition = preconditionFunction[i];
+//                                    estimateCost(preconditionFunction[i]);
+//
+//                                }
+                            }else{
+                                actionHCost[i] = v;
+                                p.decreaseKey(nodeOf[i],v);
+                            }
+                        }
                     }
                 }
             }
@@ -165,37 +175,47 @@ public class h1 implements Heuristic {
         closed = new boolean[heuristicNumberOfActions];
         Arrays.fill(closed,false);
 
-        IntHeapPriorityQueue p = new IntHeapPriorityQueue(new GroundActionComparator());
+        FibonacciHeap h = new FibonacciHeap();
 
         for (Terminal c: allConditions){
             if (gs.satisfy(c)){
-                conditionCost[c.id] = 0f;
-                updateActions(c,p);
+                conditionCost[c.getId()] = 0f;
+//                System.out.println("cost("+c+"("+ c.getId() +"))="+conditionCost[c.getId()]);
+                updateActions(c,h);
+            }else{
+//                System.out.println("cost("+c+"("+ c.getId() +")="+conditionCost[c.getId()]);
             }
         }
-        while(!p.isEmpty()){
-            final int actionId = p.dequeueInt();
+
+        while(!h.isEmpty()){
+            final int actionId = (int) h.removeMin().getData();
             if (actionId == pseudoGoal){
                 return actionHCost[pseudoGoal];
             }
             closed[actionId] = true;
-            updateAchievable(actionId,p);
+            updateAchievable(actionId,h);
         }
         return 0f;
 
     }
 
-    private void updateAchievable(int actionId, IntHeapPriorityQueue p) {
+    private void updateAchievable(int actionId, FibonacciHeap p) {
 
         Collection<Terminal> achiavable = possibleAchievers[actionId];
         if (achiavable == null){
+//            System.out.println(Transition.getTransition(actionId));
+
             achiavable = new HashSet();
             achiavable.addAll(propEffectFunction[actionId]);
             possibleAchievers[actionId] = achiavable;
+//            System.out.println(achiavable);
         }
         for (final Terminal t: achiavable){
-            conditionCost[t.id] = Math.min(actionHCost[actionId]+actionCost[actionId],conditionCost[t.id]);
-            updateActions(t,p);
+            if (conditionCost[t.getId()] > actionHCost[actionId]+actionCost[actionId]){
+                conditionCost[t.getId()] = actionHCost[actionId]+actionCost[actionId];
+//                System.out.println("cost("+t+"("+ t.getId() +")="+conditionCost[t.getId()]);
+                updateActions(t, p);
+            }
         }
 
     }
@@ -234,9 +254,9 @@ public class h1 implements Heuristic {
             }
             return ret;
         } else if (c instanceof Terminal) {
-            Terminal t = (Terminal) c;
-            return conditionCost[t.id];
-        }else {
+            final Terminal t = (Terminal) c;
+            return conditionCost[t.getId()];
+        } else {
             return 0f;
         }
     }
@@ -244,8 +264,6 @@ public class h1 implements Heuristic {
 
 
     public class GroundActionComparator implements IntComparator{
-
-
          @Override
         public int compare(int o1, int o2) {
             if (actionHCost[o1] < actionHCost[o2]){

@@ -30,11 +30,18 @@ import java.util.List;
  */
 public abstract class Terminal extends Condition {
 
-    public final int id;
+    private final int id;
+    private static int totCounter = 2;
 
-    public Terminal(int id) {
-        this.id = id;
+    public Terminal() {
+        this.id = getTotCounter();
+        totCounter++;
     }
+
+    public static int getTotCounter() {
+        return totCounter;
+    }
+
 
     @Override
     public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
@@ -69,5 +76,19 @@ public abstract class Terminal extends Condition {
     @Override
     public List<Condition> getTerminalConditionsInArray ( ) {
         return Collections.singletonList(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Terminal) && ((Terminal) obj).id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    public int getId() {
+        return id;
     }
 }

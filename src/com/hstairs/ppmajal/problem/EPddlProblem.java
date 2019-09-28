@@ -475,8 +475,8 @@ public class EPddlProblem extends PddlProblem {
         booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
         numberOfBooleanVariables = 0;
-        if (Predicate.idToPredicate != null) {
-            for (Predicate p : Predicate.idToPredicate.values()) {
+        if (Predicate.getPredicatesDB() != null) {
+            for (Predicate p : Predicate.getPredicatesDB().values()) {
                 if (this.getActualFluents().get(p) != null) {
                     Boolean r = this.initBoolFluentsValues.get(p);
                     if (r == null || !r) {

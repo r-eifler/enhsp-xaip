@@ -38,26 +38,22 @@ public class Predicate extends Terminal implements PostCondition {
     final private static Predicate truePredicate = new Predicate(0);
     final private static Predicate falsePredicate = new Predicate(1);
 
-    private Predicate (String name, ArrayList variables, int id) {
-        super(id);
+    private Predicate (String name, ArrayList variables) {
+        super();
         this.name = name;
         this.variables = variables;
     }
 
     private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
-    public static HashMap<Integer,Predicate> idToPredicate;
-    
+
     public static Predicate createPredicate(String name, ArrayList variables){
         if (predicates == null){
             predicates = new HashMap();
-            idToPredicate = new HashMap();
         }
         Pair pair = new Pair(name,variables);
         Predicate predicate = predicates.get(pair);
         if (predicate == null){
-            int idN = predicates.entrySet().size()+2;
-            predicate = new Predicate(name,variables,idN);
-            idToPredicate.put(idN,predicate);
+            predicate = new Predicate(name,variables);
             predicates.put(pair,predicate);
         }
         return predicate;
@@ -74,7 +70,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     //This is a mere convention
     private Predicate(int id) {
-        super(id);
+        super();
         if (id == 0){
             this.name = "TRUE";
             this.setValid(true);
@@ -90,11 +86,6 @@ public class Predicate extends Terminal implements PostCondition {
             return Collections.EMPTY_MAP;
         }
         return predicates;
-    }
-
-    //    @Override
-    public int getId() {
-        return id; //To change body of generated methods, choose Tools | Templates.
     }
 
     
@@ -160,9 +151,10 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.id);
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return null;
     }
+
 
     @Override
     public void extendTerms (Variable v) {
@@ -299,29 +291,6 @@ public class Predicate extends Terminal implements PostCondition {
             return false;
         }
         //return (i == 1) || (i == 2);
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Predicate other = (Predicate) obj;
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
     }
 
     
@@ -556,14 +525,19 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        AchieverSet s = new AchieverSet();
-        s.setCost(cond_dist.get(this.id));
-        s.getActions().add(established_achiever.get(this.id));
-        s.getTargetCond().add(this);
-        return s;
-
+    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
+        return null;
     }
+
+//    @Override
+//    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
+//        AchieverSet s = new AchieverSet();
+//        s.setCost(cond_dist.get(this.id));
+//        s.getActions().add(established_achiever.get(this.id));
+//        s.getTargetCond().add(this);
+//        return s;
+//
+//    }
 
     @Override
     public Condition pushNotToTerminals( ) {

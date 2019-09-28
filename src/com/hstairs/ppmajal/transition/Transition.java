@@ -42,6 +42,13 @@ public abstract class Transition {
         Transition.id2transition = id2transition;
     }
 
+    public static Transition getTransition(int actionId) {
+        if (actionId < id2transition.size()){
+            return id2transition.get(actionId);
+        }
+        throw new RuntimeException(actionId+ " does not refer to a valid transition");
+    }
+
     public enum Semantics{ACTION, PROCESS, EVENT}
 
     final protected String name;
@@ -151,168 +158,4 @@ public abstract class Transition {
         res.addAll(this.conditionalPropositionalEffects.getEffects());
         return res;
     }
-
-
 }
-
-
-
-
-
-//
-//
-//    public String getName ( ) {
-//        return name;
-//    }
-//
-//
-//    @Override
-//    public String toString ( ) {
-//        return "PDDLGenericAction{" + "name=" + name + ", parameters=" + parameters + ", time=" + time + '}';
-//    }
-//
-//
-//    //This can be cached
-//    protected Collection<Predicate> getPropositionAffected ( ) {
-//        LinkedHashSet ret = new LinkedHashSet();
-//        for( Pair<Condition,Terminal> ele : this.conditionalPropositionalEffects){
-//            if (ele.getSecond() instanceof Predicate) {
-//                ret.add(ele);
-//            }
-//        }
-//        return ret;
-//    }
-//
-//    public HashMap update_invariant_fluents (HashMap invariantFluents) {
-//        for (Object nf : this.getNumericFluentAffected()) {
-//            invariantFluents.put(nf, Boolean.FALSE);
-//        }
-//        for (Predicate p : this.getPropositionAffected()) {
-//            invariantFluents.put(p, Boolean.FALSE);
-//        }
-//        return invariantFluents;
-//    }
-//
-//
-//    public Collection<NumFluent> getNumericFluentAffected ( ) {
-//        this.generateAffectedNumFluents();
-//        return this.numericFluentAffected.keySet();
-//    }
-//
-//    public void generateAffectedNumFluents ( ) {
-//        if (numericFluentAffected != null) {
-//            return;
-//        }
-//        numericFluentAffected = new Object2BooleanOpenHashMap();
-//        for (Pair<Condition, NumEffect> ele : conditionalNumericEffects) {
-//            NumEffect e = ele.getSecond();
-//            this.numericFluentAffected.put(e.getFluentAffected(), true);
-//        }
-//    }
-//
-//    public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution ( ) {
-//        Set<NumFluent> ret = new HashSet();
-//        for (Pair<Condition, NumEffect> ele : conditionalNumericEffects) {
-//            NumEffect e = ele.getSecond();
-//            ret.addAll(e.getRight().getInvolvedNumericFluents());
-//        }
-//        return ret;
-//    }
-//
-//    public void create_effects_by_cases (PostCondition res) {
-//        if (res instanceof AndCond) {
-//            AndCond pc = (AndCond) res;
-//            for (Object o : pc.sons) {
-//                if (o instanceof Predicate) {
-//                    this.addList.sons.add(o);
-//                } else if (o instanceof NotCond) {
-//                    this.delList.sons.add(o);
-//                } else if (o instanceof NumEffect) {
-//                    this.numericEffects.sons.add(o);
-//                } else if (o instanceof ConditionalEffect) {
-//                    this.conditionalEffects.sons.add(o);
-//                } else if (o instanceof ForAll) {
-//                    this.forall.sons.add(o);
-//                }
-//            }
-//        } else if (res instanceof Predicate) {
-//            this.addList.sons.add(res);
-//        } else if (res instanceof NotCond) {
-//            this.delList.sons.add(res);
-//        } else if (res instanceof NumEffect) {
-//            this.numericEffects.sons.add(res);
-//        } else if (res instanceof ConditionalEffect) {
-//            this.conditionalEffects.sons.add(res);
-//        } else if (res instanceof ForAll) {
-//            this.forall.sons.add(res);
-////            this.forall.sons.add(res);
-//        }
-//    }
-//
-//    public Collection<NumFluent> getInvolvedNumFluents ( ) {
-//        Collection<NumFluent> ret = this.preconditions.getInvolvedFluents();
-//        ret.addAll(this.numericEffects.getInvolvedFluents());
-//        return ret;
-//    }
-//
-//    public Collection<Predicate> getInvolvedPredicates ( ) {
-//        Collection<Predicate> ret = new LinkedHashSet();
-//        if (this.preconditions != null) {
-//            ret.addAll(this.preconditions.getInvolvedPredicates());
-//        }
-//        if (this.addList != null) {
-//            ret.addAll(this.addList.getInvolvedPredicates());
-//        }
-//        if (this.delList != null) {
-//            ret.addAll(this.delList.getInvolvedPredicates());
-//        }
-//        if (this.conditionalEffects != null) {
-//            ret.addAll(this.conditionalEffects.getInvolvedPredicates());
-//        }
-//        return ret;
-//    }
-//
-//    public void unifyVariablesReferences (EPddlProblem p) {
-//
-//        preconditions = (ComplexCondition) preconditions.unifyVariablesReferences(p);
-//        addList = (AndCond) addList.unifyVariablesReferences(p);
-//        delList = (AndCond) delList.unifyVariablesReferences(p);
-//        numericEffects = (AndCond) numericEffects.unifyVariablesReferences(p);
-//        conditionalEffects = (AndCond) conditionalEffects.unifyVariablesReferences(p);
-//    }
-//
-//    @Override
-//    public int hashCode ( ) {
-//        int hash = 3;
-//        hash = 97 * hash + Objects.hashCode(this.name);
-//        hash = 97 * hash + Objects.hashCode(this.parameters);
-//        hash = 97 * hash + Objects.hashCode(this.time);
-//        return hash;
-//    }
-//
-//    @Override
-//    public boolean equals (Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//        if (obj == null) {
-//            return false;
-//        }
-//        if (getClass() != obj.getClass()) {
-//            return false;
-//        }
-//        final Transition other = (Transition) obj;
-//        if (!Objects.equals(this.name, other.name)) {
-//            return false;
-//        }
-//        if (!Objects.equals(this.parameters, other.parameters)) {
-//            return false;
-//        }
-//        if (!Objects.equals(this.time, other.time)) {
-//            return false;
-//        }
-//        return true;
-//    }
-//
-//
-//}

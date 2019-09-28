@@ -44,43 +44,18 @@ public class PDDLObject extends Terminal implements ActionParameter {
         }
         PDDLObject obj = objectsDB.get(name);
         if (obj == null){
-            obj = new PDDLObject(name,type,objectsDB.values().size());
+            obj = new PDDLObject(name,type);
             objectsDB.put(name, obj);
         }
         return obj;
             
     }
 
-    private PDDLObject (String n, Type atype, int id) {
-        super(id);
+    private PDDLObject (String n, Type atype) {
+        super();
         grounded = true;
         name = n;
         type = atype;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 97 * hash + this.id;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final PDDLObject other = (PDDLObject) obj;
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
     }
 
 
@@ -262,12 +237,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
         return this;
     }
 
-//    @Override
-    public int getId() {
-        return id; //To change body of generated methods, choose Tools | Templates.
-    }
 
-    
     
     
 }

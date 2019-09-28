@@ -20,11 +20,9 @@ package com.hstairs.ppmajal.conditions;
 
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
-import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
@@ -70,7 +68,7 @@ public class Comparison extends Terminal {
     }
     
     private Comparison(String comparator, Expression left, Expression right, int id, boolean normalized) {
-        super(id);
+        super();
         this.comparator = comparator;
         this.left = left;
         this.right = right;
@@ -85,34 +83,6 @@ public class Comparison extends Terminal {
         }
     }
 
-    @Override
-    public int hashCode() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Comparison other = (Comparison) obj;
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
-    }
-
-    
-//    @Override
-    public int getId() {
-        return id; //To change body of generated methods, choose Tools | Templates.
-    }
 
 
     @Override
@@ -762,8 +732,8 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        return cond_dist.get(this.id);
+    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
+        return null;
     }
 
     @Override
@@ -775,13 +745,8 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        AchieverSet s = new AchieverSet();
-        s.setCost(cond_dist.get(this.id));
-        s.getActions().add(established_achiever.get(this.id));
-        s.getTargetCond().add(this);
-        return s;
-
+    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
+        return null;
     }
 
     @Override
