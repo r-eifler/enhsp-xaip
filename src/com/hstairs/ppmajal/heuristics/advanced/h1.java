@@ -358,7 +358,7 @@ public class h1 implements Heuristic {
     }
 
     float estimateCost (final Condition c) {
-        return this.estimateCost(c,true);
+        return this.estimateCost(c,additive);
     }
 
     float estimateCost (final Condition c, boolean additive) {
