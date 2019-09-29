@@ -36,7 +36,7 @@ public abstract class State {
 
     public abstract void apply (TransitionGround gr, State prev);
 
-    public abstract boolean satisfy (Condition input);
+    public abstract boolean satisfy (final Condition input);
 
     @Override
     public abstract State clone ( );
