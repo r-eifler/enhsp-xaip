@@ -29,7 +29,7 @@ import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.expressions.NumFluent;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Set;
 
 /**
  * @author enrico
@@ -57,10 +57,10 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
 
     boolean simplifyModelWithControllableVariablesSem (PddlDomain domain, EPddlProblem problem) {
 
-        HashMap invariantFluents = problem.getActualFluents();
+        Set invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable
         for (NumFluent nf : domain.get_derived_variables()) {
-            invariantFluents.put(nf.getName(), Boolean.FALSE);
+            invariantFluents.add(nf.getName());
         }
 
         GlobalConstraint constr = this;

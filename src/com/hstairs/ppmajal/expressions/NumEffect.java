@@ -175,7 +175,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression weakEval (PddlProblem problem, HashMap invF) {
+    public Expression weakEval (PddlProblem problem, Set invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.right.setFreeVarSemantic(freeVarSemantic);
@@ -223,7 +223,6 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     /**
-     * @param numeric
      * @return
      */
     @Override
@@ -614,7 +613,8 @@ public class NumEffect extends Expression implements PostCondition {
 
     @Override
     public ExtendedNormExpression normalize() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        right = this.getRight().normalize();
+        return null;
     }
 
     @Override

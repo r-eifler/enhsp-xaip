@@ -407,7 +407,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (PddlProblem problem, HashMap invF) {
+    public Condition weakEval (PddlProblem problem, Set invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
 
@@ -418,7 +418,7 @@ public class Predicate extends Terminal implements PostCondition {
             return this;
         }
         
-        if (invF.get(this) == null) {//this means it is a static predicate
+        if (!invF.contains(this)) {//this means it is a static predicate
             if (problem.getInitBoolFluentValue(this)) {
                 this.setValid(true);
                 this.setUnsatisfiable(false);

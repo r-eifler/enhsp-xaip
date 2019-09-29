@@ -64,7 +64,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, Set invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.activation_condition.isValid()){
             this.activation_condition = Predicate.createPredicate(Predicate.trueFalse.TRUE);

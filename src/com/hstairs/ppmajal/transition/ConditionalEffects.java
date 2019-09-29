@@ -14,7 +14,7 @@ public class ConditionalEffects<T> {
     private Map<Condition, Collection<T>> actualConditionalEffects;
     private Collection<T> unconditionalEffect;
 
-    public ConditionalEffects weakEval(EPddlProblem ePddlProblem, HashMap invariantFluents) {
+    public ConditionalEffects weakEval(EPddlProblem ePddlProblem, Set invariantFluents) {
         ConditionalEffects res = new ConditionalEffects(this.t);
         if (actualConditionalEffects != null) {
             for (Map.Entry<Condition, Collection<T>> entry : actualConditionalEffects.entrySet()) {
@@ -102,7 +102,7 @@ public class ConditionalEffects<T> {
                 final Condition son = ((NotCond) e).getSon();
                 res.add((T) son);
             }else if (e instanceof NumEffect) {
-                res.add((T) ((NumEffect) e).affectedNumericFluents());
+                res.add((T) e);
             }else {
                 res.add(e);
             }

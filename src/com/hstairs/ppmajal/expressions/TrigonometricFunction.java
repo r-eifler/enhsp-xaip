@@ -82,7 +82,7 @@ public class TrigonometricFunction extends BinaryOp {
 
 
     @Override
-    public Expression weakEval (PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, Set invF) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;

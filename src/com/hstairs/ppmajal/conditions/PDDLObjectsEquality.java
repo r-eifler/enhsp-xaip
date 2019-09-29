@@ -266,7 +266,7 @@ public class PDDLObjectsEquality extends Terminal {
     }
 
     @Override
-    public Condition weakEval (PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, Set invF) {
         if (this.left.equals(this.right)) {
             this.setValid(true);
             this.setUnsatisfiable(false);

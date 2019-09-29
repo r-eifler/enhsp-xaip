@@ -112,7 +112,7 @@ public class PDDLNumber extends Expression {
 
 
     @Override
-    public Expression weakEval (PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, Set invF) {
         return this;
     }
 

@@ -94,12 +94,19 @@ public abstract class Transition {
         return this.conditionalPropositionalEffects.getAllAffectedVariables();
     }
 
-    public Collection<NumEffect> getNumericFluentAffected() {
-        return this.conditionalNumericEffects.getAllAffectedVariables();
+    public Collection<NumEffect> getAllNumericEffects() {
+        return conditionalNumericEffects.getAllAffectedVariables();
+    }
+    public Collection<NumFluent> getAllNumericAffected() {
+        Collection res = new HashSet();
+        for (NumEffect numEffect : conditionalNumericEffects.getAllAffectedVariables()) {
+            res.add(numEffect.getFluentAffected());
+        }
+        return res;
     }
 
     public boolean affect(NumFluent f) {
-        return this.getNumericFluentAffected().contains(f);
+        return this.getAllNumericAffected().contains(f);
     }
 
     // TODO: 20/09/19 This function needs to be cached
@@ -135,14 +142,13 @@ public abstract class Transition {
         return 0;
     }
 
-    public HashMap updateInvariantFluents(HashMap invariantFluents) {
-        for (Object nf : this.getNumericFluentAffected()) {
-            invariantFluents.put(nf, Boolean.FALSE);
+    public void updateInvariantFluents(Set invariantFluents) {
+        for (NumEffect nf : this.getAllNumericEffects()) {
+            invariantFluents.add(nf.getFluentAffected());
         }
         for (Predicate p : this.getPropositionAffected()) {
-            invariantFluents.put(p, Boolean.FALSE);
+            invariantFluents.add(p);
         }
-        return invariantFluents;
     }
 
     public Collection<? extends NumFluent> getNumFluentsNecessaryForExecution() {

@@ -212,7 +212,7 @@ public class BinaryOp extends Expression {
 
 
     @Override
-    public Expression weakEval (PddlProblem s, HashMap invF) {
+    public Expression weakEval (PddlProblem s, Set invF) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;

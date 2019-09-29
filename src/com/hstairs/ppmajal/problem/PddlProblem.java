@@ -23,12 +23,12 @@ import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Type;
-import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
@@ -67,7 +67,7 @@ public class PddlProblem {
     protected boolean simplifyActions;
         private boolean action_cost_from_metric = true;
 
-    protected HashMap staticFluents;
+    protected Set staticFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;

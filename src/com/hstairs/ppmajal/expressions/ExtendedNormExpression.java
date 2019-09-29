@@ -436,7 +436,7 @@ public class ExtendedNormExpression extends Expression {
      * @return
      */
     @Override
-    public ExtendedNormExpression weakEval (PddlProblem problem, HashMap invFluents) {
+    public ExtendedNormExpression weakEval (PddlProblem problem, Set invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
@@ -451,7 +451,7 @@ public class ExtendedNormExpression extends Expression {
                     throw new RuntimeException("Something didn't work in the weak evaluator for normalised expression");
                 }
                 if (a.f != null) {
-                    if (invFluents.get(a.f) == null || (Boolean) invFluents.get(a.f)) {
+                    if (!invFluents.contains(a.f)) {
                         PDDLNumber fluent = problem.getNumFluentInitialValue(a.f);
                         if (fluent == null || problem.getNumFluentInitialValue(a.f).getNumber().isNaN()) {
                             return null;
@@ -789,7 +789,7 @@ public class ExtendedNormExpression extends Expression {
         for (ExtendedAddendum ad : this.summations) {
             if (ad.f != null) {
 
-                if (aThis.getNumericFluentAffected().contains(ad.f)) {
+                if (aThis.getAllNumericEffects().contains(ad.f)) {
                     current += ad.n * aThis.getValueOfRightExpApartFromAffected(ad.f, s_0);
                 }
             }

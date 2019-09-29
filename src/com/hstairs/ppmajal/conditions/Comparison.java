@@ -509,7 +509,7 @@ public class Comparison extends Terminal {
     }
 
     @Override
-    public Condition weakEval(PddlProblem s, HashMap invF) {
+    public Condition weakEval(PddlProblem s, Set invF) {
         if (this.isUnsatisfiable())
             return this;
         Comparison comp = this;

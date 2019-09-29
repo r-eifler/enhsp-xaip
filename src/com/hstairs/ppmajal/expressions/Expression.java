@@ -67,7 +67,7 @@ public abstract class Expression extends Object {
      * @param invF
      * @return
      */
-    public abstract Expression weakEval (PddlProblem p, HashMap invF);
+    public abstract Expression weakEval (PddlProblem p, Set invF);
 
     @Override
     public abstract Expression clone ( );

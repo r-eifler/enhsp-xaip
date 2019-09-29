@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
@@ -31,6 +32,8 @@ import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import java.util.*;
 
@@ -146,24 +149,14 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public HashMap getActualFluents ( ) {
+    public Set getActualFluents ( ) {
         if (staticFluents == null) {
-            staticFluents = new HashMap();
-            for (TransitionGround gr : (Collection<TransitionGround>) this.getActions()) {
-                staticFluents = gr.updateInvariantFluents(staticFluents);
+            staticFluents = new ReferenceOpenHashSet();
+            Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), this.getEventsSet()),this.getProcessesSet());
 
-            }
-            if (this.getProcessesSet() != null) {
-                for (TransitionGround pr : this.getProcessesSet()) {
-                    staticFluents = pr.updateInvariantFluents(staticFluents);
+            for (TransitionGround gr : (Collection<TransitionGround>) transitions) {
+                gr.updateInvariantFluents(staticFluents);
 
-                }
-            }
-            if (this.getEventsSet() != null) {
-                for (TransitionGround ev : this.getEventsSet()) {
-                    staticFluents = ev.updateInvariantFluents(staticFluents);
-
-                }
             }
         }
         return staticFluents;
@@ -219,7 +212,7 @@ public class EPddlProblem extends PddlProblem {
             boolean keep = true;
             if (isSimplifyActions()) {
                 try {
-                    HashMap invariantFluents = this.getActualFluents();
+                    Set invariantFluents = this.getActualFluents();
                     Condition preconditions = act.getPreconditions();
                     final Condition condition = preconditions.weakEval(this, invariantFluents);
                     if (condition != null && !condition.isUnsatisfiable()){
@@ -388,13 +381,13 @@ public class EPddlProblem extends PddlProblem {
         //invariant fluents
         LinkedHashSet<Predicate> predicateToRemove = new LinkedHashSet();
         for (Predicate p : this.initBoolFluentsValues.keySet()) {
-            if (this.getActualFluents().get(p) == null) {
+            if (!this.getActualFluents().contains(p)) {
                 predicateToRemove.add(p);
             }
         }
         LinkedHashSet<NumFluent> numFluentsToRemove = new LinkedHashSet();
         for (NumFluent p : this.initNumFluentsValues.keySet()) {
-            if (this.getActualFluents().get(p) == null) {
+            if (!this.getActualFluents().contains(p)) {
                 numFluentsToRemove.add(p);
             }
         }
@@ -460,7 +453,7 @@ public class EPddlProblem extends PddlProblem {
         if (NumFluent.numFluentsBank != null){
 //        System.out.println(NumFluent.numFluentsBank);
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
-                if (this.getActualFluents().get(nf) != null && nf.has_to_be_tracked()) {
+                if (this.getActualFluents().contains(nf) && nf.has_to_be_tracked()) {
                     PDDLNumber number = this.initNumFluentsValues.get(nf);
                     if (number == null) {
                         numFluents.put(nf.getId(), Double.NaN);
@@ -477,7 +470,7 @@ public class EPddlProblem extends PddlProblem {
         numberOfBooleanVariables = 0;
         if (Predicate.getPredicatesDB() != null) {
             for (Predicate p : Predicate.getPredicatesDB().values()) {
-                if (this.getActualFluents().get(p) != null) {
+                if (this.getActualFluents().contains(p)) {
                     Boolean r = this.initBoolFluentsValues.get(p);
                     if (r == null || !r) {
                         //boolFluents.set(p.getId(), false);

@@ -21,12 +21,13 @@ package com.hstairs.ppmajal.expressions;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author Enrico Scala
@@ -223,21 +224,21 @@ public class NumFluent extends Expression {
  
 
     @Override
-    public Expression weakEval (PddlProblem problem, HashMap invF) {
+    public Expression weakEval (PddlProblem problem, Set invF) {
 
         if (this.name.equals("#t")) {
             //return this;
             return problem.getNumFluentInitialValue(this);
         }
 
-        if ((invF.get(this) == null)) {//this means that the fluent cannot be in principle assigned
+        if ((!invF.contains(this))) {//this means that the fluent cannot be in principle assigned
             PDDLNumber o = problem.getNumFluentInitialValue(this);
             if (o == null && this.freeVarSemantic) {
                 return this;
             }
             return problem.getNumFluentInitialValue(this);
         } else {
-            if (!(Boolean) invF.get(this)) {
+            if ( invF.contains(this)) {
                 return this;
             } else {
                 return problem.getNumFluentInitialValue(this);

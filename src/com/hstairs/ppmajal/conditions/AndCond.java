@@ -308,7 +308,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public Condition weakEval (PddlProblem s, HashMap invF) {
+    public Condition weakEval (PddlProblem s, Set invF) {
         HashSet to_keep = new LinkedHashSet();
 
         if (this.sons != null) {
