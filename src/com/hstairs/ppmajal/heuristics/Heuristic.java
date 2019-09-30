@@ -50,4 +50,6 @@ public interface Heuristic {
             return previousG + 1;
         }
     }
+
+    Collection<TransitionGround> getTransitions(final boolean helpful);
 }

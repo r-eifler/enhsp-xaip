@@ -44,24 +44,12 @@ public class EPddlProblem extends PddlProblem {
 
     public HashSet<GlobalConstraint> globalConstraintSet;
     public AndCond globalConstraints;
-    protected int nActions;
     private Set<TransitionGround> processesSet;
     private Set<TransitionGround> eventsSet;
-    private boolean grounding;
-    private boolean risky = false;
-    private NumFluent time;
-    private boolean processesHaveBeenGrounded;
-    private boolean globalConstraintGrounded;
-    private HashMap<Object, Integer> idOf;
-    private int constraintsViolations;
-    private int totActionsEventsProcesses;
-    private int totEvents;
     private PDDLState pureInit;
     private HashMap<String, Terminal> terminalReference;
     private HashMap<String, NumFluent> numFluentReference;
     private boolean smallExpensive = false;
-    private int numberOfBooleanVariables;
-    private int numberOfNumericVariables;
     private boolean debug;
     private boolean cacheComparison = false;
     static public HashSet<Predicate> booleanFluents;
@@ -71,9 +59,6 @@ public class EPddlProblem extends PddlProblem {
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond();
-        grounding = false;
-        totActionsEventsProcesses = 0;
-        totEvents = 0;
     }
 
     public EPddlProblem() {
@@ -154,7 +139,7 @@ public class EPddlProblem extends PddlProblem {
             staticFluents = new ReferenceOpenHashSet();
             Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), this.getEventsSet()),this.getProcessesSet());
 
-            for (TransitionGround gr : (Collection<TransitionGround>) transitions) {
+            for (TransitionGround gr : transitions) {
                 gr.updateInvariantFluents(staticFluents);
 
             }
@@ -177,8 +162,6 @@ public class EPddlProblem extends PddlProblem {
                     globalConstraintSet.add(gr);
                 }
             }
-
-        this.globalConstraintGrounded = true;
     }
 
     public void groundingActionProcessesConstraints ( ) throws Exception {
@@ -188,8 +171,6 @@ public class EPddlProblem extends PddlProblem {
         this.generateTransitions();
         this.generateConstraints();
         this.setGroundedRepresentation(true);
-        this.processesHaveBeenGrounded = true;
-        this.globalConstraintGrounded = true;
         this.getActualFluents();
         if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().normalize());
@@ -234,13 +215,6 @@ public class EPddlProblem extends PddlProblem {
         }
     }
 
-    protected void removeStaticParts ( ) {
-        //this.staticFluents = null;//reset this
-        removeStaticPart();
-        removeUnnecessaryFluents();
-    }
-
-
     protected void easyCleanUp() {
         //System.out.println("prova");
         this.saveInitInit();
@@ -257,12 +231,6 @@ public class EPddlProblem extends PddlProblem {
                 System.out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
-
-        this.reachableActions = actions;
-        this.reachableActions.addAll(this.getProcessesSet());
-        this.reachableActions.addAll(this.getEventsSet());
-
-        splitOverActionsEventsProcesses(this.reachableActions);
         sweepStructuresForUnreachableStatements();
 
 //        this.makePddlState(); //remake init so as to account for only reachable actions
@@ -278,16 +246,14 @@ public class EPddlProblem extends PddlProblem {
         cleanEasyUnreachableTransitions(eventsSet);
 //        this.staticFluents = null;
         cleanIrrelevantConstraints(globalConstraintSet);
-        this.processesHaveBeenGrounded = true;
         this.setGroundedRepresentation(true);
-        this.globalConstraintGrounded = true;
 
         goals = (ComplexCondition) goals.weakEval(this, this.getActualFluents());
         goals = (ComplexCondition) goals.normalize();
         if (goals.isUnsatisfiable()){
             throw new RuntimeException("Goal is not reachable");
         }
-        globalConstraints = (AndCond) (ComplexCondition) globalConstraints.weakEval(this, this.getActualFluents());
+        globalConstraints = (AndCond) globalConstraints.weakEval(this, this.getActualFluents());
         globalConstraints = (AndCond) globalConstraints.normalize();
         if (globalConstraints.isUnsatisfiable()){
             throw new RuntimeException("Goal is not reachable");
@@ -340,7 +306,7 @@ public class EPddlProblem extends PddlProblem {
         globalConstraints = new AndCond();
 
         while (it.hasNext()) {
-            GlobalConstraint constr = (GlobalConstraint) it.next();
+            GlobalConstraint constr = it.next();
             boolean keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
 
             if (!keep) {
@@ -441,7 +407,6 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
         }
-
     }
 
     private PDDLState makePddlState ( ) {
@@ -449,7 +414,6 @@ public class EPddlProblem extends PddlProblem {
         removeStaticPart();
         removeUnnecessaryFluents();
         HashMap<Integer,Double> numFluents = new HashMap();
-        numberOfNumericVariables = 0;
         if (NumFluent.numFluentsBank != null){
 //        System.out.println(NumFluent.numFluentsBank);
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
@@ -460,14 +424,12 @@ public class EPddlProblem extends PddlProblem {
                     } else {
                         numFluents.put(nf.getId(), number.getNumber().doubleValue());
                     }
-                    numberOfNumericVariables++;
                 }
             }
         }
         
         booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
-        numberOfBooleanVariables = 0;
         if (Predicate.getPredicatesDB() != null) {
             for (Predicate p : Predicate.getPredicatesDB().values()) {
                 if (this.getActualFluents().contains(p)) {
@@ -477,7 +439,6 @@ public class EPddlProblem extends PddlProblem {
                     } else {
                         boolFluents.set(p.getId(), true);
                     }
-                    numberOfBooleanVariables++;
                     booleanFluents.add(p);
                 }
 
@@ -504,9 +465,6 @@ public class EPddlProblem extends PddlProblem {
         addTimeFluentToInit();
     }
 
-    public int getNumberOfBooleanVariables() {
-        return numberOfBooleanVariables;
-    }
 
     public Boolean goalSatisfied (State s) {
         return s.satisfy(this.getGoals());
@@ -516,16 +474,6 @@ public class EPddlProblem extends PddlProblem {
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(), objects);
     }
 
-    public Terminal getTerminalReference (String s) {
-        if (this.terminalReference == null) {
-            return null;
-        }
-        return this.terminalReference.get(s);
-    }
-
-    public void putTerminalReference (Terminal t) {
-        getTerminalReference().put(t.toString(), t);
-    }
 
     protected HashMap<String, Terminal> getTerminalReference ( ) {
         if (terminalReference == null) {
@@ -588,50 +536,17 @@ public class EPddlProblem extends PddlProblem {
         return getNumericFluentReference().get(stringRepresentation);
     }
 
-
-    private void reduceInit ( ) {
-//        System.out.println("|BoolVar| = "+this.init.boolFluents.size());
-//        Aibr serviceHeuristic = new Aibr(this.goals, this.actions,this.processesSet,this.eventsSet);
-//        serviceHeuristic.setup(this.init);
-//        serviceHeuristic.set(true, true);
-//        serviceHeuristic.computeEstimate(this.init);
-//        Collection<Predicate> predicateToConsider = new HashSet();
-//        for (Predicate p : this.predicateReference.values()){
-//            if (p.id != null){
-//                if (serviceHeuristic.reacheable_state.possBollValues.get(p.id)>0){
-//                    predicateToConsider.add(p);
-//                }else{
-//                    p.id = null;
-//                }
-//            }
-//        }
-//        this.init.boolFluents = new ArrayList();
-//        for (Predicate p: predicateToConsider){
-//            p.id = init.boolFluents.size();
-//            init.boolFluents.add(this.initBoolFluentsValues.get(p));
-//        }
-//        System.out.println("After Reachability |BoolVar| = "+this.init.boolFluents.size());
-//        
-    }
-
     @Override
-    public ObjectIterator<Pair<State, Object>> getSuccessors (State s) {
+    public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Collection<TransitionGround> acts) {
 //        if (s.getApplicableActions()!=null) {
 //            return new stateContainer(s, (Iterable) s.getApplicableActions());
 //        }
-        return new stateContainer(s, (Collection) actions);
+//        System.out.println(acts.size());
+        return new stateContainer(s, (Collection) acts);
     }
 
     public boolean milestoneReached (Float d, Float current_value, State temp) {
         return d < current_value && this.isSafeState(temp);
-    }
-
-    public Collection<TransitionGround> getReacheableEvents() {
-        return this.reachableEvents;
-    }
-
-    public Collection<TransitionGround> getReachableProcesses ( ) {
-        return this.reachableProcesses;
     }
 
     private ArrayList<TransitionGround> eventsApplication (State s, float delta1, Collection<TransitionGround> events) throws CloneNotSupportedException {
@@ -651,78 +566,6 @@ public class EPddlProblem extends PddlProblem {
         }
 
     }
-//
-//    private Pair<List<State>, ArrayList<ArrayList<GroundAction>>> advanceTime (float delta, float delta_max, State s) {
-//
-//        constraintsViolations = 0;
-//        List<State> states = new LinkedList();
-//        List<ArrayList<GroundAction>> transitions = new LinkedList();
-//        try {
-//            float i = 0.00000f;
-//            State temp = s.clone();
-//            ArrayList<GroundAction> waiting_list = new ArrayList<>();
-//            boolean at_least_one = false;
-//            while (i < delta_max) {
-//                State temp_temp = temp.clone();
-//                waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
-//                i += delta;
-//
-//                waiting.setNumericEffects(new AndCond());
-//                waiting.setPreconditions(new AndCond());
-//                //waiting.add_time_effects(((PDDLState)temp).time, executionDelta);
-//                waiting.addDelta(delta);
-//                for (GroundAction act : this.getReachableProcesses()) {
-//                    if (act instanceof GroundProcess) {
-//                        GroundProcess gp = (GroundProcess) act;
-//                        if (gp.isActive(temp_temp)) {
-//                            //System.out.println(gp.toEcoString());
-//                            AndCond precondition = (AndCond) waiting.getPreconditions();
-//                            precondition.addConditions(gp.getPreconditions());
-//                            gp.getNumericEffectsAsCollection().forEach((eff) -> {
-//                                waiting.add_numeric_effect(eff);
-//                            });
-//                            waiting.setPreconditions(precondition);
-//                        }
-//                    }
-//                }
-//                TransitionGround waiting = new TransitionGround("waiting",-1);
-//                waiting_list.add(waiting);
-//
-//                temp_temp.apply(waiting,temp_temp.clone());
-//                waiting_list.addAll(eventsApplication(temp_temp, i, this.getReacheableEvents()));
-//
-//                //the next has to be written better!!!! Spend a bit of time on that!
-//                boolean valid = temp_temp.satisfy(globalConstraints);//zero crossing?!?!?
-//                if (!valid) {
-//                    constraintsViolations++;
-//                } else {
-//                    at_least_one = true;
-//                    if (temp_temp.satisfy(getGoals())) {//very very easy zero crossing for opportunities. This should include also action preconditions
-//                        states.add(temp_temp);
-//                        transitions.add(waiting_list);
-//                    }
-//                }
-//                if (!valid || i >= delta_max) {
-//                    if (i >= delta_max && valid) {
-//                        temp = temp_temp;
-//                    } else {
-////                        System.out.println("smaller jump here?");
-////                        System.out.println("Waiting at this time for:"+i);
-//                    }
-//                    if (at_least_one) {
-//                        states.add(temp);
-//                        transitions.add(waiting_list);
-//                    }
-//                    break;
-//                } else {
-//                    temp = temp_temp;
-//                }
-//            }
-//        } catch (CloneNotSupportedException ex) {
-//            Logger.getLogger(SearchEngine.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return new Pair(states, transitions);
-//    }
 
     public Set<TransitionGround> getEventsSet ( ) {
         if (eventsSet == null){
@@ -736,13 +579,6 @@ public class EPddlProblem extends PddlProblem {
             processesSet = new LinkedHashSet<>();
         }
         return processesSet;
-    }
-
-    public State getInitInit ( ) {
-        if (this.pureInit == null) {
-            this.pureInit = new MAPPDDLState(this.initNumFluentsValues, initBoolFluentsValues);
-        }
-        return pureInit;
     }
 
     public State saveInitInit ( ) {
@@ -776,60 +612,6 @@ public class EPddlProblem extends PddlProblem {
         return null;
     }
     
-    private TransitionGround getActionFromProblemModel (TransitionGround gr) {
-
-        if (heuristicActionToProblemAction == null) {
-            heuristicActionToProblemAction = new HashMap<TransitionGround, TransitionGround>();
-        }
-        TransitionGround res = heuristicActionToProblemAction.get(gr);
-        if (res == null) {
-            //look among actions
-            Iterator<TransitionGround> it = this.actions.iterator();
-            res = (TransitionGround) findTransition(it,gr);
-            if (res == null){
-                res = findTransition(this.processesSet.iterator(),gr);
-            }
-            if (res == null){
-                res = findTransition(this.eventsSet.iterator(),gr);
-            }
-        }
-        return res;
-    }
-    
-    public void setReachableTransitions (Collection<TransitionGround> actionsToConsider) {
-        reachableActions = new LinkedHashSet();
-        reachableProcesses = new LinkedHashSet();
-        reachableEvents = new LinkedHashSet();
-        if (actionsToConsider == actions){
-            reachableActions = actions;
-            return;
-        }
-        for (final TransitionGround gr : actionsToConsider) {
-            TransitionGround actionFromProblemModel = getActionFromProblemModel(gr);
-            if (actionFromProblemModel != null){
-                switch (actionFromProblemModel.getSemantics()){
-                    case ACTION:
-                        reachableActions.add(actionFromProblemModel);
-                        break;
-                    case PROCESS:
-                        reachableProcesses.add((TransitionGround)actionFromProblemModel);
-                        break;
-                    case EVENT:
-                        reachableEvents.add((TransitionGround)actionFromProblemModel);
-                        break;
-                }
-            }
-        }
-    }
-
-    public void setReachableActions(Collection<TransitionGround> helpfulActions) {
-        reachableActions = helpfulActions;
-    }
-
-    public int getNumberOfNumericVariables() {
-        return numberOfNumericVariables;
-    }
-
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
         protected final State source;
@@ -848,6 +630,7 @@ public class EPddlProblem extends PddlProblem {
 
         @Override
         public boolean hasNext ( ) {
+
 
             while (it.hasNext()) {
                 current = it.next();

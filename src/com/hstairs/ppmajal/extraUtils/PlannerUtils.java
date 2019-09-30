@@ -29,10 +29,6 @@ import java.util.Collection;
  * @author enrico
  */
 public class PlannerUtils {
-
-
-    
-    
     
     public int getPlanSize (String domainFileName, String problemFileName, String heuristic) throws Exception {
         return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1, Integer.MAX_VALUE);
@@ -47,14 +43,4 @@ public class PlannerUtils {
 
     }
 
-    public int computeNumberOfRelevantActions (String domainFileName, String problemFileName) throws Exception {
-        final PddlDomain domain = new PddlDomain(domainFileName);
-        final EPddlProblem problem = new EPddlProblem(problemFileName, domain.getConstants(), domain.getTypes(),domain);
-        domain.prettyPrint();
-        problem.groundingActionProcessesConstraints();
-        problem.simplifyAndSetupInit();
-        Collection<TransitionGround> reachableActions = problem.getReachableActions();
-        return reachableActions.size();
-
-    }
 }

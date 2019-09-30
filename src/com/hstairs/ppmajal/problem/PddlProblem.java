@@ -42,13 +42,12 @@ import java.util.logging.Logger;
 /**
  * @author enrico
  */
-public class PddlProblem {
+public abstract class PddlProblem {
 
     public PDDLObjects objects;
     public State init;
     public ComplexCondition goals;
     public Collection<TransitionGround> actions;
-    public int counterNumericFluents = 0;
     public Condition belief;
     public Collection<Predicate> unknonw_predicates;
     public Collection<OneOf> one_of_s;
@@ -71,11 +70,8 @@ public class PddlProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;
-    public Collection<TransitionGround> reachableActions;
     final PddlDomain linkedDomain;
     private FactoryConditions fc;
-    private int totActions;
-
 
     public PddlProblem(){
         linkedDomain = null;
@@ -107,7 +103,6 @@ public class PddlProblem {
         linkedDomain = linked;
         actions = new LinkedHashSet();
         grounded_representation = false;
-        totActions = 0;
         simplifyActions = true;
         possStates = null;
     }
@@ -678,31 +673,13 @@ public class PddlProblem {
 
     }
 
-
     public boolean isSafeState (State temp) {
         return true;
     }
 
-
-    public Iterator<Pair<State, Object>> getSuccessors (State s) {
-        return new stateContainer(s, getReachableActions());
+    public  Iterator<Pair<State, Object>> getSuccessors(State s, Collection<TransitionGround> acts){
+        return new stateContainer(s,acts);
     }
-
-    public Collection<TransitionGround> getReachableActions ( ) {
-        return reachableActions;
-    }
-
-    
-
-
-
-    public int getFreshActionId ( ) {
-        int current = totActions;
-        totActions++;
-        return(current);
-    }
-
-
 
 
     private class stateContainer implements Iterator {

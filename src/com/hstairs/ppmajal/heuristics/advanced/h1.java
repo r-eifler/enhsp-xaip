@@ -31,10 +31,10 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.ints.IntBigLists;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.util.FibonacciHeap;
@@ -59,11 +59,13 @@ public class h1 implements Heuristic {
     final private int heuristicNumberOfActions;
     final private int totNumberOfTerms;
     final private EPddlProblem problem;
+    final private boolean helpfulActionsComputation;
     private final IntArraySet[] possibleAchievers;
     private final IntArraySet[] conditionToAction;
     private final IntArraySet allConditions;
     private final IntArraySet allComparisons;
     private final FibonacciHeapNode[] nodeOf;
+    private final boolean reachability;
 
     private float[] actionCost;
     private float[] actionHCost;
@@ -75,19 +77,23 @@ public class h1 implements Heuristic {
     private IntArraySet[] achievers;
     private int[] establishedAchiever;
     private float[] numRepetition;
+    private IntArraySet helpfulActions;
+    private IntArraySet reachableTransitions;
+    private Collection<TransitionGround> reachableTransitionsInstances;
 
     public h1(EPddlProblem problem){
-        this(problem,true,false);
+        this(problem,true,false,false,false);
     }
-    public h1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan) {
+    public h1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean helpfulActionsComputation,boolean reachability) {
         this.additive = additive;
         this.problem = problem;
+        this.reachability = reachability;
+        this.helpfulActionsComputation = helpfulActionsComputation;
         this.useRedundantConstraints = false;
         this.extractRelaxedPlan = extractRelaxedPlan;
         pseudoGoal = Transition.totNumberOfTransitions;
         heuristicNumberOfActions = Transition.totNumberOfTransitions+1;
         allComparisons = new IntArraySet();
-
         preconditionFunction = new Condition[heuristicNumberOfActions];
         propEffectFunction = new Collection[heuristicNumberOfActions];
         numericEffectFunction = new Collection[heuristicNumberOfActions];
@@ -186,7 +192,9 @@ public class h1 implements Heuristic {
         Arrays.fill(closed,false);
 
         FibonacciHeap h = new FibonacciHeap();
-
+        if (reachableTransitions== null) {
+            reachableTransitions = new IntArraySet();
+        }
         for (final int i: allConditions){
             if (gs.satisfy(Terminal.getTerminal(i))){
                 conditionCost[i] = 0f;
@@ -196,16 +204,24 @@ public class h1 implements Heuristic {
 
         while(!h.isEmpty()){
             final int actionId = (int) h.removeMin().getData();
-            if (actionId == pseudoGoal){
+            if (actionId == pseudoGoal && reachableTransitionsInstances != null){
                 if (extractRelaxedPlan){
                     return relaxedPlanCost();
                 }
                 return actionHCost[pseudoGoal];
             }
+            if (reachableTransitionsInstances == null && actionId != pseudoGoal){
+                reachableTransitions.add(actionId);
+            }
             closed[actionId] = true;
-            expand(actionId,h,gs);
+            if (actionId != pseudoGoal) {
+                expand(actionId, h, gs);
+            }
         }
-        return Float.MAX_VALUE;
+        if (reachableTransitionsInstances == null) {
+            getTransitions(false);
+        }
+        return actionHCost[pseudoGoal];
 
     }
 
@@ -218,6 +234,8 @@ public class h1 implements Heuristic {
         Collection<Integer> allGoals = new IntArraySet();
         boolean[] visited = new boolean[totNumberOfTerms];
         Arrays.fill(visited,false);
+        helpfulActions = new IntArraySet();
+
         while (!stack.isEmpty()){
             final Pair<Collection<Integer>,Float> elements = (Pair<Collection<Integer>, Float>) stack.pop();
             allGoals.addAll(elements.getKey());
@@ -235,6 +253,13 @@ public class h1 implements Heuristic {
                             }
                         }
                         if (!inserted) {
+                            if (helpfulActionsComputation){
+                                for (int id: achievers[conditionId]){
+                                    if (actionHCost[id] == 0){
+                                        helpfulActions.add(id);
+                                    }
+                                }
+                            }
                             plan.addFirst(Pair.of(actionId, numRepetition[conditionId] * actionCost[actionId]));
                             stack.push(getActivatingConditions(preconditionFunction[actionId]));
                         }
@@ -265,6 +290,7 @@ public class h1 implements Heuristic {
         }
         for (final int conditionId: achievableTerms){//This is for all terminal
             if (conditionCost[conditionId]  != 0) {
+                updateAchievers(conditionId,actionId);
                 final Terminal t = Terminal.getTerminal(conditionId);
                 boolean update = false;
                 if (t instanceof Predicate || t instanceof NotCond) {//affecting a prop variable
@@ -289,7 +315,7 @@ public class h1 implements Heuristic {
 
     }
 
-    private void updateRelPlanInfo(int conditionId, int actionId, float rep) {
+    private void updateAchievers(int conditionId, int actionId) {
         if (extractRelaxedPlan) {
             if (achievers == null) {
                 achievers = new IntArraySet[totNumberOfTerms];
@@ -301,6 +327,12 @@ public class h1 implements Heuristic {
                 achiever = new IntArraySet();
             }
             achiever.add(actionId);
+            achievers[conditionId] = achiever;
+        }
+    }
+
+    private void updateRelPlanInfo(int conditionId, int actionId, float rep) {
+        if (extractRelaxedPlan) {
             establishedAchiever[conditionId] = actionId;
             numRepetition[conditionId] = rep;
         }
@@ -451,6 +483,27 @@ public class h1 implements Heuristic {
             }
         }
         return positiveness;
+    }
+
+    public Collection<TransitionGround> getTransitions(final boolean helpful) {
+        if (helpfulActions == null || !helpful){
+            if (reachableTransitionsInstances == null){
+                reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
+                if (reachableTransitions == null){
+                    this.computeEstimate(problem.getInit());
+                }
+                for (final int i: reachableTransitions){
+                    reachableTransitionsInstances.add((TransitionGround) Transition.getTransition(i));
+                }
+                reachableTransitionsInstances = new ArrayList<>(reachableTransitionsInstances);
+            }
+            return reachableTransitionsInstances;
+        }
+        Collection<TransitionGround> actions = new ArrayList<>();
+        for (final int i: helpfulActions){
+            actions.add((TransitionGround) Transition.getTransition(i));
+        }
+        return actions;
     }
 }
 //

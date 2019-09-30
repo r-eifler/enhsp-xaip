@@ -26,6 +26,9 @@ package com.hstairs.ppmajal.heuristics;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
+
+import java.util.Collection;
 
 /**
  * @author enrico
@@ -33,8 +36,9 @@ import com.hstairs.ppmajal.problem.State;
 public class blindHeuristic implements Heuristic {
 
     final Condition goal;
-
+    final private EPddlProblem problem;
     public blindHeuristic (EPddlProblem problem){
+        this.problem = problem;
         goal = problem.getGoals();
     }
 
@@ -43,6 +47,11 @@ public class blindHeuristic implements Heuristic {
         if (s_0.satisfy(goal))
             return 0;
         return 1;
+    }
+
+    @Override
+    public Collection<TransitionGround> getTransitions(boolean helpful) {
+        return problem.getActions();
     }
 
 }

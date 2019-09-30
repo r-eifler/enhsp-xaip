@@ -18,10 +18,12 @@
  */
 package com.hstairs.ppmajal.search;
 
+import java.util.ArrayList;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
@@ -131,8 +133,7 @@ public class SearchEngine {
                     node = new SearchNode(successorState, action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
                 }
                 if (this.helpfulActionsPruning) {
-                    throw new UnsupportedOperationException();
-//                    node.helpfulActions = getHeuristic().getHelpfulActions();
+                    node.helpfulActions = getHeuristic().getTransitions(helpfulActionsPruning);
                 }
                 if (saveSearchTreeAsJson) {
                     current_node.add_descendant(node);
@@ -219,7 +220,6 @@ public class SearchEngine {
         State current = problem.getInit();
 
         LinkedList<TransitionGround> plan = new LinkedList<>();
-        //a = new LinkedHashSet(np.compute_relevant_actions(problem.getInit(), problem.getActions()));
 //        rel_actions = getHeuristic().reachable;
         setNumberOfEvaluatedStates(0);
         Object visited = null;
@@ -255,9 +255,6 @@ public class SearchEngine {
             current = succ.s;
             currentG = succ.gValue;
 
-            if (this.helpfulActionsPruning) {
-                problem.setReachableTransitions(new LinkedHashSet<TransitionGround>(succ.helpfulActions));
-            }
             plan.addAll(extractPlan(succ));
             if (forgettingEhc) {
                 visited = getMap(explorator);
@@ -291,12 +288,9 @@ public class SearchEngine {
                 current_gn = node.gValue;
 
             }
-            if (this.helpfulActionsPruning) {
-                problem.setReachableTransitions(new LinkedHashSet<TransitionGround>(node.helpfulActions));
-            }
 
             visited.put(node.s, true);
-            for (Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext();) {
+            for (Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s,getActionsToSearch(node,problem)); it.hasNext();) {
                 final Pair<State, Object> next = it.next();
                 final Object act = next.getSecond();
                 State temp = next.getFirst();
@@ -380,6 +374,7 @@ public class SearchEngine {
         }
 //        Float hAtInit = getHeuristic().computeEstimate(initState);
         long start_global = System.currentTimeMillis();
+        Float hAtInit = getHeuristic().computeEstimate(initState);
         if (incremental) {
             throw new UnsupportedOperationException();
         }else{
@@ -389,7 +384,7 @@ public class SearchEngine {
 //                out.println("h(n = s_0)=inf");
 //                return null;
 //            }
-            out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
+            out.println("Reachable actions and processes: |A U P U E|:" + heuristic.getTransitions(helpfulActionsPruning).size());
 //            setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
             setHeuristicCpuTime(0);
             duplicatesNumber = 0;
@@ -397,7 +392,6 @@ public class SearchEngine {
             currentG = 0f;
         }
 
-        Float hAtInit = getHeuristic().computeEstimate(initState);
 
 //        getHeuristic().why_not_active = true;
 
@@ -407,8 +401,7 @@ public class SearchEngine {
 
         SearchNode init = new SearchNode(initState.clone(), 0, hAtInit, this.saveSearchTreeAsJson, this.gw, this.hw);
         if (this.helpfulActionsPruning) {
-            throw new UnsupportedOperationException();
-            //            init.helpfulActions = getHeuristic().getHelpfulActions();
+            init.helpfulActions = getHeuristic().getTransitions(helpfulActionsPruning);
         }
 
         if (saveSearchTreeAsJson) {
@@ -488,11 +481,9 @@ public class SearchEngine {
                 }
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
-                if (this.helpfulActionsPruning) {
-                    problem.setReachableActions(currentNode.helpfulActions);
-                }
 
-                for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s); it.hasNext();) {
+
+                for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s,getActionsToSearch(currentNode,problem)); it.hasNext();) {
                     final Pair<State, Object> next = it.next();
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
@@ -867,13 +858,10 @@ public class SearchEngine {
                                 return new Pair(node, newBound);
                             }
                         } else {
-                            if (this.helpfulActionsPruning) {
-                                throw new UnsupportedOperationException();
-//                                problem.setReachableTransitions(heuristic.getHelpfulActions());
-                            }
+
                             boolean atLeastOne = false;
 
-                            for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s); it.hasNext();) {
+                            for (final Iterator<Pair<State, Object>> it = problem.getSuccessors(node.s,getActionsToSearch(null,problem)); it.hasNext();) {
                                 final Pair<State, Object> next = it.next();
                                 boolean push = true;
                                 if (checkAlongPrefix) {
@@ -906,6 +894,13 @@ public class SearchEngine {
         }
         return new Pair(bestSol, newBound);
 
+    }
+
+    Collection<TransitionGround> getActionsToSearch(SearchNode currentNode, PddlProblem problem){
+        if (helpfulActionsPruning && currentNode != null){
+            return currentNode.helpfulActions;
+        }
+        return heuristic.getTransitions(false);
     }
 
     private void updateTable(IdaStarSearchNode s, Float h) {
