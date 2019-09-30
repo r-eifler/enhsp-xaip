@@ -26,6 +26,8 @@ import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.extraUtils.Pair;
+import com.hstairs.ppmajal.heuristics.Heuristic;
+import com.hstairs.ppmajal.heuristics.advanced.h1;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
@@ -229,6 +231,21 @@ public class EPddlProblem extends PddlProblem {
             System.out.print("This is the universe of propositional fluent:");
             for (Predicate pred : Predicate.getPredicatesDB().values()) {
                 System.out.println("ID:" + pred.getId() + "->" + pred);
+            }
+        }
+        h1 h1 = new h1(this);
+        h1.computeEstimate(this.makePddlState());
+        final Collection<TransitionGround> transitions = h1.getTransitions(false);
+        actions = new ArrayList<>();
+        for (TransitionGround t : transitions){
+            switch (t.getSemantics()){
+                case ACTION:
+                    actions.add(t);
+                    break;
+                case PROCESS:
+                    break;
+                case EVENT:
+                    break;
             }
         }
         sweepStructuresForUnreachableStatements();
