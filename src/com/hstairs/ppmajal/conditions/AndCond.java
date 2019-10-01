@@ -649,8 +649,9 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
                    
                     Comparison newC = (Comparison) Comparison.createComparison(new_comparator,expr.normalize(),new ExtendedNormExpression(0d),false).normalize();
-                    
-
+                    if (newC == null){
+                        continue;
+                    }
                     ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
 
                     if (tempLeft.summations.size() < 2) {

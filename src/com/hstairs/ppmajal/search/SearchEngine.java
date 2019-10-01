@@ -201,7 +201,7 @@ public class SearchEngine {
 
     }
 
-    public List<TransitionGround> a_star(EPddlProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> a_star(EPddlProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
         return this.WAStar(problem);
@@ -514,14 +514,14 @@ public class SearchEngine {
         return this.lastState;
     }
 
-    public LinkedList<TransitionGround> WAStar(EPddlProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> WAStar(EPddlProblem problem) throws Exception {
         return WAStar(problem, false, Long.MAX_VALUE);
     }
-    public LinkedList<TransitionGround> WAStar(EPddlProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> WAStar(EPddlProblem problem, long timeout) throws Exception {
         return WAStar(problem, false, timeout);
     }
 
-    public LinkedList<TransitionGround> WAStar(EPddlProblem problem, boolean treeSearch, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> WAStar(EPddlProblem problem, boolean treeSearch, long timeout) throws Exception {
         SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch, timeout);
         if (end != null) {
             return this.extractPlan(end);
@@ -532,12 +532,12 @@ public class SearchEngine {
 
 
 
-    public LinkedList<TransitionGround> greedy_best_first_search(EPddlProblem problem) throws Exception{
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> greedy_best_first_search(EPddlProblem problem) throws Exception{
         this.optimality = false;
         return this.greedy_best_first_search(problem,Long.MAX_VALUE);
     }
     
-    public LinkedList<TransitionGround> greedy_best_first_search(EPddlProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> greedy_best_first_search(EPddlProblem problem, long timeout) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem,timeout);

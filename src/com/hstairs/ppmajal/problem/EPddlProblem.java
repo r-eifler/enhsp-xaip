@@ -26,15 +26,13 @@ import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.extraUtils.Pair;
-import com.hstairs.ppmajal.heuristics.Heuristic;
-import com.hstairs.ppmajal.heuristics.advanced.h1;
+import com.hstairs.ppmajal.heuristics.advanced.H1;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import java.util.*;
@@ -234,7 +232,7 @@ public class EPddlProblem extends PddlProblem {
                 System.out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
-        final h1 h1 = new h1(this,true,false,false,true);
+        final H1 h1 = new H1(this,true,false,false,false,true);
         h1.computeEstimate(this.makePddlState());
         final Collection<TransitionGround> transitions = h1.getTransitions(false);
         actions = new ArrayList<>();
