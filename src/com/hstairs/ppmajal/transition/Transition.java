@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.transition;
 
+import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.conditions.Terminal;
@@ -76,6 +77,9 @@ public abstract class Transition {
     }
 
     public Condition getPreconditions() {
+        if (preconditions == null){
+            return new AndCond();
+        }
         return preconditions;
     }
 

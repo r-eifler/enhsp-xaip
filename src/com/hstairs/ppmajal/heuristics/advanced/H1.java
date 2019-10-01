@@ -31,6 +31,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
@@ -81,6 +82,7 @@ public class H1 implements Heuristic {
     private Collection<TransitionGround> reachableTransitionsInstances;
 
     final private float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
+    final private IntArraySet freePreconditionActions;
 
     public H1(EPddlProblem problem){
         this(problem,true,false,false,false,false);
@@ -98,6 +100,7 @@ public class H1 implements Heuristic {
         preconditionFunction = new Condition[heuristicNumberOfActions];
         propEffectFunction = new Collection[heuristicNumberOfActions];
         numericEffectFunction = new Collection[heuristicNumberOfActions];
+        freePreconditionActions = new IntArraySet();
 
         actionCost = new float[heuristicNumberOfActions];
         Arrays.fill(actionCost,Float.MAX_VALUE);
@@ -149,6 +152,9 @@ public class H1 implements Heuristic {
 
     void updatePreconditionFunction(int i){
         final Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
+        if (terminalConditions.isEmpty()){
+            freePreconditionActions.add(i);
+        }
         for (final Condition c : terminalConditions) {
             if (c instanceof  Terminal ) {
                 Terminal t = (Terminal)c;
@@ -179,6 +185,10 @@ public class H1 implements Heuristic {
                 updateActions(i,h);
             }
         }
+        for (final int freePreconditionAction : freePreconditionActions) {
+            actionHCost[freePreconditionAction] = 0f;
+            addActionsInPriority(freePreconditionAction,h,0f);
+        }
 
         while(!h.isEmpty()){
             final int actionId = (int) h.removeMin().getData();
@@ -203,6 +213,12 @@ public class H1 implements Heuristic {
 
     }
 
+    void addActionsInPriority(final int i,final FibonacciHeap p,final float v){
+        final FibonacciHeapNode fibonacciHeapNode = new FibonacciHeapNode(i);
+        nodeOf[i] = fibonacciHeapNode;
+        p.insert(fibonacciHeapNode,v);
+    }
+
 
     void updateActions(final int c, final FibonacciHeap p) {
         final IntArraySet actions = conditionToAction[c];
@@ -214,9 +230,7 @@ public class H1 implements Heuristic {
                         if (v < actionHCost[i]){
                             if (actionHCost[i] == Float.MAX_VALUE){
                                 actionHCost[i] = v;
-                                final FibonacciHeapNode fibonacciHeapNode = new FibonacciHeapNode(i);
-                                nodeOf[i] = fibonacciHeapNode;
-                                p.insert(fibonacciHeapNode,v);
+                                addActionsInPriority(i,p,v);
                             }else{
                                 actionHCost[i] = v;
                                 p.decreaseKey(nodeOf[i],v);
@@ -288,7 +302,7 @@ public class H1 implements Heuristic {
                 if (v > 0){
                     achievableTerms.add(t);
                 }
-                if (v < 0){
+                if (v  == UNKNOWNEFFECT){
                     achievableTerms.add(t);
                 }
 
