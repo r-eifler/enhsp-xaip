@@ -192,9 +192,6 @@ public class h1 implements Heuristic {
         Arrays.fill(closed,false);
 
         FibonacciHeap h = new FibonacciHeap();
-        if (reachableTransitions== null) {
-            reachableTransitions = new IntArraySet();
-        }
         for (final int i: allConditions){
             if (gs.satisfy(Terminal.getTerminal(i))){
                 conditionCost[i] = 0f;
@@ -204,13 +201,16 @@ public class h1 implements Heuristic {
 
         while(!h.isEmpty()){
             final int actionId = (int) h.removeMin().getData();
-            if (actionId == pseudoGoal && reachableTransitionsInstances != null){
+            if (actionId == pseudoGoal && !reachability){
                 if (extractRelaxedPlan){
                     return relaxedPlanCost();
                 }
                 return actionHCost[pseudoGoal];
             }
-            if (reachableTransitionsInstances == null && actionId != pseudoGoal){
+            if (reachability && actionId != pseudoGoal){
+                if (reachableTransitions == null){
+                    reachableTransitions = new IntArraySet();
+                }
                 reachableTransitions.add(actionId);
             }
             closed[actionId] = true;
@@ -218,10 +218,7 @@ public class h1 implements Heuristic {
                 expand(actionId, h, gs);
             }
         }
-        if (reachableTransitionsInstances == null) {
-            getTransitions(false);
-        }
-        return actionHCost[pseudoGoal];
+        return extractRelaxedPlan && actionHCost[pseudoGoal] != Float.MAX_VALUE? relaxedPlanCost() : actionHCost[pseudoGoal];
 
     }
 
@@ -488,10 +485,10 @@ public class h1 implements Heuristic {
     public Collection<TransitionGround> getTransitions(final boolean helpful) {
         if (helpfulActions == null || !helpful){
             if (reachableTransitionsInstances == null){
-                reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
                 if (reachableTransitions == null){
-                    this.computeEstimate(problem.getInit());
+                    return problem.actions;
                 }
+                reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
                 for (final int i: reachableTransitions){
                     reachableTransitionsInstances.add((TransitionGround) Transition.getTransition(i));
                 }

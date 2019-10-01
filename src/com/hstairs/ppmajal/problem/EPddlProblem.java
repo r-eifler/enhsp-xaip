@@ -55,7 +55,8 @@ public class EPddlProblem extends PddlProblem {
     private boolean debug;
     private boolean cacheComparison = false;
     static public HashSet<Predicate> booleanFluents;
-
+    private int totNumberOfBoolVariables;
+    private int totNumberOfNumVariables;
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
         super(problemFile, po, types, linked);
         globalConstraintSet = new LinkedHashSet();
@@ -233,7 +234,7 @@ public class EPddlProblem extends PddlProblem {
                 System.out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
-        h1 h1 = new h1(this);
+        final h1 h1 = new h1(this,true,false,false,true);
         h1.computeEstimate(this.makePddlState());
         final Collection<TransitionGround> transitions = h1.getTransitions(false);
         actions = new ArrayList<>();
@@ -299,6 +300,9 @@ public class EPddlProblem extends PddlProblem {
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
+        System.out.println("|F|:"+totNumberOfBoolVariables);
+        System.out.println("|X|:"+totNumberOfNumVariables);
+        
     }
 
 
@@ -431,6 +435,8 @@ public class EPddlProblem extends PddlProblem {
         removeStaticPart();
         removeUnnecessaryFluents();
         HashMap<Integer,Double> numFluents = new HashMap();
+        totNumberOfNumVariables = 0;
+        totNumberOfBoolVariables = 0;
         if (NumFluent.numFluentsBank != null){
 //        System.out.println(NumFluent.numFluentsBank);
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
@@ -441,6 +447,7 @@ public class EPddlProblem extends PddlProblem {
                     } else {
                         numFluents.put(nf.getId(), number.getNumber().doubleValue());
                     }
+                    totNumberOfNumVariables++;
                 }
             }
         }
@@ -457,6 +464,7 @@ public class EPddlProblem extends PddlProblem {
                         boolFluents.set(p.getId(), true);
                     }
                     booleanFluents.add(p);
+                    totNumberOfBoolVariables++;
                 }
 
             }

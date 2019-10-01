@@ -384,7 +384,7 @@ public class SearchEngine {
 //                out.println("h(n = s_0)=inf");
 //                return null;
 //            }
-            out.println("Reachable actions and processes: |A U P U E|:" + heuristic.getTransitions(helpfulActionsPruning).size());
+            out.println("Reachable actions and processes: |A U P U E|:" + problem.actions.size());
 //            setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
             setHeuristicCpuTime(0);
             duplicatesNumber = 0;
