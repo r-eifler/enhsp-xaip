@@ -155,9 +155,11 @@ public class PDDLState extends State {
 
 
     public double fluentValue (NumFluent f) {
-        if (f.getId() == -1) {
+        if (f.getId() == -1 || fromProblemNFId2StateNFId[f.getId()] == -1) {
             return Double.NaN;
         }
+//        System.out.println(f);
+//        System.out.println(fromProblemNFId2StateNFId[f.getId()]);
         return this.numFluents.get(fromProblemNFId2StateNFId[f.getId()]);
 
     }
