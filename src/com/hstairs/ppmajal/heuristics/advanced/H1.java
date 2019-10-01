@@ -259,6 +259,13 @@ public class H1 implements Heuristic {
             for (final int conditionId: elements.getLeft()){
                 if (!visited[conditionId]) {
                     if (conditionCost[conditionId] != 0) {
+                        if (helpfulActionsComputation){
+                            for (int id: achievers[conditionId]){
+                                if (actionHCost[id] == 0){
+                                    helpfulActions.add(id);
+                                }
+                            }
+                        }
                         final int actionId = establishedAchiever[conditionId];
                         boolean inserted = false;
                         for (int i = plan.size() - 1; i >= 0; i--) {
@@ -270,13 +277,6 @@ public class H1 implements Heuristic {
                             }
                         }
                         if (!inserted) {
-                            if (helpfulActionsComputation){
-                                for (int id: achievers[conditionId]){
-                                    if (actionHCost[id] == 0){
-                                        helpfulActions.add(id);
-                                    }
-                                }
-                            }
                             plan.addFirst(Pair.of(actionId, numRepetition[conditionId] * actionCost[actionId]));
                             stack.push(getActivatingConditions(preconditionFunction[actionId]));
                         }
