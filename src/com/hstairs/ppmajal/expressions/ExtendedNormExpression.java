@@ -804,9 +804,11 @@ public class ExtendedNormExpression extends Expression {
         for (Object o : this.summations) {
             ExtendedAddendum a = (ExtendedAddendum) o;
             if (a.f != null) {
-                if (s.fluentValue(a.f) == Double.NaN) {
-                    System.out.println("Value not found!!! Grave Error");
-                    System.exit(-1);
+                final double v = s.fluentValue(a.f);
+                if (Double.isNaN(v)) {
+                    throw new RuntimeException("Issue with fluent:"+a.f);
+//                    System.out.println("Value not found!!! Grave Error");
+//                    System.exit(-1);
                 }
                 if (!a.f.equals(f)) {
                     ret += s.fluentValue(a.f) * a.n;

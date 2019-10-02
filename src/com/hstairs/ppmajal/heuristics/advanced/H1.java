@@ -148,6 +148,11 @@ public class H1 implements Heuristic {
         for (float[] row: numericContribution){
             Arrays.fill(row,Float.MAX_VALUE);
         }
+        if (extractRelaxedPlan){
+            achievers = new IntArraySet[totNumberOfTerms];
+            establishedAchiever = new int[totNumberOfTerms];
+            numRepetition = new float[totNumberOfTerms];
+        }
     }
 
     void updatePreconditionFunction(int i){
@@ -175,9 +180,13 @@ public class H1 implements Heuristic {
     @Override
     public float computeEstimate (State gs) {
         Arrays.fill(actionHCost,Float.MAX_VALUE);
-        Arrays.fill(conditionCost,Float.MAX_VALUE);
-        Arrays.fill(closed,false);
-
+        Arrays.fill(conditionCost, Float.MAX_VALUE);
+        Arrays.fill(closed, false);
+        if (extractRelaxedPlan) {
+            Arrays.fill(achievers,null);
+            Arrays.fill(establishedAchiever,-1);
+            Arrays.fill(numRepetition,Float.MAX_VALUE);
+        }
         final FibonacciHeap h = new FibonacciHeap();
         for (final int i: allConditions){
             if (gs.satisfy(Terminal.getTerminal(i))){
@@ -260,7 +269,7 @@ public class H1 implements Heuristic {
                 if (!visited[conditionId]) {
                     if (conditionCost[conditionId] != 0) {
                         if (helpfulActionsComputation){
-                            for (int id: achievers[conditionId]){
+                            for (final int id: achievers[conditionId]){
                                 if (actionHCost[id] == 0){
                                     helpfulActions.add(id);
                                 }
@@ -351,11 +360,7 @@ public class H1 implements Heuristic {
 
     private void updateAchievers(int conditionId, int actionId) {
         if (extractRelaxedPlan) {
-            if (achievers == null) {
-                achievers = new IntArraySet[totNumberOfTerms];
-                establishedAchiever = new int[totNumberOfTerms];
-                numRepetition = new float[totNumberOfTerms];
-            }
+
             IntArraySet achiever = achievers[conditionId];
             if (achiever == null) {
                 achiever = new IntArraySet();
