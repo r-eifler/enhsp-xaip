@@ -140,6 +140,7 @@ public class TransitionGround extends Transition {
 //        if (sdac1 == null){
 //            return 1f;
 //        }
+
         List<Pair<Condition, Float>> sdac1 = this.getSdac((PDDLState) s, m);
         float impact = 0f;
         for (Pair<Condition,Float> ele : sdac1){

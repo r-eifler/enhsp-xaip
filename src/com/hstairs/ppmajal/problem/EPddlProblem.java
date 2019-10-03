@@ -44,8 +44,8 @@ public class EPddlProblem extends PddlProblem {
 
     public HashSet<GlobalConstraint> globalConstraintSet;
     public AndCond globalConstraints;
-    private Set<TransitionGround> processesSet;
-    private Set<TransitionGround> eventsSet;
+    private Collection<TransitionGround> processesSet;
+    private Collection<TransitionGround> eventsSet;
     private PDDLState pureInit;
     private HashMap<String, Terminal> terminalReference;
     private HashMap<String, NumFluent> numFluentReference;
@@ -138,7 +138,7 @@ public class EPddlProblem extends PddlProblem {
     public Set getActualFluents ( ) {
         if (staticFluents == null) {
             staticFluents = new ReferenceOpenHashSet();
-            Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), this.getEventsSet()),this.getProcessesSet());
+            Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), new HashSet(this.getEventsSet())),new HashSet(this.getProcessesSet()));
 
             for (TransitionGround gr : transitions) {
                 gr.updateInvariantFluents(staticFluents);
@@ -186,8 +186,9 @@ public class EPddlProblem extends PddlProblem {
 
 
 
-    public void cleanEasyUnreachableTransitions (Iterable toWorkOut) {
+    public Iterable cleanEasyUnreachableTransitions (Iterable toWorkOut) {
         ArrayList arrayList = new ArrayList((Collection) toWorkOut);
+        Collection<TransitionGround> res = new LinkedHashSet<>();
         ListIterator it = arrayList.listIterator();
         while (it.hasNext()) {
             TransitionGround act = (TransitionGround) it.next();
@@ -200,7 +201,7 @@ public class EPddlProblem extends PddlProblem {
                     if (condition != null && !condition.isUnsatisfiable()){
                         ConditionalEffects conditionalNumericEffects = act.getConditionalNumericEffects();
                         ConditionalEffects conditionalPropositionalEffects = act.getConditionalPropositionalEffects();
-                        it.set(new TransitionGround(act.getParameters(),act.getName(),
+                        res.add(new TransitionGround(act.getParameters(),act.getName(),
                                 conditionalPropositionalEffects.weakEval(this,invariantFluents),
                                 conditionalNumericEffects.weakEval(this,invariantFluents),
                                 condition,
@@ -210,10 +211,9 @@ public class EPddlProblem extends PddlProblem {
                     e.printStackTrace();
                 }
             }
-            if (!keep) {
-                it.remove();
-            }
+
         }
+        return new ArrayList(res);
     }
 
     protected void easyCleanUp() {
@@ -232,8 +232,9 @@ public class EPddlProblem extends PddlProblem {
                 System.out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
+        this.makeInit();
         final H1 h1 = new H1(this,true,false,false,false,true);
-        h1.computeEstimate(this.makePddlState());
+        h1.computeEstimate(this.init);
         final Collection<TransitionGround> transitions = h1.getTransitions(false);
         actions = new ArrayList<>();
         for (TransitionGround t : transitions){
@@ -255,11 +256,11 @@ public class EPddlProblem extends PddlProblem {
     protected void sweepStructuresForUnreachableStatements ( ) {
         this.staticFluents = null;
         //the following just remove actions/processes/events over false and static predicates
-        cleanEasyUnreachableTransitions(actions);
+        actions = (Collection<TransitionGround>) cleanEasyUnreachableTransitions(actions);
 //        this.staticFluents = null;
-        cleanEasyUnreachableTransitions(processesSet);
+        processesSet = (Collection<TransitionGround>) cleanEasyUnreachableTransitions(processesSet);
 //        this.staticFluents = null;
-        cleanEasyUnreachableTransitions(eventsSet);
+        eventsSet = (Collection<TransitionGround>) cleanEasyUnreachableTransitions(eventsSet);
 //        this.staticFluents = null;
         cleanIrrelevantConstraints(globalConstraintSet);
         this.setGroundedRepresentation(true);
@@ -590,14 +591,14 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public Set<TransitionGround> getEventsSet ( ) {
+    public Collection<TransitionGround> getEventsSet ( ) {
         if (eventsSet == null){
             eventsSet = new LinkedHashSet<>();
         }
         return eventsSet;
     }
 
-    public Set<TransitionGround> getProcessesSet ( ) {
+    public Collection<TransitionGround> getProcessesSet ( ) {
         if (processesSet == null){
             processesSet = new LinkedHashSet<>();
         }
