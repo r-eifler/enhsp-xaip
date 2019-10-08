@@ -302,7 +302,7 @@ public class SearchEngine {
                 boolean visitedTemp = visited.getOrDefault(temp, false);
                 if (!visitedTemp) {
                     visited.put(temp, true);
-                    Float newG = heuristic.gValue(node.s, act, temp, node.gValue, problem.getMetric());
+                    Float newG = problem.gValue(node.s, act, temp, node.gValue, problem.getMetric());
                     if (newG == null) {
                         continue;
                     }
@@ -488,7 +488,7 @@ public class SearchEngine {
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     //skip this if violates global constraints
-                    final float successorG = heuristic.gValue(currentNode.s, act, successorState, currentNode.gValue,problem.getMetric());
+                    final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue,problem.getMetric());
                     if (Objects.equals(successorG, this.G_DEFAULT)) {
                         this.deadEndsDetected++;
                         continue;
@@ -810,7 +810,7 @@ public class SearchEngine {
             }
             final float g;
             if (node.transition != null) {
-                g = heuristic.gValue(node.father.s, node.transition, node.s, node.gValue,problem.getMetric());
+                g = problem.gValue(node.father.s, node.transition, node.s, node.gValue,problem.getMetric());
             } else {
                 g = 0;
             }

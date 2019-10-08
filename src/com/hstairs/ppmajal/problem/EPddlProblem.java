@@ -562,10 +562,6 @@ public class EPddlProblem extends PddlProblem {
 
     @Override
     public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Collection<TransitionGround> acts) {
-//        if (s.getApplicableActions()!=null) {
-//            return new stateContainer(s, (Iterable) s.getApplicableActions());
-//        }
-//        System.out.println(acts.size());
         return new stateContainer(s, (Collection) acts);
     }
 
@@ -612,30 +608,11 @@ public class EPddlProblem extends PddlProblem {
         return pureInit;
     }
 
-    public int getNextNumFluentReference ( ) {
-        return getNumericFluentReference().size();
-    }
 
     public void putNumFluentReference (NumFluent t) {
         getNumericFluentReference().put(t.toString(), t);
     }
 
-    private Collection<TransitionGround> reachableProcesses;
-    private LinkedHashSet<TransitionGround> reachableEvents;
-    private HashMap<TransitionGround, TransitionGround> heuristicActionToProblemAction;
-
-    private TransitionGround findTransition(Iterator it, TransitionGround gr) {
-        while (it.hasNext()) {
-            TransitionGround gr2 = (TransitionGround)it.next();
-            
-            if (gr.equals(gr2)) {
-                heuristicActionToProblemAction.put(gr, gr2);
-                return gr2;
-            }
-        }
-        return null;
-    }
-    
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
         protected final State source;
@@ -643,30 +620,47 @@ public class EPddlProblem extends PddlProblem {
         final private Iterable<Object> actionsSet;
         protected Object current;
         protected State newState;
-//        boolean cached;
 
         public stateContainer (State source, Iterable<Object> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
-            //cached = source.getApplicableActions()!=null;
             it = actionsSet.iterator();
         }
 
         @Override
         public boolean hasNext ( ) {
-
-
             while (it.hasNext()) {
                 current = it.next();
-                if (((TransitionGround) current).isApplicable(source)) {
-                    newState = source.clone();
-                    newState.apply(((TransitionGround) current),source);
-                    if (newState.satisfy(globalConstraints)){
+                if (current instanceof TransitionGround) {
+                    if (((TransitionGround) current).isApplicable(source)) {
+                        newState = source.clone();
+                        newState.apply(((TransitionGround) current), source);
+                        if (newState.satisfy(globalConstraints)) {
+                            return true;
+                        }
+                    }
+                }else if (current instanceof Pair){
+                    final boolean b = applyActionMTimes(((Pair<TransitionGround, Integer>) current).getFirst(), ((Pair<TransitionGround, Integer>) current).getSecond());
+                    if (b) {
                         return true;
                     }
                 }
             }
             return false;
+        }
+
+        public boolean applyActionMTimes(final TransitionGround act, int counter){
+            final State prev = source.clone();
+            int i=0;
+            while (i<counter){
+                prev.apply((act), source);
+                if (!act.isApplicable(newState) || !newState.satisfy(globalConstraints)){
+                    return i > 0;
+                }
+                newState = prev;
+                i++;
+            }
+            return true;
         }
 
         @Override

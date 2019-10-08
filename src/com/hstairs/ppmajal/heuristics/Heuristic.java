@@ -33,23 +33,23 @@ public interface Heuristic {
 
     float computeEstimate(State s);
 
-    default Float gValue(State s, Object act, State temp, float gValue, Metric m) {
-        TransitionGround gr = (TransitionGround) act;
-        if (gr == null) {
-            return gValue;
-        }
-        return getTransitionCost(s, gr,gValue,false,m);
-    }
-    default float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m){
-        if (ignoreCost){
-            return previousG + 1;
-        }
-        if (m != null){
-            return previousG + gr.getActionCost(s,m);
-        }else{
-            return previousG + 1;
-        }
-    }
+//    default Float gValue(State s, Object act, State temp, float gValue, Metric m) {
+//        TransitionGround gr = (TransitionGround) act;
+//        if (gr == null) {
+//            return gValue;
+//        }
+//        return getTransitionCost(s, gr,gValue,false,m);
+//    }
+//    default float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m){
+//        if (ignoreCost){
+//            return previousG + 1;
+//        }
+//        if (m != null){
+//            return previousG + gr.getActionCost(s,m);
+//        }else{
+//            return previousG + 1;
+//        }
+//    }
 
     Collection<TransitionGround> getTransitions(final boolean helpful);
 }
