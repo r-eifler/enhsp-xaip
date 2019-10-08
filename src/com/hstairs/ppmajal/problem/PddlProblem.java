@@ -28,11 +28,13 @@ import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
+import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.*;
 import java.util.*;
@@ -682,20 +684,29 @@ public abstract class PddlProblem {
     }
 
      public Float gValue(State s, Object act, State temp, float gValue, Metric m) {
-        TransitionGround gr = (TransitionGround) act;
-        if (gr == null) {
-            return gValue;
+        if (act instanceof Transition) {
+            TransitionGround gr = (TransitionGround) act;
+            if (gr == null) {
+                return gValue;
+            }
+            return getTransitionCost(s, gr,gValue,false,m);
+        }else{
+            final ImmutablePair<TransitionGround,Integer> res = (ImmutablePair<TransitionGround, Integer>) act;
+
+            return getTransitionCost(s, res.left,gValue,false,m,res.right);
         }
-        return getTransitionCost(s, gr,gValue,false,m);
     }
-     float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m){
+    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m) {
+        return this.getTransitionCost(s,gr,previousG,ignoreCost,m,1);
+    }
+    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m, final int right){
         if (ignoreCost){
-            return previousG + 1;
+            return previousG + 1*right;
         }
         if (m != null){
-            return previousG + gr.getActionCost(s,m);
+            return previousG + gr.getActionCost(s,m)*right;
         }else{
-            return previousG + 1;
+            return previousG + 1*right;
         }
     }
 

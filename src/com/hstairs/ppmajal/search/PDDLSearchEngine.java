@@ -22,11 +22,10 @@ import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author enrico
@@ -60,7 +59,15 @@ public class PDDLSearchEngine extends SearchEngine {
                 time = ((PDDLState) c.father.s).time;
             }
             if (c.transition != null) {//this is an action
-                plan.addFirst(Pair.of(time.floatValue(),(TransitionGround)c.transition));
+                if (c.transition instanceof ImmutablePair){
+                    final ImmutablePair<TransitionGround,Integer> t = (ImmutablePair<TransitionGround, Integer>) c.transition;
+                    for (int i=0; i< t.right;i++){
+                        plan.addFirst(Pair.of(time.floatValue(),t.left));
+                    }
+                    System.out.println("JUMP for "+t.left+":"+t.right);
+                }else {
+                    plan.addFirst(Pair.of(time.floatValue(), (TransitionGround) c.transition));
+                }
             } else {//this is a process or an event
                 for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
                     TransitionGround w = (TransitionGround) c.list_of_actions.get(k);

@@ -44,7 +44,7 @@ public class SearchNode extends SimpleSearchNode {
     public float wh;
     public float f;
     public ArrayList<Object> list_of_actions;
-    public Collection<TransitionGround> helpfulActions;
+    public Collection helpfulActions;
     private boolean bfs = true;
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {

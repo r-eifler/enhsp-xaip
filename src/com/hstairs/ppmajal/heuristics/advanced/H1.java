@@ -41,6 +41,8 @@ import org.jgrapht.util.FibonacciHeapNode;
 import java.util.*;
 
 import static com.google.common.collect.Sets.SetView;
+import static com.hstairs.ppmajal.transition.Transition.getTransition;
+import static java.lang.Math.ceil;
 
 /**
  * @author enrico
@@ -73,21 +75,26 @@ public class H1 implements Heuristic {
     private final boolean additive;
     private final boolean[] conditionInit;
     private final boolean[] actionInit;
+    private final boolean helpfulTransitions;
     private float[][] numericContribution;
     private IntArraySet[] achievers;
     private int[] establishedAchiever;
     private float[] numRepetition;
     private IntArraySet helpfulActions;
+    private int[] repetitions;
     private IntArraySet reachableTransitions;
     private Collection<TransitionGround> reachableTransitionsInstances;
 
     final private float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
     final private IntArraySet freePreconditionActions;
+    private List<Pair<Integer,Float>> plan;
 
     public H1(EPddlProblem problem){
-        this(problem,true,false,false,false,false);
+        this(problem,true,false,false,false,false,false);
     }
-    public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean useRedundantConstraints, boolean helpfulActionsComputation, boolean reachability) {
+    public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean useRedundantConstraints, boolean helpfulActionsComputation, boolean reachability
+    , boolean helpfulTransitions) {
+
         this.additive = additive;
         this.problem = problem;
         this.reachability = reachability;
@@ -155,6 +162,11 @@ public class H1 implements Heuristic {
             establishedAchiever = new int[totNumberOfTerms];
             numRepetition = new float[totNumberOfTerms];
         }
+        this.helpfulTransitions = helpfulTransitions;
+        if (helpfulTransitions){
+            repetitions = new int[heuristicNumberOfActions];
+        }
+
     }
 
     void updatePreconditionFunction(int i){
@@ -191,6 +203,7 @@ public class H1 implements Heuristic {
             Arrays.fill(numRepetition,Float.MAX_VALUE);
 
         }
+
 //        Printer.pddlPrint(problem, (PDDLState) gs);
         final FibonacciHeap h = new FibonacciHeap();
         for (final int i: allConditions){
@@ -268,7 +281,7 @@ public class H1 implements Heuristic {
 
         final LinkedList<Pair<Collection,Float>> stack = new LinkedList();
         stack.add(getActivatingConditions(goal));
-        final LinkedList<Pair<Integer,Float>> plan = new LinkedList();
+        plan = new LinkedList();
         final boolean[] visited = new boolean[totNumberOfTerms];
         Arrays.fill(visited,false);
         helpfulActions = new IntArraySet();
@@ -296,6 +309,7 @@ public class H1 implements Heuristic {
                         for (int i = plan.size() - 1; i >= 0; i--) {
                             if (plan.get(i).getLeft() == actionId) {
                                 Pair<Integer, Float> newValue = Pair.of(actionId, Math.max(numRepetition[conditionId], plan.get(i).getRight()));
+
                                 plan.set(i, newValue);
                                 inserted = true;
                                 break;
@@ -335,6 +349,7 @@ public class H1 implements Heuristic {
                 if (v > 0 || v == UNKNOWNEFFECT){
                     achievableTerms.add(t);
                     updateAchievers(t,actionId);
+
                 }
             }
             achievableTerms.addAll(propEffectFunction[actionId]);
@@ -414,7 +429,7 @@ public class H1 implements Heuristic {
             for (final Condition son : (Collection<Condition>) and.sons) {
                 Pair<Collection, Float> activatingConditions = getActivatingConditions(son);
                 if (activatingConditions.getRight() == Float.MAX_VALUE) {
-                    return null;
+                    throw new RuntimeException("Conditions "+son+" seems unsatisfiable in the relaxed plan extraction");
                 }
                 cost+=activatingConditions.getRight();
                 left.addAll(activatingConditions.getKey());
@@ -540,25 +555,56 @@ public class H1 implements Heuristic {
         return positiveness;
     }
 
-    public Collection<TransitionGround> getTransitions(final boolean helpful) {
+    public Collection getTransitions(final boolean helpful) {
+        Collection res = null;
         if (helpfulActions == null || !helpful){
             if (reachableTransitionsInstances == null){
                 if (reachableTransitions == null){
-                    return problem.actions;
+                    res = problem.actions;
+                }else {
+                    reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
+                    for (final int i : reachableTransitions) {
+                        reachableTransitionsInstances.add((TransitionGround) getTransition(i));
+                    }
+                    reachableTransitionsInstances = new ArrayList<>(reachableTransitionsInstances);
+                    res = reachableTransitionsInstances;
                 }
-                reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
-                for (final int i: reachableTransitions){
-                    reachableTransitionsInstances.add((TransitionGround) Transition.getTransition(i));
-                }
-                reachableTransitionsInstances = new ArrayList<>(reachableTransitionsInstances);
+            }else {
+                res = reachableTransitionsInstances;
             }
-            return reachableTransitionsInstances;
+        }else {
+            Collection actions = new ArrayList<>();
+            for (final int i : helpfulActions) {
+                actions.add((TransitionGround) getTransition(i));
+            }
+            res = actions;
         }
-        Collection<TransitionGround> actions = new ArrayList<>();
-        for (final int i: helpfulActions){
-            actions.add((TransitionGround) Transition.getTransition(i));
+        if (helpfulTransitions) {
+//            if (helpfulActionsComputation) {
+//                for (Pair<TransitionGround, Integer> helpfulTransition : getHelpfulTransitions()) {
+//                    res.remove(helpfulTransition.getLeft());
+//                    res.add(helpfulTransition);
+//                }
+//            }else {
+                res.addAll(getHelpfulTransitions());
+//            }
         }
-        return actions;
+        return res;
+    }
+    public Collection<Pair<TransitionGround,Integer>> getHelpfulTransitions(){
+        if (!extractRelaxedPlan){
+            throw new RuntimeException("Helpful Transitions can only be activatated in combination with helpful actions");
+        }
+        Collection<Pair<TransitionGround,Integer>> res = new ArrayList<>();
+        for (Pair<Integer, Float> pair : plan) {
+            if (actionInit[pair.getLeft()]){
+                final int ceil = (int) ceil(pair.getRight());
+                if (ceil > 1) {
+                    res.add(Pair.of((TransitionGround) getTransition(pair.getLeft()), (int) ceil(pair.getRight())));
+                }
+            }
+        }
+        return res;
     }
 }
 //

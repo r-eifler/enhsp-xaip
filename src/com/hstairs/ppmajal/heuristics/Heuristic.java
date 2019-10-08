@@ -51,5 +51,5 @@ public interface Heuristic {
 //        }
 //    }
 
-    Collection<TransitionGround> getTransitions(final boolean helpful);
+    Collection getTransitions(final boolean helpful);
 }

@@ -34,6 +34,7 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
 
@@ -233,11 +234,11 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         this.makeInit();
-        final H1 h1 = new H1(this,true,false,false,false,true);
+        final H1 h1 = new H1(this,true,false,false,false,true,false);
         h1.computeEstimate(this.init);
         final Collection<TransitionGround> transitions = h1.getTransitions(false);
         actions = new ArrayList<>();
-        for (TransitionGround t : transitions){
+        for (final TransitionGround t : transitions){
             switch (t.getSemantics()){
                 case ACTION:
                     actions.add(t);
@@ -639,9 +640,11 @@ public class EPddlProblem extends PddlProblem {
                             return true;
                         }
                     }
-                }else if (current instanceof Pair){
-                    final boolean b = applyActionMTimes(((Pair<TransitionGround, Integer>) current).getFirst(), ((Pair<TransitionGround, Integer>) current).getSecond());
-                    if (b) {
+                }else if (current instanceof ImmutablePair){
+                    final ImmutablePair<TransitionGround,Integer> tempVar= (ImmutablePair<TransitionGround,Integer>)this.current;
+                    final int b = applyActionMTimes(tempVar.left, tempVar.right);
+                    if (b > 0) {
+                        current = new ImmutablePair(((ImmutablePair<TransitionGround, Integer>) this.current).left,b);
                         return true;
                     }
                 }
@@ -649,18 +652,18 @@ public class EPddlProblem extends PddlProblem {
             return false;
         }
 
-        public boolean applyActionMTimes(final TransitionGround act, int counter){
+        public int applyActionMTimes(final TransitionGround act, int counter){
             final State prev = source.clone();
             int i=0;
             while (i<counter){
                 prev.apply((act), source);
                 if (!act.isApplicable(newState) || !newState.satisfy(globalConstraints)){
-                    return i > 0;
+                    return i;
                 }
                 newState = prev;
                 i++;
             }
-            return true;
+            return i;
         }
 
         @Override
