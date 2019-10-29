@@ -43,6 +43,7 @@ import java.util.*;
 import static com.google.common.collect.Sets.SetView;
 import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
+import static java.lang.Math.max;
 
 /**
  * @author enrico
@@ -51,6 +52,7 @@ public class H1 implements Heuristic {
 
     final private boolean useRedundantConstraints;
     final public boolean extractRelaxedPlan;
+    final public boolean maxMRP;
 
     final private int pseudoGoal;
     final private Condition[] preconditionFunction;
@@ -88,11 +90,12 @@ public class H1 implements Heuristic {
     final private float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
     final private IntArraySet freePreconditionActions;
     private List<Pair<Integer,Float>> plan;
+    private float[] minAchieverPreconditionCost;
 
     public H1(EPddlProblem problem){
-        this(problem,true,false,false,false,false,false);
+        this(problem,true,false,false,false,false,false,false);
     }
-    public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean useRedundantConstraints, boolean helpfulActionsComputation, boolean reachability
+    public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxExtraction, boolean useRedundantConstraints, boolean helpfulActionsComputation, boolean reachability
     , boolean helpfulTransitions) {
 
         this.additive = additive;
@@ -166,8 +169,13 @@ public class H1 implements Heuristic {
         if (helpfulTransitions){
             repetitions = new int[heuristicNumberOfActions];
         }
+        if (!additive){
+            minAchieverPreconditionCost = new float[totNumberOfTerms];
+        }
 
+        maxMRP = maxExtraction;
     }
+
 
     void updatePreconditionFunction(int i){
         final Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
@@ -202,6 +210,9 @@ public class H1 implements Heuristic {
             Arrays.fill(establishedAchiever,-1);
             Arrays.fill(numRepetition,Float.MAX_VALUE);
 
+        }
+        if (!additive) {
+            Arrays.fill(minAchieverPreconditionCost,Float.POSITIVE_INFINITY);
         }
 
 //        Printer.pddlPrint(problem, (PDDLState) gs);
@@ -295,7 +306,7 @@ public class H1 implements Heuristic {
                     if (!conditionInit[conditionId]) {
                         if (helpfulActionsComputation){
                             if (getAchiever(conditionId).isEmpty()){
-                                throw new RuntimeException("Houston we have problem here. Condition\n"+Terminal.getTerminal(conditionId)+" never been achieved");
+                                throw new RuntimeException("Houston we have problem here. Condition \n"+Terminal.getTerminal(conditionId)+" has never been achieved");
                             }
                             for (final int id: getAchiever(conditionId)){
                                 if (actionInit[id]){
@@ -308,9 +319,11 @@ public class H1 implements Heuristic {
                         boolean inserted = false;
                         for (int i = plan.size() - 1; i >= 0; i--) {
                             if (plan.get(i).getLeft() == actionId) {
-                                Pair<Integer, Float> newValue = Pair.of(actionId, Math.max(numRepetition[conditionId], plan.get(i).getRight()));
-
-                                plan.set(i, newValue);
+                                if (maxMRP) {
+                                    plan.set(i, Pair.of(actionId, Math.max(numRepetition[conditionId], plan.get(i).getRight())));
+                                }else{
+                                    plan.set(i, Pair.of(actionId, Math.min(numRepetition[conditionId], plan.get(i).getRight())));
+                                }
                                 inserted = true;
                                 break;
                             }
@@ -326,7 +339,7 @@ public class H1 implements Heuristic {
         }
         float ret = 0;
         for (final Pair<Integer,Float> action : plan){
-            ret+= action.getRight()*actionCost[action.getLeft()];
+            ret+= ceil(action.getRight())*actionCost[action.getLeft()];
         }
         return ret;
     }
@@ -373,7 +386,16 @@ public class H1 implements Heuristic {
                     if (v > 0) {
                         final float rep = (float) (-1f * ((Comparison) t).getLeft().eval(s) / v);
                         final float newCost = rep * actionCost[actionId];
-                        if (updateIfNeeded(conditionId, actionHCost[actionId] + newCost)) {
+                        boolean localUpdate = false;
+                        if (additive){
+                            localUpdate = updateIfNeeded(conditionId, actionHCost[actionId] + newCost);
+                        }else{
+                            if (actionHCost[actionId] < minAchieverPreconditionCost[conditionId]){
+                                minAchieverPreconditionCost[conditionId] = actionHCost[actionId];
+                            }
+                            localUpdate = updateIfNeeded(conditionId, minAchieverPreconditionCost[conditionId] + newCost);
+                        }
+                        if (localUpdate) {
                             update = true;
                             updateRelPlanInfo(conditionId, actionId, rep);
                         }
@@ -508,7 +530,7 @@ public class H1 implements Heuristic {
 
 
 
-    //Semantics: -1 don't know because comp is hard. > 0 is achiever, 0 no
+    //Semantics: UNKNOWEFFECT don't know because comp is hard. > 0 is achiever, 0 no
     float numericContribution(int t, Comparison comp) {
         if (numericEffectFunction[t].isEmpty()){
             return 0f;
@@ -531,16 +553,14 @@ public class H1 implements Heuristic {
                             }
                             if (ne.getInvolvedNumericFluents().isEmpty()) {
                                 ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
-                                if (!rhs.linear) {
-                                    return -1;
+                                if (!rhs.linear || !rhs.isNumber() || ne.getOperator().equals("assign")) {
+                                    numericContribution[t][comp.getId()] = UNKNOWNEFFECT;
+                                    return UNKNOWNEFFECT;
                                 }
                                 if (ne.getOperator().equals("increase")) {
                                     positiveness += rhs.getNumber().floatValue() * ad.n.floatValue();
                                 } else if (ne.getOperator().equals("decrease")) {
                                     positiveness += (-1) * rhs.getNumber().floatValue() * ad.n.floatValue();
-                                } else if (ne.getOperator().equals("assign")) {
-                                    numericContribution[t][comp.getId()] = UNKNOWNEFFECT;
-                                    return UNKNOWNEFFECT;
                                 }
                             }
                         }
@@ -600,7 +620,7 @@ public class H1 implements Heuristic {
             if (actionInit[pair.getLeft()]){
                 final int ceil = (int) ceil(pair.getRight());
                 if (ceil > 1) {
-                    res.add(Pair.of((TransitionGround) getTransition(pair.getLeft()), (int) ceil(pair.getRight())));
+                    res.add(Pair.of((TransitionGround) getTransition(pair.getLeft()), ceil));
                 }
             }
         }

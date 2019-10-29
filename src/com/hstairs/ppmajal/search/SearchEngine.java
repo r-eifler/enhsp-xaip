@@ -536,8 +536,14 @@ public class SearchEngine {
         this.optimality = false;
         return this.greedy_best_first_search(problem,Long.MAX_VALUE);
     }
-    
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> greedy_best_first_search(EPddlProblem problem, long timeout) throws Exception {
+
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> greedy_best_first_search(EPddlProblem problem,boolean optimality) throws Exception {
+        this.optimality = optimality;
+        return this.WAStar(problem);
+    }
+
+
+        public LinkedList<org.apache.commons.lang3.tuple.Pair<Float,TransitionGround>> greedy_best_first_search(EPddlProblem problem, long timeout) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem,timeout);
