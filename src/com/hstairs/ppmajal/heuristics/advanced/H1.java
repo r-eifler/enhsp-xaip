@@ -67,6 +67,7 @@ public class H1 implements Heuristic {
     private final IntArraySet allComparisons;
     private final FibonacciHeapNode[] nodeOf;
     private final boolean reachability;
+    private final boolean conjunctionsMax;
 
     final private float[] actionCost;
     final private float[] actionHCost;
@@ -92,11 +93,11 @@ public class H1 implements Heuristic {
     private float[] minAchieverPreconditionCost;
 
     public H1(EPddlProblem problem) {
-        this(problem, true, false, false, false, false, false, false);
+        this(problem, true, false, false, false, false, false, false, false);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, boolean useRedundantConstraints, boolean helpfulActionsComputation, boolean reachability
-            , boolean helpfulTransitions) {
+            , boolean helpfulTransitions, boolean conjunctionsMax) {
 
         this.additive = additive;
         this.problem = problem;
@@ -174,6 +175,7 @@ public class H1 implements Heuristic {
         }
 
         maxMRP = maxHelpfulTransitions;
+        this.conjunctionsMax = conjunctionsMax;
     }
 
 
@@ -505,7 +507,7 @@ public class H1 implements Heuristic {
                 if (estimate == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 }
-                if (additive) {// && !this.extractRelaxedPlan) {
+                if (additive && !conjunctionsMax) {// && !this.extractRelaxedPlan) {
                     ret += estimate;
                 } else {
                     ret = (estimate > ret) ? estimate : ret;
@@ -619,7 +621,7 @@ public class H1 implements Heuristic {
 
     public Collection<Pair<TransitionGround, Integer>> getHelpfulTransitions() {
         if (!extractRelaxedPlan) {
-            throw new RuntimeException("Helpful Transitions can only be activatated in combination with helpful actions");
+            throw new RuntimeException("Helpful Transitions can only be activatated in combination with the relaxed plan extraction");
         }
         Collection<Pair<TransitionGround, Integer>> res = new ArrayList<>();
         for (Pair<Integer, IntArraySet> pair : plan) {

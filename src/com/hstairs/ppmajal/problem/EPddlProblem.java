@@ -234,7 +234,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         this.makeInit();
-        final H1 h1 = new H1(this,true,false,false,false,false,true,false);
+        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
         h1.computeEstimate(this.init);
         final Collection<TransitionGround> transitions = h1.getTransitions(false);
         actions = new ArrayList<>();
@@ -643,7 +643,7 @@ public class EPddlProblem extends PddlProblem {
                 }else if (current instanceof ImmutablePair){
                     final ImmutablePair<TransitionGround,Integer> tempVar= (ImmutablePair<TransitionGround,Integer>)this.current;
                     final int b = applyActionMTimes(tempVar.left, tempVar.right);
-                    if (b > 0) {
+                    if (b > 1) {
                         current = new ImmutablePair(((ImmutablePair<TransitionGround, Integer>) this.current).left,b);
                         return true;
                     }
