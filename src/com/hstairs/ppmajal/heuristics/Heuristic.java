@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.heuristics;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.Transition;
@@ -50,6 +51,9 @@ public interface Heuristic {
 //            return previousG + 1;
 //        }
 //    }
+    default Sets.SetView<TransitionGround> getTransitions(EPddlProblem problem) {
+        return Sets.union(Sets.union(new HashSet(problem.actions), new HashSet<>(problem.getEventsSet())), new HashSet(problem.getProcessesSet()));
 
+    }
     Collection getTransitions(final boolean helpful);
 }
