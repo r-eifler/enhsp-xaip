@@ -2,15 +2,11 @@ package com.hstairs.ppmajal.heuristics.advanced;
 
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.expressions.BinaryOp;
-import com.hstairs.ppmajal.expressions.Expression;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.PDDLNumber;
+import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
@@ -19,16 +15,10 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
-import org.antlr.runtime.misc.IntArray;
-import org.antlr.v4.runtime.atn.EpsilonTransition;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.function.Consumer;
 
 import static com.google.common.collect.Range.*;
 
@@ -36,45 +26,50 @@ public class Aibr implements Heuristic {
     private final EPddlProblem problem;
     private final int numberOfSupporters;
     private final boolean reachability;
-    private Condition[] preconditionFunction;
-    private Collection<Integer>[] propEffectFunction;
-    private Collection<NumEffect>[] numericEffectFunction;
+    private final Condition[] preconditionFunction;
+    private final Collection<Terminal>[] propEffectFunction;
+    private final NumEffect[] numericEffectFunction;
+    private final Condition[] asymptoticPreconditionFunction;
 
     //The following are built around supporters
     private Int2ObjectMap<String> names = new Int2ObjectArrayMap();
-    final Int2ObjectMap<Collection<Terminal>> propEffectMap = new Int2ObjectArrayMap();
-    final Int2ObjectMap<Condition> preconditionFunctionMap = new Int2ObjectArrayMap<>();
-    final Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap = new Int2ObjectArrayMap<>();
-    final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
-
-
     IdentityHashMap<Condition, TransitionGround> pre2transition = new IdentityHashMap<>();
-
     Collection<TransitionGround> reachableTransitions = null;
 
     public Aibr(EPddlProblem problem){
         this(problem,false);
     }
     public Aibr(EPddlProblem problem, boolean reachability){
+        final Int2ObjectMap<Collection<Terminal>> propEffectMap = new Int2ObjectArrayMap();
+        final Int2ObjectMap<Condition> preconditionFunctionMap = new Int2ObjectArrayMap<>();
+        final Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap = new Int2ObjectArrayMap<>();
+        final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
         this.problem = problem;
-        Sets.SetView<TransitionGround> transitions = getTransitions(problem);
-        int id;
-        for (TransitionGround tr : transitions){
+        for (TransitionGround tr : getTransitions(problem)){
             pre2transition.put(tr.getPreconditions(),tr);
-            generatePropositionalAction(tr);
-            generateNumericSupporters(tr);
+            generatePropositionalAction(tr,preconditionFunctionMap,propEffectMap);
+            generateNumericSupporters(tr,preconditionFunctionMap,asymptoticPreconditionFunctionMap,numEffectMap);
         }
         numberOfSupporters = preconditionFunctionMap.keySet().size();
+        preconditionFunction = new Condition[numberOfSupporters];
+        preconditionFunctionMap.forEach((integer, condition) -> preconditionFunction[integer]=condition);
+        propEffectFunction = new Collection[numberOfSupporters];
+        propEffectMap.forEach((integer, terminals) -> propEffectFunction[integer]=terminals);
+        asymptoticPreconditionFunction = new Condition[numberOfSupporters];
+        asymptoticPreconditionFunctionMap.forEach((integer, condition) -> asymptoticPreconditionFunction[integer]=condition);
+        numericEffectFunction = new NumEffect[numberOfSupporters];
+        numEffectMap.forEach((integer, numEffect) -> numericEffectFunction[integer]=numEffect);
+
         this.reachability = reachability;
     }
 
 
-    void generatePropositionalAction(TransitionGround tr){
+    void generatePropositionalAction(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Collection<Terminal>> propEffectMap){
         propEffectMap.put(preconditionFunctionMap.keySet().size(),tr.getAllAchievableLiterals());
         names.put(preconditionFunctionMap.keySet().size(),tr.getName()+"-Propositional");
         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
     }
-    void generateNumericSupporters(TransitionGround tr){
+    void generateNumericSupporters(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap){
         for (NumEffect effect : tr.getAllNumericEffects()) {
             effect.additive_relaxation = true;
             if ("assign".equals(effect.getOperator()) && effect.getRight().getInvolvedNumericFluents().isEmpty()) {
@@ -84,11 +79,11 @@ public class Aibr implements Heuristic {
                         numEffectMap.put(preconditionFunctionMap.keySet().size(), assign);
                         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }else{
-                generateInfSupporter(effect,preconditionFunctionMap.keySet().size(),"+");
+                generateInfSupporter(effect,preconditionFunctionMap.keySet().size(),"+",asymptoticPreconditionFunctionMap,numEffectMap);
                 names.put(preconditionFunctionMap.keySet().size(),tr.getName().concat("PlusInf"));
                 preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
 
-                generateInfSupporter(effect,preconditionFunctionMap.keySet().size(),"-");
+                generateInfSupporter(effect,preconditionFunctionMap.keySet().size(),"-",asymptoticPreconditionFunctionMap,numEffectMap);
                 names.put(preconditionFunctionMap.keySet().size(),tr.getName().concat("MinusInf"));
                 preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }
@@ -97,7 +92,7 @@ public class Aibr implements Heuristic {
 
     }
 
-    private void generateInfSupporter(NumEffect effect, int idx, String s) {
+    private void generateInfSupporter(NumEffect effect, int idx, String s, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap) {
         String disequality = "";
         Float asymptote = Float.MAX_VALUE;
         if ("+".equals(s)){
@@ -126,10 +121,10 @@ public class Aibr implements Heuristic {
                     break;
             }
         }
-        generateSupporter(effect,idx,disequality,asymptote);
+        generateSupporter(effect,idx,disequality,asymptote,asymptoticPreconditionFunctionMap,numEffectMap);
     }
 
-    private void generateSupporter(NumEffect effect, int idx, String inequality, Float asymptote) {
+    private void generateSupporter(NumEffect effect, int idx, String inequality, Float asymptote, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap) {
 
         final Comparison indirectPrecondition;
         final Expression left;
@@ -165,18 +160,18 @@ public class Aibr implements Heuristic {
             while (iterator.hasNext()) {
                 int current = iterator.nextInt();
 //                System.out.println("Supporters set:"+supporters.size());
-                final Condition condition = preconditionFunctionMap.get(current);
+                final Condition condition = preconditionFunction[current];
                 if (relState.satisfy(condition)){
                     //Prop effect
                     reacheableActions.add(pre2transition.get(condition).getId());
-                    final Collection<Terminal> terminals = propEffectMap.get(current);
+                    final Collection<Terminal> terminals = propEffectFunction[current];
                     if (terminals != null && !terminals.isEmpty()) {
                         iterator.remove();
                         propAppliers.add(current);
                     }else{
-                        final NumEffect numEffect = numEffectMap.get(current);
+                        final NumEffect numEffect = numericEffectFunction[current];
                         if (numEffect != null){
-                            final Condition condition2 = asymptoticPreconditionFunctionMap.get(current);
+                            final Condition condition2 = asymptoticPreconditionFunction[current];
                             if (condition2 == null || relState.satisfy(condition2)) {
                                 iterator.remove();
                                 numAppliers.add(current);
@@ -188,12 +183,12 @@ public class Aibr implements Heuristic {
             if (numAppliers.isEmpty() && propAppliers.isEmpty() && !goalReached) {
                 return Float.MAX_VALUE;
             }
-            for (int current: propAppliers) {
-                final Collection<Terminal> terminals = propEffectMap.get(current);
+            for (final int current: propAppliers) {
+                final Collection<Terminal> terminals = propEffectFunction[current];
                 relState.apply(terminals,relState.clone());
             }
-            for (int current: numAppliers) {
-                final NumEffect effect = numEffectMap.get(current);
+            for (final int current: numAppliers) {
+                final NumEffect effect = numericEffectFunction[current];
                 relState.apply(effect,relState.clone());
             }
             if (relState.satisfy(problem.goals)){
