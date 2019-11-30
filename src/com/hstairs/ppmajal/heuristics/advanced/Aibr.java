@@ -17,6 +17,7 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 
@@ -148,14 +149,15 @@ public class Aibr implements Heuristic {
         PDDLState s = (PDDLState)s0;
         final RelState relState = s.relaxState();
         final IntArraySet supporters = new IntArraySet(ContiguousSet.create(closedOpen(0, numberOfSupporters), DiscreteDomain.integers()));
-        final IntArraySet reacheableActions = new IntArraySet();
+        final IntArrayList reacheableActions = new IntArrayList();
+        boolean[] actionInserted = new boolean[Transition.totNumberOfTransitions + 1];
+        Arrays.fill(actionInserted,false);
         boolean goalReached = false;
-        boolean exit = false;
 
         while (!supporters.isEmpty()){
             final IntIterator iterator = supporters.iterator();
-            final IntArraySet propAppliers = new IntArraySet();
-            final IntArraySet numAppliers = new IntArraySet();
+            final IntArrayList propAppliers = new IntArrayList();
+            final IntArrayList numAppliers = new IntArrayList();
 //            System.out.println(supporters.size());
             while (iterator.hasNext()) {
                 int current = iterator.nextInt();
@@ -163,7 +165,11 @@ public class Aibr implements Heuristic {
                 final Condition condition = preconditionFunction[current];
                 if (relState.satisfy(condition)){
                     //Prop effect
-                    reacheableActions.add(pre2transition.get(condition).getId());
+                    final int id = pre2transition.get(condition).getId();
+                    if (!actionInserted[id]){
+                        reacheableActions.add(pre2transition.get(condition).getId());
+                        actionInserted[id] = true;
+                    }
                     final Collection<Terminal> terminals = propEffectFunction[current];
                     if (terminals != null && !terminals.isEmpty()) {
                         iterator.remove();
@@ -183,11 +189,11 @@ public class Aibr implements Heuristic {
             if (numAppliers.isEmpty() && propAppliers.isEmpty() && !goalReached) {
                 return Float.MAX_VALUE;
             }
-            for (final int current: propAppliers) {
+            for (int current: propAppliers) {
                 final Collection<Terminal> terminals = propEffectFunction[current];
                 relState.apply(terminals,relState.clone());
             }
-            for (final int current: numAppliers) {
+            for (int current: numAppliers) {
                 final NumEffect effect = numericEffectFunction[current];
                 relState.apply(effect,relState.clone());
             }
@@ -216,7 +222,7 @@ public class Aibr implements Heuristic {
         return Float.MAX_VALUE;
     }
 
-    private float fixPointComputation(IntArraySet reachable, RelState s) {
+    private float fixPointComputation(IntArrayList reachable, RelState s) {
         boolean fix_point = true;
         int counter = 0;
         int horizon = Integer.MAX_VALUE;
