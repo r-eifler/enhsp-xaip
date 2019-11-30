@@ -25,10 +25,7 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author enrico
@@ -44,10 +41,24 @@ public class RelState extends Object {
         possNumValues = new Int2ObjectArrayMap();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder("");
+        for (int i: possNumValues.keySet()){
+            NumFluent fluent = NumFluent.fromIdToNumFluents.get(i);
+            str.append(fluent).append("=").append(possNumValues.get(i)).append("");
+        }
+        str.append("\n");
+        for (Predicate fluent : EPddlProblem.booleanFluents){
+            str.append(fluent).append("=").append(this.canBeTrue(fluent)).append(" ");
+            str.append(fluent).append("=").append(this.canBeFalse(fluent)).append(" ");
+        }
+        return str.toString();
+    }
 
     @Override
     public RelState clone ( ) {
-        RelState ret_val = new RelState();
+        final RelState ret_val = new RelState();
         ret_val.possBollValues = this.possBollValues.clone();
         ret_val.possNumValues = this.possNumValues.clone();
         return ret_val;
@@ -140,9 +151,7 @@ public class RelState extends Object {
     public boolean satisfy (Condition con) {
 
         if (con == null) {
-            System.out.println(this);
-            System.out.println("something wrong");
-            System.exit(-1);
+            throw new RuntimeException("The testing condition appears to be null, and it shouldn't");
         }
         return con.can_be_true(this);
 
@@ -202,11 +211,14 @@ public class RelState extends Object {
 //        }
 //        return this;
 //    }
-    private void apply(PostCondition effect, RelState prev) {
+    public void apply(PostCondition effect, RelState prev) {
         if (effect instanceof AndCond){
             for (PostCondition c: (Collection<PostCondition>)((AndCond) effect).sons){
                 this.apply((PostCondition)c, prev);
             }
+
+        }else if (effect instanceof Collection){
+            ((Collection) effect).forEach(o -> this.apply((PostCondition) o,prev));
         }else if (effect instanceof NotCond) {
             final NotCond nc = (NotCond) effect;
             final Predicate p = (Predicate) nc.getSon();
@@ -225,6 +237,12 @@ public class RelState extends Object {
                 this.apply(cond.effect,prev);
             }
         }
+    }
+
+
+
+    public void apply(Collection<Terminal> effect, RelState prev){
+        ((Collection) effect).forEach(o -> this.apply((PostCondition) o,prev));
     }
 
 

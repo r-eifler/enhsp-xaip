@@ -53,6 +53,10 @@ public class PDDLState extends State {
         this.boolFluents = (BitSet) boolFluents.clone();
     }
 
+    public static int[] getFromStateNFId2ProblemNFId() {
+        return fromStateNFId2ProblemNFId;
+    }
+
     private PDDLState(DoubleArrayList numFluents) {
         this.numFluents = numFluents.clone();
     }
