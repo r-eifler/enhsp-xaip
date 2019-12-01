@@ -370,7 +370,6 @@ public class H1 implements Heuristic {
                 if (v > 0 || v == UNKNOWNEFFECT) {
                     achievableTerms.add(t);
                     updateAchievers(t, actionId);
-
                 }
             }
             achievableTerms.addAll(propEffectFunction[actionId]);
@@ -555,9 +554,11 @@ public class H1 implements Heuristic {
                 for (ExtendedAddendum ad : left.summations) {
                     if (ad.f != null) {
                         for (final NumEffect ne : numericEffectFunction[t]) {
+
                             if (!ne.getFluentAffected().equals(ad.f)) {
                                 continue;
                             }
+
                             if (ne.getInvolvedNumericFluents().isEmpty()) {
                                 ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
                                 if (!rhs.linear || !rhs.isNumber() || ne.getOperator().equals("assign")) {
@@ -569,6 +570,8 @@ public class H1 implements Heuristic {
                                 } else if (ne.getOperator().equals("decrease")) {
                                     positiveness += (-1) * rhs.getNumber().floatValue() * ad.n.floatValue();
                                 }
+                            }else{//The effect is state dependent.
+                                return UNKNOWNEFFECT;
                             }
                         }
                     }
