@@ -622,6 +622,23 @@ public class H1 implements Heuristic {
         return res;
     }
 
+    @Override
+    public Collection<TransitionGround> getAllTransitions() {
+        if (reachableTransitionsInstances == null) {
+            if (reachableTransitions == null) {
+                throw new RuntimeException("The heuristics should be called at least once to be used to get the reached actions");
+            }
+            reachableTransitionsInstances = new LinkedHashSet<TransitionGround>();
+            for (final int i : reachableTransitions) {
+                reachableTransitionsInstances.add((TransitionGround) getTransition(i));
+            }
+            reachableTransitionsInstances = new ArrayList<>(reachableTransitionsInstances);
+            return reachableTransitionsInstances;
+        } else {
+            return reachableTransitionsInstances;
+        }
+    }
+
     public Collection<Pair<TransitionGround, Integer>> getHelpfulTransitions() {
         if (!extractRelaxedPlan) {
             throw new RuntimeException("Helpful Transitions can only be activatated in combination with the relaxed plan extraction");

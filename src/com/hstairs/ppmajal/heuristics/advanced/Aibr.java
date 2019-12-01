@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.ints.*;
 import java.util.*;
 
 import static com.google.common.collect.Range.closedOpen;
+import static com.hstairs.ppmajal.transition.Transition.getTransition;
 
 public class Aibr implements Heuristic {
     private final EPddlProblem problem;
@@ -46,9 +47,11 @@ public class Aibr implements Heuristic {
         final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
         this.problem = problem;
         for (TransitionGround tr : getTransitions(problem)){
-            pre2transition.put(tr.getPreconditions(),tr);
-            generatePropositionalAction(tr,preconditionFunctionMap,propEffectMap);
-            generateNumericSupporters(tr,preconditionFunctionMap,asymptoticPreconditionFunctionMap,numEffectMap);
+            final boolean numericInconsistence = generateNumericSupporters(tr, preconditionFunctionMap, asymptoticPreconditionFunctionMap, numEffectMap);
+            if (!numericInconsistence) {
+                pre2transition.put(tr.getPreconditions(),tr);
+                generatePropositionalAction(tr, preconditionFunctionMap, propEffectMap);
+            }
         }
         numberOfSupporters = preconditionFunctionMap.keySet().size();
         preconditionFunction = new Condition[numberOfSupporters];
@@ -69,7 +72,12 @@ public class Aibr implements Heuristic {
         names.put(preconditionFunctionMap.keySet().size(),tr.getName()+"-Propositional");
         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
     }
-    void generateNumericSupporters(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap){
+    boolean generateNumericSupporters(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap){
+        for (NumEffect effect : tr.getAllNumericEffects()) {
+            if (effect == null) {
+                return true;
+            }
+        }
         for (NumEffect effect : tr.getAllNumericEffects()) {
             effect.additive_relaxation = true;
             if ("assign".equals(effect.getOperator()) && effect.getRight().getInvolvedNumericFluents().isEmpty()) {
@@ -88,6 +96,7 @@ public class Aibr implements Heuristic {
                 preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }
         }
+        return false;
     }
 
     private void generateInfSupporter(NumEffect effect, int idx, String s, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap) {
@@ -204,10 +213,11 @@ public class Aibr implements Heuristic {
             }
         }
         if (reachableTransitions==null){
-            reachableTransitions = new ArrayList<>();
+            reachableTransitions = new LinkedHashSet<>();
             for (Integer reacheableAction : reachableActionsThisStage) {
                 reachableTransitions.add((TransitionGround) Transition.getTransition(reacheableAction));
             }
+            reachableTransitions = new ArrayList<>(reachableTransitions);
         }
         if (goalReached){
             return fixPointComputation(reachableTransitions,s.relaxState());
@@ -236,6 +246,14 @@ public class Aibr implements Heuristic {
             }
         }
         return Float.MAX_VALUE;
+    }
+
+    @Override
+    public Collection<TransitionGround> getAllTransitions() {
+        if (reachableTransitions == null){
+            throw new RuntimeException("Helpful Transitions can only be activatated in combination with the relaxed plan extraction");
+        }
+        return reachableTransitions;
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.extraUtils.Pair;
+import com.hstairs.ppmajal.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.heuristics.advanced.H1;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
@@ -234,9 +235,12 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         this.makeInit();
-        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
+//        h1.computeEstimate(this.init);
+//        final Collection<TransitionGround> transitions = h1.getTransitions(false);
+//        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
+        final Aibr h1 = new Aibr(this);
         h1.computeEstimate(this.init);
-        final Collection<TransitionGround> transitions = h1.getTransitions(false);
+        final Collection<TransitionGround> transitions = h1.getAllTransitions();
         actions = new ArrayList<>();
         processesSet = new ArrayList<>();
         eventsSet = new ArrayList<>();

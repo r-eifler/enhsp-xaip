@@ -54,4 +54,9 @@ public class blindHeuristic implements Heuristic {
         return problem.getActions();
     }
 
+    @Override
+    public Collection<TransitionGround> getAllTransitions() {
+        return this.getTransitions(problem);
+    }
+
 }

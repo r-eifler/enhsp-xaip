@@ -148,6 +148,9 @@ public abstract class Transition {
 
     public void updateInvariantFluents(Set invariantFluents) {
         for (NumEffect nf : this.getAllNumericEffects()) {
+            if (nf == null){
+                throw new RuntimeException("This cannot happen: "+this);
+            }
             invariantFluents.add(nf.getFluentAffected());
         }
         for (Predicate p : this.getPropositionAffected()) {

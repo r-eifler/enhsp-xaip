@@ -48,4 +48,9 @@ public class GoalCounting implements Heuristic{
     public Collection<TransitionGround> getTransitions(boolean helpful) {
         return problem.getActions();
     }
+    @Override
+    public Collection<TransitionGround> getAllTransitions() {
+        return this.getTransitions(problem);
+    }
+
 }
