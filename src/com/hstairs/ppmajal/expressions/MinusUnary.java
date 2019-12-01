@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,7 +86,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Interval eval (RelState s) {
+    public RealInterval eval (RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

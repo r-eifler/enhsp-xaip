@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.io.File;
 import java.util.Collection;
@@ -137,6 +138,16 @@ public class Utils {
         }
 
         return false;
+    }
+
+    public static RealInterval abs(RealInterval arg) {
+        if ((arg.hi()>=0) && (arg.lo()<=0)) {
+            return new RealInterval(0,Math.max(Math.abs(arg.lo()), Math.abs(arg.hi())));
+        } else if (arg.hi() <= 0) {
+            return new RealInterval(Math.abs(arg.hi()),Math.abs(arg.lo()));
+        } else {
+            return new RealInterval(Math.abs(arg.lo()),Math.abs(arg.hi()));
+        }
     }
 
 //    public static String[] searchParameterValue(String[] args, String par) {

@@ -22,9 +22,9 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,7 +72,7 @@ public abstract class Expression extends Object {
     @Override
     public abstract Expression clone ( );
 
-    public abstract Interval eval (RelState s);
+    public abstract RealInterval eval (RelState s);
 
     public abstract boolean involve (Collection<NumFluent> input);
 

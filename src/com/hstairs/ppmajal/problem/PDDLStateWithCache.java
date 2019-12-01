@@ -19,24 +19,12 @@
 package com.hstairs.ppmajal.problem;
 
 import com.carrotsearch.hppc.DoubleArrayList;
-import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ConditionalEffect;
-import com.hstairs.ppmajal.conditions.NotCond;
-import com.hstairs.ppmajal.conditions.PostCondition;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.expressions.Interval;
-import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.expressions.NumFluent;
+
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Objects;
 
 /**
  * @author enrico

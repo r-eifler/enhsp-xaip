@@ -21,6 +21,8 @@ package com.hstairs.ppmajal.expressions;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import net.sourceforge.interval.ia_math.IAMath;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.*;
 
@@ -209,7 +211,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Interval eval (RelState s) {
+    public RealInterval eval (RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -466,48 +468,51 @@ public class NumEffect extends Expression implements PostCondition {
         if (!fluentAffected.has_to_be_tracked()) {
             return;
         }
-        final Interval after = new Interval();
-        final Interval current = s.functionValues(fluentAffected);
+         RealInterval after = new RealInterval();
+        final RealInterval current = s.functionValues(fluentAffected);
 
-        final Interval eval = this.getRight().eval(s);
+        final RealInterval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
-//            System.out.println(this);
-//            System.out.println(current);
-//            System.out.println(eval);
-            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
-                after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
+            if (current.nonEmpty() ) {
+                after = new RealInterval(Math.min(IAMath.add(current,eval).lo(),current.lo()),
+                                         Math.max(IAMath.add(current,eval).hi(),current.hi()));
             }
         } else if (getOperator().equals("decrease")) {
-            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
-                after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
+            if (current.nonEmpty()) {
+                final RealInterval sub = IAMath.sub(current, eval);
+                after = new RealInterval(Math.min(sub.lo(),current.lo()),
+                        Math.max(sub.hi(),current.hi()));
             }
         } else if (getOperator().equals("assign")) {
             if (additive_relaxation) {
-                if (this.getRight().getInvolvedNumericFluents().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                if (this.getRight().getInvolvedNumericFluents().isEmpty() ||
+                        ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
+                    if (current == null ||((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
+                        after = new RealInterval(eval.lo(),eval.hi());
                     } else {
-                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                        after = new RealInterval(Math.min(eval.lo(),current.lo()),
+                                Math.max(eval.hi(),current.hi()));
+
                     }
                 } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
                     //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                     //monotonicity. Look at the report on generalize interval based relaxation.
                     BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
-                    Interval monotonic_eval = bin.eval(s);
-                    after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
+                    RealInterval monotonic_eval = bin.eval(s);
+                    final RealInterval add = IAMath.add(current, monotonic_eval);
+                    after = new RealInterval(
+                            Math.min(add.lo(),current.lo()),
+                            Math.max(add.hi(),current.hi())
+                    );
                 }
-            } else if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+            } else if (current == null || ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
+                after = new RealInterval(eval.lo(),eval.hi());
             } else {
-                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                after = new RealInterval(
+                        Math.min(eval.lo(),current.lo()),
+                        Math.max(eval.hi(),current.hi())
+                        );
             }
 
         }
@@ -520,48 +525,52 @@ public class NumEffect extends Expression implements PostCondition {
         if (!fluentAffected.has_to_be_tracked()) {
             return s;
         }
-        final Interval after = new Interval();
-        final Interval current = prev.functionValues(fluentAffected);
+        RealInterval after = new RealInterval();
+        final RealInterval current = prev.functionValues(fluentAffected);
 
-        final Interval eval = this.getRight().eval(s);
+        final RealInterval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
-//            System.out.println(this);
-//            System.out.println(current);
-//            System.out.println(eval);
-            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
-                after.setInf(new PDDLNumber(Math.min(current.sum(eval).getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(current.sum(eval).getSup().getNumber(), current.getSup().getNumber())));
+            if (current.nonEmpty()) {
+                final RealInterval add = IAMath.add(current, eval);
+                after = new RealInterval(Math.min(add.lo(),current.lo()),
+                        Math.max(add.hi(),current.hi()));
             }
         } else if (getOperator().equals("decrease")) {
-            if (!current.is_not_a_number && current.getInf().getNumber() != null && current.getSup().getNumber() != null) {
-                after.setInf(new PDDLNumber(Math.min(current.subtract(eval).getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(current.subtract(eval).getSup().getNumber(), current.getSup().getNumber())));
+            if (current.nonEmpty()) {
+                final RealInterval sub = IAMath.sub(current, eval);
+                after = new RealInterval(Math.min(sub.lo(),current.lo()),
+                        Math.max(sub.hi(),current.hi()));
             }
         } else if (getOperator().equals("assign")) {
             if (additive_relaxation) {
-                if (this.getRight().getInvolvedNumericFluents().isEmpty() || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                    if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                        after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                        after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+                if (this.getRight().getInvolvedNumericFluents().isEmpty() ||
+                        ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
+                    if (current == null ||((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
+                        after = new RealInterval(eval.lo(),eval.hi());
                     } else {
-                        after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                        after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                        after = new RealInterval(Math.min(eval.lo(),current.lo()),
+                                Math.max(eval.hi(),current.hi()));
+
                     }
                 } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
                     //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                     //monotonicity. Look at the report on generalize interval based relaxation.
                     BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
-                    Interval monotonic_eval = bin.eval(s);
-                    after.setInf(new PDDLNumber(Math.min(current.sum(monotonic_eval).getInf().getNumber(), current.getInf().getNumber())));
-                    after.setSup(new PDDLNumber(Math.max(current.sum(monotonic_eval).getSup().getNumber(), current.getSup().getNumber())));
+                    RealInterval monotonic_eval = bin.eval(s);
+                    final RealInterval add = IAMath.add(current, monotonic_eval);
+                    after = new RealInterval(
+                            Math.min(add.lo(),current.lo()),
+                            Math.max(add.hi(),current.hi())
+                    );
                 }
-            } else if (current == null || ((current.getInf().getNumber().isNaN()) && (current.getSup().getNumber().isNaN()))) {
-                after.setInf(new PDDLNumber(eval.getInf().getNumber()));
-                after.setSup(new PDDLNumber(eval.getSup().getNumber()));
+            } else if (current == null || ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
+                after = new RealInterval(eval.lo(),eval.hi());
             } else {
-                after.setInf(new PDDLNumber(Math.min(eval.getInf().getNumber(), current.getInf().getNumber())));
-                after.setSup(new PDDLNumber(Math.max(eval.getSup().getNumber(), current.getSup().getNumber())));
+                after = new RealInterval(
+                        Math.min(eval.lo(),current.lo()),
+                        Math.max(eval.hi(),current.hi())
+                );
             }
 
         }

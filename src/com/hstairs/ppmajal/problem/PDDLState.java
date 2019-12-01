@@ -26,11 +26,11 @@ import com.hstairs.ppmajal.conditions.ConditionalEffect;
 import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.PostCondition;
 import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -267,9 +267,9 @@ public class PDDLState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             double n = this.numFluents.get(i);
             if (n == Double.NaN) {
-                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new Interval(Float.NaN));
+                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], RealInterval.emptyInterval());
             } else
-                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new Interval(new Float(n)));
+                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new RealInterval(n));
 
         }
 

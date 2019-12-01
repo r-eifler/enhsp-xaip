@@ -22,11 +22,11 @@ import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
+import net.sourceforge.interval.ia_math.RealInterval;
+
 import java.util.Arrays;
 
 import java.util.BitSet;
@@ -227,9 +227,9 @@ public class PDDLStateWithInt2Double extends PDDLState {
             int i = int2DoubleEntrySet.getIntKey();
             double ele = int2DoubleEntrySet.getDoubleValue();
             if (Double.isNaN(ele)) {
-                ret_val.possNumValues.put(i, new Interval(Float.NaN));
+                ret_val.possNumValues.put(i, RealInterval.emptyInterval());
             } else
-                ret_val.possNumValues.put(i, new Interval(new Float(ele)));
+                ret_val.possNumValues.put(i, new RealInterval(ele));
 
         }
 

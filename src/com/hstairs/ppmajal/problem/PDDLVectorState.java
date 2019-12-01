@@ -23,14 +23,13 @@ import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.expressions.Interval;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -215,9 +214,9 @@ public class PDDLVectorState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             Double n = this.numFluents.get(i);
             if (n == null) {
-                ret_val.possNumValues.put(i, new Interval(Float.NaN));
+                ret_val.possNumValues.put(i, RealInterval.emptyInterval());
             } else
-                ret_val.possNumValues.put(i, new Interval(new Float(this.numFluents.get(i))));
+                ret_val.possNumValues.put(i, new RealInterval(this.numFluents.get(i)));
 
         }
         for (int i = 0; i < this.boolFluents.length; i++) {

@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import net.sourceforge.interval.ia_math.RealInterval;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
@@ -199,31 +200,31 @@ public class Comparison extends Terminal {
             return false;
         }
 
-        final Interval first = left.eval(s);
-        final Interval second = right.eval(s);
+        final RealInterval first = left.eval(s);
+        final RealInterval second = right.eval(s);
 
-        if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
+        if ((first == null) || (second == null) || !first.nonEmpty() || !second.nonEmpty()) {
             return false;
         }
-        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
+        if ((Double.isNaN(first.lo())) || (Double.isNaN(first.hi())) || (Double.isNaN(second.lo())) || (Double.isNaN(second.hi()))) {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first.getInf().getNumber() < second.getSup().getNumber();
+            return first.lo() < second.hi();
         } else if (this.getComparator().equals("<=")) {
-            return first.getInf().getNumber() <= second.getSup().getNumber();
+            return first.lo() <= second.hi();
         } else if (this.getComparator().equals(">")) {
-            return first.getSup().getNumber() > second.getInf().getNumber();
+            return first.hi() > second.lo();
         } else if (this.getComparator().equals(">=")) {
-            return first.getSup().getNumber() >= second.getInf().getNumber();
+            return first.hi() >= second.lo();
         } else if (this.getComparator().equals("=")) {
-//            float ret = Math.max(first.getInf().getNumber()-second.getSup().getNumber(), second.getInf().getNumber()-first.getSup().getNumber());
+//            float ret = Math.max(first.lo()-second.hi(), second.lo()-first.hi());
 //            if (ret>=0)
 //                return false;
 //            else
 //                return true;
 //            
-            return !((first.getInf().getNumber() > second.getSup().getNumber()) || (second.getInf().getNumber() > first.getSup().getNumber()));
+            return !((first.lo() > second.hi()) || (second.lo() > first.hi()));
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
@@ -231,40 +232,7 @@ public class Comparison extends Terminal {
         return false;
     }
 
-    public Float satisfactionDistance (RelState s) {
-        Float ret = new Float(0);
 
-        Interval first = left.eval(s);
-        Interval second = right.eval(s);
-        if ((first == null) || (second == null)) {
-            return Float.MAX_VALUE;
-        }
-        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
-            return Float.MAX_VALUE;//negation by failure.
-        }
-        if (this.getComparator().equals("<")) {
-            Float t = second.getSup().getNumber() - first.getInf().getNumber();
-            return (t - 0.00001f) * -1;
-
-        } else if (this.getComparator().equals("<=")) {
-            Float t = second.getSup().getNumber() - first.getInf().getNumber();
-            return t * -1;
-        } else if (this.getComparator().equals(">")) {
-            Float t = first.getSup().getNumber() - second.getInf().getNumber();
-            return (t - 0.00001f) * -1;
-        } else if (this.getComparator().equals(">=")) {
-            Float t = first.getSup().getNumber() - second.getInf().getNumber();
-            return t * (-1);
-        } else if (this.getComparator().equals("=")) {
-            ret = Math.max(first.getInf().getNumber() - second.getSup().getNumber(), second.getInf().getNumber() - first.getSup().getNumber());
-            return (ret + 0.00001f) * -1;
-
-        } else {
-            System.out.println(this.getComparator() + "  is not supported");
-        }
-
-        return ret;
-    }
 
 //    @Override
 //    public void changeVar (Map substitution) {
@@ -389,7 +357,7 @@ public class Comparison extends Terminal {
                 if (a.f == null) {
                     num += Math.abs(a.n);
                 } else {
-                    num += Math.max(Math.abs(a.n * numericFleuntsBoundaries.functionInfValue(a.f).getNumber()), Math.abs(a.n * numericFleuntsBoundaries.functionSupValue(a.f).getNumber()));
+                    num += Math.max(Math.abs(a.n * numericFleuntsBoundaries.functionInfValue(a.f)), Math.abs(a.n * numericFleuntsBoundaries.functionSupValue(a.f)));
                 }
             }
             this.maxDist = num.floatValue();
@@ -601,25 +569,25 @@ public class Comparison extends Terminal {
             return true;
         }
 
-        Interval first = left.eval(s);
-        Interval second = right.eval(s);
+        RealInterval first = left.eval(s);
+        RealInterval second = right.eval(s);
 
-        if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
+        if ((first == null) || (second == null) || !first.nonEmpty() || !second.nonEmpty()) {
             return true;
         }
-        if ((first.getInf() == null) || (first.getSup() == null) || (second.getInf() == null) || (second.getSup() == null)) {
+        if ((Double.isNaN(first.lo())) || (Double.isNaN(first.hi())) || (Double.isNaN(second.lo())) || (Double.isNaN(second.hi()))) {
             return true;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first.getSup().getNumber() >= second.getInf().getNumber();
+            return first.hi() >= second.lo();
         } else if (this.getComparator().equals("<=")) {
-            return first.getSup().getNumber() > second.getInf().getNumber();
+            return first.hi() > second.lo();
         } else if (this.getComparator().equals(">")) {
-            return first.getInf().getNumber() <= second.getSup().getNumber();
+            return first.lo() <= second.hi();
         } else if (this.getComparator().equals(">=")) {
-            return first.getInf().getNumber() < second.getSup().getNumber();
+            return first.lo() < second.hi();
         } else if (this.getComparator().equals("=")) {
-            return (first.getSup().getNumber() > second.getInf().getNumber() || (first.getInf().getNumber() < second.getSup().getNumber()));
+            return (first.hi() > second.lo() || (first.lo() < second.hi()));
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }

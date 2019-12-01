@@ -25,6 +25,7 @@ import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import net.sourceforge.interval.ia_math.RealInterval;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -197,14 +198,11 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Interval eval (RelState s) {
-        Interval ret = new Interval();
-        ret.setInf(s.functionInfValue(this));
-        ret.setSup(s.functionSupValue(this));
-        if (ret.getInf() == null) {
-            ret.is_not_a_number = true;
+    public RealInterval eval (RelState s) {
+        RealInterval ret = new RealInterval(s.functionInfValue(this),s.functionSupValue(this));
 
-            return ret;
+        if (Double.isNaN(ret.lo())) {
+            return RealInterval.emptyInterval();
         }
 
         return ret;

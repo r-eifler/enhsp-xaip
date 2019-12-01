@@ -24,6 +24,8 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import net.sourceforge.interval.ia_math.IAMath;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -579,30 +581,35 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Interval eval (RelState s) {
-        Interval ret = new Interval(0f);
+    public RealInterval eval (RelState s) {
+        RealInterval ret = new RealInterval(0f);
         for (final Object o : this.summations) {
             final ExtendedAddendum a = (ExtendedAddendum) o;
 
             if (!a.linear) {
-                Interval temp = a.bin.eval(s);
-                if (temp == null || temp.is_not_a_number) {
-                    return new Interval(Float.NaN);
+                RealInterval temp = a.bin.eval(s);
+                if (temp == null || !temp.nonEmpty()) {
+                    return  RealInterval.emptyInterval();
                 }
-                ret = ret.sum(temp);
+//                ret = ret.sum(temp);
+                ret = IAMath.add(ret,temp);
             } else if (a.f != null) {
-                Interval temp = s.functionValues(a.f);
-                if (temp.is_not_a_number) {
-                    return new Interval(Float.NaN);
+                RealInterval temp = s.functionValues(a.f);
+                if (!temp.nonEmpty()) {
+                    return RealInterval.emptyInterval();
                 }
                 //System.out.println(temp);
 
-                temp = temp.mult(a.n.floatValue());
-                ret = ret.sum(temp);
+//                temp = temp.mult(a.n.floatValue());
+                temp = IAMath.mul(temp,new RealInterval(a.n.floatValue()));
+//                ret = ret.sum(temp);
+                ret = IAMath.add(ret,temp);
                 //ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
                 //ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
             } else {
-                ret = ret.sum(a.n.floatValue());
+//                ret = ret.sum(a.n.floatValue());
+                ret = IAMath.add(ret,new RealInterval(a.n.floatValue()));
+
             }
         }
         return ret;

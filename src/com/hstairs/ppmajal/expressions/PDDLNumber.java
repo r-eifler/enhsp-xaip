@@ -22,6 +22,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.*;
 
@@ -123,8 +124,8 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Interval eval (RelState s) {
-        return new Interval(this.getNumber());
+    public RealInterval eval (RelState s) {
+        return new RealInterval(this.getNumber());
     }
 
     @Override

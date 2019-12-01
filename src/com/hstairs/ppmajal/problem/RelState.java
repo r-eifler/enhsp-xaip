@@ -24,6 +24,7 @@ import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.*;
 
@@ -33,7 +34,7 @@ import java.util.*;
 public class RelState extends Object {
 
     public Int2IntArrayMap possBollValues;//0 is negative, 1 positive, 2 both
-    public Int2ObjectArrayMap<Interval> possNumValues;
+    public Int2ObjectArrayMap<RealInterval> possNumValues;
 
     public RelState ( ) {
         super();
@@ -65,35 +66,34 @@ public class RelState extends Object {
     }
 
 
-    public PDDLNumber functionInfValue (NumFluent f) {
-        Interval n = this.possNumValues.get(f.getId());
+    public double functionInfValue (NumFluent f) {
+        RealInterval n = this.possNumValues.get(f.getId());
         if (n != null) {
-            return n.getInf();
+            return n.lo();
         }
-        return null;
+        return Double.NaN;
     }
 
-    public Interval functionValues (NumFluent f) {
+    public RealInterval functionValues (NumFluent f) {
 
         if (!this.possNumValues.isEmpty()) {
-            Interval a = this.possNumValues.get(f.getId());
+            RealInterval a = this.possNumValues.get(f.getId());
             if (a != null) {
                 return a;
             } else {
-                Interval ret_val = new Interval(Float.NaN);
-                return ret_val;
+                return RealInterval.emptyInterval();
             }
         }
-        return new Interval(Float.NaN);
+        return RealInterval.emptyInterval();
 
     }
 
-    public PDDLNumber functionSupValue (NumFluent f) {
-        Interval a = this.possNumValues.get(f.getId());
+    public double functionSupValue (NumFluent f) {
+        RealInterval a = this.possNumValues.get(f.getId());
         if (a != null) {
-            return a.getSup();
+            return a.hi();
         }
-        return null;
+        return Double.NaN;
     }
 
     public void makePositive (Predicate p) {
@@ -124,21 +124,7 @@ public class RelState extends Object {
         return o == 0 || o == 2;
     }
 
-    public void setFunctionInfValue (NumFluent f, PDDLNumber after) {
-        Interval a = this.possNumValues.get(f.getId());
-        if (a != null) {
-            a.setInf(after);
-        }
 
-    }
-
-    public void setFunctionSupValue (NumFluent f, PDDLNumber after) {
-        Interval a = this.possNumValues.get(f.getId());
-        if (a != null) {
-            a.setSup(after);
-        }
-
-    }
 
     public void makeNegative (Predicate p) {
         int inter = possBollValues.getOrDefault(p.getId(), -1);
@@ -157,7 +143,7 @@ public class RelState extends Object {
 
     }
 
-    public void setFunctionValues (NumFluent f, Interval after) {
+    public void setFunctionValues (NumFluent f, RealInterval after) {
         this.possNumValues.put(f.getId(), after);
 
     }
@@ -169,7 +155,7 @@ public class RelState extends Object {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
                 if (nf.has_to_be_tracked()) {
-                    this.setFunctionValues(nf, (Interval) subst.get(o));
+                    this.setFunctionValues(nf, (RealInterval) subst.get(o));
                 }
             } else {
                 this.possBollValues.put(((Predicate) o).getId(), (int) subst.get(o));
