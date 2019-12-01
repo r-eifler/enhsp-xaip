@@ -384,13 +384,14 @@ public class SearchEngine {
 //                out.println("h(n = s_0)=inf");
 //                return null;
 //            }
-            out.println("Reachable actions and processes: |A U P U E|:" + problem.actions.size());
+            out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getTransitions(problem).size());
 //            setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
             setHeuristicCpuTime(0);
             duplicatesNumber = 0;
             setNodesReopened(0);
             currentG = 0f;
         }
+
 
 
 //        getHeuristic().why_not_active = true;
@@ -613,13 +614,21 @@ public class SearchEngine {
     }
 
     private void advance_time(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
+
+        if (reachableEvents == null){
+            reachableEvents = problem.getEventsSet();
+        }
+        if (reachableProcesses == null){
+            reachableProcesses = problem.getProcessesSet();
+        }
+
         try {
             float i = 0.00000f;
             State temp = current_node.s.clone();
             ArrayList<TransitionGround> waiting_list = new ArrayList<>();
             boolean at_least_one = false;
             while (i < planningDelta) {
-                State temp_temp = temp.clone();
+                final State temp_temp = temp.clone();
                 waiting_list.addAll(apply_events(temp_temp, i));
                 i += executionDelta;
 
@@ -631,8 +640,6 @@ public class SearchEngine {
                         TransitionGround gp = (TransitionGround) act;
                         if (gp.isApplicable(temp_temp)) {
                             atLeastOne = true;
-                            //out.println(gp.toEcoString());
-
                             for (NumEffect eff : (Collection<NumEffect>)gp.getConditionalNumericEffects().getAllEffects()) {
                                 numEffect.add(eff);
                             }
@@ -641,8 +648,11 @@ public class SearchEngine {
                         throw new RuntimeException("This shouldn't happen");
                     }
                 }
+                if (!atLeastOne)
+                    break;
 
-                TransitionGround waiting = new TransitionGround(null,"waiting",null,numEffect,null, Transition.Semantics.PROCESS);
+                final TransitionGround waiting = new TransitionGround(new ArrayList<>(),"waiting",new ConditionalEffects(ConditionalEffects.VariableType
+                .PROPEFFECT),numEffect,null, Transition.Semantics.PROCESS);
 //                if (!atLeastOne){
 //                    return;
 //                }

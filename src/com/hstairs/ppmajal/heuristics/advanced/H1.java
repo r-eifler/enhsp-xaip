@@ -117,7 +117,7 @@ public class H1 implements Heuristic {
         Arrays.fill(actionCost, Float.MAX_VALUE);
 
         SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(problem.actions), new HashSet<>(problem.getEventsSet())), new HashSet(problem.getProcessesSet()));
-        for (TransitionGround b : transitions) {
+        for (final TransitionGround b : transitions) {
             if (useRedundantConstraints) {
                 preconditionFunction[b.getId()] = b.getPreconditions().transformEquality().introduce_red_constraints();
             } else {

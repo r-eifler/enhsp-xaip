@@ -581,8 +581,8 @@ public class ExtendedNormExpression extends Expression {
     @Override
     public Interval eval (RelState s) {
         Interval ret = new Interval(0f);
-        for (Object o : this.summations) {
-            ExtendedAddendum a = (ExtendedAddendum) o;
+        for (final Object o : this.summations) {
+            final ExtendedAddendum a = (ExtendedAddendum) o;
 
             if (!a.linear) {
                 Interval temp = a.bin.eval(s);

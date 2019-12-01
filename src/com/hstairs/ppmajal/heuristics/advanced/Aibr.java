@@ -2,11 +2,13 @@ package com.hstairs.ppmajal.heuristics.advanced;
 
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.expressions.*;
+import com.hstairs.ppmajal.expressions.BinaryOp;
+import com.hstairs.ppmajal.expressions.Expression;
+import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
@@ -16,12 +18,9 @@ import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.IdentityHashMap;
+import java.util.*;
 
-import static com.google.common.collect.Range.*;
+import static com.google.common.collect.Range.closedOpen;
 
 public class Aibr implements Heuristic {
     private final EPddlProblem problem;
@@ -88,9 +87,7 @@ public class Aibr implements Heuristic {
                 names.put(preconditionFunctionMap.keySet().size(),tr.getName().concat("MinusInf"));
                 preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }
-
         }
-
     }
 
     private void generateInfSupporter(NumEffect effect, int idx, String s, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap) {
@@ -112,13 +109,13 @@ public class Aibr implements Heuristic {
             asymptote = -Float.MAX_VALUE;
             switch (effect.getOperator()) {
                 case "increase":
-                    disequality = ">";
-                    break;
-                case "decrease":
                     disequality = "<";
                     break;
-                case "assign":
+                case "decrease":
                     disequality = ">";
+                    break;
+                case "assign":
+                    disequality = "<";
                     break;
             }
         }
@@ -140,17 +137,15 @@ public class Aibr implements Heuristic {
         eff.setFluentAffected(effect.getFluentAffected());
         eff.setRight(new PDDLNumber(asymptote));
         numEffectMap.put(idx,eff);
-
     }
 
     @Override
     public float computeEstimate(State s0) {
-
-        PDDLState s = (PDDLState)s0;
+        final PDDLState s = (PDDLState)s0;
         final RelState relState = s.relaxState();
         final IntArraySet supporters = new IntArraySet(ContiguousSet.create(closedOpen(0, numberOfSupporters), DiscreteDomain.integers()));
-        final IntArrayList reacheableActions = new IntArrayList();
-        boolean[] actionInserted = new boolean[Transition.totNumberOfTransitions + 1];
+        final IntArrayList reachableActionsThisStage = new IntArrayList();
+        final boolean[] actionInserted = new boolean[Transition.totNumberOfTransitions + 1];
         Arrays.fill(actionInserted,false);
         boolean goalReached = false;
 
@@ -167,7 +162,7 @@ public class Aibr implements Heuristic {
                     //Prop effect
                     final int id = pre2transition.get(condition).getId();
                     if (!actionInserted[id]){
-                        reacheableActions.add(pre2transition.get(condition).getId());
+                        reachableActionsThisStage.add(pre2transition.get(condition).getId());
                         actionInserted[id] = true;
                     }
                     final Collection<Terminal> terminals = propEffectFunction[current];
@@ -207,34 +202,36 @@ public class Aibr implements Heuristic {
                     }
                 }
             }
-
         }
         if (reachableTransitions==null){
             reachableTransitions = new ArrayList<>();
-            for (Integer reacheableAction : reacheableActions) {
+            for (Integer reacheableAction : reachableActionsThisStage) {
                 reachableTransitions.add((TransitionGround) Transition.getTransition(reacheableAction));
             }
         }
-//        System.out.println("Computation done");
         if (goalReached){
-            return fixPointComputation(reacheableActions,s.relaxState());
+            return fixPointComputation(reachableTransitions,s.relaxState());
         }
         return Float.MAX_VALUE;
     }
 
-    private float fixPointComputation(IntArrayList reachable, RelState s) {
-        boolean fix_point = true;
+    private float fixPointComputation(Collection<TransitionGround> reachable, RelState s) {
         int counter = 0;
         int horizon = Integer.MAX_VALUE;
+        BitSet applicable = new BitSet();
         while (counter <= horizon) {
-            for (final int gr : reachable) {
-                final TransitionGround transition = (TransitionGround) Transition.getTransition(gr);
-                if (s.satisfy(transition.getPreconditions())) {
+            for (final TransitionGround transition: reachable) {
+                final boolean b = applicable.get(transition.getId());
+                if (b || s.satisfy(transition.getPreconditions())){
+                    if (!b){
+                        applicable.set(transition.getId(),true);
+                    }
                     s.apply(transition, s.clone());
                     counter++;
                     if (s.satisfy(problem.getGoals())) {
                         return counter;
                     }
+
                 }
             }
         }
@@ -243,6 +240,6 @@ public class Aibr implements Heuristic {
 
     @Override
     public Collection getTransitions(boolean helpful) {
-        return reachableTransitions;
+        return problem.actions;
     }
 }

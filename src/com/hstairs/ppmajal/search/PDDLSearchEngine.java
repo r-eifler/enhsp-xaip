@@ -19,12 +19,15 @@
 package com.hstairs.ppmajal.search;
 
 import com.hstairs.ppmajal.heuristics.Heuristic;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -32,8 +35,11 @@ import java.util.LinkedList;
  */
 public class PDDLSearchEngine extends SearchEngine {
 
-    public PDDLSearchEngine(Heuristic h) {
+    private final EPddlProblem problem;
+
+    public PDDLSearchEngine(Heuristic h, EPddlProblem problem) {
         super(h);
+        this.problem = problem;
     }
 
     @Override
@@ -45,7 +51,6 @@ public class PDDLSearchEngine extends SearchEngine {
             SimpleSearchNode temp = input;
             while (temp.transition != null) {
                 Double time = null;
-
                 plan.addFirst(Pair.of(0f,(TransitionGround)temp.transition));
                 temp = temp.father;
             }
@@ -53,34 +58,65 @@ public class PDDLSearchEngine extends SearchEngine {
         }
 
         SearchNode c = (SearchNode) input;
-        while ((c.transition != null || c.list_of_actions != null)) {
-            Double time = null;
-            if (c.father != null && c.father.s instanceof PDDLState) {
-                time = ((PDDLState) c.father.s).time;
-            }
-            if (c.transition != null) {//this is an action
-                if (c.transition instanceof ImmutablePair){
-                    final ImmutablePair<TransitionGround,Integer> t = (ImmutablePair<TransitionGround, Integer>) c.transition;
-                    for (int i=0; i< t.right;i++){
-                        plan.addFirst(Pair.of(time.floatValue(),t.left));
-                    }
-                    System.out.println("JUMP for "+t.left+":"+t.right);
-                }else {
-                    plan.addFirst(Pair.of(time.floatValue(), (TransitionGround) c.transition));
+        if (problem.getProcessesSet().isEmpty()) {
+            while ((c.transition != null || c.list_of_actions != null)) {
+                Double time = null;
+                if (c.father != null && c.father.s instanceof PDDLState) {
+                    time = ((PDDLState) c.father.s).time;
                 }
-            } else {//this is a process or an event
-                for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
-                    TransitionGround w = (TransitionGround) c.list_of_actions.get(k);
-                    if (w.getSemantics() == Transition.Semantics.PROCESS) {
-                        //w.setName("--------->waiting");
-                        plan.addFirst(Pair.of(0f,w));
+                if (c.transition != null) {//this is an action
+                    if (c.transition instanceof ImmutablePair) {
+                        final ImmutablePair<TransitionGround, Integer> t = (ImmutablePair<TransitionGround, Integer>) c.transition;
+                        for (int i = 0; i < t.right; i++) {
+                            plan.addFirst(Pair.of(time.floatValue(), t.left));
+                        }
+                        System.out.println("JUMP for " + t.left + ":" + t.right);
                     } else {
-                        plan.addFirst(Pair.of(0f,w));
+                        plan.addFirst(Pair.of(time.floatValue(), (TransitionGround) c.transition));
                     }
                 }
-            }
-            c = (SearchNode) c.father;
+                c = (SearchNode) c.father;
 
+            }
+        }else {
+            float time = 0f;
+            while ((c.transition != null || c.list_of_actions != null)) {
+                if (c.transition != null){
+                    // This is an action
+                    plan.addFirst(Pair.of(-1f, (TransitionGround) c.transition));
+                }else{
+                    float numberOfWait = 0f;
+                    for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
+                        final TransitionGround o = (TransitionGround) c.list_of_actions.get(k);
+                        if (o.getSemantics() == Transition.Semantics.PROCESS){
+                            numberOfWait += 1f;
+                        }
+                    }
+                    TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
+                    plan.addFirst(Pair.of(numberOfWait*executionDelta, waiting));
+                }
+                c = (SearchNode) c.father;
+            }
+            LinkedList<Pair<Float,TransitionGround>> newPlan = new LinkedList<>();
+
+            Pair waitingTransition = null;
+            for (Pair<Float, TransitionGround> ele : plan) {
+                final TransitionGround transition = ele.getRight();
+                if (transition.getSemantics() == Transition.Semantics.PROCESS){
+                    time+=ele.getKey();
+                    waitingTransition = Pair.of(time,ele.getRight());
+                }else{
+                    if (waitingTransition != null) {
+                        newPlan.add(waitingTransition);
+                    }
+                    newPlan.add(Pair.of(time,ele.getRight()));
+                    waitingTransition = null;
+                }
+            }
+            if (waitingTransition != null){
+                newPlan.add(waitingTransition);
+            }
+            return newPlan;
         }
 
         return plan;

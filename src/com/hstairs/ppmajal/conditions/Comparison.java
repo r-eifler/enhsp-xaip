@@ -199,8 +199,8 @@ public class Comparison extends Terminal {
             return false;
         }
 
-        Interval first = left.eval(s);
-        Interval second = right.eval(s);
+        final Interval first = left.eval(s);
+        final Interval second = right.eval(s);
 
         if ((first == null) || (second == null) || first.is_not_a_number || second.is_not_a_number) {
             return false;

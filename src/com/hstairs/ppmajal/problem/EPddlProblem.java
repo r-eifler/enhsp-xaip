@@ -238,14 +238,18 @@ public class EPddlProblem extends PddlProblem {
         h1.computeEstimate(this.init);
         final Collection<TransitionGround> transitions = h1.getTransitions(false);
         actions = new ArrayList<>();
+        processesSet = new ArrayList<>();
+        eventsSet = new ArrayList<>();
         for (final TransitionGround t : transitions){
             switch (t.getSemantics()){
                 case ACTION:
                     actions.add(t);
                     break;
                 case PROCESS:
+                    processesSet.add(t);
                     break;
                 case EVENT:
+                    eventsSet.add(t);
                     break;
             }
         }
