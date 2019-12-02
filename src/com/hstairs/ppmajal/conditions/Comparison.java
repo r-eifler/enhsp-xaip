@@ -203,7 +203,7 @@ public class Comparison extends Terminal {
         final RealInterval first = left.eval(s);
         final RealInterval second = right.eval(s);
 
-        if ((first == null) || (second == null) || !first.nonEmpty() || !second.nonEmpty()) {
+        if ((first == null) || (second == null)) {
             return false;
         }
         if ((Double.isNaN(first.lo())) || (Double.isNaN(first.hi())) || (Double.isNaN(second.lo())) || (Double.isNaN(second.hi()))) {
@@ -572,7 +572,7 @@ public class Comparison extends Terminal {
         RealInterval first = left.eval(s);
         RealInterval second = right.eval(s);
 
-        if ((first == null) || (second == null) || !first.nonEmpty() || !second.nonEmpty()) {
+        if ((first == null) || (second == null)) {
             return true;
         }
         if ((Double.isNaN(first.lo())) || (Double.isNaN(first.hi())) || (Double.isNaN(second.lo())) || (Double.isNaN(second.hi()))) {

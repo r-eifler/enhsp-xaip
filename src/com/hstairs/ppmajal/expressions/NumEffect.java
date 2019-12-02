@@ -474,12 +474,12 @@ public class NumEffect extends Expression implements PostCondition {
         final RealInterval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
-            if (current.nonEmpty() ) {
+            if (current!= null ) {
                 after = new RealInterval(Math.min(IAMath.add(current,eval).lo(),current.lo()),
                                          Math.max(IAMath.add(current,eval).hi(),current.hi()));
             }
         } else if (getOperator().equals("decrease")) {
-            if (current.nonEmpty()) {
+            if (current!= null) {
                 final RealInterval sub = IAMath.sub(current, eval);
                 after = new RealInterval(Math.min(sub.lo(),current.lo()),
                         Math.max(sub.hi(),current.hi()));
@@ -531,13 +531,13 @@ public class NumEffect extends Expression implements PostCondition {
         final RealInterval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
-            if (current.nonEmpty()) {
+            if (current!= null) {
                 final RealInterval add = IAMath.add(current, eval);
                 after = new RealInterval(Math.min(add.lo(),current.lo()),
                         Math.max(add.hi(),current.hi()));
             }
         } else if (getOperator().equals("decrease")) {
-            if (current.nonEmpty()) {
+            if (current!= null) {
                 final RealInterval sub = IAMath.sub(current, eval);
                 after = new RealInterval(Math.min(sub.lo(),current.lo()),
                         Math.max(sub.hi(),current.hi()));

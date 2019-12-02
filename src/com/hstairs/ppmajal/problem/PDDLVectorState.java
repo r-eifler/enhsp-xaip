@@ -214,7 +214,7 @@ public class PDDLVectorState extends State {
         for (int i = 0; i < this.numFluents.size(); i++) {
             Double n = this.numFluents.get(i);
             if (n == null) {
-                ret_val.possNumValues.put(i, RealInterval.emptyInterval());
+                ret_val.possNumValues.put(i, null);
             } else
                 ret_val.possNumValues.put(i, new RealInterval(this.numFluents.get(i)));
 

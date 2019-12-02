@@ -19,13 +19,7 @@
 package com.hstairs.ppmajal.problem;
 
 import com.carrotsearch.hppc.DoubleArrayList;
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Comparison;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.ConditionalEffect;
-import com.hstairs.ppmajal.conditions.NotCond;
-import com.hstairs.ppmajal.conditions.PostCondition;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
@@ -266,11 +260,11 @@ public class PDDLState extends State {
         RelState ret_val = new RelState();
         for (int i = 0; i < this.numFluents.size(); i++) {
             double n = this.numFluents.get(i);
-            if (n == Double.NaN) {
-                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], RealInterval.emptyInterval());
-            } else
+            if (Double.isNaN(n)) {
+                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], null);
+            } else {
                 ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new RealInterval(n));
-
+            }
         }
 
         for (int i = 0; i < this.boolFluents.length(); i++) {

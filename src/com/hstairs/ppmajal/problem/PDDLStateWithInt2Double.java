@@ -227,7 +227,7 @@ public class PDDLStateWithInt2Double extends PDDLState {
             int i = int2DoubleEntrySet.getIntKey();
             double ele = int2DoubleEntrySet.getDoubleValue();
             if (Double.isNaN(ele)) {
-                ret_val.possNumValues.put(i, RealInterval.emptyInterval());
+                ret_val.possNumValues.put(i, null);
             } else
                 ret_val.possNumValues.put(i, new RealInterval(ele));
 

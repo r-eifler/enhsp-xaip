@@ -19,14 +19,18 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.expressions.*;
+import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.sourceforge.interval.ia_math.RealInterval;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author enrico
@@ -81,10 +85,10 @@ public class RelState extends Object {
             if (a != null) {
                 return a;
             } else {
-                return RealInterval.emptyInterval();
+                return null;
             }
         }
-        return RealInterval.emptyInterval();
+        return null;
 
     }
 

@@ -588,15 +588,15 @@ public class ExtendedNormExpression extends Expression {
 
             if (!a.linear) {
                 RealInterval temp = a.bin.eval(s);
-                if (temp == null || !temp.nonEmpty()) {
-                    return  RealInterval.emptyInterval();
+                if (temp == null ) {
+                    return null;
                 }
 //                ret = ret.sum(temp);
                 ret = IAMath.add(ret,temp);
             } else if (a.f != null) {
                 RealInterval temp = s.functionValues(a.f);
-                if (!temp.nonEmpty()) {
-                    return RealInterval.emptyInterval();
+                if (temp == null) {
+                    return null;
                 }
                 //System.out.println(temp);
 

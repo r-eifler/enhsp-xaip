@@ -284,7 +284,7 @@ public class BinaryOp extends Expression {
         RealInterval second = this.rhs.eval(s);
 
 //        System.out.println(this);
-        if ((first == null) || (second == null) || !first.nonEmpty() || !second.nonEmpty()) {
+        if ((first == null) || (second == null)) {
             return null;
         }
         if (Double.isNaN(first.lo()) || (Double.isNaN(first.hi())) || (Double.isNaN(second.lo())) || (Double.isNaN(second.hi()))) {

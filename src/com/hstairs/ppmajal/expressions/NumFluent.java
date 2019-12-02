@@ -202,7 +202,7 @@ public class NumFluent extends Expression {
         RealInterval ret = new RealInterval(s.functionInfValue(this),s.functionSupValue(this));
 
         if (Double.isNaN(ret.lo())) {
-            return RealInterval.emptyInterval();
+            return null;
         }
 
         return ret;
