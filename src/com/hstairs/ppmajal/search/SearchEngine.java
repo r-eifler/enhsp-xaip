@@ -627,9 +627,14 @@ public class SearchEngine {
             State temp = current_node.s.clone();
             ArrayList<TransitionGround> waiting_list = new ArrayList<>();
             boolean at_least_one = false;
+//            System.out.println(planningDelta);
+//            System.out.println(executionDelta);
+//            System.out.println(planningDelta/executionDelta);
+//            for (i=0;i<Math.ceil(planningDelta/executionDelta;i++){
             while (i < planningDelta) {
                 final State temp_temp = temp.clone();
                 waiting_list.addAll(apply_events(temp_temp, i));
+//                System.out.println(i);
                 i += executionDelta;
 
 

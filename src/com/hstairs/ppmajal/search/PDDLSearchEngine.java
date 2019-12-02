@@ -80,20 +80,22 @@ public class PDDLSearchEngine extends SearchEngine {
             }
         }else {
             float time = 0f;
+            System.out.println("Extracting plan with execution delta:"+executionDelta);
             while ((c.transition != null || c.list_of_actions != null)) {
                 if (c.transition != null){
                     // This is an action
                     plan.addFirst(Pair.of(-1f, (TransitionGround) c.transition));
                 }else{
-                    float numberOfWait = 0f;
+                    int numberOfWaits = 0;
                     for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
                         final TransitionGround o = (TransitionGround) c.list_of_actions.get(k);
                         if (o.getSemantics() == Transition.Semantics.PROCESS){
-                            numberOfWait += 1f;
+                            numberOfWaits += 1;
                         }
                     }
+//                    System.out.println("First (from the tail) number of waitings:"+numberOfWaits);
                     TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
-                    plan.addFirst(Pair.of(numberOfWait*executionDelta, waiting));
+                    plan.addFirst(Pair.of((numberOfWaits*executionDelta), waiting));
                 }
                 c = (SearchNode) c.father;
             }

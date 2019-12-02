@@ -238,7 +238,7 @@ public class EPddlProblem extends PddlProblem {
 //        h1.computeEstimate(this.init);
 //        final Collection<TransitionGround> transitions = h1.getTransitions(false);
 //        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
-        final Aibr h1 = new Aibr(this);
+        final Aibr h1 = new Aibr(this, true);
         h1.computeEstimate(this.init);
         final Collection<TransitionGround> transitions = h1.getAllTransitions();
         actions = new ArrayList<>();

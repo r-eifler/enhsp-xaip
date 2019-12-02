@@ -218,6 +218,10 @@ public class Aibr implements Heuristic {
                 reachableTransitions.add((TransitionGround) Transition.getTransition(reacheableAction));
             }
             reachableTransitions = new ArrayList<>(reachableTransitions);
+            if (reachability){
+                return 0;
+            }
+
         }
         if (goalReached){
             return fixPointComputation(reachableTransitions,s.relaxState());
