@@ -18,10 +18,7 @@
  */
 package com.hstairs.ppmajal.transition;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.conditions.Terminal;
+import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
@@ -48,6 +45,29 @@ public abstract class Transition {
             return id2transition.get(actionId);
         }
         throw new RuntimeException(actionId+ " does not refer to a valid transition");
+    }
+
+    public static TransitionGround getTransition(String actionName, List<String> objects) {
+
+        for (Transition transition : id2transition) {
+            if (transition instanceof TransitionGround){
+                if (transition.getName().equals(actionName)){
+                    if ((((TransitionGround) transition).parameters.size() == objects.size())) {
+                        boolean found = true;
+                        for (int i = 0; i < ((TransitionGround) transition).parameters.size(); i++) {
+                            if (!((TransitionGround) transition).parameters.get(i).getName().equals(objects.get(i))) {
+                                found = false;
+                                break;
+                            }
+                        }
+                        if (found){
+                            return (TransitionGround) transition;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public enum Semantics{ACTION, PROCESS, EVENT}

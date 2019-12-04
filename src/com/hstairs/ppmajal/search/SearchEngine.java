@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
@@ -613,6 +614,50 @@ public class SearchEngine {
         this.setNumberOfEvaluatedStates(states_evaluated);
     }
 
+    public boolean simulate(State s, EPddlProblem problem, double stepSize, double horizon) throws CloneNotSupportedException {
+        if (reachableEvents == null){
+            reachableEvents = problem.getEventsSet();
+        }
+        if (reachableProcesses == null){
+            reachableProcesses = problem.getProcessesSet();
+        }
+        float i = 0.00000f;
+        State temp = s;
+        ArrayList<TransitionGround> waiting_list = new ArrayList<>();
+        boolean at_least_one = false;
+        while (i < horizon) {
+            waiting_list.addAll(apply_events(temp, i));
+            i += stepSize;
+            boolean atLeastOne = false;
+            ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
+            for (TransitionGround act : this.reachableProcesses) {
+                if (act.getSemantics() == Transition.Semantics.PROCESS) {
+                    TransitionGround gp = (TransitionGround) act;
+                    if (gp.isApplicable(temp)) {
+                        atLeastOne = true;
+                        for (NumEffect eff : (Collection<NumEffect>) gp.getConditionalNumericEffects().getAllEffects()) {
+                            numEffect.add(eff);
+                        }
+                    }
+                } else {
+                    throw new RuntimeException("This shouldn't happen");
+                }
+            }
+            if (!atLeastOne)
+                return true;
+
+            final TransitionGround waiting = new TransitionGround(new ArrayList<>(), "waiting", new ConditionalEffects(ConditionalEffects.VariableType
+                    .PROPEFFECT), numEffect, null, Transition.Semantics.PROCESS);
+            waiting_list.add(waiting);
+            temp.apply(waiting, temp.clone());
+            boolean valid = temp.satisfy(problem.globalConstraints);//zero crossing?!?!?
+            if (!valid) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void advance_time(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
 
         if (reachableEvents == null){
@@ -666,27 +711,29 @@ public class SearchEngine {
                 temp_temp.apply(waiting,temp_temp.clone());
                 waiting_list.addAll(apply_events(temp_temp, i));
 
+                ((PDDLState)temp_temp).time+=executionDelta;
+//                System.out.println(((PDDLState)temp_temp).time);
                 //the next has to be written better!!!! Spend a bit of time on that!
                 boolean valid = temp_temp.satisfy(problem.globalConstraints);//zero crossing?!?!?
                 if (!valid) {
                     constraintsViolations++;
                 } else {
-                    at_least_one = true;
                     if (temp_temp.satisfy(problem.getGoals())) {//very very easy zero crossing for opportunities. This should include also action preconditions
                         queue_successor(frontier, temp_temp, current_node, waiting_list, g);
-                        if (debugLevel == 111) {
-                            out.println("Debug: goal while waiting!!");
-                        }
+//                        if (debugLevel == 111) {
+//                            out.println("Debug: goal while waiting!!");
+//                        }
                     }
                 }
                 if (!valid || i >= planningDelta) {
                     if (i >= planningDelta && valid) {
                         temp = temp_temp;
                     } else {
+                        System.out.println("here");
 //                        out.println("smaller jump here?");
 //                        out.println("Waiting at this time for:"+i);
                     }
-                    if (at_least_one) {
+                    if (atLeastOne) {
                         queue_successor(frontier, temp, current_node, waiting_list, g);//this could be done in a smarter way
                     }
                     break;

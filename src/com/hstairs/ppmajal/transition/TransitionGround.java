@@ -151,5 +151,11 @@ public class TransitionGround extends Transition {
         return impact;
     }
 
- 
+
+    public static TransitionGround waitingAction() {
+       return new TransitionGround(null,null,null,null,null,null);
+    }
+    public boolean isWaiting(){
+        return parameters==null;
+    }
 }

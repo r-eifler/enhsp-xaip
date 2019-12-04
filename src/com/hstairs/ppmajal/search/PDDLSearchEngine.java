@@ -21,6 +21,7 @@ package com.hstairs.ppmajal.search;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
+import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
@@ -40,6 +41,29 @@ public class PDDLSearchEngine extends SearchEngine {
     public PDDLSearchEngine(Heuristic h, EPddlProblem problem) {
         super(h);
         this.problem = problem;
+    }
+
+
+    public boolean validate(LinkedList<Pair<Double,TransitionGround>> userPlan,double stepSize, double horizon) throws CloneNotSupportedException {
+        Double previous = 0.0;
+        State current = (PDDLState) problem.getInit().clone();
+        for (Pair<Double, TransitionGround> ele : userPlan) {
+            if (previous != ele.getKey()){
+                final double v = ele.getKey() - previous;
+                if (!simulate(current, problem, stepSize, v)){
+                    System.out.println("Constraint violated");
+                    return false;
+                }
+                previous = ele.getKey();
+                if (ele.getRight() != null && !ele.getRight().isWaiting()) {
+                    current.apply(ele.getRight(), current.clone());
+                }
+            }else{
+                current.apply(ele.getRight(),current.clone());
+            }
+        }
+//        System.out.println(current);
+        return current.satisfy(problem.goals);
     }
 
     @Override
@@ -81,44 +105,46 @@ public class PDDLSearchEngine extends SearchEngine {
         }else {
             float time = 0f;
             System.out.println("Extracting plan with execution delta:"+executionDelta);
+            float endTime = (float) ((PDDLState)c.s).time;
             while ((c.transition != null || c.list_of_actions != null)) {
                 if (c.transition != null){
                     // This is an action
-                    plan.addFirst(Pair.of(-1f, (TransitionGround) c.transition));
+                    plan.addFirst(Pair.of((float)((PDDLState)c.s).time, (TransitionGround) c.transition));
                 }else{
-                    int numberOfWaits = 0;
-                    for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
-                        final TransitionGround o = (TransitionGround) c.list_of_actions.get(k);
-                        if (o.getSemantics() == Transition.Semantics.PROCESS){
-                            numberOfWaits += 1;
-                        }
-                    }
+//                    int numberOfWaits = 0;
+//                    for (int k = c.list_of_actions.size() - 1; k >= 0; k--) {
+//                        final TransitionGround o = (TransitionGround) c.list_of_actions.get(k);
+//                        if (o.getSemantics() == Transition.Semantics.PROCESS){
+//                            numberOfWaits += 1;
+//                        }
+//                    }
 //                    System.out.println("First (from the tail) number of waitings:"+numberOfWaits);
                     TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
-                    plan.addFirst(Pair.of((numberOfWaits*executionDelta), waiting));
+                    plan.addFirst(Pair.of((float)((PDDLState)c.s).time, waiting));
                 }
                 c = (SearchNode) c.father;
             }
-            LinkedList<Pair<Float,TransitionGround>> newPlan = new LinkedList<>();
-
-            Pair waitingTransition = null;
-            for (Pair<Float, TransitionGround> ele : plan) {
-                final TransitionGround transition = ele.getRight();
-                if (transition.getSemantics() == Transition.Semantics.PROCESS){
-                    time+=ele.getKey();
-                    waitingTransition = Pair.of(time,ele.getRight());
-                }else{
-                    if (waitingTransition != null) {
-                        newPlan.add(waitingTransition);
-                    }
-                    newPlan.add(Pair.of(time,ele.getRight()));
-                    waitingTransition = null;
-                }
-            }
-            if (waitingTransition != null){
-                newPlan.add(waitingTransition);
-            }
-            return newPlan;
+//            LinkedList<Pair<Float,TransitionGround>> newPlan = new LinkedList<>();
+//
+//            Pair<Float,TransitionGround> waitingTransition = null;
+//            for (Pair<Float, TransitionGround> ele : plan) {
+//                final TransitionGround transition = ele.getRight();
+//                if (transition.getSemantics() == Transition.Semantics.PROCESS){
+//                    time+=ele.getKey();
+//                    waitingTransition = Pair.of(time,transition);
+//                }else{
+//                    if (waitingTransition != null) {
+//                        newPlan.add(waitingTransition);
+//                    }
+//                    newPlan.add(Pair.of(time,ele.getRight()));
+//                    waitingTransition = null;
+//                }
+//            }
+//            if (waitingTransition != null){
+//                final Pair<Float, TransitionGround> of = Pair.of(endTime, waitingTransition.getRight());
+//                newPlan.add(of);
+//            }
+            return plan;
         }
 
         return plan;
