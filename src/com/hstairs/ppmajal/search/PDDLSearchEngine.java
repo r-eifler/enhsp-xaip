@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 
 /**
@@ -44,22 +45,25 @@ public class PDDLSearchEngine extends SearchEngine {
     }
 
 
-    public boolean validate(LinkedList<Pair<Double,TransitionGround>> userPlan,double stepSize, double horizon) throws CloneNotSupportedException {
-        Double previous = 0.0;
-        State current = (PDDLState) problem.getInit().clone();
+    public boolean validate(LinkedList<Pair<Double,TransitionGround>> userPlan, double stepSize) throws CloneNotSupportedException {
+        Double previous = 0.0D;
+        State current = (PDDLState) problem.getInit();
+        System.out.println("Plan under Validation: "+userPlan);
+
         for (Pair<Double, TransitionGround> ele : userPlan) {
-            if (previous != ele.getKey()){
-                final double v = ele.getKey() - previous;
-                if (!simulate(current, problem, stepSize, v)){
+            final double v = ele.getKey() - previous;
+            if (v > 0) {
+                final com.hstairs.ppmajal.extraUtils.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false);
+                if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
+                } else {
+                    current = stateCollectionPair.getFirst();
                 }
-                previous = ele.getKey();
-                if (ele.getRight() != null && !ele.getRight().isWaiting()) {
-                    current.apply(ele.getRight(), current.clone());
-                }
-            }else{
-                current.apply(ele.getRight(),current.clone());
+            }
+            previous = ele.getKey();
+            if (ele.getRight() != null && !ele.getRight().isWaiting()) {
+                current.apply(ele.getRight(), current.clone());
             }
         }
 //        System.out.println(current);

@@ -34,8 +34,6 @@ import it.unimi.dsi.fastutil.objects.*;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author enrico
@@ -171,7 +169,7 @@ public class SearchEngine {
         return this.queueSuccessor(frontier, successor_state, current_node, action_s, prev_cost, succ_g, g, treeSearch);
     }
 
-    private ArrayList<TransitionGround> apply_events(State s, float delta1) throws CloneNotSupportedException {
+    private ArrayList<TransitionGround> applyAllEvents(State s) {
         ArrayList<TransitionGround> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
@@ -479,7 +477,7 @@ public class SearchEngine {
 
                 //if we have a pddl+ problem, we also branch on waiting.
                 if (processes) {
-                    advance_time(frontier, currentNode, problem, gMap);
+                    advanceTime(frontier, currentNode, problem, gMap);
                 }
 
                 //In case we use helpful actions pruning. This is highly experimental, though it seems to work pretty well...
@@ -626,7 +624,7 @@ public class SearchEngine {
         ArrayList<TransitionGround> waiting_list = new ArrayList<>();
         boolean at_least_one = false;
         while (i < horizon) {
-            waiting_list.addAll(apply_events(temp, i));
+            waiting_list.addAll(applyAllEvents(temp));
             i += stepSize;
             boolean atLeastOne = false;
             ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
@@ -658,8 +656,9 @@ public class SearchEngine {
         return true;
     }
 
-    private void advance_time(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
 
+
+    protected Pair<State,Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent) {
         if (reachableEvents == null){
             reachableEvents = problem.getEventsSet();
         }
@@ -667,82 +666,81 @@ public class SearchEngine {
             reachableProcesses = problem.getProcessesSet();
         }
 
-        try {
-            float i = 0.00000f;
-            State temp = current_node.s.clone();
-            ArrayList<TransitionGround> waiting_list = new ArrayList<>();
-            boolean at_least_one = false;
-//            System.out.println(planningDelta);
-//            System.out.println(executionDelta);
-//            System.out.println(planningDelta/executionDelta);
-//            for (i=0;i<Math.ceil(planningDelta/executionDelta;i++){
-            while (i < planningDelta) {
-                final State temp_temp = temp.clone();
-                waiting_list.addAll(apply_events(temp_temp, i));
-//                System.out.println(i);
-                i += executionDelta;
-
-
-                boolean atLeastOne = false;
-                ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
-                for (TransitionGround act : this.reachableProcesses) {
-                    if (act.getSemantics() == Transition.Semantics.PROCESS) {
-                        TransitionGround gp = (TransitionGround) act;
-                        if (gp.isApplicable(temp_temp)) {
-                            atLeastOne = true;
-                            for (NumEffect eff : (Collection<NumEffect>)gp.getConditionalNumericEffects().getAllEffects()) {
-                                numEffect.add(eff);
-                            }
+        final PDDLState next = (PDDLState)s.clone();
+        if (horizon < executionDelta){
+            System.out.println("Horizon: "+horizon+" Execution Delta: "+executionDelta);
+            throw new RuntimeException("Delta simulation should be higher than delta execution");
+        }
+        if (notDiv(horizon,executionDelta)){
+            System.out.println("Horizon: "+horizon+" Execution Delta: "+executionDelta);
+            System.out.println("WARNING: Delta simulation should be a multiple of delta execution");
+        }
+        final int iterations = (int) Math.ceil(horizon/executionDelta);
+        PDDLState previousNext = next;
+        ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
+        for (int i = 0; i < iterations; i++) {
+            boolean atLeastOne = false;
+            ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
+            for (TransitionGround act : this.reachableProcesses) {
+                if (act.getSemantics() == Transition.Semantics.PROCESS) {
+                    TransitionGround gp = (TransitionGround) act;
+                    if (gp.isApplicable(next)) {
+                        atLeastOne = true;
+                        for (NumEffect eff : (Collection<NumEffect>) gp.getConditionalNumericEffects().getAllEffects()) {
+                            numEffect.add(eff);
                         }
-                    }else{
-                        throw new RuntimeException("This shouldn't happen");
                     }
-                }
-                if (!atLeastOne)
-                    break;
-
-                final TransitionGround waiting = new TransitionGround(new ArrayList<>(),"waiting",new ConditionalEffects(ConditionalEffects.VariableType
-                .PROPEFFECT),numEffect,null, Transition.Semantics.PROCESS);
-//                if (!atLeastOne){
-//                    return;
-//                }
-                waiting_list.add(waiting);
-
-                temp_temp.apply(waiting,temp_temp.clone());
-                waiting_list.addAll(apply_events(temp_temp, i));
-
-                ((PDDLState)temp_temp).time+=executionDelta;
-//                System.out.println(((PDDLState)temp_temp).time);
-                //the next has to be written better!!!! Spend a bit of time on that!
-                boolean valid = temp_temp.satisfy(problem.globalConstraints);//zero crossing?!?!?
-                if (!valid) {
-                    constraintsViolations++;
                 } else {
-                    if (temp_temp.satisfy(problem.getGoals())) {//very very easy zero crossing for opportunities. This should include also action preconditions
-                        queue_successor(frontier, temp_temp, current_node, waiting_list, g);
-//                        if (debugLevel == 111) {
-//                            out.println("Debug: goal while waiting!!");
-//                        }
-                    }
-                }
-                if (!valid || i >= planningDelta) {
-                    if (i >= planningDelta && valid) {
-                        temp = temp_temp;
-                    } else {
-                        System.out.println("here");
-//                        out.println("smaller jump here?");
-//                        out.println("Waiting at this time for:"+i);
-                    }
-                    if (atLeastOne) {
-                        queue_successor(frontier, temp, current_node, waiting_list, g);//this could be done in a smarter way
-                    }
-                    break;
-                } else {
-                    temp = temp_temp;
+                    throw new RuntimeException("This shouldn't happen");
                 }
             }
-        } catch (CloneNotSupportedException ex) {
-            Logger.getLogger(SearchEngine.class.getName()).log(Level.SEVERE, null, ex);
+            if (!atLeastOne){
+                if (i==0){
+                    return null;
+                }
+                return new Pair(previousNext,executedProcesses);
+            }
+            //execute
+            executedProcesses.addAll(applyAllEvents(next));
+            final TransitionGround waiting = new TransitionGround(new ArrayList<>(),"waiting",new ConditionalEffects(ConditionalEffects.VariableType
+                    .PROPEFFECT),numEffect,null, Transition.Semantics.PROCESS);
+
+            next.apply(waiting,next.clone());
+            next.time += executionDelta;
+
+            if (!next.satisfy(problem.globalConstraints)){
+                if (i==0 || !intelligent){
+                    return null;
+                }
+                return new Pair(previousNext,executedProcesses);
+            }
+            executedProcesses.add(waiting);
+            executedProcesses.addAll(applyAllEvents(next));
+            if (intelligent && next.satisfy(problem.goals)){
+                return new Pair(next,executedProcesses);
+            }
+            previousNext = next;
+        }
+        return new Pair(previousNext,executedProcesses);
+    }
+
+    private boolean notDiv(double horizon, double executionDelta) {
+        final double v = Math.IEEEremainder(horizon, executionDelta);
+        return v >= Double.MIN_VALUE;
+    }
+
+
+    private void advanceTime(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
+
+        if (reachableEvents == null){
+            reachableEvents = problem.getEventsSet();
+        }
+        if (reachableProcesses == null){
+            reachableProcesses = problem.getProcessesSet();
+        }
+        final Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current_node.s, problem, planningDelta, executionDelta,true);
+        if (stateCollectionPair != null) {
+            queue_successor(frontier, stateCollectionPair.getFirst(), current_node, stateCollectionPair.getSecond(), g);//this could be done in a smarter way
         }
     }
 

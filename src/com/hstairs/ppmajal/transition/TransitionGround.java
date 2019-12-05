@@ -67,8 +67,10 @@ public class TransitionGround extends Transition {
     public String toString() {
         StringBuilder res= new StringBuilder();
         res.append("(").append(name);
-        for(final PDDLObject obj : this.parameters){
-            res.append(" ").append(obj.getName());
+        if (this.parameters != null) {
+            for (final PDDLObject obj : this.parameters) {
+                res.append(" ").append(obj.getName());
+            }
         }
         res.append(")");
         return res.toString();
