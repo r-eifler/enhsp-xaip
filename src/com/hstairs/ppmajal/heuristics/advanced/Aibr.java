@@ -21,7 +21,6 @@ import it.unimi.dsi.fastutil.ints.*;
 import java.util.*;
 
 import static com.google.common.collect.Range.closedOpen;
-import static com.hstairs.ppmajal.transition.Transition.getTransition;
 
 public class Aibr implements Heuristic {
     private final EPddlProblem problem;
@@ -64,6 +63,8 @@ public class Aibr implements Heuristic {
         numEffectMap.forEach((integer, numEffect) -> numericEffectFunction[integer]=numEffect);
 
         this.reachability = reachability;
+
+        System.out.println("AIBR :: Number of Supporters = "+numberOfSupporters);
     }
 
 
@@ -87,19 +88,24 @@ public class Aibr implements Heuristic {
                         numEffectMap.put(preconditionFunctionMap.keySet().size(), assign);
                         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }else{
-                generateInfSupporter(effect,preconditionFunctionMap.keySet().size(),"+",asymptoticPreconditionFunctionMap,numEffectMap);
-                names.put(preconditionFunctionMap.keySet().size(),tr.getName().concat("PlusInf"));
-                preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
-
-                generateInfSupporter(effect,preconditionFunctionMap.keySet().size(),"-",asymptoticPreconditionFunctionMap,numEffectMap);
-                names.put(preconditionFunctionMap.keySet().size(),tr.getName().concat("MinusInf"));
-                preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
+                final boolean empty = effect.getRight().getInvolvedNumericFluents().isEmpty();
+                if (empty){
+                    final double right = effect.getRight().eval(problem.getInit());
+                    if (right > 0){
+                        generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "+", asymptoticPreconditionFunctionMap, numEffectMap, tr);
+                    }else{
+                        generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "-", asymptoticPreconditionFunctionMap, numEffectMap, tr);
+                    }
+                }else {
+                    generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "+", asymptoticPreconditionFunctionMap, numEffectMap, tr);
+                    generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "-", asymptoticPreconditionFunctionMap, numEffectMap, tr);
+                }
             }
         }
         return false;
     }
 
-    private void generateInfSupporter(NumEffect effect, int idx, String s, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap) {
+    private void generateInfSupporter(NumEffect effect, Int2ObjectMap<Condition> preconditionFunctionMap, int idx, String s, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap, TransitionGround tr) {
         String disequality = "";
         Float asymptote = Float.MAX_VALUE;
         if ("+".equals(s)){
@@ -129,6 +135,8 @@ public class Aibr implements Heuristic {
             }
         }
         generateSupporter(effect,idx,disequality,asymptote,asymptoticPreconditionFunctionMap,numEffectMap);
+        names.put(idx,tr.getName().concat("MinusInf"));
+        preconditionFunctionMap.put(idx,tr.getPreconditions());
     }
 
     private void generateSupporter(NumEffect effect, int idx, String inequality, Float asymptote, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap) {
@@ -154,10 +162,10 @@ public class Aibr implements Heuristic {
         final RelState relState = s.relaxState();
         final IntArraySet supporters = new IntArraySet(ContiguousSet.create(closedOpen(0, numberOfSupporters), DiscreteDomain.integers()));
         final IntArrayList reachableActionsThisStage = new IntArrayList();
-        final boolean[] actionInserted = new boolean[Transition.totNumberOfTransitions + 1];
-        Arrays.fill(actionInserted,false);
         boolean goalReached = false;
 
+        final BitSet conditionSatisfied = new BitSet();
+        final BitSet actionInserted = new BitSet();
         while (!supporters.isEmpty()){
             final IntIterator iterator = supporters.iterator();
             final IntArrayList propAppliers = new IntArrayList();
@@ -167,12 +175,16 @@ public class Aibr implements Heuristic {
                 int current = iterator.nextInt();
 //                System.out.println("Supporters set:"+supporters.size());
                 final Condition condition = preconditionFunction[current];
-                if (relState.satisfy(condition)){
+                final boolean b = conditionSatisfied.get(current);
+                if (b|| relState.satisfy(condition)){
+                    if (!b){
+                        conditionSatisfied.set(current,true);
+                    }
                     //Prop effect
                     final int id = pre2transition.get(condition).getId();
-                    if (!actionInserted[id]){
+                    if (!actionInserted.get(id)){
                         reachableActionsThisStage.add(pre2transition.get(condition).getId());
-                        actionInserted[id] = true;
+                        actionInserted.set(id,true);
                     }
                     final Collection<Terminal> terminals = propEffectFunction[current];
                     if (terminals != null && !terminals.isEmpty()) {
@@ -233,6 +245,7 @@ public class Aibr implements Heuristic {
         int counter = 0;
         int horizon = Integer.MAX_VALUE;
         BitSet applicable = new BitSet();
+
         while (counter <= horizon) {
             for (final TransitionGround transition: reachable) {
                 final boolean b = applicable.get(transition.getId());

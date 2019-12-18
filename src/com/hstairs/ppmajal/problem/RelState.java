@@ -37,9 +37,14 @@ import java.util.Set;
  */
 public class RelState extends Object {
 
-    public Int2IntArrayMap possBollValues;//0 is negative, 1 positive, 2 both
-    public Int2ObjectArrayMap<RealInterval> possNumValues;
+    final public Int2IntArrayMap possBollValues;//0 is negative, 1 positive, 2 both
+    final public Int2ObjectArrayMap<RealInterval> possNumValues;
 
+    public RelState (Int2IntArrayMap a, Int2ObjectArrayMap<RealInterval> b ) {
+        super();
+        possBollValues = a;
+        possNumValues = b;
+    }
     public RelState ( ) {
         super();
         possBollValues = new Int2IntArrayMap();
@@ -63,9 +68,7 @@ public class RelState extends Object {
 
     @Override
     public RelState clone ( ) {
-        final RelState ret_val = new RelState();
-        ret_val.possBollValues = this.possBollValues.clone();
-        ret_val.possNumValues = this.possNumValues.clone();
+        final RelState ret_val = new RelState(this.possBollValues.clone(),this.possNumValues.clone());
         return ret_val;
     }
 

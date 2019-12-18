@@ -280,8 +280,8 @@ public class BinaryOp extends Expression {
     @Override
     public RealInterval eval (RelState s) {
         RealInterval ret_val = null;
-        RealInterval first = this.lhs.eval(s);
-        RealInterval second = this.rhs.eval(s);
+        final RealInterval first = this.lhs.eval(s);
+        final RealInterval second = this.rhs.eval(s);
 
 //        System.out.println(this);
         if ((first == null) || (second == null)) {

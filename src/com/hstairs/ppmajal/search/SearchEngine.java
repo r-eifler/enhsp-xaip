@@ -439,8 +439,11 @@ public class SearchEngine {
                     throw new TimeoutException("Timeout has been reached: bailing out");
                 }
                 if (fromTheBeginning >= previous + 10000) {
-                    out.println("-------------Time: " + fromTheBeginning / 1000 + "s ; Expanded Nodes: " + getNodesExpanded() + "; Evaluated States: " + getNumberOfEvaluatedStates());
+                    final float speed = getNodesExpanded()/(fromTheBeginning / 1000);
+                    out.println("-------------Time: " + fromTheBeginning / 1000 +
+                            "s ; Expanded Nodes: " + getNodesExpanded() + " (Avg-Speed "+speed+" n/s); Evaluated States: " + getNumberOfEvaluatedStates());
                     previous = fromTheBeginning;
+
                 }
                 if (optimality && (bestf < currentNode.gValue + currentNode.h_n)) {//this is the debugLevel for when the planner is run in optimality modality
                     bestf = currentNode.gValue + currentNode.h_n;

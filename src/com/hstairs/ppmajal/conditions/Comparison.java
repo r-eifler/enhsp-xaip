@@ -57,23 +57,24 @@ public class Comparison extends Terminal {
         Triple<String, String, String> t = Triple.of(comparator, left.toString(), right.toString());
         Comparison comp = comparisonDataBase.get(t);
         if (comp == null) {
-            comp = new Comparison(t.getLeft(), left, right,comparisonDataBase.entrySet().size(),normalized);
+            comp = new Comparison(t.getLeft(), left, right,normalized);
             comparisonDataBase.put(t, comp);
         }
         return comp;
     }
 
     private Comparison(String comparator, Expression left, Expression right, int id) {
-        this(comparator, left, right, id, false);
+        this(comparator, left, right,false);
                 
     }
     
-    private Comparison(String comparator, Expression left, Expression right, int id, boolean normalized) {
+    private Comparison(String comparator, Expression left, Expression right,boolean normalized) {
         super();
         this.comparator = comparator;
         this.left = left;
         this.right = right;
         this.normalized = normalized;
+
     }
 
     public static int getNumberOfComparisons() {
