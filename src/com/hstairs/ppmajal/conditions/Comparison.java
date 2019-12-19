@@ -265,32 +265,34 @@ public class Comparison extends Terminal {
             Double second = rightExpr.getNumber();
             if (this.getComparator().equals("<")) {
                 if ((first < second)) {
-                    return null;
+                    this.setValid(true);
                 }
             } else if (this.getComparator().equals("<=")) {
                 if ((first <= second)) {
-                    return null;
+
+                    this.setValid(true);
                 }
             } else if (this.getComparator().equals(">")) {
                 if ((first > second)) {
-                    return null;
+                    this.setValid(true);
                 }
             } else if (this.getComparator().equals(">=")) {
                 if ((first >= second)) {
-                    return null;
+                    this.setValid(true);
                 }
             } else if (this.getComparator().equals("=")) {
                 Float res = new Float(Math.abs(first - second));
                 if (res < Double.MIN_VALUE) {
-                    return null;
+                    this.setValid(true);
                 }
-            }
-            //System.out.println(this.toString() + " will be never be satisfied");
+            }else {
+                //System.out.println(this.toString() + " will be never be satisfied");
 
-            setUnsatisfiable(true);
-            //throw new Exception();
+                setUnsatisfiable(true);
+            }//throw new Exception();
 
-        } else {
+        }
+        {
             //System.out.println("DEBUG");
             if (this.comparator.equals("<") || this.comparator.equals("<=") || this.comparator.equals("=")) {
                 leftExpr = rightExpr.minus(leftExpr);

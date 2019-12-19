@@ -195,7 +195,10 @@ public class H1 implements Heuristic {
                 conditionToAction[t.getId()] = groundActions;
                 allConditions.add(((Terminal) c).getId());
                 if (c instanceof Comparison) {
-                    allComparisons.add(((Comparison) c.normalize()).getId());
+//                    System.out.println(c);
+                    final Comparison normalize = (Comparison) c.normalize();
+//                    System.out.println(normalize);
+                    allComparisons.add(normalize.getId());
                 }
             }
         }

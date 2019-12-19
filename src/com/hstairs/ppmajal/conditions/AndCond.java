@@ -680,7 +680,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
             if (cond instanceof Condition) {
                 Condition condInternal = ((Condition) cond).normalize();
                 if (condInternal == null) {
-                    this.setUnsatisfiable(true);
+                    //this.setUnsatisfiable(true);
                 } else {
                     if (condInternal.isUnsatisfiable()) {
                         this.setUnsatisfiable(true);
