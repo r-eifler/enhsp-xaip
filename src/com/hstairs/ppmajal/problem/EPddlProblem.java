@@ -101,9 +101,13 @@ public class EPddlProblem extends PddlProblem {
         return this.numFluentReference;
     }
 
+
+
     public void generateTransitions( ){
         long start = System.currentTimeMillis();
             Grounder af = new Grounder(belief == null);
+//        Grounder af = new Grounder(false);
+
             ArrayList<TransitionSchema> transitions = new ArrayList<>();
             transitions.addAll(linkedDomain.getProcessesSchema());
             transitions.addAll(linkedDomain.getActionsSchema());
@@ -487,7 +491,7 @@ public class EPddlProblem extends PddlProblem {
                 pddlState = new PDDLState(numFluents,boolFluents);
             }
         }
-        
+
 //        System.out.println(Printer.stringBuilderPddlPrintWithDummyTrue(this, pddlState));
         return pddlState;
         

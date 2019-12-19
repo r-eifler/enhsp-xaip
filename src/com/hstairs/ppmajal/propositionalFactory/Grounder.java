@@ -300,22 +300,23 @@ public class Grounder {
 //            combo = Collections.singleton(new ParametersAsTerms());
 //            combo.add(new ParametersAsTerms());
         } else {
+
             combo = new LinkedHashSet();
             Condition cond = action.getPreconditions();
-            Collection<HashMap<Variable, Set<PDDLObject>>> S = new HashSet();
-            HashMap<Variable, Set<PDDLObject>> t = new HashMap();
+            Collection<HashMap<Variable, Set<PDDLObject>>> S = new ArrayList();
+            final HashMap<Variable, Set<PDDLObject>> t = new HashMap();
             for (Object o : action.getParameters()) {
                 Variable v = (Variable) o;
                 t.put(v, po);
             }
             S.add(t);
             if (cond instanceof AndCond && smartPruning) {
-                AndCond and = (AndCond) cond;
+                final AndCond and = (AndCond) cond;
                 for (Object o : and.sons) {
                     if (o instanceof Predicate) {
-                        Predicate predicateAction = (Predicate) o;
+                        final Predicate predicateAction = (Predicate) o;
                         if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null) {
-                            Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new HashSet();
+                            final Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
                             for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
                                 HashMap<Variable, Set<PDDLObject>> t1 = new HashMap();
                                 boolean foundToBeTrue = false;
@@ -358,14 +359,16 @@ public class Grounder {
                                 if (foundToBeTrue) {
                                     if (!t1.isEmpty()){
                                         for (HashMap<Variable, Set<PDDLObject>> ele2 : S) {
-                                            HashMap<Variable, Set<PDDLObject>> temp = new HashMap();
+                                            final HashMap<Variable, Set<PDDLObject>> temp = new HashMap();
                                             for (Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
-                                                Set<PDDLObject> temp2 = t1.get(ele3.getKey());
+                                                final Set<PDDLObject> temp2 = t1.get(ele3.getKey());
                                                 if (temp2 != null) {
-                                                    temp.put(ele3.getKey(), Sets.intersection(temp2, ele3.getValue()));
+                                                    final Sets.SetView<PDDLObject> intersection = Sets.intersection(temp2, ele3.getValue());
+                                                    temp.put(ele3.getKey(), intersection);
                                                 } else {//not bound..shouldn't happen this
                                                     //throw new RuntimeException("Something went wrong when checking static predicates in grounding "+
                                                     //        action+ " for "+predicateAction);
+//                                                    System.out.println(ele3.getKey());
                                                     temp.put(ele3.getKey(), ele3.getValue());
                                                 }
                                             }

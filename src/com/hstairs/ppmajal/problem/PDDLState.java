@@ -98,6 +98,9 @@ public class PDDLState extends State {
             NumFluent fluent = NumFluent.fromIdToNumFluents.get(idNFProblem);
             str.append(fluent).append("=").append(numFluents.get(i)).append(" ");
         }
+        if (!Double.isNaN(time)){
+            str.append("(time)").append("=").append(time).append(" ");
+        }
         str.append("\n");
         for (Predicate fluent : EPddlProblem.booleanFluents){
             str.append(fluent).append("=").append(this.holds(fluent)).append(" ");

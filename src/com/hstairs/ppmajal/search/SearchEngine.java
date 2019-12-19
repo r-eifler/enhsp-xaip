@@ -659,9 +659,12 @@ public class SearchEngine {
         return true;
     }
 
-
-
     protected Pair<State,Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent) {
+        return intelligentSimulation(s,problem,horizon,executionDelta,intelligent,null);
+    }
+
+
+    protected Pair<State,Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent, StringBuilder traceString) {
         if (reachableEvents == null){
             reachableEvents = problem.getEventsSet();
         }
@@ -710,7 +713,7 @@ public class SearchEngine {
 
             next.apply(waiting,next.clone());
             next.time += executionDelta;
-
+            if (traceString!= null){traceString.append(next.toString());}
             if (!next.satisfy(problem.globalConstraints)){
                 if (i==0 || !intelligent){
                     return null;
@@ -722,6 +725,7 @@ public class SearchEngine {
             if (intelligent && next.satisfy(problem.goals)){
                 return new Pair(next,executedProcesses);
             }
+            if (traceString!= null){traceString.append(next.toString());}
             previousNext = next;
         }
         return new Pair(previousNext,executedProcesses);

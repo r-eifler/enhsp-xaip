@@ -303,13 +303,7 @@ public class OrCond extends ComplexCondition {
                     Condition c = (Condition) o2;
                     c.setFreeVarSemantic(this.freeVarSemantic);
                     c = c.weakEval(s, invF);
-                    if (o2 instanceof PDDLObjectsEquality) {
-                        if (c.isValid()) {
-                            this.setValid(true);
-                            this.setUnsatisfiable(false);
-                            return this;
-                        }
-                    } else if (c.isValid()) {
+                    if (c.isValid()) {
                         this.setValid(true);
                         this.setUnsatisfiable(false);
                         return this;

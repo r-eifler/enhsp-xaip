@@ -298,6 +298,10 @@ public abstract class PddlProblem {
         this.goals = (ComplexCondition) this.goals.pushNotToTerminals();
         this.goals = (ComplexCondition) this.goals.ground(new HashMap(), this.getObjects());
 
+        for (PDDLObject object : this.getObjects()) {
+            final ArrayList object1 = new ArrayList<>(List.of(object, object));
+            this.initBoolFluentsValues.put(Predicate.createPredicate("=",object1),true);
+        }
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
 

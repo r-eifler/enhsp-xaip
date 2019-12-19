@@ -28,6 +28,9 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -44,16 +47,21 @@ public class PDDLSearchEngine extends SearchEngine {
         this.problem = problem;
     }
 
+    public boolean validate(LinkedList<Pair<Float,TransitionGround>> userPlan, double stepSize) throws CloneNotSupportedException {
+        return validate(userPlan,stepSize,null);
+    }
 
-    public boolean validate(LinkedList<Pair<Double,TransitionGround>> userPlan, double stepSize) throws CloneNotSupportedException {
-        Double previous = 0.0D;
+    public boolean validate(LinkedList<Pair<Float,TransitionGround>> userPlan, double stepSize, String planTrace) throws CloneNotSupportedException {
+        Float previous = 0.0F;
         State current = (PDDLState) problem.getInit();
         System.out.println("Plan under Validation: "+userPlan);
+        StringBuilder planTraceString = null;
+        if (planTrace != null){ planTraceString = new StringBuilder();}
 
-        for (Pair<Double, TransitionGround> ele : userPlan) {
-            final double v = ele.getKey() - previous;
+        for (Pair<Float, TransitionGround> ele : userPlan) {
+            final Float v = ele.getKey() - previous;
             if (v > 0) {
-                final com.hstairs.ppmajal.extraUtils.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false);
+                final com.hstairs.ppmajal.extraUtils.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false, planTraceString);
                 if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
@@ -64,6 +72,15 @@ public class PDDLSearchEngine extends SearchEngine {
             previous = ele.getKey();
             if (ele.getRight() != null && !ele.getRight().isWaiting()) {
                 current.apply(ele.getRight(), current.clone());
+                if (planTrace != null){planTraceString.append(current.toString());}
+            }
+        }
+        if (planTrace!=null) {
+            try {
+                BufferedWriter bf = new BufferedWriter(new FileWriter(planTrace));
+                bf.append(planTraceString);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 //        System.out.println(current);

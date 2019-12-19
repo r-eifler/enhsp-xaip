@@ -361,8 +361,6 @@ public class NotCond extends Terminal implements PostCondition {
             AndCond and = or.push_negation_demorgan();
             Condition c = and.pushNotToTerminals();
             return c;
-        } else if (son instanceof PDDLObjectsEquality) {
-            return this;
         } else if (son instanceof NotCond) {
             NotCond nc = (NotCond) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());

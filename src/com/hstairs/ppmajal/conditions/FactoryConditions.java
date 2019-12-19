@@ -130,21 +130,21 @@ public class FactoryConditions {
                 return Comparison.createComparison(tree.getChild(0).getText(), createExpression(tree.getChild(1), parTable), createExpression(tree.getChild(2), parTable),false);
             //Create an equality structure for comparing Objects
             case PddlParser.EQUALITY_CON:
-                PDDLObjectsEquality equality = new PDDLObjectsEquality();
-
-                if (tree.getChild(1).getType() == PddlParser.NAME) {
-                    System.out.println("Constant objects in equality comparison are not supported");
-                    System.exit(-1);
-                } else {
-                    equality.setLeftV(buildVariable(tree.getChild(1), parTable));
-                }
-                if (tree.getChild(1).getType() == PddlParser.NAME) {
-                    System.out.println("Constant objects in equality comparison are not supported");
-                    System.exit(-1);
-                } else {
-                    equality.setRightV(buildVariable(tree.getChild(2), parTable));
-                }
-                return equality;
+//                PDDLObjectsEquality equality = new Predicate();
+//
+//                if (tree.getChild(1).getType() == PddlParser.NAME) {
+//                    System.out.println("Constant objects in equality comparison are not supported");
+//                    System.exit(-1);
+//                } else {
+//                    equality.setLeftV(buildVariable(tree.getChild(1), parTable));
+//                }
+//                if (tree.getChild(1).getType() == PddlParser.NAME) {
+//                    System.out.println("Constant objects in equality comparison are not supported");
+//                    System.exit(-1);
+//                } else {
+//                    equality.setRightV(buildVariable(tree.getChild(2), parTable));
+//                }
+                return buildPredicate(tree, parTable);
             case PddlParser.FORALL_GD:
                 ForAll forall = createForAll(tree, parTable, false);
                 return forall;
@@ -210,9 +210,9 @@ public class FactoryConditions {
         }
         Predicate a = Predicate.createPredicate(name, variables);
         if (predicates != null) {
-            if (!predicates.validate(a)) {
-                System.out.println("Predicate " + a + " is not valid");
-                System.exit(-1);
+            if (!predicates.validate(a) & !"=".equals(name)) {
+                throw  new RuntimeException("Predicate " + a + " is not valid");
+
             }
         }
         return a;
