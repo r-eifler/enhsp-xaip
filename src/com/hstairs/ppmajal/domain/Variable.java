@@ -19,7 +19,12 @@
 package com.hstairs.ppmajal.domain;
 
 import com.hstairs.ppmajal.conditions.PDDLObject;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,17 +34,30 @@ public class Variable implements ActionParameter {
 
     final private String Name;
     final private Type type;
+    final private int id;
 
-    public Variable (String Name, Type type) {
+    public static Object2ObjectMap<Pair<String,Type>,Variable> variables;
+    public static Variable createVariable(String Name, Type type){
+        if (variables == null){
+            variables = new Object2ObjectArrayMap<>();
+        }
+        Variable variable = variables.get(Pair.of(Name, type));
+        if (variable == null){
+            variable = new Variable(Name,type,variables.keySet().size());
+            variables.put(Pair.of(Name,type),variable);
+        }
+        return variable;
+    }
+    private Variable (String Name, Type type, int id) {
         super();
         this.Name = Name;
         this.type = type;
+        this.id = id;
     }
 
-    public Variable (String text) {
-        this(text,null);
+    public int getId() {
+        return id;
     }
-
 
     @Override
     public PDDLObject ground (Map<Variable, PDDLObject> substitution) {

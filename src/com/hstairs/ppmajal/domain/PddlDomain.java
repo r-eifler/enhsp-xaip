@@ -253,7 +253,7 @@ public final class PddlDomain extends Object {
             if (t.getChildCount() > 0) {
                 father = t.getChild(0).getText();
             }
-            Variable v = new Variable(t.getText(),Type.createType(father));
+            Variable v = Variable.createVariable(t.getText(),Type.createType(father));
             return v;
         }
     }
@@ -474,7 +474,7 @@ public final class PddlDomain extends Object {
                         break;
                     }
                     Type t = Type.createType(infoConstraint.getChild(0).getText());
-                    con.parameters.add(new Variable(infoConstraint.getText(), t));
+                    con.parameters.add(Variable.createVariable(infoConstraint.getText(), t));
                     break;
 
             }
@@ -525,7 +525,7 @@ public final class PddlDomain extends Object {
                     }
                     Type t = Type.createType(infoAction.getChild(0).getText());
                     
-                    Variable variable = new Variable(infoAction.getText(), t);
+                    Variable variable = Variable.createVariable(infoAction.getText(), t);
 //                        System.out.print(variable);
                     par.add(variable);
                     break;

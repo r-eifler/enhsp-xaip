@@ -63,7 +63,7 @@ public class FactoryConditions {
 
         } else {
 
-            a = new Variable(t.getText());
+            a = Variable.createVariable(t.getText(),null);
             Variable v1 = parTable.containsVariable(a);
             if (v1 == null) {
                 throw new RuntimeException("BuildPredicate: Variable " + a + " not involved in the action model");
@@ -159,7 +159,7 @@ public class FactoryConditions {
                             }
                             Type t = Type.createType(child.getChild(0).getText());
 
-                            exist.addParameter(new Variable(child.getText(), t));
+                            exist.addParameter(Variable.createVariable(child.getText(), t));
 
                             break;
                         default:
@@ -197,7 +197,7 @@ public class FactoryConditions {
                 PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
                 variables.add(o);
             } else {
-                Variable v = new Variable(t.getChild(i).getText());
+                Variable v = Variable.createVariable(t.getChild(i).getText(),null);
 
                 Variable v1 = parTable.containsVariable(v);
                 if (v1 != null) {
@@ -265,7 +265,7 @@ public class FactoryConditions {
                         PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
                         variables.add(o);
                     } else {
-                        Variable v = new Variable(t.getChild(i).getText());
+                        Variable v = Variable.createVariable(t.getChild(i).getText(),null);
                         //System.out.println(parTable);
                         Variable v1 = parTable.containsVariable(v);
 
@@ -309,7 +309,7 @@ public class FactoryConditions {
                         break;
                     }
                     Type t = Type.createType(child.getChild(0).getText());
-                    forall.addParameter(new Variable(child.getText(), t));
+                    forall.addParameter(Variable.createVariable(child.getText(), t));
                     break;
                 default:
                     //at this point I should have collected all the parameters for grounding
@@ -584,7 +584,7 @@ public class FactoryConditions {
                 for (int j = 0; j < t.getChildCount(); j++) {
                     Type type = Type.createType(t.getChild(j).getChild(0).getText());
 
-                    Variable v = new Variable(t.getChild(j).getText(), type);
+                    Variable v = Variable.createVariable(t.getChild(j).getText(), type);
                     variables.add(v);
                 }
                 NumFluent ret = NumFluent.createNumFluent(c.getChild(i).getText(), variables);

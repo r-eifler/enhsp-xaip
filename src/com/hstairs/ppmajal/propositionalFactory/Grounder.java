@@ -30,6 +30,14 @@ import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import it.unimi.dsi.fastutil.Hash;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -148,7 +156,7 @@ public class Grounder {
 
     }
 
-    public static Set sub (SchemaParameters param, int n_parametri, PDDLObjects po, HashMap<Variable, Set<PDDLObject>> varMap) {
+    public static Set sub (SchemaParameters param, int n_parametri, PDDLObjects po, HashMap<Variable, Collection<PDDLObject>> varMap) {
         HashSet combo = new HashSet();
         ArrayList<PDDLObject>[] sub = new ArrayList[n_parametri];
 
@@ -169,7 +177,7 @@ public class Grounder {
             //System.out.println("Variable" + el1);
             Collection<PDDLObject> temp = po;
             if (varMap != null){
-                Set<PDDLObject> o1 = varMap.get(el1);
+                Collection<PDDLObject> o1 = varMap.get(el1);
                 if (o1 != null){
                     temp = o1;
                 }
@@ -240,7 +248,7 @@ public class Grounder {
         return(this.Substitutions(a, po, null));
     }
 
-    public Set Substitutions (TransitionSchema a, PDDLObjects po, HashMap<Variable,Set<PDDLObject>> varMap) {
+    public Set Substitutions (TransitionSchema a, PDDLObjects po, HashMap<Variable,Collection<PDDLObject>> varMap) {
         SchemaParameters param = a.getParameters();
         int n_parametri = a.getParameters().size();
         return sub(param, n_parametri, po,varMap);
@@ -288,6 +296,147 @@ public class Grounder {
         }
         return this.Propositionalize(a, combo, po, problem);
 
+    }
+
+    public Collection<Condition> getNecessaryConditions(TransitionSchema action,PddlDomain domain){
+       Collection<Condition> collection = new ArrayList<>();
+        final Condition preconditions = action.getPreconditions();
+        if (preconditions instanceof AndCond){
+            for (final Object son : ((AndCond) preconditions).sons) {
+                if (son instanceof Predicate){
+                    final Predicate predicateAction = (Predicate) son;
+                    if (domain.getDynamicPredicateMap().get(predicateAction.getPredicateName()) == null) {
+                        if (!collection.contains(predicateAction)){
+                            collection.add(predicateAction);
+                        }
+                    }
+                }
+            }
+        }
+        return collection;
+    }
+
+
+    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+
+        Collection combo;
+        if (action.getParameters().isEmpty()) {
+            combo = Collections.singletonList(new ParametersAsTerms());
+        } else {
+            HashMap<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
+            combo = new LinkedHashSet();
+            final ArrayList<Variable> varst = action.getParameters();
+            final Variable[] vars = new Variable[varst.size()];
+            for (int i = 0; i < varst.size(); i++) {
+                vars[i] = varst.get(i);
+            }
+            final ArrayList<PDDLObject> planningObjectst = new ArrayList<>(problem.getObjects());
+            final PDDLObject[] planningObjects = new PDDLObject[planningObjectst.size()];
+            for (int i = 0; i < planningObjectst.size(); i++) {
+                planningObjects[i] = planningObjectst.get(i);
+            }
+
+
+            BitSet[] map = new BitSet[vars.length];
+            Int2IntMap varId = new Int2IntArrayMap();
+            for (int i = 0; i < vars.length; i++) {
+                map[i] = new BitSet();
+                for (int j = 0; j < planningObjects.length; j++) {
+                    final Variable var = vars[i];
+                    final Type type = var.getType();
+                    final Type type1 = planningObjects[j].getType();
+                    if (type.equals(type1) || type1.isAncestorOf(type)){
+                        map[i].set(planningObjects[j].getId(), true);
+                        varId.put(var.getId(),i);
+                    }
+                }
+            }
+            final Collection<Condition> necessaryConditions = getNecessaryConditions(action, domain);
+            for (final Condition necessaryCondition : necessaryConditions) {
+                if (necessaryCondition instanceof Predicate) {
+                    Predicate predicateAction = ((Predicate) necessaryCondition);
+                    BitSet[] s = getUnifyingObjects(initBooleanState,predicateAction, map.length,varId);
+                    final ArrayList terms = predicateAction.getTerms();
+                    //Debug
+                    for (PDDLObject object : problem.getObjects()) {
+                        System.out.println(s[0].get(object.getId()));
+                    }
+                    for (Object term : terms) {
+                        if (term instanceof Variable){
+                            final Variable v = (Variable)term;
+                            final int id = varId.get(v.getId());
+                            map[id].and(s[id]);//This is the intersection....
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < vars.length; i++) {
+                HashMap<Variable,Collection<PDDLObject>> temp = new HashMap<>();
+                final Variable v = vars[i];
+                Collection<PDDLObject> objects = new ArrayList<>();
+                for (PDDLObject object : problem.getObjects()) {
+                    if (map[i].get(object.getId())){
+                        objects.add(object);
+                    }
+                }
+                temp.put(v,objects);
+                combo.add(Substitutions(action, po, temp));
+            }
+//            for (HashMap<Variable, Set<PDDLObject>> temp : S) {
+//            }
+    //            combo = Substitutions(action, po);
+            Collection res = new LinkedHashSet();
+            for (Object o1 : combo) {
+                res.addAll(this.Propositionalize(action, (Collection)o1, po, problem));
+            }
+            return res;
+
+        }
+        return this.Propositionalize(action,combo, po, problem);
+    }
+
+    private BitSet[] getUnifyingObjects(HashMap<Predicate, Boolean> initBooleanState, Predicate predicateAction, int length, Int2IntMap varId) {
+        BitSet[] res = new BitSet[length];
+        for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
+            final Predicate predicateInit = ele.getKey();
+            if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
+                if (predicateInit.getTerms().size() == predicateAction.getTerms().size()) {
+                    ArrayList<Pair<Variable,PDDLObject>> temp = new ArrayList<>();
+                    for (int i = 0; i < predicateInit.getTerms().size(); i++) {
+                        Object a = predicateAction.getTerms().get(i);
+                        Object b = predicateInit.getTerms().get(i);
+                        Type aType = null;
+                        Type bType = null;
+                        if (a instanceof Variable) {
+                            aType = ((Variable) a).getType();
+                        } else if (a instanceof PDDLObject) {
+                            aType = ((PDDLObject) a).getType();
+                        }
+                        if (b instanceof PDDLObject) {
+                            bType = ((PDDLObject) b).getType();
+                        }
+                        if (aType.equals(bType) || aType.isAncestorOf(bType)) {
+                            if (a instanceof Variable) {
+                               PDDLObject o = (PDDLObject)b ;
+                               final Integer idx = varId.get(((Variable) a).getId());
+                                temp.add(Pair.of((Variable)a, o));
+                            }else{
+                                if (a instanceof PDDLObject){
+                                    if (!a.equals(b)){
+                                        break;
+                                    }
+                                }
+                            }
+                        }else{
+                            break;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return res;
     }
 
     public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
@@ -382,8 +531,9 @@ public class Grounder {
                     }
                 }
             }
-            for (HashMap<Variable, Set<PDDLObject>> temp : S) {
-                combo.add(Substitutions(action, po, temp));
+            for (Object temp : S) {
+                HashMap<Variable, Collection<PDDLObject>> temp2 = (HashMap<Variable, Collection<PDDLObject>> )temp;
+                combo.add(Substitutions(action, po, temp2));
             }
 //            combo = Substitutions(action, po);
             Collection res = new LinkedHashSet();
