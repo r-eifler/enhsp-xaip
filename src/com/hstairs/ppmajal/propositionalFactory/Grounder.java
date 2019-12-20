@@ -37,6 +37,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -156,7 +158,7 @@ public class Grounder {
 
     }
 
-    public static Set sub (SchemaParameters param, int n_parametri, PDDLObjects po, HashMap<Variable, Collection<PDDLObject>> varMap) {
+    public static Set sub (SchemaParameters param, int n_parametri, PDDLObjects po, Map<Variable, Collection<PDDLObject>> varMap) {
         HashSet combo = new HashSet();
         ArrayList<PDDLObject>[] sub = new ArrayList[n_parametri];
 
@@ -248,7 +250,7 @@ public class Grounder {
         return(this.Substitutions(a, po, null));
     }
 
-    public Set Substitutions (TransitionSchema a, PDDLObjects po, HashMap<Variable,Collection<PDDLObject>> varMap) {
+    public Set Substitutions (TransitionSchema a, PDDLObjects po, Map<Variable,Collection<PDDLObject>> varMap) {
         SchemaParameters param = a.getParameters();
         int n_parametri = a.getParameters().size();
         return sub(param, n_parametri, po,varMap);
@@ -441,7 +443,7 @@ public class Grounder {
 
     public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
-        HashMap<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
+        Map<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
         Collection combo;
         if (action.getParameters().isEmpty()) {
@@ -452,8 +454,8 @@ public class Grounder {
 
             combo = new LinkedHashSet();
             Condition cond = action.getPreconditions();
-            Collection<HashMap<Variable, Set<PDDLObject>>> S = new ArrayList();
-            final HashMap<Variable, Set<PDDLObject>> t = new HashMap();
+            Collection<Map<Variable, Set<PDDLObject>>> S = new ArrayList();
+            final Map<Variable, Set<PDDLObject>> t = new Object2ObjectArrayMap();
             for (Object o : action.getParameters()) {
                 Variable v = (Variable) o;
                 t.put(v, po);
@@ -465,9 +467,9 @@ public class Grounder {
                     if (o instanceof Predicate) {
                         final Predicate predicateAction = (Predicate) o;
                         if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null) {
-                            final Collection<HashMap<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
+                            final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
                             for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
-                                HashMap<Variable, Set<PDDLObject>> t1 = new HashMap();
+                                Object2ObjectMap<Variable, Set<PDDLObject>> t1 = new Object2ObjectArrayMap<>();
                                 boolean foundToBeTrue = false;
                                 Predicate predicateInit = ele.getKey();
                                 if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
@@ -507,8 +509,8 @@ public class Grounder {
                                 }
                                 if (foundToBeTrue) {
                                     if (!t1.isEmpty()){
-                                        for (HashMap<Variable, Set<PDDLObject>> ele2 : S) {
-                                            final HashMap<Variable, Set<PDDLObject>> temp = new HashMap();
+                                        for (Map<Variable, Set<PDDLObject>> ele2 : S) {
+                                            final Map<Variable, Set<PDDLObject>> temp = new Object2ObjectArrayMap();
                                             for (Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
                                                 final Set<PDDLObject> temp2 = t1.get(ele3.getKey());
                                                 if (temp2 != null) {
@@ -532,7 +534,7 @@ public class Grounder {
                 }
             }
             for (Object temp : S) {
-                HashMap<Variable, Collection<PDDLObject>> temp2 = (HashMap<Variable, Collection<PDDLObject>> )temp;
+                Map<Variable, Collection<PDDLObject>> temp2 = (Map<Variable, Collection<PDDLObject>> )temp;
                 combo.add(Substitutions(action, po, temp2));
             }
 //            combo = Substitutions(action, po);
@@ -648,7 +650,7 @@ public class Grounder {
     public Map obtain_sub_from_instance (SchemaParameters parameters, ParametersAsTerms par) {
 
         int i = 0;
-        Map substitution = new HashMap();
+        Map substitution = new Object2ObjectArrayMap();
         for (Object o : parameters) {
             Variable el = (Variable) o;
             substitution.put(el, par.get(i));

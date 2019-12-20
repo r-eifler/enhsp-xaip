@@ -80,10 +80,7 @@ public class Variable implements ActionParameter {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 67 * hash + java.util.Objects.hashCode(this.Name);
-        hash = 67 * hash + java.util.Objects.hashCode(this.type);
-        return hash;
+        return id;
     }
 
     @Override
@@ -98,10 +95,7 @@ public class Variable implements ActionParameter {
             return false;
         }
         final Variable other = (Variable) obj;
-        if (!java.util.Objects.equals(this.Name, other.Name)) {
-            return false;
-        }
-        if (!java.util.Objects.equals(this.type, other.type)) {
+        if (!java.util.Objects.equals(this.id, other.id)) {
             return false;
         }
         return true;
