@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.PDDLState;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 
 import java.util.*;
 
@@ -185,10 +186,16 @@ public abstract class Transition {
         }
         return res;
     }
+    //todo: cache this
     public Collection<Terminal> getAllAchievableLiterals() {
         Collection<Terminal> res = new HashSet<>();
-        res.addAll(this.conditionalPropositionalEffects.getActualConditionalEffects().values());
+        final Set<Map.Entry<Condition,Collection>> set = this.conditionalPropositionalEffects.getActualConditionalEffects().entrySet();
+
+        for (Map.Entry<Condition, Collection> conditionCollectionEntry : set) {
+            res.addAll(conditionCollectionEntry.getValue());
+        }
         res.addAll(this.conditionalPropositionalEffects.getEffects());
+        res = new ArrayList<>(res);
         return res;
     }
 }

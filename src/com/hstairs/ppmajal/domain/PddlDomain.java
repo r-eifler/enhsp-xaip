@@ -544,8 +544,17 @@ public final class PddlDomain extends Object {
                                 numEffect.add((NumEffect) o);
                             } else if (o instanceof ConditionalEffect) {
                                 ConditionalEffect cond = (ConditionalEffect)o;
-                                if (cond.effect instanceof NumEffect){
-                                    numEffect.add(cond.activation_condition, (NumEffect) cond.effect);
+                                if (cond.effect instanceof  AndCond){
+                                    final AndCond temp = (AndCond) cond.effect;
+                                    for (Object son : temp.sons) {
+                                        if (son instanceof NumEffect){
+                                            numEffect.add(cond.activation_condition, (NumEffect) son);
+                                        }else if (son instanceof Predicate || son instanceof NotCond){
+                                            propEffect.add(cond.activation_condition, (Terminal) son);
+                                        }else{
+                                            throw new RuntimeException("Effects cannot be nested, but can only be considered as sets ("+son+")");
+                                        }
+                                    }
                                 }
                             } else if (o instanceof ForAll) {
                                 throw new UnsupportedOperationException();

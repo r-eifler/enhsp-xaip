@@ -28,7 +28,8 @@ public class ConditionalEffects<T> {
                         throw new UnsupportedOperationException();
                     }
                 }
-                res.add(entry.getKey().weakEval(ePddlProblem, invariantFluents), toAdd);
+                final Condition condition = entry.getKey().weakEval(ePddlProblem, invariantFluents);
+                toAdd.forEach(t1 -> res.add(condition,t1));
             }
         }
         if (unconditionalEffect != null) {
@@ -63,7 +64,9 @@ public class ConditionalEffects<T> {
         }
         final Collection<T> ts = actualConditionalEffects.get(c);
         if (ts == null){
-            actualConditionalEffects.put(c, Collections.singleton(element));
+            final Collection<T> terminals = new ArrayList();
+            terminals.add(element);
+            actualConditionalEffects.put(c,terminals);
         }else{
             ts.add(element);
         }
@@ -125,7 +128,10 @@ public class ConditionalEffects<T> {
 
     public Collection<T> getAllEffects() {
         final Collection<T> res = new ArrayList<>();
-        res.addAll((Collection<? extends T>) this.getActualConditionalEffects().values());
+        final Set<Map.Entry<Condition, Collection<T>>> ts = this.getActualConditionalEffects().entrySet();
+        for (Map.Entry<Condition, Collection<T>> entry : ts) {
+            res.addAll(entry.getValue());
+        }
         res.addAll(this.getUnconditionalEffect());
         return res;
     }
