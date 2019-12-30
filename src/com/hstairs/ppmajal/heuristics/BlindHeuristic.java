@@ -33,11 +33,11 @@ import java.util.Collection;
 /**
  * @author enrico
  */
-public class blindHeuristic implements Heuristic {
+public class BlindHeuristic implements Heuristic {
 
     final Condition goal;
     final private EPddlProblem problem;
-    public blindHeuristic (EPddlProblem problem){
+    public BlindHeuristic(EPddlProblem problem){
         this.problem = problem;
         goal = problem.getGoals();
     }

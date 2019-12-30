@@ -1,10 +1,16 @@
 package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.heuristics.Heuristic;
+import com.hstairs.ppmajal.heuristics.advanced.Aibr;
+import com.hstairs.ppmajal.heuristics.advanced.H1;
+import com.hstairs.ppmajal.heuristics.BlindHeuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.search.PDDLSearchEngine;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collection;
+import java.util.LinkedList;
 
 /*
  * Copyright (C) 2018 enrico.
@@ -34,8 +40,40 @@ public class PlannerUtils {
         return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1, Integer.MAX_VALUE);
     }
 
-    public int getPlanSize (String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
-      throw new UnsupportedOperationException();
+    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
+        PddlDomain d = new PddlDomain(domainFileName);
+        EPddlProblem p = new EPddlProblem(problemFileName, d.constants, d.types, d);
+        d.substituteEqualityConditions();
+        if (!d.getProcessesSchema().isEmpty()) {
+            p.setDeltaTimeVariable("1");
+        }
+        p.groundingSimplication();
+        Heuristic h = null;
+
+        switch (heuristic) {
+            case "blind":
+                h = new BlindHeuristic(p);
+                break;
+            case "aibr":
+                h = new Aibr(p);
+                break;
+            case "hmax":
+                h = new H1(p,false);
+                break;
+            case "hrmax":
+                h = new H1(p,false,false,false,true,false,false,false,false);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + heuristic);
+        }
+        PDDLSearchEngine search = new PDDLSearchEngine(h, p);
+        if (!p.getProcessesSet().isEmpty()){
+            search.planningDelta = 1.0f;
+            search.processes = true;
+            search.executionDelta = 1.0f;
+        }
+        final LinkedList<Pair<Float, TransitionGround>> pairs = search.WAStar(p);
+        return pairs.size();
     }
 
     public int heuristicEstimate (String domainFileName, String problemFileName, String heuristic) throws Exception {

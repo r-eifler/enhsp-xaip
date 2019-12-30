@@ -55,7 +55,7 @@ public class CarLinearSmall {
     public void hello ( ) throws Exception {
 
         //get pddl description
-        List<String> heuristics = Arrays.asList("blind", "aibr");
+        List<String> heuristics = Arrays.asList("blind");
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
             assertEquals(10, temp.getPlanSize("unit_test_instances/car_linear_mt_sc/domain.pddl",

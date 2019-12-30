@@ -96,6 +96,9 @@ public class H1 implements Heuristic {
         this(problem, true, false, false, false, false, false, false, false);
     }
 
+    public H1(EPddlProblem problem,boolean additive) {
+        this(problem, additive, false, false, false, false, false, false, false);
+    }
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, boolean useRedundantConstraints, boolean helpfulActionsComputation, boolean reachability
             , boolean helpfulTransitions, boolean conjunctionsMax) {
 
