@@ -94,6 +94,7 @@ public class TransitionGround extends Transition {
         if (this.sdac == null) {
             this.sdac = new ArrayList<>();
             if (metric != null && metric.getMetExpr() != null) {
+
                 ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
                 //first numeric effect normal
                 Float exprImpact = 0f;

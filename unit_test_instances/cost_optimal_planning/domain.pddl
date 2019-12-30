@@ -11,7 +11,7 @@
        :effect 
               (and 
                  (goal)
-                 (increase (total-cost2) 10)))
+                 (increase (total-cost) 10)))
     (:action enable-the-enabler
        :parameters ()
        :precondition (a)        

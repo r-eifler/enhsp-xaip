@@ -58,8 +58,8 @@ public class CarLinearSmall {
         List<String> heuristics = Arrays.asList("blind");
         PlannerUtils temp = new PlannerUtils();
         for (String h : heuristics) {
-            assertEquals(10, temp.getPlanSize("unit_test_instances/car_linear_mt_sc/domain.pddl",
-                    "unit_test_instances/car_linear_mt_sc/super_small.pddl", h));
+            assertEquals(17, temp.getPlanSize("unit_test_instances/car_linear_mt_sc/domain.pddl",
+                    "unit_test_instances/car_linear_mt_sc/sample.pddl", h));
         }
 
 

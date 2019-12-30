@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
 import com.hstairs.ppmajal.domain.Type;
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.extraUtils.Pair;
@@ -199,6 +200,9 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             TransitionGround act = (TransitionGround) it.next();
             boolean keep = true;
+            for (NumEffect allNumericEffect : act.getAllNumericEffects()) {
+                allNumericEffect.normalize();
+            }
             if (isSimplifyActions()) {
                 try {
                     Set invariantFluents = this.getActualFluents();

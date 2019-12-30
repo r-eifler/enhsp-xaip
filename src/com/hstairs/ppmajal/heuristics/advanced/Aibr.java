@@ -89,7 +89,7 @@ public class Aibr implements Heuristic {
                         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }else{
                 final boolean empty = effect.getRight().getInvolvedNumericFluents().isEmpty();
-                if (empty){
+                if (empty && false){ // for now this optimisation is removed because it does not work with some problem.
                     final double right = effect.getRight().eval(problem.getInit());
                     if (right > 0){
                         generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "+", asymptoticPreconditionFunctionMap, numEffectMap, tr);

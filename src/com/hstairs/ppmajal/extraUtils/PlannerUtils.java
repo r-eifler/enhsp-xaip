@@ -35,20 +35,20 @@ import java.util.LinkedList;
  * @author enrico
  */
 public class PlannerUtils {
-    
-    public int getPlanSize (String domainFileName, String problemFileName, String heuristic) throws Exception {
-        return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1, Integer.MAX_VALUE);
-    }
+    PddlDomain d;
+    EPddlProblem p;
+    Heuristic h;
 
-    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
-        PddlDomain d = new PddlDomain(domainFileName);
-        EPddlProblem p = new EPddlProblem(problemFileName, d.constants, d.types, d);
+
+    private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {
+        d = new PddlDomain(domainFileName);
+        p = new EPddlProblem(problemFileName, d.constants, d.types, d);
         d.substituteEqualityConditions();
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");
         }
         p.groundingSimplication();
-        Heuristic h = null;
+        h = null;
 
         switch (heuristic) {
             case "blind":
@@ -56,6 +56,9 @@ public class PlannerUtils {
                 break;
             case "aibr":
                 h = new Aibr(p);
+                break;
+            case "hadd":
+                h = new H1(p,true);
                 break;
             case "hmax":
                 h = new H1(p,false);
@@ -66,6 +69,13 @@ public class PlannerUtils {
             default:
                 throw new IllegalStateException("Unexpected value: " + heuristic);
         }
+    }
+    public int getPlanSize (String domainFileName, String problemFileName, String heuristic) throws Exception {
+        return this.getPlanSize(domainFileName, problemFileName, heuristic, 1, 1, Integer.MAX_VALUE);
+    }
+
+    public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
+        setup(domainFileName,problemFileName,heuristic);
         PDDLSearchEngine search = new PDDLSearchEngine(h, p);
         if (!p.getProcessesSet().isEmpty()){
             search.planningDelta = 1.0f;
@@ -77,8 +87,9 @@ public class PlannerUtils {
     }
 
     public int heuristicEstimate (String domainFileName, String problemFileName, String heuristic) throws Exception {
-        throw new UnsupportedOperationException();
-
+        setup(domainFileName,problemFileName,heuristic);
+        final float v = h.computeEstimate(p.getInit());
+        return (int)v;
     }
 
 }
