@@ -49,6 +49,7 @@ import static java.lang.Math.ceil;
  */
 public class H1 implements Heuristic {
 
+    private static final boolean DEBUG = false;
     final private boolean useRedundantConstraints;
     final public boolean extractRelaxedPlan;
     final public boolean maxMRP;
@@ -376,6 +377,11 @@ public class H1 implements Heuristic {
                 if (v > 0 || v == UNKNOWNEFFECT) {
                     achievableTerms.add(t);
                     updateAchievers(t, actionId);
+                    if (DEBUG){
+                        System.out.println("Transition: "+getTransition(actionId));
+                        System.out.println("Comparison Achievable: "+ Terminal.getTerminal(t));
+                        System.out.println("Numeric Contribution: "+v);
+                    }
                 }
             }
             achievableTerms.addAll(propEffectFunction[actionId]);

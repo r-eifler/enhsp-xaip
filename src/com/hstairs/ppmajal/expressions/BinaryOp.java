@@ -54,7 +54,7 @@ public class BinaryOp extends Expression {
     @Override
     public String toString ( ) {
         if (getRhs() != null) {
-            return "(" + getOperator() + " (" + getLhs() + " " + getRhs() + "))";
+            return "(" + getOperator() + " " + getLhs() + " " + getRhs() + ")";
         }
         return "(" + getOperator() + " (" + getLhs() + "))";
     }
@@ -220,12 +220,14 @@ public class BinaryOp extends Expression {
         ret.operator = this.operator;
         lhs.freeVarSemantic = freeVarSemantic;
         rhs.freeVarSemantic = freeVarSemantic;
-        ret.lhs = lhs.weakEval(s, invF);
-        ret.rhs = rhs.weakEval(s, invF);
+        final Expression left = lhs.weakEval(s, invF);
+        final Expression right = rhs.weakEval(s, invF);
 
-
-        if (ret.lhs == null || ret.rhs == null) {
+        if (left == null || right == null) {
             return null;
+        }else{
+            ret.lhs = left;
+            ret.rhs = right;
         }
         if (ret.lhs instanceof PDDLNumber && ret.rhs instanceof PDDLNumber) {
             PDDLNumber first = (PDDLNumber) ret.lhs;

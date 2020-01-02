@@ -686,7 +686,7 @@ public class SearchEngine {
         ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
         for (int i = 0; i < iterations; i++) {
             boolean atLeastOne = false;
-            ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
+            final ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
             for (TransitionGround act : this.reachableProcesses) {
                 if (act.getSemantics() == Transition.Semantics.PROCESS) {
                     TransitionGround gp = (TransitionGround) act;

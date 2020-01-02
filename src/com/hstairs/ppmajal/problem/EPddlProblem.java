@@ -200,10 +200,14 @@ public class EPddlProblem extends PddlProblem {
         while (it.hasNext()) {
             TransitionGround act = (TransitionGround) it.next();
             boolean keep = true;
-            for (NumEffect allNumericEffect : act.getAllNumericEffects()) {
-                allNumericEffect.normalize();
+            for (final NumEffect effect : act.getAllNumericEffects()) {
+                if (effect.weakEval(this,this.getActualFluents())!= null){
+                    effect.normalize();
+                }else{
+                    keep = false;
+                }
             }
-            if (isSimplifyActions()) {
+            if (isSimplifyActions() && keep) {
                 try {
                     Set invariantFluents = this.getActualFluents();
                     Condition preconditions = act.getPreconditions();

@@ -91,7 +91,7 @@ public class Comparison extends Terminal {
     public String toString ( ) {
 
         if (string_representation == null) {
-            string_representation = "(" + getComparator() + " (" + getLeft() + ") (" + getRight() + "))";
+            string_representation = "(" + getComparator() + " " + getLeft() + " " + getRight() + ")";
         }
 
         return string_representation;

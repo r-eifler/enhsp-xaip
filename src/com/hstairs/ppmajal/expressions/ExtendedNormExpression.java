@@ -263,13 +263,11 @@ public class ExtendedNormExpression extends Expression {
 
     ExtendedNormExpression mult (ExtendedNormExpression right) {
 
-        ExtendedNormExpression result = new ExtendedNormExpression();
-        for (ExtendedAddendum a : this.summations) {
-            for (ExtendedAddendum b : right.summations) {
+        final ExtendedNormExpression result = new ExtendedNormExpression();
+        for (final ExtendedAddendum a : this.summations) {
+            for (final ExtendedAddendum b : right.summations) {
 
-                ExtendedAddendum ele_to_add = new ExtendedAddendum();
-//                System.out.println("a: "+a);
-//                System.out.println("b: "+b);
+                final ExtendedAddendum ele_to_add = new ExtendedAddendum();
                 boolean adding = true;
                 if (a.linear && a.f == null && b.linear && b.f == null) {
 
