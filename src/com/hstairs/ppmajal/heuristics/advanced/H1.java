@@ -617,7 +617,10 @@ public class H1 implements Heuristic {
         } else {
             Collection actions = new ArrayList<>();
             for (final int i : helpfulActions) {
-                actions.add((TransitionGround) getTransition(i));
+                final TransitionGround transition = (TransitionGround) getTransition(i);
+                if (transition.getSemantics() == Transition.Semantics.ACTION){
+                    actions.add(transition);
+                }
             }
             res = actions;
         }

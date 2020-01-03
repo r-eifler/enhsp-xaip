@@ -201,10 +201,15 @@ public class EPddlProblem extends PddlProblem {
             TransitionGround act = (TransitionGround) it.next();
             boolean keep = true;
             for (final NumEffect effect : act.getAllNumericEffects()) {
-                if (effect.weakEval(this,this.getActualFluents())!= null){
+                if (true) {
+                    if (effect.weakEval(this, this.getActualFluents()) != null) {
+                        effect.normalize();
+                    } else {
+                        keep = false;
+                    }
+                } else {
                     effect.normalize();
-                }else{
-                    keep = false;
+
                 }
             }
             if (isSimplifyActions() && keep) {
@@ -225,6 +230,7 @@ public class EPddlProblem extends PddlProblem {
                     e.printStackTrace();
                 }
             }
+
 
         }
         return new ArrayList(res);

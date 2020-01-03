@@ -26,6 +26,15 @@ public class TransitionGround extends Transition {
         this.parameters = parameters;
     }
 
+    public TransitionGround(ArrayList<NumEffect> numEffect) {
+        this(new ArrayList<>(),
+                "waiting",
+                new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),
+                new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),
+                null, Transition.Semantics.PROCESS);
+        this.getConditionalNumericEffects().forceUnconditionalEffect(numEffect);
+    }
+
     public List<PDDLObject> getParameters() {
         return parameters;
     }

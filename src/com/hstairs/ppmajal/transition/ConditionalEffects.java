@@ -46,6 +46,16 @@ public class ConditionalEffects<T> {
         return res;
     }
 
+    public void addRepetition(T element) {
+        if (unconditionalEffect == null){
+            unconditionalEffect = new ArrayList<>();
+        }
+        unconditionalEffect.add(element);
+    }
+    public void forceUnconditionalEffect(Collection<T> elements) {
+        unconditionalEffect = elements;
+    }
+
     public enum VariableType {PROPEFFECT, NUMEFFECT};
     final private VariableType  t;
     public ConditionalEffects(VariableType  t1){

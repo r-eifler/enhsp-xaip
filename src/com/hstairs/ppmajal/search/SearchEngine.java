@@ -686,7 +686,7 @@ public class SearchEngine {
         ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
         for (int i = 0; i < iterations; i++) {
             boolean atLeastOne = false;
-            final ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
+            final ArrayList<NumEffect> numEffect = new ArrayList();
             for (TransitionGround act : this.reachableProcesses) {
                 if (act.getSemantics() == Transition.Semantics.PROCESS) {
                     TransitionGround gp = (TransitionGround) act;
@@ -708,9 +708,7 @@ public class SearchEngine {
             }
             //execute
             executedProcesses.addAll(applyAllEvents(next));
-            final TransitionGround waiting = new TransitionGround(new ArrayList<>(),"waiting",new ConditionalEffects(ConditionalEffects.VariableType
-                    .PROPEFFECT),numEffect,null, Transition.Semantics.PROCESS);
-
+            final TransitionGround waiting = new TransitionGround(numEffect);
             next.apply(waiting,next.clone());
             next.time += executionDelta;
             if (traceString!= null){traceString.append(next.toString());}
