@@ -190,11 +190,6 @@ public class Existential extends ComplexCondition {
     }
 
     @Override
-    public Set<Condition> getTerminalConditions ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

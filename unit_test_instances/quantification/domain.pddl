@@ -7,29 +7,28 @@
                 (a ?o -obj)
                 (a2 ?o -obj)
                 (b)
-                (b2))
-    (:action action_a
+                (b2)
+                (goal)
+                (dummy))
+    (:action produce_b
        :parameters ()
-       :precondition (exists 
-			            (?o -obj) (a ?o) )
+       :precondition (and (exists 
+			            (?o -obj) (a ?o)))
        :effect 
                 (and 
                     (b))) 
-    (:action action_c
-       :parameters (?o -obj)
-       :effect 
-                (and 
-                    (a ?o)))
-                    
-    (:action action_b
+    (:action produce_b2
        :parameters ()
-       :precondition (forall 
-			            (?o -obj) (a2 ?o) )
+       :precondition (and(forall 
+			            (?o -obj) (a2 ?o) ))
        :effect 
                 (and 
                     (b2))) 
-    (:action action_d
-       :parameters (?o -obj)
+    (:action produce_goal
+       :parameters ()
+        :precondition (and 
+			            (b) (b2) )
        :effect 
                 (and 
-                    (a2 ?o)))) 
+                    (goal)))
+) 

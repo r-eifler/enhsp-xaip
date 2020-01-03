@@ -3,20 +3,20 @@
 (define 
     (domain cyclicdomain)
     (:functions 
-        (a) -number
-        (b) -number
-        (c) -number
+        (a) 
+        (b) 
+        (c) 
     )
 
     (:action change_a
        :parameters ()
-       :precondition ()
+       ;:precondition ()
        :effect (and (assign (a) (- (b) 1.0)) (assign (b) 1.0) )
     )
 
     (:action change_b_c
        :parameters ()
-       :precondition ()
+       ;:precondition ()
        :effect (and (assign (b) (c)) (assign (c) (a)) (assign (a) 0.0))
     )
 ) 
