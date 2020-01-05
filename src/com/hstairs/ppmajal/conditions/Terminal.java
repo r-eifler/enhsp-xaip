@@ -32,12 +32,17 @@ public abstract class Terminal extends Condition {
 
     private final int id;
     private static int totCounter = 0;
+    private static int totComparisonCounter = 0;
+
     private static ArrayList<Terminal> id2terminal = new ArrayList();
 
     public Terminal() {
         this.id = getTotCounter();
         id2terminal.add(this);
         totCounter++;
+        if (this instanceof Comparison){
+            totComparisonCounter++;
+        }
     }
 
     public static int getTotCounter() {
