@@ -25,6 +25,7 @@ import com.hstairs.ppmajal.conditions.Condition;
  */
 public abstract class PDDLProblemComponent {
 
+
     public abstract Condition unifyVariablesReferences (EPddlProblem p);
 
 }

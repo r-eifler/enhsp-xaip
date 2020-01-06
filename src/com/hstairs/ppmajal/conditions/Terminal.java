@@ -30,11 +30,11 @@ import java.util.List;
  */
 public abstract class Terminal extends Condition {
 
-    private final int id;
     private static int totCounter = 0;
     private static int totComparisonCounter = 0;
 
     private static ArrayList<Terminal> id2terminal = new ArrayList();
+    private final int id;
 
     public Terminal() {
         this.id = getTotCounter();
@@ -43,6 +43,10 @@ public abstract class Terminal extends Condition {
         if (this instanceof Comparison){
             totComparisonCounter++;
         }
+    }
+
+    public int getId() {
+        return id;
     }
 
     public static int getTotCounter() {
@@ -56,11 +60,11 @@ public abstract class Terminal extends Condition {
 
     @Override
     public boolean isSatisfied (RelState rs, ArrayList<Integer> dist, int i) {
-        int current_dist = dist.get(this.id);
+        int current_dist = dist.get(this.getId());
         if (current_dist < i) {
             return true;
         } else if (this.can_be_true(rs)) {
-            dist.set(this.id, i);
+            dist.set(this.getId(), i);
             return true;
         }
         return false;
@@ -91,15 +95,12 @@ public abstract class Terminal extends Condition {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof Terminal) && ((Terminal) obj).id == id;
+        return (obj instanceof Terminal) && ((Terminal) obj).getId() == getId();
     }
 
     @Override
     public int hashCode() {
-        return id;
+        return getId();
     }
 
-    public int getId() {
-        return id;
-    }
 }

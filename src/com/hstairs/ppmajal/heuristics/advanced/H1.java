@@ -23,28 +23,23 @@
  */
 package com.hstairs.ppmajal.heuristics.advanced;
 
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.extraUtils.ArrayShifter;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.objects.Object2FloatLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import org.jgrapht.alg.util.Pair;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 
 import java.util.*;
 
-import static com.google.common.collect.Sets.SetView;
 import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
 
@@ -64,6 +59,8 @@ public class H1 implements Heuristic {
     final private Collection<NumEffect>[] numericEffectFunction;
     final private int heuristicNumberOfActions;
     final private int totNumberOfTerms;
+    final private int totNumberOfTermsRefactored;
+
     final private EPddlProblem problem;
     final private boolean helpfulActionsComputation;
     private final IntArraySet[] conditionsAchievableBy;
@@ -86,6 +83,9 @@ public class H1 implements Heuristic {
     private final boolean hardcoreVersion;
     private final float[][] numericContributionRaw;
     private final Map<Pair<Integer,Integer>,Float> numericContribution;
+    private final ArrayShifter termsArrayShifter;
+    private final ArrayShifter actionsArrayShifter;
+    private final int totNumberOfActionsRefactored;
     private IntArraySet[] achievers;
     private int[] establishedAchiever;
     private float[] numRepetition;
@@ -98,6 +98,7 @@ public class H1 implements Heuristic {
     final private IntArraySet freePreconditionActions;
     private List<Pair<Integer, IntArraySet>> plan;
     private float[] minAchieverPreconditionCost;
+    private IntArraySet allActions;
 
     public H1(EPddlProblem problem) {
         this(problem, true, false, false, false, false, false, false, false);
@@ -132,9 +133,9 @@ public class H1 implements Heuristic {
         conditionsAchievableBy = new IntArraySet[heuristicNumberOfActions];
         conditionToAction = new IntArraySet[totNumberOfTerms];
         allConditions = new IntArraySet();
+        allActions = new IntArraySet();
 
         nodeOf = new FibonacciHeapNode[heuristicNumberOfActions];
-
         fillPreEffFunctions(useRedundantConstraints,new LinkedHashSet(problem.actions));
         fillPreEffFunctions(useRedundantConstraints,new LinkedHashSet(problem.getEventsSet()));
         fillPreEffFunctions(useRedundantConstraints,new LinkedHashSet(problem.getProcessesSet()));
@@ -146,17 +147,30 @@ public class H1 implements Heuristic {
         }
 
         updatePreconditionFunction(pseudoGoal);
+
+
+
+        termsArrayShifter = new ArrayShifter(allConditions);
+        totNumberOfTermsRefactored = termsArrayShifter.getMaxTid();
+        
+        actionsArrayShifter = new ArrayShifter(allActions);
+        totNumberOfActionsRefactored = actionsArrayShifter.getMaxTid();
+
+
         actionHCost = new float[heuristicNumberOfActions];
         conditionCost = new float[totNumberOfTerms];
         closed = new boolean[heuristicNumberOfActions];
 
 
-        hardcoreVersion = heuristicNumberOfActions * totNumberOfTerms < 1999999999;
+        hardcoreVersion = heuristicNumberOfActions * totNumberOfTermsRefactored < 1999999999;
         System.out.println("Heuristic Number of Actions:" + heuristicNumberOfActions);
+        System.out.println("Heuristic Number of Actions Refactored:" + totNumberOfActionsRefactored);
         System.out.println("Tot Number of Terms:" + totNumberOfTerms);
+        System.out.println("Tot Number of Terms Refactored:" + totNumberOfTermsRefactored);
+
 
         if (hardcoreVersion) {
-            numericContributionRaw = new float[heuristicNumberOfActions][totNumberOfTerms];
+            numericContributionRaw = new float[totNumberOfActionsRefactored][totNumberOfTermsRefactored];
             for (final float[] row : numericContributionRaw) {
                 Arrays.fill(row, Float.MAX_VALUE);
             }
@@ -209,6 +223,7 @@ public class H1 implements Heuristic {
         }
         for (final TransitionGround b : transitions) {
             final int i = b.getId();
+            allActions.add(b.getId());
             updatePreconditionFunction(i);
         }
 
@@ -583,17 +598,17 @@ public class H1 implements Heuristic {
 
     void setNumericContribution(int a, int b, float value) {
         if (hardcoreVersion) {
-            numericContributionRaw[a][b] = value;
+            numericContributionRaw[actionsArrayShifter.getTID(a)][termsArrayShifter.getTID(b)] = value;
         } else {
-            numericContribution.put(Pair.of(a, b), value);
+            numericContribution.put(Pair.of(actionsArrayShifter.getTID(a), termsArrayShifter.getTID(b)), value);
         }
     }
 
     Float getNumericContribution(int a, int b) {
         if (hardcoreVersion) {
-            return numericContributionRaw[a][b];
+            return numericContributionRaw[actionsArrayShifter.getTID(a)][termsArrayShifter.getTID(b)];
         }
-        return numericContribution.getOrDefault(Pair.of(a, b), Float.MAX_VALUE);
+        return numericContribution.getOrDefault(Pair.of(actionsArrayShifter.getTID(a), termsArrayShifter.getTID(b)), Float.MAX_VALUE);
     }
 
 
