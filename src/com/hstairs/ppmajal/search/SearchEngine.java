@@ -711,19 +711,18 @@ public class SearchEngine {
             final TransitionGround waiting = new TransitionGround(numEffect);
             next.apply(waiting,next.clone());
             next.time += executionDelta;
-            if (traceString!= null){traceString.append(next.toString());}
             if (!next.satisfy(problem.globalConstraints)){
                 if (i==0 || !intelligent){
                     return null;
                 }
                 return new Pair(previousNext,executedProcesses);
             }
+            if (traceString!= null){traceString.append(next.toString()).append("\n");}
             executedProcesses.add(waiting);
             executedProcesses.addAll(applyAllEvents(next));
             if (intelligent && next.satisfy(problem.goals)){
                 return new Pair(next,executedProcesses);
             }
-            if (traceString!= null){traceString.append(next.toString());}
             previousNext = next;
         }
         return new Pair(previousNext,executedProcesses);

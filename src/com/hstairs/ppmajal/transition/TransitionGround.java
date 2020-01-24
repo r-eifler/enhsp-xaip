@@ -27,7 +27,7 @@ public class TransitionGround extends Transition {
     }
 
     public TransitionGround(ArrayList<NumEffect> numEffect) {
-        this(new ArrayList<>(),
+        this(null,
                 "waiting",
                 new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),
                 new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),

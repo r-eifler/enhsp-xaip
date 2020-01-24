@@ -70,15 +70,16 @@ public class PDDLSearchEngine extends SearchEngine {
                 }
             }
             previous = ele.getKey();
-            if (ele.getRight() != null && !ele.getRight().isWaiting()) {
+            if (ele.getRight() != null && !ele.getRight().getSemantics().equals(Transition.Semantics.PROCESS)) {
                 current.apply(ele.getRight(), current.clone());
-                if (planTrace != null){planTraceString.append(current.toString());}
+                if (planTrace != null){planTraceString.append(current.toString()).append("\n");}
             }
         }
         if (planTrace!=null) {
             try {
                 BufferedWriter bf = new BufferedWriter(new FileWriter(planTrace));
                 bf.append(planTraceString);
+                bf.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
