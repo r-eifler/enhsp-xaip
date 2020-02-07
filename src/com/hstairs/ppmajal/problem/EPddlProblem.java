@@ -26,9 +26,7 @@ import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.heuristics.advanced.Aibr;
-import com.hstairs.ppmajal.heuristics.advanced.H1;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
@@ -36,9 +34,10 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jgrapht.alg.util.Pair;
 
 /**
  * @author enrico
@@ -259,6 +258,10 @@ public class EPddlProblem extends PddlProblem {
         final Aibr h1 = new Aibr(this, true);
         final float v = h1.computeEstimate(this.init);
         System.out.println("h at init: "+v);
+        if (v == Float.MAX_VALUE){
+            System.out.println("Problem Detected as Unsolvable");
+            System.exit(-1);
+        }
         final Collection<TransitionGround> transitions = h1.getAllTransitions();
         actions = new ArrayList<>();
         processesSet = new ArrayList<>();
@@ -667,11 +670,12 @@ public class EPddlProblem extends PddlProblem {
                             return true;
                         }
                     }
-                }else if (current instanceof ImmutablePair){
-                    final ImmutablePair<TransitionGround,Integer> tempVar= (ImmutablePair<TransitionGround,Integer>)this.current;
-                    final int b = applyActionMTimes(tempVar.left, tempVar.right);
+                }else if (current instanceof Pair){
+                    
+                    final Pair<TransitionGround,Integer> tempVar= (Pair<TransitionGround,Integer>)this.current;
+                    final int b = applyActionMTimes(tempVar.getFirst(), tempVar.getSecond());
                     if (b > 1) {
-                        current = new ImmutablePair(((ImmutablePair<TransitionGround, Integer>) this.current).left,b);
+                        current = new ImmutablePair(((Pair<TransitionGround, Integer>) this.current).getFirst(),b);
                         return true;
                     }
                 }

@@ -24,7 +24,6 @@ import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.*;
-import com.hstairs.ppmajal.extraUtils.Pair;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
@@ -40,6 +39,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jgrapht.alg.util.Pair;
 
 /**
  * @author enrico

@@ -34,7 +34,6 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import org.jgrapht.alg.util.Pair;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 
@@ -42,6 +41,7 @@ import java.util.*;
 
 import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
+import org.jgrapht.alg.util.Pair;
 
 /**
  * @author enrico

@@ -61,7 +61,7 @@ public class PDDLSearchEngine extends SearchEngine {
         for (Pair<Float, TransitionGround> ele : userPlan) {
             final Float v = ele.getKey() - previous;
             if (v > 0) {
-                final com.hstairs.ppmajal.extraUtils.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false, planTraceString);
+                final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false, planTraceString);
                 if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
