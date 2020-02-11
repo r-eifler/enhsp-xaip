@@ -127,9 +127,12 @@ public class H1 implements Heuristic {
 
         actionCost = new float[heuristicNumberOfActions];
         Arrays.fill(actionCost, Float.MAX_VALUE);
+        
+        normalizeModel(useRedundantConstraints,new LinkedHashSet(problem.actions));
+        normalizeModel(useRedundantConstraints,new LinkedHashSet(problem.getEventsSet()));
+        normalizeModel(useRedundantConstraints,new LinkedHashSet(problem.getProcessesSet()));
 
         totNumberOfTerms = Terminal.getTotCounter();
-
         conditionsAchievableBy = new IntArraySet[heuristicNumberOfActions];
         conditionToAction = new IntArraySet[totNumberOfTerms];
         allConditions = new IntArraySet();
@@ -204,6 +207,17 @@ public class H1 implements Heuristic {
     }
 
     private void fillPreEffFunctions(boolean useRedundantConstraints, Collection<TransitionGround> transitions) {
+        
+        for (final TransitionGround b : transitions) {
+            final int i = b.getId();
+            allActions.add(b.getId());
+            updatePreconditionFunction(i);
+        }
+
+
+    }
+
+    private void normalizeModel(boolean useRedundantConstraints, Collection<TransitionGround> transitions) {
         for (final TransitionGround b : transitions) {
             if (useRedundantConstraints) {
                 preconditionFunction[b.getId()] = b.getPreconditions().transformEquality().introduce_red_constraints();
@@ -220,12 +234,7 @@ public class H1 implements Heuristic {
                 neff.normalize();
             }
             actionCost[b.getId()] = b.getActionCost(problem.getInit(), problem.getMetric());
-        }
-        for (final TransitionGround b : transitions) {
-            final int i = b.getId();
-            allActions.add(b.getId());
-            updatePreconditionFunction(i);
-        }
+        } 
 
 
     }
