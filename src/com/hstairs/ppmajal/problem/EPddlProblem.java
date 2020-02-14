@@ -130,12 +130,12 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    public void groundingSimplication( ) throws Exception {
+    public void groundingSimplication(boolean aibrPreprocessing) throws Exception {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
 
-        this.simplifyAndSetupInit();
+        this.simplifyAndSetupInit(aibrPreprocessing);
 
         this.transformGoal();
 
@@ -235,7 +235,10 @@ public class EPddlProblem extends PddlProblem {
         return new ArrayList(res);
     }
 
-    protected void easyCleanUp() {
+    protected void easyCleanUp(){
+        this.easyCleanUp(false);
+    }
+    protected void easyCleanUp(boolean aibrPreprocessing) {
         //System.out.println("prova");
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
@@ -255,31 +258,33 @@ public class EPddlProblem extends PddlProblem {
 //        h1.computeEstimate(this.init);
 //        final Collection<TransitionGround> transitions = h1.getTransitions(false);
 //        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
-        final Aibr h1 = new Aibr(this, true);
-        final float v = h1.computeEstimate(this.init);
-        System.out.println("h at init: "+v);
-        if (v == Float.MAX_VALUE){
-            System.out.println("Problem Detected as Unsolvable");
-            System.exit(-1);
+        if (aibrPreprocessing){
+                final Aibr h1 = new Aibr(this, true);
+                final float v = h1.computeEstimate(this.init);
+                System.out.println("h at init: "+v);
+                if (v == Float.MAX_VALUE){
+                    System.out.println("Problem Detected as Unsolvable");
+                    System.exit(-1);
+                }
+                final Collection<TransitionGround> transitions = h1.getAllTransitions();
+                actions = new ArrayList<>();
+                processesSet = new ArrayList<>();
+                eventsSet = new ArrayList<>();
+                for (final TransitionGround t : transitions){
+                    switch (t.getSemantics()){
+                        case ACTION:
+                            actions.add(t);
+                            break;
+                        case PROCESS:
+                            processesSet.add(t);
+                            break;
+                        case EVENT:
+                            eventsSet.add(t);
+                            break;
+                    }
+                }
+                sweepStructuresForUnreachableStatements();
         }
-        final Collection<TransitionGround> transitions = h1.getAllTransitions();
-        actions = new ArrayList<>();
-        processesSet = new ArrayList<>();
-        eventsSet = new ArrayList<>();
-        for (final TransitionGround t : transitions){
-            switch (t.getSemantics()){
-                case ACTION:
-                    actions.add(t);
-                    break;
-                case PROCESS:
-                    processesSet.add(t);
-                    break;
-                case EVENT:
-                    eventsSet.add(t);
-                    break;
-            }
-        }
-        sweepStructuresForUnreachableStatements();
 
 //        this.makePddlState(); //remake init so as to account for only reachable actions
     }
@@ -320,21 +325,23 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-
     public void simplifyAndSetupInit() throws Exception {
+        simplifyAndSetupInit(true);
+    }
+
+    public void simplifyAndSetupInit(boolean aibrPreprocessing) throws Exception {
 
         long start = System.currentTimeMillis();
         System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-        easyCleanUp();
+        easyCleanUp(aibrPreprocessing);
         System.out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
-        System.out.println("|F|:"+totNumberOfBoolVariables);
-        System.out.println("|X|:"+totNumberOfNumVariables);
-        
-    }
+        System.out.println("|F|:" + totNumberOfBoolVariables);
+        System.out.println("|X|:" + totNumberOfNumVariables);
 
+    }
 
 //    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition goals, AndCond globalConstraints) {
 //        HashMap<Integer, GroundAction> actionIds = new HashMap<>();

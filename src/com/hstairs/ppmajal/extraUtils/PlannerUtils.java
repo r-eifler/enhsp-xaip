@@ -47,7 +47,7 @@ public class PlannerUtils {
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");
         }
-        p.groundingSimplication();
+        p.groundingSimplication(true);
         h = null;
 
         switch (heuristic) {
