@@ -40,6 +40,7 @@ public abstract class Terminal extends Condition {
         this.id = getTotCounter();
         id2terminal.add(this);
         totCounter++;
+//        System.out.println(totCounter);
         if (this instanceof Comparison){
             totComparisonCounter++;
         }

@@ -504,7 +504,7 @@ public final class PddlDomain extends Object {
         SchemaParameters par = new SchemaParameters();
         ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PROPEFFECT);
         ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMEFFECT);
-        
+        ForAll forall = new ForAll();
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
@@ -557,7 +557,7 @@ public final class PddlDomain extends Object {
                                     }
                                 }
                             } else if (o instanceof ForAll) {
-                                throw new UnsupportedOperationException();
+                                forall = fc.createForAll(infoAction.getChild(0), par, true);
                             }
                         }
                     } else if (res instanceof Predicate) {
@@ -569,14 +569,14 @@ public final class PddlDomain extends Object {
                     } else if (res instanceof ConditionalEffect) {
                         numEffect.add((NumEffect) res);
                     } else if (res instanceof ForAll) {
-                        throw new UnsupportedOperationException();
+                        forall = fc.createForAll(infoAction.getChild(0), par, true);
                     }
                     break;
             }
 
         }
 
-        TransitionSchema transition = new TransitionSchema(par, transitionName, propEffect, numEffect, precondition, semantics);
+        TransitionSchema transition = new TransitionSchema(par, transitionName, propEffect, numEffect, precondition, semantics, forall);
         switch (semantics) {
             case ACTION:
                 this.ActionsSchema.add(transition);
@@ -659,7 +659,8 @@ public final class PddlDomain extends Object {
                     next.getConditionalPropositionalEffects(),
                     next.getConditionalNumericEffects(),
                     next.getPreconditions().pushNotToTerminals(),
-                    next.getSemantics()));
+                    next.getSemantics(),
+                    next.getForallEffects()));
         }
     }
 
@@ -679,7 +680,8 @@ public final class PddlDomain extends Object {
                     next.getConditionalPropositionalEffects(),
                     next.getConditionalNumericEffects(),
                     next.getPreconditions().transformEquality(),
-                    next.getSemantics()));
+                    next.getSemantics(),
+                    next.getForallEffects()));
         }
     }
 

@@ -132,6 +132,12 @@ public class H1 implements Heuristic {
         normalizeModel(useRedundantConstraints,new LinkedHashSet(problem.getEventsSet()));
         normalizeModel(useRedundantConstraints,new LinkedHashSet(problem.getProcessesSet()));
 
+        if (useRedundantConstraints) {
+            preconditionFunction[pseudoGoal] = problem.getGoals().transformEquality().introduce_red_constraints();
+        } else {
+            preconditionFunction[pseudoGoal] = problem.getGoals().transformEquality();
+        }
+        
         totNumberOfTerms = Terminal.getTotCounter();
         conditionsAchievableBy = new IntArraySet[heuristicNumberOfActions];
         conditionToAction = new IntArraySet[totNumberOfTerms];
@@ -143,11 +149,6 @@ public class H1 implements Heuristic {
         fillPreEffFunctions(useRedundantConstraints,new LinkedHashSet(problem.getEventsSet()));
         fillPreEffFunctions(useRedundantConstraints,new LinkedHashSet(problem.getProcessesSet()));
 
-        if (useRedundantConstraints) {
-            preconditionFunction[pseudoGoal] = problem.getGoals().transformEquality().introduce_red_constraints();
-        } else {
-            preconditionFunction[pseudoGoal] = problem.getGoals().transformEquality();
-        }
 
         updatePreconditionFunction(pseudoGoal);
 

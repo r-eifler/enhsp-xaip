@@ -149,6 +149,7 @@ public class FactoryConditions {
                 ForAll forall = createForAll(tree, parTable, false);
                 return forall;
             case PddlParser.EXISTS_GD:
+                
                 Existential exist = new Existential();
                 for (int i = 0; i < tree.getChildCount(); i++) {
                     Tree child = tree.getChild(i);
@@ -166,7 +167,9 @@ public class FactoryConditions {
                             //at this point I should have collected all the parameters for grounding
                             //the variable into constants
                             SchemaParameters aug_par_table = new SchemaParameters();
-                            aug_par_table.addAll(parTable);
+                            if (parTable != null) {
+                                aug_par_table.addAll(parTable);
+                            }
                             aug_par_table.addAll(exist.getParameters());
                             Condition ret_val = createCondition(child, aug_par_table);
                             if (ret_val != null) {

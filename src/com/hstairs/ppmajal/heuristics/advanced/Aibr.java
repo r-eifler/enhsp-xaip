@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.ints.*;
 import java.util.*;
 
 import static com.google.common.collect.Range.closedOpen;
+import java.io.PrintStream;
 
 public class Aibr implements Heuristic {
     private final EPddlProblem problem;
@@ -30,7 +31,7 @@ public class Aibr implements Heuristic {
     private final Collection<Terminal>[] propEffectFunction;
     private final NumEffect[] numericEffectFunction;
     private final Condition[] asymptoticPreconditionFunction;
-
+    private final PrintStream out;
     //The following are built around supporters
     private Int2ObjectMap<String> names = new Int2ObjectArrayMap();
     IdentityHashMap<Condition, TransitionGround> pre2transition = new IdentityHashMap<>();
@@ -44,6 +45,7 @@ public class Aibr implements Heuristic {
         final Int2ObjectMap<Condition> preconditionFunctionMap = new Int2ObjectArrayMap<>();
         final Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap = new Int2ObjectArrayMap<>();
         final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
+        out = problem.out;
         this.problem = problem;
         for (TransitionGround tr : getTransitions(problem)){
             final boolean numericInconsistence = generateNumericSupporters(tr, preconditionFunctionMap, asymptoticPreconditionFunctionMap, numEffectMap);
@@ -64,7 +66,8 @@ public class Aibr implements Heuristic {
 
         this.reachability = reachability;
 
-        System.out.println("AIBR :: Number of Supporters = "+numberOfSupporters);
+        out.println("AIBR :: Number of Supporters = "+numberOfSupporters);
+        
     }
 
 
@@ -170,10 +173,10 @@ public class Aibr implements Heuristic {
             final IntIterator iterator = supporters.iterator();
             final IntArrayList propAppliers = new IntArrayList();
             final IntArrayList numAppliers = new IntArrayList();
-//            System.out.println(supporters.size());
+//            out.println(supporters.size());
             while (iterator.hasNext()) {
                 int current = iterator.nextInt();
-//                System.out.println("Supporters set:"+supporters.size());
+//                out.println("Supporters set:"+supporters.size());
                 final Condition condition = preconditionFunction[current];
                 final boolean b = conditionSatisfied.get(current);
                 if (b|| relState.satisfy(condition)){

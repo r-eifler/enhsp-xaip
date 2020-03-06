@@ -34,6 +34,7 @@ import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.io.PrintStream;
 
 import java.util.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -57,21 +58,19 @@ public class EPddlProblem extends PddlProblem {
     static public HashSet<Predicate> booleanFluents;
     private int totNumberOfBoolVariables;
     private int totNumberOfNumVariables;
+    final public PrintStream out;
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
-        super(problemFile, po, types, linked);
+        this(problemFile,po,types,linked,System.out);
+    }
+
+
+
+    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out) {
+        super(problemFile, constants, types, domain);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
-        globalConstraints = new AndCond();
-    }
-
-    public EPddlProblem() {
-        super();
-    }
-
-    public EPddlProblem(AndCond temp, Collection<TransitionGround> reachable) {
-        this();
-        goals = temp;
-        actions = reachable;
+        globalConstraints = new AndCond();   
+        this.out = out;
     }
 
 
@@ -239,19 +238,19 @@ public class EPddlProblem extends PddlProblem {
         this.easyCleanUp(false);
     }
     protected void easyCleanUp(boolean aibrPreprocessing) {
-        //System.out.println("prova");
+        //out.println("prova");
         this.saveInitInit();
         sweepStructuresForUnreachableStatements();
 
         debug = false;
         if (debug) {
-            System.out.print("This is the universe of numeric fluent:");
+            out.print("This is the universe of numeric fluent:");
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
-                System.out.println("ID:" + nf.getId() + "->" + nf);
+                out.println("ID:" + nf.getId() + "->" + nf);
             }
-            System.out.print("This is the universe of propositional fluent:");
+            out.print("This is the universe of propositional fluent:");
             for (Predicate pred : Predicate.getPredicatesDB().values()) {
-                System.out.println("ID:" + pred.getId() + "->" + pred);
+                out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
         this.makeInit();
@@ -261,9 +260,8 @@ public class EPddlProblem extends PddlProblem {
         if (aibrPreprocessing){
                 final Aibr h1 = new Aibr(this, true);
                 final float v = h1.computeEstimate(this.init);
-                System.out.println("h at init: "+v);
                 if (v == Float.MAX_VALUE){
-                    System.out.println("Problem Detected as Unsolvable");
+                    out.println("Problem Detected as Unsolvable");
                     System.exit(-1);
                 }
                 final Collection<TransitionGround> transitions = h1.getAllTransitions();
@@ -332,14 +330,14 @@ public class EPddlProblem extends PddlProblem {
     public void simplifyAndSetupInit(boolean aibrPreprocessing) throws Exception {
 
         long start = System.currentTimeMillis();
-        System.out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         easyCleanUp(aibrPreprocessing);
-        System.out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+        out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
-        System.out.println("|F|:" + totNumberOfBoolVariables);
-        System.out.println("|X|:" + totNumberOfNumVariables);
+        out.println("|F|:" + totNumberOfBoolVariables);
+        out.println("|X|:" + totNumberOfNumVariables);
 
     }
 
@@ -475,7 +473,7 @@ public class EPddlProblem extends PddlProblem {
         totNumberOfNumVariables = 0;
         totNumberOfBoolVariables = 0;
         if (NumFluent.numFluentsBank != null){
-//        System.out.println(NumFluent.numFluentsBank);
+//        out.println(NumFluent.numFluentsBank);
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
                 if (this.getActualFluents().contains(nf) && nf.has_to_be_tracked()) {
                     PDDLNumber number = this.initNumFluentsValues.get(nf);
@@ -517,7 +515,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
 
-//        System.out.println(Printer.stringBuilderPddlPrintWithDummyTrue(this, pddlState));
+//        out.println(Printer.stringBuilderPddlPrintWithDummyTrue(this, pddlState));
         return pddlState;
         
     }

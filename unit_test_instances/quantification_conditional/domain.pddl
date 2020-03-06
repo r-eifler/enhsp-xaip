@@ -1,5 +1,5 @@
 (define (domain test)
-(:requirements  :typing)
+;(:requirements  :typing)
 (:types interpretation  block - object )
 (:predicates  (a ?i -interpretation) (b ?i -interpretation) ) 
 
