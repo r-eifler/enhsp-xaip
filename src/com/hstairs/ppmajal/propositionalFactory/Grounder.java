@@ -21,9 +21,12 @@ package com.hstairs.ppmajal.propositionalFactory;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.FactoryConditions;
+import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.GlobalConstraint;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.problem.PddlProblem;
@@ -666,9 +669,21 @@ public class Grounder {
         final ConditionalEffects groundedConditionalPropEffects = a.getConditionalPropositionalEffects().ground(substitution,po);
         final ConditionalEffects groundedConditionalNumericEffects = a.getConditionalNumericEffects().ground(substitution,po);
         final Condition preconditions = a.getPreconditions().ground(substitution,po);
-
+        final ForAll forallEffects = a.getForallEffects();
+        if (forallEffects != null) {//Kind of special case for now
+            AndCond temp = (AndCond) forallEffects.ground(substitution, po);
+            addEffects(temp,groundedConditionalNumericEffects,groundedConditionalPropEffects);
+        }
         return new TransitionGround( parametersAsTerms,a.getName(), groundedConditionalPropEffects,groundedConditionalNumericEffects, preconditions,
                 a.getSemantics());
 
     }
+
+    private void addEffects(AndCond temp, ConditionalEffects groundedConditionalNumericEffects, ConditionalEffects groundedConditionalPropEffects) {
+        if (temp == null || temp.sons.isEmpty()) {
+            return;
+        }
+        FactoryConditions.createEffectsFromPostCondition(temp, groundedConditionalPropEffects, groundedConditionalNumericEffects);
+    }
+
 }

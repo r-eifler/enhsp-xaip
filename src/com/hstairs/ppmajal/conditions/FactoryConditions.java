@@ -25,6 +25,7 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.problem.PDDLObjects;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
 import java.util.ArrayList;
 import org.antlr.runtime.tree.Tree;
 
@@ -597,4 +598,82 @@ public class FactoryConditions {
         return res;
     }
 
+    public static void addEffectFromConditonalEffects(ConditionalEffect cond, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect) {
+        if (cond.effect instanceof AndCond) {
+            final AndCond temp = (AndCond) cond.effect;
+            for (Object son : temp.sons) {
+                if (son instanceof NumEffect) {
+                    numEffect.add(cond.activation_condition, (NumEffect) son);
+                } else if (son instanceof Predicate || son instanceof NotCond) {
+                    propEffect.add(cond.activation_condition, (Terminal) son);
+                } else {
+                    throw new RuntimeException("Effects cannot be nested, but can only be considered as sets (" + son + ")");
+                }
+            }
+        }
+    }
+
+ 
+    public ForAll createEffectsFromPostCondition(Tree child, PostCondition res, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect, ForAll forall, SchemaParameters par) {
+        ForAll forAllResult = null;
+        if (res instanceof AndCond) {
+            AndCond pc = (AndCond) res;
+            for (Object o : pc.sons) {
+                if (o instanceof Predicate) {
+                    propEffect.add((Terminal) o);
+                } else if (o instanceof NotCond) {
+                    propEffect.add((Terminal) o);
+                } else if (o instanceof NumEffect) {
+                    numEffect.add((NumEffect) o);
+                } else if (o instanceof ConditionalEffect) {
+                    ConditionalEffect cond = (ConditionalEffect) o;
+                    addEffectFromConditonalEffects(cond, propEffect, numEffect);
+                } else if (o instanceof ForAll) {
+                    forAllResult = createForAll(child.getChild(0), par, true);
+                    
+                }
+            }
+        } else if (res instanceof Predicate) {
+            propEffect.add((Terminal) res);
+        } else if (res instanceof NotCond) {
+            propEffect.add((Terminal) res);
+        } else if (res instanceof NumEffect) {
+            numEffect.add((NumEffect) res);
+        } else if (res instanceof ConditionalEffect) {
+            numEffect.add((NumEffect) res);
+        } else if (res instanceof ForAll) {
+            forAllResult = createForAll(child.getChild(0), par, true);
+        }
+        return forAllResult;
+    }
+
+    public static void createEffectsFromPostCondition(PostCondition res, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect) {
+        if (res instanceof AndCond) {
+            AndCond pc = (AndCond) res;
+            for (Object o : pc.sons) {
+                if (o instanceof Predicate) {
+                    propEffect.add((Terminal) o);
+                } else if (o instanceof NotCond) {
+                    propEffect.add((Terminal) o);
+                } else if (o instanceof NumEffect) {
+                    numEffect.add((NumEffect) o);
+                } else if (o instanceof ConditionalEffect) {
+                    ConditionalEffect cond = (ConditionalEffect) o;
+                    addEffectFromConditonalEffects(cond, propEffect, numEffect);
+                } else if (o instanceof ForAll) {
+                    throw new UnsupportedOperationException();
+                }
+            }
+        } else if (res instanceof Predicate) {
+            propEffect.add((Terminal) res);
+        } else if (res instanceof NotCond) {
+            propEffect.add((Terminal) res);
+        } else if (res instanceof NumEffect) {
+            numEffect.add((NumEffect) res);
+        } else if (res instanceof ConditionalEffect) {
+            numEffect.add((NumEffect) res);
+        } else if (res instanceof ForAll) {
+                    throw new UnsupportedOperationException();
+        }
+    }
 }

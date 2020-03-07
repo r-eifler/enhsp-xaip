@@ -504,7 +504,7 @@ public final class PddlDomain extends Object {
         SchemaParameters par = new SchemaParameters();
         ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PROPEFFECT);
         ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMEFFECT);
-        ForAll forall = new ForAll();
+        ForAll forall = null;
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
@@ -532,46 +532,10 @@ public final class PddlDomain extends Object {
                 case (PddlParser.EFFECT):
                     
                     PostCondition res = fc.createPostCondition(par, infoAction.getChild(0));
-                    
-                    if (res instanceof AndCond) {
-                        AndCond pc = (AndCond) res;
-                        for (Object o : pc.sons) {
-                            if (o instanceof Predicate) {
-                                propEffect.add((Terminal) o);
-                            } else if (o instanceof NotCond) {
-                                propEffect.add((Terminal) o);
-                            } else if (o instanceof NumEffect) {
-                                numEffect.add((NumEffect) o);
-                            } else if (o instanceof ConditionalEffect) {
-                                ConditionalEffect cond = (ConditionalEffect)o;
-                                if (cond.effect instanceof  AndCond){
-                                    final AndCond temp = (AndCond) cond.effect;
-                                    for (Object son : temp.sons) {
-                                        if (son instanceof NumEffect){
-                                            numEffect.add(cond.activation_condition, (NumEffect) son);
-                                        }else if (son instanceof Predicate || son instanceof NotCond){
-                                            propEffect.add(cond.activation_condition, (Terminal) son);
-                                        }else{
-                                            throw new RuntimeException("Effects cannot be nested, but can only be considered as sets ("+son+")");
-                                        }
-                                    }
-                                }
-                            } else if (o instanceof ForAll) {
-                                forall = fc.createForAll(infoAction.getChild(0), par, true);
-                            }
-                        }
-                    } else if (res instanceof Predicate) {
-                        propEffect.add((Terminal) res);
-                    } else if (res instanceof NotCond) {
-                        propEffect.add((Terminal) res);
-                    } else if (res instanceof NumEffect) {
-                        numEffect.add((NumEffect) res);
-                    } else if (res instanceof ConditionalEffect) {
-                        numEffect.add((NumEffect) res);
-                    } else if (res instanceof ForAll) {
-                        forall = fc.createForAll(infoAction.getChild(0), par, true);
-                    }
+                    forall = fc.createEffectsFromPostCondition(infoAction.getChild(0),res,propEffect,numEffect,forall,par);
+                   
                     break;
+
             }
 
         }
