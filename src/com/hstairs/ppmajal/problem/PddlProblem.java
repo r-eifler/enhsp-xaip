@@ -308,7 +308,13 @@ public abstract class PddlProblem {
     protected void addObjects (Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
             if (this.linkedDomain != null) {
-                Type t = linkedDomain.getTypeByName(c.getChild(i).getChild(0).getText());
+                String typeName;
+                if (c.getChild(i).getChild(0) == null){
+                    typeName = "object";
+                }else{
+                    typeName = c.getChild(i).getChild(0).getText();
+                }
+                Type t = linkedDomain.getTypeByName(typeName);
                 if (t == null) {
                     System.out.println(c.getChild(i).getChild(0).getText() + " not found");
                     System.exit(-1);

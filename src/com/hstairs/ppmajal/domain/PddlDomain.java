@@ -520,10 +520,12 @@ public final class PddlDomain extends Object {
                     }
                     break;
                 case (PddlParser.VARIABLE):
+                    Type t = null;
                     if (infoAction.getChild(0) == null) {
-                        break;
+                        t = Type.createType("object");
+                    }else{
+                        t = Type.createType(infoAction.getChild(0).getText());
                     }
-                    Type t = Type.createType(infoAction.getChild(0).getText());
                     
                     Variable variable = Variable.createVariable(infoAction.getText(), t);
 //                        System.out.print(variable);
