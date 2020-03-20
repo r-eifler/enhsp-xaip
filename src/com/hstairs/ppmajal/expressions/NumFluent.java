@@ -199,11 +199,11 @@ public class NumFluent extends Expression {
 
     @Override
     public RealInterval eval (RelState s) {
-        RealInterval ret = new RealInterval(s.functionInfValue(this),s.functionSupValue(this));
-
-        if (Double.isNaN(ret.lo())) {
+        if (Double.isNaN(s.functionInfValue(this))) {
             return null;
         }
+        RealInterval ret = new RealInterval(s.functionInfValue(this),s.functionSupValue(this));
+
 
         return ret;
     }

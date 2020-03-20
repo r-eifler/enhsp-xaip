@@ -684,7 +684,7 @@ public class SearchEngine {
                         }
                     }
                 } else {
-                    throw new RuntimeException("This shouldn't happen");
+                    throw new RuntimeException("This shouldn't happen, "+act.getName()+" is not a process?");
                 }
             }
             if (!atLeastOne) {

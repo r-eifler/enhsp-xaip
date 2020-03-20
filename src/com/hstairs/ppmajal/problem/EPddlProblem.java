@@ -111,16 +111,16 @@ public class EPddlProblem extends PddlProblem {
             transitions.addAll(linkedDomain.getProcessesSchema());
             transitions.addAll(linkedDomain.getActionsSchema());
             transitions.addAll(linkedDomain.eventsSchema);
-            for (TransitionSchema act : transitions) {
+            for (var act : transitions) {
                 Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, initBoolFluentsValues, linkedDomain);
                 switch (act.getSemantics()){
                     case ACTION:
                         getActions().addAll(propositionalize);
                         break;
-                    case PROCESS:
+                    case EVENT:
                         getEventsSet().addAll(propositionalize);
                         break;
-                    case EVENT:
+                    case PROCESS:
                         getProcessesSet().addAll(propositionalize);
                         break;
                 }
