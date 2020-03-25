@@ -249,11 +249,7 @@ public class Comparison extends Terminal {
             this.linear = ((ExtendedNormExpression)this.left).linear && ((ExtendedNormExpression)this.right).linear;   
             return this;
         }
-        Comparison ret;
         String comp = comparator;
-
-        String leftToRemove = left.toString();
-        String rightToRemove = left.toString();
 
         //System.out.println("Instanceof left: "+ret.left.getClass());
         ExtendedNormExpression leftExpr = (ExtendedNormExpression) this.left.normalize();
@@ -546,7 +542,7 @@ public class Comparison extends Terminal {
             ret.addConditions(dual);
             ret.addConditions(dual2);
         } else {
-            return this;
+            return this.normalize();
         }
         return ret;
     }
