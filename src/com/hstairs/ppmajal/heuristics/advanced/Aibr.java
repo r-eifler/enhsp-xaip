@@ -36,6 +36,7 @@ public class Aibr implements Heuristic {
     private Int2ObjectMap<String> names = new Int2ObjectArrayMap();
     IdentityHashMap<Condition, TransitionGround> pre2transition = new IdentityHashMap<>();
     Collection<TransitionGround> reachableTransitions = null;
+    private boolean DEBUG = true;
 
     public Aibr(EPddlProblem problem){
         this(problem,false);
@@ -47,7 +48,7 @@ public class Aibr implements Heuristic {
         final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
         out = problem.out;
         this.problem = problem;
-        for (TransitionGround tr : getTransitions(problem)){
+        for (final TransitionGround tr : getTransitions(problem)){
             final boolean numericInconsistence = generateNumericSupporters(tr, preconditionFunctionMap, asymptoticPreconditionFunctionMap, numEffectMap);
             if (!numericInconsistence) {
                 pre2transition.put(tr.getPreconditions(),tr);
@@ -79,7 +80,7 @@ public class Aibr implements Heuristic {
     boolean generateNumericSupporters(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap){
         for (NumEffect effect : tr.getAllNumericEffects()) {
             if (effect == null) {
-                return true;
+                return false;
             }
         }
         for (NumEffect effect : tr.getAllNumericEffects()) {
@@ -166,7 +167,12 @@ public class Aibr implements Heuristic {
         final IntArraySet supporters = new IntArraySet(ContiguousSet.create(closedOpen(0, numberOfSupporters), DiscreteDomain.integers()));
         final IntArrayList reachableActionsThisStage = new IntArrayList();
         boolean goalReached = false;
-
+        if (DEBUG && false){
+            System.out.println("Supporters");
+            for (int ele=0; ele < numberOfSupporters; ele++){
+                System.out.println(names.get(ele));
+            }
+        }
         final BitSet conditionSatisfied = new BitSet();
         final BitSet actionInserted = new BitSet();
         while (!supporters.isEmpty()){
@@ -179,13 +185,14 @@ public class Aibr implements Heuristic {
 //                out.println("Supporters set:"+supporters.size());
                 final Condition condition = preconditionFunction[current];
                 final boolean b = conditionSatisfied.get(current);
-                if (b|| relState.satisfy(condition)){
+                if (b || relState.satisfy(condition)){
                     if (!b){
                         conditionSatisfied.set(current,true);
                     }
                     //Prop effect
                     final int id = pre2transition.get(condition).getId();
                     if (!actionInserted.get(id)){
+                        if (DEBUG){System.out.println(names.get(current));}
                         reachableActionsThisStage.add(pre2transition.get(condition).getId());
                         actionInserted.set(id,true);
                     }
@@ -205,6 +212,7 @@ public class Aibr implements Heuristic {
                     }
                 }
             }
+            
             if (numAppliers.isEmpty() && propAppliers.isEmpty() && !goalReached) {
                 return Float.MAX_VALUE;
             }

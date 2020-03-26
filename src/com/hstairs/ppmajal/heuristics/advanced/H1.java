@@ -49,7 +49,6 @@ import org.jgrapht.alg.util.Pair;
 public class H1 implements Heuristic {
 
     private static final boolean DEBUG = false;
-    final private boolean useRedundantConstraints;
     final public boolean extractRelaxedPlan;
     final public boolean maxMRP;
 
@@ -115,7 +114,6 @@ public class H1 implements Heuristic {
         this.problem = problem;
         this.reachability = reachability;
         this.helpfulActionsComputation = helpfulActionsComputation;
-        this.useRedundantConstraints = useRedundantConstraints;
         this.extractRelaxedPlan = extractRelaxedPlan;
         pseudoGoal = Transition.totNumberOfTransitions;
         heuristicNumberOfActions = Transition.totNumberOfTransitions + 1;
