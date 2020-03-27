@@ -375,24 +375,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
 
-    protected void splitOverActionsEventsProcesses (Iterable<TransitionGround> transitionsToKeep) {
-        processesSet = new LinkedHashSet<TransitionGround>();
-        eventsSet = new LinkedHashSet<TransitionGround>();
-        actions = new LinkedHashSet<TransitionGround>();
-        for (TransitionGround gr : transitionsToKeep) {
-            switch (gr.getSemantics()){
-                case ACTION:
-                    actions.add(gr);
-                    break;
-                case PROCESS:
-                    processesSet.add( gr);
-                    break;
-                case EVENT:
-                    eventsSet.add(gr);
-                    break;
-            }
-        }
-    }
+
 
     public void setDeltaTimeVariable (String delta_t) {
         this.initNumFluentsValues.put(NumFluent.createNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));

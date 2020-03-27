@@ -36,7 +36,7 @@ public class Aibr implements Heuristic {
     private Int2ObjectMap<String> names = new Int2ObjectArrayMap();
     IdentityHashMap<Condition, TransitionGround> pre2transition = new IdentityHashMap<>();
     Collection<TransitionGround> reachableTransitions = null;
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
 
     public Aibr(EPddlProblem problem){
         this(problem,false);

@@ -448,7 +448,7 @@ public class ExtendedNormExpression extends Expression {
                 ret.summations.add(a);
             } else {
                 if (a.n == null){
-                    throw new RuntimeException("Something didn't work in the weak evaluator for normalised expression");
+                    throw new RuntimeException("Something didn't work in the weak evaluator for normalised expression:"+this);
                 }
                 if (a.f != null) {
                     if (!invFluents.contains(a.f)) {

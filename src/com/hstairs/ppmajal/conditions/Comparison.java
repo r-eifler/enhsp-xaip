@@ -475,7 +475,7 @@ public class Comparison extends Terminal {
         return ret;
     }
 
-    @Override
+        @Override
     public Condition weakEval(PddlProblem s, Set invF) {
         if (this.isUnsatisfiable())
             return this;
@@ -537,12 +537,12 @@ public class Comparison extends Terminal {
         AndCond ret = new AndCond();
         Comparison comp = this;
         if (comp.getComparator().equals("=")) {
-            Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
-            Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
+            Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false);
+            Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false);
             ret.addConditions(dual);
             ret.addConditions(dual2);
         } else {
-            return this.normalize();
+            return this;
         }
         return ret;
     }
