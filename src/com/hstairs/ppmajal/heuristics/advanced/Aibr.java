@@ -65,6 +65,25 @@ public class Aibr implements Heuristic {
         numericEffectFunction = new NumEffect[numberOfSupporters];
         numEffectMap.forEach((integer, numEffect) -> numericEffectFunction[integer]=numEffect);
 
+        if (false){
+            for (int i=0; i<numberOfSupporters;i++){
+                Collection<Terminal> propEffects = propEffectFunction[i];
+                NumEffect numEffect = numericEffectFunction[i];
+                if (propEffects != null && numEffect != null){
+                    throw new RuntimeException("Bug in the function");
+                }else{
+                    Condition precondition = preconditionFunction[i];
+                    System.out.println("Supporter: " + pre2transition.get(precondition).getName());
+                    System.out.println("Precondition: " + precondition);
+                    System.out.println("propEffects: " + propEffects);
+                    System.out.println("numEffects: " + numEffect);
+
+                }
+
+                
+            }
+        }
+        
         this.reachability = reachability;
 
         out.println("AIBR :: Number of Supporters = "+numberOfSupporters);
@@ -73,9 +92,12 @@ public class Aibr implements Heuristic {
 
 
     void generatePropositionalAction(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Collection<Terminal>> propEffectMap){
-        propEffectMap.put(preconditionFunctionMap.keySet().size(),tr.getAllAchievableLiterals());
-        names.put(preconditionFunctionMap.keySet().size(),tr.getName()+"-Propositional");
-        preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
+        Collection<Terminal> allAchievableLiterals = tr.getAllAchievableLiterals();
+        if (!allAchievableLiterals.isEmpty()) {
+            propEffectMap.put(preconditionFunctionMap.keySet().size(), allAchievableLiterals);
+            names.put(preconditionFunctionMap.keySet().size(), tr.getName() + "-Propositional");
+            preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(), tr.getPreconditions());
+        }
     }
     boolean generateNumericSupporters(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap){
         for (NumEffect effect : tr.getAllNumericEffects()) {
@@ -89,11 +111,12 @@ public class Aibr implements Heuristic {
                         NumEffect assign = new NumEffect("assign");
                         assign.setFluentAffected(effect.getFluentAffected());
                         assign.setRight(effect.getRight());
+                        names.put(preconditionFunctionMap.keySet().size(),tr.getName()+"-assign");
                         numEffectMap.put(preconditionFunctionMap.keySet().size(), assign);
                         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }else{
                 final boolean empty = effect.getRight().getInvolvedNumericFluents().isEmpty();
-                if (empty && false){ // for now this optimisation is removed because it does not work with some problem.
+                if (empty && false){ 
                     final double right = effect.getRight().eval(problem.getInit());
                     if (right > 0){
                         generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "+", asymptoticPreconditionFunctionMap, numEffectMap, tr);
@@ -167,7 +190,7 @@ public class Aibr implements Heuristic {
         final IntArraySet supporters = new IntArraySet(ContiguousSet.create(closedOpen(0, numberOfSupporters), DiscreteDomain.integers()));
         final IntArrayList reachableActionsThisStage = new IntArrayList();
         boolean goalReached = false;
-        if (DEBUG && false){
+        if (DEBUG){
             System.out.println("Supporters");
             for (int ele=0; ele < numberOfSupporters; ele++){
                 System.out.println(names.get(ele));
@@ -182,6 +205,7 @@ public class Aibr implements Heuristic {
 //            out.println(supporters.size());
             while (iterator.hasNext()) {
                 int current = iterator.nextInt();
+                if (DEBUG) {System.out.println(relState);}
 //                out.println("Supporters set:"+supporters.size());
                 final Condition condition = preconditionFunction[current];
                 final boolean b = conditionSatisfied.get(current);
@@ -189,13 +213,13 @@ public class Aibr implements Heuristic {
                     if (!b){
                         conditionSatisfied.set(current,true);
                     }
-                    //Prop effect
                     final int id = pre2transition.get(condition).getId();
                     if (!actionInserted.get(id)){
                         if (DEBUG){System.out.println(names.get(current));}
                         reachableActionsThisStage.add(pre2transition.get(condition).getId());
                         actionInserted.set(id,true);
                     }
+                    //Prop effect
                     final Collection<Terminal> terminals = propEffectFunction[current];
                     if (terminals != null && !terminals.isEmpty()) {
                         iterator.remove();
@@ -212,15 +236,17 @@ public class Aibr implements Heuristic {
                     }
                 }
             }
+            if (DEBUG)
+                System.out.println(relState);
             
             if (numAppliers.isEmpty() && propAppliers.isEmpty() && !goalReached) {
                 return Float.MAX_VALUE;
             }
-            for (int current: propAppliers) {
+            for (final int current: propAppliers) {
                 final Collection<Terminal> terminals = propEffectFunction[current];
                 relState.apply(terminals,relState.clone());
             }
-            for (int current: numAppliers) {
+            for (final int current: numAppliers) {
                 final NumEffect effect = numericEffectFunction[current];
                 relState.apply(effect,relState.clone());
             }
@@ -247,24 +273,24 @@ public class Aibr implements Heuristic {
 
         }
         if (goalReached){
-            return fixPointComputation(reachableTransitions,s.relaxState());
+            return fixPointComputation(reachableActionsThisStage,s.relaxState());
         }
         return Float.MAX_VALUE;
     }
 
-    private float fixPointComputation(Collection<TransitionGround> reachable, RelState s) {
+    private float fixPointComputation(IntArrayList reachable, RelState s) {
         int counter = 0;
         int horizon = Integer.MAX_VALUE;
         BitSet applicable = new BitSet();
 
         while (counter <= horizon) {
-            for (final TransitionGround transition: reachable) {
-                final boolean b = applicable.get(transition.getId());
-                if (b || s.satisfy(transition.getPreconditions())){
+            for (final int transition: reachable) {
+                final boolean b = applicable.get(transition);
+                if (b || s.satisfy(Transition.getTransition(transition).getPreconditions())){
                     if (!b){
-                        applicable.set(transition.getId(),true);
+                        applicable.set(transition,true);
                     }
-                    s.apply(transition, s.clone());
+                    s.apply((TransitionGround) Transition.getTransition(transition), s.clone());
                     counter++;
                     if (s.satisfy(problem.getGoals())) {
                         return counter;
