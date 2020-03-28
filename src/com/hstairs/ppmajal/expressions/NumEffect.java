@@ -32,7 +32,7 @@ import java.util.*;
 public class NumEffect extends Expression implements PostCondition {
 
     public String operator;
-    public boolean additive_relaxation;
+    public boolean additive_relaxation = true;
     private NumFluent fluentAffected;
     private Expression right;
     private boolean pseudo_num_effect;

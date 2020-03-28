@@ -258,13 +258,14 @@ public class EPddlProblem extends PddlProblem {
 //        final Collection<TransitionGround> transitions = h1.getTransitions(false);
 //        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
         if (aibrPreprocessing){
-                final Aibr h1 = new Aibr(this, true);
-                final float v = h1.computeEstimate(this.init);
+                final Aibr heuristic = new Aibr(this, true);
+                final float v = heuristic.computeEstimate(this.init);
                 if (v == Float.MAX_VALUE){
                     out.println("Problem Detected as Unsolvable");
                     System.exit(-1);
                 }
-                final Collection<TransitionGround> transitions = h1.getAllTransitions();
+                final Collection<TransitionGround> transitions = heuristic.getAllTransitions();
+//                System.out.println("DEBUG:"+transitions);
                 actions = new ArrayList<>();
                 processesSet = new ArrayList<>();
                 eventsSet = new ArrayList<>();

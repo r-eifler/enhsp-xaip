@@ -48,12 +48,10 @@ public class Aibr implements Heuristic {
         final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
         out = problem.out;
         this.problem = problem;
-        for (final TransitionGround tr : getTransitions(problem)){
+        for (final TransitionGround tr : getTransitions(problem)) {
+            pre2transition.put(tr.getPreconditions(), tr);
             final boolean numericInconsistence = generateNumericSupporters(tr, preconditionFunctionMap, asymptoticPreconditionFunctionMap, numEffectMap);
-            if (!numericInconsistence) {
-                pre2transition.put(tr.getPreconditions(),tr);
-                generatePropositionalAction(tr, preconditionFunctionMap, propEffectMap);
-            }
+            generatePropositionalAction(tr, preconditionFunctionMap, propEffectMap);
         }
         numberOfSupporters = preconditionFunctionMap.keySet().size();
         preconditionFunction = new Condition[numberOfSupporters];
@@ -65,22 +63,20 @@ public class Aibr implements Heuristic {
         numericEffectFunction = new NumEffect[numberOfSupporters];
         numEffectMap.forEach((integer, numEffect) -> numericEffectFunction[integer]=numEffect);
 
-        if (false){
+        if (true){
             for (int i=0; i<numberOfSupporters;i++){
                 Collection<Terminal> propEffects = propEffectFunction[i];
                 NumEffect numEffect = numericEffectFunction[i];
                 if (propEffects != null && numEffect != null){
                     throw new RuntimeException("Bug in the function");
                 }else{
-                    Condition precondition = preconditionFunction[i];
-                    System.out.println("Supporter: " + pre2transition.get(precondition).getName());
-                    System.out.println("Precondition: " + precondition);
-                    System.out.println("propEffects: " + propEffects);
-                    System.out.println("numEffects: " + numEffect);
+//                    Condition precondition = preconditionFunction[i];
+//                    System.out.println("Supporter: " + pre2transition.get(precondition).getName());
+//                    System.out.println("Precondition: " + precondition);
+//                    System.out.println("propEffects: " + propEffects);
+//                    System.out.println("numEffects: " + numEffect);
 
-                }
-
-                
+                }     
             }
         }
         
@@ -100,11 +96,11 @@ public class Aibr implements Heuristic {
         }
     }
     boolean generateNumericSupporters(TransitionGround tr, Int2ObjectMap<Condition> preconditionFunctionMap, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap){
-        for (NumEffect effect : tr.getAllNumericEffects()) {
-            if (effect == null) {
-                return false;
-            }
-        }
+//        for (NumEffect effect : tr.getAllNumericEffects()) {
+//            if (effect == null) {
+//                return false;
+//            }
+//        }
         for (NumEffect effect : tr.getAllNumericEffects()) {
             effect.additive_relaxation = true;
             if ("assign".equals(effect.getOperator()) && effect.getRight().getInvolvedNumericFluents().isEmpty()) {
@@ -116,9 +112,10 @@ public class Aibr implements Heuristic {
                         preconditionFunctionMap.put(preconditionFunctionMap.keySet().size(),tr.getPreconditions());
             }else{
                 final boolean empty = effect.getRight().getInvolvedNumericFluents().isEmpty();
-                if (empty && false){ 
+                if (empty ){ 
                     final double right = effect.getRight().eval(problem.getInit());
-                    if (right > 0){
+                    if (right > 0 && effect.getOperator().equals("increase") ||
+                        right < 0 && effect.getOperator().equals("decrease")){
                         generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "+", asymptoticPreconditionFunctionMap, numEffectMap, tr);
                     }else{
                         generateInfSupporter(effect, preconditionFunctionMap, preconditionFunctionMap.keySet().size(), "-", asymptoticPreconditionFunctionMap, numEffectMap, tr);
@@ -162,7 +159,7 @@ public class Aibr implements Heuristic {
             }
         }
         generateSupporter(effect,idx,disequality,asymptote,asymptoticPreconditionFunctionMap,numEffectMap);
-        names.put(idx,tr.getName().concat("MinusInf"));
+        names.put(idx,tr.getName().concat(s+"Inf"));
         preconditionFunctionMap.put(idx,tr.getPreconditions());
     }
 
@@ -216,7 +213,7 @@ public class Aibr implements Heuristic {
                     final int id = pre2transition.get(condition).getId();
                     if (!actionInserted.get(id)){
                         if (DEBUG){System.out.println(names.get(current));}
-                        reachableActionsThisStage.add(pre2transition.get(condition).getId());
+                        reachableActionsThisStage.add(id);
                         actionInserted.set(id,true);
                     }
                     //Prop effect
@@ -263,7 +260,7 @@ public class Aibr implements Heuristic {
         }
         if (reachableTransitions==null){
             reachableTransitions = new LinkedHashSet<>();
-            for (Integer reacheableAction : reachableActionsThisStage) {
+            for (final int reacheableAction : reachableActionsThisStage) {
                 reachableTransitions.add((TransitionGround) Transition.getTransition(reacheableAction));
             }
             reachableTransitions = new ArrayList<>(reachableTransitions);
