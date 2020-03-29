@@ -167,15 +167,15 @@ public abstract class Transition {
         return 0;
     }
 
-    public void updateInvariantFluents(Set invariantFluents) {
+    public void updateInvariantFluents(Set actualFluents) {
         for (NumEffect nf : this.getAllNumericEffects()) {
             if (nf == null){
                 throw new RuntimeException("This cannot happen: "+this);
             }
-            invariantFluents.add(nf.getFluentAffected());
+            actualFluents.add(nf.getFluentAffected());
         }
         for (Predicate p : this.getPropositionAffected()) {
-            invariantFluents.add(p);
+            actualFluents.add(p);
         }
     }
 

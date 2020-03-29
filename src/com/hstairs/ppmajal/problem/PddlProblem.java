@@ -68,7 +68,7 @@ public abstract class PddlProblem {
     protected boolean simplifyActions;
         private boolean action_cost_from_metric = true;
 
-    protected Set staticFluents;
+    protected Set actualFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
     protected HashMap<Predicate, Boolean> initBoolFluentsValues;

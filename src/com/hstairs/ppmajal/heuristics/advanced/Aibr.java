@@ -245,6 +245,7 @@ public class Aibr implements Heuristic {
             }
             for (final int current: numAppliers) {
                 final NumEffect effect = numericEffectFunction[current];
+                
                 relState.apply(effect,relState.clone());
             }
             if (relState.satisfy(problem.goals)){

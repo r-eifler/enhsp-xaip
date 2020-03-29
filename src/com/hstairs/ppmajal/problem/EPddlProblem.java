@@ -141,16 +141,17 @@ public class EPddlProblem extends PddlProblem {
     }
 
     public Set getActualFluents ( ) {
-        if (staticFluents == null) {
-            staticFluents = new ReferenceOpenHashSet();
+        if (actualFluents == null) {
+            actualFluents = new LinkedHashSet();
             Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), new HashSet(this.getEventsSet())),new HashSet(this.getProcessesSet()));
 
             for (TransitionGround gr : transitions) {
-                gr.updateInvariantFluents(staticFluents);
+                gr.updateInvariantFluents(actualFluents);
 
             }
         }
-        return staticFluents;
+//        System.out.println(actualFluents);
+        return actualFluents;
     }
 
 
@@ -265,7 +266,6 @@ public class EPddlProblem extends PddlProblem {
                     System.exit(-1);
                 }
                 final Collection<TransitionGround> transitions = heuristic.getAllTransitions();
-//                System.out.println("DEBUG:"+transitions);
                 actions = new ArrayList<>();
                 processesSet = new ArrayList<>();
                 eventsSet = new ArrayList<>();
@@ -289,7 +289,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     protected void sweepStructuresForUnreachableStatements ( ) {
-        this.staticFluents = null;
+        this.actualFluents = null;
         //the following just remove actions/processes/events over false and static predicates
         actions = (Collection<TransitionGround>) cleanEasyUnreachableTransitions(actions);
 //        this.staticFluents = null;
@@ -403,24 +403,22 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
+    Sets.SetView<TransitionGround> getTransitions() {
+        return Sets.union(Sets.union(new HashSet(actions), new HashSet<>(getEventsSet())), new HashSet(getProcessesSet()));
+
+    }
+    
     private void removeUnnecessaryFluents ( ) {
 
         Set<NumFluent> involved_fluents = new LinkedHashSet();
 
-        for (Transition a : this.linkedDomain.getActionsSchema()) {
+       
+        for (Transition a : getTransitions()) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
         }
-        for (Transition a : this.linkedDomain.getProcessesSchema()) {
-            involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
-            involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
 
-        }
-        for (Transition a : this.linkedDomain.eventsSchema) {
-            involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
-            involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
-
-        }
+//        for (Transition )
         for (SchemaGlobalConstraint a : this.linkedDomain.getSchemaGlobalConstraints()) {
             involved_fluents.addAll(a.condition.getInvolvedFluents());
         }
@@ -428,7 +426,7 @@ public class EPddlProblem extends PddlProblem {
 
         
         if (NumFluent.numFluentsBank != null){
-            Iterator<NumFluent> it = this.getNumericFluentReference().values().iterator();
+            Iterator<NumFluent> it = NumFluent.numFluentsBank.values().iterator();
             while (it.hasNext()) {
                 NumFluent nf2 = it.next();
                 boolean keep_it = false;
@@ -440,7 +438,7 @@ public class EPddlProblem extends PddlProblem {
                 }
                 if (!keep_it) {
                     nf2.needsTrackingInState(false);
-                    it.remove();
+//                    it.remove();
                 }
                 else{
                     nf2.needsTrackingInState(true);
@@ -470,7 +468,7 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
         }
-        
+//        System.out.println(NumFluent.numFluentsBank.entrySet().size());
         booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
         if (Predicate.getPredicatesDB() != null) {

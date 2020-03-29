@@ -58,7 +58,9 @@ public class NumFluent extends Expression {
             ret = new NumFluent(name,variables,numFluentsBank.entrySet().size());
             fromIdToNumFluents.add(ret.getId(),ret);
             ret.grounded = groundAlready;
-            numFluentsBank.put(pair, ret);
+            numFluentsBank.put(pair, ret);            
+
+
         }
         return ret;
     }
