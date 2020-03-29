@@ -27,14 +27,14 @@ public class Aibr implements Heuristic {
     private final EPddlProblem problem;
     private final int numberOfSupporters;
     private final boolean reachability;
-    private final Condition[] preconditionFunction;
-    private final Collection<Terminal>[] propEffectFunction;
-    private final NumEffect[] numericEffectFunction;
-    private final Condition[] asymptoticPreconditionFunction;
+    private final Condition[] transition2precondition;
+    private final Collection<Terminal>[] transition2propeffect;
+    private final NumEffect[] transition2numeffect;
+    private final Condition[] transition2asymptoticprecondition;
     private final PrintStream out;
     //The following are built around supporters
     private Int2ObjectMap<String> names = new Int2ObjectArrayMap();
-    IdentityHashMap<Condition, TransitionGround> pre2transition = new IdentityHashMap<>();
+    IdentityHashMap<Condition, Collection< TransitionGround>> pre2transition = new IdentityHashMap<>();
     Collection<TransitionGround> reachableTransitions = null;
     private boolean DEBUG = false;
 
@@ -49,24 +49,31 @@ public class Aibr implements Heuristic {
         out = problem.out;
         this.problem = problem;
         for (final TransitionGround tr : getTransitions(problem)) {
-            pre2transition.put(tr.getPreconditions(), tr);
+            Collection<TransitionGround> get = pre2transition.get(tr.getPreconditions());
+            if (get != null){
+                get.add(tr);
+                System.out.println("It does happen!!!");
+            }else{
+                pre2transition.put(tr.getPreconditions(), Arrays.asList(tr));
+            }
             final boolean numericInconsistence = generateNumericSupporters(tr, preconditionFunctionMap, asymptoticPreconditionFunctionMap, numEffectMap);
             generatePropositionalAction(tr, preconditionFunctionMap, propEffectMap);
         }
         numberOfSupporters = preconditionFunctionMap.keySet().size();
-        preconditionFunction = new Condition[numberOfSupporters];
-        preconditionFunctionMap.forEach((integer, condition) -> preconditionFunction[integer]=condition);
-        propEffectFunction = new Collection[numberOfSupporters];
-        propEffectMap.forEach((integer, terminals) -> propEffectFunction[integer]=terminals);
-        asymptoticPreconditionFunction = new Condition[numberOfSupporters];
-        asymptoticPreconditionFunctionMap.forEach((integer, condition) -> asymptoticPreconditionFunction[integer]=condition);
-        numericEffectFunction = new NumEffect[numberOfSupporters];
-        numEffectMap.forEach((integer, numEffect) -> numericEffectFunction[integer]=numEffect);
+        //This maps action to their precondition
+        transition2precondition = new Condition[numberOfSupporters];
+        preconditionFunctionMap.forEach((integer, condition) -> transition2precondition[integer]=condition);
+        transition2propeffect = new Collection[numberOfSupporters];
+        propEffectMap.forEach((integer, terminals) -> transition2propeffect[integer]=terminals);
+        transition2asymptoticprecondition = new Condition[numberOfSupporters];
+        asymptoticPreconditionFunctionMap.forEach((integer, condition) -> transition2asymptoticprecondition[integer]=condition);
+        transition2numeffect = new NumEffect[numberOfSupporters];
+        numEffectMap.forEach((integer, numEffect) -> transition2numeffect[integer]=numEffect);
 
         if (true){
             for (int i=0; i<numberOfSupporters;i++){
-                Collection<Terminal> propEffects = propEffectFunction[i];
-                NumEffect numEffect = numericEffectFunction[i];
+                Collection<Terminal> propEffects = transition2propeffect[i];
+                NumEffect numEffect = transition2numeffect[i];
                 if (propEffects != null && numEffect != null){
                     throw new RuntimeException("Bug in the function");
                 }else{
@@ -204,27 +211,31 @@ public class Aibr implements Heuristic {
                 int current = iterator.nextInt();
                 if (DEBUG) {System.out.println(relState);}
 //                out.println("Supporters set:"+supporters.size());
-                final Condition condition = preconditionFunction[current];
+                final Condition condition = transition2precondition[current];
                 final boolean b = conditionSatisfied.get(current);
                 if (b || relState.satisfy(condition)){
                     if (!b){
                         conditionSatisfied.set(current,true);
                     }
-                    final int id = pre2transition.get(condition).getId();
-                    if (!actionInserted.get(id)){
-                        if (DEBUG){System.out.println(names.get(current));}
-                        reachableActionsThisStage.add(id);
-                        actionInserted.set(id,true);
+                    final Collection<TransitionGround> get = pre2transition.get(condition);
+                    for (final TransitionGround g: get){
+                        final int id = g.getId();
+                        if (!actionInserted.get(id)){
+                            if (DEBUG){System.out.println(names.get(current));}
+                            reachableActionsThisStage.add(id);
+                            actionInserted.set(id,true);
+                        }
+                        
                     }
                     //Prop effect
-                    final Collection<Terminal> terminals = propEffectFunction[current];
+                    final Collection<Terminal> terminals = transition2propeffect[current];
                     if (terminals != null && !terminals.isEmpty()) {
                         iterator.remove();
                         propAppliers.add(current);
                     }else{
-                        final NumEffect numEffect = numericEffectFunction[current];
+                        final NumEffect numEffect = transition2numeffect[current];
                         if (numEffect != null){
-                            final Condition condition2 = asymptoticPreconditionFunction[current];
+                            final Condition condition2 = transition2asymptoticprecondition[current];
                             if (condition2 == null || relState.satisfy(condition2)) {
                                 iterator.remove();
                                 numAppliers.add(current);
@@ -240,11 +251,11 @@ public class Aibr implements Heuristic {
                 return Float.MAX_VALUE;
             }
             for (final int current: propAppliers) {
-                final Collection<Terminal> terminals = propEffectFunction[current];
+                final Collection<Terminal> terminals = transition2propeffect[current];
                 relState.apply(terminals,relState.clone());
             }
             for (final int current: numAppliers) {
-                final NumEffect effect = numericEffectFunction[current];
+                final NumEffect effect = transition2numeffect[current];
                 
                 relState.apply(effect,relState.clone());
             }
@@ -271,24 +282,23 @@ public class Aibr implements Heuristic {
 
         }
         if (goalReached){
-            return fixPointComputation(reachableActionsThisStage,s.relaxState());
+            return fixPointComputation(reachableTransitions,s.relaxState());
         }
         return Float.MAX_VALUE;
     }
 
-    private float fixPointComputation(IntArrayList reachable, RelState s) {
+    private float fixPointComputation(Collection<TransitionGround> reachable, RelState s) {
         int counter = 0;
         int horizon = Integer.MAX_VALUE;
         BitSet applicable = new BitSet();
-
-        while (counter <= horizon) {
-            for (final int transition: reachable) {
-                final boolean b = applicable.get(transition);
-                if (b || s.satisfy(Transition.getTransition(transition).getPreconditions())){
+        while (counter <= horizon) {                    
+            for (var transition: reachable) {
+                final boolean b = applicable.get(transition.getId());
+                if (s.satisfy(transition.getPreconditions())){
                     if (!b){
-                        applicable.set(transition,true);
+                        applicable.set(transition.getId(),true);
                     }
-                    s.apply((TransitionGround) Transition.getTransition(transition), s.clone());
+                    s.apply(transition, (RelState) s.clone());
                     counter++;
                     if (s.satisfy(problem.getGoals())) {
                         return counter;

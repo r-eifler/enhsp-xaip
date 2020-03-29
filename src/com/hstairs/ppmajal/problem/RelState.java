@@ -67,6 +67,13 @@ public class RelState extends Object {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return ((RelState)obj).toString().equals(this.toString()); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+
+    @Override
     public RelState clone ( ) {
         final RelState ret_val = new RelState(this.possBollValues.clone(),this.possNumValues.clone());
         return ret_val;
