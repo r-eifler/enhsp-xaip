@@ -255,6 +255,7 @@ public class EPddlProblem extends PddlProblem {
             }
         }
         this.makeInit();
+//        System.out.println(this.getActualFluents());
 //        h1.computeEstimate(this.init);
 //        final Collection<TransitionGround> transitions = h1.getTransitions(false);
 //        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
@@ -408,7 +409,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
     
-    private void removeUnnecessaryFluents ( ) {
+    private void fixNecessaryFluents ( ) {
 
         Set<NumFluent> involved_fluents = new LinkedHashSet();
 
@@ -450,12 +451,11 @@ public class EPddlProblem extends PddlProblem {
     private PDDLState makePddlState ( ) {
         //ensure compactness
         removeStaticPart();
-        removeUnnecessaryFluents();
+        fixNecessaryFluents();
         HashMap<Integer,Double> numFluents = new HashMap();
         totNumberOfNumVariables = 0;
         totNumberOfBoolVariables = 0;
         if (NumFluent.numFluentsBank != null){
-//        out.println(NumFluent.numFluentsBank);
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
                 if (this.getActualFluents().contains(nf) && nf.has_to_be_tracked()) {
                     PDDLNumber number = this.initNumFluentsValues.get(nf);
@@ -468,7 +468,6 @@ public class EPddlProblem extends PddlProblem {
                 }
             }
         }
-//        System.out.println(NumFluent.numFluentsBank.entrySet().size());
         booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
         if (Predicate.getPredicatesDB() != null) {

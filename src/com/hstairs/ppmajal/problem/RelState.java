@@ -227,7 +227,7 @@ public class RelState extends Object {
             }
         } else if (effect instanceof Predicate) {
             if (this.possBollValues.get(((Predicate) effect).getId()) == 0) {
-                this.possBollValues.put(((Predicate) effect).getId(), 1);
+                this.possBollValues.put(((Predicate) effect).getId(), 2);
             }
         } else if (effect instanceof NumEffect) {
             ((NumEffect) effect).apply(this,prev);
