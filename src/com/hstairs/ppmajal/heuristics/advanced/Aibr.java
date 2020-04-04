@@ -34,7 +34,7 @@ public class Aibr implements Heuristic {
     private final Condition[] supporter2aymptoticeffects;
     private final PrintStream out;
     //The following are built around supporters
-    private Int2ObjectMap<String> names = new Int2ObjectArrayMap();
+    private final Int2ObjectMap<String> names = new Int2ObjectArrayMap();
     Collection<TransitionGround> reachableTransitions = null;
     private boolean DEBUG = false;
 

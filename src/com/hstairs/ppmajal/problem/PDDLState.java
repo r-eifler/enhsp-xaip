@@ -40,7 +40,6 @@ public class PDDLState extends State {
     private static int[] fromStateNFId2ProblemNFId;
     protected BitSet boolFluents;
     public double time;
-    private PDDLState prev;
     
     private PDDLState(DoubleArrayList numFluents, BitSet boolFluents) {
         this.numFluents = numFluents.clone();
