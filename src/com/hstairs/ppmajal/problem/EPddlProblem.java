@@ -215,7 +215,7 @@ public class EPddlProblem extends PddlProblem {
                 try {
                     Set invariantFluents = this.getActualFluents();
                     Condition preconditions = act.getPreconditions();
-                    final Condition condition = preconditions.weakEval(this, invariantFluents);
+                    final Condition condition = preconditions.weakEval(this, invariantFluents).normalize();
                     if (condition != null && !condition.isUnsatisfiable()){
                         ConditionalEffects conditionalNumericEffects = act.getConditionalNumericEffects();
                         ConditionalEffects conditionalPropositionalEffects = act.getConditionalPropositionalEffects();
