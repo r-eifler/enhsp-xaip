@@ -137,7 +137,7 @@ public class SearchEngine {
                 if (saveSearchTreeAsJson) {
                     current_node.add_descendant(node);
                 }
-                add_frontier(frontier, node);
+                addInFrontier(frontier, node);
                 setGValue(successorState, g, succ_g, treeSearch);
                 return node;
             } else {
@@ -156,11 +156,11 @@ public class SearchEngine {
         }
     }
 
-    private SearchNode queue_successor(Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g) {
-        return queue_successor(frontier, successor_state, current_node, action_s, g, false);
+    private SearchNode queueSuccessor(Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g) {
+        return queueSuccessor(frontier, successor_state, current_node, action_s, g, false);
     }
 
-    private SearchNode queue_successor(Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g, boolean treeSearch) {
+    private SearchNode queueSuccessor(Object frontier, State successor_state, SearchNode current_node, Object action_s, Object2FloatMap<State> g, boolean treeSearch) {
         float succ_g = current_node.gValue + 1;
         float prev_cost = getPreviousCost(g, successor_state, treeSearch);
         //The node is put in the priority queue whenever one of the following holds
@@ -170,10 +170,10 @@ public class SearchEngine {
     }
 
     private ArrayList<TransitionGround> applyAllEvents(State s) {
-        ArrayList<TransitionGround> ret = new ArrayList<>();
+        final ArrayList<TransitionGround> ret = new ArrayList<>();
         while (true) {
             boolean at_least_one = false;
-            for (TransitionGround ev : this.reachableEvents) {
+            for (final TransitionGround ev : this.reachableEvents) {
 
                 if (ev.isApplicable(s)) {
                     at_least_one = true;
@@ -188,14 +188,14 @@ public class SearchEngine {
 
     }
 
-    private void add_frontier(Object frontier, SearchNode new_node) {
+    private void addInFrontier(Object frontier, SearchNode newNode) {
 
         //frontier.
 //        frontier.re
         if (frontier instanceof Queue) {
-            ((Queue) frontier).add(new_node);
+            ((Queue) frontier).add(newNode);
         } else if (frontier instanceof ObjectHeapPriorityQueue) {
-            ((ObjectHeapPriorityQueue) frontier).enqueue(new_node);
+            ((ObjectHeapPriorityQueue) frontier).enqueue(newNode);
         }
 
     }
@@ -603,49 +603,6 @@ public class SearchEngine {
         this.setNumberOfEvaluatedStates(states_evaluated);
     }
 
-    public boolean simulate(State s, EPddlProblem problem, double stepSize, double horizon) throws CloneNotSupportedException {
-        if (reachableEvents == null) {
-            reachableEvents = problem.getEventsSet();
-        }
-        if (reachableProcesses == null) {
-            reachableProcesses = problem.getProcessesSet();
-        }
-        float i = 0.00000f;
-        State temp = s;
-        ArrayList<TransitionGround> waiting_list = new ArrayList<>();
-        boolean at_least_one = false;
-        while (i < horizon) {
-            waiting_list.addAll(applyAllEvents(temp));
-            i += stepSize;
-            boolean atLeastOne = false;
-            ConditionalEffects<NumEffect> numEffect = new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT);
-            for (TransitionGround act : this.reachableProcesses) {
-                if (act.getSemantics() == Transition.Semantics.PROCESS) {
-                    TransitionGround gp = (TransitionGround) act;
-                    if (gp.isApplicable(temp)) {
-                        atLeastOne = true;
-                        for (NumEffect eff : (Collection<NumEffect>) gp.getConditionalNumericEffects().getAllEffects()) {
-                            numEffect.add(eff);
-                        }
-                    }
-                } else {
-                    throw new RuntimeException("This shouldn't happen");
-                }
-            }
-            if (!atLeastOne) {
-                return true;
-            }
-
-            final TransitionGround waiting = new TransitionGround(new ArrayList<>(), "waiting", new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT), numEffect, null, Transition.Semantics.PROCESS);
-            waiting_list.add(waiting);
-            temp.apply(waiting, temp.clone());
-            boolean valid = temp.satisfy(problem.globalConstraints);//zero crossing?!?!?
-            if (!valid) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     protected Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent) {
         return intelligentSimulation(s, problem, horizon, executionDelta, intelligent, null);
@@ -670,11 +627,11 @@ public class SearchEngine {
         }
         final int iterations = (int) Math.ceil(horizon / executionDelta);
         PDDLState previousNext = next;
-        ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
+        final ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
         for (int i = 0; i < iterations; i++) {
             boolean atLeastOne = false;
             final ArrayList<NumEffect> numEffect = new ArrayList();
-            for (TransitionGround act : this.reachableProcesses) {
+            for (final TransitionGround act : this.reachableProcesses) {
                 if (act.getSemantics() == Transition.Semantics.PROCESS) {
                     TransitionGround gp = (TransitionGround) act;
                     if (gp.isApplicable(next)) {
@@ -732,7 +689,7 @@ public class SearchEngine {
         }
         final Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current_node.s, problem, planningDelta, executionDelta, true);
         if (stateCollectionPair != null) {
-            queue_successor(frontier, stateCollectionPair.getFirst(), current_node, stateCollectionPair.getSecond(), g);//this could be done in a smarter way
+            queueSuccessor(frontier, stateCollectionPair.getFirst(), current_node, stateCollectionPair.getSecond(), g);//this could be done in a smarter way
         }
     }
 
