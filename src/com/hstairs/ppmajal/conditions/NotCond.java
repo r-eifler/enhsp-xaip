@@ -315,8 +315,7 @@ public class NotCond extends Terminal implements PostCondition {
     @Override
     public Set<Condition> getTerminalConditions ( ) {
         if (!this.isTerminal()) {
-            System.out.println("This should be a terminal!" + this);
-            System.exit(-1);
+            throw new RuntimeException("This should be a terminal!" + this);
         }
         LinkedHashSet ret = new LinkedHashSet();
         ret.add(this);

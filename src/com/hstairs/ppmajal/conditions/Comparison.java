@@ -534,11 +534,11 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition transformEquality ( ) {
-        AndCond ret = new AndCond();
-        Comparison comp = this;
+        final AndCond ret = new AndCond();
+        final Comparison comp = this;
         if (comp.getComparator().equals("=")) {
-            Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
-            Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
+            final Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
+            final Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
             ret.addConditions(dual);
             ret.addConditions(dual2);
         } else {

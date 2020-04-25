@@ -614,10 +614,10 @@ public final class PddlDomain extends Object {
     }
 
     private void pushNotAtTheTerminals( ) {
-        ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
+        final ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
         listViewOfTransitions.addAll(this.getProcessesSchema());
         listViewOfTransitions.addAll(this.eventsSchema);
-        ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
+        final ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
 
         while(iterator.hasNext()) {
             TransitionSchema next = iterator.next();
