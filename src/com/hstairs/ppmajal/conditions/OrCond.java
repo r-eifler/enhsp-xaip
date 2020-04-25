@@ -55,8 +55,8 @@ public class OrCond extends ComplexCondition {
         for (final Condition cond : (Collection<Condition>)sons ){
             Condition condInternal = cond.normalize();
             if (condInternal.isValid()){
-                this.setUnsatisfiable(true);
-                return Predicate.createPredicate(Predicate.trueFalse.FALSE);
+                this.setValid(true);
+                return Predicate.createPredicate(Predicate.trueFalse.TRUE);
             }else if (!condInternal.isUnsatisfiable()){
                 if (condInternal instanceof OrCond){
                     sons1.addAll(((AndCond) condInternal).sons);
@@ -308,7 +308,6 @@ public class OrCond extends ComplexCondition {
                         this.setUnsatisfiable(false);
                         return this;
                     } else if (c.isUnsatisfiable()) {
-
                     } else {
                         to_keep.add(c);
                     }

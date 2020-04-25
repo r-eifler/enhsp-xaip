@@ -84,6 +84,24 @@ public class TransitionGround extends Transition {
         res.append(")");
         return res.toString();
     }
+    
+    public String toStringAllModel() {
+        StringBuilder res= new StringBuilder();
+        res.append("(").append(name);
+        if (this.parameters != null) {
+            for (final PDDLObject obj : this.parameters) {
+                res.append(" ").append(obj.getName());
+            }
+        }
+        res.append("Precondition");
+        res.append(this.getPreconditions());
+        res.append("numeric effect");
+        res.append(this.conditionalNumericEffects);
+        res.append("propositional effect");
+        res.append(this.conditionalPropositionalEffects);
+        res.append(")");
+        return res.toString();
+    }
 
     private Float getExprImpact(PDDLState s_0, NumEffect nEff, NumFluent f) {
         if (nEff.getFluentAffected().equals(f)) {
