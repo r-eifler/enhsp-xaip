@@ -525,9 +525,9 @@ public class H1 implements Heuristic {
             float cost = 0f;
             for (final Condition son : (Collection<Condition>) and.sons) {
                 Pair<Collection, Float> activatingConditions = getActivatingConditions(son);
-                if (activatingConditions.getSecond() == Float.MAX_VALUE) {
-                    throw new RuntimeException("Conditions " + son + " seems unsatisfiable in the relaxed plan extraction");
-                }
+//                if (activatingConditions.getSecond() == Float.MAX_VALUE) {
+//                    throw new RuntimeException("Conditions " + son + " seems unsatisfiable in the relaxed plan extraction");
+//                }
                 cost += activatingConditions.getSecond();
                 left.addAll(activatingConditions.getFirst());
             }
