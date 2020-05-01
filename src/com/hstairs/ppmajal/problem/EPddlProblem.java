@@ -578,7 +578,7 @@ public class EPddlProblem extends PddlProblem {
     }
 
     @Override
-    public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Collection<TransitionGround> acts) {
+    public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Collection<Object> acts) {
         return new stateContainer(s, (Collection) acts);
     }
 

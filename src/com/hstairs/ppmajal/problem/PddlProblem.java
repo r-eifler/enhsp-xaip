@@ -689,7 +689,7 @@ public abstract class PddlProblem {
         return true;
     }
 
-    public  Iterator<Pair<State, Object>> getSuccessors(State s, Collection<TransitionGround> acts){
+    public  Iterator<Pair<State, Object>> getSuccessors(State s, Collection<Object> acts){
         return new stateContainer(s,acts);
     }
 
@@ -722,11 +722,11 @@ public abstract class PddlProblem {
 
     private class stateContainer implements Iterator {
         final private State source;
-        final private Collection<TransitionGround> actionsSet;
+        final private Collection<Object> actionsSet;
         TransitionGround current;
-        private Iterator<TransitionGround> it;
+        private Iterator<Object> it;
 
-        public stateContainer (State source, Collection<TransitionGround> actionsSet) {
+        public stateContainer (State source, Collection<Object> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
             it = actionsSet.iterator();
@@ -735,7 +735,7 @@ public abstract class PddlProblem {
         @Override
         public boolean hasNext ( ) {
             while (it.hasNext()) {
-                current = it.next();
+                current = (TransitionGround) it.next();
                 if (current.isApplicable(source)) {
                     return true;
                 }

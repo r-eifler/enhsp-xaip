@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.search;
 
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
@@ -25,12 +26,14 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -41,24 +44,30 @@ import java.util.LinkedList;
 public class PDDLSearchEngine extends SearchEngine {
 
     private final EPddlProblem problem;
+    protected Collection<TransitionGround> reachableProcesses;
+    protected Collection<TransitionGround> reachableEvents;
 
     public PDDLSearchEngine(Heuristic h, EPddlProblem problem) {
         super(h);
         this.problem = problem;
     }
+    @Override
+    protected void printInfo(PrintStream out) {
+            out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
+    }
 
-    public boolean validate(LinkedList<Pair<Float,TransitionGround>> userPlan, double stepSize) throws CloneNotSupportedException {
+    public boolean validate(LinkedList<Pair<Float,Object>> userPlan, double stepSize) throws CloneNotSupportedException {
         return validate(userPlan,stepSize,null);
     }
 
-    public boolean validate(LinkedList<Pair<Float,TransitionGround>> userPlan, double stepSize, String planTrace) throws CloneNotSupportedException {
+    public boolean validate(LinkedList<Pair<Float,Object>> userPlan, double stepSize, String planTrace) throws CloneNotSupportedException {
         Float previous = 0.0F;
         State current = (PDDLState) problem.getInit();
         System.out.println("Plan under Validation: "+userPlan);
         StringBuilder planTraceString = null;
         if (planTrace != null){ planTraceString = new StringBuilder();}
 
-        for (Pair<Float, TransitionGround> ele : userPlan) {
+        for (Pair<Float, Object> ele : userPlan) {
             final Float v = ele.getKey() - previous;
             if (v > 0) {
                 final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false, planTraceString);
@@ -70,8 +79,9 @@ public class PDDLSearchEngine extends SearchEngine {
                 }
             }
             previous = ele.getKey();
-            if (ele.getRight() != null && !ele.getRight().getSemantics().equals(Transition.Semantics.PROCESS)) {
-                current.apply(ele.getRight(), current.clone());
+            TransitionGround right = (TransitionGround) ele.getRight();
+            if (ele.getRight() != null && !right.getSemantics().equals(Transition.Semantics.PROCESS)) {
+                current.apply(right, current.clone());
                 if (planTrace != null){planTraceString.append(current.toString()).append("\n");}
             }
         }
@@ -164,5 +174,113 @@ public class PDDLSearchEngine extends SearchEngine {
         return plan;
     }
 
+    @Override
+    protected void advanceTime(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
+
+        if (reachableEvents == null) {
+            reachableEvents = problem.getEventsSet();
+        }
+        if (reachableProcesses == null) {
+            reachableProcesses = problem.getProcessesSet();
+        }
+        final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current_node.s, problem, planningDelta, executionDelta, true);
+        if (stateCollectionPair != null) {
+            queueSuccessor(frontier, stateCollectionPair.getFirst(), current_node, stateCollectionPair.getSecond(), g);//this could be done in a smarter way
+        }
+    }
+        
+         protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent) {
+        return intelligentSimulation(s, problem, horizon, executionDelta, intelligent, null);
+    }
+
+    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent, StringBuilder traceString) {
+        if (reachableEvents == null) {
+            reachableEvents = problem.getEventsSet();
+        }
+        if (reachableProcesses == null) {
+            reachableProcesses = problem.getProcessesSet();
+        }
+
+        final PDDLState next = (PDDLState) s.clone();
+        if (horizon < executionDelta) {
+            System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
+            throw new RuntimeException("Delta simulation should be higher than delta execution");
+        }
+        if (notDiv(horizon, executionDelta)) {
+            System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
+            System.out.println("WARNING: Delta simulation should be a multiple of delta execution");
+        }
+        final int iterations = (int) Math.ceil(horizon / executionDelta);
+        PDDLState previousNext = next;
+        final ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
+        for (int i = 0; i < iterations; i++) {
+            boolean atLeastOne = false;
+            final ArrayList<NumEffect> numEffect = new ArrayList();
+            for (final TransitionGround act : this.reachableProcesses) {
+                if (act.getSemantics() == Transition.Semantics.PROCESS) {
+                    TransitionGround gp = (TransitionGround) act;
+                    if (gp.isApplicable(next)) {
+                        atLeastOne = true;
+                        for (NumEffect eff : (Collection<NumEffect>) gp.getConditionalNumericEffects().getAllEffects()) {
+                            numEffect.add(eff);
+                        }
+                    }
+                } else {
+                    throw new RuntimeException("This shouldn't happen, "+act.getName()+" is not a process?");
+                }
+            }
+            if (!atLeastOne) {
+                if (i == 0) {
+                    return null;
+                }
+                return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
+            }
+            //execute
+            executedProcesses.addAll(applyAllEvents(next));
+            final TransitionGround waiting = new TransitionGround(numEffect);
+            next.apply(waiting, next.clone());
+            next.time += executionDelta;
+            if (!next.satisfy(problem.globalConstraints)) {
+                if (i == 0 || !intelligent) {
+                    return null;
+                }
+                return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
+            }
+            if (traceString != null) {
+                traceString.append(next.toString()).append("\n");
+            }
+            executedProcesses.add(waiting);
+            executedProcesses.addAll(applyAllEvents(next));
+            if (intelligent && next.satisfy(problem.goals)) {
+                return new org.jgrapht.alg.util.Pair(next, executedProcesses);
+            }
+            previousNext = next;
+        }
+        return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
+    }
+
+    private boolean notDiv(double horizon, double executionDelta) {
+        final double v = Math.IEEEremainder(horizon, executionDelta);
+        return v >= Double.MIN_VALUE;
+    }
+    
+        private ArrayList<TransitionGround> applyAllEvents(State s) {
+        final ArrayList<TransitionGround> ret = new ArrayList<>();
+        while (true) {
+            boolean at_least_one = false;
+            for (final TransitionGround ev : this.reachableEvents) {
+
+                if (ev.isApplicable(s)) {
+                    at_least_one = true;
+                    s.apply(ev, s.clone());
+                    ret.add(ev);
+                }
+            }
+            if (!at_least_one) {
+                return ret;
+            }
+        }
+
+    }
 
 }

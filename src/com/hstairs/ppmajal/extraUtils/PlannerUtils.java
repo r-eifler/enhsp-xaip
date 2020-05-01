@@ -82,7 +82,7 @@ public class PlannerUtils {
             search.processes = true;
             search.executionDelta = 1.0f;
         }
-        final LinkedList<Pair<Float, TransitionGround>> pairs = search.WAStar(p);
+        final LinkedList<Pair<Float, Object>> pairs = search.WAStar(p);
         return pairs.size();
     }
 
