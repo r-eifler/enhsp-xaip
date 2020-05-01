@@ -20,7 +20,6 @@ package com.hstairs.ppmajal.search;
 
 import java.util.ArrayList;
 import com.hstairs.ppmajal.heuristics.Heuristic;
-import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.objects.*;
 
@@ -176,17 +175,17 @@ public class SearchEngine {
 
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> a_star(EPddlProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> a_star(SearchProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
         return this.WAStar(problem);
     }
 
-    public LinkedList<Object> enforced_hill_climbing(EPddlProblem problem) throws Exception {
+    public LinkedList<Object> enforced_hill_climbing(SearchProblem problem) throws Exception {
         return this.enforced_hill_climbing(problem, Explorator.BRFS);
     }
 
-    public LinkedList<Object> enforced_hill_climbing(EPddlProblem problem, Explorator explorator) throws Exception {
+    public LinkedList<Object> enforced_hill_climbing(SearchProblem problem, Explorator explorator) throws Exception {
         long start_global = System.currentTimeMillis();
         setEvaluatedStates(getEvaluatedStates() + 1);
 
@@ -238,7 +237,7 @@ public class SearchEngine {
 
     }
 
-    public SearchNode breadth_first_search(State current, EPddlProblem problem, Object2BooleanMap<State> visited) throws Exception {
+    public SearchNode breadth_first_search(State current, SearchProblem problem, Object2BooleanMap<State> visited) throws Exception {
         //out.println("Visited size:"+visited.size());
 
         Queue<SearchNode> frontier = new LinkedList<>();
@@ -269,13 +268,14 @@ public class SearchEngine {
                 State temp = next.getFirst();
 //                    out.println("Depth:"+node.gValue);
                 //act.normalize();
-                if (!temp.satisfy(problem.globalConstraints)) {
+                if (!problem.satisfyGlobalConstraints(temp)){
                     continue;
                 }
                 boolean visitedTemp = visited.getOrDefault(temp, false);
                 if (!visitedTemp) {
                     visited.put(temp, true);
-                    Float newG = problem.gValue(node.s, act, temp, node.gValue, problem.getMetric());
+                    Float newG;
+                    newG = problem.gValue(node.s, act, temp, node.gValue);
                     if (newG == null) {
                         continue;
                     }
@@ -328,7 +328,7 @@ public class SearchEngine {
      * otherwise.
      * @throws Exception
      */
-    public SearchNode WAStar(EPddlProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch, long timeout) throws Exception {
+    public SearchNode WAStar(SearchProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch, long timeout) throws Exception {
 
         State initState = null;
         if (extCurrent == null) {
@@ -341,7 +341,7 @@ public class SearchEngine {
             tbRule = TieBreaking.ARBITRARY;
         }
         final ObjectHeapPriorityQueue<SearchNode> frontier = new ObjectHeapPriorityQueue<>(new TieBreaker(this.tbRule));
-        if (!initState.satisfy(problem.globalConstraints)) {
+        if (!problem.satisfyGlobalConstraints(initState)) {
             out.println("Initial State is not valid");
             return null;
         }
@@ -357,7 +357,7 @@ public class SearchEngine {
 //                out.println("h(n = s_0)=inf");
 //                return null;
 //            }
-            out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getTransitions(problem).size());
+//            out.println("Reachable actions and processes: |A U P U E|:" + getHeuristic().getTransitions(problem).size());
 //            setupReachableActionsProcesses(problem);//this maps actions in the heuristic with the action in the execution model
             setHeuristicCpuTime(0);
             duplicatesNumber = 0;
@@ -459,7 +459,7 @@ public class SearchEngine {
                     final State successorState = next.getFirst();
                     final Object act = next.getSecond();
                     //skip this if violates global constraints
-                    final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue, problem.getMetric());
+                    final float successorG = problem.gValue(currentNode.s, act, successorState, currentNode.gValue);
                     if (Objects.equals(successorG, this.G_DEFAULT)) {
                         this.deadEndsDetected++;
                         continue;
@@ -485,15 +485,15 @@ public class SearchEngine {
         return this.lastState;
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(EPddlProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(SearchProblem problem) throws Exception {
         return WAStar(problem, false, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(EPddlProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(SearchProblem problem, long timeout) throws Exception {
         return WAStar(problem, false, timeout);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(EPddlProblem problem, boolean treeSearch, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(SearchProblem problem, boolean treeSearch, long timeout) throws Exception {
         SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch, timeout);
         if (end != null) {
             return this.extractPlan(end);
@@ -502,17 +502,17 @@ public class SearchEngine {
         }
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(EPddlProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(SearchProblem problem) throws Exception {
         this.optimality = false;
         return this.greedy_best_first_search(problem, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(EPddlProblem problem, boolean optimality) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(SearchProblem problem, boolean optimality) throws Exception {
         this.optimality = optimality;
         return this.WAStar(problem);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(EPddlProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(SearchProblem problem, long timeout) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem, timeout);
@@ -584,24 +584,24 @@ public class SearchEngine {
 
 
 
-    public LinkedList<Object> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         return idastar(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, Long.MAX_VALUE);
     }
 
-    public LinkedList<Object> idastar(EPddlProblem problem, boolean checkAlongPrefix) throws Exception {
+    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, Long.MAX_VALUE);
     }
 
-    public LinkedList<Object> idastar(EPddlProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
+    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, timeout);
     }
 
-    public LinkedList<Object> idastar(EPddlProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
+    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
         State initState = problem.getInit();
 
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
-        if (!initState.satisfy(problem.globalConstraints)) {
+        if (!problem.satisfyGlobalConstraints(initState)) {
             out.println("Initial State is not valid");
             return null;
         }
@@ -644,15 +644,15 @@ public class SearchEngine {
 
     }
 
-    public LinkedList<Object> dfsbnb(EPddlProblem problem) throws Exception {
+    public LinkedList<Object> dfsbnb(SearchProblem problem) throws Exception {
         return this.dfsbnb(problem, false);
     }
 
-    public LinkedList<Object> dfsbnb(EPddlProblem problem, boolean memory) throws Exception {
+    public LinkedList<Object> dfsbnb(SearchProblem problem, boolean memory) throws Exception {
         State initState = problem.getInit();
         beginningTime = System.currentTimeMillis();
         previousTime = beginningTime;
-        if (!initState.satisfy(problem.globalConstraints)) {
+        if (!problem.satisfyGlobalConstraints(initState)) {
             out.println("Initial State is not valid");
             return null;
         }
@@ -689,11 +689,11 @@ public class SearchEngine {
         return false;
     }
 
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean memory) throws TimeoutException {
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(SearchProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean memory) throws TimeoutException {
         return boundedDepthFirstSearch(problem, bound, anytime, checkAlongPrefix, false, memory, Long.MAX_VALUE);
     }
 
-    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(EPddlProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory, long timeout) throws TimeoutException {
+    private Pair<IdaStarSearchNode, Float> boundedDepthFirstSearch(SearchProblem problem, float bound, boolean anytime, boolean checkAlongPrefix, boolean showExpansion, boolean idastarWithMemory, long timeout) throws TimeoutException {
         final Stack<IdaStarSearchNode> frontier = new Stack();
 
         IdaStarSearchNode init = new IdaStarSearchNode(problem.getInit().clone(), null, null, 0);
@@ -716,7 +716,7 @@ public class SearchEngine {
             }
             final float g;
             if (node.transition != null) {
-                g = problem.gValue(node.father.s, node.transition, node.s, node.gValue, problem.getMetric());
+                g = problem.gValue(node.father.s, node.transition, node.s, node.gValue);
             } else {
                 g = 0;
             }
@@ -802,7 +802,7 @@ public class SearchEngine {
 
     }
 
-    Collection<Object> getActionsToSearch(SearchNode currentNode, EPddlProblem problem) {
+    Collection<Object> getActionsToSearch(SearchNode currentNode, SearchProblem problem) {
         if (helpfulActionsPruning && currentNode != null) {
             return currentNode.helpfulActions;
         }
@@ -893,7 +893,7 @@ public class SearchEngine {
         return causalDeadEnds;
     }
 
-    protected void advanceTime(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
+    protected void advanceTime(Object frontier, SearchNode current_node, SearchProblem problem, Object2FloatMap<State> g) {
         return;
     }
 

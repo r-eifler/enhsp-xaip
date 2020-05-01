@@ -19,9 +19,7 @@
 package com.hstairs.ppmajal.heuristics;
 
 import com.google.common.collect.Sets;
-import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.problem.*;
-import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.*;

@@ -16,13 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.hstairs.ppmajal.search;
+package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.search.SearchEngine;
+import com.hstairs.ppmajal.search.SearchNode;
+import com.hstairs.ppmajal.search.SearchProblem;
+import com.hstairs.ppmajal.search.SimpleSearchNode;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
@@ -175,8 +179,9 @@ public class PDDLSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected void advanceTime(Object frontier, SearchNode current_node, EPddlProblem problem, Object2FloatMap<State> g) {
+    protected void advanceTime(Object frontier, SearchNode current_node, SearchProblem generingProblem, Object2FloatMap<State> g) {
 
+        EPddlProblem problem = (EPddlProblem)generingProblem;
         if (reachableEvents == null) {
             reachableEvents = problem.getEventsSet();
         }

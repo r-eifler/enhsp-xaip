@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.hstairs.ppmajal.search.SearchProblem;
 import antlr.RecognitionException;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
@@ -44,7 +45,7 @@ import org.jgrapht.alg.util.Pair;
 /**
  * @author enrico
  */
-public abstract class PddlProblem {
+public abstract class PddlProblem extends SearchProblem{
 
     public PDDLObjects objects;
     public State init;
@@ -693,7 +694,9 @@ public abstract class PddlProblem {
         return new stateContainer(s,acts);
     }
 
-     public Float gValue(State s, Object act, State temp, float gValue, Metric m) {
+    @Override
+     public Float gValue(State s, Object act, State temp, float gValue) {
+        Metric m = this.getMetric();
         if (act instanceof Transition) {
             TransitionGround gr = (TransitionGround) act;
             if (gr == null) {

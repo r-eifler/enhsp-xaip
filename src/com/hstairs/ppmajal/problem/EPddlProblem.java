@@ -630,6 +630,11 @@ public class EPddlProblem extends PddlProblem {
         getNumericFluentReference().put(t.toString(), t);
     }
 
+    @Override
+    public boolean satisfyGlobalConstraints(State temp) {
+        return temp.satisfy(globalConstraints);
+    }
+
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
         protected final State source;

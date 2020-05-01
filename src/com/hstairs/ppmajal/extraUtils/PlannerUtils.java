@@ -6,7 +6,7 @@ import com.hstairs.ppmajal.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.heuristics.advanced.H1;
 import com.hstairs.ppmajal.heuristics.BlindHeuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.search.PDDLSearchEngine;
+import com.hstairs.ppmajal.problem.PDDLSearchEngine;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.Pair;
 
