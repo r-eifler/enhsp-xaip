@@ -21,7 +21,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hstairs.ppmajal.heuristics;
+package com.hstairs.ppmajal.pddl.heuristics;
 
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.problem.EPddlProblem;
@@ -29,11 +29,12 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.Collection;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 
 /**
  * @author enrico
  */
-public class BlindHeuristic implements Heuristic {
+public class BlindHeuristic implements SearchHeuristic {
 
     final Condition goal;
     final private EPddlProblem problem;
@@ -51,12 +52,12 @@ public class BlindHeuristic implements Heuristic {
 
     @Override
     public Collection<TransitionGround> getTransitions(boolean helpful) {
-        return problem.getActions();
+        return problem.getTransitions();
     }
 
     @Override
     public Collection<TransitionGround> getAllTransitions() {
-        return this.getTransitions(problem);
+        return problem.getTransitions();
     }
 
 }

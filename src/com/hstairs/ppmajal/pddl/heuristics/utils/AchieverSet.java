@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.hstairs.ppmajal.heuristics.utils;
+package com.hstairs.ppmajal.pddl.heuristics.utils;
 
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.transition.TransitionGround;

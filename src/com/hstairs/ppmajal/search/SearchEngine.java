@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.search;
 
 import java.util.ArrayList;
-import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.objects.*;
 
@@ -62,7 +61,7 @@ public class SearchEngine {
     private int priorityQueueSize;
     private int numberOfEvaluatedStates;
     private float hw;
-    final private Heuristic heuristic;
+    final private SearchHeuristic heuristic;
     private float gw;
     private boolean optimality;
     private long beginningTime;
@@ -74,11 +73,11 @@ public class SearchEngine {
     private Object2FloatMap<State> idaStar;
     private PrintStream out;
 
-    public SearchEngine(Heuristic h) {
+    public SearchEngine(SearchHeuristic h) {
         this(System.out, h);
     }
 
-    public SearchEngine(PrintStream out, Heuristic h) {
+    public SearchEngine(PrintStream out, SearchHeuristic h) {
         setNodesExpanded(0);
         setNodesReopened(0);
         setNumberOfEvaluatedStates(0);
@@ -561,7 +560,7 @@ public class SearchEngine {
     /**
      * @return the heuristic
      */
-    public Heuristic getHeuristic() {
+    public SearchHeuristic getHeuristic() {
         return heuristic;
     }
 

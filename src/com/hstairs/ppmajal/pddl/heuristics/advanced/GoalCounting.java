@@ -16,24 +16,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.hstairs.ppmajal.heuristics.advanced;
+package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
 import java.util.Collection;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 
 /**
  *
  * @author enrico
  */
-public class GoalCounting implements Heuristic{
+public class GoalCounting implements SearchHeuristic{
 
     final private EPddlProblem problem;
     public GoalCounting(EPddlProblem problem){
@@ -50,7 +50,7 @@ public class GoalCounting implements Heuristic{
     }
     @Override
     public Collection<TransitionGround> getAllTransitions() {
-        return this.getTransitions(problem);
+        return problem.getTransitions();
     }
 
 }

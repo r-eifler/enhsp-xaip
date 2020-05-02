@@ -1,4 +1,4 @@
-package com.hstairs.ppmajal.heuristics.advanced;
+package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
@@ -9,7 +9,6 @@ import com.hstairs.ppmajal.expressions.BinaryOp;
 import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.RelState;
@@ -22,8 +21,9 @@ import java.util.*;
 
 import static com.google.common.collect.Range.closedOpen;
 import java.io.PrintStream;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 
-public class Aibr implements Heuristic {
+public class Aibr implements SearchHeuristic {
 
     private final EPddlProblem problem;
     private final int numberOfSupporters;
@@ -49,7 +49,7 @@ public class Aibr implements Heuristic {
         final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
         out = problem.out;
         this.problem = problem;
-        for (final TransitionGround tr : getTransitions(problem)) {           
+        for (final TransitionGround tr : problem.getTransitions()) {           
             final boolean numericInconsistence = generateNumericSupporters(tr, supporter2transitionMap, asymptoticPreconditionFunctionMap, numEffectMap);
             generatePropositionalAction(tr, supporter2transitionMap, propEffectMap);
         }

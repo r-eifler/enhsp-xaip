@@ -26,14 +26,14 @@ import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.heuristics.advanced.Aibr;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
+import com.hstairs.ppmajal.search.SearchProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.io.PrintStream;
 
 import java.util.*;
@@ -43,7 +43,7 @@ import org.jgrapht.alg.util.Pair;
 /**
  * @author enrico
  */
-public class EPddlProblem extends PddlProblem {
+public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     public HashSet<GlobalConstraint> globalConstraintSet;
     public AndCond globalConstraints;
@@ -404,7 +404,7 @@ public class EPddlProblem extends PddlProblem {
 
     }
 
-    Sets.SetView<TransitionGround> getTransitions() {
+    public Sets.SetView<TransitionGround> getTransitions() {
         return Sets.union(Sets.union(new HashSet(actions), new HashSet<>(getEventsSet())), new HashSet(getProcessesSet()));
 
     }
@@ -634,7 +634,6 @@ public class EPddlProblem extends PddlProblem {
     public boolean satisfyGlobalConstraints(State temp) {
         return temp.satisfy(globalConstraints);
     }
-
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
         protected final State source;

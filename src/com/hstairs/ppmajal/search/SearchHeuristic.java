@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package com.hstairs.ppmajal.heuristics;
+package com.hstairs.ppmajal.search;
 
-import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
@@ -28,32 +27,25 @@ import java.util.*;
 /**
  * @author enrico
  */
-public interface Heuristic {
+public interface SearchHeuristic {
 
+    /**
+     *
+     * @param s A state of the system
+     * @return Distance to the goal
+     */
     float computeEstimate(State s);
 
-//    default Float gValue(State s, Object act, State temp, float gValue, Metric m) {
-//        TransitionGround gr = (TransitionGround) act;
-//        if (gr == null) {
-//            return gValue;
-//        }
-//        return getTransitionCost(s, gr,gValue,false,m);
-//    }
-//    default float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m){
-//        if (ignoreCost){
-//            return previousG + 1;
-//        }
-//        if (m != null){
-//            return previousG + gr.getActionCost(s,m);
-//        }else{
-//            return previousG + 1;
-//        }
-//    }
-    default Sets.SetView<TransitionGround> getTransitions(EPddlProblem problem) {
-        return Sets.union(Sets.union(new HashSet(problem.actions), new HashSet<>(problem.getEventsSet())), new HashSet(problem.getProcessesSet()));
+    /**
+     *
+     * @param onlyHelpful
+     * @return Return only the helpful actions, if the heuristic is thought to produce them
+     */
+    Collection getTransitions(final boolean onlyHelpful);
 
-    }
-    Collection getTransitions(final boolean helpful);
-
+    /**
+     *
+     * @return All actions that are deemed reachable by the heuristic model
+     */
     Collection<TransitionGround> getAllTransitions();
 }

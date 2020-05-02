@@ -45,7 +45,7 @@ import org.jgrapht.alg.util.Pair;
 /**
  * @author enrico
  */
-public abstract class PddlProblem extends SearchProblem{
+public abstract class PddlProblem {
 
     public PDDLObjects objects;
     public State init;
@@ -694,7 +694,6 @@ public abstract class PddlProblem extends SearchProblem{
         return new stateContainer(s,acts);
     }
 
-    @Override
      public Float gValue(State s, Object act, State temp, float gValue) {
         Metric m = this.getMetric();
         if (act instanceof Transition) {

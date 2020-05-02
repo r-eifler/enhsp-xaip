@@ -27,18 +27,18 @@ import org.jgrapht.alg.util.Pair;
  *
  * @author enrico
  */
-public abstract class SearchProblem {
+public interface SearchProblem {
 
-    public abstract State getInit();
+    public  State getInit();
 
-    public abstract Boolean goalSatisfied(State current);
+    public  Boolean goalSatisfied(State current);
 
-    public abstract Iterator<Pair<State, Object>> getSuccessors(State s, Collection<Object> actionsToSearch);
+    public  Iterator<Pair<State, Object>> getSuccessors(State s, Collection<Object> actionsToSearch);
 
-    public abstract boolean satisfyGlobalConstraints(State temp);
+    public  boolean satisfyGlobalConstraints(State temp);
 
-    public abstract Float gValue(State s, Object act, State temp, float gValue);
+    public  Float gValue(State s, Object act, State temp, float gValue);
 
-    public abstract boolean milestoneReached(Float d, Float current_value, State temp);
+    public  boolean milestoneReached(Float d, Float current_value, State temp);
     
 }

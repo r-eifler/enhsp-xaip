@@ -21,7 +21,7 @@ package com.hstairs.ppmajal.conditions;
 import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.pddl.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.problem.RelState;

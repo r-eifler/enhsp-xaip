@@ -21,14 +21,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hstairs.ppmajal.heuristics.advanced;
+package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.extraUtils.ArrayShifter;
-import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
@@ -42,11 +41,12 @@ import java.util.*;
 import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 
 /**
  * @author enrico
  */
-public class H1 implements Heuristic {
+public class H1 implements SearchHeuristic {
 
     private static final boolean DEBUG = false;
     final public boolean extractRelaxedPlan;

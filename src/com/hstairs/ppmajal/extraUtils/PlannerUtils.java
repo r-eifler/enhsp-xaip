@@ -1,16 +1,15 @@
 package com.hstairs.ppmajal.extraUtils;
 
 import com.hstairs.ppmajal.domain.PddlDomain;
-import com.hstairs.ppmajal.heuristics.Heuristic;
-import com.hstairs.ppmajal.heuristics.advanced.Aibr;
-import com.hstairs.ppmajal.heuristics.advanced.H1;
-import com.hstairs.ppmajal.heuristics.BlindHeuristic;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
+import com.hstairs.ppmajal.pddl.heuristics.BlindHeuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLSearchEngine;
-import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedList;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 
 /*
  * Copyright (C) 2018 enrico.
@@ -37,7 +36,7 @@ import java.util.LinkedList;
 public class PlannerUtils {
     PddlDomain d;
     EPddlProblem p;
-    Heuristic h;
+    SearchHeuristic h;
 
 
     private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {

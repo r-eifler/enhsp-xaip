@@ -19,7 +19,6 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.heuristics.Heuristic;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.State;
@@ -41,6 +40,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import com.hstairs.ppmajal.search.SearchHeuristic;
 
 /**
  * @author enrico
@@ -51,7 +51,7 @@ public class PDDLSearchEngine extends SearchEngine {
     protected Collection<TransitionGround> reachableProcesses;
     protected Collection<TransitionGround> reachableEvents;
 
-    public PDDLSearchEngine(Heuristic h, EPddlProblem problem) {
+    public PDDLSearchEngine(SearchHeuristic h, EPddlProblem problem) {
         super(h);
         this.problem = problem;
     }

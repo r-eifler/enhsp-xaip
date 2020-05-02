@@ -22,7 +22,7 @@ import com.hstairs.ppmajal.domain.ActionParameter;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.pddl.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
