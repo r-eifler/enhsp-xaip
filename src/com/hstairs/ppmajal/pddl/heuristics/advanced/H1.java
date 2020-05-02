@@ -357,8 +357,8 @@ public class H1 implements SearchHeuristic {
         final Condition goal = preconditionFunction[pseudoGoal];
 
         final LinkedList<Pair<Collection, Float>> stack = new LinkedList();
-        stack.add(getActivatingConditions(goal));
-        plan = new LinkedList();
+        stack.push(getActivatingConditions(goal));
+        plan = new ArrayList();
         final boolean[] visited = new boolean[totNumberOfTerms];
         Arrays.fill(visited, false);
         helpfulActions = new IntArraySet();
@@ -525,9 +525,6 @@ public class H1 implements SearchHeuristic {
             float cost = 0f;
             for (final Condition son : (Collection<Condition>) and.sons) {
                 Pair<Collection, Float> activatingConditions = getActivatingConditions(son);
-//                if (activatingConditions.getSecond() == Float.MAX_VALUE) {
-//                    throw new RuntimeException("Conditions " + son + " seems unsatisfiable in the relaxed plan extraction");
-//                }
                 cost += activatingConditions.getSecond();
                 left.addAll(activatingConditions.getFirst());
             }
