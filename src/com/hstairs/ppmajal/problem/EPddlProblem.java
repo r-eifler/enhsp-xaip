@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.hstairs.ppmajal.propositionalFactory.MetricFFGrounder;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.PddlDomain;
@@ -27,6 +28,9 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
+import com.hstairs.ppmajal.propositionalFactory.ExternalGrounder;
+import com.hstairs.ppmajal.propositionalFactory.FDGrounder;
+import com.hstairs.ppmajal.propositionalFactory.FDGrounderInstantiate;
 import com.hstairs.ppmajal.propositionalFactory.Grounder;
 import com.hstairs.ppmajal.search.SearchProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
@@ -59,18 +63,20 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     private int totNumberOfBoolVariables;
     private int totNumberOfNumVariables;
     final public PrintStream out;
+    final private String groundingMethod;
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
-        this(problemFile,po,types,linked,System.out);
+        this(problemFile,po,types,linked,System.out,"internal");
     }
 
 
 
-    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out) {
+    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out, String groundingMethod) {
         super(problemFile, constants, types, domain);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond();   
         this.out = out;
+        this.groundingMethod = groundingMethod;
     }
 
 
@@ -102,8 +108,37 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
 
-    public void generateTransitions( ){
+    public void generateTransitions() {
         long start = System.currentTimeMillis();
+        if (!"internal".equals(groundingMethod)) {
+            System.out.println("Generate Transitions using " + groundingMethod);
+            ExternalGrounder mff = null;
+            switch (groundingMethod) {
+                case "metricff":
+                    mff = new MetricFFGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                    break;
+                case "fd":
+                    mff = new FDGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                    break;
+                case "fdi":
+                    mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                    break;
+            }
+            Collection<TransitionGround> doGrounding = mff.doGrounding();
+            for (var act : doGrounding) {
+                switch (act.getSemantics()) {
+                    case ACTION:
+                        getActions().add(act);
+                        break;
+                    case EVENT:
+                        getEventsSet().add(act);
+                        break;
+                    case PROCESS:
+                        getProcessesSet().add(act);
+                        break;
+                }
+            }
+        } else {
             Grounder af = new Grounder(belief == null);
 //        Grounder af = new Grounder(false);
 
@@ -125,8 +160,8 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                         break;
                 }
             }
-
-
+        }
+        
     }
 
     public void groundingSimplication(boolean aibrPreprocessing) throws Exception {
@@ -170,6 +205,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                 }
             }
     }
+    
 
     public void groundingActionProcessesConstraints ( ) throws Exception {
         long start = System.currentTimeMillis();
@@ -633,6 +669,13 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     @Override
     public boolean satisfyGlobalConstraints(State temp) {
         return temp.satisfy(globalConstraints);
+    }
+
+    private void groundViaMetricFF() {
+
+        MetricFFGrounder mff = new MetricFFGrounder(this,this.linkedDomain.getPddlFilRef(),this.pddlFilRef);
+        mff.doGrounding();
+
     }
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
