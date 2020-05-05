@@ -110,7 +110,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     public void generateTransitions() {
         long start = System.currentTimeMillis();
-        if (!"internal".equals(groundingMethod)) {
+        if (!"internal".equals(groundingMethod) && !"naive".equals(groundingMethod)) {
             System.out.println("Generate Transitions using " + groundingMethod);
             ExternalGrounder mff = null;
             switch (groundingMethod) {
@@ -139,7 +139,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                 }
             }
         } else {
-            Grounder af = new Grounder(belief == null);
+            Grounder af = new Grounder(belief == null && !"naive".equals(groundingMethod));
 //        Grounder af = new Grounder(false);
 
             ArrayList<TransitionSchema> transitions = new ArrayList<>();

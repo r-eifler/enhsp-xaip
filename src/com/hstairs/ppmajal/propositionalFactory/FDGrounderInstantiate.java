@@ -30,8 +30,6 @@ import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
@@ -40,6 +38,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,11 +61,12 @@ public class FDGrounderInstantiate extends ExternalGrounder{
     
     public Collection<TransitionGround> doGrounding(){
         
-        final HashMap<String,Collection<List<String>>> groundings = new HashMap();
+        final HashMap<String, Collection<List<String>>> groundings = new HashMap();
         Pair<String, String> dom_prob = abstractNumeric();
-        String command = "fdtranslator "+dom_prob.getFirst()+" "+dom_prob.getSecond();
-        System.out.println(String.format("DEBUG: domain file: %s problem file %s",dom_prob.getFirst(),dom_prob.getSecond()));
         try {
+            String fdtranslator = "python3 "+new File(FDGrounderInstantiate.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/../../translate/slim_translate.py";
+            String command = fdtranslator + " " + dom_prob.getFirst() + " " + dom_prob.getSecond();
+            System.out.println(String.format("DEBUG: domain file: %s problem file %s", dom_prob.getFirst(), dom_prob.getSecond()));
             Process process = Runtime.getRuntime().exec(command);
 
             BufferedReader reader = new BufferedReader(
@@ -311,21 +311,20 @@ public class FDGrounderInstantiate extends ExternalGrounder{
     }
 
     private StringBuilder abstractNumericInit(EPddlProblem init) {
-        Iterable<NumFluent> numFluentsInvolvedInInit = init.getNumFluentsInvolvedInInit(); 
+        Iterable<NumFluent> numFluentsInvolvedInInit = init.getNumFluentsInvolvedInInit();
         Iterable<Predicate> predicatesInvolvedInInit = init.getPredicatesInvolvedInInit();
-        StringBuilder str =  new StringBuilder("");
-        for (var v : numFluentsInvolvedInInit){
-            
-            str.append(v.pddlPrint(false));
-        }
-        for (var v: predicatesInvolvedInInit){
-            
-            if (!v.getPredicateName().equals("=")){
+        StringBuilder str = new StringBuilder("");
+        for (var v : numFluentsInvolvedInInit) {
+            if (!v.getName().contains("#")) {
                 str.append(v.pddlPrint(false));
             }
         }
-        return str;
-        
+        for (var v : predicatesInvolvedInInit) {
+            if (!v.getPredicateName().equals("=")) {
+                str.append(v.pddlPrint(false));
+            }
+        }
+        return str;   
     }
 
 }

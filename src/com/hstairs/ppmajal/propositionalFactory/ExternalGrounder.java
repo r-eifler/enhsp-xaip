@@ -52,7 +52,8 @@ public abstract class ExternalGrounder {
             if (t instanceof TransitionSchema) {
                 transitionSchema.add(t);
             } else {
-                throw new RuntimeException("We expect only schema here for the moment");
+                actions.add((TransitionGround) t);
+//                throw new RuntimeException("We expect only schema here for the moment"+t);
             }
         }
         
