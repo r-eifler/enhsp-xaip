@@ -28,6 +28,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
+import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.propositionalFactory.ExternalGrounder;
 import com.hstairs.ppmajal.propositionalFactory.FDGrounder;
 import com.hstairs.ppmajal.propositionalFactory.FDGrounderInstantiate;
@@ -37,6 +38,7 @@ import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.io.PrintStream;
 
@@ -294,7 +296,6 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 //        System.out.println(this.getActualFluents());
 //        h1.computeEstimate(this.init);
 //        final Collection<TransitionGround> transitions = h1.getTransitions(false);
-//        final H1 h1 = new H1(this,true,false,false,false,false,true,false,false);
         if (aibrPreprocessing){
                 final Aibr heuristic = new Aibr(this, true);
                 final float v = heuristic.computeEstimate(this.init);

@@ -636,27 +636,10 @@ public class AndCond extends ComplexCondition implements PostCondition {
                 try {
                     Comparison a1 = to_mix.get(i);
                     Comparison a2 = to_mix.get(j);
-                    ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
-                    ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
-                    ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
-                    String new_comparator = ">=";
-                    if (!a1.getComparator().equals(a2.getComparator())) {
-                        new_comparator = ">=";
-                    } else {
-                        new_comparator = a1.getComparator();
+                    Comparison newC = generateRedConstraints(a1, a2);
+                    if (newC != null) {
+                        ret.addConditions(newC);
                     }
-
-                   
-                    Comparison newC = (Comparison) Comparison.createComparison(new_comparator,expr.normalize(),new ExtendedNormExpression(0d),false).normalize();
-                    if (newC == null){
-                        continue;
-                    }
-                    ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
-
-                    if (tempLeft.summations.size() < 2) {
-                        continue;
-                    }
-                    ret.addConditions(newC);
 
                 } catch (Exception ex) {
                     Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
@@ -699,5 +682,28 @@ public class AndCond extends ComplexCondition implements PostCondition {
         }
         sons = sons1;
         return this;
+    }
+
+    public static Comparison generateRedConstraints(Comparison a1, Comparison a2) {
+        ExtendedNormExpression lhs_a1 = (ExtendedNormExpression) a1.getLeft();
+        ExtendedNormExpression lhs_a2 = (ExtendedNormExpression) a2.getLeft();
+        ExtendedNormExpression expr = lhs_a1.sum(lhs_a2);
+        String new_comparator = ">=";
+        if (!a1.getComparator().equals(a2.getComparator())) {
+            new_comparator = ">=";
+        } else {
+            new_comparator = a1.getComparator();
+        }
+
+        Comparison newC = (Comparison) Comparison.createComparison(new_comparator, expr.normalize(), new ExtendedNormExpression(0d), false).normalize();
+        if (newC == null) {
+            return null;
+        }
+        ExtendedNormExpression tempLeft = (ExtendedNormExpression) newC.getLeft();
+
+        if (tempLeft.summations.size() < 2) {
+            return null;
+        }
+        return newC;
     }
 }

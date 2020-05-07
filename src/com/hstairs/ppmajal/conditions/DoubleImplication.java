@@ -131,16 +131,6 @@ public class DoubleImplication extends ComplexCondition {
 
 
     @Override
-    public int hashCode ( ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean equals (Object obj) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void pddlPrint (boolean typeInformation, StringBuilder bui) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

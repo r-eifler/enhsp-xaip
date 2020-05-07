@@ -120,9 +120,9 @@ public class ExtendedNormExpression extends Expression {
             if (!a.linear) {
                 ret = ret.append(a.bin.toString());
             } else if (a.f != null) {
-                ret = ret.append("(* ").append(a.n).append(" (").append(a.f).append("))");
+                ret = ret.append("(* ").append(a.n).append(" ").append(a.f).append(")");
             } else if (a.n != null) {
-                ret = ret.append(a.n.toString());
+                ret = ret.append("("+a.n.toString()+")");
             } else{
                 ret = ret.append(a.bin.toString());
             }
