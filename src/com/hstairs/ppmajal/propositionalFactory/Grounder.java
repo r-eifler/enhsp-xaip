@@ -448,6 +448,7 @@ public class Grounder {
 
         Map<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
+        
         Collection combo;
         if (action.getParameters().isEmpty()) {
             combo = Collections.singletonList(new ParametersAsTerms());
@@ -468,8 +469,9 @@ public class Grounder {
                 final AndCond and = (AndCond) cond;
                 for (Object o : and.sons) {
                     if (o instanceof Predicate) {
+                        
                         final Predicate predicateAction = (Predicate) o;
-                        if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null) {
+                        if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null && predicateAction.getTerms().size()>0) {
                             final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
                             for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
                                 Object2ObjectMap<Variable, Set<PDDLObject>> t1 = new Object2ObjectArrayMap<>();

@@ -63,7 +63,7 @@ public abstract class ExternalGrounder {
             TransitionSchema schema;
             if (t instanceof TransitionSchema) {
                 schema = (TransitionSchema)t;
-                Collection<List<String>> get = groundings.get(name);
+                Collection<List<String>> get = groundings.get(name.toLowerCase());
                 if (get == null){
                     if (((TransitionSchema) t).getParameters().isEmpty()){
                         get = new ArrayList();

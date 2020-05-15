@@ -830,19 +830,21 @@ public class H1 implements SearchHeuristic {
             }
             for (int id : comparisons) {
                 IntArraySet achActs = achievers[id];
-                for (int actId : achActs) {
-                    IntArraySet toberedundantwith = new IntArraySet();
-                    toberedundantwith.add(id);
-                    IntArraySet deleter = conditionsDeletableBy[actId];
-                    for (int id2 : comparisons) {
-                        if (id != id2) {
-                            if (deleter.contains(id2)){
-                                toberedundantwith.add(id2);
+                if (achActs != null) {
+                    for (int actId : achActs) {
+                        IntArraySet toberedundantwith = new IntArraySet();
+                        toberedundantwith.add(id);
+                        IntArraySet deleter = conditionsDeletableBy[actId];
+                        for (int id2 : comparisons) {
+                            if (id != id2) {
+                                if (deleter.contains(id2)) {
+                                    toberedundantwith.add(id2);
+                                }
                             }
                         }
-                    }
-                    if (toberedundantwith.size()> 1){
-                        addToRedundantMap((AndCond) condition,toberedundantwith);
+                        if (toberedundantwith.size() > 1) {
+                            addToRedundantMap((AndCond) condition, toberedundantwith);
+                        }
                     }
                 }
                 
