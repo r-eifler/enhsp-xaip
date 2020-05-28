@@ -19,6 +19,7 @@
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
@@ -41,7 +42,18 @@ public class GoalCounting implements SearchHeuristic{
     }
     @Override
     public float computeEstimate(State s) {
-        return 0;
+        int c = 0;
+        ComplexCondition goals = this.problem.goals;
+        if (goals instanceof AndCond){
+            for (Object c1: ((AndCond) goals).sons){
+                Condition con = (Condition)c1;
+                if (!s.satisfy(con)){
+                    c++;
+                }
+               
+            }
+        }
+        return (float)c;
     }
 
     @Override

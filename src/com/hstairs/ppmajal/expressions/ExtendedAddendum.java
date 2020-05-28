@@ -30,7 +30,6 @@ public class ExtendedAddendum {
 
     public ExtendedAddendum ( ) {
         linear = true;
-
     }
 
     public ExtendedAddendum (NumFluent f, Double n) {

@@ -47,10 +47,10 @@ public final class PddlDomain extends Object {
 
     HashMap<String,Boolean> canBeDynamic;
 
-    public final Collection<TransitionSchema> eventsSchema;
+    public Collection<TransitionSchema> eventsSchema;
     public final PDDLObjects constants;
-    private final Set<TransitionSchema> ProcessesSchema;
-    private final Collection<NumFluent> derived_variables;
+    private  Collection<TransitionSchema> ProcessesSchema;
+    private  Collection<NumFluent> derived_variables;
     public Set<Type> types;
     public Collection functions;
     public Collection<String> requirements;
@@ -563,7 +563,7 @@ public final class PddlDomain extends Object {
     /**
      * @return the ProcessesSchema
      */
-    public Set<TransitionSchema> getProcessesSchema ( ) {
+    public Collection<TransitionSchema> getProcessesSchema ( ) {
         return ProcessesSchema;
     }
 
@@ -613,21 +613,31 @@ public final class PddlDomain extends Object {
         f.close();
     }
 
-    private void pushNotAtTheTerminals( ) {
-        final ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
-        listViewOfTransitions.addAll(this.getProcessesSchema());
-        listViewOfTransitions.addAll(this.eventsSchema);
-        final ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
-
-        while(iterator.hasNext()) {
+    
+    private ArrayList<TransitionSchema> pushNotAtTheTerminals(Collection<TransitionSchema> input){
+        ArrayList<TransitionSchema> output = new ArrayList(input);
+        ListIterator<TransitionSchema> iterator = output.listIterator();
+        while (iterator.hasNext()) {
             TransitionSchema next = iterator.next();
-            iterator.set(new TransitionSchema(next.getParameters(),next.getName(),
+            iterator.set(new TransitionSchema(next.getParameters(), next.getName(),
                     next.getConditionalPropositionalEffects(),
                     next.getConditionalNumericEffects(),
                     next.getPreconditions().pushNotToTerminals(),
                     next.getSemantics(),
                     next.getForallEffects()));
         }
+        return output;
+
+    }
+    
+    private void pushNotAtTheTerminals( ) {
+        final ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
+        listViewOfTransitions.addAll(this.getProcessesSchema());
+        listViewOfTransitions.addAll(this.eventsSchema);
+        final ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
+        this.ActionsSchema = pushNotAtTheTerminals(this.ActionsSchema);
+        this.ProcessesSchema = pushNotAtTheTerminals(this.ProcessesSchema);
+        this.eventsSchema = pushNotAtTheTerminals(eventsSchema);
     }
 
 

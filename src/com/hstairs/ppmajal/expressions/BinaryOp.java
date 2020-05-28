@@ -294,21 +294,21 @@ public class BinaryOp extends Expression {
         }
         if (this.getOperator().equals("+")) {
             ret_val = IAMath.add(first,second);
-//            ret_val.inf = new PDDLNumber(new Float(first.inf.getNumber()) + new Float(second.inf.getNumber()));
+//            ret_val.inf = new PDDLNumber(new Float(first.inf.getNumber()) + new Float(second.hi()));
 //            ret_val.sup = new PDDLNumber(new Float(first.sup.getNumber()) + new Float(second.sup.getNumber()));
         } else if (this.getOperator().equals("-")) {
 //            ret_val = first.subtract(second);
             ret_val = IAMath.sub(first,second);
 
 //            ret_val.inf = new PDDLNumber(new Float(first.inf.getNumber()) - new Float(second.sup.getNumber()));
-//            ret_val.sup = new PDDLNumber(new Float(first.sup.getNumber()) - new Float(second.inf.getNumber()));
+//            ret_val.sup = new PDDLNumber(new Float(first.sup.getNumber()) - new Float(second.hi()));
         } else if (this.getOperator().equals("*")) {
 //            ret_val = first.mult(second);
             ret_val = IAMath.mul(first,second);
 
-//            Float ac = new Float(first.inf.getNumber()) * new Float(second.inf.getNumber());
+//            Float ac = new Float(first.inf.getNumber()) * new Float(second.hi());
 //            Float ad = new Float(first.inf.getNumber()) * new Float(second.sup.getNumber());
-//            Float bc = new Float(first.sup.getNumber()) * new Float(second.inf.getNumber());
+//            Float bc = new Float(first.sup.getNumber()) * new Float(second.hi());
 //            Float bd = new Float(first.sup.getNumber()) * new Float(second.sup.getNumber());
 //            ret_val.inf = new PDDLNumber(Math.min(ac, Math.min(ad, Math.min(bc,bd))));
 //            ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc,bd))));
@@ -316,21 +316,29 @@ public class BinaryOp extends Expression {
 //            ret_val = first.div(second);
             ret_val = IAMath.div(first,second);
 
-//            Float ac = new Float(first.inf.getNumber()) / new Float(second.inf.getNumber());
+//            Float ac = new Float(first.inf.getNumber()) / new Float(second.hi());
 //            Float ad = new Float(first.inf.getNumber()) / new Float(second.sup.getNumber());
-//            Float bc = new Float(first.sup.getNumber()) / new Float(second.inf.getNumber());
+//            Float bc = new Float(first.sup.getNumber()) / new Float(second.hi());
 //            Float bd = new Float(first.sup.getNumber()) / new Float(second.sup.getNumber());
 //            ret_val.inf = new PDDLNumber(Math.min(ac, Math.min(ad, Math.min(bc,bd))));
 //            ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc,bd))));
             //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
 //            ret_val = new PDDLNumber(new Float(first.getNumber()) / new Float(second.getNumber()));
         } else if (this.getOperator().equals("^")) {
-//            ret_val = first.pow(second);
-            ret_val = IAMath.power(first,second);
+            ret_val = pow(first,second);
 
 
         }
         return ret_val;
+    }
+
+    public RealInterval pow (RealInterval first, RealInterval second) {
+        if (first.lo() < 0){//This can be optimised
+            return RealInterval.fullInterval();
+        }else{
+            return IAMath.power(first, second);
+        }
+        
     }
 
     @Override

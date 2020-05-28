@@ -387,6 +387,7 @@ public class ExtendedNormExpression extends Expression {
             if (a.bin != null){
                 newA.bin = (BinaryOp) a.bin.ground(substitution, po);
             }
+            newA.linear = a.linear;
             ret.summations.add(newA);
         }
         return ret;
@@ -440,7 +441,7 @@ public class ExtendedNormExpression extends Expression {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
-            if (a.bin != null && a.linear == false) {
+            if ((a.bin != null && a.linear == false)|| a.n == null) {
                 a.bin = (BinaryOp) a.bin.weakEval(problem, invFluents);
                 if (a.bin == null) {
                     return null;
@@ -669,7 +670,7 @@ public class ExtendedNormExpression extends Expression {
         //System.out.println(this);
         for (Object o : summations) {
             ExtendedAddendum ad = (ExtendedAddendum) o;
-            if (!ad.linear) {
+            if (!ad.linear || ad.n == null) {
                 return false;
             }
             if (ad.f != null) {
