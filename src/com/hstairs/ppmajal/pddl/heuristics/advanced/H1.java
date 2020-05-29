@@ -200,6 +200,8 @@ public class H1 implements SearchHeuristic {
         actionInit = new boolean[heuristicNumberOfActions];
         if (extractRelaxedPlan || useSmartConstraints) {
             achievers = new IntArraySet[totNumberOfTerms];
+        }
+        if (useSmartConstraints){
             deleters = new IntArraySet[totNumberOfTerms];
         }
         if (extractRelaxedPlan){
