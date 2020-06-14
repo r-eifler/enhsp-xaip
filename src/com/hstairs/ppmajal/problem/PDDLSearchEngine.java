@@ -57,7 +57,7 @@ public class PDDLSearchEngine extends SearchEngine {
     }
     @Override
     protected void printInfo(PrintStream out) {
-            out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
+            //out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
     }
 
     public boolean validate(LinkedList<Pair<Float,Object>> userPlan, double stepSize) throws CloneNotSupportedException {

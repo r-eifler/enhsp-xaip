@@ -327,7 +327,7 @@ public class SearchEngine {
      * otherwise.
      * @throws Exception
      */
-    public SearchNode WAStar(SearchProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch, long timeout) throws Exception {
+    private SearchNode WAStar(SearchProblem problem, State extCurrent, boolean exitOnBestH, Object2FloatMap<State> gMap, boolean treeSearch, long timeout) throws Exception {
 
         State initState = null;
         if (extCurrent == null) {
@@ -365,6 +365,7 @@ public class SearchEngine {
         }
 
 //        getHeuristic().why_not_active = true;
+        printInfo(out);
         out.println("h(n = s_0)=" + hAtInit);//debugging information
 
 //        getHeuristic().why_not_active = false;
@@ -381,6 +382,7 @@ public class SearchEngine {
             deadEndsDetected++;
             return null;
         }
+
 
         frontier.enqueue(init);
         gMap.put(initState, 0f);//The initial state is at 0 distance, of course.
@@ -581,21 +583,24 @@ public class SearchEngine {
 
    
 
-
-
-    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         return idastar(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, Long.MAX_VALUE);
     }
 
-    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, Long.MAX_VALUE);
     }
 
-    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, timeout);
     }
 
-    public LinkedList<Object> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
+        IdaStarSearchNode idastarInt = this.idaStarImplementation(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, timeout);
+        return this.extractPlan(idastarInt); 
+    }
+
+    private IdaStarSearchNode idaStarImplementation(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
         State initState = problem.getInit();
 
         beginningTime = System.currentTimeMillis();
@@ -637,7 +642,7 @@ public class SearchEngine {
         }
         setOverallSearchTime((System.currentTimeMillis() - startSearch));
         if (res != null) {
-            return this.extractPlan(res.getFirst());
+            return res.getFirst();
         }
         return null;
 
