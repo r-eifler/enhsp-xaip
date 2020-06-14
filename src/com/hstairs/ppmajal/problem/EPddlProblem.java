@@ -66,6 +66,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     private int totNumberOfNumVariables;
     final public PrintStream out;
     final private String groundingMethod;
+    private long groundingTime;
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
         this(problemFile,po,types,linked,System.out,"internal");
     }
@@ -79,6 +80,10 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         globalConstraints = new AndCond();   
         this.out = out;
         this.groundingMethod = groundingMethod;
+    }
+
+    public long getGroundingTime() {
+        return groundingTime;
     }
 
 
@@ -126,7 +131,9 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                     mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
                     break;
             }
+            groundingTime = System.currentTimeMillis();
             Collection<TransitionGround> doGrounding = mff.doGrounding();
+            groundingTime = System.currentTimeMillis()-groundingTime;
             for (var act : doGrounding) {
                 switch (act.getSemantics()) {
                     case ACTION:
@@ -148,9 +155,11 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             transitions.addAll(linkedDomain.getProcessesSchema());
             transitions.addAll(linkedDomain.getActionsSchema());
             transitions.addAll(linkedDomain.eventsSchema);
+            groundingTime = System.currentTimeMillis();
+
             for (var act : transitions) {
                 Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, initBoolFluentsValues, linkedDomain);
-                switch (act.getSemantics()){
+                switch (act.getSemantics()) {
                     case ACTION:
                         getActions().addAll(propositionalize);
                         break;
@@ -162,15 +171,23 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                         break;
                 }
             }
+            groundingTime = System.currentTimeMillis() - groundingTime;
         }
-        
+
     }
 
     public void groundingSimplication(boolean aibrPreprocessing) throws Exception {
 
+        this.groundingSimplication(aibrPreprocessing, false);
+
+    }
+    public void groundingSimplication(boolean aibrPreprocessing,boolean stopAfterGrounding) throws Exception {
+
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
-
+        System.out.println("Grounding Time: " + this.getGroundingTime());
+        if (stopAfterGrounding)
+            return;
         this.simplifyAndSetupInit(aibrPreprocessing);
 
         this.transformGoal();

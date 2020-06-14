@@ -198,14 +198,14 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         }
         if (preconditions instanceof Comparison){
            String template = "(and %s)";
-           if (!toplevel){
-               template = "%s";
-           }
+//           if (!toplevel){
+//               template = "%s";
+//           }
            StringBuilder str = new StringBuilder();
            for (NumFluent nf : preconditions.getInvolvedFluents()){
                nf.pddlPrint(false,str);
            }
-            return (new StringBuilder(String.format(template, str.toString())));
+           return (new StringBuilder(String.format(template, str.toString())));
         }
         if (preconditions instanceof OrCond) {
             String template = "(or %s)";
