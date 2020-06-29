@@ -433,6 +433,9 @@ public class SearchEngine {
                 }
 
                 setPriorityQueueSize(frontier.size());
+                if (!checkSMT(currentNode.s,problem)){
+                    continue;
+                }
                 final Boolean res = problem.goalSatisfied(currentNode.s);
                 if (res == null) {//this means it is a dead-end
                     deadEndsDetected++;
@@ -902,6 +905,10 @@ public class SearchEngine {
     }
 
     protected void printInfo(PrintStream out) {
+    }
+
+    protected boolean checkSMT(State s, SearchProblem problem) {
+        return true;
     }
 
     public enum TieBreaking {
