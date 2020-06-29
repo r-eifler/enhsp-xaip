@@ -323,7 +323,7 @@ public class FactoryConditions {
                         aug_par_table.addAll(parTable);
                     }
                     aug_par_table.addAll(forall.getParameters());
-                    Condition ret_val = null;
+                    Condition ret_val;
                     if (effect) {
                         ret_val = (Condition) this.createPostCondition(aug_par_table, child);
                     } else {
@@ -381,13 +381,8 @@ public class FactoryConditions {
                 PostCondition rhs = this.createPostCondition(parameters, tree.getChild(1));
                 return new ConditionalEffect(lhs, rhs);
             default:
-                System.out.println("Serious error in parsing:" + tree);
-                System.err.println("ADL not fully supported");
-                System.exit(-1);
-                break;
+                throw new RuntimeException("Error in : "+tree+" whose type is"+tree.getType());
         }
-        return null;
-
     }
 
     public Condition createGoals (Tree infoAction) {
@@ -614,8 +609,8 @@ public class FactoryConditions {
     }
 
  
-    public ForAll createEffectsFromPostCondition(Tree child, PostCondition res, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect, ForAll forall, SchemaParameters par) {
-        ForAll forAllResult = null;
+    public Collection<ForAll>  createEffectsFromPostCondition(Tree child, PostCondition res, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect) {
+        Collection<ForAll> forAllResult = new ArrayList();
         if (res instanceof AndCond) {
             AndCond pc = (AndCond) res;
             for (Object o : pc.sons) {
@@ -629,7 +624,7 @@ public class FactoryConditions {
                     ConditionalEffect cond = (ConditionalEffect) o;
                     addEffectFromConditonalEffects(cond, propEffect, numEffect);
                 } else if (o instanceof ForAll) {
-                    forAllResult = createForAll(child.getChild(0), par, true);
+                    forAllResult.add((ForAll) o);
                     
                 }
             }
@@ -642,7 +637,7 @@ public class FactoryConditions {
         } else if (res instanceof ConditionalEffect) {
             numEffect.add((NumEffect) res);
         } else if (res instanceof ForAll) {
-            forAllResult = createForAll(child.getChild(0), par, true);
+            forAllResult.add((ForAll) res);
         }
         return forAllResult;
     }

@@ -21,7 +21,10 @@ package com.hstairs.ppmajal.propositionalFactory;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.ConditionalEffect;
+import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.OrCond;
+import com.hstairs.ppmajal.conditions.PostCondition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.PredicateSet;
@@ -38,7 +41,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -181,12 +183,12 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         StringBuilder str = new StringBuilder();
         for (TransitionSchema t: actionsSchema){
             StringBuilder par = new StringBuilder();
-            for (Variable p : (List<Variable>)t.getParameters()){
+            for (Variable p : (List<Variable>) t.getParameters()) {
                 par.append(p.getName()).append(p.getType()).append(" ");
             }
-            str.append(String.format(template, t.getName(),par,
-                    getPreconditionString(t.getPreconditions(),true),
-                    getEffectString(t.getConditionalPropositionalEffects(),t.getConditionalNumericEffects())));
+            str.append(String.format(template, t.getName(), par,
+                    getPreconditionString(t.getPreconditions(), true),
+                    getEffectString(t.getConditionalPropositionalEffects(), t.getConditionalNumericEffects(),t.getForallEffects())));
         }
         return str;
 
@@ -233,8 +235,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
 
     }
 
-    private StringBuilder getEffectString(ConditionalEffects conditionalPropositionalEffects,
-            ConditionalEffects conditionalNumericEffects) {
+    private StringBuilder getEffectString(ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Collection<ForAll> forallEffects) {
         StringBuilder str = new StringBuilder("");
         String template0 = "(and %s )";
 
@@ -243,7 +244,9 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         effects.append(fromConditionalEffects(conditionalNumericEffects.getActualConditionalEffects()));
         effects.append(fromUnconditionalEffects(conditionalPropositionalEffects.getUnconditionalEffect()));
         effects.append(fromUnconditionalEffects(conditionalNumericEffects.getUnconditionalEffect()));
-        
+        for (var v: forallEffects){
+            fromForAllEffects(v,effects);
+        }
         return str.append(String.format(template0, effects));
     }
 
@@ -326,5 +329,22 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         }
         return str;   
     }
+    private void fromForAllEffects(PostCondition pc, StringBuilder str) {
+
+        if ((pc instanceof Predicate) || (pc instanceof NumEffect)) {
+            this.basicEffects(pc, str);
+        }else if (pc instanceof ForAll){
+            str.append("(forall ");
+            ((ForAll) pc).parameters.pddlPrint(true, str);
+            
+            for (var v: ((ForAll) pc).sons){
+                fromForAllEffects((PostCondition) v, str);
+            }
+            str.append(")");
+        }else if (pc instanceof ConditionalEffect){
+            pc.pddlPrint(false, str);
+        }
+    }
+    
 
 }
