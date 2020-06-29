@@ -469,7 +469,6 @@ public class Grounder {
                 final AndCond and = (AndCond) cond;
                 for (Object o : and.sons) {
                     if (o instanceof Predicate) {
-                        
                         final Predicate predicateAction = (Predicate) o;
                         if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null && predicateAction.getTerms().size()>0) {
                             final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
@@ -671,10 +670,12 @@ public class Grounder {
         final ConditionalEffects groundedConditionalPropEffects = a.getConditionalPropositionalEffects().ground(substitution,po);
         final ConditionalEffects groundedConditionalNumericEffects = a.getConditionalNumericEffects().ground(substitution,po);
         final Condition preconditions = a.getPreconditions().ground(substitution,po);
-        final ForAll forallEffects = a.getForallEffects();
+        final Collection<ForAll> forallEffects = a.getForallEffects();
         if (forallEffects != null) {//Kind of special case for now
-            AndCond temp = (AndCond) forallEffects.ground(substitution, po);
-            addEffects(temp,groundedConditionalNumericEffects,groundedConditionalPropEffects);
+            for (ForAll forall :forallEffects){
+                AndCond temp = (AndCond) forall.ground(substitution, po);
+                addEffects(temp,groundedConditionalNumericEffects,groundedConditionalPropEffects);
+            }
         }
         return new TransitionGround( parametersAsTerms,a.getName(), groundedConditionalPropEffects,groundedConditionalNumericEffects, preconditions,
                 a.getSemantics());
