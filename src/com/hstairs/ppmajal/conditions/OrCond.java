@@ -109,6 +109,7 @@ public class OrCond extends ComplexCondition {
                 return true;
             }
         }
+        
 
         return false;
     }
@@ -314,6 +315,10 @@ public class OrCond extends ComplexCondition {
 
                 }
             }
+        }
+        if (to_keep.isEmpty()){
+            this.setValid(false);
+            this.setUnsatisfiable(true);
         }
         this.sons = to_keep;
 
