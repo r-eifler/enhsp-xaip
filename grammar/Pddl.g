@@ -71,9 +71,9 @@ tokens {
 
 
 @header {
-package parser;
+package com.hstairs.ppmajal.parser;
 }
-@lexer::header { package parser; }
+@lexer::header { package com.hstairs.ppmajal.parser; }
 
 
 @parser::members {
@@ -221,7 +221,7 @@ structureDef
 
 actionDef
 	: '(' ':action' actionSymbol
-	      ':parameters'  '(' typedVariableList ')'
+	      (':parameters'  '(' typedVariableList ')')?
            actionDefBody ')'
        -> ^(ACTION actionSymbol typedVariableList? actionDefBody)
     ;
@@ -497,7 +497,7 @@ init
 initEl
 	: nameLiteral
 	| '(' '=' fHead NUMBER ')'         -> ^(INIT_EQ fHead NUMBER)
-	| '(' 'at' NUMBER nameLiteral ')'  -> ^(INIT_AT NUMBER nameLiteral)
+// Disabled this	| '(' 'at' NUMBER nameLiteral ')'  -> ^(INIT_AT NUMBER nameLiteral)
 	| '(' 'unknown'  atomicNameFormula ')'  -> ^(UNKNOWN atomicNameFormula)
 	| '(' 'oneof'  atomicNameFormula* ')'  -> ^(ONEOF atomicNameFormula*)
 	| '(' 'or'  nameLiteral* ')'  -> ^(OR_GD nameLiteral*)
@@ -592,7 +592,7 @@ REQUIRE_KEY
     ;
 
 
-NAME:    LETTER ANY_CHAR* ;
+NAME:    LETTER ANY_CHAR*  ;
 
 fragment LETTER:	'a'..'z' | 'A'..'Z';
 
