@@ -327,6 +327,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                 for (final TransitionGround t : transitions){
                     switch (t.getSemantics()){
                         case ACTION:
+                            System.out.println(t.getAllConditionalEffects());
                             actions.add(t);
                             break;
                         case PROCESS:
@@ -502,6 +503,28 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         }
     }
 
+    
+    public Set getAllFluents(){
+        Set res = new HashSet();
+        if (NumFluent.numFluentsBank != null){
+            for (NumFluent nf : NumFluent.numFluentsBank.values()) {
+                if (this.getActualFluents().contains(nf) && nf.has_to_be_tracked()) {
+                    res.add(nf);
+                }
+            }
+        }
+        booleanFluents = new HashSet();
+        if (Predicate.getPredicatesDB() != null) {
+            for (Predicate p : Predicate.getPredicatesDB().values()) {
+                if (this.getActualFluents().contains(p)) {
+                    res.add(p);
+                }
+
+            }
+        }
+        return res;
+    }
+    
     private PDDLState makePddlState ( ) {
         //ensure compactness
         removeStaticPart();

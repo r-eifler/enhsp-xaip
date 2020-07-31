@@ -3,6 +3,7 @@ package com.hstairs.ppmajal.transition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.PDDLObject;
+import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.EPddlProblem;
@@ -165,5 +166,20 @@ public class ConditionalEffects<T> {
             }
         }
         return res;
+    }
+    
+    public Map<Condition,Collection> getAllConditionalEffects(){
+        Map<Condition,Collection> ret = new HashMap();
+        if (unconditionalEffect != null){
+            if (!unconditionalEffect.isEmpty()){
+                ret.put(Predicate.createPredicate(Predicate.trueFalse.TRUE), unconditionalEffect);
+            }        
+        }
+        if (actualConditionalEffects != null) {
+            for (Map.Entry<Condition, Collection<T>> ent : actualConditionalEffects.entrySet()) {
+                ret.put(ent.getKey(), ent.getValue());
+            }
+        }
+        return ret;
     }
 }

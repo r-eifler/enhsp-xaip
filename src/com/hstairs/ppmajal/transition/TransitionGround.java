@@ -1,5 +1,6 @@
 package com.hstairs.ppmajal.transition;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
@@ -13,8 +14,13 @@ import com.hstairs.ppmajal.problem.State;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 public class TransitionGround extends Transition {
@@ -186,6 +192,31 @@ public class TransitionGround extends Transition {
        return new TransitionGround(null,null,null,null,null,null);
     }
     public boolean isWaiting(){
-        return parameters==null;
+        return parameters == null;
+    }
+
+    public Map<Condition, Collection> getAllConditionalEffects() {
+        final Map<Condition, Collection> allConditionalNumericEffects = this.conditionalNumericEffects.getAllConditionalEffects();
+        final Map<Condition, Collection> allConditionaPropositionalEffects = this.conditionalPropositionalEffects.getAllConditionalEffects();
+
+        final Set<Condition> keySet = allConditionaPropositionalEffects.keySet();
+        final Set<Condition> keySet1 = allConditionalNumericEffects.keySet();
+        final Sets.SetView<Condition> union = Sets.union(keySet, keySet1);
+        final Map ret = new HashMap();
+        for (final Condition c : union) {
+            final Collection ele = new HashSet();
+            Collection get = allConditionaPropositionalEffects.get(c);
+            if (get != null) {
+                ele.addAll(get);
+            }
+            get = allConditionalNumericEffects.get(c);
+            if (get != null) {
+                ele.addAll(get);
+            }
+            ret.put(c, ele);
+
+        }
+
+        return ret;
     }
 }
