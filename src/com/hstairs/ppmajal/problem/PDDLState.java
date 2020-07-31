@@ -213,7 +213,7 @@ public class PDDLState extends State {
         final Set<ConditionalEffects> effs = Set.of(gr.getConditionalPropositionalEffects(), gr.getConditionalNumericEffects());
         for (final ConditionalEffects<PostCondition> eff: effs) {
             for (final Entry<Condition, Collection<PostCondition>> entry : eff.getActualConditionalEffects().entrySet()) {
-                if (entry.getKey().isSatisfied(this)) {
+                if (entry.getKey().isSatisfied(prev)) {
                     for (final PostCondition n : entry.getValue()) {
                         this.apply(n, prev);
                     }

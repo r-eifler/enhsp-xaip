@@ -71,8 +71,7 @@ public class SearchNode extends SimpleSearchNode {
                 json_rep.put("action", "init_state");
             } else {
                 if (action instanceof TransitionGround){
-                    throw new UnsupportedOperationException();
-//                    json_rep.put("action", ((TransitionGround) action));
+                    json_rep.put("action", ((TransitionGround) action).getName());
                 }else{
                     json_rep.put("action", "<waiting>");
                 }

@@ -504,7 +504,7 @@ public final class PddlDomain extends Object {
         SchemaParameters par = new SchemaParameters();
         ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PROPEFFECT);
         ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMEFFECT);
-        ForAll forall = null;
+        Collection<ForAll>  forall = new ArrayList();
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
@@ -534,7 +534,7 @@ public final class PddlDomain extends Object {
                 case (PddlParser.EFFECT):
                     
                     PostCondition res = fc.createPostCondition(par, infoAction.getChild(0));
-                    forall = fc.createEffectsFromPostCondition(infoAction.getChild(0),res,propEffect,numEffect,forall,par);
+                    forall = fc.createEffectsFromPostCondition(infoAction.getChild(0),res,propEffect,numEffect);
                    
                     break;
 
