@@ -327,7 +327,6 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
                 for (final TransitionGround t : transitions){
                     switch (t.getSemantics()){
                         case ACTION:
-                            System.out.println(t.getAllConditionalEffects());
                             actions.add(t);
                             break;
                         case PROCESS:
