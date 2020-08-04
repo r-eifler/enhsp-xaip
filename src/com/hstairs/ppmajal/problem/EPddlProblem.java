@@ -775,6 +775,35 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             return new Pair(newState, current);
         }
     }
+    
+    @Override
+     public Float gValue(State s, Object act, State temp, float gValue) {
+        Metric m = this.getMetric();
+        if (act instanceof Transition) {
+            TransitionGround gr = (TransitionGround) act;
+            if (gr == null) {
+                return gValue;
+            }
+            return getTransitionCost(s, gr,gValue,false,m);
+        }else{
+            final ImmutablePair<TransitionGround,Integer> res = (ImmutablePair<TransitionGround, Integer>) act;
+
+            return getTransitionCost(s, res.left,gValue,false,m,res.right);
+        }
+    }
+    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m) {
+        return this.getTransitionCost(s,gr,previousG,ignoreCost,m,1);
+    }
+    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m, final int right){
+        if (ignoreCost){
+            return previousG + 1*right;
+        }
+        if (m != null){
+            return previousG + gr.getActionCost(s,m)*right;
+        }else{
+            return previousG + 1*right;
+        }
+    }
 
 
 }
