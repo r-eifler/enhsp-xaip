@@ -342,7 +342,7 @@ prefTimedGD
 	;
 
 timedGD
-	: '(' 'at' timeSpecifier goalDesc ')'
+	: '(' '__at__' timeSpecifier goalDesc ')'
 	| '(' 'over' interval goalDesc ')'
 	;
 
@@ -425,7 +425,7 @@ durationConstraint
 
 simpleDurationConstraint
 	: '(' durOp '?duration' durValue ')'
-	| '(' 'at' timeSpecifier simpleDurationConstraint ')'
+	| '(' '__at__' timeSpecifier simpleDurationConstraint ')'
 	;
 
 durOp : '<=' | '>=' | '=' ;
@@ -441,8 +441,8 @@ daEffect
 	;
 
 timedEffect
-	: '(' 'at' timeSpecifier daEffect ')'     // BNF has a-effect here, but not defined anywhere
-	| '(' 'at' timeSpecifier fAssignDA ')'
+	: '(' '__at__' timeSpecifier daEffect ')'     // BNF has a-effect here, but not defined anywhere
+	| '(' '__at__' timeSpecifier fAssignDA ')'
 	| '(' assignOp fHead fExp ')'         // BNF has assign-op-t and f-exp-t here, but not defined anywhere
 	;
 
@@ -555,7 +555,7 @@ metricFExp
 conGD
 	: '(' 'and' conGD* ')'
 	| '(' 'forall' '(' typedVariableList ')' conGD ')'
-	| '(' 'at' 'end' goalDesc ')'
+	| '(' '__at__' 'end' goalDesc ')'
                       | '(' 'always' goalDesc ')'
 	| '(' 'sometime' goalDesc ')'
  	| '(' 'within' NUMBER goalDesc ')'

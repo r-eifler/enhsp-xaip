@@ -17,7 +17,7 @@
        :precondition (a)        
        :effect (and
 		          (b)
-		          (increase (total-cost) 1)))
+		          (increase (total-cost) 0)))
     (:action enabler
        :parameters ()
        :precondition (and
