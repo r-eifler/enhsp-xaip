@@ -581,9 +581,11 @@ public class FactoryConditions {
                 ArrayList variables = new ArrayList();
                 Tree t = c.getChild(i);
                 for (int j = 0; j < t.getChildCount(); j++) {
-                    Type type = Type.createType(t.getChild(j).getChild(0).getText());
-
-                    Variable v = Variable.createVariable(t.getChild(j).getText(), type);
+                    String father = "object";
+                    if (t.getChild(j).getChildCount() > 0) {
+                        father = t.getChild(j).getChild(0).getText();
+                    }
+                    Variable v = Variable.createVariable(t.getChild(j).getText(),Type.createType(father));
                     variables.add(v);
                 }
                 NumFluent ret = NumFluent.createNumFluent(c.getChild(i).getText(), variables);

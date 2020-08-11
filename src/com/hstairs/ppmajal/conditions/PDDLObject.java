@@ -34,7 +34,7 @@ import java.util.*;
 public class PDDLObject extends Terminal implements ActionParameter {
 
     final private String name;
-    final private Type type;
+    private Type type;
 
     public static HashMap<String,PDDLObject> objectsDB;
     
@@ -46,7 +46,13 @@ public class PDDLObject extends Terminal implements ActionParameter {
         if (obj == null){
             obj = new PDDLObject(name,type);
             objectsDB.put(name, obj);
+        }else{
+            if (obj.type == null){
+                obj.type = type;
+            }
         }
+        
+        
         return obj;
             
     }
