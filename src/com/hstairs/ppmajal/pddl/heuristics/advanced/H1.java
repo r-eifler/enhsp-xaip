@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-/*
+ /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -42,6 +42,7 @@ import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
 import com.hstairs.ppmajal.search.SearchHeuristic;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * @author enrico
@@ -100,14 +101,11 @@ public class H1 implements SearchHeuristic {
     private float[] minAchieverPreconditionCost;
     private IntArraySet allActions;
 
-    
-    
     Map<AndCond, Collection<IntArraySet>> redundantMap;
     private final boolean useSmartConstraints;
 
-    
     public H1(EPddlProblem problem) {
-        this(problem, true, false, false, "no", false, false, false, false,null);
+        this(problem, true, false, false, "no", false, false, false, false, null);
     }
 
     public H1(EPddlProblem problem, boolean additive) {
@@ -115,12 +113,12 @@ public class H1 implements SearchHeuristic {
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
-             boolean helpfulTransitions, boolean conjunctionsMax) {
+            boolean helpfulTransitions, boolean conjunctionsMax) {
         this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
-             boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap) {
+            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap) {
 
         long startSetup = System.currentTimeMillis();
         this.additive = additive;
@@ -140,14 +138,12 @@ public class H1 implements SearchHeuristic {
         Arrays.fill(actionCost, Float.MAX_VALUE);
 
         useSmartConstraints = "smart".equals(redConstraints);
-        
-        normalizeModel(redConstraints,new LinkedHashSet(problem.actions));
-        normalizeModel(redConstraints,new LinkedHashSet(problem.getEventsSet()));
-        normalizeModel(redConstraints,new LinkedHashSet(problem.getProcessesSet()));
-        preconditionFunction[pseudoGoal] = this.getNormalizedPrecondition(problem.getGoals(),redConstraints);
 
+        normalizeModel(redConstraints, new LinkedHashSet(problem.actions));
+        normalizeModel(redConstraints, new LinkedHashSet(problem.getEventsSet()));
+        normalizeModel(redConstraints, new LinkedHashSet(problem.getProcessesSet()));
+        preconditionFunction[pseudoGoal] = this.getNormalizedPrecondition(problem.getGoals(), redConstraints);
 
-        
         totNumberOfTerms = Terminal.getTotCounter();
         conditionsAchievableBy = new IntArraySet[heuristicNumberOfActions];
         conditionToAction = new IntArraySet[totNumberOfTerms];
@@ -162,26 +158,21 @@ public class H1 implements SearchHeuristic {
         allActions.add(pseudoGoal);
         updatePreconditionFunction(pseudoGoal);
 
-
-
         termsArrayShifter = new ArrayShifter(allConditions);
         totNumberOfTermsRefactored = termsArrayShifter.getMaxTid();
-        
+
         actionsArrayShifter = new ArrayShifter(allActions);
         totNumberOfActionsRefactored = actionsArrayShifter.getMaxTid();
-
 
         actionHCost = new float[heuristicNumberOfActions];
         conditionCost = new float[totNumberOfTerms];
         closed = new boolean[heuristicNumberOfActions];
-
 
         hardcoreVersion = heuristicNumberOfActions * totNumberOfTermsRefactored < 1999999999;
         System.out.println("Heuristic Number of Actions:" + heuristicNumberOfActions);
         System.out.println("Heuristic Number of Actions Refactored:" + totNumberOfActionsRefactored);
         System.out.println("Tot Number of Terms:" + totNumberOfTerms);
         System.out.println("Tot Number of Terms Refactored:" + totNumberOfTermsRefactored);
-
 
         if (hardcoreVersion) {
             numericContributionRaw = new float[totNumberOfActionsRefactored][totNumberOfTermsRefactored];
@@ -201,10 +192,10 @@ public class H1 implements SearchHeuristic {
         if (extractRelaxedPlan || useSmartConstraints) {
             achievers = new IntArraySet[totNumberOfTerms];
         }
-        if (useSmartConstraints){
+        if (useSmartConstraints) {
             deleters = new IntArraySet[totNumberOfTerms];
         }
-        if (extractRelaxedPlan){
+        if (extractRelaxedPlan) {
             establishedAchiever = new int[totNumberOfTerms];
             numRepetition = new float[totNumberOfTerms];
         }
@@ -215,18 +206,16 @@ public class H1 implements SearchHeuristic {
 
         maxMRP = maxHelpfulTransitions;
         this.conjunctionsMax = conjunctionsMax;
-        System.out.println("H1 Setup Time (msec): "+(System.currentTimeMillis()-startSetup));
+        System.out.println("H1 Setup Time (msec): " + (System.currentTimeMillis() - startSetup));
 //        System.exit(-1);
-        
-        // Optimisation. Make this dependent on whether you use smart redundant constraints or not.
-        conditionsDeletableBy  = new IntArraySet[heuristicNumberOfActions];
-        
-    }
-    
 
+        // Optimisation. Make this dependent on whether you use smart redundant constraints or not.
+        conditionsDeletableBy = new IntArraySet[heuristicNumberOfActions];
+
+    }
 
     private void fillPreEffFunctions(LinkedHashSet<TransitionGround> transitions) {
-        
+
         for (final TransitionGround b : transitions) {
             final int i = b.getId();
             allActions.add(b.getId());
@@ -249,11 +238,9 @@ public class H1 implements SearchHeuristic {
                 neff.normalize();
             }
             actionCost[b.getId()] = b.getActionCost(problem.getInit(), problem.getMetric());
-        } 
-
+        }
 
     }
-
 
     void updatePreconditionFunction(int i) {
         final Collection<Condition> terminalConditions = preconditionFunction[i].getTerminalConditionsInArray();
@@ -280,8 +267,7 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    @Override
-    public float computeEstimate(State gs) {
+    protected FibonacciHeap smallSetup(State gs) {
         Arrays.fill(actionHCost, Float.MAX_VALUE);
         Arrays.fill(conditionCost, Float.MAX_VALUE);
         Arrays.fill(closed, false);
@@ -309,7 +295,12 @@ public class H1 implements SearchHeuristic {
             actionInit[freePreconditionAction] = true;
             addActionsInPriority(freePreconditionAction, h, 0f);
         }
+        return h;
+    }
 
+    @Override
+    public float computeEstimate(State gs) {
+        final FibonacciHeap h = this.smallSetup(gs);
         while (!h.isEmpty()) {
             final int actionId = (int) h.removeMin().getData();
             if (actionId == pseudoGoal && !reachability) {
@@ -421,7 +412,7 @@ public class H1 implements SearchHeuristic {
         for (final Pair<Integer, IntArraySet> action : plan) {
             int max = 0;
             for (final int rep : action.getSecond()) {
-                if (rep > max){
+                if (rep > max) {
                     max = rep;
                 }
             }
@@ -440,39 +431,8 @@ public class H1 implements SearchHeuristic {
 
     private void expand(int actionId, FibonacciHeap p, State s) {
 
-        if (conditionsAchievableBy[actionId] == null) {
-            final IntArraySet achievableTerms = new IntArraySet();
-            final IntArraySet deletableTerms = new IntArraySet();
-            for (final int t : allComparisons) {
-                final float v = this.numericContribution(actionId, (Comparison) Terminal.getTerminal(t));
-                if (v > 0 || v == UNKNOWNEFFECT) {
-                    achievableTerms.add(t);
-                    updateAchievers(t, actionId);
-                    if (DEBUG) {
-                        System.out.println("Transition: " + getTransition(actionId));
-                        System.out.println("Comparison Achievable: " + Terminal.getTerminal(t));
-                        System.out.println("Numeric Contribution: " + v);
-                    }
-                } else {
-                    if (v < 0 && useSmartConstraints) {
-                        if (DEBUG) {
-                            System.out.print(Transition.getTransition(actionId) + " worsens");
-                            System.out.println((Comparison) Terminal.getTerminal(t));
-                        }
-                        updateDeleters(t, actionId);
-                        deletableTerms.add(t);
-                    }
-                }
-            }
-            achievableTerms.addAll(propEffectFunction[actionId]);
-            for (final int o : propEffectFunction[actionId]) {
-                updateAchievers(o, actionId);
-            }
-            conditionsAchievableBy[actionId] = achievableTerms;
-            conditionsDeletableBy[actionId] = deletableTerms;
-
-        }
-        for (final int conditionId : conditionsAchievableBy[actionId]) {//This is for all terminal conditions
+        final IntSet conditionsAchievableByAction = getConditionsAchievableById(actionId);
+        for (final int conditionId : conditionsAchievableByAction) {//This is for all terminal conditions
             if (!conditionInit[conditionId] && (!reachability || conditionCost[conditionId] == Float.MAX_VALUE)) {
                 final Terminal t = Terminal.getTerminal(conditionId);
                 boolean update = false;
@@ -625,7 +585,6 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-
     void setNumericContribution(int a, int b, float value) {
         if (hardcoreVersion) {
             numericContributionRaw[actionsArrayShifter.getTID(a)][termsArrayShifter.getTID(b)] = value;
@@ -641,7 +600,6 @@ public class H1 implements SearchHeuristic {
         return numericContribution.getOrDefault(Pair.of(actionsArrayShifter.getTID(a), termsArrayShifter.getTID(b)), Float.MAX_VALUE);
     }
 
-
     //Semantics: UNKNOWEFFECT don't know because comp is hard. > 0 is achiever, 0 no
     float numericContribution(int t, Comparison comp) {
         if (numericEffectFunction[t].isEmpty()) {
@@ -649,12 +607,12 @@ public class H1 implements SearchHeuristic {
         }
 
 //        Float positiveness = numericContribution[t][comp.getId()];
-        Float positiveness = getNumericContribution(t,comp.getId());
+        Float positiveness = getNumericContribution(t, comp.getId());
 
         if (positiveness == Float.MAX_VALUE) {
             positiveness = 0f;
             if (numericEffectFunction[t].isEmpty()) {
-                setNumericContribution(t,comp.getId(),0f);
+                setNumericContribution(t, comp.getId(), 0f);
                 return positiveness;
             }
             if (comp.getLeft() instanceof ExtendedNormExpression) {
@@ -670,7 +628,7 @@ public class H1 implements SearchHeuristic {
                             if (ne.getInvolvedNumericFluents().isEmpty()) {
                                 final ExtendedNormExpression rhs = (ExtendedNormExpression) ne.getRight();
                                 if (!rhs.linear || !rhs.isNumber() || ne.getOperator().equals("assign")) {
-                                    setNumericContribution(t,comp.getId(),UNKNOWNEFFECT);
+                                    setNumericContribution(t, comp.getId(), UNKNOWNEFFECT);
                                     return UNKNOWNEFFECT;
                                 }
                                 if (ne.getOperator().equals("increase")) {
@@ -678,13 +636,13 @@ public class H1 implements SearchHeuristic {
                                 } else if (ne.getOperator().equals("decrease")) {
                                     positiveness += (-1) * rhs.getNumber().floatValue() * ad.n.floatValue();
                                 }
-                            }else{//The effect is state dependent.
+                            } else {//The effect is state dependent.
                                 return UNKNOWNEFFECT;
                             }
                         }
                     }
                 }
-                setNumericContribution(t,comp.getId(),positiveness);
+                setNumericContribution(t, comp.getId(), positiveness);
                 return positiveness;
             } else {
                 throw new RuntimeException("At the moment only normalized expressions are considered " + comp);
@@ -714,7 +672,7 @@ public class H1 implements SearchHeuristic {
             Collection actions = new ArrayList<>();
             for (final int i : helpfulActions) {
                 final TransitionGround transition = (TransitionGround) getTransition(i);
-                if (transition.getSemantics() == Transition.Semantics.ACTION){
+                if (transition.getSemantics() == Transition.Semantics.ACTION) {
                     actions.add(transition);
                 }
             }
@@ -758,20 +716,20 @@ public class H1 implements SearchHeuristic {
         for (Pair<Integer, IntArraySet> pair : plan) {
             if (actionInit[pair.getFirst()]) {
                 final IntArraySet right = pair.getSecond();
-                if (maxMRP){
+                if (maxMRP) {
                     int max = 0;
-                    for (int i: right){
-                        if (i > max){
+                    for (int i : right) {
+                        if (i > max) {
                             max = i;
                         }
                     }
                     if (max > 1) {
                         res.add(Pair.of((TransitionGround) getTransition(pair.getFirst()), max));
                     }
-                }else{
+                } else {
                     int min = Integer.MAX_VALUE;
-                    for (int i: right){
-                        if (i < min){
+                    for (int i : right) {
+                        if (i < min) {
                             min = i;
                         }
                     }
@@ -784,32 +742,31 @@ public class H1 implements SearchHeuristic {
         return res;
     }
 
-    
-    void addToRedundantMap(AndCond cond, IntArraySet ele){
-        if (redundantMap == null){
+    void addToRedundantMap(AndCond cond, IntArraySet ele) {
+        if (redundantMap == null) {
             redundantMap = new HashMap();
         }
         Collection<IntArraySet> get = redundantMap.get(cond);
-        if (get==null){
+        if (get == null) {
             get = new HashSet();
         }
         get.add(ele);
-        redundantMap.put(cond,get);
+        redundantMap.put(cond, get);
     }
-    
+
     public Map<AndCond, Collection<IntArraySet>> generateSmartRedundantConstraints() {
         redundantMap = new HashMap();
         for (final int tid : allActions) {
             updateSmartConstraints(preconditionFunction[tid]);
         }
-        if (false){
+        if (false) {
             Set<Map.Entry<AndCond, Collection<IntArraySet>>> entrySet = redundantMap.entrySet();
-            for (var v:entrySet){
+            for (var v : entrySet) {
                 System.out.println(v.getKey());
-                for (IntArraySet i : v.getValue()){
+                for (IntArraySet i : v.getValue()) {
                     System.out.println("Redundant Set");
-                    for (int j: i){
-                        System.out.println("-----"+Comparison.getTerminal(j));
+                    for (int j : i) {
+                        System.out.println("-----" + Comparison.getTerminal(j));
                     }
                 }
             }
@@ -818,15 +775,15 @@ public class H1 implements SearchHeuristic {
     }
 
     private void updateSmartConstraints(Condition condition) {
-        if ((condition instanceof Predicate)|| (condition instanceof NotCond)){
+        if ((condition instanceof Predicate) || (condition instanceof NotCond)) {
             return;
         }
-        if (condition instanceof AndCond){
+        if (condition instanceof AndCond) {
             final IntArraySet comparisons = new IntArraySet();
-            for (var con:((AndCond)condition).sons){
-                if (con instanceof Comparison){
+            for (var con : ((AndCond) condition).sons) {
+                if (con instanceof Comparison) {
                     comparisons.add(((Comparison) con).getId());
-                }else{
+                } else {
                     updateSmartConstraints((Condition) con);
                 }
             }
@@ -849,37 +806,33 @@ public class H1 implements SearchHeuristic {
                         }
                     }
                 }
-                
+
             }
-            
+
         }
-        if (condition instanceof OrCond ){
-            for (var con:((OrCond) condition).sons){
+        if (condition instanceof OrCond) {
+            for (var con : ((OrCond) condition).sons) {
                 updateSmartConstraints((Condition) con);
             }
         }
-        
-        
 
     }
 
-    public void addDeleter(int i,int actId) {
-        if (deleters[i] == null){
+    public void addDeleter(int i, int actId) {
+        if (deleters[i] == null) {
             deleters[i] = new IntArraySet();
         }
         deleters[i].add(actId);
     }
 
-    
-    
     private void updateDeleters(int t, int actionId) {
         addDeleter(t, actionId);
     }
 
     private Condition getNormalizedPrecondition(Condition preconditions, String redConstraints) {
-        switch (redConstraints){
+        switch (redConstraints) {
             case "smart":
-                if (redundantMap == null || redundantMap.isEmpty()){
+                if (redundantMap == null || redundantMap.isEmpty()) {
                     return preconditions.transformEquality();
                 }
                 return addSmartRedundantConstraints(preconditions.transformEquality());
@@ -890,13 +843,13 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    private Condition addSmartRedundantConstraints(Condition cond) {     
-        if (cond instanceof Terminal){
+    private Condition addSmartRedundantConstraints(Condition cond) {
+        if (cond instanceof Terminal) {
             return cond;
         }
-        if (cond instanceof OrCond){
+        if (cond instanceof OrCond) {
             OrCond newOr = new OrCond();
-            for (var v: ((OrCond) cond).sons){
+            for (var v : ((OrCond) cond).sons) {
                 newOr.addConditions(addSmartRedundantConstraints((Condition) v));
             }
             return newOr;
@@ -926,13 +879,49 @@ public class H1 implements SearchHeuristic {
             }
             return and;
         } else {
-            throw new RuntimeException("This was unexepected:"+cond);
+            throw new RuntimeException("This was unexepected:" + cond);
         }
 
     }
-    
-    public Condition getGoalFormulation(){
+
+    public Condition getGoalFormulation() {
         return preconditionFunction[pseudoGoal];
+    }
+
+    private IntSet getConditionsAchievableById(int actionId) {
+        if (conditionsAchievableBy[actionId] == null) {
+            final IntArraySet achievableTerms = new IntArraySet();
+            final IntArraySet deletableTerms = new IntArraySet();
+            for (final int t : allComparisons) {
+                final float v = this.numericContribution(actionId, (Comparison) Terminal.getTerminal(t));
+                if (v > 0 || v == UNKNOWNEFFECT) {
+                    achievableTerms.add(t);
+                    updateAchievers(t, actionId);
+                    if (DEBUG) {
+                        System.out.println("Transition: " + getTransition(actionId));
+                        System.out.println("Comparison Achievable: " + Terminal.getTerminal(t));
+                        System.out.println("Numeric Contribution: " + v);
+                    }
+                } else {
+                    if (v < 0 && useSmartConstraints) {
+                        if (DEBUG) {
+                            System.out.print(Transition.getTransition(actionId) + " worsens");
+                            System.out.println((Comparison) Terminal.getTerminal(t));
+                        }
+                        updateDeleters(t, actionId);
+                        deletableTerms.add(t);
+                    }
+                }
+            }
+            achievableTerms.addAll(propEffectFunction[actionId]);
+            for (final int o : propEffectFunction[actionId]) {
+                updateAchievers(o, actionId);
+            }
+            conditionsAchievableBy[actionId] = achievableTerms;
+            conditionsDeletableBy[actionId] = deletableTerms;
+
+        }   
+        return conditionsAchievableBy[actionId];
     }
 
 }
