@@ -51,9 +51,9 @@ public class BlindHeuristic implements SearchHeuristic {
     }
 
     @Override
-    public Collection<TransitionGround> getTransitions(boolean helpful) {
-        return problem.getTransitions();
-    }
+    public Collection getTransitions(boolean helpful) {
+        return problem.actions;
+    }   
 
     @Override
     public Collection<TransitionGround> getAllTransitions() {

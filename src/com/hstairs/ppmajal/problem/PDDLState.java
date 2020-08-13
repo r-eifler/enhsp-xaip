@@ -34,7 +34,7 @@ import java.util.Map.Entry;
  */
 public class PDDLState extends State {
 
-    protected DoubleArrayList numFluents;
+protected DoubleArrayList numFluents;
 //    private Int2DoubleArrayMap numFluents;
     private static int[] fromProblemNFId2StateNFId;
     private static int[] fromStateNFId2ProblemNFId;
