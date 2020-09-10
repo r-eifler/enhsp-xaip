@@ -218,6 +218,7 @@ public class PDDLSearchEngine extends SearchEngine {
         final int iterations = (int) Math.ceil(horizon / executionDelta);
         PDDLState previousNext = next;
         final ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
+        executedProcesses.addAll(applyAllEvents(next));
         for (int i = 0; i < iterations; i++) {
             boolean atLeastOne = false;
             final ArrayList<NumEffect> numEffect = new ArrayList();
@@ -241,7 +242,6 @@ public class PDDLSearchEngine extends SearchEngine {
                 return new org.jgrapht.alg.util.Pair(previousNext, executedProcesses);
             }
             //execute
-            executedProcesses.addAll(applyAllEvents(next));
             final TransitionGround waiting = new TransitionGround(numEffect);
             next.apply(waiting, next.clone());
             next.time += executionDelta;
