@@ -27,6 +27,7 @@ import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.ArrayShifter;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
@@ -618,6 +619,14 @@ public class H1 implements SearchHeuristic {
             if (comp.getLeft() instanceof ExtendedNormExpression) {
                 final ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                 for (final ExtendedAddendum ad : left.summations) {
+                    if (ad.bin != null){
+                        for (final NumEffect ne : numericEffectFunction[t]) {
+                            NumFluent fluentAffected = ne.getFluentAffected();
+                            if (ad.bin.getInvolvedNumericFluents().contains(fluentAffected)){
+                                return UNKNOWNEFFECT;
+                            }
+                        }
+                    }
                     if (ad.f != null) {
                         for (final NumEffect ne : numericEffectFunction[t]) {
 
