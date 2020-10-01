@@ -529,6 +529,7 @@ public class NumEffect extends Expression implements PostCondition {
         final RealInterval current = prev.functionValues(fluentAffected);
 
         final RealInterval eval = this.getRight().eval(s);
+        
 
         if (this.getOperator().equals("increase")) {
             if (current!= null) {
@@ -544,7 +545,7 @@ public class NumEffect extends Expression implements PostCondition {
             }
         } else if (getOperator().equals("assign")) {
             if (additive_relaxation) {
-                if (this.getRight().getInvolvedNumericFluents().isEmpty() ||
+                if (this.getRight().getInvolvedNumericFluents().isEmpty() || current == null ||
                         ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
                     if (current == null ||((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
                         after = new RealInterval(eval.lo(),eval.hi());
