@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
@@ -280,10 +281,10 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public RealInterval eval (RelState s) {
-        RealInterval ret_val = null;
-        final RealInterval first = this.lhs.eval(s);
-        final RealInterval second = this.rhs.eval(s);
+    public HomeMadeRealInterval eval (RelState s) {
+        HomeMadeRealInterval resultInt = null;
+        final HomeMadeRealInterval first = this.lhs.eval(s);
+        final HomeMadeRealInterval second = this.rhs.eval(s);
 
 //        System.out.println(this);
         if ((first == null) || (second == null)) {
@@ -293,18 +294,18 @@ public class BinaryOp extends Expression {
             return null;//negation by failure.
         }
         if (this.getOperator().equals("+")) {
-            ret_val = IAMath.add(first,second);
+            resultInt = first.sum(second);
 //            ret_val.inf = new PDDLNumber(new Float(first.inf.getNumber()) + new Float(second.hi()));
 //            ret_val.sup = new PDDLNumber(new Float(first.sup.getNumber()) + new Float(second.sup.getNumber()));
         } else if (this.getOperator().equals("-")) {
 //            ret_val = first.subtract(second);
-            ret_val = IAMath.sub(first,second);
+            resultInt = first.subtract(second);
 
 //            ret_val.inf = new PDDLNumber(new Float(first.inf.getNumber()) - new Float(second.sup.getNumber()));
 //            ret_val.sup = new PDDLNumber(new Float(first.sup.getNumber()) - new Float(second.hi()));
         } else if (this.getOperator().equals("*")) {
 //            ret_val = first.mult(second);
-            ret_val = IAMath.mul(first,second);
+            resultInt = first.mult(second);
 
 //            Float ac = new Float(first.inf.getNumber()) * new Float(second.hi());
 //            Float ad = new Float(first.inf.getNumber()) * new Float(second.sup.getNumber());
@@ -314,7 +315,7 @@ public class BinaryOp extends Expression {
 //            ret_val.sup = new PDDLNumber(Math.max(ac, Math.max(ad, Math.max(bc,bd))));
         } else if (this.getOperator().equals("/")) {
 //            ret_val = first.div(second);
-            ret_val = IAMath.div(first,second);
+            resultInt = first.div(second);
 
 //            Float ac = new Float(first.inf.getNumber()) / new Float(second.hi());
 //            Float ad = new Float(first.inf.getNumber()) / new Float(second.sup.getNumber());
@@ -325,21 +326,13 @@ public class BinaryOp extends Expression {
             //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
 //            ret_val = new PDDLNumber(new Float(first.getNumber()) / new Float(second.getNumber()));
         } else if (this.getOperator().equals("^")) {
-            ret_val = pow(first,second);
+            resultInt = first.pow(second);
 
 
         }
-        return ret_val;
+        return resultInt;
     }
 
-    public RealInterval pow (RealInterval first, RealInterval second) {
-        if (first.lo() < 0){//This can be optimised
-            return RealInterval.fullInterval();
-        }else{
-            return IAMath.power(first, second);
-        }
-        
-    }
 
     @Override
     public boolean involve (Collection<NumFluent> arrayList) {

@@ -18,16 +18,15 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.problem.*;
-import net.sourceforge.interval.ia_math.IAMath;
 import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -118,13 +117,13 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public RealInterval eval (RelState s) {
-        RealInterval ret = null;
-        RealInterval arg = this.getArg().eval(s);
+    public HomeMadeRealInterval eval (RelState s) {
+        HomeMadeRealInterval ret = null;
+        HomeMadeRealInterval arg = this.getArg().eval(s);
 
         switch (this.operator) {
             case "abs":
-                ret = Utils.abs(arg);
+                ret = arg.abs();
                 break;
             default:
                 System.out.println("Eval error in: " + this);

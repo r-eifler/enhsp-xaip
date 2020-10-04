@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.pddl.heuristics.utils.AchieverSet;
@@ -201,8 +202,8 @@ public class Comparison extends Terminal {
             return false;
         }
 
-        final RealInterval first = left.eval(s);
-        final RealInterval second = right.eval(s);
+        final HomeMadeRealInterval first = left.eval(s);
+        final HomeMadeRealInterval second = right.eval(s);
 
         if ((first == null) || (second == null)) {
             return false;
@@ -568,8 +569,8 @@ public class Comparison extends Terminal {
             return true;
         }
 
-        RealInterval first = left.eval(s);
-        RealInterval second = right.eval(s);
+        HomeMadeRealInterval first = left.eval(s);
+        HomeMadeRealInterval second = right.eval(s);
 
         if ((first == null) || (second == null)) {
             return true;

@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
@@ -200,11 +201,11 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public RealInterval eval (RelState s) {
+    public HomeMadeRealInterval eval (RelState s) {
         if (Double.isNaN(s.functionInfValue(this))) {
             return null;
         }
-        RealInterval ret = new RealInterval(s.functionInfValue(this),s.functionSupValue(this));
+        HomeMadeRealInterval ret = new HomeMadeRealInterval(s.functionInfValue(this),s.functionSupValue(this));
 
 
         return ret;

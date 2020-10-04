@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
@@ -25,7 +26,6 @@ import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,9 +38,9 @@ import java.util.Set;
 public class RelState extends Object {
 
     final public Int2IntArrayMap possBollValues;//0 is negative, 1 positive, 2 both
-    final public Int2ObjectArrayMap<RealInterval> possNumValues;
+    final public Int2ObjectArrayMap<HomeMadeRealInterval> possNumValues;
 
-    public RelState (Int2IntArrayMap a, Int2ObjectArrayMap<RealInterval> b ) {
+    public RelState (Int2IntArrayMap a, Int2ObjectArrayMap<HomeMadeRealInterval> b ) {
         super();
         possBollValues = a;
         possNumValues = b;
@@ -81,17 +81,17 @@ public class RelState extends Object {
 
 
     public double functionInfValue (NumFluent f) {
-        RealInterval n = this.possNumValues.get(f.getId());
+        final HomeMadeRealInterval n = this.possNumValues.get(f.getId());
         if (n != null) {
             return n.lo();
         }
         return Double.NaN;
     }
 
-    public RealInterval functionValues (NumFluent f) {
+    public HomeMadeRealInterval functionValues (NumFluent f) {
 
         if (!this.possNumValues.isEmpty()) {
-            RealInterval a = this.possNumValues.get(f.getId());
+            final HomeMadeRealInterval a = this.possNumValues.get(f.getId());
             if (a != null) {
                 return a;
             } else {
@@ -103,7 +103,7 @@ public class RelState extends Object {
     }
 
     public double functionSupValue (NumFluent f) {
-        RealInterval a = this.possNumValues.get(f.getId());
+        final HomeMadeRealInterval a = this.possNumValues.get(f.getId());
         if (a != null) {
             return a.hi();
         }
@@ -157,7 +157,7 @@ public class RelState extends Object {
 
     }
 
-    public void setFunctionValues (NumFluent f, RealInterval after) {
+    public void setFunctionValues (NumFluent f, HomeMadeRealInterval after) {
         this.possNumValues.put(f.getId(), after);
 
     }
@@ -169,7 +169,7 @@ public class RelState extends Object {
             if (o instanceof NumFluent) {
                 NumFluent nf = (NumFluent) o;
                 if (nf.has_to_be_tracked()) {
-                    this.setFunctionValues(nf, (RealInterval) subst.get(o));
+                    this.setFunctionValues(nf, (HomeMadeRealInterval) subst.get(o));
                 }
             } else {
                 this.possBollValues.put(((Predicate) o).getId(), (int) subst.get(o));

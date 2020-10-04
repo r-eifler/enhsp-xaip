@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import Intervals.HomeMadeRealInterval;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
@@ -216,7 +217,7 @@ public class PDDLVectorState extends State {
             if (n == null) {
                 ret_val.possNumValues.put(i, null);
             } else
-                ret_val.possNumValues.put(i, new RealInterval(this.numFluents.get(i)));
+                ret_val.possNumValues.put(i, new HomeMadeRealInterval(this.numFluents.get(i)));
 
         }
         for (int i = 0; i < this.boolFluents.length; i++) {

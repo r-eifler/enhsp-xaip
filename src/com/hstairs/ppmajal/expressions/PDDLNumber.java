@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
@@ -124,8 +125,8 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public RealInterval eval (RelState s) {
-        return new RealInterval(this.getNumber());
+    public HomeMadeRealInterval eval (RelState s) {
+        return new HomeMadeRealInterval(this.getNumber());
     }
 
     @Override

@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
@@ -108,18 +109,18 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public RealInterval eval (RelState s) {
-        RealInterval ret = null;
-        RealInterval arg = this.getArg().eval(s);
+    public HomeMadeRealInterval eval (RelState s) {
+        HomeMadeRealInterval ret = null;
+        HomeMadeRealInterval arg = this.getArg().eval(s);
 
         switch (this.operator) {
             case "sin":
 //                ret = arg.sin();
-                ret = IAMath.sin(arg);
+                ret = arg.sin();
                 break;
             case "cos":
 //                ret = arg.cos();
-                ret = IAMath.cos(arg);
+                ret = arg.cos();
                 break;
             default:
                 System.out.println("Eval error in: " + this);

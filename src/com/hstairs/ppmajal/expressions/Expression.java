@@ -18,11 +18,11 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
-import net.sourceforge.interval.ia_math.RealInterval;
 
 import java.util.Collection;
 import java.util.Map;
@@ -72,7 +72,7 @@ public abstract class Expression extends Object {
     @Override
     public abstract Expression clone ( );
 
-    public abstract RealInterval eval (RelState s);
+    public abstract HomeMadeRealInterval eval (RelState s);
 
     public abstract boolean involve (Collection<NumFluent> input);
 

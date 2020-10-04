@@ -19,6 +19,8 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.extraUtils.Utils;
+import static com.hstairs.ppmajal.extraUtils.Utils.round2;
 import com.hstairs.ppmajal.search.SearchEngine;
 import com.hstairs.ppmajal.search.SearchNode;
 import com.hstairs.ppmajal.search.SearchProblem;
@@ -160,7 +162,7 @@ public class PDDLSearchEngine extends SearchEngine {
                         TransitionGround t = (TransitionGround)o;
                         if (t.getSemantics() == TransitionGround.Semantics.PROCESS){
                             time -= executionDelta;
-                            time = round2((float)time,4);   
+                            time = Utils.round2((float)time,4);   
                             plan.addFirst(Pair.of(time, waiting));
                         }else{
                             plan.addFirst(Pair.of(time,t));
@@ -215,14 +217,7 @@ public class PDDLSearchEngine extends SearchEngine {
         return intelligentSimulation(s, problem, horizon, executionDelta, intelligent, null);
     }
 
-    public static float round2(float number, int scale) {
-        int pow = 10;
-        for (int i = 1; i < scale; i++) {
-            pow *= 10;
-        }
-        float tmp = number * pow;
-        return ((float) ((int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp))) / pow;
-    }
+
 
     protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent, StringBuilder traceString) {
         if (reachableEvents == null) {

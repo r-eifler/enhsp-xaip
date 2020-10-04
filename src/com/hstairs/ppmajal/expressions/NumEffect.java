@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;
@@ -211,7 +212,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public RealInterval eval (RelState s) {
+    public HomeMadeRealInterval eval (RelState s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -468,20 +469,20 @@ public class NumEffect extends Expression implements PostCondition {
         if (!fluentAffected.has_to_be_tracked()) {
             return;
         }
-         RealInterval after = new RealInterval();
-        final RealInterval current = s.functionValues(fluentAffected);
+        HomeMadeRealInterval after = null;
+        final HomeMadeRealInterval current = s.functionValues(fluentAffected);
 
-        final RealInterval eval = this.getRight().eval(s);
+        final HomeMadeRealInterval eval = this.getRight().eval(s);
 
         if (this.getOperator().equals("increase")) {
             if (current!= null ) {
-                after = new RealInterval(Math.min(IAMath.add(current,eval).lo(),current.lo()),
-                                         Math.max(IAMath.add(current,eval).hi(),current.hi()));
+                after = new HomeMadeRealInterval(Math.min(current.sum(eval).lo(),current.lo()),
+                                         Math.max(current.sum(eval).hi(),current.hi()));
             }
         } else if (getOperator().equals("decrease")) {
             if (current!= null) {
-                final RealInterval sub = IAMath.sub(current, eval);
-                after = new RealInterval(Math.min(sub.lo(),current.lo()),
+                final HomeMadeRealInterval sub = current.subtract(eval);
+                after = new HomeMadeRealInterval(Math.min(sub.lo(),current.lo()),
                         Math.max(sub.hi(),current.hi()));
             }
         } else if (getOperator().equals("assign")) {
@@ -489,9 +490,9 @@ public class NumEffect extends Expression implements PostCondition {
                 if (this.getRight().getInvolvedNumericFluents().isEmpty() ||
                         ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
                     if (current == null ||((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
-                        after = new RealInterval(eval.lo(),eval.hi());
+                        after = new HomeMadeRealInterval(eval.lo(),eval.hi());
                     } else {
-                        after = new RealInterval(Math.min(eval.lo(),current.lo()),
+                        after = new HomeMadeRealInterval(Math.min(eval.lo(),current.lo()),
                                 Math.max(eval.hi(),current.hi()));
 
                     }
@@ -499,17 +500,17 @@ public class NumEffect extends Expression implements PostCondition {
                     //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                     //monotonicity. Look at the report on generalize interval based relaxation.
                     BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
-                    RealInterval monotonic_eval = bin.eval(s);
-                    final RealInterval add = IAMath.add(current, monotonic_eval);
-                    after = new RealInterval(
+                    HomeMadeRealInterval monotonic_eval = bin.eval(s);
+                    final HomeMadeRealInterval add = current.sum(monotonic_eval);
+                    after = new HomeMadeRealInterval(
                             Math.min(add.lo(),current.lo()),
                             Math.max(add.hi(),current.hi())
                     );
                 }
             } else if (current == null || ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
-                after = new RealInterval(eval.lo(),eval.hi());
+                after = new HomeMadeRealInterval(eval.lo(),eval.hi());
             } else {
-                after = new RealInterval(
+                after = new HomeMadeRealInterval(
                         Math.min(eval.lo(),current.lo()),
                         Math.max(eval.hi(),current.hi())
                         );
@@ -525,22 +526,22 @@ public class NumEffect extends Expression implements PostCondition {
         if (!fluentAffected.has_to_be_tracked()) {
             return s;
         }
-        RealInterval after = new RealInterval();
-        final RealInterval current = prev.functionValues(fluentAffected);
+        HomeMadeRealInterval after = null;
+        final HomeMadeRealInterval current = prev.functionValues(fluentAffected);
 
-        final RealInterval eval = this.getRight().eval(s);
+        final HomeMadeRealInterval eval = this.getRight().eval(s);
         
 
         if (this.getOperator().equals("increase")) {
             if (current!= null) {
-                final RealInterval add = IAMath.add(current, eval);
-                after = new RealInterval(Math.min(add.lo(),current.lo()),
+                final HomeMadeRealInterval add = current.sum(eval);
+                after = new HomeMadeRealInterval(Math.min(add.lo(),current.lo()),
                         Math.max(add.hi(),current.hi()));
             }
         } else if (getOperator().equals("decrease")) {
             if (current!= null) {
-                final RealInterval sub = IAMath.sub(current, eval);
-                after = new RealInterval(Math.min(sub.lo(),current.lo()),
+                final HomeMadeRealInterval sub = current.subtract(eval);
+                after = new HomeMadeRealInterval(Math.min(sub.lo(),current.lo()),
                         Math.max(sub.hi(),current.hi()));
             }
         } else if (getOperator().equals("assign")) {
@@ -548,9 +549,9 @@ public class NumEffect extends Expression implements PostCondition {
                 if (this.getRight().getInvolvedNumericFluents().isEmpty() || current == null ||
                         ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
                     if (current == null ||((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
-                        after = new RealInterval(eval.lo(),eval.hi());
+                        after = new HomeMadeRealInterval(eval.lo(),eval.hi());
                     } else {
-                        after = new RealInterval(Math.min(eval.lo(),current.lo()),
+                        after = new HomeMadeRealInterval(Math.min(eval.lo(),current.lo()),
                                 Math.max(eval.hi(),current.hi()));
 
                     }
@@ -558,17 +559,17 @@ public class NumEffect extends Expression implements PostCondition {
                     //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                     //monotonicity. Look at the report on generalize interval based relaxation.
                     BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
-                    RealInterval monotonic_eval = bin.eval(s);
-                    final RealInterval add = IAMath.add(current, monotonic_eval);
-                    after = new RealInterval(
+                    HomeMadeRealInterval monotonic_eval = bin.eval(s);
+                    final HomeMadeRealInterval add = current.sum( monotonic_eval);
+                    after = new HomeMadeRealInterval(
                             Math.min(add.lo(),current.lo()),
                             Math.max(add.hi(),current.hi())
                     );
                 }
             } else if (current == null || ((Double.isNaN(current.lo())) && (Double.isNaN(current.hi())))) {
-                after = new RealInterval(eval.lo(),eval.hi());
+                after = new HomeMadeRealInterval(eval.lo(),eval.hi());
             } else {
-                after = new RealInterval(
+                after = new HomeMadeRealInterval(
                         Math.min(eval.lo(),current.lo()),
                         Math.max(eval.hi(),current.hi())
                 );

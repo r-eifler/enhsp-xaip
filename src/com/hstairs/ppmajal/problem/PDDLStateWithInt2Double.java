@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
@@ -229,7 +230,7 @@ public class PDDLStateWithInt2Double extends PDDLState {
             if (Double.isNaN(ele)) {
                 ret_val.possNumValues.put(i, null);
             } else
-                ret_val.possNumValues.put(i, new RealInterval(ele));
+                ret_val.possNumValues.put(i, new HomeMadeRealInterval(ele));
 
         }
 

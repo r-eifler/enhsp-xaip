@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import Intervals.HomeMadeRealInterval;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -265,7 +266,7 @@ protected DoubleArrayList numFluents;
             if (Double.isNaN(n)) {
                 ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], null);
             } else {
-                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new RealInterval(n));
+                ret_val.possNumValues.put(fromStateNFId2ProblemNFId[i], new HomeMadeRealInterval(n));
             }
         }
 
