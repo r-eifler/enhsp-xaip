@@ -19,9 +19,6 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.problem.EPddlProblem;
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.search.SearchEngine;
 import com.hstairs.ppmajal.search.SearchNode;
 import com.hstairs.ppmajal.search.SearchProblem;
@@ -41,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import com.hstairs.ppmajal.search.SearchHeuristic;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * @author enrico
@@ -50,6 +49,9 @@ public class PDDLSearchEngine extends SearchEngine {
     private final EPddlProblem problem;
     protected Collection<TransitionGround> reachableProcesses;
     protected Collection<TransitionGround> reachableEvents;
+    
+    //This is a hack!
+    private HashMap<Float,TransitionGround> triggeredEvents;
 
     public PDDLSearchEngine(SearchHeuristic h, EPddlProblem problem) {
         super(h);
@@ -69,7 +71,10 @@ public class PDDLSearchEngine extends SearchEngine {
         State current = (PDDLState) problem.getInit();
         System.out.println("Plan under Validation: "+userPlan);
         StringBuilder planTraceString = null;
-        if (planTrace != null){ planTraceString = new StringBuilder();}
+        if (planTrace != null){ 
+            planTraceString = new StringBuilder();
+            planTraceString.append(current.toString()).append("\n");
+        }
 
         for (Pair<Float, Object> ele : userPlan) {
             final Float v = ele.getKey() - previous;
@@ -116,7 +121,7 @@ public class PDDLSearchEngine extends SearchEngine {
             }
             return plan;
         }
-
+        
         SearchNode c = (SearchNode) input;
         if (problem.getProcessesSet().isEmpty()) {
             while ((c.transition != null || c.list_of_actions != null)) {
@@ -139,16 +144,28 @@ public class PDDLSearchEngine extends SearchEngine {
 
             }
         }else {
-            float time = 0f;
+            triggeredEvents = new HashMap();
             System.out.println("Extracting plan with execution delta: "+executionDelta);
-            float endTime = (float) ((PDDLState)c.s).time;
+            float time = (float)((PDDLState)c.s).time;
+            TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
             while ((c.transition != null || c.list_of_actions != null)) {
                 if (c.transition != null){
                     // This is an action
                     plan.addFirst(Pair.of((float)((PDDLState)c.s).time, (TransitionGround) c.transition));
                 }else{
-                    TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
-                    plan.addFirst(Pair.of((float)((PDDLState)c.s).time, waiting));
+                    //c is the next state actually. Be careful!!
+                    ArrayList arrayList = new ArrayList(c.list_of_actions);
+                    Collections.reverse(arrayList);
+                    for (final Object o: arrayList ){
+                        TransitionGround t = (TransitionGround)o;
+                        if (t.getSemantics() == TransitionGround.Semantics.PROCESS){
+                            time -= executionDelta;
+                            time = round2((float)time,4);   
+                            plan.addFirst(Pair.of(time, waiting));
+                        }else{
+                            plan.addFirst(Pair.of(time,t));
+                        }
+                    }
                 }
                 c = (SearchNode) c.father;
             }
@@ -198,6 +215,15 @@ public class PDDLSearchEngine extends SearchEngine {
         return intelligentSimulation(s, problem, horizon, executionDelta, intelligent, null);
     }
 
+    public static float round2(float number, int scale) {
+        int pow = 10;
+        for (int i = 1; i < scale; i++) {
+            pow *= 10;
+        }
+        float tmp = number * pow;
+        return ((float) ((int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp))) / pow;
+    }
+
     protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent, StringBuilder traceString) {
         if (reachableEvents == null) {
             reachableEvents = problem.getEventsSet();
@@ -205,7 +231,11 @@ public class PDDLSearchEngine extends SearchEngine {
         if (reachableProcesses == null) {
             reachableProcesses = problem.getProcessesSet();
         }
-
+        if (!intelligent){
+            if (Math.abs(horizon-executionDelta) < 0.0001){
+                horizon = executionDelta;
+            }
+        }
         final PDDLState next = (PDDLState) s.clone();
         if (horizon < executionDelta) {
             System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
@@ -245,6 +275,7 @@ public class PDDLSearchEngine extends SearchEngine {
             final TransitionGround waiting = new TransitionGround(numEffect);
             next.apply(waiting, next.clone());
             next.time += executionDelta;
+            next.time = round2((float)next.time,4);
             if (!next.satisfy(problem.globalConstraints)) {
                 if (i == 0 || !intelligent) {
                     return null;
