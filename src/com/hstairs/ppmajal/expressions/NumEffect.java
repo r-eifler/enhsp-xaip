@@ -531,6 +531,9 @@ public class NumEffect extends Expression implements PostCondition {
 
         final HomeMadeRealInterval eval = this.getRight().eval(s);
         
+        if (eval == null){
+            throw new RuntimeException("RHS is nan: "+this.getRight());
+        }
 
         if (this.getOperator().equals("increase")) {
             if (current!= null) {

@@ -23,6 +23,7 @@
  */
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
@@ -54,33 +55,33 @@ public class H1 implements SearchHeuristic {
     final public boolean extractRelaxedPlan;
     final public boolean maxMRP;
 
-    final private int pseudoGoal;
-    final private Condition[] preconditionFunction;
-    final private Collection<Integer>[] propEffectFunction;
-    final private Collection<NumEffect>[] numericEffectFunction;
-    final private int heuristicNumberOfActions;
-    final private int totNumberOfTerms;
+    final protected int pseudoGoal;
+    final protected Condition[] preconditionFunction;
+    final protected Collection<Integer>[] propEffectFunction;
+    final protected Collection<NumEffect>[] numericEffectFunction;
+    final protected int heuristicNumberOfActions;
+    final protected int totNumberOfTerms;
     final private int totNumberOfTermsRefactored;
 
-    final private EPddlProblem problem;
+    final protected EPddlProblem problem;
     final private boolean helpfulActionsComputation;
-    private final IntArraySet[] conditionsAchievableBy;
+    protected final IntArraySet[] conditionsAchievableBy;
     private final IntArraySet[] conditionsDeletableBy;
-    private final IntArraySet[] conditionToAction;
-    private final IntArraySet allConditions;
+    protected final IntArraySet[] conditionToAction;
+    protected final IntArraySet allConditions;
     private final IntArraySet allComparisons;
     private final FibonacciHeapNode[] nodeOf;
     private final boolean reachability;
     private final boolean conjunctionsMax;
 
-    final private float[] actionCost;
-    final private float[] actionHCost;
-    final private float[] conditionCost;
-    final private boolean[] closed;
+    final protected float[] actionCost;
+    final protected float[] actionHCost;
+    final protected float[] conditionCost;
+    final protected boolean[] closed;
 
-    private final boolean additive;
-    private final boolean[] conditionInit;
-    private final boolean[] actionInit;
+    protected final boolean additive;
+    protected final boolean[] conditionInit;
+    protected final boolean[] actionInit;
     private final boolean helpfulTransitions;
     private final boolean hardcoreVersion;
     private final float[][] numericContributionRaw;
@@ -97,7 +98,7 @@ public class H1 implements SearchHeuristic {
     private Collection<TransitionGround> reachableTransitionsInstances;
 
     final private float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
-    final private IntArraySet freePreconditionActions;
+    final protected IntArraySet freePreconditionActions;
     private List<Pair<Integer, IntArraySet>> plan;
     private float[] minAchieverPreconditionCost;
     private IntArraySet allActions;
@@ -422,7 +423,7 @@ public class H1 implements SearchHeuristic {
         return ret;
     }
 
-    private IntArraySet getAchiever(int conditionId) {
+    protected IntArraySet getAchiever(int conditionId) {
         final IntArraySet achiever = achievers[conditionId];
         if (achiever == null) {
             achievers[conditionId] = new IntArraySet();
@@ -541,11 +542,11 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    float estimateCost(final Condition c) {
+    private float estimateCost(final Condition c) {
         return this.estimateCost(c, additive);
     }
 
-    float estimateCost(final Condition c, boolean additive) {
+    private float estimateCost(final Condition c, boolean additive) {
         if (c instanceof AndCond) {
             final AndCond and = (AndCond) c;
             if (and.sons == null) {
@@ -619,10 +620,10 @@ public class H1 implements SearchHeuristic {
             if (comp.getLeft() instanceof ExtendedNormExpression) {
                 final ExtendedNormExpression left = (ExtendedNormExpression) comp.getLeft();
                 for (final ExtendedAddendum ad : left.summations) {
-                    if (ad.bin != null){
+                    if (ad.bin != null) {
                         for (final NumEffect ne : numericEffectFunction[t]) {
                             NumFluent fluentAffected = ne.getFluentAffected();
-                            if (ad.bin.getInvolvedNumericFluents().contains(fluentAffected)){
+                            if (ad.bin.getInvolvedNumericFluents().contains(fluentAffected)) {
                                 return UNKNOWNEFFECT;
                             }
                         }
@@ -897,7 +898,7 @@ public class H1 implements SearchHeuristic {
         return preconditionFunction[pseudoGoal];
     }
 
-    private IntSet getConditionsAchievableById(int actionId) {
+    protected IntSet getConditionsAchievableById(int actionId) {
         if (conditionsAchievableBy[actionId] == null) {
             final IntArraySet achievableTerms = new IntArraySet();
             final IntArraySet deletableTerms = new IntArraySet();
@@ -922,14 +923,15 @@ public class H1 implements SearchHeuristic {
                     }
                 }
             }
-            achievableTerms.addAll(propEffectFunction[actionId]);
-            for (final int o : propEffectFunction[actionId]) {
+            Sets.SetView<Integer> intersection = Sets.intersection(allConditions, (Set<Integer>)propEffectFunction[actionId]);
+            achievableTerms.addAll(intersection);
+            for (final int o : intersection) {
                 updateAchievers(o, actionId);
             }
             conditionsAchievableBy[actionId] = achievableTerms;
             conditionsDeletableBy[actionId] = deletableTerms;
 
-        }   
+        }
         return conditionsAchievableBy[actionId];
     }
 

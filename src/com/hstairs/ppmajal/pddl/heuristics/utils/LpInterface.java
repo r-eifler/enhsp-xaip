@@ -18,60 +18,25 @@
  */
 package com.hstairs.ppmajal.pddl.heuristics.utils;
 
-import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.ComplexCondition;
-import com.hstairs.ppmajal.problem.PDDLState;
-import com.hstairs.ppmajal.problem.PddlProblem;
-import com.hstairs.ppmajal.transition.TransitionGround;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
 
 /**
  * @author enrico
  */
-public abstract class LpInterface {
+public class LpInterface {
 
-    public int n_invocations;
-    public boolean integer_variables;
-    public boolean additive_h;
-    public ComplexCondition gc;
-    public ComplexCondition c;
-    final protected PddlProblem problem;
 
     //this is for set of conditions
-    public LpInterface (Set<ComplexCondition> cond, ComplexCondition global_constraint, PddlProblem inputProblem) {
-        super();
-        AndCond c = new AndCond();
-        c.sons.addAll(cond);
-        problem = inputProblem;
+    public LpInterface () {
     }
 
-    public LpInterface (ComplexCondition cond, ComplexCondition global_constraint, PddlProblem inputProblem) {
-        super();
-        c = cond;
-        gc = global_constraint;
-        problem = inputProblem;
+    public LpInterface(IntArraySet[] conditionsAchievableBy) {
+
     }
-
-    public abstract void initialize (Collection<TransitionGround> actions, PDDLState s_0);
-
-    public abstract void update_conditions_bound_plus_reset_variables (PDDLState s_0);
-
-    protected abstract void update_local_global_conditions(PDDLState s_0);
-
-    public abstract float update_cost(PDDLState s_0, ArrayList<Boolean> active_actions, ArrayList<Float> h);
-
-    protected abstract void init_condition(Collection<TransitionGround> pool, PDDLState s_0);
-
-    protected abstract void update_condition(PDDLState s_0, ComplexCondition temp);
-
-    protected Float getActionCost(PDDLState s_0, TransitionGround gr) {
-        if (problem.isAction_cost_from_metric()) {
-            return gr.getActionCost(s_0, problem.getMetric());
-        }
-        return 1f;
+    
+    float solve(){
+        return 0f;
     }
 
 }

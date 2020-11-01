@@ -15,16 +15,21 @@
 
  
     ;;this part tests the propositional part of the landmarks
-     (:action produce_a_via_b_d
+     (:action produce_a_via_d
        :parameters ()    
-       :precondition (and (b)(d))            
+       :precondition (and (d))            
        :effect (and (a))
     )   
-    (:action produce_a_via_b_c
+    (:action produce_a_via_b
        :parameters ()    
-       :precondition (and (b)(e))            
+       :precondition (and (b))            
        :effect (and (a))
     )  
+    (:action produce_d
+       :parameters ()    
+       ;:precondition ()           
+       :effect (and (d))
+    ) 
     (:action produce_b
        :parameters ()    
        ;:precondition ()           
@@ -34,11 +39,6 @@
        :parameters ()    
        :precondition (a)           
        :effect (and (c))
-    ) 
-    (:action produce_d
-       :parameters ()    
-       ;:precondition ()           
-       :effect (and (d))
     ) 
     (:action produce_e
        :parameters ()    
