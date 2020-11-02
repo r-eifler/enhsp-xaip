@@ -185,7 +185,6 @@ public class LM extends H1 {
         for (int sg : lmA[pseudoGoal]) {
             System.out.println(Terminal.getTerminal(sg));
         }
-
     }
 
     private IntArrayList quickReset(State s) {
@@ -203,7 +202,7 @@ public class LM extends H1 {
                 updateActions(i, q, -1);
             }
         }
-        for (int a : freePreconditionActions) {
+        for (final int a : freePreconditionActions) {
             q.add(a);
             lmA[a] = new IntOpenHashSet();
         }
@@ -230,9 +229,8 @@ public class LM extends H1 {
                 objectiveFunction = lp.linearNumExpr();
                 for (int p : allConditions) {
                     final Terminal terminal = Terminal.getTerminal(p);
-                    final IntArraySet achievers = getAchiever(p);
                     final IloLinearNumExpr expr = lp.linearNumExpr();
-                    for (int a : achievers) {
+                    for (int a : getAchiever(p)) {
                         Float numericContribution = 1f;
                         if (terminal instanceof Comparison) {
                             numericContribution = getNumericContribution(a, p);

@@ -470,10 +470,18 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
        
         for (Transition a : getTransitions()) {
             involved_fluents.addAll(a.getPreconditions().getInvolvedFluents());
+            ConditionalEffects<NumEffect> conditionalNumericEffects = a.getConditionalNumericEffects();
+            Map<Condition, Collection> allConditionalEffects = conditionalNumericEffects.getAllConditionalEffects();
+            for (final Condition c: allConditionalEffects.keySet()){
+                involved_fluents.addAll(c.getInvolvedFluents());
+            }
+            allConditionalEffects = a.getConditionalPropositionalEffects().getAllConditionalEffects();
+            for (final Condition c: allConditionalEffects.keySet()){
+                involved_fluents.addAll(c.getInvolvedFluents());
+            }
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
         }
 
-//        for (Transition )
         for (SchemaGlobalConstraint a : this.linkedDomain.getSchemaGlobalConstraints()) {
             involved_fluents.addAll(a.condition.getInvolvedFluents());
         }
