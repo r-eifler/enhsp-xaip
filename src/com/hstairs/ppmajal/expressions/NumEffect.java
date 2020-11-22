@@ -18,7 +18,6 @@
  */
 package com.hstairs.ppmajal.expressions;
 
-import Intervals.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.problem.*;

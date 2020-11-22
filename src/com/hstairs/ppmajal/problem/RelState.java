@@ -18,7 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import Intervals.HomeMadeRealInterval;
+import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;

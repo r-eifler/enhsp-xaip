@@ -18,7 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import Intervals.HomeMadeRealInterval;
+import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.expressions.NumEffect;

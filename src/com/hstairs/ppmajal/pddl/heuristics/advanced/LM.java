@@ -6,26 +6,18 @@
 package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.hstairs.ppmajal.conditions.AndCond;
-import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.pddl.heuristics.utils.LpInterface;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
-import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumVar;
-import ilog.concert.IloNumVarType;
-import ilog.concert.IloRange;
-import ilog.cplex.IloCplex;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
@@ -38,28 +30,29 @@ public class LM extends H1 {
     final private IntOpenHashSet[] lmC;
     final private IntOpenHashSet[] lmA;
     private final String mode;
-    final private LpInterface lpSolver;
-    private IloCplex lp;
-    private IloNumVar[] lpvar;
-    private IloRange[] lpcond;
-    final private  IntArraySet[] reachableAchievers;
-    private IloLinearNumExpr objectiveFunction;
+    final private LPInterface lpSolver;
+
+    final  IntArraySet[] reachableAchievers;
+    protected IloLinearNumExpr objectiveFunction;
             
 
     public LM(EPddlProblem problem) {
-        this(problem, "lmCount","no");
+        this(problem, "lmCount","no","cplex");
     }
 
-    public LM(EPddlProblem problem, String mode, String redundantConstraints) {
+    public LM(EPddlProblem problem, String mode, String redundantConstraints, String solver) {
         super(problem, true, true, false, redundantConstraints, false, false, false, false, null);
         reachedConditions = new boolean[totNumberOfTerms];
         reachedActions = new boolean[heuristicNumberOfActions];
         lmC = new IntOpenHashSet[totNumberOfTerms];
         lmA = new IntOpenHashSet[heuristicNumberOfActions];
         this.mode = mode;
-        lpSolver = new LpInterface();
+        if ("cplex".equals(solver)) {
+            lpSolver = new CPLEX(this);
+        } else {
+            lpSolver = new GUROBI(this);
+        }
         reachableAchievers = new IntArraySet[totNumberOfTerms];
-        
     }
 
 
@@ -78,7 +71,7 @@ public class LM extends H1 {
         if ("lmCount".equals(mode)) {
             return countMissing();
         } else if ("lp".equals(mode)) {
-            return this.solveLp(s, lmA[pseudoGoal]);
+            return lpSolver.solve(s, lmA[pseudoGoal]);
         }
         return 0f;
     }
@@ -217,69 +210,5 @@ public class LM extends H1 {
             }
         }
         return lmCount;
-    }
-    
-    private void initLp(State s) {
-        if (lp == null) {
-            try {
-                lpvar = new IloNumVar[heuristicNumberOfActions];
-                lpcond = new IloRange[totNumberOfTerms];
-                lp = new IloCplex();
-                lp.setOut(null);
-                objectiveFunction = lp.linearNumExpr();
-                for (int p : allConditions) {
-                    final Terminal terminal = Terminal.getTerminal(p);
-                    final IloLinearNumExpr expr = lp.linearNumExpr();
-                    for (int a : getAchiever(p)) {
-                        Float numericContribution = 1f;
-                        if (terminal instanceof Comparison) {
-                            numericContribution = getNumericContribution(a, p);
-                        }
-                        if (lpvar[a] == null) {
-                            lpvar[a] = lp.numVar(0.0, 0.0, IloNumVarType.Float);
-                            objectiveFunction.addTerm(lpvar[a], actionCost[a]);
-                        }
-                        expr.addTerm(lpvar[a], numericContribution);
-                    }
-                    final IloRange ilo = lp.addGe(expr, 0f);
-                    lpcond[p] = ilo;
-                }
-                lp.addMinimize(objectiveFunction);
-            } catch (IloException ex) {
-                Logger.getLogger(LM.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private float solveLp(State s, IntOpenHashSet lms) {
-
-        try {
-            initLp(s);
-            for (var i :allConditions){//Need to be reset; only lm are going to be targeted with a value
-                lpcond[i].setLB(0f);
-            }
-            for (var lm : lms) {//by default they are not sat in the initial state
-                if (!conditionInit[lm]){
-                    final Terminal t = Terminal.getTerminal(lm);
-                    final IloRange constraint = lpcond[lm];
-                    if (t instanceof Comparison) {
-                        double targetValue = -1d * ((Comparison) t).getLeft().eval(s);
-                        constraint.setLB(targetValue);
-                    } else {
-                        constraint.setLB(1f);
-                    }
-                    for (var a : reachableAchievers[lm]) { //these are reachable actions achieving lm
-                        lpvar[a].setUB(Float.MAX_VALUE);
-                    }
-                }
-            }
-            if (lp.solve()){
-                return (float) lp.getObjValue();
-            }
-       
-        } catch (IloException ex) {
-            Logger.getLogger(LM.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return Float.MAX_VALUE;
     }
 }

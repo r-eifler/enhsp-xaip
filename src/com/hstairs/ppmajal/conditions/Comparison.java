@@ -18,7 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import Intervals.HomeMadeRealInterval;
+import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.pddl.heuristics.utils.AchieverSet;
