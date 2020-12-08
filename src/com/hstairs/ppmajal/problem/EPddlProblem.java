@@ -51,6 +51,20 @@ import org.jgrapht.alg.util.Pair;
  */
 public class EPddlProblem extends PddlProblem implements SearchProblem {
 
+    /**
+     * @return the sdac
+     */
+    public boolean isSdac() {
+        return sdac;
+    }
+
+    /**
+     * @param sdac the sdac to set
+     */
+    public void setSdac(boolean sdac) {
+        this.sdac = sdac;
+    }
+
     public HashSet<GlobalConstraint> globalConstraintSet;
     public AndCond globalConstraints;
     private Collection<TransitionGround> processesSet;
@@ -67,19 +81,21 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     final public PrintStream out;
     final private String groundingMethod;
     private long groundingTime;
+    private boolean sdac;
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
-        this(problemFile,po,types,linked,System.out,"internal");
+        this(problemFile,po,types,linked,System.out,"internal", false);
     }
 
 
 
-    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out, String groundingMethod) {
+    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
         super(problemFile, constants, types, domain);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond();   
         this.out = out;
         this.groundingMethod = groundingMethod;
+        this.sdac = sdac;
     }
 
     public long getGroundingTime() {
@@ -807,7 +823,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             return previousG + 1*right;
         }
         if (m != null){
-            return previousG + gr.getActionCost(s,m)*right;
+            return previousG + gr.getActionCost(s,m, isSdac())*right;
         }else{
             return previousG + 1*right;
         }

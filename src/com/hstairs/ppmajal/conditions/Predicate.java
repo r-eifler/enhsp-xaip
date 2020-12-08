@@ -410,7 +410,6 @@ public class Predicate extends Terminal implements PostCondition {
     public Condition weakEval (PddlProblem problem, Set invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
-
         if (this.isValid()){
             return this;
         }

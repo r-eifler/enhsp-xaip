@@ -19,10 +19,13 @@ public class ConditionalEffects<T> {
         ConditionalEffects res = new ConditionalEffects(this.t);
         if (actualConditionalEffects != null) {
             for (Map.Entry<Condition, Collection<T>> entry : actualConditionalEffects.entrySet()) {
-                Collection<T> toAdd = new HashSet();
+                Collection<T> toAdd = new ArrayList();
                 for (T e : entry.getValue()) {
                     if (e instanceof Condition) {
-                        toAdd.add((T) ((Condition) e).weakEval(ePddlProblem, invariantFluents));
+                        T name = (T) ((Condition) e).weakEval(ePddlProblem, invariantFluents);
+                        if (!toAdd.contains(name)){
+                            toAdd.add((T) ((Condition) e).weakEval(ePddlProblem, invariantFluents));
+                        }
                     } else if (e instanceof NumEffect) {
                         toAdd.add((T) ((NumEffect) e).weakEval(ePddlProblem, invariantFluents));
                     } else {

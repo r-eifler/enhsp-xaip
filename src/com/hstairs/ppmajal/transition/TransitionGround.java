@@ -1,7 +1,9 @@
 package com.hstairs.ppmajal.transition;
 
 import com.google.common.collect.Sets;
+import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
+import com.hstairs.ppmajal.conditions.ConditionalEffect;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
@@ -123,15 +125,18 @@ public class TransitionGround extends Transition {
             return 0f;
         }
     }
+    
     private List<Pair<Condition, Float>> getSdac(PDDLState init, Metric metric) {
+        return getSdac(init,metric,false);
+    }
+    private List<Pair<Condition, Float>> getSdac(PDDLState init, Metric metric, boolean sdacEnabled) {
         if (this.sdac == null) {
             this.sdac = new ArrayList<>();
             if (metric != null && metric.getMetExpr() != null) {
-
-                ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
-                //first numeric effect normal
-                Float exprImpact = 0f;
-
+                if (!sdacEnabled){
+                    ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
+                    //first numeric effect normal
+                    Float exprImpact = 0f;
                     for (NumEffect effNum :  this.getConditionalNumericEffects().getAllEffects()) {
                         for (ExtendedAddendum ad : expr.summations) {
                             if (ad.f != null) {
@@ -140,35 +145,54 @@ public class TransitionGround extends Transition {
                         }
                     }
 
-                if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
-                        || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                    Predicate truePredicate = Predicate.createPredicate(Predicate.trueFalse.TRUE);
-                    this.sdac.add(Pair.of(truePredicate, exprImpact));
-                }
-//                for (ConditionalEffect cond : (Collection<ConditionalEffect>) this.cond_effects.sons) {
-//                    AndCond effect = (AndCond) cond.effect;
-//                    exprImpact = 0f;
-//                    for (Object innerCondition : (Collection<Object>) effect.sons) {
-//                        if (innerCondition instanceof NumEffect) {
-//                            NumEffect effNum = (NumEffect) innerCondition;
-//                            for (ExtendedAddendum ad : expr.summations) {
-//                                if (ad.f != null) {
-//                                    exprImpact += ad.n.floatValue() * this.getExprImpact(init, effNum, ad.f);
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
-//                            || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-//                        this.sdac.add(Pair.of(cond.activation_condition, exprImpact));
-//                    }
-//                }
+                    if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
+                            || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
+                        Predicate truePredicate = Predicate.createPredicate(Predicate.trueFalse.TRUE);
+                        this.sdac.add(Pair.of(truePredicate, exprImpact));
+                    }
+                }else{
+                    final ConditionalEffects<NumEffect> conditionalNumericEffects1 = this.getConditionalNumericEffects();
+                    final Map<Condition, Collection<NumEffect>> actualConditionalEffects = conditionalNumericEffects1.getActualConditionalEffects();
+                    for (Map.Entry<Condition,Collection<NumEffect>> ele: actualConditionalEffects.entrySet()) {
+                        final ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
+                        Float exprImpact = 0f;
+                        for (NumEffect effNum :  ele.getValue()) {
+                            for (ExtendedAddendum ad : expr.summations) {
+                                if (ad.f != null) {
+                                    exprImpact += ad.n.floatValue() * this.getExprImpact(init, effNum, ad.f);
+                                }
+                            }
+                        }
+                        
+                        if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
+                                || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
+                            this.sdac.add(Pair.of(ele.getKey(), exprImpact));
+                        }
+                    }
+                    final ExtendedNormExpression expr = (ExtendedNormExpression) metric.getMetExpr();
+                    Float exprImpact = 0f;
+                    for (NumEffect effNum :  conditionalNumericEffects1.getUnconditionalEffect()) {
+                        for (ExtendedAddendum ad : expr.summations) {
+                            if (ad.f != null) {
+                                exprImpact += ad.n.floatValue() * this.getExprImpact(init, effNum, ad.f);
+                            }
+                        }
+                    }
 
+                    if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
+                            || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
+                        this.sdac.add(Pair.of(Predicate.createPredicate(Predicate.trueFalse.TRUE), exprImpact));
+                    }
+                    
+                }
             }
         }
         return this.sdac;
     }
     public Float getActionCost(State s, Metric m){
+        return getActionCost(s, m, false);
+    }
+    public Float getActionCost(State s, Metric m, boolean sdac){
         if (m == null || m.getMetExpr() == null ){
             return 1f;
         }
@@ -177,7 +201,7 @@ public class TransitionGround extends Transition {
 //            return 1f;
 //        }
 
-        List<Pair<Condition, Float>> sdac1 = this.getSdac((PDDLState) s, m);
+        List<Pair<Condition, Float>> sdac1 = this.getSdac((PDDLState) s, m, sdac);
         float impact = 0f;
         for (Pair<Condition,Float> ele : sdac1){
             if (ele.getLeft().isSatisfied(s)){

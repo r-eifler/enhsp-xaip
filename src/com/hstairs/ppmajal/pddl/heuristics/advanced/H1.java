@@ -239,7 +239,7 @@ public class H1 implements SearchHeuristic {
             for (NumEffect neff : numericEffectFunction[b.getId()]) {
                 neff.normalize();
             }
-            actionCost[b.getId()] = b.getActionCost(problem.getInit(), problem.getMetric());
+            actionCost[b.getId()] = b.getActionCost(problem.getInit(), problem.getMetric(), problem.isSdac());
         }
 
     }
