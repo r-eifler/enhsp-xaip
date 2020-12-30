@@ -41,7 +41,7 @@ public class LM extends H1 {
     }
 
     public LM(EPddlProblem problem, String mode, String redundantConstraints, String solver) {
-        super(problem, true, true, false, redundantConstraints, false, false, false, false, null);
+        super(problem, true, true, false, redundantConstraints, false, false, false, false, null, false);
         reachedConditions = new boolean[totNumberOfTerms];
         reachedActions = new boolean[heuristicNumberOfActions];
         lmC = new IntOpenHashSet[totNumberOfTerms];
@@ -50,7 +50,8 @@ public class LM extends H1 {
         if ("cplex".equals(solver)) {
             lpSolver = new CPLEX(this);
         } else {
-            lpSolver = new GUROBI(this);
+            throw new RuntimeException(solver+" is not supported");
+//            lpSolver = new GUROBI(this);
         }
         reachableAchievers = new IntArraySet[totNumberOfTerms];
     }

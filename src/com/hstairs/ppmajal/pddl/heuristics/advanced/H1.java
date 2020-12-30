@@ -105,24 +105,30 @@ public class H1 implements SearchHeuristic {
 
     Map<AndCond, Collection<IntArraySet>> redundantMap;
     private final boolean useSmartConstraints;
+    private boolean planFixing;
 
     public H1(EPddlProblem problem) {
-        this(problem, true, false, false, "no", false, false, false, false, null);
+        this(problem, true, false, false, "no", false, false, false, false, null,false);
     }
 
+    public H1(EPddlProblem problem, boolean additive, boolean planFixing) {
+        this(problem, additive, false, false, "no", false, false, false, false, null, planFixing);
+    }
+    
     public H1(EPddlProblem problem, boolean additive) {
-        this(problem, additive, false, false, "no", false, false, false, false, null);
+        this(problem, additive, false, false, "no", false, false, false, false, null, false);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
             boolean helpfulTransitions, boolean conjunctionsMax) {
-        this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null);
+        this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null,false);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
-            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap) {
+            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap, boolean planFixing) {
 
         long startSetup = System.currentTimeMillis();
+        this.planFixing = planFixing;
         this.additive = additive;
         this.problem = problem;
         this.reachability = reachability;
@@ -307,7 +313,7 @@ public class H1 implements SearchHeuristic {
             final int actionId = (int) h.removeMin().getData();
             if (actionId == pseudoGoal && !reachability) {
                 if (extractRelaxedPlan) {
-                    return relaxedPlanCost();
+                    return relaxedPlanCost(gs);
                 }
                 return actionHCost[pseudoGoal];
             }
@@ -322,7 +328,7 @@ public class H1 implements SearchHeuristic {
                 expand(actionId, h, gs);
             }
         }
-        return extractRelaxedPlan && actionHCost[pseudoGoal] != Float.MAX_VALUE ? relaxedPlanCost() : actionHCost[pseudoGoal];
+        return extractRelaxedPlan && actionHCost[pseudoGoal] != Float.MAX_VALUE ? relaxedPlanCost(gs) : actionHCost[pseudoGoal];
 
     }
 
@@ -361,7 +367,7 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    private float relaxedPlanCost() {
+    private float relaxedPlanCost(State gs) {
         final Condition goal = preconditionFunction[pseudoGoal];
 
         final LinkedList<Pair<Collection, Float>> stack = new LinkedList();
@@ -410,6 +416,13 @@ public class H1 implements SearchHeuristic {
                 }
             }
         }
+        
+        if (planFixing){
+            plan = fixPlan(gs, plan);
+        }
+        
+        
+        //This is the MRP
         float ret = 0;
         for (final Pair<Integer, IntArraySet> action : plan) {
             int max = 0;
@@ -420,6 +433,10 @@ public class H1 implements SearchHeuristic {
             }
             ret += max * actionCost[action.getFirst()];
         }
+        
+        
+        
+        
         return ret;
     }
 
@@ -935,7 +952,63 @@ public class H1 implements SearchHeuristic {
         return conditionsAchievableBy[actionId];
     }
 
+    private List<Pair<Integer, IntArraySet>> fixPlan(State gs, List<Pair<Integer, IntArraySet>> plan1) {
+        
+        //Compute DG
+        final Condition goal = preconditionFunction[pseudoGoal];
+
+        final LinkedList<Integer> stack = new LinkedList();
+        stack.push(pseudoGoal);
+        HashSet<Integer> V = new HashSet();
+        HashMap<Integer,Integer> E = new HashMap();
+        final boolean[] visited = new boolean[heuristicNumberOfActions];
+        Arrays.fill(visited, false);
+        while (!stack.isEmpty()) {
+            int a = stack.pollLast();
+//            System.out.println(TransitionGround.getTransition(a));
+            if (!visited[a]){
+                V.add(a);
+                if (a != pseudoGoal)
+                    visited[a] = true;
+                for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
+                        if (!conditionInit[conditionId]) {
+                            final int b = establishedAchiever[conditionId];
+                            E.put(b, a);
+                            stack.push(b);
+                        }
+                }
+            }
+        }
+        
+        System.out.println(V);
+        System.out.println(E);
+        System.out.println("==========Actions======");
+        for (int aId : V){
+                System.out.println(printTransition(aId));
+        }
+        Set<Map.Entry<Integer, Integer>> entrySet = E.entrySet();
+        for (Map.Entry<Integer,Integer> entry: entrySet){ 
+            System.out.println(printTransition(entry.getKey())+"->"+printTransition(entry.getValue()));
+        }
+        
+        throw  new RuntimeException("Not supported yet");
+        
+    }
+        
+    private String printTransition(Integer key) {
+        if (key == pseudoGoal){
+            return "GoalAction";
+        }else{
+            return TransitionGround.getTransition(key).toString();
+        }
+
+    }
+    
+
 }
+
+    
+    
 //
 //
 //    public class GroundActionComparator implements IntComparator{
