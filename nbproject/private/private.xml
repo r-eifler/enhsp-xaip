@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="2">
         <file>
             <url>src/com/hstairs/ppmajal/expressions/BinaryOp.java</url>
             <bookmark id="1">
@@ -13,13 +13,17 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/ConditionalEffects.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/EPddlProblem.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Condition.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/LM.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/GUROBI.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/TransitionGround.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/CPLEX.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/BlindHeuristic.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchProblem.java</file>
         </group>

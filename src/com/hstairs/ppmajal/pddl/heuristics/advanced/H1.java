@@ -25,6 +25,7 @@ package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -45,6 +46,9 @@ import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 /**
  * @author enrico
@@ -106,7 +110,18 @@ public class H1 implements SearchHeuristic {
     Map<AndCond, Collection<IntArraySet>> redundantMap;
     private final boolean useSmartConstraints;
     private boolean planFixing;
+    private boolean superFix = false;
 
+    //Plan Fixing Data Structures;
+    final IntArraySet[] prec ;
+    final int[] maxNumRepetition ;
+    final int[] minNumRepetition ;
+
+    final boolean[] visited;
+    final boolean[] visitedActions;
+
+    
+    
     public H1(EPddlProblem problem) {
         this(problem, true, false, false, "no", false, false, false, false, null,false);
     }
@@ -219,6 +234,23 @@ public class H1 implements SearchHeuristic {
 
         // Optimisation. Make this dependent on whether you use smart redundant constraints or not.
         conditionsDeletableBy = new IntArraySet[heuristicNumberOfActions];
+        
+        if (planFixing){
+            prec = new IntArraySet[heuristicNumberOfActions];
+            visitedActions = new boolean[heuristicNumberOfActions];
+        }else{
+            prec = null;
+            visitedActions = null;
+        }
+        if (extractRelaxedPlan){
+            maxNumRepetition = new int[heuristicNumberOfActions];
+            minNumRepetition = new int[heuristicNumberOfActions];
+            visited = new boolean[totNumberOfTerms];
+        }else{
+            visited = null;
+            maxNumRepetition = null;
+            minNumRepetition = null;
+        }
 
     }
 
@@ -373,9 +405,9 @@ public class H1 implements SearchHeuristic {
         final LinkedList<Pair<Collection, Float>> stack = new LinkedList();
         stack.push(getActivatingConditions(goal));
         plan = new ArrayList();
-        final boolean[] visited = new boolean[totNumberOfTerms];
         Arrays.fill(visited, false);
         helpfulActions = new IntArraySet();
+        Arrays.fill(maxNumRepetition, 0);
 
         while (!stack.isEmpty()) {
 
@@ -394,20 +426,23 @@ public class H1 implements SearchHeuristic {
                                 }
                             }
                         }
+                        
                         final int actionId = establishedAchiever[conditionId];
-
+                        final int rep = (int) ceil(numRepetition[conditionId]);
+                        
+                        maxNumRepetition[actionId] = Math.max(maxNumRepetition[actionId],rep);
                         boolean inserted = false;
                         for (int i = plan.size() - 1; i >= 0; i--) {
                             if (plan.get(i).getFirst() == actionId) {
                                 final IntArraySet right = plan.get(i).getSecond();
-                                right.add((int) ceil(numRepetition[conditionId]));
+                                right.add(rep);
                                 inserted = true;
                                 break;
                             }
                         }
                         if (!inserted) {
                             final IntArraySet t = new IntArraySet();
-                            t.add((int) ceil(numRepetition[conditionId]));
+                            t.add(rep);
                             plan.add(Pair.of(actionId, t));
                             stack.push(getActivatingConditions(preconditionFunction[actionId]));
                         }
@@ -418,24 +453,25 @@ public class H1 implements SearchHeuristic {
         }
         
         if (planFixing){
-            plan = fixPlan(gs, plan);
+            return fixPlan(gs, plan);
         }
-        
+     
+//        float ret = 0;
+//        for (final Pair<Integer, IntArraySet> action : plan) {
+//            int max = 0;
+//            for (final int rep : action.getSecond()) {
+//                if (rep > max) {
+//                    max = rep;
+//                }
+//            }
+//            ret += max * actionCost[action.getFirst()];
+//        }
         
         //This is the MRP
         float ret = 0;
         for (final Pair<Integer, IntArraySet> action : plan) {
-            int max = 0;
-            for (final int rep : action.getSecond()) {
-                if (rep > max) {
-                    max = rep;
-                }
-            }
-            ret += max * actionCost[action.getFirst()];
+            ret += maxNumRepetition[action.getFirst()] * actionCost[action.getFirst()];
         }
-        
-        
-        
         
         return ret;
     }
@@ -463,7 +499,8 @@ public class H1 implements SearchHeuristic {
                 } else {//affecting a num comparison
                     final double v = this.numericContribution(actionId, (Comparison) t);
                     if (v > 0) {
-                        final float rep = (float) (-1f * ((Comparison) t).getLeft().eval(s) / v);
+                       
+                        float rep = computeRepetition(t,v,s);
                         final float newCost = rep * actionCost[actionId];
                         boolean localUpdate = false;
                         if (additive) {
@@ -952,46 +989,113 @@ public class H1 implements SearchHeuristic {
         return conditionsAchievableBy[actionId];
     }
 
-    private List<Pair<Integer, IntArraySet>> fixPlan(State gs, List<Pair<Integer, IntArraySet>> plan1) {
+    private float fixPlan(State gs, List<Pair<Integer, IntArraySet>> plan1) {
         
         //Compute DG
         final Condition goal = preconditionFunction[pseudoGoal];
 
+        final IntArraySet V = new IntArraySet();
+
+        final DirectedAcyclicGraph DG = new DirectedAcyclicGraph(DefaultEdge.class);
+
+        Arrays.fill(prec, null);
+        Arrays.fill(visitedActions, false);
+        Arrays.fill(maxNumRepetition, 0);
+        Arrays.fill(minNumRepetition, Integer.MAX_VALUE);
+        
+        final int[] repetitionToConsider = maxNumRepetition;
+        
+        //Construct graph;
         final LinkedList<Integer> stack = new LinkedList();
         stack.push(pseudoGoal);
-        HashSet<Integer> V = new HashSet();
-        HashMap<Integer,Integer> E = new HashMap();
-        final boolean[] visited = new boolean[heuristicNumberOfActions];
-        Arrays.fill(visited, false);
         while (!stack.isEmpty()) {
             int a = stack.pollLast();
-//            System.out.println(TransitionGround.getTransition(a));
-            if (!visited[a]){
+            if (!visitedActions[a]){                
                 V.add(a);
-                if (a != pseudoGoal)
-                    visited[a] = true;
+                DG.addVertex(a);
+                visitedActions[a] = true;
                 for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
                         if (!conditionInit[conditionId]) {
                             final int b = establishedAchiever[conditionId];
-                            E.put(b, a);
+                            maxNumRepetition[b] = (int) Math.max(maxNumRepetition[b],ceil(numRepetition[conditionId]));
+                            minNumRepetition[b] = (int) Math.min(minNumRepetition[b],ceil(numRepetition[conditionId]));
+                            if (prec[a] == null){
+                                prec[a] = new IntArraySet();
+                            }
+                            prec[a].add(b);
+                            if (!visitedActions[b]){
+                                DG.addVertex(b);
+                            }
+                            DG.addEdge(a,b);
                             stack.push(b);
                         }
                 }
             }
         }
         
-        System.out.println(V);
-        System.out.println(E);
-        System.out.println("==========Actions======");
+        //Exploit Graph for mitigating the effect of the action preconditions
+        Iterator topo = DG.iterator();
+        int extraCost =0;
+        while (topo.hasNext()){
+            Integer a = (Integer) topo.next();
+            for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
+                Terminal terminal = Terminal.getTerminal(conditionId);
+                if (terminal instanceof Comparison){
+                    final Comparison c = (Comparison)terminal;
+                    final Collection<Integer> get = DG.getDescendants(a);
+//                    System.out.println("Action under investigation");
+//                    System.out.println(printTransition(a));
+                    float cum = 0;
+                    if (get != null){
+//                        System.out.println("Chain of Actions before");
+                        for (var b : get){
+                            float numericContribution1 = numericContribution(b, c);
+                            if (numericContribution1 != 0f || numericContribution1 != Float.MAX_VALUE){
+                                cum += numericContribution1 * repetitionToConsider[b];
+                                
+//                                cum += numericContribution1;
+                            }
+                        }
+                        if (a != pseudoGoal && repetitionToConsider[a]>1){
+                            float numericContribution1 = numericContribution(a, c);
+                            if (numericContribution1 != 0f || numericContribution1 != Float.MAX_VALUE){
+                                cum += numericContribution1*(repetitionToConsider[a]-1);
+                            }
+                        }
+//                        System.out.println(cum);
+                        final Expression left = c.getLeft();
+                        final double eval = left.eval(gs);
+                        final float T = (float) (eval+cum);
+                        if (T < 0){
+                            int achiever = establishedAchiever[conditionId];
+                            if (achiever != -1){ //this is the case where there is an achiever already in the plan
+                                int repetition = (int) ceil(-1f *(T/numericContribution(achiever, c)));
+                                maxNumRepetition[achiever] = maxNumRepetition[achiever]+repetition;
+                            }else{
+                                if (superFix){
+                                    IntArraySet achieverSet = achievers[conditionId];
+                                    if (!achieverSet.isEmpty()){
+                                        int min = Integer.MAX_VALUE;
+                                        for (var i : achieverSet){
+                                            int ceil = (int) ceil(-1f *(T/numericContribution(i, c)));
+                                            if (ceil < min){
+                                                min = ceil;
+                                            }
+                                        }
+                                        extraCost+=min;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        float estimate = 0f;
         for (int aId : V){
-                System.out.println(printTransition(aId));
+            estimate += maxNumRepetition[aId] *actionCost[aId];
         }
-        Set<Map.Entry<Integer, Integer>> entrySet = E.entrySet();
-        for (Map.Entry<Integer,Integer> entry: entrySet){ 
-            System.out.println(printTransition(entry.getKey())+"->"+printTransition(entry.getValue()));
-        }
-        
-        throw  new RuntimeException("Not supported yet");
+        return estimate+extraCost;
         
     }
         
@@ -1003,7 +1107,11 @@ public class H1 implements SearchHeuristic {
         }
 
     }
-    
+
+    private float computeRepetition(Terminal t, double v, State s) {
+        return (float) (-1f * ((Comparison) t).getLeft().eval(s) / v);
+    }
+
 
 }
 
