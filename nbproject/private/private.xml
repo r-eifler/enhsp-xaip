@@ -19,11 +19,14 @@
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/LM.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/GUROBI.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/TransitionGround.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Comparison.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/domain/Type.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/CPLEX.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/domain/SchemaParameters.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/BlindHeuristic.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchProblem.java</file>
         </group>

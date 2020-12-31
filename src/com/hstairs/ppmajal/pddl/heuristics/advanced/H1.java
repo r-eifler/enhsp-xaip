@@ -1001,7 +1001,7 @@ public class H1 implements SearchHeuristic {
         Arrays.fill(prec, null);
         Arrays.fill(visitedActions, false);
         Arrays.fill(maxNumRepetition, 0);
-        Arrays.fill(minNumRepetition, Integer.MAX_VALUE);
+//        Arrays.fill(minNumRepetition, Integer.MAX_VALUE);
         
         final int[] repetitionToConsider = maxNumRepetition;
         
@@ -1018,7 +1018,7 @@ public class H1 implements SearchHeuristic {
                         if (!conditionInit[conditionId]) {
                             final int b = establishedAchiever[conditionId];
                             maxNumRepetition[b] = (int) Math.max(maxNumRepetition[b],ceil(numRepetition[conditionId]));
-                            minNumRepetition[b] = (int) Math.min(minNumRepetition[b],ceil(numRepetition[conditionId]));
+//                            minNumRepetition[b] = (int) Math.min(minNumRepetition[b],ceil(numRepetition[conditionId]));
                             if (prec[a] == null){
                                 prec[a] = new IntArraySet();
                             }
@@ -1036,24 +1036,21 @@ public class H1 implements SearchHeuristic {
         //Exploit Graph for mitigating the effect of the action preconditions
         Iterator topo = DG.iterator();
         int extraCost =0;
+        final IntArraySet[] descendants = new IntArraySet[heuristicNumberOfActions];
+        Arrays.fill(descendants, null);
         while (topo.hasNext()){
             Integer a = (Integer) topo.next();
+            final Collection<Integer> get = DG.getDescendants(a);
             for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
                 Terminal terminal = Terminal.getTerminal(conditionId);
                 if (terminal instanceof Comparison){
                     final Comparison c = (Comparison)terminal;
-                    final Collection<Integer> get = DG.getDescendants(a);
-//                    System.out.println("Action under investigation");
-//                    System.out.println(printTransition(a));
                     float cum = 0;
-                    if (get != null){
-//                        System.out.println("Chain of Actions before");
+                    if (get != null || superFix){
                         for (var b : get){
                             float numericContribution1 = numericContribution(b, c);
                             if (numericContribution1 != 0f || numericContribution1 != Float.MAX_VALUE){
                                 cum += numericContribution1 * repetitionToConsider[b];
-                                
-//                                cum += numericContribution1;
                             }
                         }
                         if (a != pseudoGoal && repetitionToConsider[a]>1){
@@ -1062,7 +1059,6 @@ public class H1 implements SearchHeuristic {
                                 cum += numericContribution1*(repetitionToConsider[a]-1);
                             }
                         }
-//                        System.out.println(cum);
                         final Expression left = c.getLeft();
                         final double eval = left.eval(gs);
                         final float T = (float) (eval+cum);
@@ -1072,15 +1068,22 @@ public class H1 implements SearchHeuristic {
                                 int repetition = (int) ceil(-1f *(T/numericContribution(achiever, c)));
                                 maxNumRepetition[achiever] = maxNumRepetition[achiever]+repetition;
                             }else{
-                                if (superFix){
+                                if (superFix){//mmmmmmm
                                     IntArraySet achieverSet = achievers[conditionId];
                                     if (!achieverSet.isEmpty()){
                                         int min = Integer.MAX_VALUE;
+                                        int best = -1;
                                         for (var i : achieverSet){
                                             int ceil = (int) ceil(-1f *(T/numericContribution(i, c)));
                                             if (ceil < min){
                                                 min = ceil;
+                                                best = i;
                                             }
+                                        }
+                                        if (actionHCost[best]!=Float.MAX_VALUE){
+                                            extraCost += actionHCost[best];
+                                        }else{
+                                            extraCost+=1;
                                         }
                                         extraCost+=min;
                                     }
@@ -1110,6 +1113,29 @@ public class H1 implements SearchHeuristic {
 
     private float computeRepetition(Terminal t, double v, State s) {
         return (float) (-1f * ((Comparison) t).getLeft().eval(s) / v);
+    }
+
+    private Collection<Integer> getDescendtants(IntArraySet[] prec, Integer a, IntArraySet[] descendants) {
+        if (descendants[a] != null){
+            return descendants[a];
+        }
+        if (prec[a]== null){
+            descendants[a] = new IntArraySet();
+            return descendants[a];
+        }
+            
+        final IntArraySet res = new IntArraySet();
+        
+        
+        for (var b: prec[a])
+        {
+            res.addAll(getDescendtants(prec,b,descendants));
+        }
+        descendants[a] = res;
+        return res;
+        
+
+
     }
 
 
