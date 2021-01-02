@@ -41,7 +41,7 @@ public class LM extends H1 {
     }
 
     public LM(EPddlProblem problem, String mode, String redundantConstraints, String solver) {
-        super(problem, true, true, false, redundantConstraints, false, false, false, false, null, false);
+        super(problem, true, true, false, redundantConstraints, false, false, false, false, null, false, false);
         reachedConditions = new boolean[totNumberOfTerms];
         reachedActions = new boolean[heuristicNumberOfActions];
         lmC = new IntOpenHashSet[totNumberOfTerms];

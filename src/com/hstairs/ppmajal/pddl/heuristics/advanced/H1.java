@@ -48,7 +48,8 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
-import org.jgrapht.traverse.TopologicalOrderIterator;
+import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
+import org.jgrapht.opt.graph.fastutil.FastutilIntVertexGSS;
 
 /**
  * @author enrico
@@ -109,13 +110,16 @@ public class H1 implements SearchHeuristic {
 
     Map<AndCond, Collection<IntArraySet>> redundantMap;
     private final boolean useSmartConstraints;
-    private boolean planFixing;
-    private boolean superFix = false;
+    
+    
 
     //Plan Fixing Data Structures;
     final IntArraySet[] prec ;
     final int[] maxNumRepetition ;
     final int[] minNumRepetition ;
+    private boolean planFixing;
+    private boolean superFix = false;
+    final private boolean saferVersion; 
 
     final boolean[] visited;
     final boolean[] visitedActions;
@@ -123,27 +127,28 @@ public class H1 implements SearchHeuristic {
     
     
     public H1(EPddlProblem problem) {
-        this(problem, true, false, false, "no", false, false, false, false, null,false);
+        this(problem, true, false, false, "no", false, false, false, false, null,false,false);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean planFixing) {
-        this(problem, additive, false, false, "no", false, false, false, false, null, planFixing);
+        this(problem, additive, false, false, "no", false, false, false, false, null, planFixing,false);
     }
     
     public H1(EPddlProblem problem, boolean additive) {
-        this(problem, additive, false, false, "no", false, false, false, false, null, false);
+        this(problem, additive, false, false, "no", false, false, false, false, null, false, false);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
             boolean helpfulTransitions, boolean conjunctionsMax) {
-        this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null,false);
+        this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null,false, false);
     }
 
     public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
-            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap, boolean planFixing) {
+            boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap, boolean planFixing, boolean easyPlanFixing) {
 
         long startSetup = System.currentTimeMillis();
         this.planFixing = planFixing;
+        this.saferVersion = easyPlanFixing;
         this.additive = additive;
         this.problem = problem;
         this.reachability = reachability;
@@ -996,8 +1001,13 @@ public class H1 implements SearchHeuristic {
 
         final IntArraySet V = new IntArraySet();
 
-        final DirectedAcyclicGraph DG = new DirectedAcyclicGraph(DefaultEdge.class);
-
+        final DirectedAcyclicGraph DG = new DirectedAcyclicGraph(FastutilFastLookupIntVertexGSS.class);
+//        final FastutilMapIntVertexGraph<Integer> DG = new FastutilMapIntVertexGraph<>(
+//         SupplierUtil.createIntegerSupplier(), 
+//         SupplierUtil.createIntegerSupplier(),
+//         DefaultGraphType.dag(), true);
+//        new DirectedAcyclicGraph();
+        
         Arrays.fill(prec, null);
         Arrays.fill(visitedActions, false);
         Arrays.fill(maxNumRepetition, 0);
@@ -1026,28 +1036,38 @@ public class H1 implements SearchHeuristic {
                             if (!visitedActions[b]){
                                 DG.addVertex(b);
                             }
-                            DG.addEdge(a,b);
+                            DG.addEdge(b,a);
                             stack.push(b);
+                            
                         }
                 }
             }
+            
         }
         
         //Exploit Graph for mitigating the effect of the action preconditions
         Iterator topo = DG.iterator();
+        
+        int[] orderedActions = new int[DG.vertexSet().size()];
+        int idx = 0;
+        while (topo.hasNext()){
+            orderedActions[idx] = (int) topo.next();
+            idx++;
+        }
+        
         int extraCost =0;
         final IntArraySet[] descendants = new IntArraySet[heuristicNumberOfActions];
         Arrays.fill(descendants, null);
-        while (topo.hasNext()){
-            Integer a = (Integer) topo.next();
-            final Collection<Integer> get = DG.getDescendants(a);
+        for (idx = DG.vertexSet().size()-1; idx >= 0; idx--){
+            int a = orderedActions[idx];
             for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
-                Terminal terminal = Terminal.getTerminal(conditionId);
+                final Terminal terminal = Terminal.getTerminal(conditionId);
                 if (terminal instanceof Comparison){
                     final Comparison c = (Comparison)terminal;
                     float cum = 0;
-                    if (get != null || superFix){
-                        for (var b : get){
+                        for (int j=0; j < idx ; j++){
+                            int b = orderedActions[j];
+//                            System.out.println(printTransition(b));
                             float numericContribution1 = numericContribution(b, c);
                             if (numericContribution1 != 0f || numericContribution1 != Float.MAX_VALUE){
                                 cum += numericContribution1 * repetitionToConsider[b];
@@ -1061,35 +1081,40 @@ public class H1 implements SearchHeuristic {
                         }
                         final Expression left = c.getLeft();
                         final double eval = left.eval(gs);
-                        final float T = (float) (eval+cum);
-                        if (T < 0){
-                            int achiever = establishedAchiever[conditionId];
-                            if (achiever != -1){ //this is the case where there is an achiever already in the plan
-                                int repetition = (int) ceil(-1f *(T/numericContribution(achiever, c)));
-                                maxNumRepetition[achiever] = maxNumRepetition[achiever]+repetition;
-                            }else{
-                                if (superFix){//mmmmmmm
-                                    IntArraySet achieverSet = achievers[conditionId];
-                                    if (!achieverSet.isEmpty()){
-                                        int min = Integer.MAX_VALUE;
-                                        int best = -1;
-                                        for (var i : achieverSet){
-                                            int ceil = (int) ceil(-1f *(T/numericContribution(i, c)));
-                                            if (ceil < min){
-                                                min = ceil;
-                                                best = i;
+                        final float T = (float) (eval + cum);
+                        if (T < 0) {
+                        if (saferVersion) {
+                            extraCost += 1;
+                        } else {
+
+                                int achiever = establishedAchiever[conditionId];
+                                if (achiever != -1) { //this is the case where there is an achiever already in the plan
+                                    int repetition = (int) ceil(-1f * (T / numericContribution(achiever, c)));
+                                    maxNumRepetition[achiever] = maxNumRepetition[achiever] + repetition;
+                                } else {
+                                    if (superFix) {//mmmmmmm
+                                        IntArraySet achieverSet = achievers[conditionId];
+                                        if (!achieverSet.isEmpty()) {
+                                            int min = Integer.MAX_VALUE;
+                                            int best = -1;
+                                            for (var i : achieverSet) {
+                                                int ceil = (int) ceil(-1f * (T / numericContribution(i, c)));
+                                                if (ceil < min) {
+                                                    min = ceil;
+                                                    best = i;
+                                                }
                                             }
+                                            if (actionHCost[best] != Float.MAX_VALUE) {
+                                                extraCost += actionHCost[best];
+                                            } else {
+                                                extraCost += 1;
+                                            }
+                                            extraCost += min;
                                         }
-                                        if (actionHCost[best]!=Float.MAX_VALUE){
-                                            extraCost += actionHCost[best];
-                                        }else{
-                                            extraCost+=1;
-                                        }
-                                        extraCost+=min;
                                     }
                                 }
                             }
-                        }
+                        
                     }
                 }
             }
