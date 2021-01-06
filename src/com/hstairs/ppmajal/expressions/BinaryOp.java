@@ -142,6 +142,10 @@ public class BinaryOp extends Expression {
                 //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
                 ret_val = Math.pow(first, second);
                 break;
+            case "atan2":
+                //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+                ret_val = Math.atan2(first, second);
+                break;
             default:
                 System.out.println(this.operator + " not supported");
                 break;
@@ -159,7 +163,10 @@ public class BinaryOp extends Expression {
         ExtendedNormExpression r = (ExtendedNormExpression) this.getRhs();
 
         try {
-            if ((!r.isNumber() && this.getOperator().equals("/")) || ((!l.isNumber() && (this.getOperator().equals("^"))) || (!l.isNumber() && !r.isNumber() && ((this.getOperator().equals("*") || this.getOperator().equals("/")))))) {
+            if ((this.getOperator().equals("atan2")) || 
+                    (!r.isNumber() && this.getOperator().equals("/")) || 
+                    ((!l.isNumber() && (this.getOperator().equals("^"))) || 
+                    (!l.isNumber() && !r.isNumber() && ((this.getOperator().equals("*") || this.getOperator().equals("/")))))) {
                 BinaryOp bin = new BinaryOp();
                 bin.setOperator(this.getOperator());
                 bin.setLhs(l);
@@ -253,6 +260,10 @@ public class BinaryOp extends Expression {
                     //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
                     ret_val = new PDDLNumber((float) Math.pow(first.getNumber(), second.getNumber()));
                     break;
+                case "atan2":
+                    //System.out.println("min: " + Math.min(first.getNumber(), second.getNumber()));
+                    ret_val = new PDDLNumber((float) Math.atan2(first.getNumber(), second.getNumber()));
+                    break;
                 default:
                     System.out.println(this.operator + " not supported");
                     break;
@@ -323,9 +334,21 @@ public class BinaryOp extends Expression {
             //System.out.println("divisione: " + new Float(first.getNumber()) / new Float(second.getNumber()));
 //            ret_val = new PDDLNumber(new Float(first.getNumber()) / new Float(second.getNumber()));
         } else if (this.getOperator().equals("^")) {
-            resultInt = first.pow(second);
+            
+            if (second.lo() == second.hi()){
+                if ((second.lo() == Math.floor(second.lo())) && !Double.isInfinite(second.lo())) {
+                    resultInt = first.pown((int) Math.floor(second.lo()));
+                }else{
+                    resultInt = first.pow(second);
+                }
+            }else{
+                    resultInt = first.pow(second);
+                    
+                }
 
 
+        } else if (this.getOperator().equals("atan2")){
+            resultInt = first.atan2(second);
         }
         return resultInt;
     }

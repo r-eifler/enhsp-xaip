@@ -133,7 +133,7 @@ public class TrigonometricFunction extends BinaryOp {
 //                ret = arg.cos();
                 ret = arg.atan();
                 break;
-
+                
             default:
                 System.out.println("Eval error in: " + this);
                 System.exit(-1);

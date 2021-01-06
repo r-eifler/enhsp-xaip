@@ -105,6 +105,9 @@ public class Aibr implements SearchHeuristic {
             }
         }
         for (NumEffect effect : tr.getAllNumericEffects()) {
+            
+            //TO FIX. The assignment to an undefined value is not tried!!
+            
             effect.additive_relaxation = true;
             if ("assign".equals(effect.getOperator()) && effect.getRight().getInvolvedNumericFluents().isEmpty()) {
                 NumEffect assign = new NumEffect("assign");

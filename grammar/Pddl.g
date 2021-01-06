@@ -410,7 +410,7 @@ condEffect
 
 // TODO: should these be uppercase & lexer section?
 //binaryOp : '*' | '+' | '-' | '/' | '^'| ;
-binaryOp : '*' | '+' | '-' | '/' | '^';
+binaryOp : '*' | '+' | '-' | '/' | '^' | 'atan2';
 
 multiOp	: '*' | '+' ;	
 

@@ -18,6 +18,18 @@
  */
 package com.hstairs.ppmajal.expressions;
 
+import net.java.jinterval.interval.IntervalContext;
+import net.java.jinterval.interval.Utils;
+import net.java.jinterval.interval.classic.ClassicInterval;
+import net.java.jinterval.interval.classic.ClassicIntervalContext;
+import net.java.jinterval.interval.classic.ClassicIntervalContexts;
+import net.java.jinterval.interval.set.SetInterval;
+import net.java.jinterval.interval.set.SetIntervalContext;
+import net.java.jinterval.interval.set.SetIntervalContextInfSup;
+import net.java.jinterval.interval.set.SetIntervalContextInfSupBase;
+import net.java.jinterval.interval.set.SetIntervalContexts;
+import net.java.jinterval.rational.ExtendedRational;
+import net.java.jinterval.rational.ExtendedRationalContexts;
 import net.sourceforge.interval.ia_math.IAMath;
 import net.sourceforge.interval.ia_math.RealInterval;
 
@@ -121,6 +133,13 @@ public class HomeMadeRealInterval {
     public boolean can_be_positive ( ) {
         return this.lo()> 0 || this.hi() > 0;
     }
+    
+    public HomeMadeRealInterval pown (int exp) {
+        final SetIntervalContext interval = SetIntervalContexts.getDoubleNearest();
+        final SetInterval a = interval.numsToInterval(lo, hi);
+        final SetInterval pow = interval.pown(a, exp);
+        return new HomeMadeRealInterval(pow.doubleInf(),pow.doubleSup());
+    }
 
     public HomeMadeRealInterval pow (HomeMadeRealInterval second) {
         double newLo;
@@ -128,6 +147,7 @@ public class HomeMadeRealInterval {
         if (second.lo == 0.5f) {//sqrt treatment
 //            System.out.println("Debug");
             //both negative
+            
             if (this.lo < 0 && this.hi < 0) {
                 newLo = Float.NaN;
                 return new HomeMadeRealInterval(newLo,newLo);
@@ -195,10 +215,6 @@ public class HomeMadeRealInterval {
         return new HomeMadeRealInterval(ret.lo(), ret.hi());
     }
 
-    public HomeMadeRealInterval atan2() {
-        throw new UnsupportedOperationException();
-    }
-
     public HomeMadeRealInterval abs() {
 
         double newLo;
@@ -247,5 +263,14 @@ public class HomeMadeRealInterval {
      */
     public void setSup (double sup) {
         this.hi = sup;
+    }
+
+    public HomeMadeRealInterval atan2(HomeMadeRealInterval second) {
+        SetIntervalContext interval = SetIntervalContexts.getDefault();
+        SetInterval a = interval.numsToInterval(lo, hi);
+        SetInterval b = interval.numsToInterval(second.lo, second.hi);
+        SetInterval atan2 = interval.atan2(a, b);
+        return new HomeMadeRealInterval(atan2.doubleInf(),atan2.doubleSup());
+        
     }
 }
