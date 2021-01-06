@@ -142,6 +142,7 @@ public class HomeMadeRealInterval {
     }
 
     public HomeMadeRealInterval pow (HomeMadeRealInterval second) {
+
         double newLo;
         double newHi;
         if (second.lo == 0.5f) {//sqrt treatment
