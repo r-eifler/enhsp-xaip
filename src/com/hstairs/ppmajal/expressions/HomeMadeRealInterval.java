@@ -183,9 +183,8 @@ public class HomeMadeRealInterval {
     public HomeMadeRealInterval acos ( ) {
         final RealInterval ret = IAMath.acos(new RealInterval(lo(), hi()));
         return new HomeMadeRealInterval(ret.lo(),ret.hi());
-
     }
-
+    
     public HomeMadeRealInterval abs ( ) {
 
         double newLo;

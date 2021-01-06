@@ -45,11 +45,10 @@ import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
 import com.hstairs.ppmajal.search.SearchHeuristic;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
-import org.jgrapht.opt.graph.fastutil.FastutilIntVertexGSS;
 
 /**
  * @author enrico
@@ -76,7 +75,7 @@ public class H1 implements SearchHeuristic {
     protected final IntArraySet allConditions;
     private final IntArraySet allComparisons;
     private final FibonacciHeapNode[] nodeOf;
-    private final boolean reachability;
+    private boolean reachability;
     private final boolean conjunctionsMax;
 
     final protected float[] actionCost;
@@ -123,6 +122,7 @@ public class H1 implements SearchHeuristic {
 
     final boolean[] visited;
     final boolean[] visitedActions;
+    private Collection<Float> estimates;
 
     
     
@@ -345,6 +345,10 @@ public class H1 implements SearchHeuristic {
 
     @Override
     public float computeEstimate(State gs) {
+        estimates = new FloatArrayList();
+        if (achievers == null){
+            reachability = true;
+        }
         final FibonacciHeap h = this.smallSetup(gs);
         while (!h.isEmpty()) {
             final int actionId = (int) h.removeMin().getData();
@@ -365,6 +369,9 @@ public class H1 implements SearchHeuristic {
                 expand(actionId, h, gs);
             }
         }
+        
+        estimates.add(actionHCost[pseudoGoal]);
+        
         return extractRelaxedPlan && actionHCost[pseudoGoal] != Float.MAX_VALUE ? relaxedPlanCost(gs) : actionHCost[pseudoGoal];
 
     }
@@ -457,29 +464,27 @@ public class H1 implements SearchHeuristic {
             }
         }
         
-        if (planFixing){
-            return fixPlan(gs, plan);
-        }
-     
-//        float ret = 0;
-//        for (final Pair<Integer, IntArraySet> action : plan) {
-//            int max = 0;
-//            for (final int rep : action.getSecond()) {
-//                if (rep > max) {
-//                    max = rep;
-//                }
-//            }
-//            ret += max * actionCost[action.getFirst()];
-//        }
-        
         //This is the MRP
         float ret = 0;
         for (final Pair<Integer, IntArraySet> action : plan) {
             ret += maxNumRepetition[action.getFirst()] * actionCost[action.getFirst()];
         }
-        
+        estimates.add(ret);
+        if (planFixing){
+            final float fixPlan = fixPlan(gs, plan);
+            estimates.add(fixPlan);
+            return fixPlan;
+        }     
+
         return ret;
     }
+
+    @Override
+    public Collection getAllEstimates() {
+        return SearchHeuristic.super.getAllEstimates(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
 
     protected IntArraySet getAchiever(int conditionId) {
         final IntArraySet achiever = achievers[conditionId];
@@ -1055,9 +1060,13 @@ public class H1 implements SearchHeuristic {
             idx++;
         }
         
+        
         int extraCost =0;
         final IntArraySet[] descendants = new IntArraySet[heuristicNumberOfActions];
         Arrays.fill(descendants, null);
+        
+        computeDescendants(pseudoGoal, prec, descendants);
+        
         for (idx = DG.vertexSet().size()-1; idx >= 0; idx--){
             int a = orderedActions[idx];
             for (final int conditionId : (Collection<Integer>)getActivatingConditions(preconditionFunction[a]).getFirst()) {
@@ -1065,8 +1074,9 @@ public class H1 implements SearchHeuristic {
                 if (terminal instanceof Comparison){
                     final Comparison c = (Comparison)terminal;
                     float cum = 0;
-                        for (int j=0; j < idx ; j++){
-                            int b = orderedActions[j];
+//                        for (int j=0; j < idx ; j++){
+//                            int b = orderedActions[j];
+                        for (int b : descendants[a]){
 //                            System.out.println(printTransition(b));
                             float numericContribution1 = numericContribution(b, c);
                             if (numericContribution1 != 0f || numericContribution1 != Float.MAX_VALUE){
@@ -1084,7 +1094,26 @@ public class H1 implements SearchHeuristic {
                         final float T = (float) (eval + cum);
                         if (T < 0) {
                         if (saferVersion) {
-                            extraCost += 1;
+                            if (true){
+                                IntArraySet achieverSet = achievers[conditionId];
+                                if (achieverSet!= null && !achieverSet.isEmpty()) {
+                                    int min = Integer.MAX_VALUE;
+                                    int best = -1;
+
+                                    for (var i : achieverSet) {
+                                        int ceil = (int) ceil(-1f * (T / numericContribution(i, c)));
+                                        if (ceil < min) {
+                                            min = ceil;
+                                            best = i;
+                                        }
+                                    }
+                                    extraCost += actionCost[best];
+                                }else{
+                                    extraCost += 1;
+                                }
+                            }else{
+                                extraCost += 1;
+                            }
                         } else {
 
                                 int achiever = establishedAchiever[conditionId];
@@ -1140,46 +1169,23 @@ public class H1 implements SearchHeuristic {
         return (float) (-1f * ((Comparison) t).getLeft().eval(s) / v);
     }
 
-    private Collection<Integer> getDescendtants(IntArraySet[] prec, Integer a, IntArraySet[] descendants) {
-        if (descendants[a] != null){
-            return descendants[a];
+
+    private IntArraySet computeDescendants(int actionId, IntArraySet[] prec, IntArraySet[] descendants) {
+        
+        if (descendants[actionId] != null){
+            return descendants[actionId];
         }
-        if (prec[a]== null){
-            descendants[a] = new IntArraySet();
-            return descendants[a];
-        }
-            
         final IntArraySet res = new IntArraySet();
-        
-        
-        for (var b: prec[a])
-        {
-            res.addAll(getDescendtants(prec,b,descendants));
+        if (prec[actionId] != null) {
+            for (int b : prec[actionId]) {
+                res.add(b);
+                res.addAll(computeDescendants(b, prec, descendants));
+            }
         }
-        descendants[a] = res;
-        return res;
+        descendants[actionId] = res;
+        return res;  
         
-
-
     }
 
 
 }
-
-    
-    
-//
-//
-//    public class GroundActionComparator implements IntComparator{
-//         @Override
-//        public int compare(int o1, int o2) {
-//            if (actionHCost[o1] < actionHCost[o2]){
-//                return -1;
-//            }else if (actionHCost[o1] > actionHCost[o2]){
-//                return 1;
-//            }else{
-//                return 0;
-//            }
-//        }
-//
-//    }
