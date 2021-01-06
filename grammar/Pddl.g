@@ -57,6 +57,9 @@ tokens {
 	UNARY_MINUS;
 	SIN;
 	COS;
+	ATAN;
+	ATAN2;
+	TAN;
 	ABS;
 	INIT_EQ;
 	INIT_AT;
@@ -363,6 +366,9 @@ fExp
 	| '(' '-' fExp ')' -> ^(UNARY_MINUS fExp)
 	| '(' 'sin' fExp ')' -> ^(SIN fExp)
 	| '(' 'cos' fExp ')' -> ^(COS fExp)
+	| '(' 'atan2' fExp ')' -> ^(ATAN2 fExp)
+	| '(' 'atan' fExp ')' -> ^(ATAN fExp)
+	| '(' 'tan' fExp ')' -> ^(TAN fExp)
 	| '(' 'abs' fExp ')' -> ^(ABS fExp)
 	| fHead
 	;

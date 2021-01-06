@@ -50,7 +50,8 @@ public class LM extends H1 {
         if ("cplex".equals(solver)) {
             lpSolver = new CPLEX(this);
         } else {
-            lpSolver = new GUROBI(this);
+            throw new RuntimeException("Gurobi Adapter has been disabled. Look into the code");
+//            lpSolver = new GUROBI(this);
         }
         reachableAchievers = new IntArraySet[totNumberOfTerms];
     }
