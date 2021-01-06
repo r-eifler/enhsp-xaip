@@ -254,6 +254,20 @@ public class FactoryConditions {
                 ret.setArg(createExpression(t.getChild(0), parTable));
                 return ret;
             }
+            case PddlParser.TAN: {
+                TrigonometricFunction ret = new TrigonometricFunction();
+//                System.out.println(t.getChild(1));
+                ret.setOperator("tan");
+                ret.setArg(createExpression(t.getChild(0), parTable));
+                return ret;
+            }
+            case PddlParser.ATAN: {
+                TrigonometricFunction ret = new TrigonometricFunction();
+//                System.out.println(t.getChild(1));
+                ret.setOperator("atan");
+                ret.setArg(createExpression(t.getChild(0), parTable));
+                return ret;
+            }
             case PddlParser.NUMBER: {
                 PDDLNumber ret = new PDDLNumber(new Float(t.getText()));
                 return ret;

@@ -180,12 +180,26 @@ public class HomeMadeRealInterval {
 
     }
 
-    public HomeMadeRealInterval acos ( ) {
+    public HomeMadeRealInterval acos() {
         final RealInterval ret = IAMath.acos(new RealInterval(lo(), hi()));
-        return new HomeMadeRealInterval(ret.lo(),ret.hi());
+        return new HomeMadeRealInterval(ret.lo(), ret.hi());
     }
-    
-    public HomeMadeRealInterval abs ( ) {
+
+    public HomeMadeRealInterval tan() {
+        final RealInterval ret = IAMath.tan(new RealInterval(lo(), hi()));
+        return new HomeMadeRealInterval(ret.lo(), ret.hi());
+    }
+
+    public HomeMadeRealInterval atan() {
+        final RealInterval ret = IAMath.atan(new RealInterval(lo(), hi()));
+        return new HomeMadeRealInterval(ret.lo(), ret.hi());
+    }
+
+    public HomeMadeRealInterval atan2() {
+        throw new UnsupportedOperationException();
+    }
+
+    public HomeMadeRealInterval abs() {
 
         double newLo;
         double newHi;
