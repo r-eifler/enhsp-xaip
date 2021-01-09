@@ -447,13 +447,16 @@ public class H1 implements SearchHeuristic {
                         final int actionId = establishedAchiever[conditionId];
                         final int rep = (int) ceil(numRepetition[conditionId]);
                         
-                        maxNumRepetition[actionId] = Math.max(maxNumRepetition[actionId],rep);
                         if (repetitionsInThePlan[actionId] == null){
                             repetitionsInThePlan[actionId] = new IntArraySet();
                         }
-                        repetitionsInThePlan[actionId].add(rep);
-                        plan.add(actionId);
                         
+                        if (maxNumRepetition[actionId] != rep){
+                            repetitionsInThePlan[actionId].add(rep);
+                            maxNumRepetition[actionId] = Math.max(maxNumRepetition[actionId],rep);
+                        }
+                        plan.add(actionId);
+                        stack.push(getActivatingConditions(preconditionFunction[actionId]));
                     }
                     visited[conditionId] = true;
                 }
@@ -1115,7 +1118,7 @@ public class H1 implements SearchHeuristic {
                                 int achiever = establishedAchiever[conditionId];
                                 if (achiever != -1) { //this is the case where there is an achiever already in the plan
                                     int repetition = (int) ceil(-1f * (T / numericContribution(achiever, c)));
-                                    if (repetitionsInThePlan[achiever].size() ==1){
+                                    if (repetitionsInThePlan[achiever].size() == 1){
                                         repetitionsInThePlan[achiever] = new IntArraySet(Collections.singleton(maxNumRepetition[achiever] + repetition));
                                     }
                                     maxNumRepetition[achiever] = maxNumRepetition[achiever] + repetition;
@@ -1149,7 +1152,7 @@ public class H1 implements SearchHeuristic {
         }
         float estimate = 0f;
         for (int aId : V){
-            estimate += maxNumRepetition[aId] *actionCost[aId];
+            estimate += maxNumRepetition[aId] * actionCost[aId];
         }
         return estimate+extraCost;
         
