@@ -46,6 +46,7 @@ import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
@@ -103,7 +104,9 @@ public class H1 implements SearchHeuristic {
 
     final private float UNKNOWNEFFECT = Float.NEGATIVE_INFINITY;
     final protected IntArraySet freePreconditionActions;
-    private List<Pair<Integer, IntArraySet>> plan;
+//    private List<Pair<Integer, IntArraySet>> plan;
+    private IntArraySet plan;
+    final private IntArraySet[] repetitionsInThePlan;
     private float[] minAchieverPreconditionCost;
     private IntArraySet allActions;
 
@@ -251,10 +254,12 @@ public class H1 implements SearchHeuristic {
             maxNumRepetition = new int[heuristicNumberOfActions];
             minNumRepetition = new int[heuristicNumberOfActions];
             visited = new boolean[totNumberOfTerms];
+            repetitionsInThePlan = new IntArraySet[heuristicNumberOfActions];
         }else{
             visited = null;
             maxNumRepetition = null;
             minNumRepetition = null;
+            repetitionsInThePlan = null;
         }
 
     }
@@ -416,11 +421,11 @@ public class H1 implements SearchHeuristic {
 
         final LinkedList<Pair<Collection, Float>> stack = new LinkedList();
         stack.push(getActivatingConditions(goal));
-        plan = new ArrayList();
+        plan = new IntArraySet();
         Arrays.fill(visited, false);
         helpfulActions = new IntArraySet();
         Arrays.fill(maxNumRepetition, 0);
-
+        Arrays.fill(repetitionsInThePlan, null);
         while (!stack.isEmpty()) {
 
             final Pair<Collection, Float> elements;
@@ -443,21 +448,12 @@ public class H1 implements SearchHeuristic {
                         final int rep = (int) ceil(numRepetition[conditionId]);
                         
                         maxNumRepetition[actionId] = Math.max(maxNumRepetition[actionId],rep);
-                        boolean inserted = false;
-                        for (int i = plan.size() - 1; i >= 0; i--) {
-                            if (plan.get(i).getFirst() == actionId) {
-                                final IntArraySet right = plan.get(i).getSecond();
-                                right.add(rep);
-                                inserted = true;
-                                break;
-                            }
+                        if (repetitionsInThePlan[actionId] == null){
+                            repetitionsInThePlan[actionId] = new IntArraySet();
                         }
-                        if (!inserted) {
-                            final IntArraySet t = new IntArraySet();
-                            t.add(rep);
-                            plan.add(Pair.of(actionId, t));
-                            stack.push(getActivatingConditions(preconditionFunction[actionId]));
-                        }
+                        repetitionsInThePlan[actionId].add(rep);
+                        plan.add(actionId);
+                        
                     }
                     visited[conditionId] = true;
                 }
@@ -466,12 +462,12 @@ public class H1 implements SearchHeuristic {
         
         //This is the MRP
         float ret = 0;
-        for (final Pair<Integer, IntArraySet> action : plan) {
-            ret += maxNumRepetition[action.getFirst()] * actionCost[action.getFirst()];
+        for (final int action : plan) {
+            ret += maxNumRepetition[action] * actionCost[action];
         }
         estimates.add(ret);
         if (planFixing){
-            final float fixPlan = fixPlan(gs, plan);
+            final float fixPlan = fixPlan(gs);
             estimates.add(fixPlan);
             return fixPlan;
         }     
@@ -787,9 +783,9 @@ public class H1 implements SearchHeuristic {
             throw new RuntimeException("Helpful Transitions can only be activatated in combination with the relaxed plan extraction");
         }
         Collection<Pair<TransitionGround, Integer>> res = new ArrayList<>();
-        for (Pair<Integer, IntArraySet> pair : plan) {
-            if (actionInit[pair.getFirst()]) {
-                final IntArraySet right = pair.getSecond();
+        for (final int actionId : plan) {
+            if (actionInit[actionId]) {
+                final IntArraySet right = repetitionsInThePlan[actionId];
                 if (maxMRP) {
                     int max = 0;
                     for (int i : right) {
@@ -798,7 +794,7 @@ public class H1 implements SearchHeuristic {
                         }
                     }
                     if (max > 1) {
-                        res.add(Pair.of((TransitionGround) getTransition(pair.getFirst()), max));
+                        res.add(Pair.of((TransitionGround) getTransition(actionId), max));
                     }
                 } else {
                     int min = Integer.MAX_VALUE;
@@ -808,7 +804,7 @@ public class H1 implements SearchHeuristic {
                         }
                     }
                     if (min > 1) {
-                        res.add(Pair.of((TransitionGround) getTransition(pair.getFirst()), min));
+                        res.add(Pair.of((TransitionGround) getTransition(actionId), min));
                     }
                 }
             }
@@ -999,7 +995,7 @@ public class H1 implements SearchHeuristic {
         return conditionsAchievableBy[actionId];
     }
 
-    private float fixPlan(State gs, List<Pair<Integer, IntArraySet>> plan1) {
+    private float fixPlan(State gs) {
         
         //Compute DG
         final Condition goal = preconditionFunction[pseudoGoal];

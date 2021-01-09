@@ -5,7 +5,7 @@
             <url>src/com/hstairs/ppmajal/expressions/BinaryOp.java</url>
             <bookmark id="1">
                 <name/>
-                <line>353</line>
+                <line>370</line>
                 <key/>
             </bookmark>
         </file>
@@ -15,6 +15,8 @@
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/ConditionalEffects.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/parser/PddlLexer.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/Aibr.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/ExtendedNormExpression.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/LM.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/GUROBI.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchHeuristic.java</file>
@@ -27,6 +29,7 @@
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/domain/PddlDomain.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Terminal.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/NumEffect.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/BlindHeuristic.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/HomeMadeRealInterval.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/BinaryOp.java</file>
