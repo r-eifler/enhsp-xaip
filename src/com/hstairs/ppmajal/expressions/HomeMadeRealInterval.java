@@ -135,7 +135,7 @@ public class HomeMadeRealInterval {
     }
     
     public HomeMadeRealInterval pown (int exp) {
-        final SetIntervalContext interval = SetIntervalContexts.getDoubleNearest();
+        final SetIntervalContext interval = SetIntervalContexts.getFast();
         final SetInterval a = interval.numsToInterval(lo, hi);
         final SetInterval pow = interval.pown(a, exp);
         return new HomeMadeRealInterval(pow.doubleInf(),pow.doubleSup());

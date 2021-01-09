@@ -336,11 +336,11 @@ public class BinaryOp extends Expression {
         } else if (this.getOperator().equals("^")) {
             
             if (second.lo() == second.hi()){
-                if ((second.lo() == Math.floor(second.lo())) && !Double.isInfinite(second.lo())) {
-                    resultInt = first.pown((int) Math.floor(second.lo()));
-                }else{
+//                if ((second.lo() == Math.floor(second.lo())) && !Double.isInfinite(second.lo())) {
+//                    resultInt = first.pown((int) Math.floor(second.lo()));
+//                }else{
                     resultInt = first.pow(second);
-                }
+//                }
             }else{
                     resultInt = first.pow(second);
                     
