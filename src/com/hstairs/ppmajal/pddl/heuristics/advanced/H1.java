@@ -1115,6 +1115,9 @@ public class H1 implements SearchHeuristic {
                                 int achiever = establishedAchiever[conditionId];
                                 if (achiever != -1) { //this is the case where there is an achiever already in the plan
                                     int repetition = (int) ceil(-1f * (T / numericContribution(achiever, c)));
+                                    if (repetitionsInThePlan[achiever].size() ==1){
+                                        repetitionsInThePlan[achiever] = new IntArraySet(Collections.singleton(maxNumRepetition[achiever] + repetition));
+                                    }
                                     maxNumRepetition[achiever] = maxNumRepetition[achiever] + repetition;
                                 } else {
                                     if (superFix) {//mmmmmmm
