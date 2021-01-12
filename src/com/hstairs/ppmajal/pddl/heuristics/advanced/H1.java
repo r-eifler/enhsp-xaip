@@ -220,13 +220,13 @@ public class H1 implements SearchHeuristic {
 
         conditionInit = new boolean[totNumberOfTerms];
         actionInit = new boolean[heuristicNumberOfActions];
-        if (extractRelaxedPlan || useSmartConstraints) {
+        if (extractRelaxedPlan || useSmartConstraints || helpfulActionsComputation) {
             achievers = new IntArraySet[totNumberOfTerms];
         }
         if (useSmartConstraints) {
             deleters = new IntArraySet[totNumberOfTerms];
         }
-        if (extractRelaxedPlan) {
+        if (extractRelaxedPlan || helpfulActionsComputation) {
             establishedAchiever = new int[totNumberOfTerms];
             numRepetition = new float[totNumberOfTerms];
         }
@@ -250,7 +250,7 @@ public class H1 implements SearchHeuristic {
             prec = null;
             visitedActions = null;
         }
-        if (extractRelaxedPlan){
+        if (extractRelaxedPlan || helpfulActionsComputation){
             maxNumRepetition = new int[heuristicNumberOfActions];
             minNumRepetition = new int[heuristicNumberOfActions];
             visited = new boolean[totNumberOfTerms];
@@ -323,7 +323,7 @@ public class H1 implements SearchHeuristic {
         Arrays.fill(closed, false);
         Arrays.fill(actionInit, false);
         Arrays.fill(conditionInit, false);
-        if (extractRelaxedPlan) {
+        if (extractRelaxedPlan || helpfulActionsComputation) {
             Arrays.fill(establishedAchiever, -1);
             Arrays.fill(numRepetition, Float.MAX_VALUE);
         }
@@ -351,17 +351,11 @@ public class H1 implements SearchHeuristic {
     @Override
     public float computeEstimate(State gs) {
         estimates = new FloatArrayList();
-        if (achievers == null){
-            reachability = true;
-        }
         final FibonacciHeap h = this.smallSetup(gs);
         while (!h.isEmpty()) {
             final int actionId = (int) h.removeMin().getData();
             if (actionId == pseudoGoal && !reachability) {
-                if (extractRelaxedPlan) {
-                    return relaxedPlanCost(gs);
-                }
-                return actionHCost[pseudoGoal];
+                break;
             }
             if (reachability && actionId != pseudoGoal) {
                 if (reachableTransitions == null) {
@@ -375,9 +369,19 @@ public class H1 implements SearchHeuristic {
             }
         }
         
-        estimates.add(actionHCost[pseudoGoal]);
+        if (actionHCost[pseudoGoal] == Float.MAX_VALUE ){
+            return Float.MAX_VALUE;
+        }
         
-        return extractRelaxedPlan && actionHCost[pseudoGoal] != Float.MAX_VALUE ? relaxedPlanCost(gs) : actionHCost[pseudoGoal];
+        if (this.extractRelaxedPlan){
+            return relaxedPlanCost(gs);
+        }
+        
+        if (this.helpfulActionsComputation){//this is to be used when hadd is wanted to be used with helpful actions taken from mrp
+            relaxedPlanCost(gs);
+        }
+        
+        return actionHCost[pseudoGoal];
 
     }
 
@@ -545,13 +549,13 @@ public class H1 implements SearchHeuristic {
     }
 
     private void updateAchievers(int conditionId, int actionId) {
-        if (extractRelaxedPlan || useSmartConstraints) {
+        if (extractRelaxedPlan || useSmartConstraints || helpfulActionsComputation) {
             getAchiever(conditionId).add(actionId);
         }
     }
 
     private void updateRelPlanInfo(int conditionId, int actionId, float rep) {
-        if (extractRelaxedPlan) {
+        if (extractRelaxedPlan || helpfulActionsComputation) {
             establishedAchiever[conditionId] = actionId;
             numRepetition[conditionId] = rep;
         }
@@ -782,7 +786,7 @@ public class H1 implements SearchHeuristic {
     }
 
     public Collection<Pair<TransitionGround, Integer>> getHelpfulTransitions() {
-        if (!extractRelaxedPlan) {
+        if (!extractRelaxedPlan && !helpfulActionsComputation) {
             throw new RuntimeException("Helpful Transitions can only be activatated in combination with the relaxed plan extraction");
         }
         Collection<Pair<TransitionGround, Integer>> res = new ArrayList<>();
