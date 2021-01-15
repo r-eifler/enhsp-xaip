@@ -124,7 +124,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     public boolean can_be_true (RelState s) {
         for (final Object o : this.sons) {
             if (o instanceof Condition) {
-                Condition c = (Condition) o;
+                final Condition c = (Condition) o;
                 if (!c.can_be_true(s)) {
                     //System.out.println(c.pddlPrint() + " is not satisfied in " + s);
                     return false;

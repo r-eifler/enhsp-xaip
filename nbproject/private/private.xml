@@ -12,8 +12,15 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/Aibr.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/EPddlProblem.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/PDDLProblemComponent.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/HomeMadeRealInterval.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/PDDLSearchEngine.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/PDDLState.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/BinaryOp.java</file>
         </group>
     </open-files>

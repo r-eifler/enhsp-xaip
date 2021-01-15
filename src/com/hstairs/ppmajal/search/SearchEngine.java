@@ -23,6 +23,7 @@ import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.objects.*;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import org.jgrapht.alg.util.Pair;
@@ -49,8 +50,8 @@ public class SearchEngine {
     //externalise internal state of things
     public float currentG;
     public boolean processes = false;
-    public float executionDelta;
-    public float planningDelta;
+    public BigDecimal executionDelta;
+    public BigDecimal planningDelta;
     public int constraintsViolations;
     protected State lastState;
     //stats
@@ -174,7 +175,7 @@ public class SearchEngine {
 
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> a_star(SearchProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> a_star(SearchProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
         return this.WAStar(problem);
@@ -489,15 +490,15 @@ public class SearchEngine {
         return this.lastState;
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(SearchProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> WAStar(SearchProblem problem) throws Exception {
         return WAStar(problem, false, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(SearchProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> WAStar(SearchProblem problem, long timeout) throws Exception {
         return WAStar(problem, false, timeout);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> WAStar(SearchProblem problem, boolean treeSearch, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> WAStar(SearchProblem problem, boolean treeSearch, long timeout) throws Exception {
         SearchNode end = this.WAStar(problem, null, false, new Object2FloatLinkedOpenHashMap<State>(), treeSearch, timeout);
         if (end != null) {
             return this.extractPlan(end);
@@ -506,17 +507,17 @@ public class SearchEngine {
         }
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(SearchProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem) throws Exception {
         this.optimality = false;
         return this.greedy_best_first_search(problem, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(SearchProblem problem, boolean optimality) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem, boolean optimality) throws Exception {
         this.optimality = optimality;
         return this.WAStar(problem);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> greedy_best_first_search(SearchProblem problem, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem, long timeout) throws Exception {
         this.optimality = false;
         //this.gw = (float) 0.0;//this is the actual GBFS setting. Otherwise is not gbfs
         return this.WAStar(problem, timeout);
@@ -586,19 +587,19 @@ public class SearchEngine {
 
    
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory) throws Exception {
         return idastar(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, Long.MAX_VALUE);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, long timeout) throws Exception {
         return idastar(problem, checkAlongPrefix, false, false, timeout);
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<Float, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> idastar(SearchProblem problem, boolean checkAlongPrefix, boolean showExpansion, boolean idaStarWithMemory, long timeout) throws Exception {
         IdaStarSearchNode idastarInt = this.idaStarImplementation(problem, checkAlongPrefix, showExpansion, idaStarWithMemory, timeout);
         return this.extractPlan(idastarInt); 
     }

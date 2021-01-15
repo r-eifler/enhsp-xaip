@@ -25,7 +25,7 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import net.sourceforge.interval.ia_math.RealInterval;
+import java.math.BigDecimal;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -40,7 +40,7 @@ protected DoubleArrayList numFluents;
     private static int[] fromProblemNFId2StateNFId;
     private static int[] fromStateNFId2ProblemNFId;
     protected BitSet boolFluents;
-    public double time;
+    public BigDecimal time;
     
     private PDDLState(DoubleArrayList numFluents, BitSet boolFluents) {
         this.numFluents = numFluents.clone();
@@ -86,7 +86,7 @@ protected DoubleArrayList numFluents;
             }
         }
         this.boolFluents = (BitSet) otherBoolFluents.clone();
-        time = -1;
+        time = null;
     }
     
 
@@ -98,7 +98,7 @@ protected DoubleArrayList numFluents;
             NumFluent fluent = NumFluent.fromIdToNumFluents.get(idNFProblem);
             str.append(fluent).append("=").append(numFluents.get(i)).append(" ");
         }
-        if (!Double.isNaN(time)){
+        if (time != null){
             str.append("(time)").append("=").append(time).append(" ");
         }
         str.append("\n");
@@ -287,9 +287,6 @@ protected DoubleArrayList numFluents;
         }
     }
 
-    void increase_time_by_epsilon ( ) {
-        time += 0.1f;
-    }
 
     private void apply(PostCondition effect, State prev) {        
         if (effect instanceof AndCond){

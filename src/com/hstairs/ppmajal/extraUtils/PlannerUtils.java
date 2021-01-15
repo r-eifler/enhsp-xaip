@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedList;
 import com.hstairs.ppmajal.search.SearchHeuristic;
+import java.math.BigDecimal;
 
 /*
  * Copyright (C) 2018 enrico.
@@ -77,11 +78,11 @@ public class PlannerUtils {
         setup(domainFileName,problemFileName,heuristic);
         PDDLSearchEngine search = new PDDLSearchEngine(h, p);
         if (!p.getProcessesSet().isEmpty()){
-            search.planningDelta = 1.0f;
+            search.planningDelta = new BigDecimal(1.0f);
             search.processes = true;
-            search.executionDelta = 1.0f;
+            search.executionDelta = new BigDecimal(1.0f);
         }
-        final LinkedList<Pair<Float, Object>> pairs = search.WAStar(p);
+        final LinkedList<Pair<BigDecimal, Object>> pairs = search.WAStar(p);
         return pairs.size();
     }
 

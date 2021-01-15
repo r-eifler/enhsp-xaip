@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import com.hstairs.ppmajal.search.SearchHeuristic;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -64,12 +65,12 @@ public class PDDLSearchEngine extends SearchEngine {
             //out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
     }
 
-    public boolean validate(LinkedList<Pair<Float,Object>> userPlan, double stepSize) throws CloneNotSupportedException {
-        return validate(userPlan,stepSize,null);
+    public boolean validate(LinkedList<Pair<BigDecimal,Object>> userPlan,BigDecimal execDelta, BigDecimal stepSize) throws CloneNotSupportedException {
+        return validate(userPlan, execDelta,stepSize,null);
     }
 
-    public boolean validate(LinkedList<Pair<Float,Object>> userPlan, double stepSize, String planTrace) throws CloneNotSupportedException {
-        Float previous = 0.0F;
+    public boolean validate(LinkedList<Pair<BigDecimal,Object>> userPlan,BigDecimal execDelta, BigDecimal stepSize, String planTrace) throws CloneNotSupportedException {
+        BigDecimal previous = BigDecimal.ZERO;
         State current = (PDDLState) problem.getInit();
         System.out.println("Plan under Validation: "+userPlan);
         StringBuilder planTraceString = null;
@@ -78,25 +79,29 @@ public class PDDLSearchEngine extends SearchEngine {
             planTraceString.append(current.toString()).append("\n");
         }
 
-        for (Pair<Float, Object> ele : userPlan) {
-            final Float v = ele.getKey() - previous;
-            if (v > 0) {
-                final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair = intelligentSimulation(current, problem, v, stepSize, false, planTraceString);
+        Pair<BigDecimal, Object> lastEle = null;
+        for (Pair<BigDecimal, Object> ele : userPlan) {
+            TransitionGround right = (TransitionGround) ele.getRight();
+            if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
+                final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
+                        = simulation(current, problem, execDelta, stepSize, false, planTraceString);
                 if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
                 } else {
                     current = stateCollectionPair.getFirst();
                 }
+                lastEle = ele;
             }
             previous = ele.getKey();
-            TransitionGround right = (TransitionGround) ele.getRight();
             if (ele.getRight() != null && !right.getSemantics().equals(Transition.Semantics.PROCESS)) {
                 current.apply(right, current.clone());
-                if (planTrace != null){planTraceString.append(current.toString()).append("\n");}
+                if (planTrace != null) {
+                    planTraceString.append(current.toString()).append("\n");
+                }
             }
         }
-        if (planTrace!=null) {
+        if (planTrace != null) {
             try {
                 BufferedWriter bf = new BufferedWriter(new FileWriter(planTrace));
                 bf.append(planTraceString);
@@ -110,15 +115,15 @@ public class PDDLSearchEngine extends SearchEngine {
     }
 
     @Override
-    public LinkedList<Pair<Float,TransitionGround>> extractPlan (SimpleSearchNode input) {
+    public LinkedList<Pair<BigDecimal,TransitionGround>> extractPlan (SimpleSearchNode input) {
 
-        LinkedList<Pair<Float,TransitionGround>> plan = new LinkedList<>();
+        LinkedList<Pair<BigDecimal,TransitionGround>> plan = new LinkedList<>();
         lastState = input.s;
         if (!(input instanceof SearchNode)) {
             SimpleSearchNode temp = input;
             while (temp.transition != null) {
                 Double time = null;
-                plan.addFirst(Pair.of(0f,(TransitionGround)temp.transition));
+                plan.addFirst(Pair.of(BigDecimal.ZERO,(TransitionGround)temp.transition));
                 temp = temp.father;
             }
             return plan;
@@ -127,7 +132,7 @@ public class PDDLSearchEngine extends SearchEngine {
         SearchNode c = (SearchNode) input;
         if (problem.getProcessesSet().isEmpty()) {
             while ((c.transition != null || c.list_of_actions != null)) {
-                Double time = null;
+                BigDecimal time = null;
                 if (c.father != null && c.father.s instanceof PDDLState) {
                     time = ((PDDLState) c.father.s).time;
                 }
@@ -135,11 +140,11 @@ public class PDDLSearchEngine extends SearchEngine {
                     if (c.transition instanceof ImmutablePair) {
                         final ImmutablePair<TransitionGround, Integer> t = (ImmutablePair<TransitionGround, Integer>) c.transition;
                         for (int i = 0; i < t.right; i++) {
-                            plan.addFirst(Pair.of(time.floatValue(), t.left));
+                            plan.addFirst(Pair.of(time, t.left));
                         }
                         System.out.println("JUMP for " + t.left + ":" + t.right);
                     } else {
-                        plan.addFirst(Pair.of(time.floatValue(), (TransitionGround) c.transition));
+                        plan.addFirst(Pair.of(time, (TransitionGround) c.transition));
                     }
                 }
                 c = (SearchNode) c.father;
@@ -148,12 +153,12 @@ public class PDDLSearchEngine extends SearchEngine {
         }else {
             triggeredEvents = new HashMap();
             System.out.println("Extracting plan with execution delta: "+executionDelta);
-            float time = (float)((PDDLState)c.s).time;
+            BigDecimal time = ((PDDLState)c.s).time;
             TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
             while ((c.transition != null || c.list_of_actions != null)) {
                 if (c.transition != null){
                     // This is an action
-                    plan.addFirst(Pair.of((float)((PDDLState)c.s).time, (TransitionGround) c.transition));
+                    plan.addFirst(Pair.of(((PDDLState)c.s).time, (TransitionGround) c.transition));
                 }else{
                     //c is the next state actually. Be careful!!
                     ArrayList arrayList = new ArrayList(c.list_of_actions);
@@ -161,8 +166,7 @@ public class PDDLSearchEngine extends SearchEngine {
                     for (final Object o: arrayList ){
                         TransitionGround t = (TransitionGround)o;
                         if (t.getSemantics() == TransitionGround.Semantics.PROCESS){
-                            time -= executionDelta;
-                            time = Utils.round2((float)time,4);   
+                            time = time.subtract(executionDelta);
                             plan.addFirst(Pair.of(time, waiting));
                         }else{
                             plan.addFirst(Pair.of(time,t));
@@ -212,35 +216,36 @@ public class PDDLSearchEngine extends SearchEngine {
             queueSuccessor(frontier, stateCollectionPair.getFirst(), current_node, stateCollectionPair.getSecond(), g);//this could be done in a smarter way
         }
     }
-        
-         protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent) {
-        return intelligentSimulation(s, problem, horizon, executionDelta, intelligent, null);
+
+    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent) {
+        return simulation(s, problem, horizon, executionDelta, intelligent, null);
     }
 
 
-
-    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, double horizon, double executionDelta, boolean intelligent, StringBuilder traceString) {
+    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulation(State s, EPddlProblem problem, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString) {
         if (reachableEvents == null) {
             reachableEvents = problem.getEventsSet();
         }
         if (reachableProcesses == null) {
             reachableProcesses = problem.getProcessesSet();
         }
-        if (!intelligent){
-            if (Math.abs(horizon-executionDelta) < 0.0001){
-                horizon = executionDelta;
-            }
-        }
+//        if (!intelligent){
+//            if (Math.abs(horizon-executionDelta) < 0.0001){
+//                horizon = executionDelta;
+//            }
+//        }
         final PDDLState next = (PDDLState) s.clone();
-        if (horizon < executionDelta) {
+        if (horizon.compareTo(executionDelta) == -1) {
             System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
-            throw new RuntimeException("Delta simulation should be higher than delta execution");
+            throw new RuntimeException("Planning Delta should be higher than delta execution");
         }
-        if (notDiv(horizon, executionDelta)) {
+        if (horizon.remainder(executionDelta).compareTo(BigDecimal.ZERO) != 0) {
+            System.out.println(horizon.remainder(executionDelta));
             System.out.println("Horizon: " + horizon + " Execution Delta: " + executionDelta);
-            System.out.println("WARNING: Delta simulation should be a multiple of delta execution");
+            System.out.println("WARNING: Planning delta should be a multiple of delta execution");
         }
-        final int iterations = (int) Math.ceil(horizon / executionDelta);
+//        final int iterations = (int) Math.ceil(horizon / executionDelta);
+        final int iterations = horizon.divideToIntegralValue(executionDelta).intValue();
         PDDLState previousNext = next;
         final ArrayList<TransitionGround> executedProcesses = new ArrayList<>();
         executedProcesses.addAll(applyAllEvents(next));
@@ -269,8 +274,9 @@ public class PDDLSearchEngine extends SearchEngine {
             //execute
             final TransitionGround waiting = new TransitionGround(numEffect);
             next.apply(waiting, next.clone());
-            next.time += executionDelta;
-            next.time = round2((float)next.time,4);
+            next.time = next.time.add(executionDelta);
+//            next.time += executionDelta.floatValue();
+//            next.time = round2((float)next.time,4);
             if (!next.satisfy(problem.globalConstraints)) {
                 if (i == 0 || !intelligent) {
                     return null;

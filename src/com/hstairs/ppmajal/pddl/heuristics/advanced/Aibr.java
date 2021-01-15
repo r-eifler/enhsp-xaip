@@ -293,7 +293,7 @@ public class Aibr implements SearchHeuristic {
         while (counter <= horizon) {
             for (var transition : reachable) {
                 final boolean b = applicable.get(transition.getId());
-                if (s.satisfy(transition.getPreconditions())) {
+                if (b || s.satisfy(transition.getPreconditions())) {
                     if (!b) {
                         applicable.set(transition.getId(), true);
                     }

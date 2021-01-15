@@ -41,6 +41,7 @@ import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 
 import java.util.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -670,7 +671,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
     public void addTimeFluentToInit ( ) {
-        ((PDDLState) this.init).time = 0d;
+        ((PDDLState) this.init).time = BigDecimal.ZERO;
     }
 
     public NumFluent getNumfluentReference (String stringRepresentation) {
