@@ -560,7 +560,7 @@ public class NumEffect extends Expression implements PostCondition {
                 } else {//this allows us to give a monotonic semantic also for the assignment operation by exploiting the fact that x=f(x) \equiv x = f(x)+x-x
                     //the equivalence does hold in the master theory of arithmetic, but not in the interval based relaxation! That's where we introduce the
                     //monotonicity. Look at the report on generalize interval based relaxation.
-                    BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
+                    final BinaryOp bin = new BinaryOp(this.getRight(), "-", this.getFluentAffected(), true);
                     HomeMadeRealInterval monotonic_eval = bin.eval(s);
                     final HomeMadeRealInterval add = current.sum( monotonic_eval);
                     after = new HomeMadeRealInterval(

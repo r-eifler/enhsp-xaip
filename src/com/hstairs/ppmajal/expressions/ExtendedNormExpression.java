@@ -579,36 +579,33 @@ public class ExtendedNormExpression extends Expression {
 
     @Override
     public HomeMadeRealInterval eval (RelState s) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
         HomeMadeRealInterval ret = new HomeMadeRealInterval(0d);
+        boolean definitelyUndefined = true;
         for (final Object o : this.summations) {
             final ExtendedAddendum a = (ExtendedAddendum) o;
 
             if (!a.linear) {
                 final HomeMadeRealInterval temp = a.bin.eval(s);
-                if (temp == null ) {
-                    return null;
+                if (temp != null ){
+                    definitelyUndefined = false;
+                    ret = ret.sum(temp);
                 }
-//                ret = ret.sum(temp);
-                ret = ret.sum(temp);
             } else if (a.f != null) {
                 HomeMadeRealInterval temp = s.functionValues(a.f);
-                if (temp == null) {
-                    return null;
+                if (temp != null) {
+                    definitelyUndefined = false;
+                    temp = temp.mult(a.n);
+                    ret = ret.sum(temp);
                 }
-                //System.out.println(temp);
-
-                temp = temp.mult(a.n);
-//                temp = IAMath.mul(temp,new Interval1(a.n.floatValue()));
-                ret = ret.sum(temp);
-//                ret = IAMath.add(ret,temp);
-                //ret.inf = new PDDLNumber(ret.inf.getNumber() + s.functionInfValue(a.f).getNumber() * a.n.getNumber());
-                //ret.sup = new PDDLNumber(ret.sup.getNumber() + s.functionSupValue(a.f).getNumber() * a.n.getNumber());
             } else {
+                definitelyUndefined = false;
                 ret = ret.sum(a.n);
 //                ret = IAMath.add(ret,new Interval1(a.n.floatValue()));
-
             }
         }
+        if (definitelyUndefined)
+            return null;
         return ret;
     }
 

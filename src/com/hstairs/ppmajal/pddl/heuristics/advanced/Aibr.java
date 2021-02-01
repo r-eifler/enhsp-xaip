@@ -50,7 +50,7 @@ public class Aibr implements SearchHeuristic {
         out = problem.out;
         this.problem = problem;
         for (final TransitionGround tr : problem.getTransitions()) {           
-            final boolean numericInconsistence = generateNumericSupporters(tr, supporter2transitionMap, asymptoticPreconditionFunctionMap, numEffectMap);
+            generateNumericSupporters(tr, supporter2transitionMap, asymptoticPreconditionFunctionMap, numEffectMap);
             generatePropositionalAction(tr, supporter2transitionMap, propEffectMap);
         }
         numberOfSupporters = supporter2transitionMap.keySet().size();

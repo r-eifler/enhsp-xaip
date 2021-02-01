@@ -202,7 +202,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
-        System.out.println("Grounding Time: " + this.getGroundingTime());
+        out.println("Grounding Time: " + this.getGroundingTime());
         if (stopAfterGrounding)
             return;
         this.simplifyAndSetupInit(aibrPreprocessing);
@@ -742,6 +742,19 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         mff.doGrounding();
 
     }
+
+    public TransitionGround getActionsByName(String actionName) {
+        for (var v: this.actions){
+            final String name1 = v.toString();
+            if (actionName.equals(name1)){
+                return v;
+            }
+        }
+        return null;
+    }
+
+
+
 
     protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
         protected final State source;

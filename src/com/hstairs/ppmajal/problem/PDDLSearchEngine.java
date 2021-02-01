@@ -19,8 +19,6 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.extraUtils.Utils;
-import static com.hstairs.ppmajal.extraUtils.Utils.round2;
 import com.hstairs.ppmajal.search.SearchEngine;
 import com.hstairs.ppmajal.search.SearchNode;
 import com.hstairs.ppmajal.search.SearchProblem;
@@ -43,6 +41,7 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author enrico
@@ -65,14 +64,14 @@ public class PDDLSearchEngine extends SearchEngine {
             //out.println("Reachable actions and processes: |A U P U E|:" + TransitionGround.totNumberOfTransitions);
     }
 
-    public boolean validate(LinkedList<Pair<BigDecimal,Object>> userPlan,BigDecimal execDelta, BigDecimal stepSize) throws CloneNotSupportedException {
+    public boolean validate(List<Pair<BigDecimal,Object>> userPlan,BigDecimal execDelta, BigDecimal stepSize) throws CloneNotSupportedException {
         return validate(userPlan, execDelta,stepSize,null);
     }
 
-    public boolean validate(LinkedList<Pair<BigDecimal,Object>> userPlan,BigDecimal execDelta, BigDecimal stepSize, String planTrace) throws CloneNotSupportedException {
+    public boolean validate(List<Pair<BigDecimal,Object>> internalPlanRepresentation,BigDecimal execDelta, BigDecimal stepSize, String planTrace) throws CloneNotSupportedException {
         BigDecimal previous = BigDecimal.ZERO;
         State current = (PDDLState) problem.getInit();
-        System.out.println("Plan under Validation: "+userPlan);
+        System.out.println("Plan under Validation: "+internalPlanRepresentation);
         StringBuilder planTraceString = null;
         if (planTrace != null){ 
             planTraceString = new StringBuilder();
@@ -80,7 +79,7 @@ public class PDDLSearchEngine extends SearchEngine {
         }
 
         Pair<BigDecimal, Object> lastEle = null;
-        for (Pair<BigDecimal, Object> ele : userPlan) {
+        for (Pair<BigDecimal, Object> ele : internalPlanRepresentation) {
             TransitionGround right = (TransitionGround) ele.getRight();
             if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
                 final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
@@ -318,6 +317,37 @@ public class PDDLSearchEngine extends SearchEngine {
             }
         }
 
+    }
+
+    public List<PDDLState> simulate(List<Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, EPddlProblem problem) {
+        BigDecimal previous = BigDecimal.ZERO;
+        final BigDecimal deltaDecimal = new BigDecimal(delta);
+        final ArrayList<PDDLState> res = new ArrayList();
+        res.add(s.clone());
+        int planSize = timedPlan.size();
+        for (var v: timedPlan){    
+            final BigDecimal timeAction = v.getKey();
+            final BigDecimal subtract = timeAction.subtract(previous);
+            if (subtract.compareTo(BigDecimal.ZERO) > 0){
+                org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, subtract, deltaDecimal, false, null);
+                if (simulatedState == null){
+                    throw new RuntimeException("Global constraints are not satisfied starting from "+s);
+                }
+                s = (PDDLState) simulatedState.getFirst();
+                res.add(s.clone());
+            }
+            previous = timeAction;
+            if (planSize > 1){
+                if (v.getValue().isApplicable(s)){
+                    s.apply(v.getValue(), s);
+                    res.add(s.clone());
+                }else{
+                    throw new RuntimeException(v.getValue()+" is not applicable at time "+timeAction);
+                }
+            }
+            planSize--;
+        }
+        return res;
     }
 
 }
