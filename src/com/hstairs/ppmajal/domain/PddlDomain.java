@@ -362,7 +362,6 @@ public final class PddlDomain extends Object {
         f.write(actions);
         f.write("\n)");
         f.close();
-        f.close();
     }
 
     /**

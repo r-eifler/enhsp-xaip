@@ -486,6 +486,9 @@ public class Grounder {
                                             if (b instanceof PDDLObject) {
                                                 bType = ((PDDLObject) b).getType();
                                             }
+                                            if (aType == null){
+                                                throw new RuntimeException("Object "+a+" seems to be not specified as an object of the problem");
+                                            }
                                             if (aType.equals(bType) || aType.isAncestorOf(bType)) {
                                                 if (a instanceof Variable) {
                                                     t1.put((Variable) a, Collections.singleton((PDDLObject) b));
