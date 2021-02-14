@@ -319,7 +319,7 @@ public class PDDLSearchEngine extends SearchEngine {
 
     }
 
-    public List<PDDLState> simulate(List<Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, EPddlProblem problem) {
+    public List<PDDLState> simulate(List<Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, EPddlProblem problem, boolean fullStates) {
         BigDecimal previous = BigDecimal.ZERO;
         final BigDecimal deltaDecimal = new BigDecimal(delta);
         final ArrayList<PDDLState> res = new ArrayList();
@@ -329,12 +329,24 @@ public class PDDLSearchEngine extends SearchEngine {
             final BigDecimal timeAction = v.getKey();
             final BigDecimal subtract = timeAction.subtract(previous);
             if (subtract.compareTo(BigDecimal.ZERO) > 0){
-                org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, subtract, deltaDecimal, false, null);
-                if (simulatedState == null){
-                    throw new RuntimeException("Global constraints are not satisfied starting from "+s);
+                if (fullStates){
+                    final int intValue = subtract.divideToIntegralValue(deltaDecimal).intValue();
+                    for (int i = 0; i< intValue; i++){
+                        org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, deltaDecimal, deltaDecimal, false, null);
+                        if (simulatedState == null){
+                            throw new RuntimeException("Global constraints are not satisfied starting from "+s);
+                        }
+                        s = (PDDLState) simulatedState.getFirst();
+                        res.add(s.clone());
+                    }
+                }else{
+                    org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, subtract, deltaDecimal, false, null);
+                    if (simulatedState == null){
+                        throw new RuntimeException("Global constraints are not satisfied starting from "+s);
+                    }
+                    s = (PDDLState) simulatedState.getFirst();
+                    res.add(s.clone());
                 }
-                s = (PDDLState) simulatedState.getFirst();
-                res.add(s.clone());
             }
             previous = timeAction;
             if (planSize > 1){

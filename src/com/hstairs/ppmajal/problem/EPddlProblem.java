@@ -175,7 +175,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             groundingTime = System.currentTimeMillis();
 
             for (var act : transitions) {
-                Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, initBoolFluentsValues, linkedDomain);
+                Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, getInitBoolFluentsValues(), linkedDomain);
                 switch (act.getSemantics()) {
                     case ACTION:
                         getActions().addAll(propositionalize);
@@ -451,27 +451,27 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
     public void setDeltaTimeVariable (String delta_t) {
-        this.initNumFluentsValues.put(NumFluent.createNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));
+        this.getInitNumFluentsValues().put(NumFluent.createNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));
     }
 
 
     private void removeStaticPart ( ) {
         //invariant fluents
         LinkedHashSet<Predicate> predicateToRemove = new LinkedHashSet();
-        for (Predicate p : this.initBoolFluentsValues.keySet()) {
+        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
             if (!this.getActualFluents().contains(p)) {
                 predicateToRemove.add(p);
             }
         }
         LinkedHashSet<NumFluent> numFluentsToRemove = new LinkedHashSet();
-        for (NumFluent p : this.initNumFluentsValues.keySet()) {
+        for (NumFluent p : this.getInitNumFluentsValues().keySet()) {
             if (!this.getActualFluents().contains(p)) {
                 numFluentsToRemove.add(p);
             }
         }
 
-        this.initBoolFluentsValues.keySet().removeAll(predicateToRemove);
-        this.initNumFluentsValues.keySet().removeAll(numFluentsToRemove);
+        this.getInitBoolFluentsValues().keySet().removeAll(predicateToRemove);
+        this.getInitNumFluentsValues().keySet().removeAll(numFluentsToRemove);
 
     }
 
@@ -559,7 +559,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         if (NumFluent.numFluentsBank != null){
             for (NumFluent nf : NumFluent.numFluentsBank.values()) {
                 if (this.getActualFluents().contains(nf) && nf.has_to_be_tracked()) {
-                    PDDLNumber number = this.initNumFluentsValues.get(nf);
+                    PDDLNumber number = this.getInitNumFluentsValues().get(nf);
                     if (number == null) {
                         numFluents.put(nf.getId(), Double.NaN);
                     } else {
@@ -574,7 +574,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         if (Predicate.getPredicatesDB() != null) {
             for (Predicate p : Predicate.getPredicatesDB().values()) {
                 if (this.getActualFluents().contains(p)) {
-                    Boolean r = this.initBoolFluentsValues.get(p);
+                    Boolean r = this.getInitBoolFluentsValues().get(p);
                     if (r == null || !r) {
                         //boolFluents.set(p.getId(), false);
                     } else {
@@ -631,21 +631,21 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             inputProblem = this;
         }
         HashMap<Predicate, Boolean> tempInitBool = new HashMap();
-        for (Predicate p : this.initBoolFluentsValues.keySet()) {
-            Boolean value = this.initBoolFluentsValues.get(p);
+        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
+            Boolean value = this.getInitBoolFluentsValues().get(p);
             Predicate newP = (Predicate) p.unifyVariablesReferences(inputProblem);
             tempInitBool.put(newP, value);
 
         }
-        initBoolFluentsValues = tempInitBool;
+        setInitBoolFluentsValues(tempInitBool);
         HashMap<NumFluent, PDDLNumber> tempInitFluent = new HashMap();
-        for (NumFluent nf : this.initNumFluentsValues.keySet()) {
-            PDDLNumber pddlNumber = initNumFluentsValues.get(nf);
+        for (NumFluent nf : this.getInitNumFluentsValues().keySet()) {
+            PDDLNumber pddlNumber = getInitNumFluentsValues().get(nf);
             NumFluent numFluent = (NumFluent) nf.unifyVariablesReferences(inputProblem);
             tempInitFluent.put(numFluent, pddlNumber);
             this.getNumericFluentReference().put(nf.toString(), nf);
         }
-        this.initNumFluentsValues = tempInitFluent;
+        this.setInitNumFluentsValues(tempInitFluent);
         
         goals = (ComplexCondition) goals.unifyVariablesReferences(inputProblem);
 
@@ -721,7 +721,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     public State saveInitInit ( ) {
         if (this.pureInit == null) {
-            this.pureInit = new MAPPDDLState(this.initNumFluentsValues, initBoolFluentsValues);
+            this.pureInit = new MAPPDDLState(this.getInitNumFluentsValues(), getInitBoolFluentsValues());
         }
         return pureInit;
     }

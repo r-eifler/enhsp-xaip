@@ -30,7 +30,7 @@ public class Printer {
     static public StringBuilder stringBuilderPddlPrintWithDummyTrue (PddlProblem p, PDDLState s) {
         final StringBuilder ret = new StringBuilder("(:init (true)\n");
 
-        for (Predicate a : p.initBoolFluentsValues.keySet()) {
+        for (Predicate a : p.getInitBoolFluentsValues().keySet()) {
             if (s.holds(a)) {
                 ret.append("  (").append(a.getPredicateName());
                 for (Object o1 : a.getTerms()) {
@@ -40,7 +40,7 @@ public class Printer {
                 ret.append(")\n");
             }
         }
-        for (NumFluent nf : p.initNumFluentsValues.keySet()) {
+        for (NumFluent nf : p.getInitNumFluentsValues().keySet()) {
             if (s.fluentValue(nf) != Double.NaN) {
                 ret.append("  ( = (").append(nf.getName());
                 for (Object o1 : nf.getTerms()) {

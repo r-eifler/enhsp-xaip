@@ -71,8 +71,8 @@ public abstract class PddlProblem {
 
     protected Set actualFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
-    protected HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
-    protected HashMap<Predicate, Boolean> initBoolFluentsValues;
+    private HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
+    private HashMap<Predicate, Boolean> initBoolFluentsValues;
     final PddlDomain linkedDomain;
     private FactoryConditions fc;
 
@@ -301,7 +301,7 @@ public abstract class PddlProblem {
 
         for (PDDLObject object : this.getObjects()) {
             final ArrayList object1 = new ArrayList<>(List.of(object, object));
-            this.initBoolFluentsValues.put(Predicate.createPredicate("=",object1),true);
+            this.getInitBoolFluentsValues().put(Predicate.createPredicate("=",object1),true);
         }
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
@@ -375,16 +375,16 @@ public abstract class PddlProblem {
     }
 
     protected void addInitFacts (Tree child) {
-        this.initNumFluentsValues = new HashMap();
-        this.initBoolFluentsValues = new HashMap();
+        this.setInitNumFluentsValues((HashMap<NumFluent, PDDLNumber>) new HashMap());
+        this.setInitBoolFluentsValues((HashMap<Predicate, Boolean>) new HashMap());
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
             switch (c.getType()) {
                 case PddlParser.PRED_INST:
-                    initBoolFluentsValues.put(fc.buildPredicate(c, null), true);
+                    getInitBoolFluentsValues().put(fc.buildPredicate(c, null), true);
                     break;
                 case PddlParser.INIT_EQ:
-                    this.initNumFluentsValues.put((NumFluent) createExpression(c.getChild(0)), (PDDLNumber) createExpression(c.getChild(1)));
+                    this.getInitNumFluentsValues().put((NumFluent) createExpression(c.getChild(0)), (PDDLNumber) createExpression(c.getChild(1)));
                     break;
                 case PddlParser.UNKNOWN:
                     this.unknonw_predicates.add((Predicate) addUnknown(c));
@@ -507,7 +507,7 @@ public abstract class PddlProblem {
     }
 
     public NumFluent getNumFluent (String string, ArrayList terms) {
-        for (NumFluent fAssign : this.initNumFluentsValues.keySet()) {
+        for (NumFluent fAssign : this.getInitNumFluentsValues().keySet()) {
             if (fAssign.getName().equals(string)) {
                 if (fAssign.getTerms().equals(terms)) {
                     return fAssign;
@@ -518,7 +518,7 @@ public abstract class PddlProblem {
     }
 
     public ArrayList getNumFluents ( ) {
-        return new ArrayList(this.initNumFluentsValues.keySet());
+        return new ArrayList(this.getInitNumFluentsValues().keySet());
     }
 
 
@@ -642,7 +642,7 @@ public abstract class PddlProblem {
 
 
     public Condition getPredicate (Predicate aThis) {
-        for (Predicate p : this.initBoolFluentsValues.keySet()) {
+        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
             if (p.equals(aThis)) {
                 return p;
             }
@@ -661,28 +661,28 @@ public abstract class PddlProblem {
     }
 
     public PDDLNumber getNumFluentInitialValue (NumFluent aThis) {
-        PDDLNumber nf = this.initNumFluentsValues.get(aThis);
+        PDDLNumber nf = this.getInitNumFluentsValues().get(aThis);
         if (nf == null)
             return null;
         return nf;
     }
 
     public Iterable<NumFluent> getNumFluentsInvolvedInInit ( ) {
-        if (this.initNumFluentsValues == null)
+        if (this.getInitNumFluentsValues() == null)
             return Collections.emptyList();
-        return this.initNumFluentsValues.keySet();
+        return this.getInitNumFluentsValues().keySet();
     }
 
     public boolean getInitBoolFluentValue (Predicate aThis) {
-        Boolean b = this.initBoolFluentsValues.get(aThis);
+        Boolean b = this.getInitBoolFluentsValues().get(aThis);
 
         return b != null && b;
     }
 
     public Iterable<Predicate> getPredicatesInvolvedInInit ( ) {
-        if (this.initBoolFluentsValues == null)
+        if (this.getInitBoolFluentsValues() == null)
             return Collections.emptyList();
-        return this.initBoolFluentsValues.keySet();
+        return this.getInitBoolFluentsValues().keySet();
 
     }
 
@@ -724,6 +724,34 @@ public abstract class PddlProblem {
             newState.apply(current,source);
             return new Pair(newState, current);
         }
+    }
+
+    /**
+     * @return the initNumFluentsValues
+     */
+    public HashMap<NumFluent, PDDLNumber> getInitNumFluentsValues() {
+        return initNumFluentsValues;
+    }
+
+    /**
+     * @param initNumFluentsValues the initNumFluentsValues to set
+     */
+    public void setInitNumFluentsValues(HashMap<NumFluent, PDDLNumber> initNumFluentsValues) {
+        this.initNumFluentsValues = initNumFluentsValues;
+    }
+
+    /**
+     * @return the initBoolFluentsValues
+     */
+    public HashMap<Predicate, Boolean> getInitBoolFluentsValues() {
+        return initBoolFluentsValues;
+    }
+
+    /**
+     * @param initBoolFluentsValues the initBoolFluentsValues to set
+     */
+    public void setInitBoolFluentsValues(HashMap<Predicate, Boolean> initBoolFluentsValues) {
+        this.initBoolFluentsValues = initBoolFluentsValues;
     }
 
 }
