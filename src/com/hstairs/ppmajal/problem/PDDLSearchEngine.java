@@ -325,14 +325,14 @@ public class PDDLSearchEngine extends SearchEngine {
         final ArrayList<PDDLState> res = new ArrayList();
         res.add(s.clone());
         int planSize = timedPlan.size();
-        for (var v: timedPlan){    
+        for (final var v: timedPlan){    
             final BigDecimal timeAction = v.getKey();
             final BigDecimal subtract = timeAction.subtract(previous);
             if (subtract.compareTo(BigDecimal.ZERO) > 0){
                 if (fullStates){
                     final int intValue = subtract.divideToIntegralValue(deltaDecimal).intValue();
                     for (int i = 0; i< intValue; i++){
-                        org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, deltaDecimal, deltaDecimal, false, null);
+                        final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, deltaDecimal, deltaDecimal, false, null);
                         if (simulatedState == null){
                             throw new RuntimeException("Global constraints are not satisfied starting from "+s);
                         }
@@ -340,7 +340,7 @@ public class PDDLSearchEngine extends SearchEngine {
                         res.add(s.clone());
                     }
                 }else{
-                    org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, subtract, deltaDecimal, false, null);
+                    final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulatedState = this.simulation(s, problem, subtract, deltaDecimal, false, null);
                     if (simulatedState == null){
                         throw new RuntimeException("Global constraints are not satisfied starting from "+s);
                     }
