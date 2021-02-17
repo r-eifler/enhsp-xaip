@@ -50,8 +50,7 @@ public class SearchEngine {
     //externalise internal state of things
     public float currentG;
     public boolean processes = false;
-    public BigDecimal executionDelta;
-    public BigDecimal planningDelta;
+
     public int constraintsViolations;
     protected State lastState;
     //stats

@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+
+
 /**
  * @author enrico
  */
@@ -51,6 +53,8 @@ public class PDDLSearchEngine extends SearchEngine {
     private final EPddlProblem problem;
     protected Collection<TransitionGround> reachableProcesses;
     protected Collection<TransitionGround> reachableEvents;
+        public BigDecimal executionDelta;
+    public BigDecimal planningDelta;
     
     //This is a hack!
     private HashMap<Float,TransitionGround> triggeredEvents;
