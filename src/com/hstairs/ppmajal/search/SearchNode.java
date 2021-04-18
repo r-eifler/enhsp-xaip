@@ -37,33 +37,30 @@ import java.util.logging.Logger;
  */
 public class SearchNode extends SimpleSearchNode {
 
-    public float h_n;
-    public JSONObject json_rep;
-    public int reacheable_condition;
-    public float wg;
-    public float wh;
+    public final float h;
+    public final JSONObject json_rep;
+    public final float wg;
+    public final float wh;
     public float f;
     public ArrayList<Object> list_of_actions;
     public Collection helpfulActions;
     private boolean bfs = true;
 
-    public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance) {
-        super(s1, action, father, action_cost_to_get_here);
-        this.h_n = goal_distance;
+    public SearchNode (State s1, Object action, SearchNode father, float g, float h) {
+        super(s1, action, father, g);
+        this.h = h;
         json_rep = null;
-        reacheable_condition = 0;
         wh = 1f;
         wg = 1f;
     }
 
     public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         super(s1, action, father, action_cost_to_get_here);
-        this.h_n = goal_distance;
-        reacheable_condition = 0;
+        this.h = goal_distance;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n * this.wh + this.gValue * this.wg;
+        f = this.h * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -103,12 +100,11 @@ public class SearchNode extends SimpleSearchNode {
 
     public SearchNode (State s1, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         super(s1, null, null, action_cost_to_get_here);
-        this.h_n = goal_distance;
-        reacheable_condition = 0;
+        this.h = goal_distance;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n * this.wh + this.gValue * this.wg;
+        f = this.h * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -144,13 +140,12 @@ public class SearchNode extends SimpleSearchNode {
 
     public SearchNode (State s1, ArrayList<Object> list, SearchNode father, float action_cost_to_get_here, float goal_distance, boolean saving_json, float wg, float wh) {
         super(s1, null, father, action_cost_to_get_here);
-        this.h_n = goal_distance;
+        this.h = goal_distance;
         this.list_of_actions = list;
-        reacheable_condition = 0;
 
         this.wh = wh;
         this.wg = wg;
-        f = this.h_n * this.wh + this.gValue * this.wg;
+        f = this.h * this.wh + this.gValue * this.wg;
         //System.out.println("F:"+f);
         if (saving_json) {
             json_rep = new JSONObject();
@@ -188,32 +183,6 @@ public class SearchNode extends SimpleSearchNode {
 
     }
 
-    public SearchNode (State s1, Object action, SearchNode father, float action_cost_to_get_here, int goal_distance, boolean saving_json, int reacheable_conditions) {
-        super(s1, action, father, action_cost_to_get_here);
-        this.h_n = goal_distance;
-
-        if (saving_json) {
-            json_rep = new JSONObject();
-            if (action == null) {
-                json_rep.put("action", "init_state");
-            } else {
-                json_rep.put("action", action.toString());
-            }
-            json_rep.put("distance", goal_distance);
-            json_rep.put("action_cost_to_get_here", action_cost_to_get_here);
-            if (father == null) {
-                json_rep.put("ancestor", "init_state");
-            } else {
-                json_rep.put("ancestor", father.json_rep.get("visited_step"));
-            }
-            json_rep.put("visited", false);
-            json_rep.put("visit_step", -1);
-            json_rep.put("descendants", new JSONArray());
-        } else {
-            json_rep = null;
-        }
-
-    }
 
     public void add_descendant (SearchNode desc) {
         JSONArray descendants = (JSONArray) json_rep.get("descendants");
@@ -238,33 +207,33 @@ public class SearchNode extends SimpleSearchNode {
         System.out.println("Successfully Copied JSON Object to File...");
     }
 
-    @Override
-    public boolean equals (Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final SearchNode other = (SearchNode) obj;
-
-        return this.s.equals(other.s);
-    }
-
-    @Override
-    public int hashCode ( ) {
-        int hash = 5;
-        hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
-//        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
-//        hash = 29 * hash + (int) this.h_n;
-//        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
-//        hash = 29 * hash + (int) this.gValue;
-        return hash;
-    }
+//    @Override
+//    public boolean equals (Object obj) {
+//        if (obj == null) {
+//            return false;
+//        }
+//        if (getClass() != obj.getClass()) {
+//            return false;
+//        }
+//        final SearchNode other = (SearchNode) obj;
+//
+//        return this.s.equals(other.s);
+//    }
+//
+//    @Override
+//    public int hashCode ( ) {
+//        int hash = 5;
+//        hash = 29 * hash + (this.s != null ? this.s.hashCode() : 0);
+////        hash = 29 * hash + (this.action != null ? this.action.hashCode() : 0);
+////        hash = 29 * hash + (int) this.h_n;
+////        hash = 29 * hash + (this.father != null ? this.father.hashCode() : 0);
+////        hash = 29 * hash + (int) this.gValue;
+//        return hash;
+//    }
 
     @Override
     public String toString ( ) {
-        return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h_n + ", gValue=" + gValue + '}';
+        return "SearchNode{" + "s=" + s + ", action=" + transition + ", h_n=" + h + ", gValue=" + gValue + '}';
     }
 
 }

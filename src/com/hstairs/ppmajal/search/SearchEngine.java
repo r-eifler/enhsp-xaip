@@ -108,7 +108,7 @@ public class SearchEngine {
     /*
     Very Important and Experimental. In this case the successor is a list of waiting action. This is needed so as to retrieve it afterwards
      */
-    protected SearchNode queueSuccessor(Object frontier, State successorState, SearchNode current_node, Object action_s, float prev_cost, float succ_g, Object2FloatMap<State> g, boolean treeSearch) {
+    protected SearchNode queueSuccessor(Object frontier, State successorState, SearchNode current_node, Object actionsBefore, float prev_cost, float succ_g, Object2FloatMap<State> g, boolean treeSearch) {
 
         if (Objects.equals(prev_cost, this.G_DEFAULT) || succ_g < prev_cost) {
             setEvaluatedStates(getEvaluatedStates() + 1);
@@ -117,10 +117,10 @@ public class SearchEngine {
             setHeuristicCpuTime(getHeuristicCpuTime() + System.currentTimeMillis() - start);
             if (d != Float.MAX_VALUE) {// && (d + succ_g) < this.depthLimit) {
                 SearchNode node = null;
-                if (action_s instanceof ArrayList) {
-                    node = new SearchNode(successorState, (ArrayList) action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
+                if (actionsBefore instanceof ArrayList) {
+                    node = new SearchNode(successorState, (ArrayList) actionsBefore, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
                 } else {
-                    node = new SearchNode(successorState, action_s, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
+                    node = new SearchNode(successorState, actionsBefore, current_node, succ_g, d, this.saveSearchTreeAsJson, this.gw, this.hw);
                 }
                 if (this.helpfulActionsPruning) {
                     node.helpfulActions = getHeuristic().getTransitions(helpfulActionsPruning);
@@ -164,8 +164,6 @@ public class SearchEngine {
 
     private void addInFrontier(Object frontier, SearchNode newNode) {
 
-        //frontier.
-//        frontier.re
         if (frontier instanceof Queue) {
             ((Queue) frontier).add(newNode);
         } else if (frontier instanceof ObjectHeapPriorityQueue) {
@@ -235,7 +233,7 @@ public class SearchEngine {
         return plan;
 
     }
-
+    
     public SearchNode breadth_first_search(State current, SearchProblem problem, Object2BooleanMap<State> visited) throws Exception {
         //out.println("Visited size:"+visited.size());
 
@@ -267,7 +265,7 @@ public class SearchEngine {
                 State temp = next.getFirst();
 //                    out.println("Depth:"+node.gValue);
                 //act.normalize();
-                if (!problem.satisfyGlobalConstraints(temp)){
+                if (!problem.satisfyGlobalConstraints(temp)) {
                     continue;
                 }
                 boolean visitedTemp = visited.getOrDefault(temp, false);
@@ -307,6 +305,56 @@ public class SearchEngine {
         }
         return null;
 
+    }
+
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> UCS(SearchProblem problem) {
+        final ObjectHeapPriorityQueue<SearchNode> frontier = new ObjectHeapPriorityQueue<>(new TieBreaker(this.tbRule));
+        final State init = problem.getInit();
+        frontier.enqueue(new SearchNode(init, 0, heuristic.computeEstimate(init), false, gw, hw));
+        final Object2BooleanOpenHashMap closed = new Object2BooleanOpenHashMap();
+        final Object2FloatLinkedOpenHashMap gNode = new Object2FloatLinkedOpenHashMap();
+        long start = System.currentTimeMillis();
+        nodesExpanded = 0;
+        if (this.tbRule == null) {
+            tbRule = TieBreaking.LOWERG;
+        }
+        float maxF = Float.NEGATIVE_INFINITY;
+        gNode.put(init, 0);
+        while (!frontier.isEmpty()) {
+            final SearchNode currentNode = frontier.dequeue();
+            Boolean goalSatisfied = problem.goalSatisfied(currentNode.s);
+            if (gNode.getFloat(currentNode.s) == currentNode.gValue) {
+                nodesExpanded++;
+                if (nodesExpanded % 10000 == 0) {
+                    //System.out.println("--------------------------- Expansions:" + nodesExpanded);
+
+                } else if (maxF < currentNode.f) {
+                    System.out.println("f(n) " + currentNode.f + " Expansions:" + nodesExpanded + " Frontier:"+frontier.size());
+                    maxF = currentNode.f;
+                }
+
+                if (goalSatisfied) {
+                    return this.extractPlan(currentNode);
+                } else {
+                    closed.put(currentNode.s, true);
+                    for (Iterator<Pair<State, Object>> it = problem.getSuccessors(currentNode.s, getActionsToSearch(currentNode, problem)); it.hasNext();) {
+                        final Pair<State, Object> next = it.next();
+                        if (!closed.getBoolean(next.getFirst())) {
+                            final float gValue = problem.gValue(currentNode.s, next.getSecond(), next.getFirst(), currentNode.gValue);
+                            float aFloat = gNode.getOrDefault(next.getFirst(),-1);
+                            if (aFloat == -1 || aFloat > gValue){
+                                final SearchNode searchNode = new SearchNode(next.getFirst(), next.getSecond(), currentNode, gValue, heuristic.computeEstimate(next.getFirst()), false, this.gw, this.hw);
+                                frontier.enqueue(searchNode);
+                                gNode.put(next.getFirst(),gValue);
+                            }
+                        } else {
+                            this.duplicatesNumber++;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -416,15 +464,17 @@ public class SearchEngine {
                     previous = fromTheBeginning;
 
                 }
-                if (optimality && (bestf < currentNode.gValue + currentNode.h_n)) {//this is the debugLevel for when the planner is run in optimality modality
-                    bestf = currentNode.gValue + currentNode.h_n;
+                if (optimality && (bestf < currentNode.gValue + currentNode.h)) {//this is the debugLevel for when the planner is run in optimality modality
+                    bestf = currentNode.gValue + currentNode.h;
                     out.println("f(n) = " + bestf + " (Expanded Nodes: " + getNodesExpanded()
-                            + ", Evaluated States: " + getNumberOfEvaluatedStates() + ", Time: " + (float) ((System.currentTimeMillis() - start_global)) / 1000.0 + ")");
+                            + ", Evaluated States: " + getNumberOfEvaluatedStates() + ", Time: " + 
+                            (float) ((System.currentTimeMillis() - start_global)) / 1000.0 + ")"+
+                            " Frontier Size: "+frontier.size());
 
                 }
-                if (!optimality && hAtInit > currentNode.h_n) {
-                    out.println(" g(n)= " + currentNode.gValue + " h(n)=" + currentNode.h_n);
-                    hAtInit = currentNode.h_n;
+                if (!optimality && hAtInit > currentNode.h) {
+                    out.println(" g(n)= " + currentNode.gValue + " h(n)=" + currentNode.h);
+                    hAtInit = currentNode.h;
                     currentG = currentNode.gValue;
                 }
 
@@ -433,7 +483,7 @@ public class SearchEngine {
                 }
 
                 setPriorityQueueSize(frontier.size());
-                if (!checkSMT(currentNode.s,problem)){
+                if (!checkExternalSolver(currentNode.s,problem)){
                     continue;
                 }
                 final Boolean res = problem.goalSatisfied(currentNode.s);
@@ -441,8 +491,8 @@ public class SearchEngine {
                     deadEndsDetected++;
                     continue;
                 }
-                if (exitOnBestH && problem.milestoneReached(currentNode.h_n, hAtInit, currentNode.s)) {
-                    out.println("***************Best H: " + currentNode.h_n);
+                if (exitOnBestH && problem.milestoneReached(currentNode.h, hAtInit, currentNode.s)) {
+                    out.println("***************Best H: " + currentNode.h);
                     return currentNode;
                 }
                 setNodesExpanded(getNodesExpanded() + 1);
@@ -907,7 +957,7 @@ public class SearchEngine {
     protected void printInfo(PrintStream out) {
     }
 
-    protected boolean checkSMT(State s, SearchProblem problem) {
+    protected boolean checkExternalSolver(State s, SearchProblem problem) {
         return true;
     }
 

@@ -20,30 +20,18 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/ComplexFunction.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/Aibr.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/ExtendedNormExpression.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/propositionalFactory/Grounder.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/ConditionalEffects.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchNode.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/State.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/EPddlProblem.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/NumFluent.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/TransitionGround.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/domain/ActionComparator.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/PDDLSearchEngine.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/Expression.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/transition/Transition.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/domain/PddlDomain.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/ExtendedAddendum.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/RelState.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/propositionalFactory/ExternalGrounder.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/FactoryConditions.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/NumEffect.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/HomeMadeRealInterval.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/domain/ActionParameter.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/expressions/BinaryOp.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchHeuristic.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/PDDLState.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SimpleSearchNode.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/problem/PddlProblem.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/PPMAJAL2/src/com/hstairs/ppmajal/search/SearchProblem.java</file>
         </group>
     </open-files>
 </project-private>
