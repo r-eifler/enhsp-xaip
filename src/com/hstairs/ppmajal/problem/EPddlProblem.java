@@ -28,7 +28,6 @@ import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
-import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.propositionalFactory.ExternalGrounder;
 import com.hstairs.ppmajal.propositionalFactory.FDGrounder;
 import com.hstairs.ppmajal.propositionalFactory.FDGrounderInstantiate;
@@ -38,7 +37,6 @@ import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
-import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.io.PrintStream;
 import java.math.BigDecimal;
@@ -680,7 +678,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     @Override
     public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Collection<Object> acts) {
-        return new stateContainer(s, (Collection) acts);
+        return new stateIterator(s, (Collection) acts);
     }
 
     public boolean milestoneReached (Float d, Float current_value, State temp) {
@@ -756,14 +754,14 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
 
-    protected class stateContainer implements ObjectIterator<Pair<State, Object>> {
+    protected class stateIterator implements ObjectIterator<Pair<State, Object>> {
         protected final State source;
         protected final Iterator<Object> it;
         final private Iterable<Object> actionsSet;
         protected Object current;
         protected State newState;
 
-        public stateContainer (State source, Iterable<Object> actionsSet) {
+        public stateIterator (State source, Iterable<Object> actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
             it = actionsSet.iterator();

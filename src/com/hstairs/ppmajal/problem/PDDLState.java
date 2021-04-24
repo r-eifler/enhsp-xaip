@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 
 import java.util.*;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author enrico
@@ -209,19 +210,53 @@ protected DoubleArrayList numFluents;
 
     }
 
+    public static FastTransitionTable fastTransitionTable;
+    public static boolean optimised = true;
+    
     @Override
     public void apply (TransitionGround gr, State prev) {
-        final Set<ConditionalEffects> effs = Set.of(gr.getConditionalPropositionalEffects(), gr.getConditionalNumericEffects());
-        for (final ConditionalEffects<PostCondition> eff: effs) {
-            for (final Entry<Condition, Collection<PostCondition>> entry : eff.getActualConditionalEffects().entrySet()) {
-                if (entry.getKey().isSatisfied(prev)) {
-                    for (final PostCondition n : entry.getValue()) {
+        if (optimised){
+            if (fastTransitionTable == null){
+                fastTransitionTable = new FastTransitionTable(TransitionGround.totNumberOfTransitions);
+            }
+            if (!fastTransitionTable.done(gr.getId())) {
+                final Collection<Pair<Condition, Collection<PostCondition>>> temp = new HashSet();
+                final Set<ConditionalEffects> effs = Set.of(gr.getConditionalPropositionalEffects(), gr.getConditionalNumericEffects());
+                for (ConditionalEffects<PostCondition> eff : effs) {
+                    if (!eff.getActualConditionalEffects().isEmpty()){
+                        for (final Entry<Condition, Collection<PostCondition>> entry : eff.getActualConditionalEffects().entrySet()) {
+                            temp.add(Pair.of(entry.getKey(), entry.getValue()));
+                        }
+                    }
+                    if (!eff.getUnconditionalEffect().isEmpty()){
+                        temp.add(Pair.of(Predicate.createPredicate(Predicate.trueFalse.TRUE),eff.getUnconditionalEffect()));
+                    }
+                    //eff = null;
+                }
+                fastTransitionTable.addEffect(gr.getId(), temp);
+                
+            }
+            for (final var v : fastTransitionTable.getEffects(gr.getId())) {
+                if (v.getKey().isSatisfied(prev)) {
+                    for (final PostCondition n : v.getValue()) {
                         this.apply(n, prev);
                     }
                 }
+
             }
-            for (final PostCondition n : eff.getUnconditionalEffect()) {
-                this.apply(n, prev);
+        }else{
+            final Set<ConditionalEffects> effs = Set.of(gr.getConditionalPropositionalEffects(), gr.getConditionalNumericEffects());
+            for (final ConditionalEffects<PostCondition> eff: effs) {
+                for (final Entry<Condition, Collection<PostCondition>> entry : eff.getActualConditionalEffects().entrySet()) {
+                    if (entry.getKey().isSatisfied(prev)) {
+                        for (final PostCondition n : entry.getValue()) {
+                            this.apply(n, prev);
+                        }
+                    }
+                }
+                for (final PostCondition n : eff.getUnconditionalEffect()) {
+                    this.apply(n, prev);
+                }
             }
         }
     }
