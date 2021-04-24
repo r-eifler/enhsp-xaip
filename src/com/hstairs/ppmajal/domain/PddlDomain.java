@@ -404,15 +404,15 @@ public final class PddlDomain extends Object {
                                 }
                             }
                         }
-//                        if (p != null && p instanceof Comparison) {
-//                            for (NumFluent nf : transition.getNumericFluentAffected()) {
-//                                for (NumFluent nf2 : p.getInvolvedFluents()) {
-//                                    if (nf.getName().equals(nf2.getName())) {
-//                                        canBeDynamic.put(p, true);
-//                                    }
-//                                }
-//                            }
-//                        }
+                        if (p != null && p instanceof Comparison) {
+                            for (NumFluent nf : transition.getAllNumericAffected()) {
+                                for (NumFluent nf2 : p.getInvolvedFluents()) {
+                                    if (nf.getName().equals(nf2.getName())) {
+                                        canBeDynamic.put(nf2.getName(), true);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -20,12 +20,15 @@ package com.hstairs.ppmajal.propositionalFactory;
 
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.AndCond;
+import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.FactoryConditions;
 import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
+import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.problem.GlobalConstraint;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.problem.PddlProblem;
@@ -461,76 +464,51 @@ public class Grounder {
             S.add(t);
             if (cond instanceof AndCond && smartPruning) {
                 final AndCond and = (AndCond) cond;
-                for (Object o : and.sons) {
+                for (final Object o : and.sons) {
                     if (o instanceof Predicate) {
                         final Predicate predicateAction = (Predicate) o;
-                        if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null && predicateAction.getTerms().size()>0) {
+                        if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null && predicateAction.getTerms().size() > 0) {
                             final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
-                            for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
-                                Object2ObjectMap<Variable, Set<PDDLObject>> t1 = new Object2ObjectArrayMap<>();
-                                boolean foundToBeTrue = false;
-                                Predicate predicateInit = ele.getKey();
-                                if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
-                                    if (predicateInit.getTerms().size() == predicateAction.getTerms().size()) {
-                                        foundToBeTrue = true;
-                                        for (int i = 0; i < predicateInit.getTerms().size(); i++) {
-                                            Object a = predicateAction.getTerms().get(i);
-                                            Object b = predicateInit.getTerms().get(i);
-                                            Type aType = null;
-                                            Type bType = null;
-                                            if (a instanceof Variable) {
-                                                aType = ((Variable) a).getType();
-                                            } else if (a instanceof PDDLObject) {
-                                                aType = ((PDDLObject) a).getType();
-                                            }
-                                            if (b instanceof PDDLObject) {
-                                                bType = ((PDDLObject) b).getType();
-                                            }
-                                            if (aType == null){
-                                                throw new RuntimeException("Object "+a+" seems to be not specified as an object of the problem");
-                                            }
-                                            if (aType.equals(bType) || aType.isAncestorOf(bType)) {
-                                                if (a instanceof Variable) {
-                                                    t1.put((Variable) a, Collections.singleton((PDDLObject) b));
-                                                }else{
-                                                    if (a instanceof PDDLObject){
-                                                        if (!a.equals(b)){
-                                                            foundToBeTrue = false;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }else{
-                                                foundToBeTrue = false;
-                                                break;
-                                            }
-
-                                        }
-                                    }
-                                }
+                            for (final Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
+                                final Pair<Map<Variable, Set<PDDLObject>>, Boolean> routine = routine(predicateAction.getPredicateName(),
+                                        ele.getKey().getPredicateName(),
+                                        predicateAction.getTerms(),
+                                        ele.getKey().getTerms(), S1, S);
+                                final boolean foundToBeTrue = routine.getRight();
+                                final Map<Variable, Set<PDDLObject>> t1 = routine.getLeft();
                                 if (foundToBeTrue) {
-                                    if (!t1.isEmpty()){
-                                        for (Map<Variable, Set<PDDLObject>> ele2 : S) {
-                                            final Map<Variable, Set<PDDLObject>> temp = new Object2ObjectArrayMap();
-                                            for (Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
-                                                final Set<PDDLObject> temp2 = t1.get(ele3.getKey());
-                                                if (temp2 != null) {
-                                                    final Sets.SetView<PDDLObject> intersection = Sets.intersection(temp2, ele3.getValue());
-                                                    temp.put(ele3.getKey(), intersection);
-                                                } else {//not bound..shouldn't happen this
-                                                    //throw new RuntimeException("Something went wrong when checking static predicates in grounding "+
-                                                    //        action+ " for "+predicateAction);
-//                                                    System.out.println(ele3.getKey());
-                                                    temp.put(ele3.getKey(), ele3.getValue());
-                                                }
-                                            }
-                                            S1.add(temp);
-                                        }
+                                    if (!t1.isEmpty()) {
+                                        updateCombo(S, S1, t1);
                                     }
                                 }
                             }
                             S = S1;
                         }
+                    } 
+                    else if (o instanceof Comparison) {
+//                        if (false){
+                            final Set<NumFluent> involvedFluents = ((Comparison) o).getInvolvedFluents();
+                            for (final NumFluent nf : involvedFluents) {
+                                if (dynamicPredicateMap.get(nf.getName()) == null && nf.getTerms().size() > 0) {
+                                    final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
+                                    for (final NumFluent nf2 : problem.getNumFluentsInvolvedInInit()) {
+                                        final Pair<Map<Variable, Set<PDDLObject>>, Boolean> routine = routine(nf.getName(),
+                                                nf2.getName(),
+                                                nf.getTerms(),
+                                                nf2.getTerms(), S1, S);
+                                        final boolean foundToBeNotNull = routine.getRight();
+                                        final Map<Variable, Set<PDDLObject>> t1 = routine.getLeft();
+                                        if (foundToBeNotNull) {
+                                            if (!t1.isEmpty()) {
+                                                updateCombo(S, S1, t1);
+                                            }
+                                        }
+                                    }
+                                    S = S1;
+                                }
+                            }
+//                        }
+
                     }
                 }
             }
@@ -684,6 +662,74 @@ public class Grounder {
             return;
         }
         FactoryConditions.createEffectsFromPostCondition(temp, groundedConditionalPropEffects, groundedConditionalNumericEffects);
+    }
+
+    private Pair<Map<Variable, Set<PDDLObject>>,Boolean> routine(String predicateName, String predicateName1, ArrayList terms, ArrayList terms1, Collection<Map<Variable, Set<PDDLObject>>> S1, Collection<Map<Variable, Set<PDDLObject>>> S) {
+        boolean foundToBeTrue = false;
+        final Object2ObjectMap<Variable, Set<PDDLObject>> t1 = new Object2ObjectArrayMap<>();
+        if (predicateName.equals(predicateName1)) {
+            if (terms.size() == terms1.size()) {
+                foundToBeTrue = true;
+                for (int i = 0; i < terms.size(); i++) {
+                    Object a = terms.get(i);
+                    Object b = terms1.get(i);
+                    Type aType = null;
+                    Type bType = null;
+                    if (a instanceof Variable) {
+                        aType = ((Variable) a).getType();
+                    } else if (a instanceof PDDLObject) {
+                        aType = ((PDDLObject) a).getType();
+                    }
+                    if (b instanceof PDDLObject) {
+                        bType = ((PDDLObject) b).getType();
+                    }
+                    if (aType == null) {
+                        throw new RuntimeException("Object " + a + " seems to be not specified as an object of the problem");
+                    }
+                    if (bType == null) {
+                        throw new RuntimeException("Object " + b + " seems to be not specified as an object of the problem");
+                    }
+                    if (aType.equals(bType) || aType.isAncestorOf(bType)) {
+                        if (a instanceof Variable) {
+                            t1.put((Variable) a, Collections.singleton((PDDLObject) b));
+                        } else {
+                            if (a instanceof PDDLObject) {
+                                if (!a.equals(b)) {
+                                    foundToBeTrue = false;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        foundToBeTrue = false;
+                        break;
+                    }
+
+                }
+            }
+        }
+        return Pair.of(t1, foundToBeTrue);
+        
+    }
+
+
+    private void updateCombo(Collection<Map<Variable, Set<PDDLObject>>> S, Collection<Map<Variable, Set<PDDLObject>>> S1, Map<Variable, Set<PDDLObject>> t1) {
+        for (final Map<Variable, Set<PDDLObject>> ele2 : S) {
+            final Map<Variable, Set<PDDLObject>> temp = new Object2ObjectArrayMap();
+            for (final Map.Entry<Variable, Set<PDDLObject>> ele3 : ele2.entrySet()) {
+                final Set<PDDLObject> temp2 = t1.get(ele3.getKey());
+                if (temp2 != null) {
+                    final Sets.SetView<PDDLObject> intersection = Sets.intersection(temp2, ele3.getValue());
+                    temp.put(ele3.getKey(), intersection);
+                } else {//not bound..shouldn't happen this
+                    //throw new RuntimeException("Something went wrong when checking static predicates in grounding "+
+                    //        action+ " for "+predicateAction);
+                    //                                                    System.out.println(ele3.getKey());
+                    temp.put(ele3.getKey(), ele3.getValue());
+                }
+            }
+            S1.add(temp);
+        }
     }
 
 }
