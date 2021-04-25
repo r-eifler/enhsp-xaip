@@ -38,9 +38,11 @@ public class BlindHeuristic implements SearchHeuristic {
 
     final Condition goal;
     final private EPddlProblem problem;
+    final Object[] staticActions;
     public BlindHeuristic(EPddlProblem problem){
         this.problem = problem;
         goal = problem.getGoals();
+        staticActions = problem.actions.toArray();
     }
 
     @Override
@@ -51,8 +53,8 @@ public class BlindHeuristic implements SearchHeuristic {
     }
 
     @Override
-    public Collection getTransitions(boolean helpful) {
-        return problem.actions;
+    public Object[] getTransitions(boolean helpful) {
+        return staticActions;
     }   
 
     @Override

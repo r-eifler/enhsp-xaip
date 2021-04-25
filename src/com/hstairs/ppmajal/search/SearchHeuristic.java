@@ -46,7 +46,7 @@ public interface SearchHeuristic {
      * @param onlyHelpful
      * @return Return only the helpful actions, if the heuristic is thought to produce them
      */
-    Collection getTransitions(final boolean onlyHelpful);
+    Object[] getTransitions(final boolean onlyHelpful);
 
     /**
      *

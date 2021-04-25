@@ -727,7 +727,8 @@ public class H1 implements SearchHeuristic {
         return positiveness;
     }
 
-    public Collection getTransitions(final boolean helpful) {
+    @Override
+    public Object[] getTransitions(final boolean helpful) {
         Collection res = null;
         if (helpfulActions == null || !helpful) {
             if (reachableTransitionsInstances == null) {
@@ -745,7 +746,7 @@ public class H1 implements SearchHeuristic {
                 res = reachableTransitionsInstances;
             }
         } else {
-            Collection actions = new ArrayList<>();
+            final Collection actions = new ArrayList<>();
             for (final int i : helpfulActions) {
                 final TransitionGround transition = (TransitionGround) getTransition(i);
                 if (transition.getSemantics() == Transition.Semantics.ACTION) {
@@ -764,7 +765,7 @@ public class H1 implements SearchHeuristic {
             res.addAll(getHelpfulTransitions());
 //            }
         }
-        return res;
+        return res.toArray();
     }
 
     @Override

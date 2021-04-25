@@ -33,7 +33,7 @@ public interface SearchProblem {
 
     public  Boolean goalSatisfied(State current);
 
-    public  Iterator<Pair<State, Object>> getSuccessors(State s, Collection<Object> actionsToSearch);
+    public  Iterator<Pair<State, Object>> getSuccessors(State s, Object[] actionsToSearch);
 
     public  boolean satisfyGlobalConstraints(State temp);
 

@@ -318,7 +318,7 @@ public class Aibr implements SearchHeuristic {
     }
 
     @Override
-    public Collection getTransitions(boolean helpful) {
-        return problem.actions;
+    public Object[] getTransitions(boolean helpful) {
+        return problem.actions.toArray();
     }
 }

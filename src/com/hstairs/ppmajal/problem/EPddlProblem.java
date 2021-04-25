@@ -677,8 +677,8 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     }
 
     @Override
-    public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Collection<Object> acts) {
-        return new stateIterator(s, (Collection) acts);
+    public ObjectIterator<Pair<State, Object>> getSuccessors (State s, Object[] acts) {
+        return new stateIterator(s, acts);
     }
 
     public boolean milestoneReached (Float d, Float current_value, State temp) {
@@ -756,21 +756,21 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     protected class stateIterator implements ObjectIterator<Pair<State, Object>> {
         protected final State source;
-        protected final Iterator<Object> it;
-        final private Iterable<Object> actionsSet;
+        final private Object[] actionsSet;
         protected Object current;
         protected State newState;
+        private int i;
 
-        public stateIterator (State source, Iterable<Object> actionsSet) {
+        public stateIterator (State source, Object[] actionsSet) {
             this.source = source;
             this.actionsSet = actionsSet;
-            it = actionsSet.iterator();
+            i=0;
         }
 
         @Override
         public boolean hasNext ( ) {
-            while (it.hasNext()) {
-                current = it.next();
+            while (i<actionsSet.length) {
+                current = actionsSet[i]; i++;
                 if (current instanceof TransitionGround) {
                     if (((TransitionGround) current).isApplicable(source)) {
                         newState = source.clone();

@@ -55,8 +55,8 @@ public class GoalCounting implements SearchHeuristic{
     }
 
     @Override
-    public Collection<TransitionGround> getTransitions(boolean helpful) {
-        return problem.getActions();
+    public Object[] getTransitions(boolean helpful) {
+        return problem.getActions().toArray();
     }
     @Override
     public Collection<TransitionGround> getAllTransitions() {

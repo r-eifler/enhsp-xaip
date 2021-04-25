@@ -690,6 +690,8 @@ public abstract class PddlProblem {
         return true;
     }
 
+    abstract  Iterator<Pair<State, Object>> getSuccessors(State s, Object[] acts);
+
     public  Iterator<Pair<State, Object>> getSuccessors(State s, Collection<Object> acts){
         return new stateContainer(s,acts);
     }

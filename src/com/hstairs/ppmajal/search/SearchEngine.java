@@ -859,7 +859,9 @@ public class SearchEngine {
 
     }
 
-    Collection<Object> getActionsToSearch(SearchNode currentNode, SearchProblem problem) {
+    
+    
+    Object[] getActionsToSearch(SearchNode currentNode, SearchProblem problem) {
         if (helpfulActionsPruning && currentNode != null) {
             return currentNode.helpfulActions;
         }

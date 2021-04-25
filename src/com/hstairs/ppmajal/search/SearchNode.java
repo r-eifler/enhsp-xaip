@@ -43,7 +43,7 @@ public class SearchNode extends SimpleSearchNode {
     public final float wh;
     public float f;
     public ArrayList<Object> list_of_actions;
-    public Collection helpfulActions;
+    public Object[] helpfulActions;
     private boolean bfs = true;
 
     public SearchNode (State s1, Object action, SearchNode father, float g, float h) {
