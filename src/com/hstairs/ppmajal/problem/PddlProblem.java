@@ -118,34 +118,15 @@ public abstract class PddlProblem {
     
     /**
      * Get the value of groundedActions
-     *
-     * @return the value of groundedActions
-     */
-    public boolean isGroundedActions ( ) {
-        return grounded_representation;
-    }
+   
 
     /**
      * Set the value of groundedActions
      *
      * @param groundedActions new value of groundedActions
      */
-    public void setGroundedRepresentation (boolean groundedActions) {
+    protected void setGroundedRepresentation (boolean groundedActions) {
         this.grounded_representation = groundedActions;
-    }
-
-        /**
-     * @return the action_cost_from_metric
-     */
-    public boolean isAction_cost_from_metric ( ) {
-        return action_cost_from_metric;
-    }
-
-    /**
-     * @param action_cost_from_metric the action_cost_from_metric to set
-     */
-    public void setAction_cost_from_metric (boolean action_cost_from_metric) {
-        this.action_cost_from_metric = action_cost_from_metric;
     }
     
     /**
@@ -189,7 +170,7 @@ public abstract class PddlProblem {
 
         pddlFilRef = pddlNewFile;
 
-        String toWrite = "(define (problem " + this.getName() + ") "
+        String toWrite = "(define (problem " + name + ") "
                 + "(:domain " + this.getDomainName() + ") "
                 + this.getObjects().pddlPrint() + "\n"
                 + Printer.pddlPrint(this, (PDDLState) init) + "\n"
@@ -260,7 +241,7 @@ public abstract class PddlProblem {
                     this.setDomainName(child.getChild(0).getText());
                     break;
                 case PddlParser.PROBLEM_NAME:
-                    setName(child.getChild(0).getText());
+                    name = child.getChild(0).getText();
                     break;
                 case PddlParser.OBJECTS:
                     addObjects(child);
@@ -445,11 +426,6 @@ public abstract class PddlProblem {
     public State getInit ( ) {
         return init;
     }
-
-    public void setInit (State init) {
-        this.init = init;
-    }
-
     /**
      * @return the goals - the goal set
      */
@@ -457,23 +433,7 @@ public abstract class PddlProblem {
         return goals;
     }
 
-    public void setGoals (ComplexCondition goals) {
-        this.goals = goals;
-    }
 
-    /**
-     * @return the name - the name of the problem
-     */
-    public String getName ( ) {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    protected void setName (String name) {
-        this.name = name;
-    }
 
     protected void addMetric (Tree t) {
 
@@ -650,15 +610,6 @@ public abstract class PddlProblem {
         return aThis;
     }
 
-    public NumFluent getNumFluent (NumFluent f) {
-//        for (NumFluent p : this.initNumFluentsValues.keySet()) {
-//            if (p.equals(f)) {
-//                return p;
-//            }
-//        }
-        
-        return f;
-    }
 
     public PDDLNumber getNumFluentInitialValue (NumFluent aThis) {
         PDDLNumber nf = this.getInitNumFluentsValues().get(aThis);
@@ -686,7 +637,7 @@ public abstract class PddlProblem {
 
     }
 
-    public boolean isSafeState (State temp) {
+    protected boolean isSafeState (State temp) {
         return true;
     }
 
@@ -738,7 +689,7 @@ public abstract class PddlProblem {
     /**
      * @param initNumFluentsValues the initNumFluentsValues to set
      */
-    public void setInitNumFluentsValues(HashMap<NumFluent, PDDLNumber> initNumFluentsValues) {
+    protected void setInitNumFluentsValues(HashMap<NumFluent, PDDLNumber> initNumFluentsValues) {
         this.initNumFluentsValues = initNumFluentsValues;
     }
 
@@ -752,7 +703,7 @@ public abstract class PddlProblem {
     /**
      * @param initBoolFluentsValues the initBoolFluentsValues to set
      */
-    public void setInitBoolFluentsValues(HashMap<Predicate, Boolean> initBoolFluentsValues) {
+    protected void setInitBoolFluentsValues(HashMap<Predicate, Boolean> initBoolFluentsValues) {
         this.initBoolFluentsValues = initBoolFluentsValues;
     }
 

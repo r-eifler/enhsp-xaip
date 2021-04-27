@@ -458,7 +458,6 @@ public class ExtendedNormExpression extends Expression {
                         c += problem.getNumFluentInitialValue(a.f).getNumber() * a.n;
                     } else {
 //                    
-                        a.f = problem.getNumFluent(a.f);
                         ret.summations.add(a);
                     }
                 } else {

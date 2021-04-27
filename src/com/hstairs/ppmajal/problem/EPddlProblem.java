@@ -121,7 +121,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     }
 
-    public HashMap<String, NumFluent> getNumericFluentReference ( ) {
+    private HashMap<String, NumFluent> getNumericFluentReference ( ) {
         if (this.numFluentReference == null) {
             numFluentReference = new HashMap<>();
         }
@@ -130,7 +130,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
 
-    public void generateTransitions() {
+    private void generateTransitions() {
         long start = System.currentTimeMillis();
         if (!"internal".equals(groundingMethod) && !"naive".equals(groundingMethod)) {
             System.out.println("Generate Transitions using " + groundingMethod);
@@ -209,7 +209,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     }
 
-    public Set getActualFluents ( ) {
+    protected Set getActualFluents ( ) {
         if (actualFluents == null) {
             actualFluents = new LinkedHashSet();
             Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), new HashSet(this.getEventsSet())),new HashSet(this.getProcessesSet()));
@@ -226,7 +226,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
 
-    public void generateConstraints ( ) throws Exception {
+    private void generateConstraints ( ) throws Exception {
             Grounder af = new Grounder();
             for (SchemaGlobalConstraint constr : linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
@@ -241,7 +241,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     }
     
 
-    public void groundingActionProcessesConstraints ( ) throws Exception {
+    private void groundingActionProcessesConstraints ( ) throws Exception {
         long start = System.currentTimeMillis();
 
         this.groundGoals();
@@ -262,7 +262,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
 
 
-    public Iterable cleanEasyUnreachableTransitions (Iterable toWorkOut) {
+    private Iterable cleanEasyUnreachableTransitions (Iterable toWorkOut) {
         ArrayList arrayList = new ArrayList((Collection) toWorkOut);
         Collection<TransitionGround> res = new LinkedHashSet<>();
         ListIterator it = arrayList.listIterator();
@@ -549,7 +549,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     
     private PDDLState makePddlState ( ) {
         //ensure compactness
-        removeStaticPart();
+        //removeStaticPart();
         fixNecessaryFluents();
         HashMap<Integer,Double> numFluents = new HashMap();
         totNumberOfNumVariables = 0;
@@ -623,7 +623,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     }
 
 
-    public void syncAllVariablesAndUpdateCollections (EPddlProblem inputProblem) {
+    private void syncAllVariablesAndUpdateCollections (EPddlProblem inputProblem) {
 
         if (inputProblem == null) {
             inputProblem = this;
@@ -668,7 +668,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     }
 
 
-    public void addTimeFluentToInit ( ) {
+    private void addTimeFluentToInit ( ) {
         ((PDDLState) this.init).time = BigDecimal.ZERO;
     }
 
@@ -681,6 +681,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         return new stateIterator(s, acts);
     }
 
+    @Override
     public boolean milestoneReached (Float d, Float current_value, State temp) {
         return d < current_value && this.isSafeState(temp);
     }
@@ -717,7 +718,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         return processesSet;
     }
 
-    public State saveInitInit ( ) {
+    private State saveInitInit ( ) {
         if (this.pureInit == null) {
             this.pureInit = new MAPPDDLState(this.getInitNumFluentsValues(), getInitBoolFluentsValues());
         }
@@ -813,7 +814,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     }
     
     @Override
-     public Float gValue(State s, Object act, State temp, float gValue) {
+    public Float gValue(State s, Object act, State temp, float gValue) {
         Metric m = this.getMetric();
         if (act instanceof Transition) {
             TransitionGround gr = (TransitionGround) act;
