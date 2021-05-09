@@ -31,7 +31,6 @@ import java.util.*;
  */
 public abstract class Condition extends PDDLProblemComponent {
 
-    public boolean grounded;
     // TODO: Make a ConditionsWithSons class that sits between AndCond/OrCond/OneOf and Conditions
     protected boolean freeVarSemantic = false;
     protected int heuristicId;
@@ -40,7 +39,6 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public Condition ( ) {
         //son = new HashSet();
-        grounded = false;
         unsatisfiable = false;
     }
 
@@ -58,18 +56,7 @@ public abstract class Condition extends PDDLProblemComponent {
     public abstract Condition weakEval (PddlProblem p, Set invF);
     //public abstract void addConditions(Conditions o);
 
-    /*
-        The following regression operation operates under the following assumptions:
-            1) Action do not have conflicting effects. 
-                a) Conditional effects will never conflict
-                b) Add and Delete List will never conflict
-            2) Any literals (positive or negative) caused by an action 
-               takes part just in one of the conditional effects of the action.
-               Add and Del list can be seen as conditional effects with empty
-               activation conditions.
-    
-     */
-    public abstract Condition regress (TransitionGround gr);
+
 
     /**
      * Substitutes the variables in this conditions with the PDDLObjects
@@ -110,7 +97,6 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract Condition normalize ( );
 
-    public abstract Condition unGround (Map asbstractionOf);
 
     public abstract boolean isUngroundVersionOf (Condition conditions);
 
@@ -227,11 +213,8 @@ public abstract class Condition extends PDDLProblemComponent {
 
     public abstract List<Condition> getTerminalConditionsInArray ( );
 
-    public abstract Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h);
-
     public abstract ComplexCondition and (Condition precondition);
 
-    public abstract AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever);
 
     public abstract Condition pushNotToTerminals( );
 

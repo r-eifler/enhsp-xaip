@@ -79,7 +79,6 @@ public class NotCond extends Terminal implements PostCondition {
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         final Condition groundedSon = son.ground(substitution, po);
         NotCond ret = NotCond.createNotCond(groundedSon);
-        ret.grounded = true;
         return ret;
     }
 
@@ -140,13 +139,6 @@ public class NotCond extends Terminal implements PostCondition {
         return false;
     }
 
-    @Override
-    public Condition unGround (Map substitution) {
-        final Condition ungroundSon = son.unGround(substitution);
-        NotCond ret = NotCond.createNotCond(ungroundSon);
-        ret.grounded = false;
-        return ret;
-    }
 
     @Override
     public String toSmtVariableString (int i) {
@@ -207,22 +199,6 @@ public class NotCond extends Terminal implements PostCondition {
 
 
 
-    @Override
-    public Condition regress (TransitionGround gr) {
-
-        Condition temp = son.regress(gr);
-        if (temp.isValid()) {
-//            NotCond ret = new NotCond();
-//            ret.setUnsatisfiable(true);
-            return Predicate.createPredicate(Predicate.trueFalse.FALSE);
-        }
-        if (temp.isUnsatisfiable()) {
-            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
-        }
-        NotCond not = NotCond.createNotCond(temp);
-
-        return not;
-    }
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -322,24 +298,16 @@ public class NotCond extends Terminal implements PostCondition {
         return ret;
     }
 
-    @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
-        return null;
-    }
 
 
     @Override
     public ComplexCondition and (Condition precondition) {
-        AndCond and = new AndCond();
-        and.addConditions(precondition);
-        and.addConditions(this);
-        return and;
+        Collection and = new HashSet();
+        and.add(precondition);
+        and.add(this);
+        return new AndCond(and);
     }
 
-    @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        return null;
-    }
 
 
     @Override

@@ -150,11 +150,6 @@ public class Predicate extends Terminal implements PostCondition {
         return Sets.newHashSet(this);
     }
 
-    @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
-        return null;
-    }
-
 
     @Override
     public void extendTerms (Variable v) {
@@ -210,20 +205,6 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
 
-    /**
-     * @return the grounded
-     */
-    public boolean isGrounded ( ) {
-        return grounded;
-    }
-
-    /**
-     * @param grounded the grounded to set
-     */
-    public void setGrounded (boolean grounded) {
-        this.grounded = grounded;
-    }
-
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         ArrayList localVariables = new ArrayList();
@@ -248,7 +229,6 @@ public class Predicate extends Terminal implements PostCondition {
         }
         Predicate createPredicate = Predicate.createPredicate(name, localVariables);
 //        System.out.println(createPredicate);
-        createPredicate.grounded = true;        
         return createPredicate;
     }
 
@@ -321,27 +301,6 @@ public class Predicate extends Terminal implements PostCondition {
         return this;
     }
 
-    @Override
-    public Condition unGround (Map substitution) {
-        ArrayList localVariables = new ArrayList();
-        //System.out.println(this);
-        for (Object o : this.getTerms()) {
-            if (o instanceof PDDLObject) {
-                PDDLObject obj = (PDDLObject) o;
-                Variable t = (Variable) substitution.get(obj.getName());
-
-                if (t == null) {
-                    System.out.println("Error in substitution  for " + o);
-                    System.exit(-1);
-                } else {
-                    localVariables.add(t);
-                }
-            }
-        }
-        Predicate ret = Predicate.createPredicate(name, localVariables);
-        ret.grounded = false;
-        return ret;
-    }
 
     @Override
     public boolean isUngroundVersionOf (Condition con) {
@@ -441,24 +400,6 @@ public class Predicate extends Terminal implements PostCondition {
         return this;
     }
 
-    @Override
-    public Condition regress (TransitionGround gr) {
-        throw new UnsupportedOperationException();
-//        OrCond achievers = gr.getAdders(this);
-//        OrCond deleters = gr.getDels(this);
-//        OrCond or = new OrCond();
-//        AndCond effect_reasons = new AndCond();
-//        AndCond frame_axiom = new AndCond();
-//        NotCond no_del = NotCond.createNotCond(deleters);
-//
-//        effect_reasons.addConditions(achievers);
-//        effect_reasons.addConditions(no_del);
-//        frame_axiom.addConditions(no_del);
-//        frame_axiom.addConditions(this);
-//        or.addConditions(effect_reasons);
-//        or.addConditions(frame_axiom);
-//        return or;
-    }
 
     
 
@@ -517,16 +458,12 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public ComplexCondition and (Condition precondition) {
-        AndCond and = new AndCond();
-        and.addConditions(precondition);
-        and.addConditions(this);
-        return and;
+        Collection and = new HashSet();
+        and.add(precondition);
+        and.add(this);
+        return new AndCond(and);
     }
 
-    @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        return null;
-    }
 
 //    @Override
 //    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {

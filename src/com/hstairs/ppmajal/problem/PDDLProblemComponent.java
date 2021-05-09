@@ -19,6 +19,7 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.Condition;
+import java.util.Collection;
 
 /**
  * @author Enrico Scala
@@ -27,5 +28,9 @@ public abstract class PDDLProblemComponent {
 
 
     public abstract Condition unifyVariablesReferences (EPddlProblem p);
-
+    protected void addAll(Collection res, Object[] sons) {
+        for (Object o : sons) {
+            res.add(res);
+        }
+    }
 }

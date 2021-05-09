@@ -125,7 +125,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {
             OrCond or = (OrCond) this.condition;
-            for (Condition c : (Collection<Condition>) or.sons) {
+            for (final var c :  or.sons) {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     Object o = nc.getSon();
@@ -147,7 +147,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         //for now tautology is checked for disjunction in which one of the element is always true
         if (this.condition instanceof OrCond) {
             OrCond or = (OrCond) this.condition;
-            for (Condition c : (Collection<Condition>) or.sons) {
+            for (final var c :  or.sons) {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     Object o = nc.getSon();

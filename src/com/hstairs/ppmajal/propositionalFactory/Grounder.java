@@ -658,7 +658,7 @@ public class Grounder {
     }
 
     private static void addEffects(AndCond temp, ConditionalEffects groundedConditionalNumericEffects, ConditionalEffects groundedConditionalPropEffects) {
-        if (temp == null || temp.sons.isEmpty()) {
+        if (temp == null || temp.sons.length == 0) {
             return;
         }
         FactoryConditions.createEffectsFromPostCondition(temp, groundedConditionalPropEffects, groundedConditionalNumericEffects);

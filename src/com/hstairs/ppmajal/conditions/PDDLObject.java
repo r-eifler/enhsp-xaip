@@ -59,7 +59,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
 
     private PDDLObject (String n, Type atype) {
         super();
-        grounded = true;
         name = n;
         type = atype;
     }
@@ -135,10 +134,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
         return this;
     }
 
-    @Override
-    public Condition unGround (Map asbstractionOf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public boolean isUngroundVersionOf (Condition conditions) {
@@ -170,10 +165,6 @@ public class PDDLObject extends Terminal implements ActionParameter {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Condition regress (TransitionGround gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -203,20 +194,14 @@ public class PDDLObject extends Terminal implements ActionParameter {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public Condition pushNotToTerminals( ) {

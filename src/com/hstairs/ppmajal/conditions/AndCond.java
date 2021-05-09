@@ -18,10 +18,9 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.pddl.heuristics.utils.AchieverSet;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.problem.RelState;
@@ -41,10 +40,16 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     /**
      * Standard Constructor for the AndCond.
+     * @param sons
      */
-    public AndCond ( ) {
-        super();
+    public AndCond (Collection sons ) {
+        super(sons);
     }
+    
+    private AndCond(Object[] input){
+        super(input);
+    }
+    
 
     /**
      * @return a string representation of the and tree
@@ -91,12 +96,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
         this.specialAndForExpression = specialAndForExpression;
     }
 
-    /**
-     * @param e when used with numeric effect
-     */
-    public void addExpression (Expression e) {
-        this.sons.add(e);
-    }
+
 
     /**
      * @param s
@@ -160,11 +160,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
      */
     @Override
     public Condition clone ( ) {
-        AndCond ret = new AndCond();
-        ret.grounded = this.grounded;
-        //ret.sons = (HashSet)this.sons.clone();
-        ret.sons = cloneSons();
-
+        AndCond ret = new AndCond(cloneSons());
         ret.specialAndForExpression = this.specialAndForExpression;
         return ret;
 
@@ -187,48 +183,9 @@ public class AndCond extends ComplexCondition implements PostCondition {
         return null;
     }
 
-    /**
-     * @param delList
-     */
-    public void subtractElements (AndCond delList) {
-        if (delList == null) {
-            return;
-        }
-        Iterator it2 = delList.sons.iterator();
-        while (it2.hasNext()) {
-            NotCond nc = (NotCond) it2.next();
-            Iterator it = this.sons.iterator();
-            while (it.hasNext()) {
-                //NotCond nc = (NotCond)it.next();
-                //System.out.println("Confronto : " + o.getClass());
-                if (it.next().equals(nc.getSon())) {
-                    it.remove();
-                }
-            }
-        }
-    }
+  
 
-    /**
-     * @param addList
-     */
-    public void subtractNegation (AndCond addList) {
-        if (addList == null) {
-            return;
-        }
-        Iterator it2 = addList.sons.iterator();
-        while (it2.hasNext()) {
-            Object o = it2.next();
-            Iterator it = this.sons.iterator();
 
-            while (it.hasNext()) {
-                NotCond nc = (NotCond) it.next();
-                //System.out.println("Confronto : " + o.getClass());
-                if (o.equals(nc.getSon())) {
-                    it.remove();
-                }
-            }
-        }
-    }
 
 
     public PDDLState transformInStateIfPossible ( ) {
@@ -277,7 +234,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
         String ret = "";
         if (this.sons != null) {
-            if (this.sons.size() > 1) {
+            if (this.sons.length > 1) {
                 ret += "(and";
             }
 
@@ -299,7 +256,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                     ret += neff.toSmtVariableString(i);
                 }
             }
-            if (this.sons.size() > 1) {
+            if (this.sons.length > 1) {
                 ret += ")";
             }
         }
@@ -312,7 +269,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
         HashSet to_keep = new LinkedHashSet();
 
         if (this.sons != null) {
-            Iterator it = this.sons.iterator();
+            Collection ret = Arrays.asList(this.sons);
+            Iterator it = ret.iterator();
             while (it.hasNext()) {
                 Object o2 = it.next();
                 if (o2 instanceof Condition) {
@@ -344,9 +302,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
             }
 
         }
-        this.sons = to_keep;
 
-        return this;
+        return new AndCond(to_keep);
     }
 
 
@@ -354,7 +311,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     public String toSmtVariableString (int i, TransitionGround gr, String var) {
         String ret = "";
         if (this.sons != null) {
-            if (this.sons.size() > 1) {
+            if (this.sons.length > 1) {
                 ret += "(and";
             }
 
@@ -375,7 +332,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                     throw new UnsupportedOperationException("Num effect not supported for repetition.." + this);
                 }
             }
-            if (this.sons.size() > 1) {
+            if (this.sons.length > 1) {
                 ret += ")";
             }
         }
@@ -388,54 +345,26 @@ public class AndCond extends ComplexCondition implements PostCondition {
         if (this.sons == null) {
             return this;
         }
-        AndCond ret = new AndCond();
-        for (Condition c1 : (Collection<Condition>) this.sons) {
-            Condition res = c1.transformEquality();
-            if (res instanceof AndCond) {
-                ret.sons.addAll(((AndCond) res).sons);
-            } else {
-                ret.addConditions(res);
-            }
-
-        }
-        return ret;
-    }
-
-
-
-    @Override
-    public Condition regress (TransitionGround gr) {
-        AndCond con = new AndCond();
-        for (Object o : this.sons) {
-            if (o instanceof Condition) {
-                Condition t = (Condition) o;
-                Condition temp = t.regress(gr);
-//                System.out.println(temp);
-                if (!temp.isValid()) {//needs to be satisfied
-                    if (temp.isUnsatisfiable()) {
-                        return Predicate.createPredicate(Predicate.trueFalse.FALSE);
-                    } else if (temp instanceof AndCond) {
-                        con.sons.addAll(((AndCond) temp).sons);
-                    } else {
-                        con.sons.add(temp);
+        Collection newSons = new HashSet();
+        
+        for (Object c1 :  this.sons) {
+            if (c1 instanceof Condition){
+                newSons.add(c1);
+                Condition res = ((Condition) c1).transformEquality();
+                if (res instanceof AndCond) {
+                    for (Object o: ((AndCond)res).sons){
+                        newSons.add(o);
                     }
-                }//else do not add the condition at all
-//                System.out.println("DEBUG: Condition before regression"+t);
-//                System.out.println("DEBUG: Condition after regression"+temp);
-
-            } else {
-                System.out.println("AndCond: Condition " + o + " cannot be regressed");
-                System.exit(-1);
+                } else {
+                    newSons.add(c1);
+                }
             }
-        }
-//        System.out.println(this);
 
-        if (con.sons.isEmpty()) {
-//            System.out.println("Always valid");
-            return Predicate.createPredicate(Predicate.trueFalse.TRUE);
         }
-        return con;
+        return new AndCond(newSons);
     }
+
+
 
     @Override
     public boolean can_be_false (RelState s) {
@@ -523,58 +452,15 @@ public class AndCond extends ComplexCondition implements PostCondition {
     }
 
 
-    @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        if (this.sons == null) {
-            return 0f;
-        }
-        Float ret = 0f;
-        for (Condition c : (Collection<Condition>) this.sons) {
-            Float estimate = c.estimate_cost(cond_dist, additive_h);
-            if (estimate == Float.MAX_VALUE) {
-                return Float.MAX_VALUE;
-            }
-            if (additive_h) {
-                ret += estimate;
-            } else {
-                ret = Math.max(estimate, ret);
-            }
-        }
-        return ret;
-    }
 
     @Override
     public ComplexCondition and (Condition precondition) {
-        AndCond and = new AndCond();
-        and.addConditions(precondition);
-        and.sons.addAll(this.sons);
-        return and;
-    }
-
-    @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        AchieverSet s = new AchieverSet();
-        if (this.sons == null) {
-            s.setCost(0f);
-        } else {
-            s.setCost(0f);
-            for (Condition c : (Collection<Condition>) this.sons) {
-                AchieverSet s1 = c.estimate_cost(cond_dist, additive_h, established_achiever);
-                if (s1.getCost() == Float.MAX_VALUE) {
-                    s.setCost(Float.MAX_VALUE);
-                    return s;
-                }
-                if (additive_h) {
-                    s.setCost(s.getCost() + s1.getCost());
-
-                    s.getActions().addAll(s1.getActions());
-                    s.getTargetCond().addAll(s1.getTargetCond());
-                } else {
-                    s.setCost(Math.max(s1.getCost(), s.getCost()));
-                }
-            }
+        final Collection res = new HashSet();
+        res.add(precondition);
+        for (Object o: this.sons){
+            res.add(o);
         }
-        return s;
+        return new AndCond(res);
     }
 
     @Override
@@ -582,25 +468,28 @@ public class AndCond extends ComplexCondition implements PostCondition {
         if (this.sons == null) {
             return this;
         }
-        AndCond res = new AndCond();
-        for (Condition c : (Collection<Condition>) this.sons) {
-            Condition c1 = c.pushNotToTerminals();
-            if (c1 instanceof AndCond) {
-                res.sons.addAll(((AndCond) c1).sons);
-            } else {
-                res.addConditions(c1);
+        Collection res = new HashSet();
+        for (Object c : this.sons) {
+            if (c instanceof Condition){
+                final Condition c1 = ((Condition)c).pushNotToTerminals();
+                if (c1 instanceof AndCond) {
+                    addAll(res,this.sons);
+                } else {
+                    res.add(c);
+                }
             }
         }
-        return res;
+        return new AndCond(res);
     }
 
     OrCond push_negation_demorgan ( ) {
-        OrCond res = new OrCond();
-        for (Condition c : (Collection<Condition>) this.sons) {
-            NotCond nc = NotCond.createNotCond(c);
-            res.addConditions(nc);
+        
+        Collection res = new HashSet();
+        for (final Object c : this.sons) {
+            NotCond nc = NotCond.createNotCond((Condition)c);
+            res.add(nc);
         }
-        return res;
+        return new OrCond(res);
     }
 
     @Override
@@ -609,8 +498,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
             return true;
         }
         boolean ret = true;
-        for (Condition c : (Collection<Condition>) this.sons) {
-            if (!c.isSatisfied(rs, dist, i)) {
+        for (final Object c : this.sons) {
+            if (!((Condition)c).isSatisfied(rs, dist, i)) {
                 ret = false;
             }
         }
@@ -624,21 +513,22 @@ public class AndCond extends ComplexCondition implements PostCondition {
     @Override
     public Condition introduce_red_constraints ( ) {
         ArrayList<Comparison> to_mix = new ArrayList();
-        AndCond ret = new AndCond();
-        for (Condition c : (Collection<Condition>) this.sons) {
+//        AndCond ret = new AndCond();
+        Collection ret = new HashSet();
+        for (final Object c : this.sons) {
             if (c instanceof Comparison) {
                 to_mix.add((Comparison) c);
             }
-            ret.addConditions(c.introduce_red_constraints());
+            ret.add(((Condition)c).introduce_red_constraints());
         }
         for (int i = 0; i < to_mix.size(); i++) {
             for (int j = i + 1; j < to_mix.size(); j++) {
                 try {
-                    Comparison a1 = to_mix.get(i);
-                    Comparison a2 = to_mix.get(j);
-                    Comparison newC = generateRedConstraints(a1, a2);
+                    final Comparison a1 = to_mix.get(i);
+                    final Comparison a2 = to_mix.get(j);
+                    final Comparison newC = generateRedConstraints(a1, a2);
                     if (newC != null) {
-                        ret.addConditions(newC);
+                        ret.add(newC);
                     }
 
                 } catch (Exception ex) {
@@ -646,7 +536,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                 }
             }
         }
-        return ret;
+        return new AndCond(ret);
     }
 
 
@@ -657,8 +547,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition normalize() {
-        HashSet sons1 = new LinkedHashSet();
-        for (final Object cond : (Collection<Object>) sons) {
+        final HashSet sons1 = new LinkedHashSet();
+        for (final Object cond : sons) {
             if (cond instanceof Condition) {
                 Condition condInternal = ((Condition) cond).normalize();
                 if (condInternal == null) {
@@ -669,7 +559,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                         sons1.add(condInternal);
                     } else if (!condInternal.isValid()) {
                         if (condInternal instanceof AndCond) {
-                            sons1.addAll(((AndCond) condInternal).sons);
+                            addAll(sons1,sons);
                         } else {
                             sons1.add(condInternal);
                         }
@@ -680,8 +570,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
                 sons1.add(cond);
             }
         }
-        sons = sons1;
-        return this;
+        return new AndCond(sons1);
     }
 
     public static Comparison generateRedConstraints(Comparison a1, Comparison a2) {
@@ -706,4 +595,12 @@ public class AndCond extends ComplexCondition implements PostCondition {
         }
         return newC;
     }
+
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        return new AndCond(this.__unifyVariablesReferences(p));
+    }
+
+
 }

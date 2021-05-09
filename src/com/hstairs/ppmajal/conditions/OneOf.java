@@ -33,8 +33,9 @@ public class OneOf extends ComplexCondition {
 
     private String smt_representation;
 
-    public OneOf ( ) {
-        super();
+
+    public OneOf(Collection oneOf) {
+        super(oneOf);
     }
 
     @Override
@@ -42,10 +43,6 @@ public class OneOf extends ComplexCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Condition regress (TransitionGround gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
@@ -97,10 +94,7 @@ public class OneOf extends ComplexCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Condition unGround (Map asbstractionOf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public boolean isUngroundVersionOf (Condition conditions) {
@@ -111,25 +105,26 @@ public class OneOf extends ComplexCondition {
     public String toSmtVariableString (int i) {//does not work
         if (smt_representation == null) {
             smt_representation = "";
-            AndCond and = new AndCond();
-            OrCond or = new OrCond();
-            for (Condition p1 : (Collection<Condition>) this.sons) {
-                or.addConditions(p1);
+            Collection and = new HashSet();
+            Collection or = new HashSet();
+            for (final var p1 :  this.sons) {
+                or.add(p1);
             }
-            and.addConditions(or);
-            ArrayList<Condition> list1 = new ArrayList((Collection<Condition>) this.sons);
+            and.add(or);
+            
 
-            for (int k = 0; k < list1.size(); k++) {
-                for (int j = k + 1; j < list1.size(); j++) {
-                    OrCond or2 = new OrCond();
-                    NotCond a = NotCond.createNotCond(list1.get(k));
-                    NotCond b = NotCond.createNotCond(list1.get(j));
-                    or2.addConditions(a);
-                    or2.addConditions(b);
-                    and.addConditions(or2);
+            for (int k = 0; k < sons.length; k++) {
+                for (int j = k + 1; j < sons.length; j++) {
+                    Collection or2 = new HashSet();
+                    NotCond a = NotCond.createNotCond((Condition) sons[k]);
+                    NotCond b = NotCond.createNotCond((Condition) sons[j]);
+                    or2.add(a);
+                    or2.add(b);
+                    and.add(or2);
                 }
             }
-            smt_representation = and.toSmtVariableString(i);
+            AndCond temp = new AndCond(and);
+            smt_representation = temp.toSmtVariableString(i);
         }
 
         return smt_representation;
@@ -193,20 +188,13 @@ public class OneOf extends ComplexCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Condition pushNotToTerminals( ) {
@@ -225,6 +213,11 @@ public class OneOf extends ComplexCondition {
 
     @Override
     public void extendTerms (Variable v) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

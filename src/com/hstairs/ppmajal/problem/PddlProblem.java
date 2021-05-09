@@ -265,8 +265,7 @@ public abstract class PddlProblem {
                     this.goals = null;
                     Condition con = fc.createCondition(child.getChild(0), null);
                     if (!(con instanceof ComplexCondition)) {
-                        this.goals = new AndCond();
-                        this.goals.addConditions(con);
+                        this.goals = new AndCond(Collections.singleton(con));
                     } else {
                         this.goals = (ComplexCondition) con;
                     }

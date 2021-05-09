@@ -213,7 +213,7 @@ public class RelState extends Object {
 //    }
     public void apply(PostCondition effect, RelState prev) {
         if (effect instanceof AndCond){
-            for (PostCondition c: (Collection<PostCondition>)((AndCond) effect).sons){
+            for (PostCondition c: (PostCondition[])((AndCond) effect).sons){
                 this.apply((PostCondition)c, prev);
             }
 

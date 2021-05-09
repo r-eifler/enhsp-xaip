@@ -83,8 +83,8 @@ public class LM extends H1 {
             if (and.sons == null) {
                 return true;
             }
-            for (final Condition son : (Collection<Condition>) and.sons) {
-                if (!checkReached(son)) {
+            for (final var son :  and.sons) {
+                if (!checkReached((Condition) son)) {
                     return false;
                 }
             }
@@ -95,8 +95,8 @@ public class LM extends H1 {
             if (and.sons == null) {
                 return true;
             }
-            for (final Condition son : (Collection<Condition>) and.sons) {
-                if (checkReached(son)) {
+            for (final var son :  and.sons) {
+                if (checkReached((Condition) son)) {
                     return true;
                 }
             }

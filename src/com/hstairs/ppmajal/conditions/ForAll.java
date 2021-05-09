@@ -39,8 +39,9 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     public SchemaParameters parameters;
 
-    public ForAll ( ) {
-        this.parameters = new SchemaParameters();
+    ForAll(SchemaParameters parameters, Collection res) {
+        super(res);
+        this.parameters = parameters;
     }
 
     @Override
@@ -69,10 +70,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
         return hash;
     }
 
-    @Override
-    public Condition regress (TransitionGround gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public Condition ground (Map substitution, int c) {
@@ -124,10 +122,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Condition unGround (Map asbstractionOf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public boolean isUngroundVersionOf (Condition conditions) {
@@ -168,15 +163,12 @@ public class ForAll extends ComplexCondition implements PostCondition {
     @Override
     public ComplexCondition transformEquality ( ) {
 
-        ForAll res = new ForAll();
-        res.parameters = parameters;
         HashSet<Condition> temp = new HashSet<>();
-        for (Condition cond : (Collection<Condition>) sons) {
-            temp.add(cond.transformEquality());
+        for (final var c : sons) {
+            temp.add(((Condition)c).transformEquality());
         }
-        sons.addAll(temp);
-        res.sons = sons;
-        return res;
+        addAll(temp,sons);
+        return new ForAll(parameters,temp);
     }
 
 
@@ -190,7 +182,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
         bui.append("(forall ");
 
         this.parameters.pddlPrint(true, bui);
-        if (sons.size() > 1)
+        if (sons.length > 1)
             bui.append("(and ");
         for (Object o : sons) {
             if (o instanceof Condition) {
@@ -204,7 +196,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
                 System.exit(-1);
             }
         }
-        if (sons.size() > 1)
+        if (sons.length > 1)
             bui.append(")");
         bui.append(")");
     }
@@ -212,36 +204,26 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
-    public Condition pushNotToTerminals( ) {
+    public Condition pushNotToTerminals() {
         if (this.sons == null) {
             return this;
         }
-        ForAll res = new ForAll();
-        res.parameters = this.parameters;
-        for (Condition c : (Collection<Condition>) this.sons) {
-            Condition c1 = c.pushNotToTerminals();
+        Collection res = new HashSet();
+        for (final var c : this.sons) {
+            Condition c1 = ((Condition)c).pushNotToTerminals();
             if (c1 instanceof AndCond) {
-                res.sons.addAll(((AndCond) c1).sons);
+                addAll(res, ((AndCond) c1).sons);
             } else {
-                res.addConditions(c1);
+                res.add(c1);
             }
         }
-        return res;
+        return new ForAll(parameters, res);
     }
 
     @Override
@@ -277,31 +259,30 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
 
         if (objects == null) {//this is the case where I don't want to ground really
-            ForAll res = new ForAll();
-            res.parameters = this.parameters;
-            for (Condition c : (Collection<Condition>) this.sons) {
-                res.addConditions(c.ground(substitution, objects));
+            Collection res = new HashSet();
+            for (final var  c : this.sons) {
+                res.add(((Condition)c).ground(substitution, objects));
             }
-            return res;
+            return new ForAll(parameters,res);
         }
 
 
         try {
             Grounder g = new Grounder();
             Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
-            AndCond and = new AndCond();
+            Collection and = new HashSet();
             for (ParametersAsTerms ele : combo) {
                 Map sub = g.obtain_sub_from_instance(parameters, ele);
                 sub.putAll(substitution);
 //                 System.out.println(this);
 //                Condition son = (Condition) this.sons.iterator().next();
 //                and.addConditions(son.ground(sub, objects));
-                for (Condition c : (Collection<Condition>) this.sons) {
-                    and.addConditions(c.ground(sub, objects));
+                for (final var c : this.sons) {
+                    and.add(((Condition)c).ground(sub, objects));
                 }
             }
 
-            return and;
+            return new AndCond(and);
 
         } catch (Exception ex) {
             Logger.getLogger(ForAll.class.getName()).log(Level.SEVERE, null, ex);
@@ -342,10 +323,12 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public Condition clone() {
-        ForAll res = new ForAll();
-        res.parameters = (SchemaParameters) this.parameters.clone();
-        res.sons = cloneSons();
-        return res;
+        return new ForAll((SchemaParameters) this.parameters.clone(),cloneSons());
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

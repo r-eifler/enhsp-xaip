@@ -99,7 +99,7 @@ public abstract class Transition {
 
     public Condition getPreconditions() {
         if (preconditions == null){
-            return new AndCond();
+            return new AndCond(Collections.EMPTY_SET);
         }
         return preconditions;
     }

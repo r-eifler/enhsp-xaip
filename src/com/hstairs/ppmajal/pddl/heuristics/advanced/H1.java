@@ -576,8 +576,8 @@ public class H1 implements SearchHeuristic {
             }
             IntArraySet left = new IntArraySet();
             float cost = 0f;
-            for (final Condition son : (Collection<Condition>) and.sons) {
-                Pair<Collection, Float> activatingConditions = getActivatingConditions(son);
+            for (final var son :  and.sons) {
+                Pair<Collection, Float> activatingConditions = getActivatingConditions((Condition) son);
                 cost += activatingConditions.getSecond();
                 left.addAll(activatingConditions.getFirst());
             }
@@ -590,8 +590,8 @@ public class H1 implements SearchHeuristic {
             }
             float ret = Float.MAX_VALUE;
             Collection left = null;
-            for (final Condition son : (Collection<Condition>) and.sons) {
-                final Pair<Collection, Float> estimate = getActivatingConditions(son);
+            for (final var son :  and.sons) {
+                final Pair<Collection, Float> estimate = getActivatingConditions((Condition) son);
                 if (estimate.getSecond() != Float.MAX_VALUE) {
                     if (estimate.getSecond() < ret) {
                         ret = estimate.getSecond();
@@ -619,8 +619,8 @@ public class H1 implements SearchHeuristic {
                 return 0f;
             }
             float ret = 0f;
-            for (final Condition son : (Collection<Condition>) and.sons) {
-                final float estimate = estimateCost(son);
+            for (final var son : and.sons) {
+                final float estimate = estimateCost((Condition) son);
                 if (estimate == Float.MAX_VALUE) {
                     return Float.MAX_VALUE;
                 }
@@ -638,8 +638,8 @@ public class H1 implements SearchHeuristic {
                 return 0f;
             }
             float ret = Float.MAX_VALUE;
-            for (final Condition son : (Collection<Condition>) and.sons) {
-                final float estimate = estimateCost(son);
+            for (final Object son : and.sons) {
+                final float estimate = estimateCost((Condition)son);
                 if (estimate != Float.MAX_VALUE) {
                     ret = (estimate < ret) ? estimate : ret;
                 }
@@ -925,17 +925,17 @@ public class H1 implements SearchHeuristic {
             return cond;
         }
         if (cond instanceof OrCond) {
-            OrCond newOr = new OrCond();
+            Collection newOr = new HashSet();
             for (var v : ((OrCond) cond).sons) {
-                newOr.addConditions(addSmartRedundantConstraints((Condition) v));
+                newOr.add(addSmartRedundantConstraints((Condition) v));
             }
-            return newOr;
+            return new OrCond(newOr);
         }
         if (cond instanceof AndCond) {
-            AndCond and = new AndCond();
+            Collection and = new HashSet();
             Collection<IntArraySet> get = redundantMap.get((AndCond) cond);
             for (var v : ((AndCond) cond).sons) {
-                and.addConditions((Condition) v);
+                and.add((Condition) v);
             }
             if (get != null) {
                 System.out.println("One Redundant Constraint added");
@@ -950,11 +950,11 @@ public class H1 implements SearchHeuristic {
 
                     }
                     if (previous != null) {
-                        and.addConditions(previous);
+                        and.add(previous);
                     }
                 }
             }
-            return and;
+            return new AndCond(and);
         } else {
             throw new RuntimeException("This was unexepected:" + cond);
         }

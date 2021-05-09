@@ -31,10 +31,14 @@ import java.util.*;
  * @author Enrico Scala
  */
 public abstract class ComplexCondition extends Condition {
-    public Collection sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
+    final public Object[] sons; //used by formula conditions as AndCond and OrCond. Each son is another condition involved in the formula
 
-    public ComplexCondition ( ) {
-        sons = new LinkedHashSet();
+    public ComplexCondition (Collection input ) {
+        sons = input.toArray();
+    }
+    
+    protected ComplexCondition(Object[] input){
+        this.sons = input;
     }
 
     @Override
@@ -77,8 +81,11 @@ public abstract class ComplexCondition extends Condition {
         return ret;
     }
 
-    public Condition unifyVariablesReferences (EPddlProblem p) {
-        HashSet ret = new LinkedHashSet();
+    @Override
+    abstract public Condition unifyVariablesReferences (EPddlProblem p);
+    
+    protected Collection __unifyVariablesReferences(EPddlProblem p){
+        Collection ret = new LinkedHashSet();
         for (Object c : this.sons) {
             if (c instanceof NumEffect) {
                 NumEffect neff = (NumEffect) c;
@@ -88,18 +95,10 @@ public abstract class ComplexCondition extends Condition {
                 ret.add(cond.unifyVariablesReferences(p));
             }
         }
-        this.sons = ret;
-        return this;
+        return ret;
     }
 
-    public final void addConditions (Condition c) {
-        if ((this instanceof AndCond) && (c instanceof AndCond)) {
-            sons.addAll(((AndCond) c).sons);
-        } else if ((this instanceof OrCond) && (c instanceof OrCond)) {
-            sons.addAll(((OrCond) c).sons);
-        } else
-            sons.add(c);
-    }
+
 
 //    /**
 //     * @param substitution
@@ -122,8 +121,8 @@ public abstract class ComplexCondition extends Condition {
         if (this.sons == null) {
             return;
         }
-        for (Condition c : (Collection<Condition>) sons) {
-            c.extendTerms(v);
+        for (final var c : sons) {
+            ((Condition)c).extendTerms(v);
         }
     }
 
@@ -159,9 +158,9 @@ public abstract class ComplexCondition extends Condition {
         if (this.sons == null) {
             return new LinkedHashSet();
         }
-        ret = Sets.newLinkedHashSetWithExpectedSize(this.sons.size());
-        for (Condition c : (Collection<Condition>) this.sons) {
-            ret.addAll(c.getTerminalConditions());
+        ret = Sets.newLinkedHashSetWithExpectedSize(this.sons.length);
+        for (Object c : this.sons) {
+            ret.addAll(((Condition)c).getTerminalConditions());
         }
         return ret;
     }
@@ -173,8 +172,8 @@ public abstract class ComplexCondition extends Condition {
         if (this.sons == null) {
             return Collections.emptyList();
         }
-        for (Condition c : (Collection<Condition>) this.sons) {
-            ret.addAll(c.getTerminalConditionsInArray());
+        for (var c : this.sons) {
+            ret.addAll(((Condition)c).getTerminalConditionsInArray());
         }
         return ret;
     }
@@ -188,7 +187,7 @@ public abstract class ComplexCondition extends Condition {
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        AndCond ret = new AndCond();
+        Collection ret = new HashSet();
         //System.out.println(this.toString());
         for (Object o : sons) {
             final Object groundedO;
@@ -201,13 +200,12 @@ public abstract class ComplexCondition extends Condition {
                 groundedO = el.ground(substitution, po);
             }
             if (groundedO instanceof AndCond) {
-                ret.sons.addAll(((AndCond) groundedO).sons);
+                addAll(ret,((AndCond) groundedO).sons);
             } else {
-                ret.sons.add(groundedO);
+                ret.add(groundedO);
             }
         }
-        ret.grounded = true;
-        return ret;
+        return new AndCond(ret);
     }
 
 
@@ -217,41 +215,6 @@ public abstract class ComplexCondition extends Condition {
     public boolean isFreeVarSemantic ( ) {
         return freeVarSemantic;
     }
-
-//    /**
-//     *
-//     * @return 
-//     */
-//    @Override
-//    public Condition normalize ( ) {
-//        Iterator it = sons.iterator();
-//        Collection<AndCond> toAdd = new LinkedHashSet();
-//        while (it.hasNext()) {
-//            Object o = it.next();
-//            if (o instanceof Comparison) {
-//                Comparison comp = (Comparison) o;
-//                try {
-//                    comp = comp.normalizeAndCopy();
-//                } catch (Exception ex) {
-//                    Logger.getLogger(AndCond.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                toAdd.add(comp);
-//            } else if (o instanceof AndCond) {
-//                AndCond temp = (AndCond) o;
-//                temp.normalize();
-//                toAdd.add(temp);
-//                it.remove();
-//            } else if (o instanceof NotCond) {
-//                NotCond temp = (NotCond) o;
-//                temp.normalize();
-//            } else if (o instanceof OrCond) {
-//                OrCond temp = (OrCond) o;
-//                temp.normalize();
-//            }
-//        }
-//        
-//        return this;
-//    }
 
 
     protected void sonHasIncorrectType (Object son) {
@@ -278,27 +241,12 @@ public abstract class ComplexCondition extends Condition {
         }
     }
 
-    @Override
-    public Condition unGround (Map substitution) {
-        AndCond ret = new AndCond();
-        for (Object o : sons) {
-            if (o instanceof NumEffect) {
-                NumEffect el = (NumEffect) o;
-                ret.sons.add(el.unGround(substitution));
-            } else {
-                Condition el = (Condition) o;
-                //System.out.println(el);
-                ret.sons.add(el.unGround(substitution));
-            }
-        }
-        ret.grounded = false;
-        return ret;
-    }
+
 
     @Override
     public boolean involve (Condition c) {
-        for (Condition c1 : (Collection<Condition>) this.sons) {
-            if (c1.involve(c)) {
+        for (Object c1 :  this.sons) {
+            if (((Condition)c1).involve(c)) {
                 return true;
             }
         }

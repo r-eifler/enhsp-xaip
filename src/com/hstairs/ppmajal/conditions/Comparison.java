@@ -127,7 +127,6 @@ public class Comparison extends Terminal {
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
         Comparison ret = createComparison(comparator, left.ground(substitution, po), right.ground(substitution, po),false);
-        ret.grounded = true;
         return ret;
     }
 
@@ -368,14 +367,6 @@ public class Comparison extends Terminal {
 
     }
 
-    @Override
-    public Condition unGround (Map asbstractionOf) {
-        Comparison ret = Comparison.createComparison(comparator,left.unGround(asbstractionOf),right.unGround(asbstractionOf),false);
-        ret.grounded = false;
-        return ret;
-    }
-
-
 
     public boolean couldBePrevented (HashMap<NumFluent, HashSet<NumFluent>> computeFluentDependencePlanDependant) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -535,27 +526,20 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition transformEquality ( ) {
-        final AndCond ret = new AndCond();
+        final Collection ret = new HashSet();
         final Comparison comp = this;
         if (comp.getComparator().equals("=")) {
             final Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
             final Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
-            ret.addConditions(dual);
-            ret.addConditions(dual2);
+            ret.add(dual);
+            ret.add(dual2);
         } else {
             return this;
         }
-        return ret;
+        return new AndCond(ret);
     }
 
 
-
-    @Override
-    public Condition regress (TransitionGround gr) {
-
-//            return Comparison.createComparison(comparator, this.getLeft().subst(gr.getNumericEffects()), this.getRight().subst(gr.getNumericEffects()),false);
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -698,24 +682,8 @@ public class Comparison extends Terminal {
         ret.add(this);
         return ret;
     }
+    
 
-    @Override
-    public Float estimate_cost(ArrayList<Float> cond_dist, boolean additive_h) {
-        return null;
-    }
-
-    @Override
-    public ComplexCondition and (Condition precondition) {
-        AndCond and = new AndCond();
-        and.addConditions(precondition);
-        and.addConditions(this);
-        return and;
-    }
-
-    @Override
-    public AchieverSet estimate_cost(ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        return null;
-    }
 
     @Override
     public Condition pushNotToTerminals( ) {
@@ -724,10 +692,10 @@ public class Comparison extends Terminal {
 
     Condition invertOperator ( ) {
         if (this.getComparator().equals("=")) {
-            OrCond a = new OrCond();
-            a.addConditions(Comparison.createComparison("<", left, right,false));
-            a.addConditions(Comparison.createComparison(">", left, right,false));
-            return a;
+            Collection a = new HashSet();
+            a.add(Comparison.createComparison("<", left, right,false));
+            a.add(Comparison.createComparison(">", left, right,false));
+            return new OrCond(a);
         } else {
             String comp = null;
             switch (this.getComparator()) {
@@ -776,6 +744,11 @@ public class Comparison extends Terminal {
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException("Something went wrong "+ex );      
         }
+    }
+
+    @Override
+    public ComplexCondition and(Condition precondition) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

@@ -461,9 +461,9 @@ public final class PddlDomain extends Object {
 
                     Condition condition = fc.createCondition(infoConstraint.getChild(0), con.parameters);
                     if ((condition instanceof Comparison) || (condition instanceof Predicate)) {
-                        AndCond and = new AndCond();
-                        and.addConditions(condition);
-                        con.condition = condition;
+                        Collection and = new HashSet();
+                        and.add(condition);
+                        con.condition = new AndCond(and);
                     } else {
                         con.condition = condition;
                     }
@@ -511,9 +511,9 @@ public final class PddlDomain extends Object {
                 case (PddlParser.PRECONDITION):
                     Condition con = fc.createCondition(infoAction.getChild(0), par);
                     if ((con instanceof Comparison) || (con instanceof Predicate)) {
-                        AndCond and = new AndCond();
-                        and.addConditions(con);
-                        precondition = and;
+                        Collection and = new HashSet();
+                        and.add(con);
+                        precondition = new AndCond(and);
                     } else if (con != null) {
                         precondition = con;
                     }

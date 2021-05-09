@@ -37,10 +37,15 @@ import java.util.logging.Logger;
  */
 public class Existential extends ComplexCondition {
 
-    private SchemaParameters parameters;
+    final private SchemaParameters parameters;
 
-    public Existential ( ) {
+    public Existential (Collection input ) {
+        super(input);
         this.parameters = new SchemaParameters();
+    }
+    public Existential (SchemaParameters p, Collection input ) {
+        super(input);
+        this.parameters = p;
     }
 
     @Override
@@ -69,10 +74,6 @@ public class Existential extends ComplexCondition {
         return hash;
     }
 
-    @Override
-    public Condition regress (TransitionGround gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Condition ground (Map substitution, int c) {
@@ -124,10 +125,6 @@ public class Existential extends ComplexCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Condition unGround (Map asbstractionOf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public boolean isUngroundVersionOf (Condition conditions) {
@@ -167,15 +164,13 @@ public class Existential extends ComplexCondition {
 
     @Override
     public ComplexCondition transformEquality ( ) {
-        Existential res = new Existential();
-        res.parameters = parameters;
+        Collection res = new HashSet();
         HashSet<Condition> temp = new HashSet<>();
-        for (Condition cond : (Collection<Condition>) sons) {
-            temp.add(cond.transformEquality());
+        for (final var c : sons) {
+            temp.add(((Condition)c).transformEquality());
         }
-        sons.addAll(temp);
-        res.sons = sons;
-        return res;
+        addAll(temp,sons);
+        return new Existential(parameters,res);
     }
 
 
@@ -189,37 +184,30 @@ public class Existential extends ComplexCondition {
         System.out.println("(exist " + this.parameters.toString() + " " + this.sons.toString());
     }
 
-    @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public Condition pushNotToTerminals( ) {
         if (this.sons == null) {
             return this;
         }
-        Existential res = new Existential();
-        res.parameters = this.parameters;
-        for (Condition c : (Collection<Condition>) this.sons) {
-            Condition c1 = c.pushNotToTerminals();
+        Collection res = new HashSet();
+        for (final var c :  this.sons) {
+            Condition c1 = ((Condition)c).pushNotToTerminals();
             if (c1 instanceof OrCond) {
-                res.sons.addAll(((OrCond) c1).sons);
+                addAll(res,((OrCond) c1).sons);
             } else {
-                res.addConditions(c1);
+                res.add(c1);
             }
         }
-        return res;
+        return new Existential(parameters,res);
     }
 
     @Override
@@ -243,26 +231,20 @@ public class Existential extends ComplexCondition {
         return parameters;
     }
 
-    /**
-     * @param parameters the parameters to set
-     */
-    public void setParameters (SchemaParameters parameters) {
-        this.parameters = parameters;
-    }
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects objects) {
         try {
             Grounder g = new Grounder();
             Set<ParametersAsTerms> combo = g.Substitutions(this.parameters, objects);
-            OrCond or = new OrCond();
+            Collection res = new HashSet();
             for (ParametersAsTerms ele : combo) {
                 Map sub = g.obtain_sub_from_instance(parameters, ele);
                 sub.putAll(substitution);
-                Condition son = (Condition) this.sons.iterator().next();
-                or.addConditions(son.ground(sub, objects));
+                Condition son = (Condition) this.sons[0];
+                res.add(son.ground(sub, objects));
             }
-            return or;
+            return new OrCond(res);
 
         } catch (Exception ex) {
             Logger.getLogger(Existential.class.getName()).log(Level.SEVERE, null, ex);
@@ -282,15 +264,18 @@ public class Existential extends ComplexCondition {
     }
 
     Condition pushNegationDemorgan ( ) {
-        ForAll res = new ForAll();
-        res.parameters = this.parameters;
+        Collection res = new HashSet();
 
-
-        for (Condition c : (Collection<Condition>) this.sons) {
-            NotCond nc = NotCond.createNotCond(c);
-            res.sons.add(nc);
+        for (final var c : this.sons) {
+            NotCond nc = NotCond.createNotCond((Condition) c);
+            res.add(nc);
         }
-        return res;
+        return new ForAll(parameters,res);
+    }
+
+    @Override
+    public Condition unifyVariablesReferences(EPddlProblem p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

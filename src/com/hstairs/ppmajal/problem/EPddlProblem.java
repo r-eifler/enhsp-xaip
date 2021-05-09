@@ -91,7 +91,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         super(problemFile, constants, types, domain);
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
-        globalConstraints = new AndCond();   
+        globalConstraints = new AndCond(Collections.EMPTY_SET);   
         this.out = out;
         this.groundingMethod = groundingMethod;
         this.sdac = sdac;
@@ -430,8 +430,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     private void cleanIrrelevantConstraints (HashSet<GlobalConstraint> globalConstraintSet) {
         Iterator<GlobalConstraint> it = globalConstraintSet.iterator();
-        globalConstraints = new AndCond();
-
+        final Collection temp = new HashSet();
         while (it.hasNext()) {
             GlobalConstraint constr = it.next();
             boolean keep = constr.simplifyModelWithControllableVariablesSem(linkedDomain, this);
@@ -439,10 +438,11 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             if (!keep) {
                 it.remove();
             } else {
-                globalConstraints.addConditions(constr.condition);
+                temp.add(constr.condition);
             }
 
         }
+        globalConstraints = new AndCond(temp);
     }
 
 

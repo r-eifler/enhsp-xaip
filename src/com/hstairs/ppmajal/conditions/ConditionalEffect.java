@@ -35,20 +35,20 @@ public class ConditionalEffect extends Condition implements PostCondition {
     public Condition activation_condition;
     public PostCondition effect;
 
-    public ConditionalEffect ( ) {
-        super();
-        activation_condition = new AndCond();
-        effect = new AndCond();
-    }
+
 
     public ConditionalEffect (Condition lhs, PostCondition rhs) {
-        this();
         this.activation_condition = lhs;
+        Collection res = new HashSet();
         if (rhs instanceof AndCond) {
-            ((AndCond) effect).sons.addAll(((AndCond) rhs).sons);
+            for (Object o: ((AndCond) rhs).sons){
+                res.add(o);
+            }
+            
         } else {
-            ((AndCond) effect).sons.add(rhs);
+            res.add(rhs);
         }
+        effect = new AndCond(res);
 
     }
 
@@ -87,23 +87,21 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     public ConditionalEffect ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        ConditionalEffect ret = new ConditionalEffect();
 //        if (ret.activation_condition!=null){
-        ret.activation_condition = this.activation_condition.ground(substitution, po);
-
+        Condition activation_condition = this.activation_condition.ground(substitution, po);
+        PostCondition effect = null;
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
-            ret.effect = (PostCondition) con.ground(substitution, po);
+            effect = (PostCondition) con.ground(substitution, po);
         } else if (this.effect instanceof ConditionalEffect) {
             ConditionalEffect sub = (ConditionalEffect) this.effect;
-            ret.effect = sub.ground(substitution, po);
+            effect = sub.ground(substitution, po);
         } else if (this.effect instanceof NumEffect) {
             NumEffect ne = (NumEffect) this.effect;
-            ret.effect = (NumEffect) ne.ground(substitution, po);
+            effect = (NumEffect) ne.ground(substitution, po);
         }
 //        }
-        ret.grounded = true;
-        return ret;
+        return new ConditionalEffect(activation_condition,effect);
     }
 
     @Override
@@ -152,10 +150,6 @@ public class ConditionalEffect extends Condition implements PostCondition {
         return this;
     }
 
-    @Override
-    public Condition unGround (Map asbstractionOf) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public boolean isUngroundVersionOf (Condition conditions) {
@@ -177,11 +171,6 @@ public class ConditionalEffect extends Condition implements PostCondition {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-    @Override
-    public Condition regress (TransitionGround gr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String pddlPrintWithExtraObject ( ) {
@@ -280,20 +269,12 @@ public class ConditionalEffect extends Condition implements PostCondition {
         return this.activation_condition.getTerminalConditionsInArray();
     }
 
-    @Override
-    public Float estimate_cost (ArrayList<Float> cond_dist, boolean additive_h) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public ComplexCondition and (Condition precondition) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public AchieverSet estimate_cost (ArrayList<Float> cond_dist, boolean additive_h, ArrayList<TransitionGround> established_achiever) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public Condition pushNotToTerminals( ) {

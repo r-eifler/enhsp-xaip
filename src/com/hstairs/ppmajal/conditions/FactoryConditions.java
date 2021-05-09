@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
+import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.PredicateSet;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.domain.Type;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import org.antlr.runtime.tree.Tree;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 /**
@@ -86,35 +89,35 @@ public class FactoryConditions {
                 //extract the predicate
                 return buildPredicate(tree, parTable);
             case PddlParser.AND_GD:
-                AndCond and = new AndCond();
+                Collection and = new HashSet();
                 for (int i = 0; i < tree.getChildCount(); i++) {
                     Condition ret_val = createCondition(tree.getChild(i), parTable);
                     if (ret_val != null) {
-                        and.addConditions(ret_val);
+                        and.add(ret_val);
                     }
                 }
-                return and;
+                return new AndCond(and);
             //Crea un and e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di and
             case PddlParser.OR_GD:
-                OrCond or = new OrCond();
+                Collection or = new HashSet();
                 for (int i = 0; i < tree.getChildCount(); i++) {
                     Condition ret_val = createCondition(tree.getChild(i), parTable);
                     if (ret_val != null) {
-                        or.addConditions(ret_val);
+                        or.add(ret_val);
                     }
                 }
-                return or;
+                return new OrCond(or);
 
             case PddlParser.ONEOF:
-                OneOf one_of = new OneOf();
+                Collection oneOf = new HashSet();
                 for (int i = 0; i < tree.getChildCount(); i++) {
                     Condition ret_val = createCondition(tree.getChild(i), parTable);
                     if (ret_val != null) {
-                        one_of.sons.add(ret_val);
+                        oneOf.add(ret_val);
                     }
                 }
-                return one_of;
+                return new OneOf(oneOf);
             case PddlParser.NOT_GD:
                 Condition cond = null; // TODO: Can it be null or should we throw an error?  
                 for (int i = 0; i < tree.getChildCount(); i++) {
@@ -151,7 +154,8 @@ public class FactoryConditions {
                 return forall;
             case PddlParser.EXISTS_GD:
                 
-                Existential exist = new Existential();
+                Collection exist = new HashSet();
+                SchemaParameters p = new SchemaParameters();
                 for (int i = 0; i < tree.getChildCount(); i++) {
                     Tree child = tree.getChild(i);
                     switch (child.getType()) {
@@ -161,7 +165,7 @@ public class FactoryConditions {
                             }
                             Type t = Type.createType(child.getChild(0).getText());
 
-                            exist.addParameter(Variable.createVariable(child.getText(), t));
+                            p.add(Variable.createVariable(child.getText(), t));
 
                             break;
                         default:
@@ -171,17 +175,17 @@ public class FactoryConditions {
                             if (parTable != null) {
                                 aug_par_table.addAll(parTable);
                             }
-                            aug_par_table.addAll(exist.getParameters());
+                            aug_par_table.addAll(p);
                             Condition ret_val = createCondition(child, aug_par_table);
                             if (ret_val != null) {
-                                exist.addConditions(ret_val);
+                                exist.add(ret_val);
                             }
                             break;
 
                     }
 
                 }
-                return exist;
+                return new Existential(p,exist);
             case PddlParser.IMPLY_GD:
                 System.out.println("Implication not supported yet:" + tree.getText());
                 return null;
@@ -318,7 +322,8 @@ public class FactoryConditions {
     }
 
     public ForAll createForAll (Tree infoAction, SchemaParameters parTable, boolean effect) {
-        ForAll forall = new ForAll();
+        Collection forall = new HashSet();
+        SchemaParameters s = new SchemaParameters();
         for (int i = 0; i < infoAction.getChildCount(); i++) {
             Tree child = infoAction.getChild(i);
             switch (child.getType()) {
@@ -327,7 +332,7 @@ public class FactoryConditions {
                         break;
                     }
                     Type t = Type.createType(child.getChild(0).getText());
-                    forall.addParameter(Variable.createVariable(child.getText(), t));
+                    s.add(Variable.createVariable(child.getText(), t));
                     break;
                 default:
                     //at this point I should have collected all the parameters for grounding
@@ -336,7 +341,7 @@ public class FactoryConditions {
                     if (parTable != null) {
                         aug_par_table.addAll(parTable);
                     }
-                    aug_par_table.addAll(forall.getParameters());
+                    aug_par_table.addAll(s);
                     Condition ret_val;
                     if (effect) {
                         ret_val = (Condition) this.createPostCondition(aug_par_table, child);
@@ -345,7 +350,7 @@ public class FactoryConditions {
                     }
                     //System.out.println("ret_val for forall condition is:"+ret_val);
                     if (ret_val != null) {
-                        forall.addConditions(ret_val);
+                        forall.add(ret_val);
                     } else {
                         System.out.println("Something fishy here.." + child);
                         System.exit(-1);
@@ -355,13 +360,13 @@ public class FactoryConditions {
             }
 
         }
-        return forall;
+        return new ForAll(s,forall);
 
     }
 
     public PostCondition createPostCondition (SchemaParameters parameters, Tree tree) {
         if (tree == null) {
-            return new AndCond();
+            return new AndCond(Collections.EMPTY_SET);
         }
         switch (tree.getType()) {
             case PddlParser.PRED_HEAD:
@@ -369,14 +374,14 @@ public class FactoryConditions {
                 return buildPredicate(tree, parameters);
 
             case PddlParser.AND_EFFECT:
-                AndCond and = new AndCond();
+                Collection and = new HashSet();
                 for (int i = 0; i < tree.getChildCount(); i++) {
                     Object ret_val = createPostCondition(parameters, tree.getChild(i));
                     if (ret_val != null) {
-                        and.sons.add(ret_val);
+                        and.add(ret_val);
                     }
                 }
-                return and;
+                return new AndCond(and);
             case PddlParser.NOT_EFFECT:
                 Condition ret_val = (Condition) createPostCondition(parameters, tree.getChild(0));
                 NotCond not = NotCond.createNotCond(ret_val);
@@ -409,24 +414,24 @@ public class FactoryConditions {
 //            and.addConditions();
             return buildPredicate(infoAction, null);
         } else if (infoAction.getType() == PddlParser.AND_GD) {
-            AndCond and = new AndCond();
+            Collection and = new HashSet();
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Condition ret_val = createGoals(infoAction.getChild(i));
                 if (ret_val != null) {
-                    and.addConditions(ret_val);
+                    and.add(ret_val);
                 }
             }
-            return and;
+            return new AndCond(and);
 
         } else if (infoAction.getType() == PddlParser.OR_GD) {
-            OrCond or = new OrCond();
+            Collection or = new HashSet();
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Condition ret_val = createGoals(infoAction.getChild(i));
                 if (ret_val != null) {
-                    or.addConditions(ret_val);
+                    or.add(ret_val);
                 }
             }
-            return or;
+            return new OrCond(or);
             //Crea un or e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di or
         } else if (infoAction.getType() == PddlParser.NOT_GD) {
@@ -443,20 +448,20 @@ public class FactoryConditions {
             //gestendo il valore di ritorno come un attributo di not
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
             //System.out.println("Comparison:" + infoAction.getText());
-            AndCond ret = new AndCond();
-            ret.addConditions(Comparison.createComparison(infoAction.getChild(0).getText(), createExpression(infoAction.getChild(1)), createExpression(infoAction.getChild(2)),false));
-            return ret;
+            Collection ret = new HashSet();
+            ret.add(Comparison.createComparison(infoAction.getChild(0).getText(), createExpression(infoAction.getChild(1)), createExpression(infoAction.getChild(2)),false));
+            return new AndCond(ret);
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
         } else if (infoAction.getType() == PddlParser.ONEOF) {
-            OneOf one_of = new OneOf();
+            Collection oneOf = new HashSet();
             for (int i = 0; i < infoAction.getChildCount(); i++) {
                 Condition ret_val = addOneOf(infoAction.getChild(i));
                 if (ret_val != null) {
-                    one_of.sons.add(ret_val);
+                    oneOf.add(ret_val);
                 }
             }
-            return one_of;
+            return new OneOf(oneOf);
         }
 
         return null;
@@ -525,25 +530,25 @@ public class FactoryConditions {
 //            and.addConditions();
                 return buildPredicate(infoAction, null);
             case PddlParser.AND_GD:
-                AndCond and = new AndCond();
+                Collection and = new HashSet();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Condition ret_val = addOneOf(infoAction.getChild(i));
                     if (ret_val != null) {
-                        and.addConditions(ret_val);
+                        and.add(ret_val);
                     }
                 }
-                return and;
+                return new AndCond(and);
             case PddlParser.OR_GD:
                 //            System.out.println("Or Condition");
-                OrCond or = new OrCond();
+                Collection or = new HashSet();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Condition ret_val = addOneOf(infoAction.getChild(i));
 //                System.out.println(ret_val);
                     if (ret_val != null) {
-                        or.addConditions(ret_val);
+                        or.add(ret_val);
                     }
                 }
-                return or;
+                return new OrCond(or);
             //Crea un or e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di or
             case PddlParser.NOT_PRED_INIT:
@@ -562,14 +567,14 @@ public class FactoryConditions {
 //            and.addConditions();
                 return this.buildPredicate(infoAction, null);
             case PddlParser.ONEOF:
-                OneOf one_of = new OneOf();
+                Collection one_of = new HashSet();
                 for (int i = 0; i < infoAction.getChildCount(); i++) {
                     Condition ret_val = addOneOf(infoAction.getChild(i));
                     if (ret_val != null) {
-                        one_of.sons.add(ret_val);
+                        one_of.add(ret_val);
                     }
                 }
-                return one_of;
+                return new OneOf(one_of);
             case PddlParser.NOT_GD:
                 NotCond nc = null;
                 for (int i = 0; i < infoAction.getChildCount(); i++) {

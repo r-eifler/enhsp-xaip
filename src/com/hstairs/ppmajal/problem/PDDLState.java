@@ -325,7 +325,7 @@ protected DoubleArrayList numFluents;
 
     private void apply(PostCondition effect, State prev) {        
         if (effect instanceof AndCond){
-            for (PostCondition c: (Collection<PostCondition>)((AndCond) effect).sons){
+            for (PostCondition c: (PostCondition[])((AndCond) effect).sons){
                 this.apply((PostCondition)c, prev);
             }
         }else if (effect instanceof NotCond) {
