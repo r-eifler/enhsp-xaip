@@ -29,8 +29,8 @@ public abstract class PDDLProblemComponent {
 
     public abstract Condition unifyVariablesReferences (EPddlProblem p);
     protected void addAll(Collection res, Object[] sons) {
-        for (Object o : sons) {
-            res.add(res);
+        for (final Object o : sons) {
+            res.add(o);
         }
     }
 }

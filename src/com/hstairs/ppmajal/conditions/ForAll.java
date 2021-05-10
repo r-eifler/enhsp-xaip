@@ -79,7 +79,8 @@ public class ForAll extends ComplexCondition implements PostCondition {
 
     @Override
     public String toString ( ) {
-        return this.parameters + " " + this.sons.toString();
+        
+        return this.parameters + " " + Arrays.toString(this.sons);
     }
 
     @Override
@@ -277,6 +278,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
 //                 System.out.println(this);
 //                Condition son = (Condition) this.sons.iterator().next();
 //                and.addConditions(son.ground(sub, objects));
+                
                 for (final var c : this.sons) {
                     and.add(((Condition)c).ground(sub, objects));
                 }

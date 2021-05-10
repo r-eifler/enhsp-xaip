@@ -57,7 +57,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
     @Override
     public String toString ( ) {
         String ret_val = "(AND ";
-        for (Object o : sons) {
+        for (final Object o : sons) {
             ret_val = ret_val.concat(o.toString());
         }
         ret_val = ret_val.concat(")");
