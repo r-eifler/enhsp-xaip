@@ -29,7 +29,7 @@ public class H1Res extends H1 {
     private float[][] localCost;
     final private IntArraySet[] terminalConditions;
     final boolean twolevel;
-     private BitSet[] depActions;
+    private BitSet[] depActions;
     
     public H1Res(EPddlProblem p, String red, boolean twolevel) {
         super(p, false, false, false, red, false, false, false, false);
@@ -38,88 +38,53 @@ public class H1Res extends H1 {
         terminalConditions = new IntArraySet[heuristicNumberOfActions];
         this.twolevel = twolevel;
 //        currentLocalCost =  new  float[heuristicNumberOfActions];
+        for (var act: p.actions){
+            super.getConditionsAchievableById(act.getId());
+        }
         }
 
     @Override
     protected void updateAchievers(int conditionId, int actionId) {
         getAchievers(conditionId).add(actionId);
+
     }
-//    
-//    @Override
-//    protected void updateActions(final int c, final FibonacciHeap p, boolean init) {
-//        final IntArraySet actions = conditionToAction[c];
-//        if (actions != null) {
-//            for (final int i : actions) {
-//                if (!closed[i]) {
-//                    final float v = estimateCost(preconditionFunction[i]);
-//                    if (init && v == 0) {
-//                        actionInit[i] = true;
-//                    }
-//                    if (v < Float.MAX_VALUE) {
-//                        if (v < actionHCost[i]) {
-//                            if (actionHCost[i] == Float.MAX_VALUE) {
-//                                actionHCost[i] = v;
-//                                addActionsInPriority(i, p, v);
-//                            } else {
-//                                actionHCost[i] = v;
-//                                p.decreaseKey(nodeOf[i], v);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
     
-    private BitSet updateSeen(Condition id) {
-        if (id instanceof Terminal){
-            Terminal term1 = (Terminal)id;
-            if (depActions[term1.getId()] == null){
-                depActions[term1.getId()] = new BitSet(heuristicNumberOfActions);
-//                System.out.println("Restart");
-            }else{
-                return depActions[term1.getId()];
-            }
-            final BitSet depAction = depActions[term1.getId()];
-            final IntArraySet ach = this.getAchievers(term1.getId());
-            final IntArrayList q = new IntArrayList();
-            q.addAll(ach);
-            while (!q.isEmpty()) {
-                int popInt = q.popInt();
-                if (!depAction.get(popInt)
-                        //&& actionHCost[popInt] != Float.MAX_VALUE
-                        ) {
-                    depAction.set(popInt);
-//                    System.out.println("seen-------"+TransitionGround.getTransition(popInt));
-                        //Then add also those coming before
-                    if (terminalConditions[popInt] == null){
-                        Condition name = preconditionFunction[popInt];
-                        terminalConditions[popInt] = new IntArraySet();
-                        for (final var v: name.getTerminalConditions()){
-                            Terminal t =(Terminal)v;
-                            terminalConditions[popInt].add(t.getId());
+    protected BitSet getDep(int term1) {
+//        System.out.println("-------------------------------------------------");
+//        System.out.println(Terminal.getTerminal(conditionId));
+        if (depActions[term1] == null) {
+            depActions[term1] = new BitSet(heuristicNumberOfActions);
+            for (var actionId : getAchievers(term1)) {
+                final BitSet dep = depActions[term1];
+    //            System.out.println(TransitionGround.getTransition(actionId));
+                if (!dep.get(actionId)) {
+                    dep.set(actionId);
+                    if (terminalConditions[actionId] == null) {
+                        Condition name = preconditionFunction[actionId];
+                        terminalConditions[actionId] = new IntArraySet();
+                        for (final var v : name.getTerminalConditions()) {
+                            Terminal t = (Terminal) v;
+                            terminalConditions[actionId].add(t.getId());
                         }
                     }
-                    for (var t : terminalConditions[popInt]) {
-                        if (!conditionInit[t]){
-                            for (var v : getAchievers(t)) {
-                                if (!depAction.get(v) 
-                                        //&& actionHCost[popInt] != Float.MAX_VALUE
-                                        )
-                                    q.add((int) v);
-                            }
+                    for (final var t : terminalConditions[actionId]) {
+                        if (!conditionInit[t]) {
+                            dep.or(getDep(t));
                         }
                     }
-                    
                 }
             }
-            return depAction;
-        }else{
-            throw new UnsupportedOperationException();
+//                System.out.println("Restart");
         }
-        
+        return depActions[term1];
     }
 
+
+    
+  
+
+    
+    
     @Override
     protected void cacheValue(float rep, int a, Terminal t) {
         localCost[a][t.getId()] = rep;
@@ -188,9 +153,7 @@ public class H1Res extends H1 {
         }
 
     }
-    protected boolean update(boolean update, int actionId) {
-        return update;
-    }
+
 
     private float costPre(Integer v, BitSet allSeen) {
         Condition name = preconditionFunction[v];
@@ -221,6 +184,7 @@ public class H1Res extends H1 {
 
     }
 
+ 
     class Comp implements Comparator<Pair<Condition,Float>>{
         @Override
         public int compare(Pair<Condition,Float> t, Pair<Condition,Float> t1) {
@@ -262,6 +226,11 @@ public class H1Res extends H1 {
 //            System.out.println("-----------------");
 //            System.out.println(sons[best]);
 //            System.out.println("Cost: "+ max);
+//            for (int j= 0; j< heuristicNumberOfActions; j++){
+//                if (updateSeen((Condition) sons[best]).get(j)) {
+//                    System.out.println("Action:" + TransitionGround.getTransition(j));
+//                }
+//            }
             int prev = -1;
             BitSet allSeen = null;
             for (int i = 0; i < sons.length;  i++) {
@@ -270,16 +239,21 @@ public class H1Res extends H1 {
                     if (first) {
 //                        System.out.println("Updating seen of: "+(Condition) sons[best]);
                         allSeen = new BitSet();
-                        allSeen.or(updateSeen((Condition) sons[best]));
+                        allSeen.or(getDep(((Terminal) sons[best]).getId()));
                         first = false;
                     } else {
 //                        System.out.println("Updating seen of: "+(Condition) sons[prev]);
-                        allSeen.or(updateSeen((Condition) sons[prev]));
+                        allSeen.or(getDep(((Terminal) sons[prev]).getId()));
                     }
                     prev = i;
-//                    final float easyHeuristic = easyHeuristic(v);
+//                    final float easyHeuristic = easyHeuristic(v,allSeen);
 //                    System.out.println(v);
 //                    System.out.println(easyHeuristic);
+//                    for (int j= 0; j< heuristicNumberOfActions; j++){
+//                        if (allSeen.get(i))
+//                            System.out.println("Action:"+TransitionGround.getTransition(j));
+//                    }
+//                    System.out.println();
                     max += easyHeuristic(v,allSeen);
                 }
             }
@@ -289,7 +263,7 @@ public class H1Res extends H1 {
 //                    if (allSeen.get(i))
 //                        System.out.println("Action:"+TransitionGround.getTransition(i));
 //                }
-
+//
 //            System.out.println("Tot Cost:"+max);
             return max;   
         }else if (c instanceof Terminal){
@@ -311,7 +285,9 @@ public class H1Res extends H1 {
         depActions = new BitSet[totNumberOfTerms];
         final float ret= super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
 //        System.exit(-1);
-        return ret;
+//        return ret;
+        return super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
+
     }
     
     

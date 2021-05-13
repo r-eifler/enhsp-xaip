@@ -172,7 +172,6 @@ public class H1 implements SearchHeuristic {
         normalizeModel(redConstraints, new LinkedHashSet(problem.actions));
         normalizeModel(redConstraints, new LinkedHashSet(problem.getEventsSet()));
         normalizeModel(redConstraints, new LinkedHashSet(problem.getProcessesSet()));
-        System.out.println("Goal!");
         preconditionFunction[pseudoGoal] = this.getNormalizedPrecondition(problem.getGoals(), redConstraints);
 
         totNumberOfTerms = Terminal.getTotCounter();
@@ -542,7 +541,7 @@ public class H1 implements SearchHeuristic {
                     }
 
                 }
-                if (update(update,actionId)) {
+                if (update) {
                     updateActions(conditionId, p);
                 }
             }
@@ -563,7 +562,7 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    boolean updateIfNeeded(final int t, final float value) {
+    protected boolean updateIfNeeded(final int t, final float value) {
         if (conditionCost[t] > value) {
             conditionCost[t] = value;
             return true;
@@ -678,7 +677,8 @@ public class H1 implements SearchHeuristic {
 
     //Semantics: UNKNOWEFFECT don't know because comp is hard. > 0 is achiever, 0 no
     float numericContribution(int t, Comparison comp) {
-        if (numericEffectFunction[t].isEmpty()) {
+        
+        if (numericEffectFunction[t] == null || numericEffectFunction[t].isEmpty()) {
             return 0f;
         }
 
@@ -1205,7 +1205,7 @@ public class H1 implements SearchHeuristic {
         
     }
 
-    protected boolean update(boolean update, int actionId) {
+    protected boolean update(Terminal t, boolean update, int actionId) {
         return update;
     }
 
