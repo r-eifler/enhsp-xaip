@@ -15,6 +15,7 @@ import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -25,19 +26,18 @@ import org.apache.commons.lang3.tuple.Pair;
 public class H1Res extends H1 {
 
     private float[][] localCost;
-    final private boolean[] seen;
     final private IntArraySet[] terminalConditions;
     final boolean twolevel;
-    private float[] currentLocalCost;
-
+    final private BitSet[] depActions;
+    
     public H1Res(EPddlProblem p, String red, boolean twolevel) {
         super(p, false, false, false, red, false, false, false, false);
         
         localCost = new float[heuristicNumberOfActions][totNumberOfTerms];
         terminalConditions = new IntArraySet[heuristicNumberOfActions];
-        seen = new boolean[heuristicNumberOfActions];
         this.twolevel = twolevel;
 //        currentLocalCost =  new  float[heuristicNumberOfActions];
+        depActions = new BitSet[totNumberOfTerms];
         }
 
     @Override
@@ -71,17 +71,24 @@ public class H1Res extends H1 {
 //        }
 //    }
     
-    private void updateSeen(Condition id) {
+    private BitSet updateSeen(Condition id) {
         if (id instanceof Terminal){
             Terminal term1 = (Terminal)id;
-            
+            if (depActions[term1.getId()] == null){
+                depActions[term1.getId()] = new BitSet(heuristicNumberOfActions);
+            }else{
+                return depActions[term1.getId()];
+            }
+            final BitSet depAction = depActions[term1.getId()];
             final IntArraySet ach = this.getAchievers(term1.getId());
             final IntArrayList q = new IntArrayList();
             q.addAll(ach);
             while (!q.isEmpty()) {
                 int popInt = q.popInt();
-                if (!seen[popInt] && actionHCost[popInt] != Float.MAX_VALUE) {
-                    seen[popInt] = true;
+                if (!depAction.get(popInt)
+                        //&& actionHCost[popInt] != Float.MAX_VALUE
+                        ) {
+                    depAction.set(popInt);
 //                    System.out.println("seen-------"+TransitionGround.getTransition(popInt));
                         //Then add also those coming before
                     if (terminalConditions[popInt] == null){
@@ -95,7 +102,9 @@ public class H1Res extends H1 {
                     for (var t : terminalConditions[popInt]) {
                         if (!conditionInit[t]){
                             for (var v : getAchievers(t)) {
-                                if (!seen[v] && actionHCost[popInt] != Float.MAX_VALUE)
+                                if (!depAction.get(popInt) 
+                                        //&& actionHCost[popInt] != Float.MAX_VALUE
+                                        )
                                     q.add((int) v);
                             }
                         }
@@ -103,6 +112,7 @@ public class H1Res extends H1 {
                     
                 }
             }
+            return depAction;
         }else{
             throw new UnsupportedOperationException();
         }
@@ -114,15 +124,15 @@ public class H1Res extends H1 {
         localCost[a][t.getId()] = rep;
 //        currentLocalCost[t.getId()] = rep;
     }
-    private float easyHeuristic(Condition ele) {
+    private float easyHeuristic(Condition ele,BitSet allSeen) {
         if (ele instanceof Comparison) {
             final Terminal t = (Terminal) ele;
             float minA = Float.MAX_VALUE;
             float minP = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
-                if (actionHCost[v] != Float.MAX_VALUE){
-                    if (seen[v]) {
+//                if (actionHCost[v] != Float.MAX_VALUE){
+                    if (allSeen.get(v)) {
 //                        System.out.println("Already done"+TransitionGround.getTransition(v));
                         minA = 0;
                         minP = 0;
@@ -134,15 +144,12 @@ public class H1Res extends H1 {
                         }
                     }
                     if (twolevel && !actionInit[v]){
-                        minP = Math.min(minP, costPre(v));
+                        minP = Math.min(minP, costPre(v,allSeen));
                     }else{
                         minP = 0;
                     }
-                }
+//                }
             }
-//            if (minP != 0){
-//                System.out.println("ALE");
-//            }
             if (minA==Float.MAX_VALUE || minP == Float.MAX_VALUE){
                 throw new RuntimeException();
             }
@@ -153,25 +160,26 @@ public class H1Res extends H1 {
             float minA = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
-                if (actionHCost[v] != Float.MAX_VALUE){
-                    if (seen[v]) {
+//                if (actionHCost[v] != Float.MAX_VALUE){
+                    if (allSeen.get(v)) {
                         minA = 0;
                         break;
                     }else{
-                        if (localCost[v][t.getId()]< minA){
-//                            System.out.println("Trying---"+TransitionGround.getTransition(v));
-                            minA = localCost[v][t.getId()];
+                        float prec = 0;
+                        if (twolevel && !actionInit[v]){
+                            prec = costPre(v,allSeen);
+                        }
+                        if (prec != Float.MAX_VALUE){
+                            if (localCost[v][t.getId()]+prec< minA){
+    //                            System.out.println("Trying---"+TransitionGround.getTransition(v));
+                                minA = localCost[v][t.getId()]+prec;
+                            }
                         }
                     }
-                    if (twolevel && !actionInit[v]){
-                        minA += costPre(v);
-                    }else{
-                        minA = 0;
-                    }
-                }
+//                }
             }
             if (minA==Float.MAX_VALUE){
-                throw new RuntimeException();
+                throw new RuntimeException("----------------"+ele);
             }
             return minA;
         }{
@@ -183,7 +191,7 @@ public class H1Res extends H1 {
         return update;
     }
 
-    private float costPre(Integer v) {
+    private float costPre(Integer v, BitSet allSeen) {
         Condition name = preconditionFunction[v];
         if (name instanceof AndCond) {
             float max = 0;
@@ -194,7 +202,7 @@ public class H1Res extends H1 {
                 }else{
                     for (var a : getAchievers(((Terminal) c).getId())) {
 //                        if (actionHCost[a] != Float.MAX_VALUE) {
-                            if (seen[a]) {
+                            if (allSeen.get(a)) {
                                 min = 0;
                                 break;
                             } else if (localCost[a][((Terminal) c).getId()] < min) {
@@ -203,8 +211,6 @@ public class H1Res extends H1 {
 //                        }
                     }
                 }
-                if (min == Float.MAX_VALUE)
-                    throw new RuntimeException("---------------------------");
                 max = Math.max(max, min);
             }
             return max;
@@ -256,23 +262,24 @@ public class H1Res extends H1 {
 //            System.out.println(sons[best]);
 //            System.out.println("Cost: "+ max);
             int prev = -1;
+            BitSet allSeen = null;
             for (int i = 0; i < sons.length;  i++) {
                 final Condition v = (Condition) sons[i];
                 if (i != best && !conditionInit[((Terminal) v).getId()]) {
                     if (first) {
-                        Arrays.fill(seen, false);
 //                        System.out.println("Updating seen of: "+(Condition) sons[best]);
-                        updateSeen((Condition) sons[best]);
+                        allSeen = new BitSet();
+                        allSeen.or(updateSeen((Condition) sons[best]));
                         first = false;
                     } else {
 //                        System.out.println("Updating seen of: "+(Condition) sons[prev]);
-                        updateSeen((Condition) sons[prev]);
+                        allSeen.or(updateSeen((Condition) sons[prev]));
                     }
                     prev = i;
 //                    final float easyHeuristic = easyHeuristic(v);
 //                    System.out.println(v);
 //                    System.out.println(easyHeuristic);
-                    max += easyHeuristic(v);
+                    max += easyHeuristic(v,allSeen);
                 }
             }
 //            System.out.println("Tot Cost:"+max);
