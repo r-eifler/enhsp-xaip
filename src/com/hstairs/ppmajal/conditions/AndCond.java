@@ -349,7 +349,6 @@ public class AndCond extends ComplexCondition implements PostCondition {
         
         for (Object c1 :  this.sons) {
             if (c1 instanceof Condition){
-                newSons.add(c1);
                 Condition res = ((Condition) c1).transformEquality();
                 if (res instanceof AndCond) {
                     for (Object o: ((AndCond)res).sons){

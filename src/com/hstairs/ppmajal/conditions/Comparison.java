@@ -92,7 +92,7 @@ public class Comparison extends Terminal {
     public String toString ( ) {
 
         if (string_representation == null) {
-            string_representation = "(" + getComparator() + " " + getLeft() + " " + getRight() + ")";
+            string_representation = "("  + getLeft() + " "+ getComparator() + " " + getRight() + ")";
         }
 
         return string_representation;
@@ -526,17 +526,17 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition transformEquality ( ) {
-        final Collection ret = new HashSet();
         final Comparison comp = this;
         if (comp.getComparator().equals("=")) {
+            final Collection ret = new HashSet();
             final Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
             final Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
             ret.add(dual);
             ret.add(dual2);
+            return new AndCond(ret);
         } else {
             return this;
         }
-        return new AndCond(ret);
     }
 
 

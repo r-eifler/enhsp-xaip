@@ -65,17 +65,17 @@ public class H1 implements SearchHeuristic {
     final protected Collection<NumEffect>[] numericEffectFunction;
     final protected int heuristicNumberOfActions;
     final protected int totNumberOfTerms;
-    final private int totNumberOfTermsRefactored;
+    final protected int totNumberOfTermsRefactored;
 
     final protected EPddlProblem problem;
     final private boolean helpfulActionsComputation;
     protected final IntArraySet[] conditionsAchievableBy;
-    private final IntArraySet[] conditionsDeletableBy;
+    protected final IntArraySet[] conditionsDeletableBy;
     protected final IntArraySet[] conditionToAction;
     protected final IntArraySet allConditions;
     private final IntArraySet allComparisons;
-    private final FibonacciHeapNode[] nodeOf;
-    private boolean reachability;
+    protected final FibonacciHeapNode[] nodeOf;
+    protected boolean reachability;
     private final boolean conjunctionsMax;
 
     final protected float[] actionCost;
@@ -90,10 +90,10 @@ public class H1 implements SearchHeuristic {
     private final boolean hardcoreVersion;
     private final float[][] numericContributionRaw;
     private final Map<Pair<Integer, Integer>, Float> numericContribution;
-    private final ArrayShifter termsArrayShifter;
-    private final ArrayShifter actionsArrayShifter;
-    private final int totNumberOfActionsRefactored;
-    private IntArraySet[] achievers;
+    protected final ArrayShifter termsArrayShifter;
+    protected final ArrayShifter actionsArrayShifter;
+    protected final int totNumberOfActionsRefactored;
+    private IntArraySet[] allAchievers;
     private IntArraySet[] deleters;
     private int[] establishedAchiever;
     private float[] numRepetition;
@@ -107,7 +107,7 @@ public class H1 implements SearchHeuristic {
     private IntArraySet plan;
     final private IntArraySet[] repetitionsInThePlan;
     private float[] minAchieverPreconditionCost;
-    private IntArraySet allActions;
+    protected IntArraySet allActions;
 
     Map<AndCond, Collection<IntArraySet>> redundantMap;
     private final boolean useSmartConstraints;
@@ -172,6 +172,7 @@ public class H1 implements SearchHeuristic {
         normalizeModel(redConstraints, new LinkedHashSet(problem.actions));
         normalizeModel(redConstraints, new LinkedHashSet(problem.getEventsSet()));
         normalizeModel(redConstraints, new LinkedHashSet(problem.getProcessesSet()));
+        System.out.println("Goal!");
         preconditionFunction[pseudoGoal] = this.getNormalizedPrecondition(problem.getGoals(), redConstraints);
 
         totNumberOfTerms = Terminal.getTotCounter();
@@ -220,7 +221,7 @@ public class H1 implements SearchHeuristic {
         conditionInit = new boolean[totNumberOfTerms];
         actionInit = new boolean[heuristicNumberOfActions];
         if (extractRelaxedPlan || useSmartConstraints || helpfulActionsComputation) {
-            achievers = new IntArraySet[totNumberOfTerms];
+            allAchievers = new IntArraySet[totNumberOfTerms];
         }
         if (useSmartConstraints) {
             deleters = new IntArraySet[totNumberOfTerms];
@@ -379,7 +380,7 @@ public class H1 implements SearchHeuristic {
         if (this.helpfulActionsComputation){//this is to be used when hadd is wanted to be used with helpful actions taken from mrp
             relaxedPlanCost(gs);
         }
-        
+//        System.exit(-1);
         return actionHCost[pseudoGoal];
 
     }
@@ -390,16 +391,16 @@ public class H1 implements SearchHeuristic {
         p.insert(fibonacciHeapNode, v);
     }
 
-    void updateActions(final int c, final FibonacciHeap p) {
+    protected void updateActions(final int c, final FibonacciHeap p) {
         this.updateActions(c, p, false);
     }
 
-    void updateActions(final int c, final FibonacciHeap p, boolean init) {
+    protected void updateActions(final int c, final FibonacciHeap p, boolean init) {
         final IntArraySet actions = conditionToAction[c];
         if (actions != null) {
             for (final int i : actions) {
                 if (!closed[i]) {
-                    final float v = estimateCost(preconditionFunction[i]);
+                    final float v = estimateCost(preconditionFunction[i], actionHCost[i]);
                     if (init && v == 0) {
                         actionInit[i] = true;
                     }
@@ -437,10 +438,10 @@ public class H1 implements SearchHeuristic {
                 if (!visited[conditionId]) {
                     if (!conditionInit[conditionId]) {
                         if (helpfulActionsComputation) {
-                            if (getAchiever(conditionId).isEmpty()) {
+                            if (getAchievers(conditionId).isEmpty()) {
                                 throw new RuntimeException("Houston we have problem here. Condition \n" + Terminal.getTerminal(conditionId) + " has never been achieved");
                             }
-                            for (final int id : getAchiever(conditionId)) {
+                            for (final int id : getAchievers(conditionId)) {
                                 if (actionInit[id]) {
                                     helpfulActions.add(id);
                                 }
@@ -488,12 +489,12 @@ public class H1 implements SearchHeuristic {
     
     
 
-    protected IntArraySet getAchiever(int conditionId) {
-        final IntArraySet achiever = achievers[conditionId];
+    protected IntArraySet getAchievers(int conditionId) {
+        final IntArraySet achiever = getAllAchievers()[conditionId];
         if (achiever == null) {
-            achievers[conditionId] = new IntArraySet();
+            getAllAchievers()[conditionId] = new IntArraySet();
         }
-        return achievers[conditionId];
+        return getAllAchievers()[conditionId];
     }
 
     private void expand(int actionId, FibonacciHeap p, State s) {
@@ -506,6 +507,7 @@ public class H1 implements SearchHeuristic {
                 if (t instanceof Predicate || t instanceof NotCond) {//affecting a prop variable
                     if (updateIfNeeded(conditionId, actionHCost[actionId] + actionCost[actionId])) {
                         update = true;
+                        cacheValue(actionCost[actionId],actionId,t);
                         updateRelPlanInfo(conditionId, actionId, 1);
                     }
                 } else {//affecting a num comparison
@@ -524,6 +526,7 @@ public class H1 implements SearchHeuristic {
                             localUpdate = updateIfNeeded(conditionId, minAchieverPreconditionCost[conditionId] + newCost);
                         }
                         if (localUpdate) {
+                            cacheValue(newCost,actionId,t);
                             update = true;
                             updateRelPlanInfo(conditionId, actionId, rep);
                         }
@@ -539,7 +542,7 @@ public class H1 implements SearchHeuristic {
                     }
 
                 }
-                if (update) {
+                if (update(update,actionId)) {
                     updateActions(conditionId, p);
                 }
             }
@@ -547,13 +550,13 @@ public class H1 implements SearchHeuristic {
 
     }
 
-    private void updateAchievers(int conditionId, int actionId) {
-        if (extractRelaxedPlan || useSmartConstraints || helpfulActionsComputation) {
-            getAchiever(conditionId).add(actionId);
+    protected void updateAchievers(int conditionId, int actionId) {
+        if (extractRelaxedPlan || useSmartConstraints || helpfulActionsComputation ) {
+            getAchievers(conditionId).add(actionId);
         }
     }
 
-    private void updateRelPlanInfo(int conditionId, int actionId, float rep) {
+    protected void updateRelPlanInfo(int conditionId, int actionId, float rep) {
         if (extractRelaxedPlan || helpfulActionsComputation) {
             establishedAchiever[conditionId] = actionId;
             numRepetition[conditionId] = rep;
@@ -608,7 +611,12 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    private float estimateCost(final Condition c) {
+    
+    protected float estimateCost(final Condition c) {
+        return this.estimateCost(c, additive);
+    }
+    
+    protected float estimateCost(final Condition c, float previous) {
         return this.estimateCost(c, additive);
     }
 
@@ -865,7 +873,7 @@ public class H1 implements SearchHeuristic {
                 }
             }
             for (int id : comparisons) {
-                IntArraySet achActs = achievers[id];
+                IntArraySet achActs = getAllAchievers()[id];
                 if (achActs != null) {
                     for (int actId : achActs) {
                         IntArraySet toberedundantwith = new IntArraySet();
@@ -1098,7 +1106,7 @@ public class H1 implements SearchHeuristic {
                         if (T < 0) {
                         if (saferVersion) {
                             if (true){
-                                IntArraySet achieverSet = achievers[conditionId];
+                                IntArraySet achieverSet = getAllAchievers()[conditionId];
                                 if (achieverSet!= null && !achieverSet.isEmpty()) {
                                     int min = Integer.MAX_VALUE;
                                     int best = -1;
@@ -1128,7 +1136,7 @@ public class H1 implements SearchHeuristic {
                                     maxNumRepetition[achiever] = maxNumRepetition[achiever] + repetition;
                                 } else {
                                     if (superFix) {//mmmmmmm
-                                        IntArraySet achieverSet = achievers[conditionId];
+                                        IntArraySet achieverSet = getAllAchievers()[conditionId];
                                         if (!achieverSet.isEmpty()) {
                                             int min = Integer.MAX_VALUE;
                                             int best = -1;
@@ -1191,6 +1199,24 @@ public class H1 implements SearchHeuristic {
         descendants[actionId] = res;
         return res;  
         
+    }
+
+    protected void cacheValue(float rep, int actionId, Terminal t) {
+        
+    }
+
+    protected boolean update(boolean update, int actionId) {
+        return update;
+    }
+
+    /**
+     * @return the allAchievers
+     */
+    public IntArraySet[] getAllAchievers() {
+        if (allAchievers == null){
+            allAchievers = new IntArraySet[totNumberOfTerms];
+        }
+        return allAchievers;
     }
 
 

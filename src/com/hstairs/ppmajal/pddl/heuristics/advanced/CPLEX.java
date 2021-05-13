@@ -43,7 +43,7 @@ public class CPLEX extends LPInterface{
                 for (int p : h.allConditions) {
                     final Terminal terminal = Terminal.getTerminal(p);
                     final IloLinearNumExpr expr = lp.linearNumExpr();
-                    for (int a : h.getAchiever(p)) {
+                    for (int a : h.getAchievers(p)) {
                         Float numericContribution = 1f;
                         if (terminal instanceof Comparison) {
                             numericContribution = h.getNumericContribution(a, p);
