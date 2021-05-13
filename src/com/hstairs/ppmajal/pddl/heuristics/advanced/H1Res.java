@@ -12,6 +12,7 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.State;
+import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ public class H1Res extends H1 {
     private float[][] localCost;
     final private IntArraySet[] terminalConditions;
     final boolean twolevel;
-    final private BitSet[] depActions;
+     private BitSet[] depActions;
     
     public H1Res(EPddlProblem p, String red, boolean twolevel) {
         super(p, false, false, false, red, false, false, false, false);
@@ -37,7 +38,6 @@ public class H1Res extends H1 {
         terminalConditions = new IntArraySet[heuristicNumberOfActions];
         this.twolevel = twolevel;
 //        currentLocalCost =  new  float[heuristicNumberOfActions];
-        depActions = new BitSet[totNumberOfTerms];
         }
 
     @Override
@@ -76,6 +76,7 @@ public class H1Res extends H1 {
             Terminal term1 = (Terminal)id;
             if (depActions[term1.getId()] == null){
                 depActions[term1.getId()] = new BitSet(heuristicNumberOfActions);
+//                System.out.println("Restart");
             }else{
                 return depActions[term1.getId()];
             }
@@ -102,7 +103,7 @@ public class H1Res extends H1 {
                     for (var t : terminalConditions[popInt]) {
                         if (!conditionInit[t]){
                             for (var v : getAchievers(t)) {
-                                if (!depAction.get(popInt) 
+                                if (!depAction.get(v) 
                                         //&& actionHCost[popInt] != Float.MAX_VALUE
                                         )
                                     q.add((int) v);
@@ -282,6 +283,13 @@ public class H1Res extends H1 {
                     max += easyHeuristic(v,allSeen);
                 }
             }
+            
+//            if (allSeen != null)
+//                for (int i= 0; i< heuristicNumberOfActions; i++){
+//                    if (allSeen.get(i))
+//                        System.out.println("Action:"+TransitionGround.getTransition(i));
+//                }
+
 //            System.out.println("Tot Cost:"+max);
             return max;   
         }else if (c instanceof Terminal){
@@ -300,8 +308,10 @@ public class H1Res extends H1 {
         }
 //        Arrays.fill(currentLocalCost, Float.MAX_VALUE);
         this.reachability = getAllAchievers() == null;
-        
-        return super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
+        depActions = new BitSet[totNumberOfTerms];
+        final float ret= super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
+//        System.exit(-1);
+        return ret;
     }
     
     
