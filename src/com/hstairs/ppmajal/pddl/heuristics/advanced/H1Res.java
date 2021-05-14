@@ -280,12 +280,7 @@ public class H1Res extends H1 {
         for (final float[] row : localCost) {
             Arrays.fill(row, Float.MAX_VALUE);
         }
-//        Arrays.fill(currentLocalCost, Float.MAX_VALUE);
-        this.reachability = getAllAchievers() == null;
         depActions = new BitSet[totNumberOfTerms];
-        final float ret= super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
-//        System.exit(-1);
-//        return ret;
         return super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
 
     }
