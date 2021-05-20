@@ -15,10 +15,12 @@ import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jgrapht.util.FibonacciHeap;
 
 /**
  *
@@ -30,8 +32,9 @@ public class H1Res extends H1 {
     final private IntArraySet[] terminalConditions;
     final boolean twolevel;
     private BitSet[] depActions;
+    final private boolean ordering;
     
-    public H1Res(EPddlProblem p, String red, boolean twolevel) {
+    public H1Res(EPddlProblem p, String red, boolean twolevel, boolean ordering) {
         super(p, false, false, false, red, false, false, false, false);
         
         localCost = new float[heuristicNumberOfActions][totNumberOfTerms];
@@ -41,12 +44,12 @@ public class H1Res extends H1 {
         for (var act: p.actions){
             super.getConditionsAchievableById(act.getId());
         }
+        this.ordering = ordering;
         }
 
     @Override
     protected void updateAchievers(int conditionId, int actionId) {
         getAchievers(conditionId).add(actionId);
-
     }
     
     protected BitSet getDep(int term1) {
@@ -90,7 +93,7 @@ public class H1Res extends H1 {
         localCost[a][t.getId()] = rep;
 //        currentLocalCost[t.getId()] = rep;
     }
-    private float easyHeuristic(Condition ele,BitSet allSeen) {
+    private float easyHeuristic(Condition ele, BitSet allSeen) {
         if (ele instanceof Comparison) {
             final Terminal t = (Terminal) ele;
             float minA = Float.MAX_VALUE;
@@ -126,7 +129,7 @@ public class H1Res extends H1 {
             float minA = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
-//                if (actionHCost[v] != Float.MAX_VALUE){
+                if (actionHCost[v] != Float.MAX_VALUE){
                     if (allSeen.get(v)) {
                         minA = 0;
                         break;
@@ -142,7 +145,7 @@ public class H1Res extends H1 {
                             }
                         }
                     }
-//                }
+                }
             }
             if (minA==Float.MAX_VALUE){
                 throw new RuntimeException("----------------"+ele);
@@ -165,14 +168,14 @@ public class H1Res extends H1 {
                     min = 0;
                 }else{
                     for (var a : getAchievers(((Terminal) c).getId())) {
-//                        if (actionHCost[a] != Float.MAX_VALUE) {
+                        if (actionHCost[a] != Float.MAX_VALUE) {
                             if (allSeen.get(a)) {
                                 min = 0;
                                 break;
                             } else if (localCost[a][((Terminal) c).getId()] < min) {
                                 min = localCost[a][((Terminal) c).getId()];
                             }
-//                        }
+                        }
                     }
                 }
                 max = Math.max(max, min);
@@ -210,7 +213,7 @@ public class H1Res extends H1 {
             final Object[] sons = ((AndCond)and).sons;
             for (int i = 0; i< sons.length; i++ ){
                 Condition v = (Condition)sons[i];
-                final float estimateCost = estimateCost(v);
+                final float estimateCost = super.estimateCost(v);
                 if (estimateCost > max){
                     max = estimateCost;
                     best = i;
@@ -232,18 +235,42 @@ public class H1Res extends H1 {
 //                }
 //            }
             int prev = -1;
+            Object[] toIterate = sons;
+            if (ordering) {
+                toIterate = Arrays.copyOf(sons, sons.length);
+                Arrays.sort(toIterate, new Comparator() {
+                    @Override
+                    public int compare(Object t, Object t1) {
+//                        int first = getDep(((Terminal) t).getId()).cardinality();
+//                        int second = getDep(((Terminal) t1).getId()).cardinality();
+//                        return first - second;
+                           return (int) (estimateCost((Condition) t1)-estimateCost((Condition) t));
+//                        return (int) (estimateCost((Condition) t) - estimateCost((Condition) t1));
+
+                    }
+                });
+                best = 0;
+//                for (int i = 0; i< toIterate.length; i++ ){
+//                    Condition v = (Condition)sons[i];
+//                    final float estimateCost = super.estimateCost(v);
+//                    if (estimateCost > max){
+//                        max = estimateCost;
+//                        best = i;
+//                    }           
+//                }
+            }
             BitSet allSeen = null;
-            for (int i = 0; i < sons.length;  i++) {
-                final Condition v = (Condition) sons[i];
+            for (int i = 0; i < toIterate.length;  i++) {
+                final Condition v = (Condition) toIterate[i];
                 if (i != best && !conditionInit[((Terminal) v).getId()]) {
                     if (first) {
 //                        System.out.println("Updating seen of: "+(Condition) sons[best]);
                         allSeen = new BitSet();
-                        allSeen.or(getDep(((Terminal) sons[best]).getId()));
+                        allSeen.or(getDep(((Terminal) toIterate[best]).getId()));
                         first = false;
                     } else {
 //                        System.out.println("Updating seen of: "+(Condition) sons[prev]);
-                        allSeen.or(getDep(((Terminal) sons[prev]).getId()));
+                        allSeen.or(getDep(((Terminal) toIterate[prev]).getId()));
                     }
                     prev = i;
 //                    final float easyHeuristic = easyHeuristic(v,allSeen);
@@ -284,6 +311,8 @@ public class H1Res extends H1 {
         return super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
 
     }
+
+
     
     
     

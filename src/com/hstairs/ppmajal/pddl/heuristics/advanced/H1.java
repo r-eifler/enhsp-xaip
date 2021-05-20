@@ -45,7 +45,6 @@ import static com.hstairs.ppmajal.transition.Transition.getTransition;
 import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
 import com.hstairs.ppmajal.search.SearchHeuristic;
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
@@ -94,7 +93,7 @@ public class H1 implements SearchHeuristic {
     protected final ArrayShifter actionsArrayShifter;
     protected final int totNumberOfActionsRefactored;
     private IntArraySet[] allAchievers;
-    private IntArraySet[] deleters;
+    final private IntArraySet[] deleters;
     private int[] establishedAchiever;
     private float[] numRepetition;
     private IntArraySet helpfulActions;
@@ -124,7 +123,6 @@ public class H1 implements SearchHeuristic {
 
     final boolean[] visited;
     final boolean[] visitedActions;
-    private Collection<Float> estimates;
 
     
     
@@ -224,6 +222,10 @@ public class H1 implements SearchHeuristic {
         }
         if (useSmartConstraints) {
             deleters = new IntArraySet[totNumberOfTerms];
+            conditionsDeletableBy = new IntArraySet[heuristicNumberOfActions];
+        }else{
+            deleters = null;
+            conditionsDeletableBy = null;
         }
         if (extractRelaxedPlan || helpfulActionsComputation) {
             establishedAchiever = new int[totNumberOfTerms];
@@ -237,11 +239,7 @@ public class H1 implements SearchHeuristic {
         maxMRP = maxHelpfulTransitions;
         this.conjunctionsMax = conjunctionsMax;
         System.out.println("H1 Setup Time (msec): " + (System.currentTimeMillis() - startSetup));
-//        System.exit(-1);
 
-        // Optimisation. Make this dependent on whether you use smart redundant constraints or not.
-        conditionsDeletableBy = new IntArraySet[heuristicNumberOfActions];
-        
         if (planFixing){
             prec = new IntArraySet[heuristicNumberOfActions];
             visitedActions = new boolean[heuristicNumberOfActions];
@@ -349,7 +347,6 @@ public class H1 implements SearchHeuristic {
 
     @Override
     public float computeEstimate(State gs) {
-        estimates = new FloatArrayList();
         final FibonacciHeap h = this.smallSetup(gs);
         while (!h.isEmpty()) {
             final int actionId = (int) h.removeMin().getData();
@@ -419,7 +416,7 @@ public class H1 implements SearchHeuristic {
         }
     }
 
-    private float relaxedPlanCost(State gs) {
+    protected float relaxedPlanCost(State gs) {
         final Condition goal = preconditionFunction[pseudoGoal];
 
         final LinkedList<Pair<Collection, Float>> stack = new LinkedList();
@@ -471,10 +468,8 @@ public class H1 implements SearchHeuristic {
         for (final int action : plan) {
             ret += maxNumRepetition[action] * actionCost[action];
         }
-        estimates.add(ret);
         if (planFixing){
             final float fixPlan = fixPlan(gs);
-            estimates.add(fixPlan);
             return fixPlan;
         }     
 
@@ -1004,7 +999,8 @@ public class H1 implements SearchHeuristic {
                 updateAchievers(o, actionId);
             }
             conditionsAchievableBy[actionId] = achievableTerms;
-            conditionsDeletableBy[actionId] = deletableTerms;
+            if (useSmartConstraints)
+                conditionsDeletableBy[actionId] = deletableTerms;
 
         }
         return conditionsAchievableBy[actionId];
