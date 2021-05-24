@@ -100,7 +100,9 @@ public class H1Res extends H1 {
             float minP = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
-//                if (actionHCost[v] != Float.MAX_VALUE){
+                if (actionHCost[v] != Float.MAX_VALUE){
+//                if (actionHCost[v] <= conditionCost[t.getId()]){
+                    
                     if (allSeen.get(v)) {
 //                        System.out.println("Already done"+TransitionGround.getTransition(v));
                         minA = 0;
@@ -117,7 +119,7 @@ public class H1Res extends H1 {
                     }else{
                         minP = 0;
                     }
-//                }
+                }
             }
             if (minA==Float.MAX_VALUE || minP == Float.MAX_VALUE){
                 throw new RuntimeException();
@@ -130,6 +132,8 @@ public class H1Res extends H1 {
             for (var v : getAchievers(t.getId())) {
 //                System.out.println("Under Analysis---"+TransitionGround.getTransition(v));
                 if (actionHCost[v] != Float.MAX_VALUE){
+//                if (actionHCost[v] <= conditionCost[t.getId()]){
+                    
                     if (allSeen.get(v)) {
                         minA = 0;
                         break;
@@ -162,13 +166,15 @@ public class H1Res extends H1 {
         Condition name = preconditionFunction[v];
         if (name instanceof AndCond) {
             float max = 0;
-            for (var c : ((AndCond) name).sons) {
+            for (final var c : ((AndCond) name).sons) {
                 float min = Float.MAX_VALUE;
                 if (conditionInit[((Terminal) c).getId()]){
                     min = 0;
                 }else{
                     for (var a : getAchievers(((Terminal) c).getId())) {
                         if (actionHCost[a] != Float.MAX_VALUE) {
+//                        if (actionHCost[a] <= conditionCost[((Terminal) c).getId()]){
+                            
                             if (allSeen.get(a)) {
                                 min = 0;
                                 break;
