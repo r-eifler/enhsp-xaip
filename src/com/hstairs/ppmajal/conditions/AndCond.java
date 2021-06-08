@@ -472,9 +472,9 @@ public class AndCond extends ComplexCondition implements PostCondition {
             if (c instanceof Condition){
                 final Condition c1 = ((Condition)c).pushNotToTerminals();
                 if (c1 instanceof AndCond) {
-                    addAll(res,this.sons);
+                    addAll(res, ((AndCond)c1).sons);
                 } else {
-                    res.add(c);
+                    res.add(c1);
                 }
             }
         }

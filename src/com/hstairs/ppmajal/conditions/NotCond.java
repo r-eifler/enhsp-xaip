@@ -315,25 +315,25 @@ public class NotCond extends Terminal implements PostCondition {
         if (son instanceof Predicate) {
             return this;
         } else if (son instanceof Comparison) {
-            Comparison c1 = (Comparison) son;
-            Condition c2 = c1.invertOperator();
+            final Comparison c1 = (Comparison) son;
+            final Condition c2 = c1.invertOperator();
             return c2;
         } else if (son instanceof AndCond) {
-            AndCond and = (AndCond) son;
-            OrCond or = and.push_negation_demorgan();
-            Condition c = or.pushNotToTerminals();
+            final AndCond and = (AndCond) son;
+            final OrCond or = and.push_negation_demorgan();
+            final Condition c = or.pushNotToTerminals();
             return c;
         } else if (son instanceof OrCond) {
-            OrCond or = (OrCond) son;
-            AndCond and = or.push_negation_demorgan();
-            Condition c = and.pushNotToTerminals();
+            final OrCond or = (OrCond) son;
+            final AndCond and = or.push_negation_demorgan();
+            final Condition c = and.pushNotToTerminals();
             return c;
         } else if (son instanceof NotCond) {
-            NotCond nc = (NotCond) son;
+            final NotCond nc = (NotCond) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
             return nc.son.pushNotToTerminals();
         } else if (son instanceof Existential) {
-            Existential nc = (Existential) son;
+            final Existential nc = (Existential) son;
 //            System.out.println("Pushing of the not:"+nc.son.push_not_to_terminals());
             return nc.pushNegationDemorgan().pushNotToTerminals();
         } else if (son instanceof ForAll) {
