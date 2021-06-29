@@ -80,12 +80,12 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     final public PrintStream out;
     final private String groundingMethod;
     private long groundingTime;
-    private boolean sdac;
+    private boolean sdac; 
     public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
-        this(problemFile,po,types,linked,System.out,"internal", false);
+        this(problemFile,po,types,linked,System.out, "internal", false);
     }
 
-
+ 
 
     public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
         super(problemFile, constants, types, domain);

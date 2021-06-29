@@ -18,7 +18,6 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.hstairs.ppmajal.search.SearchProblem;
 import antlr.RecognitionException;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
@@ -28,13 +27,11 @@ import com.hstairs.ppmajal.expressions.*;
 import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.parser.PddlLexer;
 import com.hstairs.ppmajal.parser.PddlParser;
-import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.*;
 import java.util.*;
@@ -76,13 +73,8 @@ public abstract class PddlProblem {
     final PddlDomain linkedDomain;
     private FactoryConditions fc;
 
-    public PddlProblem(){
-        linkedDomain = null;
-        actions = new LinkedHashSet();
-        
-    }
-    
-    public PddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
+    //This class should go, but need to be careful to remove 
+    protected PddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
         this(linked);
         try {
             objects.addAll(po);
