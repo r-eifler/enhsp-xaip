@@ -34,13 +34,15 @@ public class H1Fix extends H1 {
     private boolean superFix = false;
     final private boolean saferVersion;
     final boolean[] visitedActions;
+    private final boolean hmrpEstimate;
 
     public H1Fix(EPddlProblem problem, boolean saferVersion,  boolean maxHelpfulTransitions, String redConstraints, 
-            boolean helpfulActionsComputation, boolean reachability, boolean helpfulTransitions, boolean conjunctionsMax) {
+            boolean helpfulActionsComputation, boolean reachability, boolean helpfulTransitions, boolean conjunctionsMax, boolean hmprpEstimate) {
         super(problem, true, true, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax);
         this.prec = new IntArraySet[heuristicNumberOfActions];
         this.saferVersion = saferVersion;
         visitedActions = new boolean[heuristicNumberOfActions];
+        this.hmrpEstimate = hmprpEstimate;
 
     }
 
@@ -49,7 +51,12 @@ public class H1Fix extends H1 {
         float computeEstimate = super.computeEstimate(gs); //To change body of generated methods, choose Tools | Templates.
         if (computeEstimate == Float.MAX_VALUE)
             return Float.MAX_VALUE;
-        return fixPlan(gs);
+        if (hmrpEstimate){
+            fixPlan(gs);
+            return computeEstimate;
+        }else{
+            return fixPlan(gs);
+        }
     }
     
      private float fixPlan(State gs) {
@@ -147,7 +154,7 @@ public class H1Fix extends H1 {
                         final float T = (float) (eval + cum);
                         if (T < 0) {
                         if (saferVersion) {
-                            if (true){
+                            if (false){
                                 IntArraySet achieverSet = getAllAchievers()[conditionId];
                                 if (achieverSet!= null && !achieverSet.isEmpty()) {
                                     int min = Integer.MAX_VALUE;

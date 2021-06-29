@@ -63,7 +63,7 @@ public class OrCond extends ComplexCondition {
                 return Predicate.createPredicate(Predicate.trueFalse.TRUE);
             }else if (!condInternal.isUnsatisfiable()){
                 if (condInternal instanceof OrCond){
-                    addAll(sons1,((AndCond) condInternal).sons);
+                    addAll(sons1,((OrCond) condInternal).sons);
                 }else{
                     sons1.add(condInternal);
                 }

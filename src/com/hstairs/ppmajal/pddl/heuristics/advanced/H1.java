@@ -450,9 +450,10 @@ public class H1 implements SearchHeuristic {
         float ret = 0;
         for (final int action : plan) {
             ret += maxNumRepetition[action] * actionCost[action];
+//            System.out.println(TransitionGround.getTransition(action) + " " + maxNumRepetition[action]);
         }
 
-
+//        System.exit(-1);
         return ret;
     }
 
