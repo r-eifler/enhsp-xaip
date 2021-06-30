@@ -162,7 +162,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (PddlProblem s, Set invF) {
+    public Condition weakEval (EPddlProblem s, Set invF) {
 
         Condition el = son;
         el.setFreeVarSemantic(freeVarSemantic);

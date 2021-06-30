@@ -468,7 +468,7 @@ public class Comparison extends Terminal {
     }
 
         @Override
-    public Condition weakEval(PddlProblem s, Set invF) {
+    public Condition weakEval(EPddlProblem s, Set invF) {
         if (this.isUnsatisfiable())
             return this;
         Comparison comp = this;

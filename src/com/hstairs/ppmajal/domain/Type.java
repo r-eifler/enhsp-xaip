@@ -28,6 +28,13 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
  */
 public class Type extends Object {
 
+    /**
+     * @return the hierarchy
+     */
+    public static DirectedAcyclicGraph getHierarchy() {
+        return hierarchy;
+    }
+
 
     final private String name;
     final private String fatherType;
@@ -37,14 +44,26 @@ public class Type extends Object {
     private static DirectedAcyclicGraph hierarchy;
     
     
-    public static Type createType(String text) {
-        if (hierarchy == null || typeDB == null || typeDB.get(text)==null){
-            throw new RuntimeException("This type ("+text+") has not been defined before");
+    public static Type getType(String name) {
+        Type father = Type.getType("object","null");
+        if (getHierarchy() == null){
+            hierarchy = new DirectedAcyclicGraph(DefaultEdge.class);
         }
-        return typeDB.get(text);
+        if (typeDB == null){
+            typeDB = new HashMap();
+        }
+        Type t = typeDB.get(name);
+        if (t == null){
+            t = new Type(name,father.name,typeDB.size());
+            getHierarchy().addVertex(name);
+            getHierarchy().addVertex(father.name);
+            getHierarchy().addEdge(father.name, name);
+            typeDB.put(name,t);
+        }
+        return t;
     }
-    public static Type createType(String name, String father){
-        if (hierarchy == null){
+    public static Type getType(String name, String father){
+        if (getHierarchy() == null){
             hierarchy = new DirectedAcyclicGraph(DefaultEdge.class);
         }
         if (typeDB == null){
@@ -53,9 +72,9 @@ public class Type extends Object {
         Type t = typeDB.get(name);
         if (t == null){
             t = new Type(name,father,typeDB.size());
-            hierarchy.addVertex(name);
-            hierarchy.addVertex(father);
-            hierarchy.addEdge(father, name);
+            getHierarchy().addVertex(name);
+            getHierarchy().addVertex(father);
+            getHierarchy().addEdge(father, name);
             typeDB.put(name,t);
         }
         return t;
@@ -68,7 +87,7 @@ public class Type extends Object {
     }
 
     public boolean isAncestorOf (Type anc) {
-        Set ancestors = hierarchy.getAncestors(anc.name);
+        Set ancestors = getHierarchy().getAncestors(anc.name);
         if (ancestors.contains(name)){
             return true;
         }

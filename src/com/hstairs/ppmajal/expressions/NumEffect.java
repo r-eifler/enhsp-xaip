@@ -177,7 +177,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression weakEval (PddlProblem problem, Set invF) {
+    public Expression weakEval (EPddlProblem problem, Set invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.right.setFreeVarSemantic(freeVarSemantic);

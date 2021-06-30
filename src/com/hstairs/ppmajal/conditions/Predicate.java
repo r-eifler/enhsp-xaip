@@ -34,11 +34,11 @@ import java.util.*;
 public class Predicate extends Terminal implements PostCondition {
 
     final private String name;
-    final private ArrayList variables;
+    final private List variables;
     final private static Predicate truePredicate = new Predicate(0);
     final private static Predicate falsePredicate = new Predicate(1);
 
-    private Predicate (String name, ArrayList variables) {
+    private Predicate (String name, List variables) {
         super();
         this.name = name;
         this.variables = variables;
@@ -46,7 +46,7 @@ public class Predicate extends Terminal implements PostCondition {
 
     private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
 
-    public static Predicate createPredicate(String name, ArrayList variables){
+    public static Predicate getPredicate(String name, List variables){
         if (predicates == null){
             predicates = new HashMap();
         }
@@ -200,7 +200,7 @@ public class Predicate extends Terminal implements PostCondition {
     /**
      * @return the terms
      */
-    public ArrayList getTerms ( ) {
+    public List getTerms ( ) {
         return variables;
     }
 
@@ -227,8 +227,8 @@ public class Predicate extends Terminal implements PostCondition {
                 localVariables.add(o);
             }
         }
-        Predicate createPredicate = Predicate.createPredicate(name, localVariables);
-//        System.out.println(createPredicate);
+        Predicate createPredicate = Predicate.getPredicate(name, localVariables);
+//        System.out.println(getPredicate);
         return createPredicate;
     }
 
@@ -366,7 +366,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (PddlProblem problem, Set invF) {
+    public Condition weakEval (EPddlProblem problem, Set invF) {
         //if it is a static predicate (not invariant) and is satisfied in the init state,
         //then remove it in the upper level since it is valid for any state
         if (this.isValid()){

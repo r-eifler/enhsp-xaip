@@ -88,7 +88,7 @@ public class ComplexFunction extends BinaryOp {
 
 
     @Override
-    public Expression weakEval (PddlProblem s, Set invF) {
+    public Expression weakEval (EPddlProblem s, Set invF) {
         ComplexFunction ret = new ComplexFunction();
 
         ret.operator = this.operator;

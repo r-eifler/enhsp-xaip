@@ -42,7 +42,7 @@ public class PlannerUtils {
 
     private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {
         d = new PddlDomain(domainFileName);
-        p = new EPddlProblem(problemFileName, d.constants, d.types, d);
+        p = new EPddlProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true);
         d.substituteEqualityConditions();
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");

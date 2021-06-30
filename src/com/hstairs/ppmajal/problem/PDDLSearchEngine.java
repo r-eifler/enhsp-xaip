@@ -114,7 +114,7 @@ public class PDDLSearchEngine extends SearchEngine {
             }
         }
 //        System.out.println(current);
-        return current.satisfy(problem.goals);
+        return current.satisfy(problem.getGoals());
     }
 
     @Override
@@ -291,7 +291,7 @@ public class PDDLSearchEngine extends SearchEngine {
             }
             executedProcesses.add(waiting);
             executedProcesses.addAll(applyAllEvents(next));
-            if (intelligent && next.satisfy(problem.goals)) {
+            if (intelligent && next.satisfy(problem.getGoals())) {
                 return new org.jgrapht.alg.util.Pair(next, executedProcesses);
             }
             previousNext = next;

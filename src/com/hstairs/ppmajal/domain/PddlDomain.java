@@ -43,50 +43,66 @@ import java.util.logging.Logger;
 /**
  * @author enrico
  */
-public final class PddlDomain extends Object {
+public final class PddlDomain {
+
+    /**
+     * @return the requirements
+     */
+    public Collection<String> getRequirements() {
+        return requirements;
+    }
+
+    /**
+     * @return the functions
+     */
+    public Collection getFunctions() {
+        return functions;
+    }
+
+    /**
+     * @return the eventsSchema
+     */
+    public Collection<TransitionSchema> getEventsSchema() {
+        return eventsSchema;
+    }
 
     HashMap<String,Boolean> canBeDynamic;
-
-    public Collection<TransitionSchema> eventsSchema;
+    private Collection<TransitionSchema> eventsSchema;
     public final PDDLObjects constants;
-    private  Collection<TransitionSchema> ProcessesSchema;
+    private  Collection<TransitionSchema> processesSchemata;
     private  Collection<NumFluent> derived_variables;
-    public Set<Type> types;
-    public Collection functions;
-    public Collection<String> requirements;
+    private Set<Type> types;
+    private Collection functions;
+    private Collection<String> requirements;
     protected Collection<TransitionSchema> ActionsSchema;
     private String name;
-    private PredicateSet predicates;
+    private final PredicateSet predicates;
     private String pddlReferenceFile;
     private LinkedHashSet<SchemaGlobalConstraint> SchemaGlobalConstraints;
     private FactoryConditions fc;
 
     public PddlDomain (String domainFile) {
-        super();
-        SchemaGlobalConstraints = new LinkedHashSet();
-
-        types = new LinkedHashSet<>();
-
-        //Add default dummy type object
-        Type t = Type.createType("object","null");
-        types.add(t);
-
-        ActionsSchema = new TreeSet<>(new ActionComparator());
-        functions = new ArrayList();
-        derived_variables = new ArrayList();
-        requirements = new ArrayList<>();
-        constants = new PDDLObjects();
-        ProcessesSchema = new LinkedHashSet();
-        eventsSchema = new LinkedHashSet();
+        this();
         this.parseDomain(domainFile);
+    }
+    
+    public PddlDomain(){
+        this(new LinkedHashSet(),new PDDLObjects(),new LinkedHashSet(),new ArrayList(), new PredicateSet());
     }
 
 
-    public PddlDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables) {
+    private PddlDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, 
+            Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables, PredicateSet p) {
+        SchemaGlobalConstraints = new LinkedHashSet();
+        types = new LinkedHashSet<>();
+        ActionsSchema = new TreeSet<>(new ActionComparator());
+        functions = new ArrayList();
+        requirements = new ArrayList<>();
         this.eventsSchema = eventsSchema;
         this.constants = constants;
-        ProcessesSchema = processesSchema;
+        processesSchemata = processesSchema;
         this.derived_variables = derived_variables;
+        this.predicates = p;
     }
 
 
@@ -117,7 +133,7 @@ public final class PddlDomain extends Object {
             CommonTree t = (CommonTree) root.getTree();
             int i;
 //            System.out.println(this.constants);
-            fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
+            fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.getTypes(), this.constants);
             for (i = 0; i < t.getChildCount(); i++) {
                 Tree c = t.getChild(i);
                 int type = c.getType();
@@ -130,8 +146,8 @@ public final class PddlDomain extends Object {
                         addTypes(c);
                         break;
                     case PddlParser.PREDICATES:
-                        this.predicates = (PredicateSet) addPredicates(c);
-                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
+                        addPredicates(c);
+                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.getTypes(), this.constants);
 
                         break;
                     case PddlParser.ACTION:
@@ -146,7 +162,7 @@ public final class PddlDomain extends Object {
                         addRequirements(c);
                         break;
                     case PddlParser.FUNCTIONS:
-                        this.functions.addAll(fc.addFunctions(c));
+                        this.getFunctions().addAll(fc.addFunctions(c));
                         break;
                     case PddlParser.CONSTANTS:
                         addConstants(c);
@@ -156,7 +172,7 @@ public final class PddlDomain extends Object {
                         this.derived_variables.addAll(fc.addFunctions(c));
                         break;
                     case PddlParser.GLOBAL_CONSTRAINT:
-                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.types, this.constants);
+                        fc = new FactoryConditions(this.predicates, (LinkedHashSet<Type>) this.getTypes(), this.constants);
                         addGlobalConstraint(c);
                         break;
                     case PddlParser.PROCESS:
@@ -182,15 +198,18 @@ public final class PddlDomain extends Object {
      * A pretty representation of the domain
      */
     public void prettyPrint ( ) {
-        System.out.println("Requirements: " + this.requirements);
+        System.out.println("Requirements: " + this.getRequirements());
+        System.out.println("Types: "+this.types);
+        System.out.println("Types Hierarchy: "+Type.getHierarchy());
+        System.out.println("Predicates: " + this.predicates);
+        System.out.println("Functions: " + this.getFunctions());
+        
         System.out.println("Actions Domain: " + this.ActionsSchema);
-        if (this.ProcessesSchema != null) {
-            System.out.println("Process Domain: " + this.ProcessesSchema);
+        if (this.processesSchemata != null) {
+            System.out.println("Process Domain: " + this.processesSchemata);
         }
         //if (!this.eventsSchema.isEmpty())
-        System.out.println("Events Domain: " + this.eventsSchema);
-        System.out.println("Predicates: " + this.predicates);
-        System.out.println("Functions: " + this.functions);
+        System.out.println("Events Domain: " + this.getEventsSchema());
         System.out.println("Global Constraints: " + this.getSchemaGlobalConstraints());
 
     }
@@ -226,12 +245,12 @@ public final class PddlDomain extends Object {
             if (tipo.getChildCount() > 0) {
                 father = tipo.getChild(0).getText();               
             }
-            Type tip = Type.createType(c.getChild(i).getText(),father);
-            this.types.add(tip);
+            Type tip = Type.getType(c.getChild(i).getText(),father);
+            this.getTypes().add(tip);
         }
     }
     private Object addPredicates (Tree t) {
-        PredicateSet col = new PredicateSet();
+        PredicateSet col = predicates;
         if (t == null) {
             return null;
         }
@@ -245,7 +264,7 @@ public final class PddlDomain extends Object {
                     v = (Variable) addPredicates(child.getChild(j));
                     variables.add(v);
                 }
-                col.add(Predicate.createPredicate(name, variables));
+                col.add(Predicate.getPredicate(name, variables));
             }
             return col;
         } else {
@@ -253,7 +272,7 @@ public final class PddlDomain extends Object {
             if (t.getChildCount() > 0) {
                 father = t.getChild(0).getText();
             }
-            Variable v = Variable.createVariable(t.getText(),Type.createType(father));
+            Variable v = Variable.createVariable(t.getText(),Type.getType(father));
             return v;
         }
     }
@@ -263,7 +282,7 @@ public final class PddlDomain extends Object {
             //System.out.println(c.getText());
             for (int i = 0; i < c.getChildCount(); i++) {
                 final String req = c.getChild(i).getText();
-                this.requirements.add(req);
+                this.getRequirements().add(req);
             }
         }
     }
@@ -310,10 +329,10 @@ public final class PddlDomain extends Object {
 
         for (int i = 0; i < c.getChildCount(); i++) {
             if (c.getChild(i).getChildCount() > 0) {
-                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.createType(c.getChild(i).getChild(0).getText()));
+                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.getType(c.getChild(i).getChild(0).getText()));
                 this.getConstants().add(o);
             } else {
-                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.createType("object"));
+                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.getType("object"));
                 this.getConstants().add(o);
             }
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
@@ -338,8 +357,8 @@ public final class PddlDomain extends Object {
         String actions = "\n";
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (this.requirements != null) {
-            f.write("(:requirements " + Utils.toPDDLSet(requirements) + ")\n");
+        if (this.getRequirements() != null) {
+            f.write("(:requirements " + Utils.toPDDLSet(getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -352,7 +371,7 @@ public final class PddlDomain extends Object {
             f.write("(:predicates " + domain.getPredicates().pddlPrint(true) + "\n");
         }
         if (!functions.isEmpty()) {
-            f.write("(:functions " + Utils.toPDDLSet(functions) + ")\n");
+            f.write("(:functions " + Utils.toPDDLSet(getFunctions()) + ")\n");
         }
 
         if (!domain.getActionsSchema().isEmpty()) {
@@ -384,8 +403,8 @@ public final class PddlDomain extends Object {
             canBeDynamic = new HashMap();
             ArrayList<Transition> all = new ArrayList();
             all.addAll(this.ActionsSchema);
-            all.addAll(this.ProcessesSchema);
-            all.addAll(this.eventsSchema);
+            all.addAll(this.processesSchemata);
+            all.addAll(this.getEventsSchema());
             for (int i = 0; i < all.size(); i++) {
                 Set<Condition> terminalConditions = all.get(i).getPreconditions().getTerminalConditions();
                 for (int j = 0; j < all.size(); j++) {
@@ -472,7 +491,7 @@ public final class PddlDomain extends Object {
                     if (infoConstraint.getChild(0) == null) {
                         break;
                     }
-                    Type t = Type.createType(infoConstraint.getChild(0).getText());
+                    Type t = Type.getType(infoConstraint.getChild(0).getText());
                     con.parameters.add(Variable.createVariable(infoConstraint.getText(), t));
                     break;
 
@@ -521,9 +540,9 @@ public final class PddlDomain extends Object {
                 case (PddlParser.VARIABLE):
                     Type t = null;
                     if (infoAction.getChild(0) == null) {
-                        t = Type.createType("object");
+                        t = Type.getType("object");
                     }else{
-                        t = Type.createType(infoAction.getChild(0).getText());
+                        t = Type.getType(infoAction.getChild(0).getText());
                     }
                     
                     Variable variable = Variable.createVariable(infoAction.getText(), t);
@@ -547,10 +566,10 @@ public final class PddlDomain extends Object {
                 this.ActionsSchema.add(transition);
                 break;
             case PROCESS:
-                this.ProcessesSchema.add(transition);
+                this.processesSchemata.add(transition);
                 break;
             case EVENT:
-                this.eventsSchema.add(transition);
+                this.getEventsSchema().add(transition);
                 break;
         }
 
@@ -560,10 +579,10 @@ public final class PddlDomain extends Object {
 
 
     /**
-     * @return the ProcessesSchema
+     * @return the processesSchemata
      */
     public Collection<TransitionSchema> getProcessesSchema ( ) {
-        return ProcessesSchema;
+        return processesSchemata;
     }
 
 
@@ -589,8 +608,8 @@ public final class PddlDomain extends Object {
         ParametersAsTerms constants = new ParametersAsTerms();
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (requirements != null && !requirements.isEmpty()) {
-            f.write(";(:requirements " + Utils.toPDDLSet(requirements) + ")\n");
+        if (getRequirements() != null && !requirements.isEmpty()) {
+            f.write(";(:requirements " + Utils.toPDDLSet(getRequirements()) + ")\n");
         }
         if (domain.getTypes() != null && !domain.getTypes().isEmpty()) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
@@ -632,11 +651,11 @@ public final class PddlDomain extends Object {
     private void pushNotAtTheTerminals( ) {
         final ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
         listViewOfTransitions.addAll(this.getProcessesSchema());
-        listViewOfTransitions.addAll(this.eventsSchema);
+        listViewOfTransitions.addAll(this.getEventsSchema());
         final ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
         this.ActionsSchema = pushNotAtTheTerminals(this.ActionsSchema);
-        this.ProcessesSchema = pushNotAtTheTerminals(this.ProcessesSchema);
-        this.eventsSchema = pushNotAtTheTerminals(eventsSchema);
+        this.processesSchemata = pushNotAtTheTerminals(this.processesSchemata);
+        this.eventsSchema = pushNotAtTheTerminals(getEventsSchema());
     }
 
 
@@ -645,7 +664,7 @@ public final class PddlDomain extends Object {
     public void substituteEqualityConditions ( ) {
         ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
         listViewOfTransitions.addAll(this.getProcessesSchema());
-        listViewOfTransitions.addAll(this.eventsSchema);
+        listViewOfTransitions.addAll(this.getEventsSchema());
         ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
 
         while(iterator.hasNext()) {
@@ -663,18 +682,29 @@ public final class PddlDomain extends Object {
 
     public PddlDomain clone ( ) {
 
-        PddlDomain res = new PddlDomain(new LinkedHashSet(this.eventsSchema), new PDDLObjects(this.constants), new LinkedHashSet<>(this.getProcessesSchema()), new LinkedHashSet<>(this.derived_variables));
+        PddlDomain res = new PddlDomain(new LinkedHashSet(this.getEventsSchema()), new PDDLObjects(this.constants), new LinkedHashSet<>(this.getProcessesSchema()), new LinkedHashSet<>(this.derived_variables), predicates);
         res.setName(this.name);
-        res.requirements = new ArrayList<>(this.requirements);
+        res.requirements = new ArrayList<>(this.getRequirements());
         res.ActionsSchema = new LinkedHashSet<>();
         for (TransitionSchema as : this.ActionsSchema) {
             throw new UnsupportedOperationException("Cloning of the domain not supported yet");
 //            res.ActionsSchema.add(as.clone());
         }
-        res.types = new LinkedHashSet<>(this.types);
-        res.predicates = new PredicateSet(this.predicates);
-        res.functions = new LinkedHashSet(this.functions);
+        res.types = new LinkedHashSet<>(this.getTypes());
+        res.functions = new LinkedHashSet(this.getFunctions());
         return res;
+    }
+
+    public void addPredicate(String a, List l) {
+        predicates.add(Predicate.getPredicate(a, l));
+    }
+
+    public void addType(Type createType) {
+        types.add(createType);
+    }
+
+    public void addAction(TransitionSchema action) {
+        ActionsSchema.add(action);
     }
 
 

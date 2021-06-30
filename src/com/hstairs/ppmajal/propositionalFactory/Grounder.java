@@ -29,9 +29,9 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
+import com.hstairs.ppmajal.problem.EPddlProblem;
 import com.hstairs.ppmajal.problem.GlobalConstraint;
 import com.hstairs.ppmajal.problem.PDDLObjects;
-import com.hstairs.ppmajal.problem.PddlProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
@@ -289,7 +289,7 @@ public class Grounder {
         return ret;
     }
 
-    public Collection Propositionalize(TransitionSchema a, PDDLObjects po, PddlProblem problem) throws Exception {
+    public Collection Propositionalize(TransitionSchema a, PDDLObjects po, EPddlProblem problem) throws Exception {
         Collection combo = null;
         if (a.getParameters().isEmpty()) {
             combo.add(new ParametersAsTerms());
@@ -319,7 +319,7 @@ public class Grounder {
     }
 
 
-    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, EPddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         Collection combo;
         if (action.getParameters().isEmpty()) {
@@ -358,7 +358,7 @@ public class Grounder {
                 if (necessaryCondition instanceof Predicate) {
                     Predicate predicateAction = ((Predicate) necessaryCondition);
                     BitSet[] s = getUnifyingObjects(initBooleanState,predicateAction, map.length,varId);
-                    final ArrayList terms = predicateAction.getTerms();
+                    final List terms = predicateAction.getTerms();
                     //Debug
                     for (PDDLObject object : problem.getObjects()) {
                         System.out.println(s[0].get(object.getId()));
@@ -441,7 +441,7 @@ public class Grounder {
         return res;
     }
 
-    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, EPddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         Map<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
@@ -527,7 +527,7 @@ public class Grounder {
 
     }
 
-    private Collection Propositionalize(TransitionSchema a, Collection combo, PDDLObjects po, PddlProblem problem) {
+    private Collection Propositionalize(TransitionSchema a, Collection combo, PDDLObjects po, EPddlProblem problem) {
         List ret = new ArrayList();
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
@@ -639,7 +639,7 @@ public class Grounder {
 
     }
 
-    public static TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, PddlProblem problem) {
+    public static TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, EPddlProblem problem) {
 
         Map substitution = obtain_sub_from_instance(a.getParameters(), parametersAsTerms);
         final ConditionalEffects groundedConditionalPropEffects = a.getConditionalPropositionalEffects().ground(substitution,po);
@@ -664,7 +664,8 @@ public class Grounder {
         FactoryConditions.createEffectsFromPostCondition(temp, groundedConditionalPropEffects, groundedConditionalNumericEffects);
     }
 
-    private Pair<Map<Variable, Set<PDDLObject>>,Boolean> routine(String predicateName, String predicateName1, ArrayList terms, ArrayList terms1, Collection<Map<Variable, Set<PDDLObject>>> S1, Collection<Map<Variable, Set<PDDLObject>>> S) {
+    private Pair<Map<Variable, Set<PDDLObject>>,Boolean> routine(String predicateName, String predicateName1, 
+            List terms, List terms1, Collection<Map<Variable, Set<PDDLObject>>> S1, Collection<Map<Variable, Set<PDDLObject>>> S) {
         boolean foundToBeTrue = false;
         final Object2ObjectMap<Variable, Set<PDDLObject>> t1 = new Object2ObjectArrayMap<>();
         if (predicateName.equals(predicateName1)) {

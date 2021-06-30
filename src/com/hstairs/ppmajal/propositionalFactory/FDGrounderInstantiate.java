@@ -121,11 +121,11 @@ public class FDGrounderInstantiate extends ExternalGrounder{
             StringBuilder actionString  = new StringBuilder();
             PddlDomain domain = problem.getLinkedDomain();
             actionString.append(actionString(domain.getActionsSchema()));
-            actionString.append(actionString(domain.eventsSchema));
+            actionString.append(actionString(domain.getEventsSchema()));
             actionString.append(actionString(domain.getProcessesSchema()));
             StringBuilder predicates = new StringBuilder();
             predicates.append(buildPredicateString(domain.getPredicates()));
-            predicates.append(buildFunctionsString(domain.functions));
+            predicates.append(buildFunctionsString(domain.getFunctions()));
             StringBuilder types = new StringBuilder();
             types.append(buildTypes(domain.getTypes()));
             String toWrite = String.format(domainInput, types, predicates, actionString);

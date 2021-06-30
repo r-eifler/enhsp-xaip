@@ -256,7 +256,7 @@ public class Aibr implements SearchHeuristic {
                 final NumEffect effect = supporter2numeffect[current];
                 relState.apply(effect, relState.clone());
             }
-            if (relState.satisfy(problem.goals)) {
+            if (relState.satisfy(problem.getGoals())) {
                 goalReached = true;
                 if (reachableTransitions != null) {
                     break;

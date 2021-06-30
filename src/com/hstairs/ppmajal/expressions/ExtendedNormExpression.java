@@ -435,7 +435,7 @@ public class ExtendedNormExpression extends Expression {
      * @return
      */
     @Override
-    public ExtendedNormExpression weakEval (PddlProblem problem, Set invFluents) {
+    public ExtendedNormExpression weakEval (EPddlProblem problem, Set invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {

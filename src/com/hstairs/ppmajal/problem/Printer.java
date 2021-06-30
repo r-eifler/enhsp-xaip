@@ -27,7 +27,7 @@ import com.hstairs.ppmajal.expressions.NumFluent;
  */
 public class Printer {
 
-    static public StringBuilder stringBuilderPddlPrintWithDummyTrue (PddlProblem p, PDDLState s) {
+    static public StringBuilder stringBuilderPddlPrintWithDummyTrue (EPddlProblem p, PDDLState s) {
         final StringBuilder ret = new StringBuilder("(:init (true)\n");
 
         for (Predicate a : p.getInitBoolFluentsValues().keySet()) {
@@ -55,11 +55,11 @@ public class Printer {
         return ret;
     }
 
-    static public String pddlPrintWithDummyTrue (PddlProblem p, PDDLState s) {
+    static public String pddlPrintWithDummyTrue (EPddlProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
     }
 
-    static public String pddlPrint (PddlProblem p, PDDLState s) {
+    static public String pddlPrint (EPddlProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
     }
 

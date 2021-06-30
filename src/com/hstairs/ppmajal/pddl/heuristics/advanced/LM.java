@@ -174,7 +174,7 @@ public class LM extends H1 {
     }
 
     private void printLandmarks() {
-        AndCond goal = (AndCond) problem.goals;
+        AndCond goal = (AndCond) problem.getGoals();
         System.out.println("Landmarks");
         for (int sg : lmA[pseudoGoal]) {
             System.out.println(Terminal.getTerminal(sg));

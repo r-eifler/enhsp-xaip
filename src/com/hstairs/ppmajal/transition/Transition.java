@@ -120,6 +120,9 @@ public abstract class Transition {
     }
 
     public Collection<NumEffect> getAllNumericEffects() {
+        if (conditionalNumericEffects == null){
+            return Collections.EMPTY_SET;
+        }
         return conditionalNumericEffects.getAllAffectedVariables();
     }
     public Collection<NumFluent> getAllNumericAffected() {

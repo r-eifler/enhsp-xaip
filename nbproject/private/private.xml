@@ -20,22 +20,48 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/MinusUnary.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Condition.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/FastTransitionTable.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/transition/Transition.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/GoalCounting.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLProblemComponent.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1Fix.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/EPddlProblem.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/NumFluent.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/FactoryConditions.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/transition/TransitionGround.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/BlindHeuristic.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Existential.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Comparison.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/NotCond.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/PDDLNumber.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/OneOf.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/PDDLHeuristic.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/Expression.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/propositionalFactory/FDGrounderInstantiate.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PddlProblem.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/ComplexFunction.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/transition/TransitionSchema.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/programmaticMain.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/TrigonometricFunction.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/Utils.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/BinaryOp.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/Type.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/FastTransitionTable.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/ExtendedNormExpression.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/ForAll.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/ConditionalEffect.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/NumEffect.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Existential.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/Variable.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/propositionalFactory/Grounder.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Comparison.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/MultiOp.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/transition/ConditionalEffects.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/Printer.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/PredicateSet.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/OrCond.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/PddlDomain.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/PDDLObject.java</file>
         </group>

@@ -21,12 +21,20 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.propositionalFactory.MetricFFGrounder;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
+import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
 import com.hstairs.ppmajal.domain.Type;
+import com.hstairs.ppmajal.expressions.BinaryOp;
+import com.hstairs.ppmajal.expressions.Expression;
+import com.hstairs.ppmajal.expressions.MinusUnary;
+import com.hstairs.ppmajal.expressions.MultiOp;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
+import com.hstairs.ppmajal.extraUtils.Utils;
+import com.hstairs.ppmajal.parser.PddlLexer;
+import com.hstairs.ppmajal.parser.PddlParser;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.propositionalFactory.ExternalGrounder;
 import com.hstairs.ppmajal.propositionalFactory.FDGrounder;
@@ -38,31 +46,60 @@ import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.math.BigDecimal;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jgrapht.alg.util.Pair;
 
 /**
  * @author enrico
  */
-public class EPddlProblem extends PddlProblem implements SearchProblem {
+public class EPddlProblem implements SearchProblem {
 
-    /**
-     * @return the sdac
-     */
-    public boolean isSdac() {
-        return sdac;
-    }
+    static public HashSet<Predicate> booleanFluents;
 
-    /**
-     * @param sdac the sdac to set
-     */
-    public void setSdac(boolean sdac) {
-        this.sdac = sdac;
-    }
+    public PDDLObjects objects;
+    public State init;
+    private Condition goals;
+    public Collection<TransitionGround> actions;
+    public Condition belief;
+    public Collection<Predicate> unknonw_predicates;
+    public Collection<OneOf> one_of_s;
+    public Collection<OrCond> or_s;
+    public Set<Type> types;
+    protected String name;
+    protected Integer indexObject;
+    protected Integer indexInit;
+    protected Integer indexGoals;
+    protected Metric metric;
+    protected String pddlFilRef;
+    protected String domainName;
+    protected long propositionalTime;
+    protected boolean grounded_representation;
+    protected RelState possStates;
+    protected boolean simplifyActions;
+    private boolean action_cost_from_metric = true;
+    protected Set actualFluents;
+    //This maps the string representation of a predicate (which uniquely defines it, into an integer)
+    private  HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
+    private  HashMap<Predicate, Boolean> initBoolFluentsValues;
+    final PddlDomain linkedDomain;
+    private FactoryConditions fc;
+
 
     public HashSet<GlobalConstraint> globalConstraintSet;
     public AndCond globalConstraints;
@@ -74,26 +111,65 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     private boolean smallExpensive = false;
     private boolean debug;
     private boolean cacheComparison = false;
-    static public HashSet<Predicate> booleanFluents;
     private int totNumberOfBoolVariables;
     private int totNumberOfNumVariables;
     final public PrintStream out;
     final private String groundingMethod;
     private long groundingTime;
     private boolean sdac; 
-    public EPddlProblem (String problemFile, PDDLObjects po, Set<Type> types, PddlDomain linked) {
-        this(problemFile,po,types,linked,System.out, "internal", false);
-    }
+    
+    
 
- 
-
-    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, PddlDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
-        super(problemFile, constants, types, domain);
+    public EPddlProblem (PddlDomain domain, String groundingMethod, PrintStream out, boolean sdac){        
+        indexInit = 0;
+        indexGoals = 0;
+        objects = new PDDLObjects();
+        metric = new Metric("NO");
+        actions = new LinkedHashSet();
+        grounded_representation = false;
+        simplifyActions = true;
+        possStates = null;
         globalConstraintSet = new LinkedHashSet();
         eventsSet = new LinkedHashSet();
         globalConstraints = new AndCond(Collections.EMPTY_SET);   
         this.out = out;
         this.groundingMethod = groundingMethod;
+        this.sdac = sdac;
+        linkedDomain = domain;
+        initBoolFluentsValues = new HashMap();
+        initNumFluentsValues = new HashMap();
+    }
+    
+    
+    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
+            PddlDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
+        this(domain, groundingMethod, out, sdac);
+        try {
+            objects.addAll(constants);
+            this.types = types;
+            this.parseProblem(problemFile);
+        } catch (IOException ex) {
+            Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (org.antlr.runtime.RecognitionException ex) {
+            Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+        }        indexObject = 0;
+    }
+    /**
+     * @param goals the goals to set
+     */
+    public void setGoals(Condition goals) {
+        this.goals = goals;
+    }
+    /**
+     * @return the sdac
+     */
+    public boolean isSdac() {
+        return sdac;
+    }
+    /**
+     * @param sdac the sdac to set
+     */
+    public void setSdac(boolean sdac) {
         this.sdac = sdac;
     }
 
@@ -106,7 +182,8 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     @Override
     public Object clone ( ) throws CloneNotSupportedException {
 
-        EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
+        //EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
+        EPddlProblem cloned = new EPddlProblem(pddlFilRef, objects, types, linkedDomain, out, groundingMethod, sdac);
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
             throw new UnsupportedOperationException();
@@ -136,30 +213,18 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             System.out.println("Generate Transitions using " + groundingMethod);
             ExternalGrounder mff = null;
             switch (groundingMethod) {
-                case "metricff":
-                    mff = new MetricFFGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                    break;
-                case "fd":
-                    mff = new FDGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                    break;
-                case "fdi":
-                    mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                    break;
+                case "metricff" -> mff = new MetricFFGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                case "fd" -> mff = new FDGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                case "fdi" -> mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
             }
             groundingTime = System.currentTimeMillis();
             Collection<TransitionGround> doGrounding = mff.doGrounding();
             groundingTime = System.currentTimeMillis()-groundingTime;
             for (var act : doGrounding) {
                 switch (act.getSemantics()) {
-                    case ACTION:
-                        getActions().add(act);
-                        break;
-                    case EVENT:
-                        getEventsSet().add(act);
-                        break;
-                    case PROCESS:
-                        getProcessesSet().add(act);
-                        break;
+                    case ACTION -> getActions().add(act);
+                    case EVENT -> getEventsSet().add(act);
+                    case PROCESS -> getProcessesSet().add(act);
                 }
             }
         } else {
@@ -169,21 +234,15 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             ArrayList<TransitionSchema> transitions = new ArrayList<>();
             transitions.addAll(linkedDomain.getProcessesSchema());
             transitions.addAll(linkedDomain.getActionsSchema());
-            transitions.addAll(linkedDomain.eventsSchema);
+            transitions.addAll(linkedDomain.getEventsSchema());
             groundingTime = System.currentTimeMillis();
 
             for (var act : transitions) {
                 Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, getInitBoolFluentsValues(), linkedDomain);
                 switch (act.getSemantics()) {
-                    case ACTION:
-                        getActions().addAll(propositionalize);
-                        break;
-                    case EVENT:
-                        getEventsSet().addAll(propositionalize);
-                        break;
-                    case PROCESS:
-                        getProcessesSet().addAll(propositionalize);
-                        break;
+                    case ACTION -> getActions().addAll(propositionalize);
+                    case EVENT -> getEventsSet().addAll(propositionalize);
+                    case PROCESS -> getProcessesSet().addAll(propositionalize);
                 }
             }
             groundingTime = System.currentTimeMillis() - groundingTime;
@@ -205,10 +264,12 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             return;
         this.simplifyAndSetupInit(aibrPreprocessing);
 
-        this.transformGoal();
+        this.setGoals(generate_inequalities(getGoals()));
 
     }
-
+    protected Condition generate_inequalities (Condition con) {
+        return (Condition) con.transformEquality();
+    }
     protected Set getActualFluents ( ) {
         if (actualFluents == null) {
             actualFluents = new LinkedHashSet();
@@ -370,9 +431,9 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         cleanIrrelevantConstraints(globalConstraintSet);
         this.setGroundedRepresentation(true);
 
-        goals = (ComplexCondition) goals.weakEval(this, this.getActualFluents());
-        goals = (ComplexCondition) goals.normalize();
-        if (goals.isUnsatisfiable()){
+        setGoals((Condition) getGoals().weakEval(this, this.getActualFluents()));
+        setGoals((Condition) getGoals().normalize());
+        if (getGoals().isUnsatisfiable()){
             throw new RuntimeException("Goal is not reachable");
         }
         globalConstraints = (AndCond) globalConstraints.weakEval(this, this.getActualFluents());
@@ -500,7 +561,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         for (SchemaGlobalConstraint a : this.linkedDomain.getSchemaGlobalConstraints()) {
             involved_fluents.addAll(a.condition.getInvolvedFluents());
         }
-        involved_fluents.addAll(goals.getInvolvedFluents());
+        involved_fluents.addAll(getGoals().getInvolvedFluents());
 
         
         if (NumFluent.numFluentsBank != null){
@@ -611,7 +672,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
     }
 
     private void groundGoals ( ) {
-        this.goals = (ComplexCondition) this.goals.ground(new HashMap(), objects);
+        this.setGoals((Condition) this.getGoals().ground(new HashMap(), objects));
     }
 
 
@@ -644,8 +705,8 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
             this.getNumericFluentReference().put(nf.toString(), nf);
         }
         this.setInitNumFluentsValues(tempInitFluent);
-        
-        goals = (ComplexCondition) goals.unifyVariablesReferences(inputProblem);
+
+        setGoals((Condition) getGoals().unifyVariablesReferences(inputProblem));
 
         Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
         while (it.hasNext()) {
@@ -683,7 +744,7 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
 
     @Override
     public boolean milestoneReached (Float d, Float current_value, State temp) {
-        return d < current_value && this.isSafeState(temp);
+        return d < current_value;
     }
 
     private ArrayList<TransitionGround> eventsApplication (State s, float delta1, Collection<TransitionGround> events) throws CloneNotSupportedException {
@@ -752,9 +813,546 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         return null;
     }
 
+    /**
+     * @return the simplifyActions
+     */
+    public boolean isSimplifyActions() {
+        return simplifyActions;
+    }
+
+    public PddlDomain getLinkedDomain() {
+        return linkedDomain;
+    }
+
+    /**
+     * Get the value of groundedActions
+    /**
+     * Set the value of groundedActions
+     *
+     * @param groundedActions new value of groundedActions
+     */
+    protected void setGroundedRepresentation(boolean groundedActions) {
+        this.grounded_representation = groundedActions;
+    }
+
+    /**
+     * Get the value of domainName
+     *
+     * @return the value of domainName
+     */
+    public String getDomainName() {
+        return domainName;
+    }
+
+    /**
+     * Set the value of domainName
+     *
+     * @param domainName new value of domainName
+     */
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
+    /**
+     * Get the value of pddlFilRef
+     *
+     * @return the value of pddlFilRef
+     */
+    public String getPddlFileReference() {
+        return pddlFilRef;
+    }
+
+    /**
+     * Set the value of pddlFilRef
+     *
+     * @param pddlFilRef new value of pddlFilRef
+     */
+    public void setPddlFilRef(String pddlFilRef) {
+        this.pddlFilRef = pddlFilRef;
+    }
+
+    public void saveProblem(String pddlNewFile) throws IOException {
+        pddlFilRef = pddlNewFile;
+        String toWrite = "(define (problem " + name + ") " + "(:domain " + this.getDomainName() + ") " + this.getObjects().pddlPrint() + "\n" + Printer.pddlPrint(this, (PDDLState) init) + "\n" + "(:goal " + this.getGoals().pddlPrint(false) + ")\n" + this.metric.pddlPrint() + "\n" + ")";
+        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        file.write(toWrite);
+        file.close();
+    }
+
+    public void saveProblemWithObjectInterpretation(String pddlNewFile) throws IOException {
+        pddlFilRef = pddlNewFile;
+        //        final StringBuilder toWrite = new StringBuilder().append(this.metric.pddlPrint()).append("\n"
+        //                + ")");
+        //
+        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.getDomainName()).append(")");
+        file.write("(define (problem temp)");
+        file.write("(:domain ");
+        file.write(builder.toString());
+        file.write(this.getObjects().pddlPrint());
+        file.write(Printer.stringBuilderPddlPrintWithDummyTrue(this, (PDDLState) init).toString());
+        file.write("(:goal (forall (?interpr - interpretation)");
+        file.write(this.getGoals().pddlPrintWithExtraObject() + ")))");
+        file.close();
+    }
+
+    /**
+     * @param file - the pathfile representing the pddl problem
+     * @throws IOException
+     * @throws org.antlr.runtime.RecognitionException
+     */
+    public void parseProblem(String file) throws IOException, RecognitionException {
+        pddlFilRef = file;
+        ANTLRInputStream in;
+        in = new ANTLRInputStream(new FileInputStream(file));
+        PddlLexer lexer = new PddlLexer(in);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PddlParser parser = new PddlParser(tokens);
+        PddlParser.pddlDoc_return root = parser.pddlDoc();
+        if (parser.invalidGrammar()) {
+            System.out.println("Grammar is violated");
+        }
+        //System.out.println("Problem Parsed, building data structure now");
+        CommonTree t = (CommonTree) root.getTree();
+        //        System.out.println("tree:" + t.toStringTree());
+        //        exploreTree(t);
+        this.one_of_s = new LinkedHashSet();
+        this.or_s = new LinkedHashSet();
+        //        System.out.println(this.objects);
+        fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.objects);
+        if (this.unknonw_predicates == null) {
+            this.unknonw_predicates = new LinkedHashSet();
+        }
+        for (int i = 0; i < t.getChildCount(); i++) {
+            Tree child = t.getChild(i);
+            //System.out.println(child.getChild(0).getText());
+            //            System.out.println(fc.constants);
+            switch (child.getType()) {
+                case PddlParser.PROBLEM_DOMAIN:
+                    this.setDomainName(child.getChild(0).getText());
+                    break;
+                case PddlParser.PROBLEM_NAME:
+                    name = child.getChild(0).getText();
+                    break;
+                case PddlParser.OBJECTS:
+                    addObjects(child);
+                    break;
+                case PddlParser.INIT:
+                    addInitFacts(child);
+                    break;
+                case PddlParser.FORMULAINIT:
+                    Tree andCondition = child.getChild(0).getChild(0);
+                    if (child.getChild(0).getChildCount() > 1) {
+                        for (int j = 1; j < child.getChild(0).getChildCount(); j++) {
+                            this.unknonw_predicates.add((Predicate) addUnknown(child.getChild(0).getChild(j)));
+                        }
+                    }
+                    this.belief = fc.createGoals(andCondition);
+                    //                    this.belief = fc.createCondition(child.getChild(0), null);
+                    break;
+                case PddlParser.GOAL:
+                    this.setGoals(null);
+                    Condition con = fc.createCondition(child.getChild(0), null);
+                    if (!(con instanceof ComplexCondition)) {
+                        this.setGoals(new AndCond(Collections.singleton(con)));
+                    } else {
+                        this.setGoals((ComplexCondition) con);
+                    }
+                    break;
+                case PddlParser.PROBLEM_METRIC:
+                    addMetric(child);
+                    break;
+            }
+        }
+        this.setGoals((ComplexCondition) this.getGoals().pushNotToTerminals());
+        this.setGoals((ComplexCondition) this.getGoals().ground(new HashMap(), this.getObjects()));
+        for (PDDLObject object : this.getObjects()) {
+            final ArrayList object1 = new ArrayList<>(List.of(object, object));
+            this.getInitBoolFluentsValues().put(Predicate.getPredicate("=", object1), true);
+        }
+        //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
+    }
+
+    protected void addObjects(Tree c) {
+        for (int i = 0; i < c.getChildCount(); i++) {
+            if (this.linkedDomain != null) {
+                String typeName;
+                if (c.getChild(i).getChild(0) == null) {
+                    typeName = "object";
+                } else {
+                    typeName = c.getChild(i).getChild(0).getText();
+                }
+                Type t = linkedDomain.getTypeByName(typeName);
+                if (t == null) {
+                    System.out.println(c.getChild(i).getChild(0).getText() + " not found");
+                    System.exit(-1);
+                }
+                this.getObjects().add(PDDLObject.createObject(c.getChild(i).getText(), t));
+            } else {
+                throw new RuntimeException("Need to link the domain first");
+            }
+        }
+    }
+
+    protected Expression createExpression(Tree t) {
+        int test = t.getType();
+        switch (t.getType()) {
+            case PddlParser.BINARY_OP:
+                {
+                    BinaryOp ret = new BinaryOp();
+                    ret.setOperator(t.getChild(0).getText());
+                    ret.setLhs(createExpression(t.getChild(1)));
+                    ret.setRhs(createExpression(t.getChild(2)));
+                    ret.grounded = true;
+                    return ret;
+                }
+            case PddlParser.NUMBER:
+                {
+                    //Float.
+                    PDDLNumber ret = new PDDLNumber(Float.valueOf(t.getText()));
+                    return ret;
+                }
+            case PddlParser.FUNC_HEAD:
+                {
+                    String name = t.getChild(0).getText();
+                    ArrayList variables = new ArrayList();
+                    for (int i = 1; i < t.getChildCount(); i++) {
+                        variables.add(this.getObjectByName(t.getChild(i).getText()));
+                    }
+                    return NumFluent.createNumFluent(name, variables, true);
+                }
+            case PddlParser.UNARY_MINUS:
+                return new MinusUnary(createExpression(t.getChild(0)));
+            case PddlParser.MULTI_OP:
+                {
+                    MultiOp ret = new MultiOp(t.getChild(0).getText());
+                    for (int i = 1; i < t.getChildCount(); i++) {
+                        //System.out.println("Figlio di + o * " + createExpression(t.getChild(i)));
+                        ret.addExpression(createExpression(t.getChild(i)));
+                    }
+                    ret.grounded = true;
+                    return ret;
+                }
+            default:
+                break;
+        }
+        return null;
+    }
+
+    protected void addInitFacts(Tree child) {
+        this.setInitNumFluentsValues(new HashMap());
+        this.setInitBoolFluentsValues(new HashMap());
+        for (int i = 0; i < child.getChildCount(); i++) {
+            Tree c = child.getChild(i);
+            switch (c.getType()) {
+                case PddlParser.PRED_INST:
+                    getInitBoolFluentsValues().put(fc.buildPredicate(c, null), true);
+                    break;
+                case PddlParser.INIT_EQ:
+                    this.getInitNumFluentsValues().put((NumFluent) createExpression(c.getChild(0)), (PDDLNumber) createExpression(c.getChild(1)));
+                    break;
+                case PddlParser.UNKNOWN:
+                    this.unknonw_predicates.add((Predicate) addUnknown(c));
+                    break;
+                case PddlParser.ONEOF:
+                    this.one_of_s.add((OneOf) fc.createCondition(c, null));
+                    break;
+                case PddlParser.OR_GD:
+                    this.or_s.add((OrCond) fc.createCondition(c, null));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * A pretty representation for the pddl problem
+     */
+    public void prettyPrint() {
+        System.out.println("\ninit:" + getInit() + "\nObject" + getProblemObjects() + "\nGoals:" + getGoals() + "\n");
+//        if (metric.getMetExpr() instanceof MultiOp) {
+//            MultiOp temp = (MultiOp) metric.getMetExpr();
+//            System.out.println("\n Metric:" + temp.getExpr().size());
+//        }
+        out.println(initBoolFluentsValues);
+        out.println(initNumFluentsValues);
+        out.println("Actions: "+actions);
+    }
+
+    protected void exploreTree(Tree t) {
+        if (t == null) {
+            return;
+        }
+        if (t.getChildCount() == 0) {
+            System.out.println("Foglia:" + t.getText() + "Tipo:" + t.getType());
+            return;
+        }
+        System.out.println("Nodo intermedio: " + t.getText() + "Tipo:" + t.getType());
+        for (int i = 0; i < t.getChildCount(); i++) {
+            exploreTree(t.getChild(i));
+        }
+        return;
+    }
+
+    /**
+     * @return the objects - the objects of the pddl problem
+     */
+    public PDDLObjects getProblemObjects() {
+        return getObjects();
+    }
+
+    /**
+     * @return the init - the initial status of the problem
+     */
+    public State getInit() {
+        return init;
+    }
+
+    /**
+     * @return the goals - the goal set
+     */
+    public Condition getGoals() {
+        return goals;
+    }
+
+    protected void addMetric(Tree t) {
+        //System.out.println(t.toStringTree());
+        metric = new Metric(t.getChild(0).getText());
+        metric.setMetExpr(createExpression(t.getChild(1)));
+    }
+
+    /**
+     * @return the metric
+     */
+    public Metric getMetric() {
+        return metric;
+    }
+
+    public void setMetric(Metric m) {
+        this.metric = m;
+    }
+
+    /**
+     * @param string - the name of the object we want
+     * @return the term representing the object
+     */
+    public PDDLObject getObjectByName(String string) {
+        return Utils.getObjectByName(this.objects, string);
+    }
+
+    public double getInitFunctionValue(NumFluent f) {
+        return ((PDDLState) init).fluentValue(f);
+    }
+
+    public NumFluent getNumFluent(String string, ArrayList terms) {
+        for (NumFluent fAssign : this.getInitNumFluentsValues().keySet()) {
+            if (fAssign.getName().equals(string)) {
+                if (fAssign.getTerms().equals(terms)) {
+                    return fAssign;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ArrayList getNumFluents() {
+        return new ArrayList(this.getInitNumFluentsValues().keySet());
+    }
+
+    /**
+     * @return the propositionalTime
+     */
+    public long getPropositionalTime() {
+        return propositionalTime;
+    }
+
+    /**
+     * @param propositionalTime the propositionalTime to set
+     */
+    public void setPropositionalTime(long propositionalTime) {
+        this.propositionalTime = propositionalTime;
+    }
+
+    /**
+     * @return the actions
+     */
+    public Collection getActions() {
+        return actions;
+    }
+
+    /**
+     * @param actions the actions to set
+     */
+    public void setActions(Set actions) {
+        this.actions = actions;
+    }
+
+    public void parseProblem(String string, PDDLObjects constants) throws IOException, antlr.RecognitionException, RecognitionException {
+        this.getObjects().addAll(constants);
+        parseProblem(string);
+    }
+
+    /**
+     * @return the possStates
+     */
+    public RelState getPossStates() {
+        return possStates;
+    }
+
+    /**
+     * @param possStates the possStates to set
+     */
+    public void setPossStates(RelState possStates) {
+        this.possStates = possStates;
+    }
+
+    public void removeObjects(ParametersAsTerms constantsFound) {
+        for (Object c : constantsFound) {
+            this.getObjects().remove(c);
+        }
+    }
+
+    /**
+     * @return the objects
+     */
+    public PDDLObjects getObjects() {
+        return objects;
+    }
+
+    /**
+     * @param objects the objects to set
+     */
+    public void setObjects(PDDLObjects objects) {
+        this.objects = objects;
+    }
+
+    private Condition addUnknown(Tree infoAction) {
+        if (infoAction == null) {
+            return null;
+        }
+        if (infoAction.getType() == PddlParser.PRED_INST) {
+            //estrapola tutti i predicati e ritornali come set di predicati
+            //            AndCond and = new AndCond();
+            //            and.addConditions();
+            return fc.buildPredicate(infoAction, null);
+        } else if (infoAction.getType() == PddlParser.UNKNOWN) {
+            return addUnknown(infoAction.getChild(0));
+        } else {
+            System.out.println("Some serious error:" + infoAction);
+            return null;
+        }
+    }
+
+    public Condition getPredicate(Predicate aThis) {
+        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
+            if (p.equals(aThis)) {
+                return p;
+            }
+        }
+        return aThis;
+    }
+
+    public PDDLNumber getNumFluentInitialValue(NumFluent aThis) {
+        PDDLNumber nf = this.getInitNumFluentsValues().get(aThis);
+        if (nf == null) {
+            return null;
+        }
+        return nf;
+    }
+
+    public Iterable<NumFluent> getNumFluentsInvolvedInInit() {
+        if (this.getInitNumFluentsValues() == null) {
+            return Collections.emptyList();
+        }
+        return this.getInitNumFluentsValues().keySet();
+    }
+
+    public boolean getInitBoolFluentValue(Predicate aThis) {
+        Boolean b = this.getInitBoolFluentsValues().get(aThis);
+        return b != null && b;
+    }
+
+    public Iterable getPredicatesInvolvedInInit() {
+        if (this.getInitBoolFluentsValues() == null) {
+            return Collections.emptyList();
+        }
+        return this.getInitBoolFluentsValues().keySet();
+    }
+
+    /**
+     * @return the initNumFluentsValues
+     */
+    public HashMap<NumFluent,PDDLNumber> getInitNumFluentsValues() {
+        return initNumFluentsValues;
+    }
+
+    /**
+     * @param initNumFluentsValues the initNumFluentsValues to set
+     */
+    protected void setInitNumFluentsValues(HashMap<NumFluent, PDDLNumber> initNumFluentsValues) {
+        this.initNumFluentsValues = initNumFluentsValues;
+    }
+
+    /**
+     * @return the initBoolFluentsValues
+     */
+    public HashMap<Predicate,Boolean> getInitBoolFluentsValues() {
+        return initBoolFluentsValues;
+    }
+
+    /**
+     * @param initBoolFluentsValues the initBoolFluentsValues to set
+     */
+    protected void setInitBoolFluentsValues(HashMap<Predicate, Boolean> initBoolFluentsValues) {
+        this.initBoolFluentsValues = initBoolFluentsValues;
+    }
+
+
+    public void addFactValue(Predicate predicate, boolean b) {
+        if (this.initBoolFluentsValues == null){
+            initBoolFluentsValues = new HashMap();
+        }
+        initBoolFluentsValues.put(predicate, b);
+    }
+
+    public void addAction(TransitionGround action) {
+        this.actions.add(action);
+    }
 
 
 
+
+    
+    @Override
+    public Float gValue(State s, Object act, State temp, float gValue) {
+        Metric m = this.getMetric();
+        if (act instanceof Transition) {
+            TransitionGround gr = (TransitionGround) act;
+            if (gr == null) {
+                return gValue;
+            }
+            return getTransitionCost(s, gr,gValue,false,m);
+        }else{
+            final ImmutablePair<TransitionGround,Integer> res = (ImmutablePair<TransitionGround, Integer>) act;
+
+            return getTransitionCost(s, res.left,gValue,false,m,res.right);
+        }
+    }
+    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m) {
+        return this.getTransitionCost(s,gr,previousG,ignoreCost,m,1);
+    }
+    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m, final int right){
+        if (ignoreCost){
+            return previousG + 1*right;
+        }
+        if (m != null){
+            return previousG + gr.getActionCost(s,m, isSdac())*right;
+        }else{
+            return previousG + 1*right;
+        }
+    }
     protected class stateIterator implements ObjectIterator<Pair<State, Object>> {
         protected final State source;
         final private Object[] actionsSet;
@@ -810,35 +1408,6 @@ public class EPddlProblem extends PddlProblem implements SearchProblem {
         @Override
         public Pair<State, Object> next ( ) {
             return new Pair(newState, current);
-        }
-    }
-    
-    @Override
-    public Float gValue(State s, Object act, State temp, float gValue) {
-        Metric m = this.getMetric();
-        if (act instanceof Transition) {
-            TransitionGround gr = (TransitionGround) act;
-            if (gr == null) {
-                return gValue;
-            }
-            return getTransitionCost(s, gr,gValue,false,m);
-        }else{
-            final ImmutablePair<TransitionGround,Integer> res = (ImmutablePair<TransitionGround, Integer>) act;
-
-            return getTransitionCost(s, res.left,gValue,false,m,res.right);
-        }
-    }
-    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m) {
-        return this.getTransitionCost(s,gr,previousG,ignoreCost,m,1);
-    }
-    float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m, final int right){
-        if (ignoreCost){
-            return previousG + 1*right;
-        }
-        if (m != null){
-            return previousG + gr.getActionCost(s,m, isSdac())*right;
-        }else{
-            return previousG + 1*right;
         }
     }
 

@@ -41,7 +41,7 @@ public class GoalCounting implements SearchHeuristic{
     @Override
     public float computeEstimate(State s) {
         int c = 0;
-        ComplexCondition goals = this.problem.goals;
+        Condition goals = this.problem.getGoals();
         if (goals instanceof AndCond){
             for (Object c1: ((AndCond) goals).sons){
                 Condition con = (Condition)c1;

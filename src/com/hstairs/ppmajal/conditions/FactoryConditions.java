@@ -163,7 +163,7 @@ public class FactoryConditions {
                             if (child.getChild(0) == null) {
                                 break;
                             }
-                            Type t = Type.createType(child.getChild(0).getText());
+                            Type t = Type.getType(child.getChild(0).getText());
 
                             p.add(Variable.createVariable(child.getText(), t));
 
@@ -216,7 +216,7 @@ public class FactoryConditions {
                 }
             }
         }
-        Predicate a = Predicate.createPredicate(name, variables);
+        Predicate a = Predicate.getPredicate(name, variables);
         if (predicates != null) {
             if (!predicates.validate(a) & !"=".equals(name)) {
                 throw  new RuntimeException("Predicate " + a + " is not valid");
@@ -331,7 +331,7 @@ public class FactoryConditions {
                     if (child.getChild(0) == null) {
                         break;
                     }
-                    Type t = Type.createType(child.getChild(0).getText());
+                    Type t = Type.getType(child.getChild(0).getText());
                     s.add(Variable.createVariable(child.getText(), t));
                     break;
                 default:
@@ -604,7 +604,7 @@ public class FactoryConditions {
                     if (t.getChild(j).getChildCount() > 0) {
                         father = t.getChild(j).getChild(0).getText();
                     }
-                    Variable v = Variable.createVariable(t.getChild(j).getText(),Type.createType(father));
+                    Variable v = Variable.createVariable(t.getChild(j).getText(),Type.getType(father));
                     variables.add(v);
                 }
                 NumFluent ret = NumFluent.createNumFluent(c.getChild(i).getText(), variables);

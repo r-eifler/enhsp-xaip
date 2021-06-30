@@ -39,7 +39,7 @@ public class OneOf extends ComplexCondition {
     }
 
     @Override
-    public Condition weakEval (PddlProblem s, Set invF) {
+    public Condition weakEval (EPddlProblem s, Set invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
