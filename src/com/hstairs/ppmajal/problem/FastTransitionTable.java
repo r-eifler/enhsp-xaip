@@ -15,7 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author enrico
  */
 public class FastTransitionTable {
-   final public Pair<Condition,PostCondition[]>[][] effects;
+    final private Pair<Condition,PostCondition[]>[][] effects;
 
     public FastTransitionTable(int nEff) {
         this.effects = new Pair[nEff][];
@@ -25,13 +25,13 @@ public class FastTransitionTable {
         this.effects[id] = new Pair[eff.size()];
         int i = 0;
         for (final var e : eff){
-            final PostCondition[] effects = new PostCondition[e.getRight().size()];
+            final PostCondition[] effs = new PostCondition[e.getRight().size()];
             int j = 0;
             for (final var n : e.getRight()){
-                effects[j] = n;
+                effs[j] = n;
                 j++;
             }
-            this.effects[id][i] = Pair.of(e.getKey(),effects);
+            this.effects[id][i] = Pair.of(e.getKey(),effs);
             i++;
         }
     }

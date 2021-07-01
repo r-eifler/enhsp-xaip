@@ -44,7 +44,7 @@ public class Type extends Object {
     private static DirectedAcyclicGraph hierarchy;
     
     
-    public static Type getType(String name) {
+    public static Type type(String name) {
         Type father = Type.getType("object","null");
         if (getHierarchy() == null){
             hierarchy = new DirectedAcyclicGraph(DefaultEdge.class);

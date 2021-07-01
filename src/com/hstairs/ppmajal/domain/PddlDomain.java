@@ -272,7 +272,7 @@ public final class PddlDomain {
             if (t.getChildCount() > 0) {
                 father = t.getChild(0).getText();
             }
-            Variable v = Variable.createVariable(t.getText(),Type.getType(father));
+            Variable v = Variable.variable(t.getText(),Type.type(father));
             return v;
         }
     }
@@ -329,10 +329,10 @@ public final class PddlDomain {
 
         for (int i = 0; i < c.getChildCount(); i++) {
             if (c.getChild(i).getChildCount() > 0) {
-                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.getType(c.getChild(i).getChild(0).getText()));
+                PDDLObject o = PDDLObject.object(c.getChild(i).getText(), Type.type(c.getChild(i).getChild(0).getText()));
                 this.getConstants().add(o);
             } else {
-                PDDLObject o = PDDLObject.createObject(c.getChild(i).getText(), Type.getType("object"));
+                PDDLObject o = PDDLObject.object(c.getChild(i).getText(), Type.type("object"));
                 this.getConstants().add(o);
             }
 //            System.out.println("Aggiungo l'oggetto:" + c.getChild(i).getText());
@@ -491,8 +491,8 @@ public final class PddlDomain {
                     if (infoConstraint.getChild(0) == null) {
                         break;
                     }
-                    Type t = Type.getType(infoConstraint.getChild(0).getText());
-                    con.parameters.add(Variable.createVariable(infoConstraint.getText(), t));
+                    Type t = Type.type(infoConstraint.getChild(0).getText());
+                    con.parameters.add(Variable.variable(infoConstraint.getText(), t));
                     break;
 
             }
@@ -540,12 +540,12 @@ public final class PddlDomain {
                 case (PddlParser.VARIABLE):
                     Type t = null;
                     if (infoAction.getChild(0) == null) {
-                        t = Type.getType("object");
+                        t = Type.type("object");
                     }else{
-                        t = Type.getType(infoAction.getChild(0).getText());
+                        t = Type.type(infoAction.getChild(0).getText());
                     }
                     
-                    Variable variable = Variable.createVariable(infoAction.getText(), t);
+                    Variable variable = Variable.variable(infoAction.getText(), t);
 //                        System.out.print(variable);
                     par.add(variable);
                     break;
@@ -588,9 +588,9 @@ public final class PddlDomain {
 
     //    private Object createConditionalEffect(SchemaParameters parameters, Tree t) {
 //        
-//        if (t.getType() == PddlParser.AND_EFFECT){
+//        if (t.type() == PddlParser.AND_EFFECT){
 //            for (int j = 0; j < t.getChildCount(); j++) {
-//                    if (t.getChild(j).getType() == PddlParser.WHEN_EFFECT){
+//                    if (t.getChild(j).type() == PddlParser.WHEN_EFFECT){
 //                        Tree child = t.getChild(j);
 //                        System.out.println(t.getChild(j).toStringTree());
 //                    }
@@ -705,6 +705,10 @@ public final class PddlDomain {
 
     public void addAction(TransitionSchema action) {
         ActionsSchema.add(action);
+    }
+
+    public void addFunction(String a, ArrayList arrayList) {
+        functions.add(NumFluent.getNumFluent(a, arrayList));
     }
 
 

@@ -37,7 +37,7 @@ public class Variable implements ActionParameter {
     final private int id;
 
     public static Object2ObjectMap<Pair<String,Type>,Variable> variables;
-    public static Variable createVariable(String Name, Type type){
+    public static Variable variable(String Name, Type type){
         if (variables == null){
             variables = new Object2ObjectArrayMap<>();
         }

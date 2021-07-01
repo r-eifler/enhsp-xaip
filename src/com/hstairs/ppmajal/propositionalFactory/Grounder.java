@@ -565,7 +565,7 @@ public class Grounder {
         }
 
         if (param.isEmpty()) {
-            combo.add(PDDLObject.createObject("null",null));
+            combo.add(PDDLObject.object("null",null));
             return combo;
         }
 

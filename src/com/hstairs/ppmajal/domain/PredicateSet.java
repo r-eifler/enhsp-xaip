@@ -141,7 +141,7 @@ public class PredicateSet extends HashSet<Predicate> {
                                 found = false;
                             } else {
                                 found = true;
-                                v = Variable.createVariable(v.getName(),v1.getType());
+                                v = Variable.variable(v.getName(),v1.getType());
                             }
 
                         } else {

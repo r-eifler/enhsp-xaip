@@ -316,10 +316,10 @@ public class Predicate extends Terminal implements PostCondition {
                     for (int i = 0; i < this.getTerms().size(); i++) {
                         Variable v = (Variable) this.getTerms().get(i);
                         PDDLObject obj = (PDDLObject) p.getTerms().get(i);
-                        //System.out.print("Matching Types between: "+ v.getType() + obj.getType());
+                        //System.out.print("Matching Types between: "+ v.type() + obj.type());
                         if (!v.getType().equals(obj.getType())) {
                             if (!v.getType().isAncestorOf(obj.getType())) {
-                                //System.out.println("Sottotipo di:"+obj.getType().getSubTypeOf());
+                                //System.out.println("Sottotipo di:"+obj.type().getSubTypeOf());
                                 //System.out.println(" FAILURE!!");
                                 return false;
                             }

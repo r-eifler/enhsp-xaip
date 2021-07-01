@@ -51,7 +51,7 @@ public class Comparison extends Terminal {
         return comparisonDataBase;
     }
     
-    public static Comparison createComparison(String comparator, Expression left, Expression right, boolean normalized) {
+    public static Comparison comparison(String comparator, Expression left, Expression right, boolean normalized) {
         if (comparisonDataBase == null) {
             comparisonDataBase = new HashMap();
         }
@@ -126,7 +126,7 @@ public class Comparison extends Terminal {
 
     @Override
     public Condition ground (Map<Variable, PDDLObject> substitution, PDDLObjects po) {
-        Comparison ret = createComparison(comparator, left.ground(substitution, po), right.ground(substitution, po),false);
+        Comparison ret = comparison(comparator, left.ground(substitution, po), right.ground(substitution, po),false);
         return ret;
     }
 
@@ -309,7 +309,7 @@ public class Comparison extends Terminal {
         }
 
 //        cancelComparison(comparator,leftToRemove,rightToRemove);
-        //ret = createComparison(comp,leftExpr,rightExpr,true);
+        //ret = comparison(comp,leftExpr,rightExpr,true);
         //ret.linear = leftExpr.linear && rightExpr.linear;    
         left = leftExpr;
         right = rightExpr;
@@ -508,7 +508,7 @@ public class Comparison extends Terminal {
         }
 //        System.out.println(lValue);
 //        System.out.println(rValue);
-        return createComparison(comparator,lValue,rValue,false);
+        return comparison(comparator,lValue,rValue,false);
     }
 
 
@@ -529,8 +529,8 @@ public class Comparison extends Terminal {
         final Comparison comp = this;
         if (comp.getComparator().equals("=")) {
             final Collection ret = new HashSet();
-            final Comparison dual = (Comparison) Comparison.createComparison(">=", left, right,false).normalize();
-            final Comparison dual2 = (Comparison) Comparison.createComparison("<=", left,right,false).normalize();
+            final Comparison dual = (Comparison) Comparison.comparison(">=", left, right,false).normalize();
+            final Comparison dual2 = (Comparison) Comparison.comparison("<=", left,right,false).normalize();
             ret.add(dual);
             ret.add(dual2);
             return new AndCond(ret);
@@ -693,8 +693,8 @@ public class Comparison extends Terminal {
     Condition invertOperator ( ) {
         if (this.getComparator().equals("=")) {
             Collection a = new HashSet();
-            a.add(Comparison.createComparison("<", left, right,false));
-            a.add(Comparison.createComparison(">", left, right,false));
+            a.add(Comparison.comparison("<", left, right,false));
+            a.add(Comparison.comparison(">", left, right,false));
             return new OrCond(a);
         } else {
             String comp = null;
@@ -712,7 +712,7 @@ public class Comparison extends Terminal {
                     comp = "<=";
                     break;
             }
-            return Comparison.createComparison(comp, left, right,false).normalize();
+            return Comparison.comparison(comp, left, right,false).normalize();
         }
     }
 
@@ -734,7 +734,7 @@ public class Comparison extends Terminal {
         }
         Expression newLeft = left.unifyVariablesReferences(p);
         Expression newRight = right.unifyVariablesReferences(p);
-        return Comparison.createComparison(comparator, newLeft, newRight,this.normalized);
+        return Comparison.comparison(comparator, newLeft, newRight,this.normalized);
     }
 
     @Override

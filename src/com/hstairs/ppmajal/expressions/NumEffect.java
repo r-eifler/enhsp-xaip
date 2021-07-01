@@ -45,6 +45,12 @@ public class NumEffect extends Expression implements PostCondition {
         this.operator = operator;
         this.pseudo_num_effect = false;
     }
+    
+    public NumEffect(String operator, NumFluent f, Expression right){
+        this(operator);
+        fluentAffected = f;
+        this.right = right;
+    }
 
     /**
      * @return
@@ -596,7 +602,7 @@ public class NumEffect extends Expression implements PostCondition {
     public ArrayList<Variable> getInvolvedVariables ( ) {
         // It is assumed that this method will be called only when the terms are ungrounded.  
         // Here be dragon.  
-        final ArrayList list = this.fluentAffected.getTerms();
+        final List list = this.fluentAffected.getTerms();
         final ArrayList<Variable> result = (ArrayList<Variable>) list;
         return result;
     }

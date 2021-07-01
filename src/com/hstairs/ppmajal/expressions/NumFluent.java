@@ -37,17 +37,20 @@ public class NumFluent extends Expression {
 
     Integer cachedHashCode;
     final private String name;
-    final private ArrayList<ActionParameter> terms;
+    final private List<ActionParameter> terms;
     public static ArrayList<NumFluent> fromIdToNumFluents;
     private Boolean has_to_be_tracked;
     private String terms_as_string;
     final private int id;
 
     public static HashMap<Pair<String,ArrayList>,NumFluent> numFluentsBank;
-    public static NumFluent createNumFluent(String name, ArrayList variables){
+    public static NumFluent getNumFluent(String name, List variables){
         return createNumFluent(name,variables,false);
     }
-    public static NumFluent createNumFluent(String name, ArrayList variables,boolean groundAlready){
+    public static NumFluent numericFluent(String name){
+        return createNumFluent(name,Collections.EMPTY_LIST,false);
+    }
+    public static NumFluent createNumFluent(String name, List variables, boolean groundAlready){
         if (numFluentsBank == null){
             numFluentsBank = new HashMap();
             fromIdToNumFluents = new ArrayList();
@@ -66,7 +69,7 @@ public class NumFluent extends Expression {
     }
             
     
-    private NumFluent (String name, ArrayList variables, int id) {
+    private NumFluent (String name, List variables, int id) {
         super();
         this.name = name;
         terms = variables;
@@ -136,7 +139,7 @@ public class NumFluent extends Expression {
             variables.add(param.ground(substitution));
         }
         NumFluent ret;
-        ret = createNumFluent(name, variables);
+        ret = getNumFluent(name, variables);
         ret.grounded = true;
         terms_as_string = this.terms.toString();
         return ret;
@@ -160,7 +163,7 @@ public class NumFluent extends Expression {
                 variables.add(o);
             }
         }
-        NumFluent ret  = createNumFluent(name,variables);
+        NumFluent ret  = getNumFluent(name,variables);
         ret.grounded = false;
         return ret;
     }
@@ -168,7 +171,7 @@ public class NumFluent extends Expression {
     /**
      * @return the terms
      */
-    public ArrayList<ActionParameter> getTerms ( ) {
+    public List<ActionParameter> getTerms ( ) {
         return terms;
     }
 
@@ -339,7 +342,7 @@ public class NumFluent extends Expression {
 
     @Override
     public Expression susbtFluentsWithTheirInvariants (int j) {
-        return createNumFluent(name+j,terms);
+        return getNumFluent(name+j,terms);
     }
 
 

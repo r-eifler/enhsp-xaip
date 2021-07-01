@@ -38,7 +38,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
 
     public static HashMap<String,PDDLObject> objectsDB;
     
-    public static PDDLObject createObject(String name, Type type){
+    public static PDDLObject object(String name, Type type){
         if (objectsDB == null){
             objectsDB = new HashMap();
         }

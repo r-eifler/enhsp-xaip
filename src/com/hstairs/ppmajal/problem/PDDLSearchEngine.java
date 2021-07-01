@@ -60,6 +60,9 @@ public class PDDLSearchEngine extends SearchEngine {
 
     public PDDLSearchEngine(EPddlProblem problem, SearchHeuristic h) {
         super(h, problem);
+        if (!problem.isReadyForSearch()){
+            throw new RuntimeException("PDDL Problem is not ready for search yet. Bailing out");
+        }
     }
     @Override
     protected void printInfo(PrintStream out) {

@@ -67,7 +67,7 @@ public class FactoryConditions {
 
         } else {
 
-            a = Variable.createVariable(t.getText(),null);
+            a = Variable.variable(t.getText(),null);
             Variable v1 = parTable.containsVariable(a);
             if (v1 == null) {
                 throw new RuntimeException("BuildPredicate: Variable " + a + " not involved in the action model");
@@ -131,18 +131,18 @@ public class FactoryConditions {
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
             case PddlParser.COMPARISON_GD:
-                return Comparison.createComparison(tree.getChild(0).getText(), createExpression(tree.getChild(1), parTable), createExpression(tree.getChild(2), parTable),false);
+                return Comparison.comparison(tree.getChild(0).getText(), createExpression(tree.getChild(1), parTable), createExpression(tree.getChild(2), parTable),false);
             //Create an equality structure for comparing Objects
             case PddlParser.EQUALITY_CON:
 //                PDDLObjectsEquality equality = new Predicate();
 //
-//                if (tree.getChild(1).getType() == PddlParser.NAME) {
+//                if (tree.getChild(1).type() == PddlParser.NAME) {
 //                    System.out.println("Constant objects in equality comparison are not supported");
 //                    System.exit(-1);
 //                } else {
 //                    equality.setLeftV(buildVariable(tree.getChild(1), parTable));
 //                }
-//                if (tree.getChild(1).getType() == PddlParser.NAME) {
+//                if (tree.getChild(1).type() == PddlParser.NAME) {
 //                    System.out.println("Constant objects in equality comparison are not supported");
 //                    System.exit(-1);
 //                } else {
@@ -163,9 +163,9 @@ public class FactoryConditions {
                             if (child.getChild(0) == null) {
                                 break;
                             }
-                            Type t = Type.getType(child.getChild(0).getText());
+                            Type t = Type.type(child.getChild(0).getText());
 
-                            p.add(Variable.createVariable(child.getText(), t));
+                            p.add(Variable.variable(child.getText(), t));
 
                             break;
                         default:
@@ -202,10 +202,10 @@ public class FactoryConditions {
         ArrayList variables = new ArrayList();
         for (int i = 1; i < t.getChildCount(); i++) {
             if (t.getChild(i).getType() == PddlParser.NAME) {
-                PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
+                PDDLObject o = PDDLObject.object(t.getChild(i).getText(),null);
                 variables.add(o);
             } else {
-                Variable v = Variable.createVariable(t.getChild(i).getText(),null);
+                Variable v = Variable.variable(t.getChild(i).getText(),null);
 
                 Variable v1 = parTable.containsVariable(v);
                 if (v1 != null) {
@@ -282,25 +282,25 @@ public class FactoryConditions {
                 for (int i = 1; i < t.getChildCount(); i++) {
 //                System.out.println("Constant Type:" + PddlParser.CONSTANTS);
 //                System.out.println("Name Type:" + PddlParser.NAME);
-//                System.out.println("Current Type:" + t.getChild(i).getType());
+//                System.out.println("Current Type:" + t.getChild(i).type());
                     if (t.getChild(i).getType() == PddlParser.NAME) {
-                        PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
+                        PDDLObject o = PDDLObject.object(t.getChild(i).getText(),null);
                         variables.add(o);
                     } else {
-                        Variable v = Variable.createVariable(t.getChild(i).getText(),null);
+                        Variable v = Variable.variable(t.getChild(i).getText(),null);
                         //System.out.println(parTable);
                         Variable v1 = parTable.containsVariable(v);
 
                         if (v1 != null) {
                             variables.add(v1);
                         } else {
-//                        System.out.println("t.getType: " + t.getChild(i).getText());
+//                        System.out.println("t.type: " + t.getChild(i).getText());
                             System.out.println("NumFluent: Variable " + v + " not involved in the action model");
                             System.exit(-1);
                         }
                     }
                 }
-                NumFluent ret = NumFluent.createNumFluent(name, variables);
+                NumFluent ret = NumFluent.getNumFluent(name, variables);
                 return ret;
             }
             case PddlParser.UNARY_MINUS:
@@ -331,8 +331,8 @@ public class FactoryConditions {
                     if (child.getChild(0) == null) {
                         break;
                     }
-                    Type t = Type.getType(child.getChild(0).getText());
-                    s.add(Variable.createVariable(child.getText(), t));
+                    Type t = Type.type(child.getChild(0).getText());
+                    s.add(Variable.variable(child.getText(), t));
                     break;
                 default:
                     //at this point I should have collected all the parameters for grounding
@@ -449,7 +449,7 @@ public class FactoryConditions {
         } else if (infoAction.getType() == PddlParser.COMPARISON_GD) {
             //System.out.println("Comparison:" + infoAction.getText());
             Collection ret = new HashSet();
-            ret.add(Comparison.createComparison(infoAction.getChild(0).getText(), createExpression(infoAction.getChild(1)), createExpression(infoAction.getChild(2)),false));
+            ret.add(Comparison.comparison(infoAction.getChild(0).getText(), createExpression(infoAction.getChild(1)), createExpression(infoAction.getChild(2)),false));
             return new AndCond(ret);
             //Crea un not e per ogni figlio di questo nodo invoca creaformula
             //gestendo il valore di ritorno come un attributo di not
@@ -490,15 +490,15 @@ public class FactoryConditions {
                 for (int i = 1; i < t.getChildCount(); i++) {
 //                System.out.println("Constant Type:" + PddlParser.CONSTANTS);
 //                System.out.println("Name Type:" + PddlParser.NAME);
-//                System.out.println("Current Type:" + t.getChild(i).getType());
+//                System.out.println("Current Type:" + t.getChild(i).type());
                     if (t.getChild(i).getType() == PddlParser.NAME) {
-                        PDDLObject o = PDDLObject.createObject(t.getChild(i).getText(),null);
+                        PDDLObject o = PDDLObject.object(t.getChild(i).getText(),null);
                         variables.add(o);
                     } else {
 
                     }
                 }
-                return NumFluent.createNumFluent(name, variables);
+                return NumFluent.getNumFluent(name, variables);
             }
             case PddlParser.UNARY_MINUS:
                 return new MinusUnary(createExpression(t.getChild(0)));
@@ -604,10 +604,10 @@ public class FactoryConditions {
                     if (t.getChild(j).getChildCount() > 0) {
                         father = t.getChild(j).getChild(0).getText();
                     }
-                    Variable v = Variable.createVariable(t.getChild(j).getText(),Type.getType(father));
+                    Variable v = Variable.variable(t.getChild(j).getText(),Type.type(father));
                     variables.add(v);
                 }
-                NumFluent ret = NumFluent.createNumFluent(c.getChild(i).getText(), variables);
+                NumFluent ret = NumFluent.getNumFluent(c.getChild(i).getText(), variables);
                 res.add(ret);
             }
         }

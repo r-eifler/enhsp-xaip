@@ -70,6 +70,13 @@ import org.jgrapht.alg.util.Pair;
  */
 public class EPddlProblem implements SearchProblem {
 
+    /**
+     * @return the readyForSearch
+     */
+    public boolean isReadyForSearch() {
+        return readyForSearch;
+    }
+
     static public HashSet<Predicate> booleanFluents;
 
     public PDDLObjects objects;
@@ -117,6 +124,7 @@ public class EPddlProblem implements SearchProblem {
     final private String groundingMethod;
     private long groundingTime;
     private boolean sdac; 
+    private boolean readyForSearch;
     
     
 
@@ -138,6 +146,7 @@ public class EPddlProblem implements SearchProblem {
         linkedDomain = domain;
         initBoolFluentsValues = new HashMap();
         initNumFluentsValues = new HashMap();
+        readyForSearch = false;
     }
     
     
@@ -262,6 +271,8 @@ public class EPddlProblem implements SearchProblem {
             return;
         this.simplifyAndSetupInit(aibrPreprocessing);
         this.setGoals(generate_inequalities(getGoals()));
+                readyForSearch = true;
+
     }
     protected Condition generate_inequalities (Condition con) {
         return (Condition) con.transformEquality();
@@ -504,7 +515,7 @@ public class EPddlProblem implements SearchProblem {
 
 
     public void setDeltaTimeVariable (String delta_t) {
-        this.getInitNumFluentsValues().put(NumFluent.createNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));
+        this.getInitNumFluentsValues().put(NumFluent.getNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));
     }
 
 
@@ -605,6 +616,7 @@ public class EPddlProblem implements SearchProblem {
     private PDDLState makePddlState ( ) {
         //ensure compactness
         //removeStaticPart();
+        PDDLState.fastTransitionTable = null;
         fixNecessaryFluents();
         HashMap<Integer,Double> numFluents = new HashMap();
         totNumberOfNumVariables = 0;
@@ -982,7 +994,7 @@ public class EPddlProblem implements SearchProblem {
                     System.out.println(c.getChild(i).getChild(0).getText() + " not found");
                     System.exit(-1);
                 }
-                this.getObjects().add(PDDLObject.createObject(c.getChild(i).getText(), t));
+                this.getObjects().add(PDDLObject.object(c.getChild(i).getText(), t));
             } else {
                 throw new RuntimeException("Need to link the domain first");
             }
@@ -1311,6 +1323,13 @@ public class EPddlProblem implements SearchProblem {
         initBoolFluentsValues.put(predicate, b);
     }
 
+    public void addNumValue(NumFluent var, float value) {
+        if (this.initNumFluentsValues == null) {
+            initNumFluentsValues = new HashMap();
+        }
+        initNumFluentsValues.put(var, new PDDLNumber(value));
+    }
+
     public void addAction(TransitionGround action) {
         this.actions.add(action);
     }
@@ -1351,6 +1370,7 @@ public class EPddlProblem implements SearchProblem {
     public void prepareForSearch() throws Exception {
         prepareForSearch(true);
     }
+
     protected class stateIterator implements ObjectIterator<Pair<State, Object>> {
         protected final State source;
         final private Object[] actionsSet;
