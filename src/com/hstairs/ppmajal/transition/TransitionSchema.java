@@ -11,8 +11,8 @@ public class TransitionSchema extends Transition {
     final protected SchemaParameters parameters;
     final protected Collection<ForAll> forallEffects;
 
-    public TransitionSchema(SchemaParameters parameters, String name, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
-        this(parameters, name, conditionalPropositionalEffects, conditionalNumericEffects,preconditions, semantcis, null);        
+    public TransitionSchema(String name, Semantics semantics, SchemaParameters parameters, Condition preconditions, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects) {
+        this(parameters, name, conditionalPropositionalEffects, conditionalNumericEffects,preconditions, semantics, null);        
     }
 
     public TransitionSchema(SchemaParameters par, String transitionName, ConditionalEffects<Terminal> propEffect, ConditionalEffects<NumEffect> numEffect, Condition precondition, Semantics semantics, Collection<ForAll>  forall) {

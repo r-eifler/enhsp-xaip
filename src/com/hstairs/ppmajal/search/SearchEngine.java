@@ -72,12 +72,13 @@ public class SearchEngine {
     private int causalDeadEnds;
     private Object2FloatMap<State> idaStar;
     private PrintStream out;
+    protected final SearchProblem problem;
 
-    public SearchEngine(SearchHeuristic h) {
-        this(System.out, h);
+    public SearchEngine(SearchHeuristic h, SearchProblem problem) {
+        this(System.out, h, problem);
     }
 
-    public SearchEngine(PrintStream out, SearchHeuristic h) {
+    public SearchEngine(PrintStream out, SearchHeuristic h, SearchProblem problem) {
         setNodesExpanded(0);
         setNodesReopened(0);
         setNumberOfEvaluatedStates(0);
@@ -92,6 +93,7 @@ public class SearchEngine {
         bfsTieBreaking = true;
         this.out = out;
         heuristic = h;
+        this.problem = problem;
     }
 
     private Object getMap(Explorator explorator) {
@@ -175,7 +177,7 @@ public class SearchEngine {
     public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> a_star(SearchProblem problem) throws Exception {
         this.gw = 1f;
         this.hw = 1f;
-        return this.WAStar(problem);
+        return this.WAStar();
     }
 
     public LinkedList<Object> enforced_hill_climbing(SearchProblem problem) throws Exception {
@@ -539,7 +541,7 @@ public class SearchEngine {
         return this.lastState;
     }
 
-    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> WAStar(SearchProblem problem) throws Exception {
+    public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> WAStar() throws Exception {
         return WAStar(problem, false, Long.MAX_VALUE);
     }
 
@@ -563,7 +565,7 @@ public class SearchEngine {
 
     public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem, boolean optimality) throws Exception {
         this.optimality = optimality;
-        return this.WAStar(problem);
+        return this.WAStar();
     }
 
     public LinkedList<org.apache.commons.lang3.tuple.Pair<BigDecimal, Object>> greedy_best_first_search(SearchProblem problem, long timeout) throws Exception {

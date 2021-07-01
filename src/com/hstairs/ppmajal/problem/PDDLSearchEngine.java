@@ -50,7 +50,6 @@ import java.util.List;
  */
 public class PDDLSearchEngine extends SearchEngine {
 
-    private final EPddlProblem problem;
     protected Collection<TransitionGround> reachableProcesses;
     protected Collection<TransitionGround> reachableEvents;
         public BigDecimal executionDelta;
@@ -59,9 +58,8 @@ public class PDDLSearchEngine extends SearchEngine {
     //This is a hack!
     private HashMap<Float,TransitionGround> triggeredEvents;
 
-    public PDDLSearchEngine(SearchHeuristic h, EPddlProblem problem) {
-        super(h);
-        this.problem = problem;
+    public PDDLSearchEngine(EPddlProblem problem, SearchHeuristic h) {
+        super(h, problem);
     }
     @Override
     protected void printInfo(PrintStream out) {
@@ -87,7 +85,7 @@ public class PDDLSearchEngine extends SearchEngine {
             TransitionGround right = (TransitionGround) ele.getRight();
             if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
                 final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
-                        = simulation(current, problem, execDelta, stepSize, false, planTraceString);
+                        = simulation(current, (EPddlProblem) problem, execDelta, stepSize, false, planTraceString);
                 if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
@@ -114,7 +112,7 @@ public class PDDLSearchEngine extends SearchEngine {
             }
         }
 //        System.out.println(current);
-        return current.satisfy(problem.getGoals());
+        return current.satisfy(((EPddlProblem)problem).getGoals());
     }
 
     @Override
@@ -133,7 +131,7 @@ public class PDDLSearchEngine extends SearchEngine {
         }
         
         SearchNode c = (SearchNode) input;
-        if (problem.getProcessesSet().isEmpty()) {
+        if (((EPddlProblem)problem).getProcessesSet().isEmpty()) {
             while ((c.transition != null || c.list_of_actions != null)) {
                 BigDecimal time = null;
                 if (c.father != null && c.father.s instanceof PDDLState) {
@@ -157,7 +155,7 @@ public class PDDLSearchEngine extends SearchEngine {
             triggeredEvents = new HashMap();
             System.out.println("Extracting plan with execution delta: "+executionDelta);
             BigDecimal time = ((PDDLState)c.s).time;
-            TransitionGround waiting = new TransitionGround(new ArrayList<>(),"------>waiting",new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),null, Transition.Semantics.PROCESS);
+            TransitionGround waiting = new TransitionGround("------>waiting", Transition.Semantics.PROCESS, new ArrayList<>(), null,new ConditionalEffects(),new ConditionalEffects());
             while ((c.transition != null || c.list_of_actions != null)) {
                 if (c.transition != null){
                     // This is an action

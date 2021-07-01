@@ -29,17 +29,15 @@ public class TransitionGround extends Transition {
     final protected List<PDDLObject> parameters;
     private ArrayList sdac;
 
-    public TransitionGround(List<PDDLObject> parameters, String name, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
-        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantcis);
+    public TransitionGround(String name, Semantics semantics, List<PDDLObject> parameters, Condition preconditions, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects) {
+        super(name, conditionalPropositionalEffects, conditionalNumericEffects, preconditions, semantics);
         this.parameters = parameters;
     }
 
     public TransitionGround(ArrayList<NumEffect> numEffect) {
-        this(null,
-                "waiting",
-                new ConditionalEffects(ConditionalEffects.VariableType.PROPEFFECT),
-                new ConditionalEffects(ConditionalEffects.VariableType.NUMEFFECT),
-                null, Transition.Semantics.PROCESS);
+        this(                "waiting", Transition.Semantics.PROCESS, null, null,
+                new ConditionalEffects(),
+                new ConditionalEffects());
         this.getConditionalNumericEffects().forceUnconditionalEffect(numEffect);
     }
 
@@ -147,7 +145,7 @@ public class TransitionGround extends Transition {
 
                     if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                             || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                        Predicate truePredicate = Predicate.createPredicate(Predicate.trueFalse.TRUE);
+                        Predicate truePredicate = Predicate.getPredicate(Predicate.trueFalse.TRUE);
                         this.sdac.add(Pair.of(truePredicate, exprImpact));
                     }
                 }else{
@@ -181,7 +179,7 @@ public class TransitionGround extends Transition {
 
                     if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                             || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                        this.sdac.add(Pair.of(Predicate.createPredicate(Predicate.trueFalse.TRUE), exprImpact));
+                        this.sdac.add(Pair.of(Predicate.getPredicate(Predicate.trueFalse.TRUE), exprImpact));
                     }
                     
                 }
@@ -213,7 +211,7 @@ public class TransitionGround extends Transition {
 
 
     public static TransitionGround waitingAction() {
-       return new TransitionGround(null,null,null,null,null,null);
+       return new TransitionGround(null, null, null,null,null,null);
     }
     public boolean isWaiting(){
         return parameters == null;

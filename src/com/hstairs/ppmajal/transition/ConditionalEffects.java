@@ -15,8 +15,15 @@ public class ConditionalEffects<T> {
     private Map<Condition, Collection<T>> actualConditionalEffects;
     private Collection<T> unconditionalEffect;
 
+    public static ConditionalEffects<Predicate> stripsEffects(Collection<Predicate> input){
+        final ConditionalEffects<Predicate> conditionalEffects = new ConditionalEffects<>();
+        for (var v: input){
+           conditionalEffects.add(v);
+        }
+        return conditionalEffects;
+    }
     public ConditionalEffects weakEval(EPddlProblem ePddlProblem, Set invariantFluents) {
-        ConditionalEffects res = new ConditionalEffects(this.t);
+        ConditionalEffects res = new ConditionalEffects();
         if (actualConditionalEffects != null) {
             for (Map.Entry<Condition, Collection<T>> entry : actualConditionalEffects.entrySet()) {
                 Collection<T> toAdd = new ArrayList();
@@ -60,11 +67,6 @@ public class ConditionalEffects<T> {
         unconditionalEffect = elements;
     }
 
-    public enum VariableType {PROPEFFECT, NUMEFFECT};
-    final private VariableType  t;
-    public ConditionalEffects(VariableType  t1){
-        this.t = t1;
-    }
 
     public void add(T element){
         if (unconditionalEffect == null){
@@ -150,7 +152,7 @@ public class ConditionalEffects<T> {
         return res;
     }
     public ConditionalEffects<T> ground(Map<Variable, PDDLObject> substitution, PDDLObjects po){
-        ConditionalEffects res = new ConditionalEffects(this.t);
+        ConditionalEffects res = new ConditionalEffects();
         final Set<Map.Entry<Condition, Collection<T>>> entries = this.getActualConditionalEffects().entrySet();
         for (Map.Entry<Condition, Collection<T>> entry : entries) {
             for (T e : entry.getValue()) {
@@ -175,7 +177,7 @@ public class ConditionalEffects<T> {
         Map<Condition,Collection> ret = new HashMap();
         if (unconditionalEffect != null){
             if (!unconditionalEffect.isEmpty()){
-                ret.put(Predicate.createPredicate(Predicate.trueFalse.TRUE), unconditionalEffect);
+                ret.put(Predicate.getPredicate(Predicate.trueFalse.TRUE), unconditionalEffect);
             }        
         }
         if (actualConditionalEffects != null) {
@@ -185,4 +187,5 @@ public class ConditionalEffects<T> {
         }
         return ret;
     }
+    public enum VariableType {PROPEFFECT, NUMEFFECT}
 }

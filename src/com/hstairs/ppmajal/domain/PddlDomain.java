@@ -520,8 +520,8 @@ public final class PddlDomain {
         String transitionName = name.getText();
         Condition precondition = null;
         SchemaParameters par = new SchemaParameters();
-        ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.PROPEFFECT);
-        ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>(ConditionalEffects.VariableType.NUMEFFECT);
+        ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>();
+        ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>();
         Collection<ForAll>  forall = new ArrayList();
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);

@@ -250,10 +250,8 @@ public class EPddlProblem implements SearchProblem {
 
     }
 
-    public void groundingSimplication(boolean aibrPreprocessing) throws Exception {
-
+    public void prepareForSearch(boolean aibrPreprocessing) throws Exception {
         this.groundingSimplication(aibrPreprocessing, false);
-
     }
     public void groundingSimplication(boolean aibrPreprocessing,boolean stopAfterGrounding) throws Exception {
 
@@ -263,9 +261,7 @@ public class EPddlProblem implements SearchProblem {
         if (stopAfterGrounding)
             return;
         this.simplifyAndSetupInit(aibrPreprocessing);
-
         this.setGoals(generate_inequalities(getGoals()));
-
     }
     protected Condition generate_inequalities (Condition con) {
         return (Condition) con.transformEquality();
@@ -350,11 +346,9 @@ public class EPddlProblem implements SearchProblem {
                     if (condition != null && !condition.isUnsatisfiable()){
                         ConditionalEffects conditionalNumericEffects = act.getConditionalNumericEffects();
                         ConditionalEffects conditionalPropositionalEffects = act.getConditionalPropositionalEffects();
-                        res.add(new TransitionGround(act.getParameters(),act.getName(),
+                        res.add(new TransitionGround(act.getName(), act.getSemantics(), act.getParameters(), condition,
                                 conditionalPropositionalEffects.weakEval(this,invariantFluents),
-                                conditionalNumericEffects.weakEval(this,invariantFluents),
-                                condition,
-                                act.getSemantics()));
+                                conditionalNumericEffects.weakEval(this,invariantFluents)));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1352,6 +1346,10 @@ public class EPddlProblem implements SearchProblem {
         }else{
             return previousG + 1*right;
         }
+    }
+
+    public void prepareForSearch() throws Exception {
+        prepareForSearch(true);
     }
     protected class stateIterator implements ObjectIterator<Pair<State, Object>> {
         protected final State source;

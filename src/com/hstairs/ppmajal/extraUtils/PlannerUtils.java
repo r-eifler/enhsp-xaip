@@ -47,7 +47,7 @@ public class PlannerUtils {
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");
         }
-        p.groundingSimplication(true);
+        p.prepareForSearch(true);
         h = null;
 
         switch (heuristic) {
@@ -76,13 +76,13 @@ public class PlannerUtils {
 
     public int getPlanSize(String domainFileName, String problemFileName, String heuristic, int wg, int wh, int depthBound) throws Exception {
         setup(domainFileName,problemFileName,heuristic);
-        PDDLSearchEngine search = new PDDLSearchEngine(h, p);
+        PDDLSearchEngine search = new PDDLSearchEngine(p, h);
         if (!p.getProcessesSet().isEmpty()){
             search.planningDelta = new BigDecimal(1.0f);
             search.processes = true;
             search.executionDelta = new BigDecimal(1.0f);
         }
-        final LinkedList<Pair<BigDecimal, Object>> pairs = search.WAStar(p);
+        final LinkedList<Pair<BigDecimal, Object>> pairs = search.WAStar();
         return pairs.size();
     }
 

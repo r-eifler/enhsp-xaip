@@ -60,7 +60,7 @@ public class OrCond extends ComplexCondition {
             Condition condInternal = ((Condition)c).normalize();
             if (condInternal.isValid()){
                 this.setValid(true);
-                return Predicate.createPredicate(Predicate.trueFalse.TRUE);
+                return Predicate.getPredicate(Predicate.trueFalse.TRUE);
             }else if (!condInternal.isUnsatisfiable()){
                 if (condInternal instanceof OrCond){
                     addAll(sons1,((OrCond) condInternal).sons);

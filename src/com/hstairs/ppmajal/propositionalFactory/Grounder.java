@@ -447,7 +447,7 @@ public class Grounder {
 
         
         Collection combo;
-        if (action.getParameters().isEmpty()) {
+        if (action.getParameters() == null || action.getParameters().isEmpty()) {
             combo = Collections.singletonList(new ParametersAsTerms());
 //            combo = Collections.singleton(new ParametersAsTerms());
 //            combo.add(new ParametersAsTerms());
@@ -630,10 +630,12 @@ public class Grounder {
 
         int i = 0;
         Map substitution = new Object2ObjectArrayMap();
-        for (Object o : parameters) {
-            Variable el = (Variable) o;
-            substitution.put(el, par.get(i));
-            i++;
+        if (parameters != null) {
+            for (Object o : parameters) {
+                Variable el = (Variable) o;
+                substitution.put(el, par.get(i));
+                i++;
+            }
         }
         return substitution;
 
@@ -652,8 +654,7 @@ public class Grounder {
                 addEffects(temp,groundedConditionalNumericEffects,groundedConditionalPropEffects);
             }
         }
-        return new TransitionGround( parametersAsTerms,a.getName(), groundedConditionalPropEffects,groundedConditionalNumericEffects, preconditions,
-                a.getSemantics());
+        return new TransitionGround( a.getName(), a.getSemantics(), parametersAsTerms, preconditions, groundedConditionalPropEffects,groundedConditionalNumericEffects);
 
     }
 

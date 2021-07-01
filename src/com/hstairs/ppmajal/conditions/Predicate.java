@@ -46,21 +46,26 @@ public class Predicate extends Terminal implements PostCondition {
 
     private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
 
-    public static Predicate getPredicate(String name, List variables){
+    
+    public static Predicate BoolFluent(String name){
+        return getPredicate(name, Collections.EMPTY_LIST);
+    }
+    
+    public static Predicate getPredicate(String name, List vars){
         if (predicates == null){
             predicates = new HashMap();
         }
-        Pair pair = new Pair(name,variables);
+        Pair pair = new Pair(name,vars);
         Predicate predicate = predicates.get(pair);
         if (predicate == null){
-            predicate = new Predicate(name,variables);
+            predicate = new Predicate(name,vars);
             predicates.put(pair,predicate);
         }
         return predicate;
     }
     
     
-    public static Predicate createPredicate(trueFalse input){
+    public static Predicate getPredicate(trueFalse input){
         if (input == trueFalse.TRUE) {
             return truePredicate;
         } else {
@@ -228,7 +233,7 @@ public class Predicate extends Terminal implements PostCondition {
             }
         }
         Predicate createPredicate = Predicate.getPredicate(name, localVariables);
-//        System.out.println(getPredicate);
+//        System.out.println(BoolFluent);
         return createPredicate;
     }
 
@@ -386,7 +391,7 @@ public class Predicate extends Terminal implements PostCondition {
             }
             return this;
         } else {//this is meant to couple all the predicates in a unique representation
-            return this;//problem.getPredicate(this);
+            return this;//problem.BoolFluent(this);
         }
     }
 

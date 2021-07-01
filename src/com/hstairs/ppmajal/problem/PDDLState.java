@@ -229,7 +229,7 @@ protected DoubleArrayList numFluents;
                         }
                     }
                     if (!eff.getUnconditionalEffect().isEmpty()){
-                        temp.add(Pair.of(Predicate.createPredicate(Predicate.trueFalse.TRUE),eff.getUnconditionalEffect()));
+                        temp.add(Pair.of(Predicate.getPredicate(Predicate.trueFalse.TRUE),eff.getUnconditionalEffect()));
                     }
                     //eff = null;
                 }

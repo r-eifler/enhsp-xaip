@@ -67,7 +67,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     public Condition weakEval (EPddlProblem s, Set invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.activation_condition.isValid()){
-            this.activation_condition = Predicate.createPredicate(Predicate.trueFalse.TRUE);
+            this.activation_condition = Predicate.getPredicate(Predicate.trueFalse.TRUE);
         }
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
