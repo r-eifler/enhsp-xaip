@@ -75,7 +75,7 @@ public abstract class ExternalGrounder {
                         for (String obj : ele) {
                             p.add(problem.getObjectByName(obj));
                         }
-                        final TransitionGround ground = Grounder.ground(schema, p, problem.objects, problem);
+                        final TransitionGround ground = Grounder.ground(schema, p, problem.getObjects(), problem);
                         actions.add(ground);
                     }
                 }

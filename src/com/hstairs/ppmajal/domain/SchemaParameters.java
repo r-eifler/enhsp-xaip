@@ -19,13 +19,19 @@
 package com.hstairs.ppmajal.domain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author enrico
  */
 public class SchemaParameters extends ArrayList {
 
+    public static SchemaParameters createPar(Variable... input){
+        return new SchemaParameters(Arrays.asList(input));
+    }
+    
 
     public SchemaParameters ( ) {
         super();
@@ -34,11 +40,11 @@ public class SchemaParameters extends ArrayList {
     public SchemaParameters (SchemaParameters po) {
         super(po);
     }
-    public SchemaParameters (ArrayList po) {
+    public SchemaParameters (List po) {
         super(po);
     }
 
-    public Variable containsVariable (Variable o) {
+    public Variable getVar (Variable o) {
         Iterator it = this.iterator();
         while (it.hasNext()) {
             Variable v = (Variable) it.next();
@@ -75,27 +81,5 @@ public class SchemaParameters extends ArrayList {
 
     }
 
-    void mergeParameters (SchemaParameters a) {
-        int counter = 0;
-        for (Object o : a) {
-            Variable obj = (Variable) o;
-            boolean found = false;
-            for (Object o1 : this) {
-                Variable obj2 = (Variable) o1;
-                if (obj2.getType().equals(obj.getType())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                Variable obj3 = Variable.variable(obj.getName()+counter,obj.getType());
-                //obj.setName(obj.getName()+counter);
-                this.add(obj3);
-                counter++;
-            }
-
-        }
-
-    }
 
 }

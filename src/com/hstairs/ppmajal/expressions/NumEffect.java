@@ -37,6 +37,9 @@ public class NumEffect extends Expression implements PostCondition {
     private Expression right;
     private boolean pseudo_num_effect;
 
+    public static NumEffect easyNumEffect(String operator, NumFluent fluent, float right){
+        return new NumEffect(operator,fluent,new PDDLNumber(right));
+    }
     /**
      * @param operator
      */

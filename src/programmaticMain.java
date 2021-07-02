@@ -27,12 +27,15 @@ import java.util.LinkedList;
 import org.apache.commons.lang3.tuple.Pair;
 import static com.hstairs.ppmajal.conditions.Predicate.BoolFluent;
 import static com.hstairs.ppmajal.conditions.Predicate.getPredicate;
+import static com.hstairs.ppmajal.domain.SchemaParameters.createPar;
 import static com.hstairs.ppmajal.domain.Type.type;
 import static com.hstairs.ppmajal.domain.Variable.variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
+import static com.hstairs.ppmajal.expressions.NumEffect.easyNumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import static com.hstairs.ppmajal.expressions.NumFluent.numericFluent;
+import static com.hstairs.ppmajal.transition.ConditionalEffects.numEffects;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -65,7 +68,7 @@ public class programmaticMain {
         TransitionGround action2 = new TransitionGround(
                 "world", ACTION, null,
                 Predicate.getPredicate("a", null),
-                stripsEffects(Arrays.asList(Predicate.getPredicate("b", null))),
+                stripsEffects(Predicate.getPredicate("b", null)),
                 new ConditionalEffects());
         problem.actions.add(action2);
 
@@ -91,7 +94,7 @@ public class programmaticMain {
         pddlDomain.addType(Type.type("Person"));
 
         EPddlProblem problem = new EPddlProblem(pddlDomain, "internal", System.out, false);
-        problem.objects.add(PDDLObject.object("Enrico", Type.type("Person")));
+        problem.getObjects().add(PDDLObject.object("Enrico", Type.type("Person")));
 
         //Define Actions
         ConditionalEffects<Predicate> effects = new ConditionalEffects<>();
@@ -104,7 +107,7 @@ public class programmaticMain {
         pddlDomain.addAction(action);
         TransitionSchema action2 = new TransitionSchema("world", ACTION, null,
                 BoolFluent("a"),
-                stripsEffects(Arrays.asList(BoolFluent("b"))),
+                stripsEffects(BoolFluent("b")),
                 new ConditionalEffects());
         pddlDomain.addAction(action2);
 
@@ -125,40 +128,38 @@ public class programmaticMain {
     public static void fullSchemaNumericProblem() throws Exception {
         PddlDomain pddlDomain = new PddlDomain();
 
+        //add types
+        pddlDomain.addType(type("Person"));
+        
         //add predicates
         pddlDomain.addFunction("a", new ArrayList());
         
-        pddlDomain.addType(type("Person"));
 
         EPddlProblem problem = new EPddlProblem(pddlDomain, "internal", System.out, false);
-        problem.objects.add(object("Enrico", type("Person")));
+        problem.getObjects().add(object("Enrico", type("Person")));
 
         //Define Actions
         ConditionalEffects<NumEffect> effects = new ConditionalEffects<>();
         
         effects.add(new NumEffect("increase",numericFluent("a"),new PDDLNumber(1)));
-        
-        SchemaParameters par = new SchemaParameters();
-        par.add(variable("x", type("Person")));
-        
-        pddlDomain.addAction(new TransitionSchema("hello", Transition.Semantics.ACTION, par, null,
-                new ConditionalEffects(),
-                effects));
-        
 
+        pddlDomain.addAction(new TransitionSchema("hello", Transition.Semantics.ACTION, createPar(variable("x", type("Person"))), null,
+                new ConditionalEffects(),
+                numEffects(easyNumEffect("increase",numericFluent("a"),101))));
+       
         //init
         problem.addNumValue(numericFluent("a"), 0);
-         /*In this case it is empty, meaning all variables are false by CWA*/
         
         //goal
         problem.setGoals(comparison(">=", numericFluent("a"), new PDDLNumber(100),false));
 
         problem.prepareForSearch(); /* This is very necessary prior to any planning*/
 
-        final PDDLSearchEngine searchEngine = new PDDLSearchEngine(problem, new H1(problem)); //manager of the search strategies
+        PDDLSearchEngine searchEngine = new PDDLSearchEngine(problem, new H1(problem)); //manager of the search strategies
         
         LinkedList<Pair<BigDecimal, Object>> plan = searchEngine.WAStar();
         System.out.println(plan);
+        System.out.println(plan.size());
 
     }
     

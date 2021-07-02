@@ -151,7 +151,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
                     + ";init \n (:init %s)\n"
                     + ";goals \n (:goal %s) \n )";
             StringBuilder objects = new StringBuilder();
-            objects.append(problem.objects.pddlPrint());
+            objects.append(problem.getObjects().pddlPrint());
             StringBuilder goals = new StringBuilder();
             goals.append(getPreconditionString(problem.getGoals(),true));
             StringBuilder init = abstractNumericInit(problem);

@@ -79,7 +79,7 @@ public class EPddlProblem implements SearchProblem {
 
     static public HashSet<Predicate> booleanFluents;
 
-    public PDDLObjects objects;
+    private PDDLObjects objects;
     public State init;
     private Condition goals;
     public Collection<TransitionGround> actions;
@@ -192,7 +192,7 @@ public class EPddlProblem implements SearchProblem {
     public Object clone ( ) throws CloneNotSupportedException {
 
         //EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
-        EPddlProblem cloned = new EPddlProblem(pddlFilRef, objects, types, linkedDomain, out, groundingMethod, sdac);
+        EPddlProblem cloned = new EPddlProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac);
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
             throw new UnsupportedOperationException();
@@ -678,7 +678,7 @@ public class EPddlProblem implements SearchProblem {
     }
 
     private void groundGoals ( ) {
-        this.setGoals((Condition) this.getGoals().ground(new HashMap(), objects));
+        this.setGoals((Condition) this.getGoals().ground(new HashMap(), getObjects()));
     }
 
 
@@ -926,7 +926,7 @@ public class EPddlProblem implements SearchProblem {
         this.one_of_s = new LinkedHashSet();
         this.or_s = new LinkedHashSet();
         //        System.out.println(this.objects);
-        fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.objects);
+        fc = new FactoryConditions(null, (LinkedHashSet<Type>) types, this.getObjects());
         if (this.unknonw_predicates == null) {
             this.unknonw_predicates = new LinkedHashSet();
         }
@@ -1145,7 +1145,7 @@ public class EPddlProblem implements SearchProblem {
      * @return the term representing the object
      */
     public PDDLObject getObjectByName(String string) {
-        return Utils.getObjectByName(this.objects, string);
+        return Utils.getObjectByName(this.getObjects(), string);
     }
 
     public double getInitFunctionValue(NumFluent f) {

@@ -68,7 +68,7 @@ public class FactoryConditions {
         } else {
 
             a = Variable.variable(t.getText(),null);
-            Variable v1 = parTable.containsVariable(a);
+            Variable v1 = parTable.getVar(a);
             if (v1 == null) {
                 throw new RuntimeException("BuildPredicate: Variable " + a + " not involved in the action model");
 //                System.exit(-1);
@@ -207,7 +207,7 @@ public class FactoryConditions {
             } else {
                 Variable v = Variable.variable(t.getChild(i).getText(),null);
 
-                Variable v1 = parTable.containsVariable(v);
+                Variable v1 = parTable.getVar(v);
                 if (v1 != null) {
                     variables.add(v1);
                 } else {
@@ -289,7 +289,7 @@ public class FactoryConditions {
                     } else {
                         Variable v = Variable.variable(t.getChild(i).getText(),null);
                         //System.out.println(parTable);
-                        Variable v1 = parTable.containsVariable(v);
+                        Variable v1 = parTable.getVar(v);
 
                         if (v1 != null) {
                             variables.add(v1);

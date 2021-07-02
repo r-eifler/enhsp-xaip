@@ -15,13 +15,21 @@ public class ConditionalEffects<T> {
     private Map<Condition, Collection<T>> actualConditionalEffects;
     private Collection<T> unconditionalEffect;
 
-    public static ConditionalEffects<Predicate> stripsEffects(Collection<Predicate> input){
+    public static ConditionalEffects<Predicate> stripsEffects(Predicate... input){
         final ConditionalEffects<Predicate> conditionalEffects = new ConditionalEffects<>();
         for (var v: input){
            conditionalEffects.add(v);
         }
         return conditionalEffects;
     }
+    public static ConditionalEffects<NumEffect> numEffects(NumEffect... input){
+        final ConditionalEffects<NumEffect> conditionalEffects = new ConditionalEffects<>();
+        for (var v: input){
+           conditionalEffects.add(v);
+        }
+        return conditionalEffects;
+    }
+    
     public ConditionalEffects weakEval(EPddlProblem ePddlProblem, Set invariantFluents) {
         ConditionalEffects res = new ConditionalEffects();
         if (actualConditionalEffects != null) {
