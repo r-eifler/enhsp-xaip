@@ -96,7 +96,6 @@ public class EPddlProblem implements SearchProblem {
     protected String pddlFilRef;
     protected String domainName;
     protected long propositionalTime;
-    protected boolean grounded_representation;
     protected RelState possStates;
     protected boolean simplifyActions;
     private boolean action_cost_from_metric = true;
@@ -134,7 +133,6 @@ public class EPddlProblem implements SearchProblem {
         objects = new PDDLObjects();
         metric = new Metric("NO");
         actions = new LinkedHashSet();
-        grounded_representation = false;
         simplifyActions = true;
         possStates = null;
         globalConstraintSet = new LinkedHashSet();
@@ -193,6 +191,7 @@ public class EPddlProblem implements SearchProblem {
 
         //EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
         EPddlProblem cloned = new EPddlProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac);
+        
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
             throw new UnsupportedOperationException();
@@ -315,7 +314,6 @@ public class EPddlProblem implements SearchProblem {
         this.groundGoals();
         this.generateTransitions();
         this.generateConstraints();
-        this.setGroundedRepresentation(true);
         this.getActualFluents();
         if (this.metric != null && this.metric.getMetExpr() != null) {
             this.metric.setMetExpr(this.metric.getMetExpr().normalize());
@@ -434,7 +432,6 @@ public class EPddlProblem implements SearchProblem {
         eventsSet = (Collection<TransitionGround>) cleanEasyUnreachableTransitions(eventsSet);
 //        this.staticFluents = null;
         cleanIrrelevantConstraints(globalConstraintSet);
-        this.setGroundedRepresentation(true);
 
         setGoals((Condition) getGoals().weakEval(this, this.getActualFluents()));
         setGoals((Condition) getGoals().normalize());
@@ -830,16 +827,6 @@ public class EPddlProblem implements SearchProblem {
         return linkedDomain;
     }
 
-    /**
-     * Get the value of groundedActions
-    /**
-     * Set the value of groundedActions
-     *
-     * @param groundedActions new value of groundedActions
-     */
-    protected void setGroundedRepresentation(boolean groundedActions) {
-        this.grounded_representation = groundedActions;
-    }
 
     /**
      * Get the value of domainName

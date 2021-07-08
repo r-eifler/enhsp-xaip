@@ -21,10 +21,8 @@ package com.hstairs.ppmajal.conditions;
 import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
-import com.hstairs.ppmajal.pddl.heuristics.utils.AchieverSet;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import net.sourceforge.interval.ia_math.RealInterval;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
@@ -66,7 +64,6 @@ public class Comparison extends Terminal {
 
     private Comparison(String comparator, Expression left, Expression right, int id) {
         this(comparator, left, right,false);
-                
     }
     
     private Comparison(String comparator, Expression left, Expression right,boolean normalized) {
