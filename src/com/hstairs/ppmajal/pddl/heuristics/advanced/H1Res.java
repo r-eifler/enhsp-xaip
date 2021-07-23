@@ -10,7 +10,7 @@ import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -34,7 +34,7 @@ public class H1Res extends H1 {
     private BitSet[] depActions;
     final private boolean ordering;
     
-    public H1Res(EPddlProblem p, String red, boolean twolevel, boolean ordering) {
+    public H1Res(PDDLProblem p, String red, boolean twolevel, boolean ordering) {
         super(p, false, false, false, red, false, false, false, false);
         
         localCost = new float[heuristicNumberOfActions][totNumberOfTerms];

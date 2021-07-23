@@ -53,7 +53,7 @@ public abstract class Condition extends PDDLProblemComponent {
      * @param invF
      * @return
      */
-    public abstract Condition weakEval (EPddlProblem p, Set invF);
+    public abstract Condition weakEval (PDDLProblem p, Set invF);
     //public abstract void addConditions(Conditions o);
 
 

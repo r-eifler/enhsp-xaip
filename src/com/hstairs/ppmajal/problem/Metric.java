@@ -79,7 +79,7 @@ public class Metric {
         }
     }
 
-    Metric unifyVariablesReferences (EPddlProblem aThis) {
+    Metric unifyVariablesReferences (PDDLProblem aThis) {
         if (this.metExpr != null)
             this.metExpr = this.metExpr.unifyVariablesReferences(aThis);
         return this;

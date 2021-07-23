@@ -59,7 +59,7 @@ public class RelState extends Object {
             str.append(fluent).append("=").append(possNumValues.get(i)).append("");
         }
         str.append("\n");
-        for (Predicate fluent : EPddlProblem.booleanFluents){
+        for (Predicate fluent : PDDLProblem.booleanFluents){
             str.append(fluent).append("=").append(this.canBeTrue(fluent)).append(" ");
             str.append(fluent).append("=").append(this.canBeFalse(fluent)).append(" ");
         }

@@ -24,7 +24,7 @@
 package com.hstairs.ppmajal.pddl.heuristics;
 
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
@@ -37,9 +37,9 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
 public class BlindHeuristic implements SearchHeuristic {
 
     final Condition goal;
-    final private EPddlProblem problem;
+    final private PDDLProblem problem;
     final Object[] staticActions;
-    public BlindHeuristic(EPddlProblem problem){
+    public BlindHeuristic(PDDLProblem problem){
         this.problem = problem;
         goal = problem.getGoals();
         staticActions = problem.actions.toArray();

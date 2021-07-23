@@ -4,7 +4,7 @@ import com.hstairs.ppmajal.domain.PddlDomain;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.pddl.heuristics.BlindHeuristic;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLSearchEngine;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -36,13 +36,13 @@ import java.math.BigDecimal;
  */
 public class PlannerUtils {
     PddlDomain d;
-    EPddlProblem p;
+    PDDLProblem p;
     SearchHeuristic h;
 
 
     private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {
         d = new PddlDomain(domainFileName);
-        p = new EPddlProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true);
+        p = new PDDLProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true);
         d.substituteEqualityConditions();
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");

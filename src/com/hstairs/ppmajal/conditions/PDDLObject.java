@@ -151,7 +151,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition weakEval (EPddlProblem s, Set invF) {
+    public Condition weakEval (PDDLProblem s, Set invF) {
         return this;
     }
 
@@ -224,7 +224,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Condition unifyVariablesReferences (EPddlProblem p) {
+    public Condition unifyVariablesReferences (PDDLProblem p) {
         return this;
     }
 

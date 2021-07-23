@@ -5,6 +5,7 @@ import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class MAPPDDLState extends PDDLState {
 
@@ -12,7 +13,7 @@ public class MAPPDDLState extends PDDLState {
     final HashMap<String, Boolean> predicateValue;
     final HashMap<String, PDDLNumber> numFluentValue;
 
-    public MAPPDDLState (HashMap<NumFluent, PDDLNumber> numFluentReference, HashMap<Predicate, Boolean> initBoolFluentsValues) {
+    public MAPPDDLState (Map<NumFluent, PDDLNumber> numFluentReference, Map<Predicate, Boolean> initBoolFluentsValues) {
         numFluentValue = new HashMap<>();
         predicateValue = new HashMap<>();
         for (NumFluent nf : numFluentReference.keySet()) {

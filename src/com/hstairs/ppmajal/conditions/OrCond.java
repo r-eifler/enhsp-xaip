@@ -264,7 +264,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition weakEval (EPddlProblem s, Set invF) {
+    public Condition weakEval (PDDLProblem s, Set invF) {
         ReferenceLinkedOpenHashSet to_keep = new ReferenceLinkedOpenHashSet();
         if (this.sons != null) {
             Iterator it = Arrays.asList(this.sons).iterator();
@@ -483,7 +483,7 @@ public class OrCond extends ComplexCondition {
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences(PDDLProblem p) {
         return new OrCond(this.__unifyVariablesReferences(p));
     }
 

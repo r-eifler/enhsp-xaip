@@ -21,7 +21,7 @@ package com.hstairs.ppmajal.pddl.heuristics.advanced;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.ComplexCondition;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
@@ -34,8 +34,8 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
  */
 public class GoalCounting implements SearchHeuristic{
 
-    final private EPddlProblem problem;
-    public GoalCounting(EPddlProblem problem){
+    final private PDDLProblem problem;
+    public GoalCounting(PDDLProblem problem){
         this.problem = problem;
     }
     @Override

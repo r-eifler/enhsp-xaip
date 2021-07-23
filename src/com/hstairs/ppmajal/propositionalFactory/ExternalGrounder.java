@@ -19,7 +19,7 @@
 package com.hstairs.ppmajal.propositionalFactory;
 
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
@@ -35,9 +35,9 @@ import java.util.List;
 public abstract class ExternalGrounder {
     protected final String domainFile;
     protected final String problemFile;
-    protected final EPddlProblem problem;
+    protected final PDDLProblem problem;
 
-    public ExternalGrounder(EPddlProblem problem, String domainFile, String problemFile) {
+    public ExternalGrounder(PDDLProblem problem, String domainFile, String problemFile) {
         this.domainFile = domainFile;
         this.problemFile = problemFile;
         this.problem = problem;

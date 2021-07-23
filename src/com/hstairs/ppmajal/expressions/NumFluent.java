@@ -227,7 +227,7 @@ public class NumFluent extends Expression {
  
 
     @Override
-    public Expression weakEval (EPddlProblem problem, Set invF) {
+    public Expression weakEval (PDDLProblem problem, Set invF) {
 
         if (this.name.equals("#t")) {
             //return this;
@@ -422,7 +422,7 @@ public class NumFluent extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         p.putNumFluentReference(this);
         return this;
     }

@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 
 import java.util.*;
@@ -82,9 +82,9 @@ public abstract class ComplexCondition extends Condition {
     }
 
     @Override
-    abstract public Condition unifyVariablesReferences (EPddlProblem p);
+    abstract public Condition unifyVariablesReferences (PDDLProblem p);
     
-    protected Collection __unifyVariablesReferences(EPddlProblem p){
+    protected Collection __unifyVariablesReferences(PDDLProblem p){
         Collection ret = new LinkedHashSet();
         for (Object c : this.sons) {
             if (c instanceof NumEffect) {

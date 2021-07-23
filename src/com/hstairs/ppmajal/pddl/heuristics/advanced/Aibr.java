@@ -9,7 +9,7 @@ import com.hstairs.ppmajal.expressions.BinaryOp;
 import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.RelState;
 import com.hstairs.ppmajal.problem.State;
@@ -25,7 +25,7 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
 
 public class Aibr implements SearchHeuristic {
 
-    private final EPddlProblem problem;
+    private final PDDLProblem problem;
     private final int numberOfSupporters;
     private final boolean reachability;
     private final int[] supporter2transition;
@@ -38,11 +38,11 @@ public class Aibr implements SearchHeuristic {
     Collection<TransitionGround> reachableTransitions = null;
     private boolean DEBUG = false;
 
-    public Aibr(EPddlProblem problem) {
+    public Aibr(PDDLProblem problem) {
         this(problem, false);
     }
 
-    public Aibr(EPddlProblem problem, boolean reachability) {
+    public Aibr(PDDLProblem problem, boolean reachability) {
         final Int2ObjectMap<Collection<Terminal>> propEffectMap = new Int2ObjectArrayMap();
         final Int2IntArrayMap supporter2transitionMap = new Int2IntArrayMap();
         final Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap = new Int2ObjectArrayMap<>();

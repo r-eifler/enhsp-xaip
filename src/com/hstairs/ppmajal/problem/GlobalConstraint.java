@@ -55,7 +55,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         return cloned;
     }
 
-    boolean simplifyModelWithControllableVariablesSem (PddlDomain domain, EPddlProblem problem) {
+    boolean simplifyModelWithControllableVariablesSem (PddlDomain domain, PDDLProblem problem) {
 
         Set invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable

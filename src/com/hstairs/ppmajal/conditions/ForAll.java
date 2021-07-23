@@ -294,7 +294,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (EPddlProblem s, Set invF) {
+    public Condition weakEval (PDDLProblem s, Set invF) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -329,7 +329,7 @@ public class ForAll extends ComplexCondition implements PostCondition {
     }
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences(PDDLProblem p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

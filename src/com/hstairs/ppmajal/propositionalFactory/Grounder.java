@@ -29,7 +29,7 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.GlobalConstraint;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
@@ -289,7 +289,7 @@ public class Grounder {
         return ret;
     }
 
-    public Collection Propositionalize(TransitionSchema a, PDDLObjects po, EPddlProblem problem) throws Exception {
+    public Collection Propositionalize(TransitionSchema a, PDDLObjects po, PDDLProblem problem) throws Exception {
         Collection combo = null;
         if (a.getParameters().isEmpty()) {
             combo.add(new ParametersAsTerms());
@@ -319,7 +319,7 @@ public class Grounder {
     }
 
 
-    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, EPddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PDDLProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         Collection combo;
         if (action.getParameters().isEmpty()) {
@@ -441,7 +441,7 @@ public class Grounder {
         return res;
     }
 
-    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, EPddlProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PDDLProblem problem, Map<Predicate, Boolean> initBooleanState, PddlDomain domain) {
 
         Map<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
@@ -527,7 +527,7 @@ public class Grounder {
 
     }
 
-    private Collection Propositionalize(TransitionSchema a, Collection combo, PDDLObjects po, EPddlProblem problem) {
+    private Collection Propositionalize(TransitionSchema a, Collection combo, PDDLObjects po, PDDLProblem problem) {
         List ret = new ArrayList();
         for (Object o : combo) {
             if (o instanceof ParametersAsTerms) {
@@ -641,7 +641,7 @@ public class Grounder {
 
     }
 
-    public static TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, EPddlProblem problem) {
+    public static TransitionGround ground(TransitionSchema a, ParametersAsTerms parametersAsTerms, PDDLObjects po, PDDLProblem problem) {
 
         Map substitution = obtain_sub_from_instance(a.getParameters(), parametersAsTerms);
         final ConditionalEffects groundedConditionalPropEffects = a.getConditionalPropositionalEffects().ground(substitution,po);

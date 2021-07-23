@@ -64,7 +64,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (EPddlProblem s, Set invF) {
+    public Condition weakEval (PDDLProblem s, Set invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.activation_condition.isValid()){
             this.activation_condition = Predicate.getPredicate(Predicate.trueFalse.TRUE);
@@ -305,7 +305,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Condition unifyVariablesReferences (EPddlProblem p) {
+    public Condition unifyVariablesReferences (PDDLProblem p) {
         LinkedHashSet ret = new LinkedHashSet();
         this.activation_condition = this.activation_condition.unifyVariablesReferences(p);
         this.effect = (PostCondition) ((Condition) this.effect).unifyVariablesReferences(p);

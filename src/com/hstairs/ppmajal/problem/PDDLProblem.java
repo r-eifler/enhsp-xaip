@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.problem;
 
+import com.google.common.collect.ImmutableMap;
 import com.hstairs.ppmajal.propositionalFactory.MetricFFGrounder;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
@@ -68,7 +69,7 @@ import org.jgrapht.alg.util.Pair;
 /**
  * @author enrico
  */
-public class EPddlProblem implements SearchProblem {
+public class PDDLProblem implements SearchProblem {
 
     /**
      * @return the readyForSearch
@@ -81,7 +82,8 @@ public class EPddlProblem implements SearchProblem {
 
     private PDDLObjects objects;
     public State init;
-    private Condition goals;
+    private Condition liftedGoals;
+    private Condition groundGoals;
     public Collection<TransitionGround> actions;
     public Condition belief;
     public Collection<Predicate> unknonw_predicates;
@@ -101,8 +103,8 @@ public class EPddlProblem implements SearchProblem {
     private boolean action_cost_from_metric = true;
     protected Set actualFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
-    private  HashMap<NumFluent, PDDLNumber> initNumFluentsValues;
-    private  HashMap<Predicate, Boolean> initBoolFluentsValues;
+    final private  Map<NumFluent, PDDLNumber> initNumFluentsValues;
+    final private  Map<Predicate, Boolean> initBoolFluentsValues;
     final PddlDomain linkedDomain;
     private FactoryConditions fc;
 
@@ -127,7 +129,7 @@ public class EPddlProblem implements SearchProblem {
     
     
 
-    public EPddlProblem (PddlDomain domain, String groundingMethod, PrintStream out, boolean sdac){        
+    public PDDLProblem (PddlDomain domain, String groundingMethod, PrintStream out, boolean sdac){        
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
@@ -143,12 +145,14 @@ public class EPddlProblem implements SearchProblem {
         this.sdac = sdac;
         linkedDomain = domain;
         initBoolFluentsValues = new HashMap();
-        initNumFluentsValues = new HashMap();
+        initNumFluentsValues =  new HashMap();
         readyForSearch = false;
+        PDDLState.fastTransitionTable = null;
+
     }
     
     
-    public EPddlProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
+    public PDDLProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
             PddlDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
         this(domain, groundingMethod, out, sdac);
         try {
@@ -156,16 +160,10 @@ public class EPddlProblem implements SearchProblem {
             this.types = types;
             this.parseProblem(problemFile);
         } catch (IOException ex) {
-            Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PDDLProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.antlr.runtime.RecognitionException ex) {
-            Logger.getLogger(EPddlProblem.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PDDLProblem.class.getName()).log(Level.SEVERE, null, ex);
         }        indexObject = 0;
-    }
-    /**
-     * @param goals the goals to set
-     */
-    public void setGoals(Condition goals) {
-        this.goals = goals;
     }
     /**
      * @return the sdac
@@ -189,8 +187,8 @@ public class EPddlProblem implements SearchProblem {
     @Override
     public Object clone ( ) throws CloneNotSupportedException {
 
-        //EPddlProblem cloned = new EPddlProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
-        EPddlProblem cloned = new EPddlProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac);
+        //EPddlProblem cloned = new PDDLProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
+        PDDLProblem cloned = new PDDLProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac);
         
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
@@ -259,9 +257,9 @@ public class EPddlProblem implements SearchProblem {
     }
 
     public void prepareForSearch(boolean aibrPreprocessing) throws Exception {
-        this.groundingSimplication(aibrPreprocessing, false);
+        this.prepareForSearch(aibrPreprocessing, false);
     }
-    public void groundingSimplication(boolean aibrPreprocessing,boolean stopAfterGrounding) throws Exception {
+    public void prepareForSearch(boolean aibrPreprocessing,boolean stopAfterGrounding) throws Exception {
 
         //simplification decoupled from the grounding
         this.groundingActionProcessesConstraints();
@@ -269,7 +267,7 @@ public class EPddlProblem implements SearchProblem {
         if (stopAfterGrounding)
             return;
         this.simplifyAndSetupInit(aibrPreprocessing);
-        this.setGoals(generate_inequalities(getGoals()));
+        groundGoals = generate_inequalities(getGoals());
                 readyForSearch = true;
 
     }
@@ -311,7 +309,7 @@ public class EPddlProblem implements SearchProblem {
     private void groundingActionProcessesConstraints ( ) throws Exception {
         long start = System.currentTimeMillis();
 
-        this.groundGoals();
+        this.createGroundGoals();
         this.generateTransitions();
         this.generateConstraints();
         this.getActualFluents();
@@ -374,7 +372,7 @@ public class EPddlProblem implements SearchProblem {
     }
     protected void easyCleanUp(boolean aibrPreprocessing) {
         //out.println("prova");
-        this.saveInitInit();
+//        this.saveInitInit();
         sweepStructuresForUnreachableStatements();
 
         debug = false;
@@ -433,8 +431,8 @@ public class EPddlProblem implements SearchProblem {
 //        this.staticFluents = null;
         cleanIrrelevantConstraints(globalConstraintSet);
 
-        setGoals((Condition) getGoals().weakEval(this, this.getActualFluents()));
-        setGoals((Condition) getGoals().normalize());
+        groundGoals = (Condition) getGoals().weakEval(this, this.getActualFluents());
+        groundGoals = (Condition) getGoals().normalize();
         if (getGoals().isUnsatisfiable()){
             throw new RuntimeException("Goal is not reachable");
         }
@@ -475,7 +473,7 @@ public class EPddlProblem implements SearchProblem {
 
     }
 
-//    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition goals, AndCond globalConstraints) {
+//    private void idifyConditionsAndTransitions (Collection<GroundAction> reachableActions, ComplexCondition liftedGoals, AndCond globalConstraints) {
 //        HashMap<Integer, GroundAction> actionIds = new HashMap<>();
 //        HashMap<Integer, Condition> conditionsIds = new HashMap<>();
 //        int actionID = 0;
@@ -515,26 +513,6 @@ public class EPddlProblem implements SearchProblem {
         this.getInitNumFluentsValues().put(NumFluent.getNumFluent("#t", new ArrayList()), new PDDLNumber(Double.parseDouble(delta_t)));
     }
 
-
-    private void removeStaticPart ( ) {
-        //invariant fluents
-        LinkedHashSet<Predicate> predicateToRemove = new LinkedHashSet();
-        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
-            if (!this.getActualFluents().contains(p)) {
-                predicateToRemove.add(p);
-            }
-        }
-        LinkedHashSet<NumFluent> numFluentsToRemove = new LinkedHashSet();
-        for (NumFluent p : this.getInitNumFluentsValues().keySet()) {
-            if (!this.getActualFluents().contains(p)) {
-                numFluentsToRemove.add(p);
-            }
-        }
-
-        this.getInitBoolFluentsValues().keySet().removeAll(predicateToRemove);
-        this.getInitNumFluentsValues().keySet().removeAll(numFluentsToRemove);
-
-    }
 
     public Sets.SetView<TransitionGround> getTransitions() {
         return Sets.union(Sets.union(new HashSet(actions), new HashSet<>(getEventsSet())), new HashSet(getProcessesSet()));
@@ -613,8 +591,9 @@ public class EPddlProblem implements SearchProblem {
     private PDDLState makePddlState ( ) {
         //ensure compactness
         //removeStaticPart();
-        PDDLState.fastTransitionTable = null;
+        PDDLState.optimised = this.processesSet.isEmpty() && this.eventsSet.isEmpty();
         fixNecessaryFluents();
+        
         HashMap<Integer,Double> numFluents = new HashMap();
         totNumberOfNumVariables = 0;
         totNumberOfBoolVariables = 0;
@@ -674,8 +653,9 @@ public class EPddlProblem implements SearchProblem {
         return s.satisfy(this.getGoals());
     }
 
-    private void groundGoals ( ) {
-        this.setGoals((Condition) this.getGoals().ground(new HashMap(), getObjects()));
+    private void createGroundGoals ( ) {
+        groundGoals = (ComplexCondition) liftedGoals.pushNotToTerminals();
+        groundGoals = (Condition) groundGoals.ground(new HashMap(), getObjects());
     }
 
 
@@ -687,29 +667,29 @@ public class EPddlProblem implements SearchProblem {
     }
 
 
-    private void syncAllVariablesAndUpdateCollections (EPddlProblem inputProblem) {
+    private void syncAllVariablesAndUpdateCollections (PDDLProblem inputProblem) {
 
         if (inputProblem == null) {
             inputProblem = this;
         }
-        HashMap<Predicate, Boolean> tempInitBool = new HashMap();
-        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
-            Boolean value = this.getInitBoolFluentsValues().get(p);
-            Predicate newP = (Predicate) p.unifyVariablesReferences(inputProblem);
-            tempInitBool.put(newP, value);
+//        HashMap<Predicate, Boolean> tempInitBool = new HashMap();
+//        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
+//            Boolean value = this.getInitBoolFluentsValues().get(p);
+//            Predicate newP = (Predicate) p.unifyVariablesReferences(inputProblem);
+//            tempInitBool.put(newP, value);
+//
+//        }
+//        setInitBoolFluentsValues(tempInitBool);
+//        HashMap<NumFluent, PDDLNumber> searchInitFluent = new HashMap();
+//        for (NumFluent nf : this.getInitNumFluentsValues().keySet()) {
+//            PDDLNumber pddlNumber = getInitNumFluentsValues().get(nf);
+//            NumFluent numFluent = (NumFluent) nf.unifyVariablesReferences(inputProblem);
+//            searchInitFluent.put(numFluent, pddlNumber);
+//            this.getNumericFluentReference().put(nf.toString(), nf);
+//        }
+//        this.setInitNumFluentsValues(searchInitFluent);
 
-        }
-        setInitBoolFluentsValues(tempInitBool);
-        HashMap<NumFluent, PDDLNumber> tempInitFluent = new HashMap();
-        for (NumFluent nf : this.getInitNumFluentsValues().keySet()) {
-            PDDLNumber pddlNumber = getInitNumFluentsValues().get(nf);
-            NumFluent numFluent = (NumFluent) nf.unifyVariablesReferences(inputProblem);
-            tempInitFluent.put(numFluent, pddlNumber);
-            this.getNumericFluentReference().put(nf.toString(), nf);
-        }
-        this.setInitNumFluentsValues(tempInitFluent);
-
-        setGoals((Condition) getGoals().unifyVariablesReferences(inputProblem));
+        groundGoals = (Condition) getGoals().unifyVariablesReferences(inputProblem);
 
         Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
         while (it.hasNext()) {
@@ -945,12 +925,12 @@ public class EPddlProblem implements SearchProblem {
                     //                    this.belief = fc.createCondition(child.getChild(0), null);
                     break;
                 case PddlParser.GOAL:
-                    this.setGoals(null);
+                    liftedGoals = null;
                     Condition con = fc.createCondition(child.getChild(0), null);
                     if (!(con instanceof ComplexCondition)) {
-                        this.setGoals(new AndCond(Collections.singleton(con)));
+                        liftedGoals = new AndCond(Collections.singleton(con));
                     } else {
-                        this.setGoals((ComplexCondition) con);
+                        liftedGoals = (ComplexCondition) con;
                     }
                     break;
                 case PddlParser.PROBLEM_METRIC:
@@ -958,8 +938,6 @@ public class EPddlProblem implements SearchProblem {
                     break;
             }
         }
-        this.setGoals((ComplexCondition) this.getGoals().pushNotToTerminals());
-        this.setGoals((ComplexCondition) this.getGoals().ground(new HashMap(), this.getObjects()));
         for (PDDLObject object : this.getObjects()) {
             final ArrayList object1 = new ArrayList<>(List.of(object, object));
             this.getInitBoolFluentsValues().put(Predicate.getPredicate("=", object1), true);
@@ -1034,8 +1012,8 @@ public class EPddlProblem implements SearchProblem {
     }
 
     protected void addInitFacts(Tree child) {
-        this.setInitNumFluentsValues(new HashMap());
-        this.setInitBoolFluentsValues(new HashMap());
+//        this.setInitNumFluentsValues(new HashMap());
+//        this.setInitBoolFluentsValues(new HashMap());
         for (int i = 0; i < child.getChildCount(); i++) {
             Tree c = child.getChild(i);
             switch (c.getType()) {
@@ -1104,10 +1082,10 @@ public class EPddlProblem implements SearchProblem {
     }
 
     /**
-     * @return the goals - the goal set
+     * @return the liftedGoals - the goal set
      */
     public Condition getGoals() {
-        return goals;
+        return groundGoals;
     }
 
     protected void addMetric(Tree t) {
@@ -1277,43 +1255,25 @@ public class EPddlProblem implements SearchProblem {
     /**
      * @return the initNumFluentsValues
      */
-    public HashMap<NumFluent,PDDLNumber> getInitNumFluentsValues() {
+    public Map<NumFluent,PDDLNumber> getInitNumFluentsValues() {
         return initNumFluentsValues;
     }
 
-    /**
-     * @param initNumFluentsValues the initNumFluentsValues to set
-     */
-    protected void setInitNumFluentsValues(HashMap<NumFluent, PDDLNumber> initNumFluentsValues) {
-        this.initNumFluentsValues = initNumFluentsValues;
-    }
 
     /**
      * @return the initBoolFluentsValues
      */
-    public HashMap<Predicate,Boolean> getInitBoolFluentsValues() {
+    public Map<Predicate,Boolean> getInitBoolFluentsValues() {
         return initBoolFluentsValues;
     }
 
-    /**
-     * @param initBoolFluentsValues the initBoolFluentsValues to set
-     */
-    protected void setInitBoolFluentsValues(HashMap<Predicate, Boolean> initBoolFluentsValues) {
-        this.initBoolFluentsValues = initBoolFluentsValues;
-    }
 
 
     public void addFactValue(Predicate predicate, boolean b) {
-        if (this.initBoolFluentsValues == null){
-            initBoolFluentsValues = new HashMap();
-        }
         initBoolFluentsValues.put(predicate, b);
     }
 
     public void addNumValue(NumFluent var, float value) {
-        if (this.initNumFluentsValues == null) {
-            initNumFluentsValues = new HashMap();
-        }
         initNumFluentsValues.put(var, new PDDLNumber(value));
     }
 
@@ -1355,7 +1315,11 @@ public class EPddlProblem implements SearchProblem {
     }
 
     public void prepareForSearch() throws Exception {
-        prepareForSearch(true);
+        PDDLProblem.this.prepareForSearch(true);
+    }
+
+    public void setGoals(Condition con) {
+           liftedGoals = con;
     }
 
     protected class stateIterator implements ObjectIterator<Pair<State, Object>> {

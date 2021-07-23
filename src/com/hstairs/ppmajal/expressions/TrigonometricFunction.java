@@ -88,7 +88,7 @@ public class TrigonometricFunction extends BinaryOp {
 
 
     @Override
-    public Expression weakEval (EPddlProblem s, Set invF) {
+    public Expression weakEval (PDDLProblem s, Set invF) {
         TrigonometricFunction ret = new TrigonometricFunction();
 
         ret.operator = this.operator;
@@ -204,7 +204,7 @@ public class TrigonometricFunction extends BinaryOp {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         this.arg = this.arg.unifyVariablesReferences(p);
         return this;
     }

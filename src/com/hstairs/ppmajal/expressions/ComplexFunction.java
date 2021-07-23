@@ -41,7 +41,7 @@ public class ComplexFunction extends BinaryOp {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         super.unifyVariablesReferences(p);
         this.arg = this.arg.unifyVariablesReferences(p);
         return this;
@@ -88,7 +88,7 @@ public class ComplexFunction extends BinaryOp {
 
 
     @Override
-    public Expression weakEval (EPddlProblem s, Set invF) {
+    public Expression weakEval (PDDLProblem s, Set invF) {
         ComplexFunction ret = new ComplexFunction();
 
         ret.operator = this.operator;

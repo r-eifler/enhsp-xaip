@@ -435,7 +435,7 @@ public class ExtendedNormExpression extends Expression {
      * @return
      */
     @Override
-    public ExtendedNormExpression weakEval (EPddlProblem problem, Set invFluents) {
+    public ExtendedNormExpression weakEval (PDDLProblem problem, Set invFluents) {
         ExtendedNormExpression ret = new ExtendedNormExpression();
         Double c = 0d;
         for (ExtendedAddendum a : this.summations) {
@@ -869,7 +869,7 @@ public class ExtendedNormExpression extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
 
         for (int i = 0; i < this.summations.size(); i++) {
             ExtendedAddendum a = this.summations.get(i);

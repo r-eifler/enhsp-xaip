@@ -103,7 +103,7 @@ protected DoubleArrayList numFluents;
             str.append("(time)").append("=").append(time).append(" ");
         }
         str.append("\n");
-        for (Predicate fluent : EPddlProblem.booleanFluents){
+        for (Predicate fluent : PDDLProblem.booleanFluents){
             str.append(fluent).append("=").append(this.holds(fluent)).append(" ");
         }
         return str.toString();

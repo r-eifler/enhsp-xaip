@@ -219,7 +219,7 @@ public class BinaryOp extends Expression {
 
 
     @Override
-    public Expression weakEval (EPddlProblem s, Set invF) {
+    public Expression weakEval (PDDLProblem s, Set invF) {
         BinaryOp ret = new BinaryOp();
 
         ret.operator = this.operator;
@@ -438,7 +438,7 @@ public class BinaryOp extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         if (this.lhs != null)
             this.lhs = this.lhs.unifyVariablesReferences(p);
         if (this.rhs != null)

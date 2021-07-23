@@ -186,7 +186,7 @@ public class NumEffect extends Expression implements PostCondition {
      * @return
      */
     @Override
-    public Expression weakEval (EPddlProblem problem, Set invF) {
+    public Expression weakEval (PDDLProblem problem, Set invF) {
         //System.out.println(this.fluentAffected);
         //this.setFluentAffected((NumFluent) this.fluentAffected.weakEval(s, invF));
         this.right.setFreeVarSemantic(freeVarSemantic);
@@ -626,7 +626,7 @@ public class NumEffect extends Expression implements PostCondition {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         this.fluentAffected = (NumFluent) this.fluentAffected.unifyVariablesReferences(p);
 //        System.out.println("right:"+right);
         this.right = right.unifyVariablesReferences(p);

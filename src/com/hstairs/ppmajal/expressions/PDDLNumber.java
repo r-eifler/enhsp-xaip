@@ -112,7 +112,7 @@ public class PDDLNumber extends Expression {
 
 
     @Override
-    public Expression weakEval (EPddlProblem s, Set invF) {
+    public Expression weakEval (PDDLProblem s, Set invF) {
         return this;
     }
 
@@ -211,7 +211,7 @@ public class PDDLNumber extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         return this;
     }
 }

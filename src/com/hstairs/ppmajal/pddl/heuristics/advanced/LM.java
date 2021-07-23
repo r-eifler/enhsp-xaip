@@ -9,7 +9,7 @@ import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Terminal;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import ilog.concert.IloLinearNumExpr;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -36,11 +36,11 @@ public class LM extends H1 {
     protected IloLinearNumExpr objectiveFunction;
             
 
-    public LM(EPddlProblem problem) {
+    public LM(PDDLProblem problem) {
         this(problem, "lmCount","no","cplex");
     }
 
-    public LM(EPddlProblem problem, String mode, String redundantConstraints, String solver) {
+    public LM(PDDLProblem problem, String mode, String redundantConstraints, String solver) {
         super(problem, true, true, false, redundantConstraints, false, false, false, false, null);
         reachedConditions = new boolean[totNumberOfTerms];
         reachedActions = new boolean[heuristicNumberOfActions];

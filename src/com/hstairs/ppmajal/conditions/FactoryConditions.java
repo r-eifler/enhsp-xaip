@@ -216,7 +216,7 @@ public class FactoryConditions {
                 }
             }
         }
-        Predicate a = Predicate.getPredicate(name, variables);
+        final Predicate a = Predicate.getPredicate(name, variables);
         if (predicates != null) {
             if (!predicates.validate(a) & !"=".equals(name)) {
                 throw  new RuntimeException("Predicate " + a + " is not valid");

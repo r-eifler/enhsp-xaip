@@ -58,7 +58,7 @@ public class PDDLSearchEngine extends SearchEngine {
     //This is a hack!
     private HashMap<Float,TransitionGround> triggeredEvents;
 
-    public PDDLSearchEngine(EPddlProblem problem, SearchHeuristic h) {
+    public PDDLSearchEngine(PDDLProblem problem, SearchHeuristic h) {
         super(h, problem);
         if (!problem.isReadyForSearch()){
             throw new RuntimeException("PDDL Problem is not ready for search yet. Bailing out");
@@ -88,7 +88,7 @@ public class PDDLSearchEngine extends SearchEngine {
             TransitionGround right = (TransitionGround) ele.getRight();
             if (right.getSemantics().equals(Transition.Semantics.PROCESS)) {
                 final org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> stateCollectionPair
-                        = simulation(current, (EPddlProblem) problem, execDelta, stepSize, false, planTraceString);
+                        = simulation(current, (PDDLProblem) problem, execDelta, stepSize, false, planTraceString);
                 if (stateCollectionPair == null) {
                     System.out.println("Constraint violated");
                     return false;
@@ -115,7 +115,7 @@ public class PDDLSearchEngine extends SearchEngine {
             }
         }
 //        System.out.println(current);
-        return current.satisfy(((EPddlProblem)problem).getGoals());
+        return current.satisfy(((PDDLProblem)problem).getGoals());
     }
 
     @Override
@@ -134,7 +134,7 @@ public class PDDLSearchEngine extends SearchEngine {
         }
         
         SearchNode c = (SearchNode) input;
-        if (((EPddlProblem)problem).getProcessesSet().isEmpty()) {
+        if (((PDDLProblem)problem).getProcessesSet().isEmpty()) {
             while ((c.transition != null || c.list_of_actions != null)) {
                 BigDecimal time = null;
                 if (c.father != null && c.father.s instanceof PDDLState) {
@@ -208,7 +208,7 @@ public class PDDLSearchEngine extends SearchEngine {
     @Override
     protected void advanceTime(Object frontier, SearchNode current_node, SearchProblem generingProblem, Object2FloatMap<State> g) {
 
-        EPddlProblem problem = (EPddlProblem)generingProblem;
+        PDDLProblem problem = (PDDLProblem)generingProblem;
         if (reachableEvents == null) {
             reachableEvents = problem.getEventsSet();
         }
@@ -221,12 +221,12 @@ public class PDDLSearchEngine extends SearchEngine {
         }
     }
 
-    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, EPddlProblem problem, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent) {
+    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> intelligentSimulation(State s, PDDLProblem problem, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent) {
         return simulation(s, problem, horizon, executionDelta, intelligent, null);
     }
 
 
-    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulation(State s, EPddlProblem problem, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString) {
+    protected org.jgrapht.alg.util.Pair<State, Collection<TransitionGround>> simulation(State s, PDDLProblem problem, BigDecimal horizon, BigDecimal executionDelta, boolean intelligent, StringBuilder traceString) {
         if (reachableEvents == null) {
             reachableEvents = problem.getEventsSet();
         }
@@ -324,7 +324,7 @@ public class PDDLSearchEngine extends SearchEngine {
 
     }
 
-    public List<PDDLState> simulate(List<Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, EPddlProblem problem, boolean fullStates) {
+    public List<PDDLState> simulate(List<Pair<BigDecimal, TransitionGround>> timedPlan, String delta, PDDLState s, PDDLProblem problem, boolean fullStates) {
         BigDecimal previous = BigDecimal.ZERO;
         final BigDecimal deltaDecimal = new BigDecimal(delta);
         final ArrayList<PDDLState> res = new ArrayList();

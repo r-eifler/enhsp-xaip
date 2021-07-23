@@ -6,7 +6,7 @@ import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLObjects;
 
 import java.util.*;
@@ -30,7 +30,7 @@ public class ConditionalEffects<T> {
         return conditionalEffects;
     }
     
-    public ConditionalEffects weakEval(EPddlProblem ePddlProblem, Set invariantFluents) {
+    public ConditionalEffects weakEval(PDDLProblem ePddlProblem, Set invariantFluents) {
         ConditionalEffects res = new ConditionalEffects();
         if (actualConditionalEffects != null) {
             for (Map.Entry<Condition, Collection<T>> entry : actualConditionalEffects.entrySet()) {

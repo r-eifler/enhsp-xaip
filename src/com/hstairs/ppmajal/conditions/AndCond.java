@@ -20,7 +20,7 @@ package com.hstairs.ppmajal.conditions;
 
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLState;
 import com.hstairs.ppmajal.problem.RelState;
 import com.hstairs.ppmajal.problem.State;
@@ -264,7 +264,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public Condition weakEval (EPddlProblem s, Set invF) {
+    public Condition weakEval (PDDLProblem s, Set invF) {
         HashSet to_keep = new LinkedHashSet();
 
         if (this.sons != null) {
@@ -596,7 +596,7 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
 
     @Override
-    public Condition unifyVariablesReferences(EPddlProblem p) {
+    public Condition unifyVariablesReferences(PDDLProblem p) {
         return new AndCond(this.__unifyVariablesReferences(p));
     }
 

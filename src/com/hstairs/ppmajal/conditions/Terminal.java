@@ -18,7 +18,7 @@
  */
 package com.hstairs.ppmajal.conditions;
 
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.RelState;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public abstract class Terminal extends Condition {
 
 
     @Override
-    public Condition unifyVariablesReferences (EPddlProblem p) {
+    public Condition unifyVariablesReferences (PDDLProblem p) {
         return this;
     }
 

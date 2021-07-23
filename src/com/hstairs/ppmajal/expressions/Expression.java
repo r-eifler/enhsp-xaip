@@ -66,7 +66,7 @@ public abstract class Expression extends Object {
      * @param invF
      * @return
      */
-    public abstract Expression weakEval (EPddlProblem p, Set invF);
+    public abstract Expression weakEval (PDDLProblem p, Set invF);
 
     @Override
     public abstract Expression clone ( );
@@ -124,5 +124,5 @@ public abstract class Expression extends Object {
      */
     public abstract void pddlPrint (boolean typeInformation, StringBuilder bui);
 
-    public abstract Expression unifyVariablesReferences (EPddlProblem p);
+    public abstract Expression unifyVariablesReferences (PDDLProblem p);
 }

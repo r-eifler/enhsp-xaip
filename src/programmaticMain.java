@@ -11,7 +11,7 @@ import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLSearchEngine;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import static com.hstairs.ppmajal.transition.ConditionalEffects.stripsEffects;
@@ -55,7 +55,7 @@ public class programmaticMain {
         pddlDomain.addPredicate("a", null);
         pddlDomain.addPredicate("b", null);
 
-        EPddlProblem problem = new EPddlProblem(pddlDomain, "internal", System.out, false);
+        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false);
 
         //Define transition
         ConditionalEffects<Predicate> effects = new ConditionalEffects<>();
@@ -93,7 +93,7 @@ public class programmaticMain {
         pddlDomain.addPredicate("b", new ArrayList());
         pddlDomain.addType(Type.type("Person"));
 
-        EPddlProblem problem = new EPddlProblem(pddlDomain, "internal", System.out, false);
+        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false);
         problem.getObjects().add(PDDLObject.object("Enrico", Type.type("Person")));
 
         //Define Actions
@@ -135,7 +135,7 @@ public class programmaticMain {
         pddlDomain.addFunction("a", new ArrayList());
         
 
-        EPddlProblem problem = new EPddlProblem(pddlDomain, "internal", System.out, false);
+        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false);
         problem.getObjects().add(object("Enrico", type("Person")));
 
         //Define Actions
@@ -153,7 +153,10 @@ public class programmaticMain {
         //goal
         problem.setGoals(comparison(">=", numericFluent("a"), new PDDLNumber(100),false));
 
+        
+        //After this everything is destroyed and need to be recreated (actions, processes, events, facts)
         problem.prepareForSearch(); /* This is very necessary prior to any planning*/
+        
 
         PDDLSearchEngine searchEngine = new PDDLSearchEngine(problem, new H1(problem)); //manager of the search strategies
         

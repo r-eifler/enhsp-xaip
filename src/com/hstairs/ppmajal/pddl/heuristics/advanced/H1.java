@@ -31,7 +31,7 @@ import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.extraUtils.ArrayShifter;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
@@ -66,7 +66,7 @@ public class H1 implements SearchHeuristic {
     final protected int totNumberOfTerms;
     final protected int totNumberOfTermsRefactored;
 
-    final protected EPddlProblem problem;
+    final protected PDDLProblem problem;
     final private boolean helpfulActionsComputation;
     protected final IntArraySet[] conditionsAchievableBy;
     protected final IntArraySet[] conditionsDeletableBy;
@@ -121,22 +121,22 @@ public class H1 implements SearchHeuristic {
 
     
     
-    public H1(EPddlProblem problem) {
+    public H1(PDDLProblem problem) {
         this(problem, true, false, false, "no", false, false, false, false, null);
     }
 
 
     
-    public H1(EPddlProblem problem, boolean additive) {
+    public H1(PDDLProblem problem, boolean additive) {
         this(problem, additive, false, false, "no", false, false, false, false, null);
     }
 
-    public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
+    public H1(PDDLProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
             boolean helpfulTransitions, boolean conjunctionsMax) {
         this(problem, additive, extractRelaxedPlan, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax, null);
     }
 
-    public H1(EPddlProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
+    public H1(PDDLProblem problem, boolean additive, boolean extractRelaxedPlan, boolean maxHelpfulTransitions, String redConstraints, boolean helpfulActionsComputation, boolean reachability,
             boolean helpfulTransitions, boolean conjunctionsMax, Map<AndCond, Collection<IntArraySet>> redundantMap) {
 
         long startSetup = System.currentTimeMillis();

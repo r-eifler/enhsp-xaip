@@ -10,7 +10,7 @@ import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.expressions.Expression;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import static java.lang.Math.ceil;
@@ -36,7 +36,7 @@ public class H1Fix extends H1 {
     final boolean[] visitedActions;
     private final boolean hmrpEstimate;
 
-    public H1Fix(EPddlProblem problem, boolean saferVersion,  boolean maxHelpfulTransitions, String redConstraints, 
+    public H1Fix(PDDLProblem problem, boolean saferVersion,  boolean maxHelpfulTransitions, String redConstraints, 
             boolean helpfulActionsComputation, boolean reachability, boolean helpfulTransitions, boolean conjunctionsMax, boolean hmprpEstimate) {
         super(problem, true, true, maxHelpfulTransitions, redConstraints, helpfulActionsComputation, reachability, helpfulTransitions, conjunctionsMax);
         this.prec = new IntArraySet[heuristicNumberOfActions];

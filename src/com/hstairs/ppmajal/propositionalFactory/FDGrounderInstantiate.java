@@ -32,7 +32,7 @@ import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import com.hstairs.ppmajal.transition.TransitionSchema;
@@ -57,7 +57,7 @@ import org.jgrapht.alg.util.Pair;
  */
 public class FDGrounderInstantiate extends ExternalGrounder{
     
-    public FDGrounderInstantiate(EPddlProblem problem, String domainFile, String problemFile) {
+    public FDGrounderInstantiate(PDDLProblem problem, String domainFile, String problemFile) {
         super(problem,domainFile,problemFile);
     }
     
@@ -313,7 +313,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         return str;
     }
 
-    private StringBuilder abstractNumericInit(EPddlProblem init) {
+    private StringBuilder abstractNumericInit(PDDLProblem init) {
         Iterable<NumFluent> numFluentsInvolvedInInit = init.getNumFluentsInvolvedInInit();
         Iterable<Predicate> predicatesInvolvedInInit = init.getPredicatesInvolvedInInit();
         StringBuilder str = new StringBuilder("");

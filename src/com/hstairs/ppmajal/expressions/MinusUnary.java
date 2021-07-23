@@ -74,7 +74,7 @@ public class MinusUnary extends Expression {
 
 
     @Override
-    public Expression weakEval (EPddlProblem s, Set invF) {
+    public Expression weakEval (PDDLProblem s, Set invF) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -130,7 +130,7 @@ public class MinusUnary extends Expression {
     }
 
     @Override
-    public Expression unifyVariablesReferences (EPddlProblem p) {
+    public Expression unifyVariablesReferences (PDDLProblem p) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

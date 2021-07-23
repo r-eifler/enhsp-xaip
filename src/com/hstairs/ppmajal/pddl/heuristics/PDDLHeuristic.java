@@ -12,7 +12,7 @@ import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1Fix;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1Res;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.LM;
-import com.hstairs.ppmajal.problem.EPddlProblem;
+import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import java.util.Collection;
@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class PDDLHeuristic {
 
-    public static SearchHeuristic getHeuristic(String heuristic, EPddlProblem heuristicProblem, String redundantConstraints,
+    public static SearchHeuristic getHeuristic(String heuristic, PDDLProblem heuristicProblem, String redundantConstraints,
             boolean helpfulActionsPruning, boolean helpfulTransitions) {
         Map<AndCond, Collection<IntArraySet>> redConstraint = null;
         if ("smart".equals(redundantConstraints)) {

@@ -162,7 +162,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition weakEval (EPddlProblem s, Set invF) {
+    public Condition weakEval (PDDLProblem s, Set invF) {
 
         Condition el = son;
         el.setFreeVarSemantic(freeVarSemantic);
@@ -362,7 +362,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Condition unifyVariablesReferences (EPddlProblem p) {
+    public Condition unifyVariablesReferences (PDDLProblem p) {
         NotCond nc = (NotCond) super.unifyVariablesReferences(p);
         //nc.son = nc.son.unifyVariablesReferences(p);
         return nc;
