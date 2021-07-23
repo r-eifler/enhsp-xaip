@@ -322,7 +322,7 @@ public class PDDLProblem implements SearchProblem {
         }
 
         setPropositionalTime(this.getPropositionalTime() + (System.currentTimeMillis() - start));
-        syncAllVariablesAndUpdateCollections(this);
+//        syncAllVariablesAndUpdateCollections(this);
 
     }
 
@@ -669,49 +669,49 @@ public class PDDLProblem implements SearchProblem {
     }
 
 
-    private void syncAllVariablesAndUpdateCollections (PDDLProblem inputProblem) {
-
-        if (inputProblem == null) {
-            inputProblem = this;
-        }
-//        HashMap<Predicate, Boolean> tempInitBool = new HashMap();
-//        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
-//            Boolean value = this.getInitBoolFluentsValues().get(p);
-//            Predicate newP = (Predicate) p.unifyVariablesReferences(inputProblem);
-//            tempInitBool.put(newP, value);
+//    private void syncAllVariablesAndUpdateCollections (PDDLProblem inputProblem) {
 //
+//        if (inputProblem == null) {
+//            inputProblem = this;
 //        }
-//        setInitBoolFluentsValues(tempInitBool);
-//        HashMap<NumFluent, PDDLNumber> searchInitFluent = new HashMap();
-//        for (NumFluent nf : this.getInitNumFluentsValues().keySet()) {
-//            PDDLNumber pddlNumber = getInitNumFluentsValues().get(nf);
-//            NumFluent numFluent = (NumFluent) nf.unifyVariablesReferences(inputProblem);
-//            searchInitFluent.put(numFluent, pddlNumber);
-//            this.getNumericFluentReference().put(nf.toString(), nf);
+////        HashMap<Predicate, Boolean> tempInitBool = new HashMap();
+////        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
+////            Boolean value = this.getInitBoolFluentsValues().get(p);
+////            Predicate newP = (Predicate) p.unifyVariablesReferences(inputProblem);
+////            tempInitBool.put(newP, value);
+////
+////        }
+////        setInitBoolFluentsValues(tempInitBool);
+////        HashMap<NumFluent, PDDLNumber> searchInitFluent = new HashMap();
+////        for (NumFluent nf : this.getInitNumFluentsValues().keySet()) {
+////            PDDLNumber pddlNumber = getInitNumFluentsValues().get(nf);
+////            NumFluent numFluent = (NumFluent) nf.unifyVariablesReferences(inputProblem);
+////            searchInitFluent.put(numFluent, pddlNumber);
+////            this.getNumericFluentReference().put(nf.toString(), nf);
+////        }
+////        this.setInitNumFluentsValues(searchInitFluent);
+//
+//        groundGoals = (Condition) getGoals().unifyVariablesReferences(inputProblem);
+//
+//        Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
+//        while (it.hasNext()) {
+//            GlobalConstraint gc = it.next();
+//            gc.condition = gc.condition.unifyVariablesReferences(inputProblem);
 //        }
-//        this.setInitNumFluentsValues(searchInitFluent);
-
-        groundGoals = (Condition) getGoals().unifyVariablesReferences(inputProblem);
-
-        Iterator<GlobalConstraint> it = this.globalConstraintSet.iterator();
-        while (it.hasNext()) {
-            GlobalConstraint gc = it.next();
-            gc.condition = gc.condition.unifyVariablesReferences(inputProblem);
-        }
-
-        globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(inputProblem);
-        if (metric != null) {
-            metric = metric.unifyVariablesReferences(inputProblem);
-        }
-        if (belief != null) {
-            belief = belief.unifyVariablesReferences(inputProblem);
-        }
-        if (this.unknonw_predicates != null){
-            for (Predicate p: this.unknonw_predicates){
-                p = (Predicate) p.unifyVariablesReferences(inputProblem);
-            }
-        }
-    }
+//
+//        globalConstraints = (AndCond) globalConstraints.unifyVariablesReferences(inputProblem);
+//        if (metric != null) {
+//            metric = metric.unifyVariablesReferences(inputProblem);
+//        }
+//        if (belief != null) {
+//            belief = belief.unifyVariablesReferences(inputProblem);
+//        }
+//        if (this.unknonw_predicates != null){
+//            for (Predicate p: this.unknonw_predicates){
+//                p = (Predicate) p.unifyVariablesReferences(inputProblem);
+//            }
+//        }
+//    }
 
 
     private void addTimeFluentToInit ( ) {
@@ -848,7 +848,30 @@ public class PDDLProblem implements SearchProblem {
 
     public void saveProblem(String pddlNewFile) throws IOException {
         pddlFilRef = pddlNewFile;
-        String toWrite = "(define (problem " + name + ") " + "(:domain " + this.getDomainName() + ") " + this.getObjects().pddlPrint() + "\n" + Printer.pddlPrint(this, (PDDLState) init) + "\n" + "(:goal " + this.getGoals().pddlPrint(false) + ")\n" + this.metric.pddlPrint() + "\n" + ")";
+        StringBuilder str = new StringBuilder("");
+        str.append("(define (problem ").append(name).append(") ");
+        str.append("(:domain ").append(this.getDomainName()).append(") \n");
+        str.append(this.getObjects().pddlPrint()).append("\n");
+        str.append("(:init ");
+        for (var v: initBoolFluentsValues.entrySet()){
+            if (v.getValue()){
+                str.append("(").append(v.getKey()).append(")\n");
+            }
+        }
+        for (var v: this.initNumFluentsValues.entrySet()){
+            str.append("(= (").append(v.getKey()).append(") ").append(v.getValue().pddlPrint(false)).append(")\n");
+        }
+        str.append(")\n");
+        str.append("(:goal ");
+        str.append(this.liftedGoals.pddlPrint(false));
+        str.append(" )\n");
+        
+        String toWrite = "(define (problem " + name + ") " + 
+                "(:domain " + this.getDomainName() + ") " + 
+                this.getObjects().pddlPrint() + 
+                "\n" + Printer.pddlPrint(this, (PDDLState) init) + "\n" + 
+                "(:goal " + this.getGoals().pddlPrint(false) + ")\n" 
+                + this.metric.pddlPrint() + "\n" + ")";
         Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
         file.write(toWrite);
         file.close();
@@ -1044,7 +1067,7 @@ public class PDDLProblem implements SearchProblem {
      * A pretty representation for the pddl problem
      */
     public void prettyPrint() {
-        System.out.println("\ninit:" + getInit() + "\nObject" + getProblemObjects() + "\nGoals:" + getGoals() + "\n");
+        System.out.println("\ninit: (Bool Fluents)" + initBoolFluentsValues + "(Num Fluents)"+ initNumFluentsValues + "\nObjects: " + getProblemObjects() + "\nGoals:" + liftedGoals + "\n");
 //        if (metric.getMetExpr() instanceof MultiOp) {
 //            MultiOp temp = (MultiOp) metric.getMetExpr();
 //            System.out.println("\n Metric:" + temp.getExpr().size());
@@ -1077,8 +1100,10 @@ public class PDDLProblem implements SearchProblem {
     }
 
     /**
+     * This is to be used only after prepare for search has run
      * @return the init - the initial status of the problem
      */
+    @Override
     public State getInit() {
         return init;
     }

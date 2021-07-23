@@ -73,6 +73,7 @@ public class programmaticMain {
         problem.actions.add(action2);
 
         //init
+        problem.addFactValue(Predicate.getPredicate("c",null), true);
         //goal
         problem.setGoals(new AndCond(Sets.newHashSet(Predicate.getPredicate("b", null))));
 
@@ -153,7 +154,6 @@ public class programmaticMain {
         //goal
         problem.setGoals(comparison(">=", numericFluent("a"), new PDDLNumber(100),false));
 
-        
         //After this everything is destroyed and need to be recreated (actions, processes, events, facts)
         problem.prepareForSearch(); /* This is very necessary prior to any planning*/
         
@@ -171,13 +171,6 @@ public class programmaticMain {
      */
     public static void main(String[] args) throws Exception {
          fullGroundProblem();
-         System.out.println(Predicate.getTotCounter());
-        fullSchemaProblem();
-         System.out.println(Predicate.getTotCounter());
-
-        fullSchemaNumericProblem();
-        System.out.println(Predicate.getTotCounter());
-
         
     }
 
