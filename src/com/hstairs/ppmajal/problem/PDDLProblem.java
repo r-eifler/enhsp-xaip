@@ -262,6 +262,7 @@ public class PDDLProblem implements SearchProblem {
     public void prepareForSearch(boolean aibrPreprocessing,boolean stopAfterGrounding) throws Exception {
 
         //simplification decoupled from the grounding
+        
         this.groundingActionProcessesConstraints();
         out.println("Grounding Time: " + this.getGroundingTime());
         if (stopAfterGrounding)
@@ -309,6 +310,7 @@ public class PDDLProblem implements SearchProblem {
     private void groundingActionProcessesConstraints ( ) throws Exception {
         long start = System.currentTimeMillis();
 
+        actualFluents = null;
         this.createGroundGoals();
         this.generateTransitions();
         this.generateConstraints();
@@ -654,7 +656,7 @@ public class PDDLProblem implements SearchProblem {
     }
 
     private void createGroundGoals ( ) {
-        groundGoals = (ComplexCondition) liftedGoals.pushNotToTerminals();
+        groundGoals = (Condition) liftedGoals.pushNotToTerminals();
         groundGoals = (Condition) groundGoals.ground(new HashMap(), getObjects());
     }
 

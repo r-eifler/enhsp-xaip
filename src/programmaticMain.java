@@ -145,7 +145,7 @@ public class programmaticMain {
 
         pddlDomain.addAction(new TransitionSchema("hello", Transition.Semantics.ACTION, createPar(variable("x", type("Person"))), null,
                 new ConditionalEffects(),
-                numEffects(easyNumEffect("increase",numericFluent("a"),101))));
+                numEffects(easyNumEffect("increase",numericFluent("a"),15))));
        
         //init
         problem.addNumValue(numericFluent("a"), 0);
@@ -170,8 +170,15 @@ public class programmaticMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+         fullGroundProblem();
+         System.out.println(Predicate.getTotCounter());
         fullSchemaProblem();
+         System.out.println(Predicate.getTotCounter());
+
         fullSchemaNumericProblem();
+        System.out.println(Predicate.getTotCounter());
+
+        
     }
 
 }
