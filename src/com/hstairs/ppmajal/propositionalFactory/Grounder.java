@@ -300,7 +300,7 @@ public class Grounder {
 
     }
 
-    public Collection<Condition> getNecessaryConditions(TransitionSchema action,PddlDomain domain){
+    public Collection<Condition> getNecessaryConditions(TransitionSchema action,PDDLDomain domain){
        Collection<Condition> collection = new ArrayList<>();
         final Condition preconditions = action.getPreconditions();
         if (preconditions instanceof AndCond){
@@ -319,7 +319,7 @@ public class Grounder {
     }
 
 
-    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PDDLProblem problem, HashMap<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PDDLProblem problem, HashMap<Predicate, Boolean> initBooleanState, PDDLDomain domain) {
 
         Collection combo;
         if (action.getParameters().isEmpty()) {
@@ -441,7 +441,7 @@ public class Grounder {
         return res;
     }
 
-    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PDDLProblem problem, Map<Predicate, Boolean> initBooleanState, PddlDomain domain) {
+    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PDDLProblem problem, Map<Predicate, Boolean> initBooleanState, PDDLDomain domain) {
 
         Map<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 

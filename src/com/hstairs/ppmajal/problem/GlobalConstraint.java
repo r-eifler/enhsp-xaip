@@ -23,7 +23,7 @@ import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.expressions.NumFluent;
@@ -55,7 +55,7 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
         return cloned;
     }
 
-    boolean simplifyModelWithControllableVariablesSem (PddlDomain domain, PDDLProblem problem) {
+    boolean simplifyModelWithControllableVariablesSem (PDDLDomain domain, PDDLProblem problem) {
 
         Set invariantFluents = problem.getActualFluents();
         //add invariantFluents because free variable

@@ -43,7 +43,7 @@ import java.util.logging.Logger;
 /**
  * @author enrico
  */
-public final class PddlDomain {
+public final class PDDLDomain {
 
     /**
      * @return the requirements
@@ -78,26 +78,26 @@ public final class PddlDomain {
     private String name;
     private final PredicateSet predicates;
     private String pddlReferenceFile;
-    private LinkedHashSet<SchemaGlobalConstraint> SchemaGlobalConstraints;
+    private Set<SchemaGlobalConstraint> SchemaGlobalConstraints;
     private FactoryConditions fc;
 
-    public PddlDomain (String domainFile) {
+    public PDDLDomain (String domainFile) {
         this();
         this.parseDomain(domainFile);
     }
     
-    public PddlDomain(){
-        this(new LinkedHashSet(),new PDDLObjects(),new LinkedHashSet(),new ArrayList(), new PredicateSet());
+    public PDDLDomain(){
+        this(Collections.EMPTY_SET,new PDDLObjects(),new LinkedHashSet(),new ArrayList(), new PredicateSet());
     }
 
 
-    private PddlDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, 
+    private PDDLDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, 
             Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables, PredicateSet p) {
-        SchemaGlobalConstraints = new LinkedHashSet();
-        types = new LinkedHashSet<>();
+        SchemaGlobalConstraints = Collections.EMPTY_SET;
+        types = null;
         ActionsSchema = new TreeSet<>(new ActionComparator());
         functions = new ArrayList();
-        requirements = new ArrayList<>();
+        requirements = Collections.EMPTY_LIST;
         this.eventsSchema = eventsSchema;
         this.constants = constants;
         processesSchemata = processesSchema;
@@ -116,13 +116,13 @@ public final class PddlDomain {
     public void parseDomain (String file) {
         try {
             this.setPddlFilRef(file);
-            ANTLRInputStream in;
+            final ANTLRInputStream in;
             in = new ANTLRInputStream(new FileInputStream(file));
             PddlLexer lexer = new PddlLexer(in);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-            PddlParser parser = new PddlParser(tokens);
-            PddlParser.pddlDoc_return root = parser.pddlDoc();
+            final PddlParser parser = new PddlParser(tokens);
+            final PddlParser.pddlDoc_return root = parser.pddlDoc();
 
             if (parser.invalidGrammar()) {
                 System.out.println("Some Syntax Error");
@@ -185,11 +185,11 @@ public final class PddlDomain {
             }
             pushNotAtTheTerminals();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PDDLDomain.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PDDLDomain.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RecognitionException ex) {
-            Logger.getLogger(PddlDomain.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PDDLDomain.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -226,6 +226,9 @@ public final class PddlDomain {
      * @return the types declared in the domain
      */
     public Set<Type> getTypes ( ) {
+        if (types == null){
+            types = new LinkedHashSet();
+        }
         return types;
     }
 
@@ -349,7 +352,7 @@ public final class PddlDomain {
     }
 
     public void saveDomain (String file) throws IOException {
-        PddlDomain domain = this;
+        PDDLDomain domain = this;
         Writer f;
 
         f = new BufferedWriter(new FileWriter(file));
@@ -357,10 +360,10 @@ public final class PddlDomain {
         String actions = "\n";
 
         f.write("(define (domain " + domain.getName() + ")\n");
-        if (this.getRequirements() != null) {
+        if (this.getRequirements() != null && !domain.getRequirements().isEmpty()) {
             f.write("(:requirements " + Utils.toPDDLSet(getRequirements()) + ")\n");
         }
-        if (domain.getTypes() != null) {
+        if (domain.getTypes() != null && !domain.getTypes().isEmpty()) {
             f.write("(:types " + Utils.toPDDLTypesSet(domain.getTypes()) + ")\n");
         }
         if (this.constants != null && !this.constants.isEmpty()) {
@@ -503,7 +506,7 @@ public final class PddlDomain {
     /**
      * @return the SchemaGlobalConstraints
      */
-    public LinkedHashSet<SchemaGlobalConstraint> getSchemaGlobalConstraints ( ) {
+    public Set<SchemaGlobalConstraint> getSchemaGlobalConstraints ( ) {
         return SchemaGlobalConstraints;
     }
 
@@ -601,7 +604,7 @@ public final class PddlDomain {
 
 
     public void saveDomainWithInterpretationObjects (String file) throws IOException {
-        PddlDomain domain = this;
+        PDDLDomain domain = this;
         Writer f;
 
         f = new BufferedWriter(new FileWriter(file));
@@ -680,9 +683,9 @@ public final class PddlDomain {
     }
 
 
-    public PddlDomain clone ( ) {
+    public PDDLDomain clone ( ) {
 
-        PddlDomain res = new PddlDomain(new LinkedHashSet(this.getEventsSchema()), new PDDLObjects(this.constants), new LinkedHashSet<>(this.getProcessesSchema()), new LinkedHashSet<>(this.derived_variables), predicates);
+        PDDLDomain res = new PDDLDomain(new LinkedHashSet(this.getEventsSchema()), new PDDLObjects(this.constants), new LinkedHashSet<>(this.getProcessesSchema()), new LinkedHashSet<>(this.derived_variables), predicates);
         res.setName(this.name);
         res.requirements = new ArrayList<>(this.getRequirements());
         res.ActionsSchema = new LinkedHashSet<>();

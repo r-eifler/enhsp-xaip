@@ -84,8 +84,8 @@ public class Aibr implements SearchHeuristic {
         }
 
         this.reachability = reachability;
-
-        out.println("AIBR :: Number of Supporters = " + numberOfSupporters);
+//
+//        out.println("AIBR :: Number of Supporters = " + numberOfSupporters);
 
     }
 

@@ -1,6 +1,6 @@
 package com.hstairs.ppmajal.extraUtils;
 
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
 import com.hstairs.ppmajal.pddl.heuristics.BlindHeuristic;
@@ -35,13 +35,13 @@ import java.math.BigDecimal;
  * @author enrico
  */
 public class PlannerUtils {
-    PddlDomain d;
+    PDDLDomain d;
     PDDLProblem p;
     SearchHeuristic h;
 
 
     private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {
-        d = new PddlDomain(domainFileName);
+        d = new PDDLDomain(domainFileName);
         p = new PDDLProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true);
         d.substituteEqualityConditions();
         if (!d.getProcessesSchema().isEmpty()) {

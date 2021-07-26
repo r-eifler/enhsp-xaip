@@ -5,6 +5,7 @@ import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.expressions.NumEffect;
+import com.hstairs.ppmajal.problem.Printer;
 import java.util.Collection;
 
 public class TransitionSchema extends Transition {
@@ -28,4 +29,28 @@ public class TransitionSchema extends Transition {
         return forallEffects;
     }
     
+    @Override
+    public String toString(){
+        final StringBuilder ret = new StringBuilder("");
+        ret.append("(:action ");
+        ret.append(name).append(" ");
+        ret.append("\n\t:parameters ");
+        if (this.parameters == null){
+            ret.append("()");
+        }else{
+            ret.append(this.parameters);
+        }
+        ret.append("\n\t:precondition ");
+        if (this.preconditions == null){
+            ret.append("()");
+        }else{
+            ret.append(this.preconditions);
+        }
+        ret.append("\n\t:effect ");
+        ret.append("(and \n");
+        Printer.pddlPrint(ret, this.conditionalNumericEffects);
+        Printer.pddlPrint(ret, this.conditionalPropositionalEffects);
+        ret.append("\n))");
+        return ret.toString();
+    }
 }

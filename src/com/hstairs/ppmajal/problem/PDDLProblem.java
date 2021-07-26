@@ -23,7 +23,7 @@ import com.hstairs.ppmajal.propositionalFactory.MetricFFGrounder;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.expressions.BinaryOp;
@@ -105,7 +105,7 @@ public class PDDLProblem implements SearchProblem {
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     final private  Map<NumFluent, PDDLNumber> initNumFluentsValues;
     final private  Map<Predicate, Boolean> initBoolFluentsValues;
-    final PddlDomain linkedDomain;
+    final PDDLDomain linkedDomain;
     private FactoryConditions fc;
 
 
@@ -129,7 +129,7 @@ public class PDDLProblem implements SearchProblem {
     
     
 
-    public PDDLProblem (PddlDomain domain, String groundingMethod, PrintStream out, boolean sdac){        
+    public PDDLProblem (PDDLDomain domain, String groundingMethod, PrintStream out, boolean sdac){        
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
@@ -153,7 +153,7 @@ public class PDDLProblem implements SearchProblem {
     
     
     public PDDLProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
-            PddlDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
+            PDDLDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
         this(domain, groundingMethod, out, sdac);
         try {
             objects.addAll(constants);
@@ -163,14 +163,17 @@ public class PDDLProblem implements SearchProblem {
             Logger.getLogger(PDDLProblem.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.antlr.runtime.RecognitionException ex) {
             Logger.getLogger(PDDLProblem.class.getName()).log(Level.SEVERE, null, ex);
-        }        indexObject = 0;
+        }
+        indexObject = 0;
     }
+
     /**
      * @return the sdac
      */
     public boolean isSdac() {
         return sdac;
     }
+
     /**
      * @param sdac the sdac to set
      */
@@ -182,14 +185,12 @@ public class PDDLProblem implements SearchProblem {
         return groundingTime;
     }
 
-
-
     @Override
-    public Object clone ( ) throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
 
         //EPddlProblem cloned = new PDDLProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
         PDDLProblem cloned = new PDDLProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac);
-        
+
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
             throw new UnsupportedOperationException();
@@ -204,14 +205,12 @@ public class PDDLProblem implements SearchProblem {
 
     }
 
-    private HashMap<String, NumFluent> getNumericFluentReference ( ) {
+    private HashMap<String, NumFluent> getNumericFluentReference() {
         if (this.numFluentReference == null) {
             numFluentReference = new HashMap<>();
         }
         return this.numFluentReference;
     }
-
-
 
     private void generateTransitions() {
         long start = System.currentTimeMillis();
@@ -219,18 +218,24 @@ public class PDDLProblem implements SearchProblem {
             System.out.println("Generate Transitions using " + groundingMethod);
             ExternalGrounder mff = null;
             switch (groundingMethod) {
-                case "metricff" -> mff = new MetricFFGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                case "fd" -> mff = new FDGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                case "fdi" -> mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                case "metricff" ->
+                    mff = new MetricFFGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                case "fd" ->
+                    mff = new FDGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                case "fdi" ->
+                    mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
             }
             groundingTime = System.currentTimeMillis();
             Collection<TransitionGround> doGrounding = mff.doGrounding();
-            groundingTime = System.currentTimeMillis()-groundingTime;
+            groundingTime = System.currentTimeMillis() - groundingTime;
             for (var act : doGrounding) {
                 switch (act.getSemantics()) {
-                    case ACTION -> getActions().add(act);
-                    case EVENT -> getEventsSet().add(act);
-                    case PROCESS -> getProcessesSet().add(act);
+                    case ACTION ->
+                        getActions().add(act);
+                    case EVENT ->
+                        getEventsSet().add(act);
+                    case PROCESS ->
+                        getProcessesSet().add(act);
                 }
             }
         } else {
@@ -246,9 +251,12 @@ public class PDDLProblem implements SearchProblem {
             for (var act : transitions) {
                 Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, getInitBoolFluentsValues(), linkedDomain);
                 switch (act.getSemantics()) {
-                    case ACTION -> getActions().addAll(propositionalize);
-                    case EVENT -> getEventsSet().addAll(propositionalize);
-                    case PROCESS -> getProcessesSet().addAll(propositionalize);
+                    case ACTION ->
+                        getActions().addAll(propositionalize);
+                    case EVENT ->
+                        getEventsSet().addAll(propositionalize);
+                    case PROCESS ->
+                        getProcessesSet().addAll(propositionalize);
                 }
             }
             groundingTime = System.currentTimeMillis() - groundingTime;
@@ -259,26 +267,29 @@ public class PDDLProblem implements SearchProblem {
     public void prepareForSearch(boolean aibrPreprocessing) throws Exception {
         this.prepareForSearch(aibrPreprocessing, false);
     }
-    public void prepareForSearch(boolean aibrPreprocessing,boolean stopAfterGrounding) throws Exception {
+
+    public void prepareForSearch(boolean aibrPreprocessing, boolean stopAfterGrounding) throws Exception {
 
         //simplification decoupled from the grounding
-        
         this.groundingActionProcessesConstraints();
         out.println("Grounding Time: " + this.getGroundingTime());
-        if (stopAfterGrounding)
+        if (stopAfterGrounding) {
             return;
+        }
         this.simplifyAndSetupInit(aibrPreprocessing);
         groundGoals = generate_inequalities(getGoals());
-                readyForSearch = true;
+        readyForSearch = true;
 
     }
-    protected Condition generate_inequalities (Condition con) {
+
+    protected Condition generate_inequalities(Condition con) {
         return (Condition) con.transformEquality();
     }
-    protected Set getActualFluents ( ) {
+
+    protected Set getActualFluents() {
         if (actualFluents == null) {
             actualFluents = new LinkedHashSet();
-            Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), new HashSet(this.getEventsSet())),new HashSet(this.getProcessesSet()));
+            Sets.SetView<TransitionGround> transitions = Sets.union(Sets.union(new HashSet(this.actions), new HashSet(this.getEventsSet())), new HashSet(this.getProcessesSet()));
 
             for (TransitionGround gr : transitions) {
                 gr.updateInvariantFluents(actualFluents);
@@ -289,11 +300,9 @@ public class PDDLProblem implements SearchProblem {
         return actualFluents;
     }
 
-
-
-
-    private void generateConstraints ( ) throws Exception {
-            Grounder af = new Grounder();
+    private void generateConstraints() throws Exception {
+        Grounder af = new Grounder();
+        if (linkedDomain.getSchemaGlobalConstraints() != null) {
             for (SchemaGlobalConstraint constr : linkedDomain.getSchemaGlobalConstraints()) {
 //                af.Propositionalize(act, objects);
 
@@ -304,10 +313,10 @@ public class PDDLProblem implements SearchProblem {
                     globalConstraintSet.add(gr);
                 }
             }
+        }
     }
-    
 
-    private void groundingActionProcessesConstraints ( ) throws Exception {
+    private void groundingActionProcessesConstraints() throws Exception {
         long start = System.currentTimeMillis();
 
         actualFluents = null;
@@ -464,9 +473,9 @@ public class PDDLProblem implements SearchProblem {
     public void simplifyAndSetupInit(boolean aibrPreprocessing) throws Exception {
 
         long start = System.currentTimeMillis();
-        out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+//        out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         easyCleanUp(aibrPreprocessing);
-        out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
+//        out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
         makeInit();
@@ -540,6 +549,7 @@ public class PDDLProblem implements SearchProblem {
             involved_fluents.addAll(a.getNumFluentsNecessaryForExecution());
         }
 
+        
         for (SchemaGlobalConstraint a : this.linkedDomain.getSchemaGlobalConstraints()) {
             involved_fluents.addAll(a.condition.getInvolvedFluents());
         }
@@ -805,7 +815,7 @@ public class PDDLProblem implements SearchProblem {
         return simplifyActions;
     }
 
-    public PddlDomain getLinkedDomain() {
+    public PDDLDomain getLinkedDomain() {
         return linkedDomain;
     }
 
@@ -848,14 +858,14 @@ public class PDDLProblem implements SearchProblem {
 
     public void saveProblem(String pddlNewFile) throws IOException {
         pddlFilRef = pddlNewFile;
-        StringBuilder str = new StringBuilder("");
+        final StringBuilder str = new StringBuilder("");
         str.append("(define (problem ").append(name).append(") ");
         str.append("(:domain ").append(this.getDomainName()).append(") \n");
-        str.append(this.getObjects().pddlPrint()).append("\n");
+        str.append(this.getObjects().pddlPrint());
         str.append("(:init ");
         for (var v: initBoolFluentsValues.entrySet()){
             if (v.getValue()){
-                str.append("(").append(v.getKey()).append(")\n");
+                str.append(v.getKey()).append("\n");
             }
         }
         for (var v: this.initNumFluentsValues.entrySet()){
@@ -865,15 +875,14 @@ public class PDDLProblem implements SearchProblem {
         str.append("(:goal ");
         str.append(this.liftedGoals.pddlPrint(false));
         str.append(" )\n");
+        if (this.metric != null){
+            str.append(this.metric.pddlPrint());
+        }
+        str.append("\n )");
         
-        String toWrite = "(define (problem " + name + ") " + 
-                "(:domain " + this.getDomainName() + ") " + 
-                this.getObjects().pddlPrint() + 
-                "\n" + Printer.pddlPrint(this, (PDDLState) init) + "\n" + 
-                "(:goal " + this.getGoals().pddlPrint(false) + ")\n" 
-                + this.metric.pddlPrint() + "\n" + ")";
-        Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
-        file.write(toWrite);
+       
+        final Writer file = new BufferedWriter(new FileWriter(pddlNewFile));
+        file.append(str);
         file.close();
     }
 

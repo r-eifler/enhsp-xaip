@@ -196,4 +196,8 @@ public class ConditionalEffects<T> {
         return ret;
     }
     public enum VariableType {PROPEFFECT, NUMEFFECT}
+
+ 
+    
+    
 }

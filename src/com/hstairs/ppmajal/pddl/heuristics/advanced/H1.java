@@ -188,10 +188,10 @@ public class H1 implements SearchHeuristic {
         closed = new boolean[heuristicNumberOfActions];
 
         hardcoreVersion = heuristicNumberOfActions * totNumberOfTermsRefactored < 1999999999;
-        System.out.println("Heuristic Number of Actions:" + heuristicNumberOfActions);
-        System.out.println("Heuristic Number of Actions Refactored:" + totNumberOfActionsRefactored);
-        System.out.println("Tot Number of Terms:" + totNumberOfTerms);
-        System.out.println("Tot Number of Terms Refactored:" + totNumberOfTermsRefactored);
+//        System.out.println("Heuristic Number of Actions:" + heuristicNumberOfActions);
+//        System.out.println("Heuristic Number of Actions Refactored:" + totNumberOfActionsRefactored);
+//        System.out.println("Tot Number of Terms:" + totNumberOfTerms);
+//        System.out.println("Tot Number of Terms Refactored:" + totNumberOfTermsRefactored);
 
         if (hardcoreVersion) {
             numericContributionRaw = new float[totNumberOfActionsRefactored][totNumberOfTermsRefactored];
@@ -200,7 +200,7 @@ public class H1 implements SearchHeuristic {
             }
             numericContribution = null;
         } else {
-            System.out.println("H1 with small memory footprint");
+//            System.out.println("H1 with small memory footprint");
             numericContributionRaw = null;
             numericContribution = new HashMap<>();
         }

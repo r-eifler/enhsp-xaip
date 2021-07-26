@@ -6,7 +6,7 @@ import static com.hstairs.ppmajal.conditions.Comparison.comparison;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import static com.hstairs.ppmajal.conditions.PDDLObject.object;
 import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
@@ -49,7 +49,7 @@ import static com.hstairs.ppmajal.transition.ConditionalEffects.numEffects;
 public class programmaticMain {
 
     public static void fullGroundProblem() throws Exception {
-        PddlDomain pddlDomain = new PddlDomain();
+        PDDLDomain pddlDomain = new PDDLDomain();
 
         //add predicates
         pddlDomain.addPredicate("a", null);
@@ -60,25 +60,28 @@ public class programmaticMain {
         //Define transition
         ConditionalEffects<Predicate> effects = new ConditionalEffects<>();
         effects.add(Predicate.getPredicate("a", null));
-        TransitionGround action = new TransitionGround(
+        TransitionSchema action = new TransitionSchema(
                 "hello", ACTION, null, null,
                 effects,
                 new ConditionalEffects());
-        problem.actions.add(action);
-        TransitionGround action2 = new TransitionGround(
+        TransitionSchema action2 = new TransitionSchema(
                 "world", ACTION, null,
                 Predicate.getPredicate("a", null),
                 stripsEffects(Predicate.getPredicate("b", null)),
                 new ConditionalEffects());
-        problem.actions.add(action2);
+        pddlDomain.addAction(action);
+        pddlDomain.addAction(action2);
 
         //init
-        problem.addFactValue(Predicate.getPredicate("c",null), true);
+        //problem.addFactValue(Predicate.getPredicate("c",null), true);
         //goal
         problem.setGoals(new AndCond(Sets.newHashSet(Predicate.getPredicate("b", null))));
 
         problem.prettyPrint();
+        pddlDomain.saveDomain("/tmp/d.pddl");
+        problem.saveProblem("/tmp/p0.pddl");
         problem.prepareForSearch(true);
+        problem.saveProblem("/tmp/p1.pddl");
 
         final PDDLSearchEngine searchEngine = new PDDLSearchEngine(problem, new H1(problem)); //manager of the search strategies
         LinkedList<Pair<BigDecimal, Object>> plan = searchEngine.WAStar();
@@ -87,7 +90,7 @@ public class programmaticMain {
     }
 
     public static void fullSchemaProblem() throws Exception {
-        PddlDomain pddlDomain = new PddlDomain();
+        PDDLDomain pddlDomain = new PDDLDomain();
 
         //add predicates
         pddlDomain.addPredicate("a", new ArrayList());
@@ -127,7 +130,7 @@ public class programmaticMain {
     }
 
     public static void fullSchemaNumericProblem() throws Exception {
-        PddlDomain pddlDomain = new PddlDomain();
+        PDDLDomain pddlDomain = new PDDLDomain();
 
         //add types
         pddlDomain.addType(type("Person"));

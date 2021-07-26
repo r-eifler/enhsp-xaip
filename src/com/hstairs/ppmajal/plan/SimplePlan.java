@@ -21,7 +21,7 @@ package com.hstairs.ppmajal.plan;
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.*;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;

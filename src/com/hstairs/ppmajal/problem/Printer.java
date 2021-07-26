@@ -20,7 +20,10 @@ package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
+import com.hstairs.ppmajal.transition.ConditionalEffects;
+import java.util.Map;
 
 /**
  * @author enrico
@@ -61,6 +64,19 @@ public class Printer {
 
     static public String pddlPrint (PDDLProblem p, PDDLState s) {
         return Printer.pddlPrintWithDummyTrue(p, s);
+    }
+
+    public static void pddlPrint(StringBuilder ret, ConditionalEffects conditionalNumericEffects) {
+        for (var v: conditionalNumericEffects.getUnconditionalEffect()){
+            ret.append("\t\t\t");
+            ret.append(v.toString());
+        }
+        for (var v: conditionalNumericEffects.getActualConditionalEffects().entrySet()){
+            Map.Entry entry = (Map.Entry)v;
+            ret.append("(when ").append(entry.getKey().toString());
+            ret.append(entry.getValue());
+        }
+
     }
 
 }

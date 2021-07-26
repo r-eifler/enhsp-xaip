@@ -1,6 +1,6 @@
 package com.hstairs.ppmajal.propositionalFactory;
 
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.transition.TransitionGround;
 
@@ -9,11 +9,11 @@ import java.util.LinkedHashSet;
 
 public class ASPGrounder {
     final protected PDDLProblem problem;
-    final protected PddlDomain domain;
+    final protected PDDLDomain domain;
     Collection<TransitionGround> groundedTransitions;
 
 
-    public ASPGrounder(PDDLProblem problem, PddlDomain domain) {
+    public ASPGrounder(PDDLProblem problem, PDDLDomain domain) {
         this.problem = problem;
         this.domain = domain;
     }

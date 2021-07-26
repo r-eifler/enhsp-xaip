@@ -26,7 +26,7 @@ import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.PostCondition;
 import com.hstairs.ppmajal.conditions.Predicate;
-import com.hstairs.ppmajal.domain.PddlDomain;
+import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.PredicateSet;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.domain.Variable;
@@ -119,7 +119,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
                     + ";predicates \n (:predicates %s)\n"
                     + ";actions \n %s \n )";
             StringBuilder actionString  = new StringBuilder();
-            PddlDomain domain = problem.getLinkedDomain();
+            PDDLDomain domain = problem.getLinkedDomain();
             actionString.append(actionString(domain.getActionsSchema()));
             actionString.append(actionString(domain.getEventsSchema()));
             actionString.append(actionString(domain.getProcessesSchema()));

@@ -34,6 +34,7 @@
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/search/SearchEngine.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLProblem.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/ForAll.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/PDDLDomain.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/NumEffect.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/propositionalFactory/Grounder.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
@@ -64,14 +65,15 @@
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/Type.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/FastTransitionTable.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/ConditionalEffect.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLObjects.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Existential.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/Variable.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/pddl/heuristics/advanced/H1.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Comparison.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/PDDLSearchEngine.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/ExtendedAddendum.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/problem/Printer.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Predicate.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/domain/PddlDomain.java</file>
         </group>
     </open-files>
 </project-private>
