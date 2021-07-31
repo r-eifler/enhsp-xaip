@@ -49,6 +49,9 @@ public final class PDDLDomain {
      * @return the requirements
      */
     public Collection<String> getRequirements() {
+        if (requirements == null){
+            requirements = new ArrayList();
+        }
         return requirements;
     }
 
@@ -93,11 +96,11 @@ public final class PDDLDomain {
 
     private PDDLDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, 
             Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables, PredicateSet p) {
-        SchemaGlobalConstraints = Collections.EMPTY_SET;
+        SchemaGlobalConstraints = null;
         types = null;
         ActionsSchema = new TreeSet<>(new ActionComparator());
         functions = new ArrayList();
-        requirements = Collections.EMPTY_LIST;
+        requirements = null;
         this.eventsSchema = eventsSchema;
         this.constants = constants;
         processesSchemata = processesSchema;
@@ -472,6 +475,7 @@ public final class PDDLDomain {
     private void addGlobalConstraint (Tree c) {
         SchemaGlobalConstraint con = new SchemaGlobalConstraint(c.getChild(0).getText());
         //System.out.println("Adding:"+a.getName());
+        
         this.getSchemaGlobalConstraints().add(con);
 
         for (int i = 1; i < c.getChildCount(); i++) {
@@ -507,6 +511,9 @@ public final class PDDLDomain {
      * @return the SchemaGlobalConstraints
      */
     public Set<SchemaGlobalConstraint> getSchemaGlobalConstraints ( ) {
+        if (SchemaGlobalConstraints == null){
+            SchemaGlobalConstraints = new LinkedHashSet();
+        }
         return SchemaGlobalConstraints;
     }
 

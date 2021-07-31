@@ -66,7 +66,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         final HashMap<String, Collection<List<String>>> groundings = new HashMap();
         Pair<String, String> dom_prob = abstractNumeric();
         try {
-            String fdtranslator = "python3 "+new File(FDGrounderInstantiate.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/../../downward/translate/translate.py";
+            String fdtranslator = "python3 "+new File(FDGrounderInstantiate.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/../../downward/src/translate/instantiate.py";
             String command = fdtranslator + " --dump-task " + dom_prob.getFirst() + " " + dom_prob.getSecond();
             System.out.println(String.format("DEBUG: domain file: %s problem file %s", dom_prob.getFirst(), dom_prob.getSecond()));
             Process process = Runtime.getRuntime().exec(command);
