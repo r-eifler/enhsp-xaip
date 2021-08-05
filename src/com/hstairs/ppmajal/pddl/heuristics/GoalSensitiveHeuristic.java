@@ -34,18 +34,22 @@ import com.hstairs.ppmajal.search.SearchHeuristic;
 /**
  * @author enrico
  */
-public class BlindHeuristic implements SearchHeuristic {
+public class GoalSensitiveHeuristic implements SearchHeuristic {
 
+    final Condition goal;
     final private PDDLProblem problem;
     final Object[] staticActions;
-    public BlindHeuristic(PDDLProblem problem){
+    public GoalSensitiveHeuristic(PDDLProblem problem){
         this.problem = problem;
+        goal = problem.getGoals();
         staticActions = problem.actions.toArray();
     }
 
     @Override
     public float computeEstimate (State s_0) {
-        return 0;
+        if (s_0.satisfy(goal))
+            return 0;
+        return 1;
     }
 
     @Override

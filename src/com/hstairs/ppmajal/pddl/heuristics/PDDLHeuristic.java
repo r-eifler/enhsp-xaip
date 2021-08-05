@@ -91,6 +91,10 @@ public class PDDLHeuristic {
                 return new BlindHeuristic(heuristicProblem);
 
             }
+            case "blgoal": {
+                return new GoalSensitiveHeuristic(heuristicProblem);
+
+            }
             case "aibr": {
                 System.out.println("AIBR selected");
                 return new Aibr(heuristicProblem);
@@ -117,7 +121,7 @@ public class PDDLHeuristic {
                 if (heuristic != null) {
                     System.out.println("Folding back to 1-0 heuristic. Input heuristic is not supported");
                 }
-                return new BlindHeuristic(heuristicProblem);
+                return new GoalSensitiveHeuristic(heuristicProblem);
 
         }
     }

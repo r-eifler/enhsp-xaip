@@ -71,6 +71,8 @@ import org.jgrapht.alg.util.Pair;
  */
 public class PDDLProblem implements SearchProblem {
 
+    final private boolean ignoreMetric;
+
     /**
      * @return the readyForSearch
      */
@@ -129,7 +131,7 @@ public class PDDLProblem implements SearchProblem {
     
     
 
-    public PDDLProblem (PDDLDomain domain, String groundingMethod, PrintStream out, boolean sdac){        
+    public PDDLProblem (PDDLDomain domain, String groundingMethod, PrintStream out, boolean sdac, boolean ignoreMetric){        
         indexInit = 0;
         indexGoals = 0;
         objects = new PDDLObjects();
@@ -148,13 +150,14 @@ public class PDDLProblem implements SearchProblem {
         initNumFluentsValues =  new HashMap();
         readyForSearch = false;
         PDDLState.fastTransitionTable = null;
-
+        this.ignoreMetric = ignoreMetric;
+        
     }
     
     
     public PDDLProblem(String problemFile, PDDLObjects constants, Set<Type> types, 
-            PDDLDomain domain, PrintStream out, String groundingMethod, boolean sdac) {
-        this(domain, groundingMethod, out, sdac);
+            PDDLDomain domain, PrintStream out, String groundingMethod, boolean sdac, boolean ignoreMetric) {
+        this(domain, groundingMethod, out, sdac, ignoreMetric);
         try {
             objects.addAll(constants);
             this.types = types;
@@ -189,7 +192,7 @@ public class PDDLProblem implements SearchProblem {
     public Object clone() throws CloneNotSupportedException {
 
         //EPddlProblem cloned = new PDDLProblem(this.pddlFilRef, this.objects, this.types, linkedDomain);
-        PDDLProblem cloned = new PDDLProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac);
+        PDDLProblem cloned = new PDDLProblem(pddlFilRef, getObjects(), types, linkedDomain, out, groundingMethod, sdac, ignoreMetric);
 
         cloned.processesSet = new LinkedHashSet();
         for (TransitionGround gr : this.actions) {
@@ -1329,11 +1332,11 @@ public class PDDLProblem implements SearchProblem {
             if (gr == null) {
                 return gValue;
             }
-            return getTransitionCost(s, gr,gValue,false,m);
+            return getTransitionCost(s, gr,gValue,ignoreMetric,m);
         }else{
             final ImmutablePair<TransitionGround,Integer> res = (ImmutablePair<TransitionGround, Integer>) act;
 
-            return getTransitionCost(s, res.left,gValue,false,m,res.right);
+            return getTransitionCost(s, res.left,gValue,ignoreMetric,m,res.right);
         }
     }
     float getTransitionCost(State s, TransitionGround gr, Float previousG, boolean ignoreCost, Metric m) {

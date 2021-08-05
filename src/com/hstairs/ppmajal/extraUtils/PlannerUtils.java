@@ -3,7 +3,7 @@ package com.hstairs.ppmajal.extraUtils;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.Aibr;
 import com.hstairs.ppmajal.pddl.heuristics.advanced.H1;
-import com.hstairs.ppmajal.pddl.heuristics.BlindHeuristic;
+import com.hstairs.ppmajal.pddl.heuristics.GoalSensitiveHeuristic;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.PDDLSearchEngine;
 import org.apache.commons.lang3.tuple.Pair;
@@ -42,7 +42,7 @@ public class PlannerUtils {
 
     private void setup(String domainFileName, String problemFileName, String heuristic) throws Exception {
         d = new PDDLDomain(domainFileName);
-        p = new PDDLProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true);
+        p = new PDDLProblem(problemFileName, d.constants, d.getTypes(), d, System.out, heuristic, true, false);
         d.substituteEqualityConditions();
         if (!d.getProcessesSchema().isEmpty()) {
             p.setDeltaTimeVariable("1");
@@ -52,7 +52,7 @@ public class PlannerUtils {
 
         switch (heuristic) {
             case "blind":
-                h = new BlindHeuristic(p);
+                h = new GoalSensitiveHeuristic(p);
                 break;
             case "aibr":
                 h = new Aibr(p);

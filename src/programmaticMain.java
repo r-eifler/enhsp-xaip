@@ -55,7 +55,7 @@ public class programmaticMain {
         pddlDomain.addPredicate("a", null);
         pddlDomain.addPredicate("b", null);
 
-        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false);
+        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false, false);
 
         //Define transition
         ConditionalEffects<Predicate> effects = new ConditionalEffects<>();
@@ -97,7 +97,7 @@ public class programmaticMain {
         pddlDomain.addPredicate("b", new ArrayList());
         pddlDomain.addType(Type.type("Person"));
 
-        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false);
+        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false, false);
         problem.getObjects().add(PDDLObject.object("Enrico", Type.type("Person")));
 
         //Define Actions
@@ -139,7 +139,7 @@ public class programmaticMain {
         pddlDomain.addFunction("a", new ArrayList());
         
 
-        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false);
+        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false, false);
         problem.getObjects().add(object("Enrico", type("Person")));
 
         //Define Actions
