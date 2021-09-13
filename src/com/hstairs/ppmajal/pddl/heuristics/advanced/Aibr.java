@@ -245,7 +245,23 @@ public class Aibr implements SearchHeuristic {
                 System.out.println(relState);
             }
 
+            if (relState.satisfy(problem.getGoals())) {
+                goalReached = true;
+                if (DEBUG){
+                    System.out.println("Goal is reached");
+                }
+                if (reachableTransitions != null) {
+                    break;
+                } else {
+                    if (numAppliers.isEmpty() && propAppliers.isEmpty()) {
+                        break;
+                    }
+                }
+            }
             if (numAppliers.isEmpty() && propAppliers.isEmpty() && !goalReached) {
+                if (DEBUG) {
+                   System.out.println("UNSAT");
+                }
                 return Float.MAX_VALUE;
             }
             for (final int current : propAppliers) {
@@ -255,16 +271,6 @@ public class Aibr implements SearchHeuristic {
             for (final int current : numAppliers) {
                 final NumEffect effect = supporter2numeffect[current];
                 relState.apply(effect, relState.clone());
-            }
-            if (relState.satisfy(problem.getGoals())) {
-                goalReached = true;
-                if (reachableTransitions != null) {
-                    break;
-                } else {
-                    if (numAppliers.isEmpty() && propAppliers.isEmpty()) {
-                        break;
-                    }
-                }
             }
         }
 
@@ -280,6 +286,9 @@ public class Aibr implements SearchHeuristic {
             }
 
         }
+        if (DEBUG){
+            System.err.println("Computing actual estimate using the following transitions:"+reachableTransitions);
+        }
         if (goalReached) {
             return fixPointComputation(reachableTransitions, s.relaxState());
         }
@@ -291,6 +300,9 @@ public class Aibr implements SearchHeuristic {
         int horizon = Integer.MAX_VALUE;
         BitSet applicable = new BitSet();
         while (counter <= horizon) {
+            if (s.satisfy(problem.getGoals())) {
+                return counter;
+            }
             for (var transition : reachable) {
                 final boolean b = applicable.get(transition.getId());
                 if (b || s.satisfy(transition.getPreconditions())) {
