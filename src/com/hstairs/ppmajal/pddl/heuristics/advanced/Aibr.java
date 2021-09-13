@@ -245,20 +245,7 @@ public class Aibr implements SearchHeuristic {
                 System.out.println(relState);
             }
 
-            if (relState.satisfy(problem.getGoals())) {
-                goalReached = true;
-                if (DEBUG){
-                    System.out.println("Goal is reached");
-                }
-                if (reachableTransitions != null) {
-                    break;
-                } else {
-                    if (numAppliers.isEmpty() && propAppliers.isEmpty()) {
-                        break;
-                    }
-                }
-            }
-            if (numAppliers.isEmpty() && propAppliers.isEmpty() && !goalReached) {
+            if (numAppliers.isEmpty() && propAppliers.isEmpty() && !relState.satisfy(problem.getGoals())) {
                 if (DEBUG) {
                    System.out.println("UNSAT");
                 }
@@ -271,6 +258,17 @@ public class Aibr implements SearchHeuristic {
             for (final int current : numAppliers) {
                 final NumEffect effect = supporter2numeffect[current];
                 relState.apply(effect, relState.clone());
+            }
+            if (relState.satisfy(problem.getGoals())) {
+                goalReached = true;
+                if (reachableTransitions != null) {
+                    break;
+                } 
+                else {
+                    if (numAppliers.isEmpty() && propAppliers.isEmpty()) {
+                        break;
+                    }
+                }
             }
         }
 
@@ -286,11 +284,13 @@ public class Aibr implements SearchHeuristic {
             }
 
         }
-        if (DEBUG){
-            System.err.println("Computing actual estimate using the following transitions:"+reachableTransitions);
-        }
         if (goalReached) {
+            if (DEBUG){
+                System.err.println("Computing actual estimate using the following transitions:"+reachableTransitions);
+            }
             return fixPointComputation(reachableTransitions, s.relaxState());
+        }else{
+            System.out.println("UNSAT here!!??");
         }
         return Float.MAX_VALUE;
     }
