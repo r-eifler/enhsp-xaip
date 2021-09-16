@@ -289,8 +289,6 @@ public class Aibr implements SearchHeuristic {
                 System.err.println("Computing actual estimate using the following transitions:"+reachableTransitions);
             }
             return fixPointComputation(reachableTransitions, s.relaxState());
-        }else{
-            System.out.println("UNSAT here!!??");
         }
         return Float.MAX_VALUE;
     }
