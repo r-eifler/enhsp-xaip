@@ -90,7 +90,7 @@ public final class PDDLDomain {
     }
     
     public PDDLDomain(){
-        this(Collections.EMPTY_SET,new PDDLObjects(),new LinkedHashSet(),new ArrayList(), new PredicateSet());
+        this(new LinkedHashSet(),new PDDLObjects(),new LinkedHashSet(),new ArrayList(), new PredicateSet());
     }
 
 
