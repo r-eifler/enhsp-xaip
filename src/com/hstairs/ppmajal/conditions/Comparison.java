@@ -197,7 +197,6 @@ public class Comparison extends Terminal {
         if (s.possNumValues.isEmpty()) {
             return false;
         }
-
         final HomeMadeRealInterval first = left.eval(s);
         final HomeMadeRealInterval second = right.eval(s);
 
@@ -208,13 +207,13 @@ public class Comparison extends Terminal {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first.lo() < second.hi();
+            return Double.MIN_VALUE < second.hi() - first.lo();
         } else if (this.getComparator().equals("<=")) {
-            return first.lo() <= second.hi();
+            return first.lo() - second.hi() <= Double.MIN_VALUE;
         } else if (this.getComparator().equals(">")) {
-            return first.hi() > second.lo();
+            return first.hi()- second.lo() > Double.MIN_VALUE;
         } else if (this.getComparator().equals(">=")) {
-            return first.hi() >= second.lo();
+            return first.hi() - second.lo() >= Double.MIN_VALUE;
         } else if (this.getComparator().equals("=")) {
 //            float ret = Math.max(first.lo()-second.hi(), second.lo()-first.hi());
 //            if (ret>=0)

@@ -73,12 +73,6 @@ public class Aibr implements SearchHeuristic {
                 if (propEffects != null && numEffect != null) {
                     throw new RuntimeException("Bug in the function");
                 } else {
-//                    Condition precondition = preconditionFunction[i];
-//                    System.out.println("Supporter: " + pre2transition.get(precondition).getName());
-//                    System.out.println("Precondition: " + precondition);
-//                    System.out.println("propEffects: " + propEffects);
-//                    System.out.println("numEffects: " + numEffect);
-
                 }
             }
         }
@@ -136,35 +130,35 @@ public class Aibr implements SearchHeuristic {
     }
 
     private void generateInfSupporter(NumEffect effect, Int2IntArrayMap supporter2transitionMap, int idx, String s, Int2ObjectMap<Condition> asymptoticPreconditionFunctionMap, Int2ObjectMap<NumEffect> numEffectMap, TransitionGround tr) {
-        String disequality = "";
+        String inequality = "";
         Float asymptote = Float.MAX_VALUE;
         if ("+".equals(s)) {
             switch (effect.getOperator()) {
                 case "increase":
-                    disequality = ">";
+                    inequality = ">";
                     break;
                 case "decrease":
-                    disequality = "<";
+                    inequality = "<";
                     break;
                 case "assign":
-                    disequality = ">";
+                    inequality = ">";
                     break;
             }
         } else {
             asymptote = -Float.MAX_VALUE;
             switch (effect.getOperator()) {
                 case "increase":
-                    disequality = "<";
+                    inequality = "<";
                     break;
                 case "decrease":
-                    disequality = ">";
+                    inequality = ">";
                     break;
                 case "assign":
-                    disequality = "<";
+                    inequality = "<";
                     break;
             }
         }
-        generateSupporter(effect, idx, disequality, asymptote, asymptoticPreconditionFunctionMap, numEffectMap);
+        generateSupporter(effect, idx, inequality, asymptote, asymptoticPreconditionFunctionMap, numEffectMap);
         names.put(idx, tr.getName().concat(s + "Inf"));
         supporter2transitionMap.put(idx, tr.getId());
     }
@@ -194,9 +188,14 @@ public class Aibr implements SearchHeuristic {
         final IntArrayList reachableActionsThisStage = new IntArrayList();
         boolean goalReached = false;
         if (DEBUG) {
+            System.out.println("====================================================");
             System.out.println("Supporters");
             for (int ele = 0; ele < numberOfSupporters; ele++) {
                 System.out.println(names.get(ele));
+                System.out.println("Precondition:"+Transition.getTransition(supporter2transition[ele]).getPreconditions());
+                System.out.println("Prop Effect:"+supporter2propeffect[ele]);
+                System.out.println("Num Effect:"+supporter2numeffect[ele]);
+                System.out.println("Asymptotic condition:"+supporter2aymptoticeffects[ele]);
             }
         }
         final BitSet conditionSatisfied = new BitSet();
@@ -205,21 +204,26 @@ public class Aibr implements SearchHeuristic {
             final IntIterator iterator = supporters.iterator();
             final IntArrayList propAppliers = new IntArrayList();
             final IntArrayList numAppliers = new IntArrayList();
+            if (DEBUG) {
+                System.out.println("State Before supporter application:" + relState);
+            }
             while (iterator.hasNext()) {
                 int current = iterator.nextInt();
-                if (DEBUG) {
-                    System.out.println(relState);
-                }
                 final TransitionGround tr = (TransitionGround) Transition.getTransition(supporter2transition[current]);
                 final boolean b = conditionSatisfied.get(current);
                 if (b || relState.satisfy(tr.getPreconditions())) {
                     if (!b){
                         conditionSatisfied.set(current,true);
                     }
+//                if (relState.satisfy(tr.getPreconditions())) {
+////                    if (!b){
+//                        conditionSatisfied.set(current,true);
+////                    }
                     final int id = tr.getId();
                     if (!actionInserted.get(id)) {
                         if (DEBUG) {
-                            System.out.println(names.get(current));
+                            System.out.println("Add Supporter: "+names.get(current));
+                            System.out.println("with precondition: "+tr.getPreconditions());
                         }
                         reachableActionsThisStage.add(id);
                         actionInserted.set(id, true);
@@ -241,9 +245,6 @@ public class Aibr implements SearchHeuristic {
                     }
                 }
             }
-            if (DEBUG) {
-                System.out.println(relState);
-            }
 
             if (numAppliers.isEmpty() && propAppliers.isEmpty() && !relState.satisfy(problem.getGoals())) {
                 if (DEBUG) {
@@ -258,6 +259,9 @@ public class Aibr implements SearchHeuristic {
             for (final int current : numAppliers) {
                 final NumEffect effect = supporter2numeffect[current];
                 relState.apply(effect, relState.clone());
+            }
+            if (DEBUG) {
+                System.out.println("State After Action Application:"+relState);
             }
             if (relState.satisfy(problem.getGoals())) {
                 goalReached = true;
@@ -285,6 +289,7 @@ public class Aibr implements SearchHeuristic {
 
         }
         if (goalReached) {
+            
             if (DEBUG){
                 System.err.println("Computing actual estimate using the following transitions:"+reachableTransitions);
             }
@@ -296,6 +301,8 @@ public class Aibr implements SearchHeuristic {
     private float fixPointComputation(Collection<TransitionGround> reachable, RelState s) {
         int counter = 0;
         int horizon = Integer.MAX_VALUE;
+//        int horizon = 10000;
+//        System.out.println(s);
         BitSet applicable = new BitSet();
         while (counter <= horizon) {
             if (s.satisfy(problem.getGoals())) {
