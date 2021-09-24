@@ -12,15 +12,11 @@ import com.hstairs.ppmajal.conditions.Predicate;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
-import com.hstairs.ppmajal.transition.TransitionGround;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jgrapht.util.FibonacciHeap;
 
 /**
  *
