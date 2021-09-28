@@ -18,7 +18,6 @@
  */
 package com.hstairs.ppmajal.problem;
 
-import com.google.common.collect.ImmutableMap;
 import com.hstairs.ppmajal.propositionalFactory.MetricFFGrounder;
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
@@ -1199,7 +1198,7 @@ public class PDDLProblem implements SearchProblem {
         this.actions = actions;
     }
 
-    public void parseProblem(String string, PDDLObjects constants) throws IOException, antlr.RecognitionException, RecognitionException {
+    public void parseProblem(String string, PDDLObjects constants) throws IOException,  RecognitionException {
         this.getObjects().addAll(constants);
         parseProblem(string);
     }
