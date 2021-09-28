@@ -1,5 +1,11 @@
-/*
- * Copyright (C) 2018 enrico.
+package enhsp2;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+
+/* 
+ * Copyright (C) 2015-2017, Enrico Scala, contact: enricos83@gmail.com
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,45 +23,19 @@
  * MA 02110-1301  USA
  */
 
-import org.junit.*;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * @author enrico
- */
-public class CheckHeuristicsValues {
-
-    public CheckHeuristicsValues ( ) {
+public class main {
 
 
+
+    public static void main(String[] args) throws Exception {
+        ENHSP p = new ENHSP(false);
+        p.parseInput(args);
+        p.configurePlanner();
+        p.parsingDomainAndProblem(args);
+        p.planning();
     }
 
-    @BeforeClass
-    public static void setUpClass ( ) {
-    }
+  
 
-    @AfterClass
-    public static void tearDownClass ( ) {
-    }
-
-    @Before
-    public void setUp ( ) {
-
-
-    }
-
-    @After
-    public void tearDown ( ) {
-    }
-
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    @Test
-    public void hello ( ) {
-
-        assertEquals(1, 1);
-
-    }
 }
