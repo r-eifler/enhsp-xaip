@@ -1,6 +1,4 @@
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
+
 import sequential_problems.NonLinearPlanSizeTest;
 import sequential_problems.OptimalityTest;
 import sequential_problems.PddlPlusTest;
@@ -30,6 +28,7 @@ import sequential_problems.PddlPlusTest;
 public class Runner {
 
     public static void main (String[] args) {
+        
         Result result = JUnitCore.runClasses(NonLinearPlanSizeTest.class);
         for (Failure failure : result.getFailures()) {
             System.out.println(failure.toString());
