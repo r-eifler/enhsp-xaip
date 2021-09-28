@@ -22,12 +22,17 @@
         <group>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/tests/sequential_problems/AssignTest.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/tests/sequential_problems/PddlPlusTest.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/test/NewEmptyJUnitTest.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Condition.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/expressions/ExtendedNormExpression.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/test/ComparisonTest.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/enhsp2/ENHSP.java</file>
-            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/test/tests.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/tests/Runner.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/test/planningTest.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/PlannerUtils.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/Comparison.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/conditions/AndCond.java</file>
             <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/tests/sequential_problems/BlocksWorldTest.java</file>
+            <file>file:/home/enrico/Dropbox/plan_exec_2_0/jpddlplus/src/com/hstairs/ppmajal/extraUtils/Utils.java</file>
         </group>
     </open-files>
 </project-private>

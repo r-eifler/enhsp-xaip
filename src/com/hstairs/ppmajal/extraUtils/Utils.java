@@ -18,6 +18,7 @@
  */
 package com.hstairs.ppmajal.extraUtils;
 
+import com.google.common.math.DoubleMath;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import com.hstairs.ppmajal.domain.Type;
 import com.hstairs.ppmajal.problem.PDDLObjects;
@@ -27,6 +28,7 @@ import net.sourceforge.interval.ia_math.RealInterval;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+
 //import static sun.org.mozilla.javascript.Token.name;
 
 /**
@@ -180,4 +182,9 @@ public class Utils {
 //
 //        return null;
 //    }
+    public static double epsilonPrecision = 0.000001;
+    public static int doubleComparator(Double a, Double b){
+       return DoubleMath.fuzzyCompare(a, b, epsilonPrecision);
+    }
+    
 }

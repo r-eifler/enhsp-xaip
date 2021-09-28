@@ -21,6 +21,7 @@ package com.hstairs.ppmajal.conditions;
 import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.*;
+import com.hstairs.ppmajal.extraUtils.Utils;
 import com.hstairs.ppmajal.problem.*;
 import com.hstairs.ppmajal.transition.TransitionGround;
 import org.apache.commons.lang3.tuple.Triple;
@@ -144,24 +145,7 @@ public class Comparison extends Terminal {
     public boolean eval (State s) {
         Double first = left.eval(s);
         Double second = right.eval(s);
-        if ((first == null) || (second == null)) {
-            return false;//negation by failure.
-        }
-        if (this.getComparator().equals("<")) {
-            return first < second;
-        } else if (this.getComparator().equals("<=")) {
-            return first <= second;
-        } else if (this.getComparator().equals(">")) {
-            return first > second;
-        } else if (this.getComparator().equals(">=")) {
-            return first >= second;
-        } else if (this.getComparator().equals("=")) {
-            return first == second;
-        } else {
-            System.out.println(this.getComparator() + "  does not supported");
-        }
-
-        return false;
+        return isSatisfied(first, second);
     }
 
     public boolean isSatisfied(Double first, Double second){
@@ -169,15 +153,15 @@ public class Comparison extends Terminal {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return first < second;
+            return Utils.doubleComparator(first, second) < 0;
         } else if (this.getComparator().equals("<=")) {
-            return first <= second;
+            return Utils.doubleComparator(first, second) <= 0;
         } else if (this.getComparator().equals(">")) {
-            return first > second;
+            return Utils.doubleComparator(first, second) > 0;
         } else if (this.getComparator().equals(">=")) {
-            return first >= second;
+            return Utils.doubleComparator(first, second) >= 0;
         } else if (this.getComparator().equals("=")) {
-            return first.equals(second);
+            return Utils.doubleComparator(first, second) == 0;
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
@@ -207,13 +191,13 @@ public class Comparison extends Terminal {
             return false;//negation by failure.
         }
         if (this.getComparator().equals("<")) {
-            return Double.MIN_VALUE < second.hi() - first.lo();
+            return Utils.doubleComparator(first.lo(),second.hi()) < 0;
         } else if (this.getComparator().equals("<=")) {
-            return first.lo() - second.hi() <= Double.MIN_VALUE;
+           return Utils.doubleComparator(first.lo(),second.hi()) <= 0;
         } else if (this.getComparator().equals(">")) {
-            return first.hi()- second.lo() > Double.MIN_VALUE;
+            return Utils.doubleComparator(first.hi(),second.lo()) > 0;
         } else if (this.getComparator().equals(">=")) {
-            return first.hi() - second.lo() >= Double.MIN_VALUE;
+            return Utils.doubleComparator(first.hi(),second.lo()) >= 0;
         } else if (this.getComparator().equals("=")) {
 //            float ret = Math.max(first.lo()-second.hi(), second.lo()-first.hi());
 //            if (ret>=0)
@@ -221,7 +205,9 @@ public class Comparison extends Terminal {
 //            else
 //                return true;
 //            
-            return !((first.lo() > second.hi()) || (second.lo() > first.hi()));
+//            return !((first.lo() > second.hi()) || (second.lo() > first.hi()));
+
+            return !((Utils.doubleComparator(first.lo(),second.hi()) > 0) || ((Utils.doubleComparator(second.lo(),first.hi()) > 0)));
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
@@ -256,25 +242,24 @@ public class Comparison extends Terminal {
             first = leftExpr.getNumber();
             Double second = rightExpr.getNumber();
             if (this.getComparator().equals("<")) {
-                if ((first < second)) {
+                if (Utils.doubleComparator(first, second)< 0) {
                     this.setValid(true);
                 }
             } else if (this.getComparator().equals("<=")) {
-                if ((first <= second)) {
+                if (Utils.doubleComparator(first, second)<= 0) {
 
                     this.setValid(true);
                 }
             } else if (this.getComparator().equals(">")) {
-                if ((first > second)) {
+                if (Utils.doubleComparator(first, second)> 0) {
                     this.setValid(true);
                 }
             } else if (this.getComparator().equals(">=")) {
-                if ((first >= second)) {
+                if (Utils.doubleComparator(first, second)>= 0) {
                     this.setValid(true);
                 }
             } else if (this.getComparator().equals("=")) {
-                Float res = new Float(Math.abs(first - second));
-                if (res < Double.MIN_VALUE) {
+                if (Utils.doubleComparator(first, second)== 0) {
                     this.setValid(true);
                 }
             }else {
@@ -558,16 +543,19 @@ public class Comparison extends Terminal {
         if ((Double.isNaN(first.lo())) || (Double.isNaN(first.hi())) || (Double.isNaN(second.lo())) || (Double.isNaN(second.hi()))) {
             return true;//negation by failure.
         }
+        
+        
         if (this.getComparator().equals("<")) {
-            return first.hi() >= second.lo();
+            return Utils.doubleComparator(first.hi(), second.lo())>= 0;
         } else if (this.getComparator().equals("<=")) {
-            return first.hi() > second.lo();
+            return Utils.doubleComparator(first.hi(), second.lo())> 0;
         } else if (this.getComparator().equals(">")) {
-            return first.lo() <= second.hi();
+            return Utils.doubleComparator(first.lo(), second.hi())<= 0;
         } else if (this.getComparator().equals(">=")) {
-            return first.lo() < second.hi();
+            return Utils.doubleComparator(first.lo(), second.hi())< 0;
         } else if (this.getComparator().equals("=")) {
-            return (first.hi() > second.lo() || (first.lo() < second.hi()));
+            return (Utils.doubleComparator(first.hi(), second.lo()) > 0 || Utils.doubleComparator(first.lo(), second.hi())< 0 );
+//            return (first.hi() > second.lo() || (first.lo() < second.hi()));
         } else {
             System.out.println(this.getComparator() + "  is not supported");
         }
