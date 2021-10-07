@@ -190,8 +190,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
     public PDDLState transformInStateIfPossible ( ) {
         PDDLState ret = new PDDLState();
         for (Object o : this.sons) {
-            if (o instanceof Predicate) {
-                ret.setPropFluent((Predicate) o, true);
+            if (o instanceof BoolPredicate) {
+                ret.setPropFluent((BoolPredicate) o, true);
             } else {
                 System.out.println("This AndCond cannot be transformed into a State");
                 return null;
@@ -214,13 +214,13 @@ public class AndCond extends ComplexCondition implements PostCondition {
 
     }
 
-    public Predicate requireAnInstanceOfAndWhichis (Condition con) {
+    public BoolPredicate requireAnInstanceOfAndWhichis (Condition con) {
 
         for (Object o : this.sons) {
             //System.out.println("testing "+con+" with"+o);
             if (con.isUngroundVersionOf((Condition) o)) {
                 //System.out.println("ok");
-                return (Predicate) o;
+                return (BoolPredicate) o;
             }
         }
         return null;
@@ -238,8 +238,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
             }
 
             for (Object o : this.sons) {
-                if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
+                if (o instanceof BoolPredicate) {
+                    BoolPredicate p = (BoolPredicate) o;
                     ret += " " + p.toSmtVariableString(i);
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
@@ -315,8 +315,8 @@ public class AndCond extends ComplexCondition implements PostCondition {
             }
 
             for (Object o : this.sons) {
-                if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
+                if (o instanceof BoolPredicate) {
+                    BoolPredicate p = (BoolPredicate) o;
                     ret += " " + p.toSmtVariableString(i, gr, var);
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;

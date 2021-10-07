@@ -707,7 +707,7 @@ public class Comparison extends Terminal {
 
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates ( ) {
+    public Collection<BoolPredicate> getInvolvedPredicates ( ) {
         return new HashSet();
     }
 

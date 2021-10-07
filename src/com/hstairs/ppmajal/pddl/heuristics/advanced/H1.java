@@ -479,7 +479,7 @@ public class H1 implements SearchHeuristic {
             if (!conditionInit[conditionId] && (!reachability || conditionCost[conditionId] == Float.MAX_VALUE)) {
                 final Terminal t = Terminal.getTerminal(conditionId);
                 boolean update = false;
-                if (t instanceof Predicate || t instanceof NotCond) {//affecting a prop variable
+                if (t instanceof BoolPredicate || t instanceof NotCond) {//affecting a prop variable
                     if (updateIfNeeded(conditionId, actionHCost[actionId] + actionCost[actionId])) {
                         update = true;
                         cacheValue(actionCost[actionId],actionId,t);
@@ -836,7 +836,7 @@ public class H1 implements SearchHeuristic {
     }
 
     private void updateSmartConstraints(Condition condition) {
-        if ((condition instanceof Predicate) || (condition instanceof NotCond)) {
+        if ((condition instanceof BoolPredicate) || (condition instanceof NotCond)) {
             return;
         }
         if (condition instanceof AndCond) {

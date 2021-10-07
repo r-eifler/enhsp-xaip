@@ -67,7 +67,7 @@ public class ConditionalEffect extends Condition implements PostCondition {
     public Condition weakEval (PDDLProblem s, Set invF) {
         this.activation_condition = this.activation_condition.weakEval(s, invF);
         if (this.activation_condition.isValid()){
-            this.activation_condition = Predicate.getPredicate(Predicate.trueFalse.TRUE);
+            this.activation_condition = BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE);
         }
         if (this.effect instanceof Condition) {
             Condition con = (Condition) this.effect;
@@ -313,8 +313,8 @@ public class ConditionalEffect extends Condition implements PostCondition {
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates ( ) {
-        Set<Predicate> ret = new LinkedHashSet();
+    public Collection<BoolPredicate> getInvolvedPredicates ( ) {
+        Set<BoolPredicate> ret = new LinkedHashSet();
         ret.addAll(this.activation_condition.getInvolvedPredicates());
         ret.addAll(((Condition) this.effect).getInvolvedPredicates());
         return ret;

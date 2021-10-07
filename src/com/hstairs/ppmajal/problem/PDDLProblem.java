@@ -71,6 +71,11 @@ import org.jgrapht.alg.util.Pair;
 public class PDDLProblem implements SearchProblem {
 
     final private boolean ignoreMetric;
+    private boolean cleanUp = false;
+
+    public PDDLProblem(PDDLDomain pddlDomain) {
+        this(pddlDomain, "internal", System.out, false, false);
+    }
 
     /**
      * @return the readyForSearch
@@ -79,7 +84,7 @@ public class PDDLProblem implements SearchProblem {
         return readyForSearch;
     }
 
-    static public HashSet<Predicate> booleanFluents;
+    static public HashSet<BoolPredicate> booleanFluents;
 
     private PDDLObjects objects;
     public State init;
@@ -87,7 +92,7 @@ public class PDDLProblem implements SearchProblem {
     private Condition groundGoals;
     public Collection<TransitionGround> actions;
     public Condition belief;
-    public Collection<Predicate> unknonw_predicates;
+    public Collection<BoolPredicate> unknonw_predicates;
     public Collection<OneOf> one_of_s;
     public Collection<OrCond> or_s;
     public Set<Type> types;
@@ -105,7 +110,7 @@ public class PDDLProblem implements SearchProblem {
     protected Set actualFluents;
     //This maps the string representation of a predicate (which uniquely defines it, into an integer)
     final private  Map<NumFluent, PDDLNumber> initNumFluentsValues;
-    final private  Map<Predicate, Boolean> initBoolFluentsValues;
+    final private  Map<BoolPredicate, Boolean> initBoolFluentsValues;
     final PDDLDomain linkedDomain;
     private FactoryConditions fc;
 
@@ -228,9 +233,9 @@ public class PDDLProblem implements SearchProblem {
                     mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
             }
             groundingTime = System.currentTimeMillis();
-            Collection<TransitionGround> doGrounding = mff.doGrounding();
+            Collection<TransitionGround> transitions = mff.doGrounding();
             groundingTime = System.currentTimeMillis() - groundingTime;
-            for (var act : doGrounding) {
+            for (var act : transitions) {
                 switch (act.getSemantics()) {
                     case ACTION ->
                         getActions().add(act);
@@ -266,6 +271,7 @@ public class PDDLProblem implements SearchProblem {
 
     }
 
+    
     public void prepareForSearch(boolean aibrPreprocessing) throws Exception {
         this.prepareForSearch(aibrPreprocessing, false);
     }
@@ -395,7 +401,7 @@ public class PDDLProblem implements SearchProblem {
                 out.println("ID:" + nf.getId() + "->" + nf);
             }
             out.print("This is the universe of propositional fluent:");
-            for (Predicate pred : Predicate.getPredicatesDB().values()) {
+            for (BoolPredicate pred : BoolPredicate.getPredicatesDB().values()) {
                 out.println("ID:" + pred.getId() + "->" + pred);
             }
         }
@@ -404,6 +410,7 @@ public class PDDLProblem implements SearchProblem {
 //        h1.computeEstimate(this.init);
 //        final Collection<TransitionGround> transitions = h1.getTransitions(false);
         if (aibrPreprocessing){
+                System.out.println("Aibr Preprocessing");
                 final Aibr heuristic = new Aibr(this, true);
                 final float v = heuristic.computeEstimate(this.init);
                 if (v == Float.MAX_VALUE){
@@ -476,7 +483,9 @@ public class PDDLProblem implements SearchProblem {
 
         long start = System.currentTimeMillis();
 //        out.println("(Pre Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
-        easyCleanUp(aibrPreprocessing);
+//        if (cleanUp){
+            easyCleanUp(aibrPreprocessing);
+//        }
 //        out.println("(After Easy Simplification) - |A|+|P|+|E|: " + (getActions().size() + getProcessesSet().size() + getEventsSet().size()));
         // normalize global constraints, once and forall
         globalConstraints = (AndCond) globalConstraints.normalize();
@@ -591,8 +600,8 @@ public class PDDLProblem implements SearchProblem {
             }
         }
         booleanFluents = new HashSet();
-        if (Predicate.getPredicatesDB() != null) {
-            for (Predicate p : Predicate.getPredicatesDB().values()) {
+        if (BoolPredicate.getPredicatesDB() != null) {
+            for (BoolPredicate p : BoolPredicate.getPredicatesDB().values()) {
                 if (this.getActualFluents().contains(p)) {
                     res.add(p);
                 }
@@ -626,8 +635,8 @@ public class PDDLProblem implements SearchProblem {
         }
         booleanFluents = new HashSet();
         BitSet boolFluents = new BitSet();
-        if (Predicate.getPredicatesDB() != null) {
-            for (Predicate p : Predicate.getPredicatesDB().values()) {
+        if (BoolPredicate.getPredicatesDB() != null) {
+            for (BoolPredicate p : BoolPredicate.getPredicatesDB().values()) {
                 if (this.getActualFluents().contains(p)) {
                     Boolean r = this.getInitBoolFluentsValues().get(p);
                     if (r == null || !r) {
@@ -954,7 +963,7 @@ public class PDDLProblem implements SearchProblem {
                     Tree andCondition = child.getChild(0).getChild(0);
                     if (child.getChild(0).getChildCount() > 1) {
                         for (int j = 1; j < child.getChild(0).getChildCount(); j++) {
-                            this.unknonw_predicates.add((Predicate) addUnknown(child.getChild(0).getChild(j)));
+                            this.unknonw_predicates.add((BoolPredicate) addUnknown(child.getChild(0).getChild(j)));
                         }
                     }
                     this.belief = fc.createGoals(andCondition);
@@ -976,7 +985,7 @@ public class PDDLProblem implements SearchProblem {
         }
         for (PDDLObject object : this.getObjects()) {
             final ArrayList object1 = new ArrayList<>(List.of(object, object));
-            this.getInitBoolFluentsValues().put(Predicate.getPredicate("=", object1), true);
+            this.getInitBoolFluentsValues().put(BoolPredicate.getPredicate("=", object1), true);
         }
         //System.out.println("Total number of Numeric Fluents:"+this.counterNumericFluents);
     }
@@ -1060,7 +1069,7 @@ public class PDDLProblem implements SearchProblem {
                     this.getInitNumFluentsValues().put((NumFluent) createExpression(c.getChild(0)), (PDDLNumber) createExpression(c.getChild(1)));
                     break;
                 case PddlParser.UNKNOWN:
-                    this.unknonw_predicates.add((Predicate) addUnknown(c));
+                    this.unknonw_predicates.add((BoolPredicate) addUnknown(c));
                     break;
                 case PddlParser.ONEOF:
                     this.one_of_s.add((OneOf) fc.createCondition(c, null));
@@ -1254,8 +1263,8 @@ public class PDDLProblem implements SearchProblem {
         }
     }
 
-    public Condition getPredicate(Predicate aThis) {
-        for (Predicate p : this.getInitBoolFluentsValues().keySet()) {
+    public Condition getPredicate(BoolPredicate aThis) {
+        for (BoolPredicate p : this.getInitBoolFluentsValues().keySet()) {
             if (p.equals(aThis)) {
                 return p;
             }
@@ -1278,7 +1287,7 @@ public class PDDLProblem implements SearchProblem {
         return this.getInitNumFluentsValues().keySet();
     }
 
-    public boolean getInitBoolFluentValue(Predicate aThis) {
+    public boolean getInitBoolFluentValue(BoolPredicate aThis) {
         Boolean b = this.getInitBoolFluentsValues().get(aThis);
         return b != null && b;
     }
@@ -1301,13 +1310,13 @@ public class PDDLProblem implements SearchProblem {
     /**
      * @return the initBoolFluentsValues
      */
-    public Map<Predicate,Boolean> getInitBoolFluentsValues() {
+    public Map<BoolPredicate,Boolean> getInitBoolFluentsValues() {
         return initBoolFluentsValues;
     }
 
 
 
-    public void addFactValue(Predicate predicate, boolean b) {
+    public void addFactValue(BoolPredicate predicate, boolean b) {
         initBoolFluentsValues.put(predicate, b);
     }
 

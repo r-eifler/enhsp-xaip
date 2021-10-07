@@ -23,7 +23,7 @@ import com.carrotsearch.hppc.DoubleArrayList;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import com.hstairs.ppmajal.transition.TransitionGround;
@@ -127,7 +127,7 @@ public class PDDLVectorState extends State {
     }
 
 
-    public boolean holds (Predicate p) {
+    public boolean holds (BoolPredicate p) {
         return (p.getId() != -1 && (this.boolFluents[p.getId()]));
     }
 
@@ -141,7 +141,7 @@ public class PDDLVectorState extends State {
         }
     }
 
-    public void setPropFluent (Predicate f, Boolean after) {
+    public void setPropFluent (BoolPredicate f, Boolean after) {
         if (f.getId() == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Predicate fluent wasn't on the table");
 //            f.getId() = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
@@ -197,8 +197,8 @@ public class PDDLVectorState extends State {
                     ret = false;
                 }
 
-            } else if (o instanceof Predicate) {
-                if (!this.holds((Predicate) o)) {
+            } else if (o instanceof BoolPredicate) {
+                if (!this.holds((BoolPredicate) o)) {
                     System.out.println(o + "is not satisfied");
                     ret = false;
                 }

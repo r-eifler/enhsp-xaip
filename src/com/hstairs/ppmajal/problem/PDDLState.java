@@ -103,7 +103,7 @@ protected DoubleArrayList numFluents;
             str.append("(time)").append("=").append(time).append(" ");
         }
         str.append("\n");
-        for (Predicate fluent : PDDLProblem.booleanFluents){
+        for (BoolPredicate fluent : PDDLProblem.booleanFluents){
             str.append(fluent).append("=").append(this.holds(fluent)).append(" ");
         }
         return str.toString();
@@ -167,7 +167,7 @@ protected DoubleArrayList numFluents;
     }
 
 
-    public boolean holds (Predicate p) {
+    public boolean holds (BoolPredicate p) {
         return (p.getId() != -1 && (this.boolFluents.get(p.getId())));
     }
 
@@ -181,7 +181,7 @@ protected DoubleArrayList numFluents;
         }
     }
 
-    public void setPropFluent (Predicate f, Boolean after) {
+    public void setPropFluent (BoolPredicate f, Boolean after) {
         if (f.getId() == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Predicate fluent wasn't on the table");
 //            f.getId() = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
@@ -229,7 +229,7 @@ protected DoubleArrayList numFluents;
                         }
                     }
                     if (!eff.getUnconditionalEffect().isEmpty()){
-                        temp.add(Pair.of(Predicate.getPredicate(Predicate.trueFalse.TRUE),eff.getUnconditionalEffect()));
+                        temp.add(Pair.of(BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE),eff.getUnconditionalEffect()));
                     }
                     //eff = null;
                 }
@@ -281,8 +281,8 @@ protected DoubleArrayList numFluents;
                     ret = false;
                 }
 
-            } else if (o instanceof Predicate) {
-                if (!this.holds((Predicate) o)) {
+            } else if (o instanceof BoolPredicate) {
+                if (!this.holds((BoolPredicate) o)) {
                     System.out.println(o + "is not satisfied");
                     ret = false;
                 }
@@ -330,9 +330,9 @@ protected DoubleArrayList numFluents;
             }
         }else if (effect instanceof NotCond) {
             final NotCond nc = (NotCond) effect;
-            this.setPropFluent((Predicate) nc.getSon(), false);
-        } else if (effect instanceof Predicate) {
-            this.setPropFluent((Predicate) effect, true);
+            this.setPropFluent((BoolPredicate) nc.getSon(), false);
+        } else if (effect instanceof BoolPredicate) {
+            this.setPropFluent((BoolPredicate) effect, true);
         } else if (effect instanceof NumEffect) {
             final NumEffect nf = (NumEffect) effect;
             if (nf.getFluentAffected().has_to_be_tracked()) {

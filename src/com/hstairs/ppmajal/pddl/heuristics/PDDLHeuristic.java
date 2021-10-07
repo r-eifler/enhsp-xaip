@@ -91,7 +91,7 @@ public class PDDLHeuristic {
                 return new BlindHeuristic(heuristicProblem);
 
             }
-            case "blgoal": {
+            case "01blind": {
                 return new GoalSensitiveHeuristic(heuristicProblem);
 
             }

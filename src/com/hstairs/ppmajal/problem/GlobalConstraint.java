@@ -21,7 +21,7 @@ package com.hstairs.ppmajal.problem;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.OrCond;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.SchemaGlobalConstraint;
@@ -129,8 +129,8 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     Object o = nc.getSon();
-                    if (o instanceof Predicate) {
-                        Predicate p = (Predicate) o;
+                    if (o instanceof BoolPredicate) {
+                        BoolPredicate p = (BoolPredicate) o;
                         if (!p.isSatisfied(reacheableState)) {
                             return true;
                         }
@@ -151,8 +151,8 @@ public class GlobalConstraint extends SchemaGlobalConstraint {
                 if (c instanceof NotCond) {
                     NotCond nc = (NotCond) c;
                     Object o = nc.getSon();
-                    if (o instanceof Predicate) {
-                        Predicate p = (Predicate) o;
+                    if (o instanceof BoolPredicate) {
+                        BoolPredicate p = (BoolPredicate) o;
                         if (!p.can_be_true(reacheableState)) {
                             return true;
                         }

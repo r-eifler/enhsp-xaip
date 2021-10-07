@@ -8,7 +8,7 @@ package com.hstairs.ppmajal.pddl.heuristics.advanced;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.problem.PDDLProblem;
 import com.hstairs.ppmajal.problem.State;
@@ -122,7 +122,7 @@ public class H1Res extends H1 {
             }
             return minA+minP;
 
-        }else if (ele instanceof Predicate){
+        }else if (ele instanceof BoolPredicate){
              final Terminal t = (Terminal) ele;
             float minA = Float.MAX_VALUE;
             for (var v : getAchievers(t.getId())) {

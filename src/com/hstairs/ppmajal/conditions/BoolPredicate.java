@@ -31,41 +31,45 @@ import java.util.*;
 /**
  * @author enrico
  */
-public class Predicate extends Terminal implements PostCondition {
+public class BoolPredicate extends Terminal implements PostCondition {
+
+    public static BoolPredicate getPredicate(String a) {
+        return getPredicate(a, null);
+    }
 
     final private String name;
     final private List variables;
-    final private static Predicate truePredicate = new Predicate(0);
-    final private static Predicate falsePredicate = new Predicate(1);
+    final private static BoolPredicate truePredicate = new BoolPredicate(0);
+    final private static BoolPredicate falsePredicate = new BoolPredicate(1);
 
-    private Predicate (String name, List variables) {
+    private BoolPredicate (String name, List variables) {
         super();
         this.name = name;
         this.variables = variables;
     }
 
-    private static HashMap<Pair<String,ArrayList>,Predicate> predicates;
+    private static HashMap<Pair<String,ArrayList>,BoolPredicate> predicates;
 
     
-    public static Predicate BoolFluent(String name){
+    public static BoolPredicate BoolFluent(String name){
         return getPredicate(name, Collections.EMPTY_LIST);
     }
     
-    public static Predicate getPredicate(String name, List vars){
+    public static BoolPredicate getPredicate(String name, List vars){
         if (predicates == null){
             predicates = new HashMap();
         }
         Pair pair = new Pair(name,vars);
-        Predicate predicate = predicates.get(pair);
+        BoolPredicate predicate = predicates.get(pair);
         if (predicate == null){
-            predicate = new Predicate(name,vars);
+            predicate = new BoolPredicate(name,vars);
             predicates.put(pair,predicate);
         }
         return predicate;
     }
     
     
-    public static Predicate getPredicate(trueFalse input){
+    public static BoolPredicate getPredicate(trueFalse input){
         if (input == trueFalse.TRUE) {
             return truePredicate;
         } else {
@@ -74,7 +78,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     //This is a mere convention
-    private Predicate(int id) {
+    private BoolPredicate(int id) {
         super();
         if (id == 0){
             this.name = "TRUE";
@@ -86,7 +90,7 @@ public class Predicate extends Terminal implements PostCondition {
         variables = null;
     }
 
-    public static Map<Pair<String,ArrayList>,Predicate>  getPredicatesDB() {
+    public static Map<Pair<String,ArrayList>,BoolPredicate>  getPredicatesDB() {
         if (predicates == null) {
             return Collections.EMPTY_MAP;
         }
@@ -162,7 +166,7 @@ public class Predicate extends Terminal implements PostCondition {
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates ( ) {
+    public Collection<BoolPredicate> getInvolvedPredicates ( ) {
         LinkedHashSet ret = new LinkedHashSet();
         ret.add(this);
         return ret;
@@ -232,7 +236,7 @@ public class Predicate extends Terminal implements PostCondition {
                 localVariables.add(o);
             }
         }
-        Predicate createPredicate = Predicate.getPredicate(name, localVariables);
+        BoolPredicate createPredicate = BoolPredicate.getPredicate(name, localVariables);
 //        System.out.println(BoolFluent);
         return createPredicate;
     }
@@ -309,8 +313,8 @@ public class Predicate extends Terminal implements PostCondition {
 
     @Override
     public boolean isUngroundVersionOf (Condition con) {
-        if (con instanceof Predicate) {
-            Predicate p = (Predicate) con;
+        if (con instanceof BoolPredicate) {
+            BoolPredicate p = (BoolPredicate) con;
             if (this.getPredicateName().equals(p.getPredicateName())) {
                 if (this.getTerms().size() == p.getTerms().size()) {
                     for (int i = 0; i < this.getTerms().size(); i++) {

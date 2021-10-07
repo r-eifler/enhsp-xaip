@@ -19,14 +19,14 @@
 package com.hstairs.ppmajal.domain;
 
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 
 import java.util.HashSet;
 
 /**
  * @author enrico
  */
-public class PredicateSet extends HashSet<Predicate> {
+public class PredicateSet extends HashSet<BoolPredicate> {
 
     public PredicateSet ( ) {
         super();
@@ -37,9 +37,9 @@ public class PredicateSet extends HashSet<Predicate> {
         this.addAll(predicates);
     }
 
-    public boolean validate (Predicate p) {
+    public boolean validate (BoolPredicate p) {
 
-        for (final Predicate elP : this) {
+        for (final BoolPredicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     return true;
@@ -49,9 +49,9 @@ public class PredicateSet extends HashSet<Predicate> {
         return false;
     }
 
-    public Predicate findAssociated (Predicate p) {
+    public BoolPredicate findAssociated (BoolPredicate p) {
 
-        for (final Predicate elP : this) {
+        for (final BoolPredicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
 //                    for (Object o: elP.getTerms())
@@ -71,9 +71,9 @@ public class PredicateSet extends HashSet<Predicate> {
         return null;
     }
 
-    public boolean validateInst (Predicate p) {
+    public boolean validateInst (BoolPredicate p) {
 
-        for (final Predicate elP : this) {
+        for (final BoolPredicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {
                     int i = 0;
@@ -104,7 +104,7 @@ public class PredicateSet extends HashSet<Predicate> {
 
     public String pddlPrint (boolean typeInformation) {
         StringBuilder ret = new StringBuilder("");
-        for (final Predicate elP : this) {
+        for (final BoolPredicate elP : this) {
             elP.pddlPrint(typeInformation, ret);
 //            ret += elP.pddlPrint(typeInformation);
         }
@@ -114,7 +114,7 @@ public class PredicateSet extends HashSet<Predicate> {
 
     public String pddlPrintWithExtraObject (boolean typeInformation) {
         String ret = "";
-        for (final Predicate elP : this) {
+        for (final BoolPredicate elP : this) {
             if (typeInformation) {
                 ret += elP.pddlPrintWithTypedExtraObject();
             } else {
@@ -124,9 +124,9 @@ public class PredicateSet extends HashSet<Predicate> {
         return ret + ")";
     }
 
-    public void addIfNecessary (Predicate p) {
+    public void addIfNecessary (BoolPredicate p) {
         boolean found = false;
-        for (final Predicate elP : this) {
+        for (final BoolPredicate elP : this) {
             if (elP.getPredicateName() == null ? p.getPredicateName() == null : elP.getPredicateName().equalsIgnoreCase(p.getPredicateName())) {
                 if (elP.getTerms().size() == p.getTerms().size()) {//this is not sufficient. Works just for predicates with different names
                     found = true;

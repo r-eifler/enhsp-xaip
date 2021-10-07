@@ -60,7 +60,7 @@ public class OrCond extends ComplexCondition {
             Condition condInternal = ((Condition)c).normalize();
             if (condInternal.isValid()){
                 this.setValid(true);
-                return Predicate.getPredicate(Predicate.trueFalse.TRUE);
+                return BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE);
             }else if (!condInternal.isUnsatisfiable()){
                 if (condInternal instanceof OrCond){
                     addAll(sons1,((OrCond) condInternal).sons);
@@ -164,8 +164,8 @@ public class OrCond extends ComplexCondition {
                 ret += "(or";
             }
             for (Object o : this.sons) {
-                if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
+                if (o instanceof BoolPredicate) {
+                    BoolPredicate p = (BoolPredicate) o;
                     ret += " " + p.toSmtVariableString(i);
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
@@ -218,15 +218,15 @@ public class OrCond extends ComplexCondition {
 //                System.out.println("Testing with:"+o);
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
-                    if (nc.getSon() instanceof Predicate) {
+                    if (nc.getSon() instanceof BoolPredicate) {
                         Condition p = nc.getSon();
                         //System.out.println(p+" satisfiable");
 //System.out.println(p);
 //System.out.println(";Predicate "+p+" is not possible");
                         return possibleState.satisfy(p);
                     }
-                } else if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
+                } else if (o instanceof BoolPredicate) {
+                    BoolPredicate p = (BoolPredicate) o;
                     //System.out.println(p+" satisfiable");
 //System.out.println(p);
 //System.out.println(";Predicate "+p+" is not possible");
@@ -237,22 +237,22 @@ public class OrCond extends ComplexCondition {
         return false;
     }
 
-    public boolean involveReacheablePredicates (Collection<Predicate> possibleState) {
+    public boolean involveReacheablePredicates (Collection<BoolPredicate> possibleState) {
 
         if (this.sons != null) {
             for (Object o : this.sons) {
 //                System.out.println("Testing with:"+o);
                 if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;
-                    if (nc.getSon() instanceof Predicate) {
+                    if (nc.getSon() instanceof BoolPredicate) {
                         Condition p = nc.getSon();
                         //System.out.println(p+" satisfiable");
 //System.out.println(p);
 //System.out.println(";Predicate "+p+" is not possible");
                         return possibleState.contains(p);
                     }
-                } else if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
+                } else if (o instanceof BoolPredicate) {
+                    BoolPredicate p = (BoolPredicate) o;
                     //System.out.println(p+" satisfiable");
 //System.out.println(p);
 //System.out.println(";Predicate "+p+" is not possible");
@@ -304,8 +304,8 @@ public class OrCond extends ComplexCondition {
                 ret += "(or";
             }
             for (Object o : this.sons) {
-                if (o instanceof Predicate) {
-                    Predicate p = (Predicate) o;
+                if (o instanceof BoolPredicate) {
+                    BoolPredicate p = (BoolPredicate) o;
                     ret += " " + p.toSmtVariableString(k, gr, var);
                 } else if (o instanceof NotCond) {
                     NotCond nc = (NotCond) o;

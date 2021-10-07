@@ -164,7 +164,7 @@ public abstract class Condition extends PDDLProblemComponent {
     /**
      * @return
      */
-    public abstract Collection<Predicate> getInvolvedPredicates ( );
+    public abstract Collection<BoolPredicate> getInvolvedPredicates ( );
 
     /**
      * Returns the list of variables involved in this conditions.
@@ -237,12 +237,12 @@ public abstract class Condition extends PDDLProblemComponent {
                 for (int j = i + 1; j < c2.size(); j++) {
                     Condition a_1 = c1.get(i);
                     Condition a_2 = c2.get(j);
-                    if (a_1 instanceof NotCond && a_2 instanceof Predicate) {
+                    if (a_1 instanceof NotCond && a_2 instanceof BoolPredicate) {
                         NotCond nc = (NotCond) a_1;
                         if (nc.getSon().equals(a_2)) {
                             return true;
                         }
-                    } else if (a_2 instanceof NotCond && a_1 instanceof Predicate) {
+                    } else if (a_2 instanceof NotCond && a_1 instanceof BoolPredicate) {
                         NotCond nc = (NotCond) a_2;
                         if (nc.getSon().equals(a_1)) {
                             return true;

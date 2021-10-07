@@ -1,10 +1,8 @@
 
-import com.google.common.collect.Sets;
-import com.hstairs.ppmajal.conditions.AndCond;
 import static com.hstairs.ppmajal.conditions.Comparison.comparison;
 import com.hstairs.ppmajal.conditions.PDDLObject;
 import static com.hstairs.ppmajal.conditions.PDDLObject.object;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.SchemaParameters;
 import com.hstairs.ppmajal.domain.Type;
@@ -21,7 +19,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import org.apache.commons.lang3.tuple.Pair;
-import static com.hstairs.ppmajal.conditions.Predicate.BoolFluent;
+import static com.hstairs.ppmajal.conditions.BoolPredicate.BoolFluent;
+import com.hstairs.ppmajal.conditions.NotCond;
+import com.hstairs.ppmajal.conditions.Terminal;
 import static com.hstairs.ppmajal.domain.SchemaParameters.createPar;
 import static com.hstairs.ppmajal.domain.Type.type;
 import static com.hstairs.ppmajal.domain.Variable.variable;
@@ -30,6 +30,7 @@ import static com.hstairs.ppmajal.expressions.NumEffect.easyNumEffect;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
 import static com.hstairs.ppmajal.expressions.NumFluent.numericFluent;
 import static com.hstairs.ppmajal.transition.ConditionalEffects.numEffects;
+import com.hstairs.ppmajal.transition.TransitionGround;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -46,35 +47,35 @@ public class programmaticMain {
         PDDLDomain pddlDomain = new PDDLDomain();
 
         //add predicates
-        pddlDomain.addPredicate("a", null);
-        pddlDomain.addPredicate("b", null);
+        pddlDomain.addBoolPredicate("a");
+        pddlDomain.addBoolPredicate("b");
 
-        PDDLProblem problem = new PDDLProblem(pddlDomain, "internal", System.out, false, false);
 
         //Define transition
-        ConditionalEffects<Predicate> effects = new ConditionalEffects<>();
-        effects.add(Predicate.getPredicate("a", null));
-        TransitionSchema action = new TransitionSchema(
-                "hello", ACTION, null, null,
-                effects,
-                new ConditionalEffects());
-        TransitionSchema action2 = new TransitionSchema(
+        ConditionalEffects<Terminal> effects = new ConditionalEffects<>();
+        effects.add(NotCond.createNotCond(BoolPredicate.getPredicate("a", null)));
+        
+        TransitionSchema b = new TransitionSchema(
                 "world", ACTION, null,
-                Predicate.getPredicate("a", null),
-                stripsEffects(Predicate.getPredicate("b", null)),
-                new ConditionalEffects());
-        pddlDomain.addAction(action);
-        pddlDomain.addAction(action2);
+                NotCond.createNotCond(BoolPredicate.getPredicate("a", null)),
+                stripsEffects(BoolPredicate.getPredicate("b")),
+                null);
+        pddlDomain.addAction(b);
 
-        //init
-        //problem.addFactValue(Predicate.getPredicate("c",null), true);
-        //goal
-        problem.setGoals(new AndCond(Sets.newHashSet(Predicate.getPredicate("b", null))));
+        PDDLProblem problem = new PDDLProblem(pddlDomain);
+        TransitionGround c =  new TransitionGround(
+                "hello", ACTION, null, null,
+                stripsEffects(NotCond.createNotCond(BoolPredicate.getPredicate("a", null))),
+                null);
+        
+        problem.addAction(c);
+        problem.setGoals(BoolPredicate.getPredicate("b"));
 
+        problem.addFactValue(BoolPredicate.getPredicate("a"), true);
         problem.prettyPrint();
         pddlDomain.saveDomain("/tmp/d.pddl");
         problem.saveProblem("/tmp/p0.pddl");
-        problem.prepareForSearch(true);
+        problem.prepareForSearch();
         problem.saveProblem("/tmp/p1.pddl");
 
         final PDDLSearchEngine searchEngine = new PDDLSearchEngine(problem, new H1(problem)); //manager of the search strategies
@@ -95,7 +96,7 @@ public class programmaticMain {
         problem.getObjects().add(PDDLObject.object("Enrico", Type.type("Person")));
 
         //Define Actions
-        ConditionalEffects<Predicate> effects = new ConditionalEffects<>();
+        ConditionalEffects<BoolPredicate> effects = new ConditionalEffects<>();
         effects.add(BoolFluent("a"));
         SchemaParameters par = new SchemaParameters();
         par.add(Variable.variable("x", Type.type("Person")));

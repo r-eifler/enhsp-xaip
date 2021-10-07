@@ -240,8 +240,8 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public void apply (State s, Map modifications) {
-        if (son instanceof Predicate) {
-            Predicate p = (Predicate) son;
+        if (son instanceof BoolPredicate) {
+            BoolPredicate p = (BoolPredicate) son;
             modifications.put(p, Boolean.FALSE);
         } else {
             sonHasIncorrectType();
@@ -250,8 +250,8 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public void apply (RelState s, Map modifications) {
-        if (son instanceof Predicate) {
-            Predicate p = (Predicate) son;
+        if (son instanceof BoolPredicate) {
+            BoolPredicate p = (BoolPredicate) son;
             if (s.possBollValues.get(p.getId()) == 1) {
                 modifications.put(p, 2);
             }
@@ -280,7 +280,7 @@ public class NotCond extends Terminal implements PostCondition {
                 vars.add(var);
             }
         }
-        for (Predicate p : this.getInvolvedPredicates()) {
+        for (BoolPredicate p : this.getInvolvedPredicates()) {
             for (final Object o : p.getTerms()) {
                 final Variable var = (Variable) o;
                 vars.add(var);
@@ -312,7 +312,7 @@ public class NotCond extends Terminal implements PostCondition {
 
     @Override
     public Condition pushNotToTerminals( ) {
-        if (son instanceof Predicate) {
+        if (son instanceof BoolPredicate) {
             return this;
         } else if (son instanceof Comparison) {
             final Comparison c1 = (Comparison) son;
@@ -354,7 +354,7 @@ public class NotCond extends Terminal implements PostCondition {
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates ( ) {
+    public Collection<BoolPredicate> getInvolvedPredicates ( ) {
         Set ret = new LinkedHashSet();
         ret.addAll(this.son.getInvolvedPredicates());
         return ret;

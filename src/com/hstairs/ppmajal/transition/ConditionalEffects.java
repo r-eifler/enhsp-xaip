@@ -3,7 +3,8 @@ package com.hstairs.ppmajal.transition;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.NotCond;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
+import com.hstairs.ppmajal.conditions.Terminal;
 import com.hstairs.ppmajal.domain.Variable;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.problem.PDDLProblem;
@@ -15,8 +16,8 @@ public class ConditionalEffects<T> {
     private Map<Condition, Collection<T>> actualConditionalEffects;
     private Collection<T> unconditionalEffect;
 
-    public static ConditionalEffects<Predicate> stripsEffects(Predicate... input){
-        final ConditionalEffects<Predicate> conditionalEffects = new ConditionalEffects<>();
+    public static ConditionalEffects<Terminal> stripsEffects(Terminal... input){
+        final ConditionalEffects<Terminal> conditionalEffects = new ConditionalEffects<>();
         for (var v: input){
            conditionalEffects.add(v);
         }
@@ -185,7 +186,7 @@ public class ConditionalEffects<T> {
         Map<Condition,Collection> ret = new HashMap();
         if (unconditionalEffect != null){
             if (!unconditionalEffect.isEmpty()){
-                ret.put(Predicate.getPredicate(Predicate.trueFalse.TRUE), unconditionalEffect);
+                ret.put(BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE), unconditionalEffect);
             }        
         }
         if (actualConditionalEffects != null) {

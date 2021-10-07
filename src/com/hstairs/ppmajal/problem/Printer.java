@@ -19,7 +19,7 @@
 package com.hstairs.ppmajal.problem;
 
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.expressions.NumEffect;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.transition.ConditionalEffects;
@@ -33,7 +33,7 @@ public class Printer {
     static public StringBuilder stringBuilderPddlPrintWithDummyTrue (PDDLProblem p, PDDLState s) {
         final StringBuilder ret = new StringBuilder("(:init (true)\n");
 
-        for (Predicate a : p.getInitBoolFluentsValues().keySet()) {
+        for (BoolPredicate a : p.getInitBoolFluentsValues().keySet()) {
             if (s.holds(a)) {
                 ret.append("  (").append(a.getPredicateName());
                 for (Object o1 : a.getTerms()) {

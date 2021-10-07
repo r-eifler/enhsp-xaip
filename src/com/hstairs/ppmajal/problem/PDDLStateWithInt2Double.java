@@ -22,7 +22,7 @@ import com.hstairs.ppmajal.expressions.HomeMadeRealInterval;
 import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Comparison;
 import com.hstairs.ppmajal.conditions.Condition;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
@@ -140,7 +140,7 @@ public class PDDLStateWithInt2Double extends PDDLState {
 
 
     @Override
-    public boolean holds (Predicate p) {
+    public boolean holds (BoolPredicate p) {
         return (p.getId() != -1 && (this.boolFluents.get(p.getId())));
     }
 
@@ -155,7 +155,7 @@ public class PDDLStateWithInt2Double extends PDDLState {
         }
     }
 
-    public void setPropFluent (Predicate f, Boolean after) {
+    public void setPropFluent (BoolPredicate f, Boolean after) {
         if (f.getId() == -1) {
             throw new RuntimeException("This shouldn't happen and is a bug. Predicate fluent wasn't on the table");
 //            f.getId() = this.numFluents.size(); //This should handle the case where propFluent wasn't initialised
@@ -208,8 +208,8 @@ public class PDDLStateWithInt2Double extends PDDLState {
                     ret = false;
                 }
 
-            } else if (o instanceof Predicate) {
-                if (!this.holds((Predicate) o)) {
+            } else if (o instanceof BoolPredicate) {
+                if (!this.holds((BoolPredicate) o)) {
                     System.out.println(o + "is not satisfied");
                     ret = false;
                 }

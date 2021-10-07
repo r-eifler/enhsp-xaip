@@ -79,6 +79,12 @@ public abstract class Transition {
     final protected Semantics semantics;
     protected Transition(String name, ConditionalEffects conditionalPropositionalEffects, ConditionalEffects conditionalNumericEffects, Condition preconditions, Semantics semantcis) {
         this.name = name;
+        if (conditionalPropositionalEffects == null){
+            conditionalPropositionalEffects = new ConditionalEffects();
+        }
+        if (conditionalNumericEffects == null){
+            conditionalNumericEffects = new ConditionalEffects();
+        }
         this.conditionalPropositionalEffects = conditionalPropositionalEffects;
         this.conditionalNumericEffects = conditionalNumericEffects;
         this.preconditions = preconditions;
@@ -114,7 +120,7 @@ public abstract class Transition {
         return semantics;
     }
 
-    public Iterable<? extends Predicate> getPropositionAffected() {
+    public Iterable<? extends BoolPredicate> getPropositionAffected() {
         return this.conditionalPropositionalEffects.getAllAffectedVariables();
     }
 
@@ -176,7 +182,7 @@ public abstract class Transition {
             }
             actualFluents.add(nf.getFluentAffected());
         }
-        for (Predicate p : this.getPropositionAffected()) {
+        for (BoolPredicate p : this.getPropositionAffected()) {
             actualFluents.add(p);
         }
     }

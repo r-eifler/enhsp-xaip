@@ -219,7 +219,7 @@ public class PDDLObject extends Terminal implements ActionParameter {
     }
 
     @Override
-    public Collection<Predicate> getInvolvedPredicates ( ) {
+    public Collection<BoolPredicate> getInvolvedPredicates ( ) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

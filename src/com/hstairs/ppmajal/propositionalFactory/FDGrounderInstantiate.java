@@ -25,7 +25,7 @@ import com.hstairs.ppmajal.conditions.ConditionalEffect;
 import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.OrCond;
 import com.hstairs.ppmajal.conditions.PostCondition;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.domain.PDDLDomain;
 import com.hstairs.ppmajal.domain.PredicateSet;
 import com.hstairs.ppmajal.domain.Type;
@@ -195,7 +195,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
     }
 
     private StringBuilder getPreconditionString(Condition preconditions, boolean toplevel) {
-        if (preconditions instanceof Predicate){
+        if (preconditions instanceof BoolPredicate){
             return new StringBuilder(preconditions.pddlPrint(false));
         }
         if (preconditions instanceof Comparison){
@@ -315,7 +315,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
 
     private StringBuilder abstractNumericInit(PDDLProblem init) {
         Iterable<NumFluent> numFluentsInvolvedInInit = init.getNumFluentsInvolvedInInit();
-        Iterable<Predicate> predicatesInvolvedInInit = init.getPredicatesInvolvedInInit();
+        Iterable<BoolPredicate> predicatesInvolvedInInit = init.getPredicatesInvolvedInInit();
         StringBuilder str = new StringBuilder("");
         for (var v : numFluentsInvolvedInInit) {
             if (!v.getName().contains("#")) {
@@ -331,7 +331,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
     }
     private void fromForAllEffects(PostCondition pc, StringBuilder str) {
 
-        if ((pc instanceof Predicate) || (pc instanceof NumEffect)) {
+        if ((pc instanceof BoolPredicate) || (pc instanceof NumEffect)) {
             this.basicEffects(pc, str);
         }else if (pc instanceof ForAll){
             str.append("(forall ");

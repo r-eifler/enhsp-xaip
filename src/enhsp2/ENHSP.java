@@ -329,7 +329,6 @@ public class ENHSP {
 
     }
 
-
     /**
      * @return the problem
      */
@@ -398,6 +397,17 @@ public class ENHSP {
                 break;
             case "opt-hmax":
                 heuristic = "hmax";
+                searchEngineString = "WAStar";
+                tieBreaking = "larger_g";
+                break;
+            case "opt-hlm":
+                heuristic = "hlm-lp";
+                searchEngineString = "WAStar";
+                tieBreaking = "larger_g";
+                break;
+            case "opt-hlmrd":
+                heuristic = "hlm-lp";
+                redundantConstraints = "brute";
                 searchEngineString = "WAStar";
                 tieBreaking = "larger_g";
                 break;

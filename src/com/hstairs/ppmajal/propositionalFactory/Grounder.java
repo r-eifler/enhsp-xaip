@@ -25,7 +25,7 @@ import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.FactoryConditions;
 import com.hstairs.ppmajal.conditions.ForAll;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.domain.*;
 import com.hstairs.ppmajal.expressions.NumFluent;
 import com.hstairs.ppmajal.expressions.PDDLNumber;
@@ -305,8 +305,8 @@ public class Grounder {
         final Condition preconditions = action.getPreconditions();
         if (preconditions instanceof AndCond){
             for (final Object son : ((AndCond) preconditions).sons) {
-                if (son instanceof Predicate){
-                    final Predicate predicateAction = (Predicate) son;
+                if (son instanceof BoolPredicate){
+                    final BoolPredicate predicateAction = (BoolPredicate) son;
                     if (domain.getDynamicPredicateMap().get(predicateAction.getPredicateName()) == null) {
                         if (!collection.contains(predicateAction)){
                             collection.add(predicateAction);
@@ -319,7 +319,7 @@ public class Grounder {
     }
 
 
-    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PDDLProblem problem, HashMap<Predicate, Boolean> initBooleanState, PDDLDomain domain) {
+    public Collection PropositionalizeNew(TransitionSchema action, PDDLObjects po, PDDLProblem problem, HashMap<BoolPredicate, Boolean> initBooleanState, PDDLDomain domain) {
 
         Collection combo;
         if (action.getParameters().isEmpty()) {
@@ -355,8 +355,8 @@ public class Grounder {
             }
             final Collection<Condition> necessaryConditions = getNecessaryConditions(action, domain);
             for (final Condition necessaryCondition : necessaryConditions) {
-                if (necessaryCondition instanceof Predicate) {
-                    Predicate predicateAction = ((Predicate) necessaryCondition);
+                if (necessaryCondition instanceof BoolPredicate) {
+                    BoolPredicate predicateAction = ((BoolPredicate) necessaryCondition);
                     BitSet[] s = getUnifyingObjects(initBooleanState,predicateAction, map.length,varId);
                     final List terms = predicateAction.getTerms();
                     //Debug
@@ -397,10 +397,10 @@ public class Grounder {
         return this.Propositionalize(action,combo, po, problem);
     }
 
-    private BitSet[] getUnifyingObjects(HashMap<Predicate, Boolean> initBooleanState, Predicate predicateAction, int length, Int2IntMap varId) {
+    private BitSet[] getUnifyingObjects(HashMap<BoolPredicate, Boolean> initBooleanState, BoolPredicate predicateAction, int length, Int2IntMap varId) {
         BitSet[] res = new BitSet[length];
-        for (Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
-            final Predicate predicateInit = ele.getKey();
+        for (Map.Entry<BoolPredicate, Boolean> ele : initBooleanState.entrySet()) {
+            final BoolPredicate predicateInit = ele.getKey();
             if (predicateInit.getPredicateName().equals(predicateAction.getPredicateName())) {
                 if (predicateInit.getTerms().size() == predicateAction.getTerms().size()) {
                     ArrayList<Pair<Variable,PDDLObject>> temp = new ArrayList<>();
@@ -441,7 +441,7 @@ public class Grounder {
         return res;
     }
 
-    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PDDLProblem problem, Map<Predicate, Boolean> initBooleanState, PDDLDomain domain) {
+    public Collection Propositionalize(TransitionSchema action, PDDLObjects po, PDDLProblem problem, Map<BoolPredicate, Boolean> initBooleanState, PDDLDomain domain) {
 
         Map<String, Boolean> dynamicPredicateMap = domain.getDynamicPredicateMap();
 
@@ -465,11 +465,11 @@ public class Grounder {
             if (cond instanceof AndCond && smartPruning) {
                 final AndCond and = (AndCond) cond;
                 for (final Object o : and.sons) {
-                    if (o instanceof Predicate) {
-                        final Predicate predicateAction = (Predicate) o;
+                    if (o instanceof BoolPredicate) {
+                        final BoolPredicate predicateAction = (BoolPredicate) o;
                         if (dynamicPredicateMap.get(predicateAction.getPredicateName()) == null && predicateAction.getTerms().size() > 0) {
                             final Collection<Map<Variable, Set<PDDLObject>>> S1 = new ArrayList<>();
-                            for (final Map.Entry<Predicate, Boolean> ele : initBooleanState.entrySet()) {
+                            for (final Map.Entry<BoolPredicate, Boolean> ele : initBooleanState.entrySet()) {
                                 final Pair<Map<Variable, Set<PDDLObject>>, Boolean> routine = routine(predicateAction.getPredicateName(),
                                         ele.getKey().getPredicateName(),
                                         predicateAction.getTerms(),

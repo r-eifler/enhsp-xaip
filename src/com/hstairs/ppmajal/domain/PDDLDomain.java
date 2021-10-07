@@ -270,7 +270,7 @@ public final class PDDLDomain {
                     v = (Variable) addPredicates(child.getChild(j));
                     variables.add(v);
                 }
-                col.add(Predicate.getPredicate(name, variables));
+                col.add(BoolPredicate.getPredicate(name, variables));
             }
             return col;
         } else {
@@ -419,13 +419,13 @@ public final class PDDLDomain {
                         Terminal p = null;
                         if (cond instanceof NotCond) {
                             p = (Terminal) ((NotCond) cond).getSon();
-                        } else if ((cond instanceof Predicate) || (cond instanceof Comparison)) {
+                        } else if ((cond instanceof BoolPredicate) || (cond instanceof Comparison)) {
                             p = (Terminal) cond;
                         }
-                        if (p != null && p instanceof Predicate) {
-                            for (Predicate pred : transition.getPropositionAffected()) {
-                                if (pred.getPredicateName().equals(((Predicate) p).getPredicateName())) {
-                                    canBeDynamic.put(((Predicate) p).getPredicateName(), true);
+                        if (p != null && p instanceof BoolPredicate) {
+                            for (BoolPredicate pred : transition.getPropositionAffected()) {
+                                if (pred.getPredicateName().equals(((BoolPredicate) p).getPredicateName())) {
+                                    canBeDynamic.put(((BoolPredicate) p).getPredicateName(), true);
                                 }
                             }
                         }
@@ -486,7 +486,7 @@ public final class PDDLDomain {
                 case (PddlParser.PRECONDITION):
 
                     Condition condition = fc.createCondition(infoConstraint.getChild(0), con.parameters);
-                    if ((condition instanceof Comparison) || (condition instanceof Predicate)) {
+                    if ((condition instanceof Comparison) || (condition instanceof BoolPredicate)) {
                         Collection and = new HashSet();
                         and.add(condition);
                         con.condition = new AndCond(and);
@@ -539,7 +539,7 @@ public final class PDDLDomain {
             switch (type) {
                 case (PddlParser.PRECONDITION):
                     Condition con = fc.createCondition(infoAction.getChild(0), par);
-                    if ((con instanceof Comparison) || (con instanceof Predicate)) {
+                    if ((con instanceof Comparison) || (con instanceof BoolPredicate)) {
                         Collection and = new HashSet();
                         and.add(con);
                         precondition = new AndCond(and);
@@ -706,7 +706,7 @@ public final class PDDLDomain {
     }
 
     public void addPredicate(String a, List l) {
-        predicates.add(Predicate.getPredicate(a, l));
+        predicates.add(BoolPredicate.getPredicate(a, l));
     }
 
     public void addType(Type createType) {
@@ -719,6 +719,10 @@ public final class PDDLDomain {
 
     public void addFunction(String a, ArrayList arrayList) {
         functions.add(NumFluent.getNumFluent(a, arrayList));
+    }
+
+    public void addBoolPredicate(String a) {
+        predicates.add(BoolPredicate.getPredicate(a,null));
     }
 
 

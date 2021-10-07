@@ -196,7 +196,7 @@ public class FactoryConditions {
         return null;
     }
 
-    public Predicate buildPredicate (Tree t, SchemaParameters parTable) {
+    public BoolPredicate buildPredicate (Tree t, SchemaParameters parTable) {
         //controllare che la variabile nei predicati sia effettivamente un parametro dell'azione oppure una costante!
         String name = t.getChild(0).getText();
         ArrayList variables = new ArrayList();
@@ -216,7 +216,7 @@ public class FactoryConditions {
                 }
             }
         }
-        final Predicate a = Predicate.getPredicate(name, variables);
+        final BoolPredicate a = BoolPredicate.getPredicate(name, variables);
         if (predicates != null) {
             if (!predicates.validate(a) & !"=".equals(name)) {
                 throw  new RuntimeException("Predicate " + a + " is not valid");
@@ -620,7 +620,7 @@ public class FactoryConditions {
             for (Object son : temp.sons) {
                 if (son instanceof NumEffect) {
                     numEffect.add(cond.activation_condition, (NumEffect) son);
-                } else if (son instanceof Predicate || son instanceof NotCond) {
+                } else if (son instanceof BoolPredicate || son instanceof NotCond) {
                     propEffect.add(cond.activation_condition, (Terminal) son);
                 } else {
                     throw new RuntimeException("Effects cannot be nested, but can only be considered as sets (" + son + ")");
@@ -635,7 +635,7 @@ public class FactoryConditions {
         if (res instanceof AndCond) {
             AndCond pc = (AndCond) res;
             for (Object o : pc.sons) {
-                if (o instanceof Predicate) {
+                if (o instanceof BoolPredicate) {
                     propEffect.add((Terminal) o);
                 } else if (o instanceof NotCond) {
                     propEffect.add((Terminal) o);
@@ -649,7 +649,7 @@ public class FactoryConditions {
                     
                 }
             }
-        } else if (res instanceof Predicate) {
+        } else if (res instanceof BoolPredicate) {
             propEffect.add((Terminal) res);
         } else if (res instanceof NotCond) {
             propEffect.add((Terminal) res);
@@ -667,7 +667,7 @@ public class FactoryConditions {
         if (res instanceof AndCond) {
             AndCond pc = (AndCond) res;
             for (Object o : pc.sons) {
-                if (o instanceof Predicate) {
+                if (o instanceof BoolPredicate) {
                     propEffect.add((Terminal) o);
                 } else if (o instanceof NotCond) {
                     propEffect.add((Terminal) o);
@@ -680,7 +680,7 @@ public class FactoryConditions {
                     throw new UnsupportedOperationException();
                 }
             }
-        } else if (res instanceof Predicate) {
+        } else if (res instanceof BoolPredicate) {
             propEffect.add((Terminal) res);
         } else if (res instanceof NotCond) {
             propEffect.add((Terminal) res);

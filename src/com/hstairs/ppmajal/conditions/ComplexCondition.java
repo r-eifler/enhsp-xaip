@@ -68,8 +68,8 @@ public abstract class ComplexCondition extends Condition {
 
 
     @Override
-    public final Collection<Predicate> getInvolvedPredicates ( ) {
-        Collection<Predicate> ret = new LinkedHashSet();
+    public final Collection<BoolPredicate> getInvolvedPredicates ( ) {
+        Collection<BoolPredicate> ret = new LinkedHashSet();
         //from here it can only be an AndCond or a Or. Other cases are not instance of this
         if (this.sons != null) {
             for (Object c : this.sons) {
@@ -267,8 +267,8 @@ public abstract class ComplexCondition extends Condition {
             } else if (o instanceof OrCond) {
                 OrCond a = (OrCond) o;
                 ret.add(a.clone());
-            } else if (o instanceof Predicate) {
-                Predicate a = (Predicate) o;
+            } else if (o instanceof BoolPredicate) {
+                BoolPredicate a = (BoolPredicate) o;
                 ret.add(a.clone());
             } else if (o instanceof Comparison) {
                 Comparison a = (Comparison) o;

@@ -59,7 +59,7 @@ public class RelState extends Object {
             str.append(fluent).append("=").append(possNumValues.get(i)).append("");
         }
         str.append("\n");
-        for (Predicate fluent : PDDLProblem.booleanFluents){
+        for (BoolPredicate fluent : PDDLProblem.booleanFluents){
             str.append(fluent).append("=").append(this.canBeTrue(fluent)).append(" ");
             str.append(fluent).append("=").append(this.canBeFalse(fluent)).append(" ");
         }
@@ -110,7 +110,7 @@ public class RelState extends Object {
         return Double.NaN;
     }
 
-    public void makePositive (Predicate p) {
+    public void makePositive (BoolPredicate p) {
         Integer inter = possBollValues.get(p.getId());
         if (inter == null) {//if was negative by default
             possBollValues.put(p.getId(), 2);
@@ -120,7 +120,7 @@ public class RelState extends Object {
     }
 
 
-    public boolean canBeTrue (Predicate p) {
+    public boolean canBeTrue (BoolPredicate p) {
 
         int o = this.possBollValues.getOrDefault(p.getId(), -1);
         if (o == -1) {
@@ -129,7 +129,7 @@ public class RelState extends Object {
         return o >= 1;
     }
 
-    public boolean canBeFalse (Predicate p) {
+    public boolean canBeFalse (BoolPredicate p) {
 
         int o = this.possBollValues.getOrDefault(p.getId(), -1);
         if (o == -1) {
@@ -140,7 +140,7 @@ public class RelState extends Object {
 
 
 
-    public void makeNegative (Predicate p) {
+    public void makeNegative (BoolPredicate p) {
         int inter = possBollValues.getOrDefault(p.getId(), -1);
         if (inter == -1) {//if was negative by default
         } else if (inter == 1) {//if was said to be positive it will also be negative
@@ -172,7 +172,7 @@ public class RelState extends Object {
                     this.setFunctionValues(nf, (HomeMadeRealInterval) subst.get(o));
                 }
             } else {
-                this.possBollValues.put(((Predicate) o).getId(), (int) subst.get(o));
+                this.possBollValues.put(((BoolPredicate) o).getId(), (int) subst.get(o));
             }
         }
     }
@@ -221,13 +221,13 @@ public class RelState extends Object {
             ((Collection) effect).forEach(o -> this.apply((PostCondition) o,prev));
         }else if (effect instanceof NotCond) {
             final NotCond nc = (NotCond) effect;
-            final Predicate p = (Predicate) nc.getSon();
+            final BoolPredicate p = (BoolPredicate) nc.getSon();
             if (this.possBollValues.get(p.getId()) == 1) {
                 this.possBollValues.put(p.getId(), 2);
             }
-        } else if (effect instanceof Predicate) {
-            if (this.possBollValues.get(((Predicate) effect).getId()) == 0) {
-                this.possBollValues.put(((Predicate) effect).getId(), 2);
+        } else if (effect instanceof BoolPredicate) {
+            if (this.possBollValues.get(((BoolPredicate) effect).getId()) == 0) {
+                this.possBollValues.put(((BoolPredicate) effect).getId(), 2);
             }
         } else if (effect instanceof NumEffect) {
             ((NumEffect) effect).apply(this,prev);

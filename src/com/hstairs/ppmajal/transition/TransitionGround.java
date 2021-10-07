@@ -5,7 +5,7 @@ import com.hstairs.ppmajal.conditions.AndCond;
 import com.hstairs.ppmajal.conditions.Condition;
 import com.hstairs.ppmajal.conditions.ConditionalEffect;
 import com.hstairs.ppmajal.conditions.PDDLObject;
-import com.hstairs.ppmajal.conditions.Predicate;
+import com.hstairs.ppmajal.conditions.BoolPredicate;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -145,7 +145,7 @@ public class TransitionGround extends Transition {
 
                     if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                             || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                        Predicate truePredicate = Predicate.getPredicate(Predicate.trueFalse.TRUE);
+                        BoolPredicate truePredicate = BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE);
                         this.sdac.add(Pair.of(truePredicate, exprImpact));
                     }
                 }else{
@@ -179,7 +179,7 @@ public class TransitionGround extends Transition {
 
                     if ((exprImpact < 0 && metric.getOptimization().equals("maximize"))
                             || (exprImpact > 0 && metric.getOptimization().equals("minimize"))) {
-                        this.sdac.add(Pair.of(Predicate.getPredicate(Predicate.trueFalse.TRUE), exprImpact));
+                        this.sdac.add(Pair.of(BoolPredicate.getPredicate(BoolPredicate.trueFalse.TRUE), exprImpact));
                     }
                     
                 }
