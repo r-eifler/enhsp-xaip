@@ -35,7 +35,4 @@ public class main {
         p.parsingDomainAndProblem(args);
         p.planning();
     }
-
-  
-
 }

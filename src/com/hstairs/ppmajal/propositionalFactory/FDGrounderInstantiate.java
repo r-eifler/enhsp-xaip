@@ -66,9 +66,10 @@ public class FDGrounderInstantiate extends ExternalGrounder{
         final HashMap<String, Collection<List<String>>> groundings = new HashMap();
         Pair<String, String> dom_prob = abstractNumeric();
         try {
-            String fdtranslator = "python3 "+new File(FDGrounderInstantiate.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/../../downward/src/translate/instantiate.py";
+            String fdtranslator = "python3 "+new File(FDGrounderInstantiate.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/../../downward/translate/instantiate.py";
             String command = fdtranslator + " --dump-task " + dom_prob.getFirst() + " " + dom_prob.getSecond();
             System.out.println(String.format("DEBUG: domain file: %s problem file %s", dom_prob.getFirst(), dom_prob.getSecond()));
+            System.out.println("Executing:"+command);
             Process process = Runtime.getRuntime().exec(command);
 
             BufferedReader reader = new BufferedReader(
@@ -252,7 +253,7 @@ public class FDGrounderInstantiate extends ExternalGrounder{
 
     private StringBuilder fromConditionalEffects(Map<Condition, Collection> actualConditionalEffects) {
         StringBuilder effects = new StringBuilder("");
-        String whenTemplate = "(when %s %s )";
+        String whenTemplate = "(when %s (and %s ) )";
 
         Set<Map.Entry<Condition, Collection>> entrySet = actualConditionalEffects.entrySet();
         for (var v : entrySet) {

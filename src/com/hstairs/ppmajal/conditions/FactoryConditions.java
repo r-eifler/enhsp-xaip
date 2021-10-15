@@ -656,7 +656,8 @@ public class FactoryConditions {
         } else if (res instanceof NumEffect) {
             numEffect.add((NumEffect) res);
         } else if (res instanceof ConditionalEffect) {
-            numEffect.add((NumEffect) res);
+            ConditionalEffect cond = (ConditionalEffect) res;
+            addEffectFromConditonalEffects(cond, propEffect, numEffect);
         } else if (res instanceof ForAll) {
             forAllResult.add((ForAll) res);
         }
@@ -687,9 +688,10 @@ public class FactoryConditions {
         } else if (res instanceof NumEffect) {
             numEffect.add((NumEffect) res);
         } else if (res instanceof ConditionalEffect) {
-            numEffect.add((NumEffect) res);
+            ConditionalEffect cond = (ConditionalEffect) res;
+            addEffectFromConditonalEffects(cond, propEffect, numEffect);
         } else if (res instanceof ForAll) {
-                    throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
     }
 }

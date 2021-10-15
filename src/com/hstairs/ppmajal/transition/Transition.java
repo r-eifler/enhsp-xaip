@@ -69,6 +69,7 @@ public abstract class Transition {
         }
         return null;
     }
+    private Collection<Terminal> achievableLiterals;
 
     public enum Semantics{ACTION, PROCESS, EVENT}
 
@@ -196,14 +197,15 @@ public abstract class Transition {
     }
     //todo: cache this
     public Collection<Terminal> getAllAchievableLiterals() {
-        Collection<Terminal> res = new HashSet<>();
-        final Set<Map.Entry<Condition,Collection>> set = this.conditionalPropositionalEffects.getActualConditionalEffects().entrySet();
-
-        for (Map.Entry<Condition, Collection> conditionCollectionEntry : set) {
-            res.addAll(conditionCollectionEntry.getValue());
+        if (achievableLiterals == null) {
+            achievableLiterals = new HashSet<Terminal>();
+            final Set<Map.Entry<Condition, Collection>> set = this.conditionalPropositionalEffects.getActualConditionalEffects().entrySet();
+            for (Map.Entry<Condition, Collection> conditionCollectionEntry : set) {
+                achievableLiterals.addAll(conditionCollectionEntry.getValue());
+            }
+            achievableLiterals.addAll(this.conditionalPropositionalEffects.getEffects());
+            achievableLiterals = new ArrayList<>(achievableLiterals);
         }
-        res.addAll(this.conditionalPropositionalEffects.getEffects());
-        res = new ArrayList<>(res);
-        return res;
+        return achievableLiterals;
     }
 }

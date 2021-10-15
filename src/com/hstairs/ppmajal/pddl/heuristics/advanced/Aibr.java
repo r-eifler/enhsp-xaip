@@ -23,7 +23,7 @@ import static com.google.common.collect.Range.closedOpen;
 import java.io.PrintStream;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 
-public class Aibr implements SearchHeuristic {
+public final class Aibr implements SearchHeuristic {
 
     private final PDDLProblem problem;
     private final int numberOfSupporters;
@@ -49,7 +49,8 @@ public class Aibr implements SearchHeuristic {
         final Int2ObjectMap<NumEffect> numEffectMap = new Int2ObjectArrayMap<>();
         out = problem.out;
         this.problem = problem;
-        for (final TransitionGround tr : problem.getTransitions()) {           
+        ArrayList<TransitionGround> array = new ArrayList<>(problem.getTransitions());
+        for (final TransitionGround tr : array) {           
             generateNumericSupporters(tr, supporter2transitionMap, asymptoticPreconditionFunctionMap, numEffectMap);
             generatePropositionalAction(tr, supporter2transitionMap, propEffectMap);
         }

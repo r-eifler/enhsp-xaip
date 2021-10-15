@@ -18,11 +18,8 @@
  */
 package com.hstairs.ppmajal.propositionalFactory;
 
-import com.hstairs.ppmajal.domain.ParametersAsTerms;
 import com.hstairs.ppmajal.problem.PDDLProblem;
-import com.hstairs.ppmajal.transition.Transition;
 import com.hstairs.ppmajal.transition.TransitionGround;
-import com.hstairs.ppmajal.transition.TransitionSchema;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
