@@ -49,7 +49,7 @@ public final class PDDLDomain {
      * @return the requirements
      */
     public Collection<String> getRequirements() {
-        if (requirements == null){
+        if (requirements == null) {
             requirements = new ArrayList();
         }
         return requirements;
@@ -69,11 +69,11 @@ public final class PDDLDomain {
         return eventsSchema;
     }
 
-    HashMap<String,Boolean> canBeDynamic;
+    HashMap<String, Boolean> canBeDynamic;
     private Collection<TransitionSchema> eventsSchema;
     public final PDDLObjects constants;
-    private  Collection<TransitionSchema> processesSchemata;
-    private  Collection<NumFluent> derived_variables;
+    private Collection<TransitionSchema> processesSchemata;
+    private Collection<NumFluent> derived_variables;
     private Set<Type> types;
     private Collection functions;
     private Collection<String> requirements;
@@ -84,17 +84,16 @@ public final class PDDLDomain {
     private Set<SchemaGlobalConstraint> SchemaGlobalConstraints;
     private FactoryConditions fc;
 
-    public PDDLDomain (String domainFile) {
+    public PDDLDomain(String domainFile) {
         this();
         this.parseDomain(domainFile);
     }
-    
-    public PDDLDomain(){
-        this(new LinkedHashSet(),new PDDLObjects(),new LinkedHashSet(),new ArrayList(), new PredicateSet());
+
+    public PDDLDomain() {
+        this(new LinkedHashSet(), new PDDLObjects(), new LinkedHashSet(), new ArrayList(), new PredicateSet());
     }
 
-
-    private PDDLDomain (Collection<TransitionSchema> eventsSchema, PDDLObjects constants, 
+    private PDDLDomain(Collection<TransitionSchema> eventsSchema, PDDLObjects constants,
             Set<TransitionSchema> processesSchema, Collection<NumFluent> derived_variables, PredicateSet p) {
         SchemaGlobalConstraints = null;
         types = null;
@@ -108,15 +107,14 @@ public final class PDDLDomain {
         this.predicates = p;
     }
 
-
     /**
      * @param file - the path of the pddl file representing the domain. As
-     *             return the object will be fullfilled with the information in the pddl
-     *             domain file
+     * return the object will be fullfilled with the information in the pddl
+     * domain file
      * @throws IOException
      * @throws RecognitionException
      */
-    public void parseDomain (String file) {
+    public void parseDomain(String file) {
         try {
             this.setPddlFilRef(file);
             final ANTLRInputStream in;
@@ -200,13 +198,13 @@ public final class PDDLDomain {
     /**
      * A pretty representation of the domain
      */
-    public void prettyPrint ( ) {
+    public void prettyPrint() {
         System.out.println("Requirements: " + this.getRequirements());
-        System.out.println("Types: "+this.types);
-        System.out.println("Types Hierarchy: "+Type.getHierarchy());
+        System.out.println("Types: " + this.types);
+        System.out.println("Types Hierarchy: " + Type.getHierarchy());
         System.out.println("Predicates: " + this.predicates);
         System.out.println("Functions: " + this.getFunctions());
-        
+
         System.out.println("Actions Domain: " + this.ActionsSchema);
         if (this.processesSchemata != null) {
             System.out.println("Process Domain: " + this.processesSchemata);
@@ -221,15 +219,15 @@ public final class PDDLDomain {
      * @return the ActionsSchema- a Set which contains all the action schema of
      * the domain
      */
-    public Collection<TransitionSchema> getActionsSchema ( ) {
+    public Collection<TransitionSchema> getActionsSchema() {
         return ActionsSchema;
     }
 
     /**
      * @return the types declared in the domain
      */
-    public Set<Type> getTypes ( ) {
-        if (types == null){
+    public Set<Type> getTypes() {
+        if (types == null) {
             types = new LinkedHashSet();
         }
         return types;
@@ -238,24 +236,25 @@ public final class PDDLDomain {
     /**
      * @return the predicates definitions
      */
-    public PredicateSet getPredicates ( ) {
+    public PredicateSet getPredicates() {
         return predicates;
     }
 
     //da migliorare perchè dovrebbe rappresentare una potenziale gerarchica di oggetti!!!
-    private void addTypes (Tree c) {
+    private void addTypes(Tree c) {
         for (int i = 0; i < c.getChildCount(); i++) {
 
             Tree tipo = c.getChild(i);
             String father = "object";
             if (tipo.getChildCount() > 0) {
-                father = tipo.getChild(0).getText();               
+                father = tipo.getChild(0).getText();
             }
-            Type tip = Type.getType(c.getChild(i).getText(),father);
+            Type tip = Type.getType(c.getChild(i).getText(), father);
             this.getTypes().add(tip);
         }
     }
-    private Object addPredicates (Tree t) {
+
+    private Object addPredicates(Tree t) {
         PredicateSet col = predicates;
         if (t == null) {
             return null;
@@ -278,12 +277,12 @@ public final class PDDLDomain {
             if (t.getChildCount() > 0) {
                 father = t.getChild(0).getText();
             }
-            Variable v = Variable.variable(t.getText(),Type.type(father));
+            Variable v = Variable.variable(t.getText(), Type.type(father));
             return v;
         }
     }
 
-    private void addRequirements (Tree c) {
+    private void addRequirements(Tree c) {
         if (c != null) {
             //System.out.println(c.getText());
             for (int i = 0; i < c.getChildCount(); i++) {
@@ -293,9 +292,7 @@ public final class PDDLDomain {
         }
     }
 
-
     //
-
     /**
      * Returns the action with specified name. Notice that this method is rather
      * inefficient if there are many actions, and that a table that maps names
@@ -306,7 +303,7 @@ public final class PDDLDomain {
      * assumes that there is a 1:1 relation between action and name, i.e. we
      * cannot have different actions with the same name
      */
-    public TransitionSchema getActionByName (String name) {
+    public TransitionSchema getActionByName(String name) {
         for (final TransitionSchema el : ActionsSchema) {
             final String elname = el.getName();
             if (elname.equalsIgnoreCase(name)) {
@@ -320,18 +317,18 @@ public final class PDDLDomain {
     /**
      * @return the pddlFilRef
      */
-    public String getPddlFilRef ( ) {
+    public String getPddlFilRef() {
         return pddlReferenceFile;
     }
 
     /**
      * @param pddlFilRef the pddlFilRef to set
      */
-    public void setPddlFilRef (String pddlFilRef) {
+    public void setPddlFilRef(String pddlFilRef) {
         this.pddlReferenceFile = pddlFilRef;
     }
 
-    private void addConstants (Tree c) {
+    private void addConstants(Tree c) {
 
         for (int i = 0; i < c.getChildCount(); i++) {
             if (c.getChild(i).getChildCount() > 0) {
@@ -350,11 +347,11 @@ public final class PDDLDomain {
     /**
      * @return the constants
      */
-    public PDDLObjects getConstants ( ) {
+    public PDDLObjects getConstants() {
         return constants;
     }
 
-    public void saveDomain (String file) throws IOException {
+    public void saveDomain(String file) throws IOException {
         PDDLDomain domain = this;
         Writer f;
 
@@ -392,55 +389,57 @@ public final class PDDLDomain {
     /**
      * @return the name
      */
-    public String getName ( ) {
+    public String getName() {
         return name;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName (String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public HashMap<String,Boolean> getDynamicPredicateMap ( ) {
-       
+    public HashMap<String, Boolean> getDynamicPredicateMap() {
+
         if (canBeDynamic == null) {
             canBeDynamic = new HashMap();
             ArrayList<Transition> all = new ArrayList();
             all.addAll(this.ActionsSchema);
             all.addAll(this.processesSchemata);
             all.addAll(this.getEventsSchema());
+            Set<Condition> terminalConditions = new HashSet();
             for (int i = 0; i < all.size(); i++) {
-                Set<Condition> terminalConditions = all.get(i).getPreconditions().getTerminalConditions();
-                for (int j = 0; j < all.size(); j++) {
-                    Transition transition = all.get(j);
-                    for (Condition cond : terminalConditions) {
-                        Terminal p = null;
-                        if (cond instanceof NotCond) {
-                            p = (Terminal) ((NotCond) cond).getSon();
-                        } else if ((cond instanceof BoolPredicate) || (cond instanceof Comparison)) {
-                            p = (Terminal) cond;
-                        }
-                        if (p != null && p instanceof BoolPredicate) {
-                            for (BoolPredicate pred : transition.getPropositionAffected()) {
-                                if (pred.getPredicateName().equals(((BoolPredicate) p).getPredicateName())) {
-                                    canBeDynamic.put(((BoolPredicate) p).getPredicateName(), true);
-                                }
+                terminalConditions.addAll(all.get(i).getPreconditions().getTerminalConditions());
+            }
+            for (int j = 0; j < all.size(); j++) {
+                Transition transition = all.get(j);
+                for (final Condition cond : terminalConditions) {
+                    Terminal p = null;
+                    if (cond instanceof NotCond) {
+                        p = (Terminal) ((NotCond) cond).getSon();
+                    } else if ((cond instanceof BoolPredicate) || (cond instanceof Comparison)) {
+                        p = (Terminal) cond;
+                    }
+                    if (p != null && p instanceof BoolPredicate) {
+                        for (BoolPredicate pred : transition.getPropositionAffected()) {
+                            if (pred.getPredicateName().equals(((BoolPredicate) p).getPredicateName())) {
+                                canBeDynamic.put(((BoolPredicate) p).getPredicateName(), true);
                             }
                         }
-                        if (p != null && p instanceof Comparison) {
-                            for (NumFluent nf : transition.getAllNumericAffected()) {
-                                for (NumFluent nf2 : p.getInvolvedFluents()) {
-                                    if (nf.getName().equals(nf2.getName())) {
-                                        canBeDynamic.put(nf2.getName(), true);
-                                    }
+                    }
+                    if (p != null && p instanceof Comparison) {
+                        for (NumFluent nf : transition.getAllNumericAffected()) {
+                            for (NumFluent nf2 : p.getInvolvedFluents()) {
+                                if (nf.getName().equals(nf2.getName())) {
+                                    canBeDynamic.put(nf2.getName(), true);
                                 }
                             }
                         }
                     }
                 }
             }
+
         }
 
         return canBeDynamic;
@@ -455,27 +454,21 @@ public final class PDDLDomain {
         return null;
     }
 
-
-
     /**
      * @return the free_functions
      */
-    public Collection<NumFluent> get_derived_variables ( ) {
+    public Collection<NumFluent> get_derived_variables() {
         return derived_variables;
     }
 
-
-    private void addGlobalConstraints (Tree c) {
+    private void addGlobalConstraints(Tree c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
-
-    private void addGlobalConstraint (Tree c) {
+    private void addGlobalConstraint(Tree c) {
         SchemaGlobalConstraint con = new SchemaGlobalConstraint(c.getChild(0).getText());
         //System.out.println("Adding:"+a.getName());
-        
+
         this.getSchemaGlobalConstraints().add(con);
 
         for (int i = 1; i < c.getChildCount(); i++) {
@@ -510,8 +503,8 @@ public final class PDDLDomain {
     /**
      * @return the SchemaGlobalConstraints
      */
-    public Set<SchemaGlobalConstraint> getSchemaGlobalConstraints ( ) {
-        if (SchemaGlobalConstraints == null){
+    public Set<SchemaGlobalConstraint> getSchemaGlobalConstraints() {
+        if (SchemaGlobalConstraints == null) {
             SchemaGlobalConstraints = new LinkedHashSet();
         }
         return SchemaGlobalConstraints;
@@ -520,11 +513,11 @@ public final class PDDLDomain {
     /**
      * @param SchemaGlobalConstraints the SchemaGlobalConstraints to set
      */
-    public void setSchemaGlobalConstraints (LinkedHashSet SchemaGlobalConstraints) {
+    public void setSchemaGlobalConstraints(LinkedHashSet SchemaGlobalConstraints) {
         this.SchemaGlobalConstraints = SchemaGlobalConstraints;
     }
 
-    private void addTransition (Tree c, Semantics semantics) {
+    private void addTransition(Tree c, Semantics semantics) {
         Tree name = c.getChild(0);
 //        System.out.println("DEBUG: Adding:"+a.getName());
         String transitionName = name.getText();
@@ -532,7 +525,7 @@ public final class PDDLDomain {
         SchemaParameters par = new SchemaParameters();
         ConditionalEffects<Terminal> propEffect = new ConditionalEffects<>();
         ConditionalEffects<NumEffect> numEffect = new ConditionalEffects<>();
-        Collection<ForAll>  forall = new ArrayList();
+        Collection<ForAll> forall = new ArrayList();
         for (int i = 1; i < c.getChildCount(); i++) {
             Tree infoAction = c.getChild(i);
             int type = infoAction.getType();
@@ -551,19 +544,19 @@ public final class PDDLDomain {
                     Type t = null;
                     if (infoAction.getChild(0) == null) {
                         t = Type.type("object");
-                    }else{
+                    } else {
                         t = Type.type(infoAction.getChild(0).getText());
                     }
-                    
+
                     Variable variable = Variable.variable(infoAction.getText(), t);
 //                        System.out.print(variable);
                     par.add(variable);
                     break;
                 case (PddlParser.EFFECT):
-                    
+
                     PostCondition res = fc.createPostCondition(par, infoAction.getChild(0));
-                    forall = fc.createEffectsFromPostCondition(infoAction.getChild(0),res,propEffect,numEffect);
-                   
+                    forall = fc.createEffectsFromPostCondition(infoAction.getChild(0), res, propEffect, numEffect);
+
                     break;
 
             }
@@ -585,16 +578,12 @@ public final class PDDLDomain {
 
     }
 
-
-
-
     /**
      * @return the processesSchemata
      */
-    public Collection<TransitionSchema> getProcessesSchema ( ) {
+    public Collection<TransitionSchema> getProcessesSchema() {
         return processesSchemata;
     }
-
 
     //    private Object createConditionalEffect(SchemaParameters parameters, Tree t) {
 //        
@@ -608,9 +597,7 @@ public final class PDDLDomain {
 //        }
 //        return null;
 //    }
-
-
-    public void saveDomainWithInterpretationObjects (String file) throws IOException {
+    public void saveDomainWithInterpretationObjects(String file) throws IOException {
         PDDLDomain domain = this;
         Writer f;
 
@@ -641,8 +628,7 @@ public final class PDDLDomain {
         f.close();
     }
 
-    
-    private ArrayList<TransitionSchema> pushNotAtTheTerminals(Collection<TransitionSchema> input){
+    private ArrayList<TransitionSchema> pushNotAtTheTerminals(Collection<TransitionSchema> input) {
         ArrayList<TransitionSchema> output = new ArrayList(input);
         ListIterator<TransitionSchema> iterator = output.listIterator();
         while (iterator.hasNext()) {
@@ -657,8 +643,8 @@ public final class PDDLDomain {
         return output;
 
     }
-    
-    private void pushNotAtTheTerminals( ) {
+
+    private void pushNotAtTheTerminals() {
         final ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
         listViewOfTransitions.addAll(this.getProcessesSchema());
         listViewOfTransitions.addAll(this.getEventsSchema());
@@ -668,19 +654,16 @@ public final class PDDLDomain {
         this.eventsSchema = pushNotAtTheTerminals(getEventsSchema());
     }
 
-
-
-
-    public void substituteEqualityConditions ( ) {
+    public void substituteEqualityConditions() {
         ArrayList listViewOfTransitions = new ArrayList(this.getActionsSchema());
         listViewOfTransitions.addAll(this.getProcessesSchema());
         listViewOfTransitions.addAll(this.getEventsSchema());
         ListIterator<TransitionSchema> iterator = listViewOfTransitions.listIterator();
 
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             TransitionSchema next = iterator.next();
 
-            iterator.set(new TransitionSchema(next.getParameters(),next.getName(),
+            iterator.set(new TransitionSchema(next.getParameters(), next.getName(),
                     next.getConditionalPropositionalEffects(),
                     next.getConditionalNumericEffects(),
                     next.getPreconditions().transformEquality(),
@@ -689,8 +672,7 @@ public final class PDDLDomain {
         }
     }
 
-
-    public PDDLDomain clone ( ) {
+    public PDDLDomain clone() {
 
         PDDLDomain res = new PDDLDomain(new LinkedHashSet(this.getEventsSchema()), new PDDLObjects(this.constants), new LinkedHashSet<>(this.getProcessesSchema()), new LinkedHashSet<>(this.derived_variables), predicates);
         res.setName(this.name);
@@ -722,8 +704,7 @@ public final class PDDLDomain {
     }
 
     public void addBoolPredicate(String a) {
-        predicates.add(BoolPredicate.getPredicate(a,null));
+        predicates.add(BoolPredicate.getPredicate(a, null));
     }
-
 
 }

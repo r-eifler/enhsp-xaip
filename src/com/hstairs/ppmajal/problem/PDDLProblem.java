@@ -225,24 +225,30 @@ public class PDDLProblem implements SearchProblem {
             System.out.println("Generate Transitions using " + groundingMethod);
             ExternalGrounder mff = null;
             switch (groundingMethod) {
-                case "metricff" ->
+                case "metricff":
                     mff = new MetricFFGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                case "fd" ->
+                    break;
+                case "fd" :
                     mff = new FDGrounder(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
-                case "fdi" ->
+                    break;
+                case "fdi":
                     mff = new FDGrounderInstantiate(this, this.linkedDomain.getPddlFilRef(), this.pddlFilRef);
+                    break;
             }
             groundingTime = System.currentTimeMillis();
             Collection<TransitionGround> transitions = mff.doGrounding();
             groundingTime = System.currentTimeMillis() - groundingTime;
             for (var act : transitions) {
                 switch (act.getSemantics()) {
-                    case ACTION ->
+                    case ACTION:
                         getActions().add(act);
-                    case EVENT ->
+                        break;
+                    case EVENT :
                         getEventsSet().add(act);
-                    case PROCESS ->
+                        break;
+                    case PROCESS :
                         getProcessesSet().add(act);
+                        break;
                 }
             }
         } else {
@@ -258,12 +264,15 @@ public class PDDLProblem implements SearchProblem {
             for (var act : transitions) {
                 Collection<TransitionGround> propositionalize = af.Propositionalize(act, getObjects(), this, getInitBoolFluentsValues(), linkedDomain);
                 switch (act.getSemantics()) {
-                    case ACTION ->
+                    case ACTION :
                         getActions().addAll(propositionalize);
-                    case EVENT ->
+                        break;
+                    case EVENT :
                         getEventsSet().addAll(propositionalize);
-                    case PROCESS ->
+                        break;
+                    case PROCESS :
                         getProcessesSet().addAll(propositionalize);
+                        break;
                 }
             }
             groundingTime = System.currentTimeMillis() - groundingTime;

@@ -25,7 +25,6 @@ package com.hstairs.ppmajal.pddl.heuristics.advanced;
 
 import com.google.common.collect.Sets;
 import com.hstairs.ppmajal.conditions.*;
-import com.hstairs.ppmajal.expressions.Expression;
 import com.hstairs.ppmajal.expressions.ExtendedAddendum;
 import com.hstairs.ppmajal.expressions.ExtendedNormExpression;
 import com.hstairs.ppmajal.expressions.NumEffect;
@@ -46,8 +45,6 @@ import static java.lang.Math.ceil;
 import org.jgrapht.alg.util.Pair;
 import com.hstairs.ppmajal.search.SearchHeuristic;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import org.jgrapht.graph.DirectedAcyclicGraph;
-import org.jgrapht.opt.graph.fastutil.FastutilFastLookupIntVertexGSS;
 
 /**
  * @author enrico
